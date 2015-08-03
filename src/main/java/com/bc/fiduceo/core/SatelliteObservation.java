@@ -8,10 +8,13 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-
     private Geometry geometry;
 
     private Sensor sensor;
+
+    public SatelliteObservation() {
+        // Set all the settings here After the meta data have be read
+    }
 
     public Date getStartTime() {
         return startTime;
