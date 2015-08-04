@@ -47,6 +47,8 @@ public class Storage {
             throw new SQLException(e.getMessage());
         }
 
-        DriverManager.getConnection("jdbc:derby:bc/fiduceo;create=true");
+        final String url = dataSource.getUrl();
+        final String ulrWithParameters = url.concat(";create=true");
+        DriverManager.getConnection(ulrWithParameters);
     }
 }
