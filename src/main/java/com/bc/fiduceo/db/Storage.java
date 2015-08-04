@@ -37,6 +37,15 @@ public class Storage {
     }
 
     Storage(BasicDataSource dataSource) throws SQLException {
+        driver = createDriver(dataSource);
+        if (driver == null) {
+            throw new IllegalArgumentException("No database driver registered for URL `" + dataSource.getUrl() + "`");
+        }
+
+        driver.open(dataSource);
+    }
+
+    private Driver createDriver(BasicDataSource dataSource) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<Driver> driverRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
 
@@ -46,15 +55,10 @@ public class Storage {
         for (final Driver driver : services) {
             final String urlPattern = driver.getUrlPattern().toLowerCase();
             if (dbUrl.startsWith(urlPattern)) {
-                this.driver = driver;
-                break;
+                return driver;
             }
         }
 
-
-
-        // @todo 1 tb/tb -- if none returned: throw Exception 2015-08-04
-
-        driver.open(dataSource);
+        return null;
     }
 }

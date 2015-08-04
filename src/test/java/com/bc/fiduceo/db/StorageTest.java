@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 public class StorageTest {
 
@@ -43,11 +44,22 @@ public class StorageTest {
     }
 
     @Test
-    public void testCallingCloseTwice() throws SQLException {
+    public void testCallingCloseTwice_noExceptionThrown() throws SQLException {
         final Storage storage = Storage.create(dataSource);
 
         storage.close();
-
         storage.close();
+    }
+
+    @Test
+    public void testInitWithUnregisteredDriverUrlThrows() throws SQLException {
+        final BasicDataSource weirdDataSource = new BasicDataSource();
+        weirdDataSource.setUrl("stupid:unregistered:data_base:driver");
+
+        try {
+            Storage.create(weirdDataSource);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 }
