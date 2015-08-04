@@ -1,12 +1,12 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
-import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosMetadataPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosUtils;
-import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.beam.dataio.netcdf.util.RasterDigest;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.dataio.netcdf.ProfileReadContext;
+import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosMetadataPart;
+import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosUtils;
+import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
+import org.esa.snap.dataio.netcdf.util.RasterDigest;
+import org.esa.snap.framework.datamodel.Product;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 
