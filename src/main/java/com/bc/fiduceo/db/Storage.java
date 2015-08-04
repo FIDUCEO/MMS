@@ -1,15 +1,20 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.ceres.core.ServiceRegistry;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.esa.snap.BeamCoreActivator;
 
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Set;
 
 public class Storage {
 
     private static Storage storage;
+
+    private Driver driver;
+
 
     public static Storage create(BasicDataSource dataSource) throws SQLException {
         if (storage == null) {
@@ -23,32 +28,33 @@ public class Storage {
             return;
         }
 
-        try {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-        } catch (SQLException e) {
-            if (!e.getMessage().contains("Derby system shutdown")) {
-                throw e;
-            }
+        if (driver != null) {
+            driver.close();
+            driver = null;
         }
 
         storage = null;
     }
 
     Storage(BasicDataSource dataSource) throws SQLException {
-        // @todo 2 tb/tb move this code to an Apache Derby support class 2015-08-04
-        try {
-            final Driver driverClass = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
-            DriverManager.registerDriver(driverClass);
-        } catch (ClassNotFoundException e) {
-            throw new SQLException(e.getMessage());
-        } catch (InstantiationException e) {
-            throw new SQLException(e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw new SQLException(e.getMessage());
+        final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        final ServiceRegistry<Driver> driverRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
+
+        BeamCoreActivator.loadServices(driverRegistry);
+        final Set<Driver> services = driverRegistry.getServices();
+        final String dbUrl = dataSource.getUrl().toLowerCase();
+        for (final Driver driver : services) {
+            final String urlPattern = driver.getUrlPattern().toLowerCase();
+            if (dbUrl.startsWith(urlPattern)) {
+                this.driver = driver;
+                break;
+            }
         }
 
-        final String url = dataSource.getUrl();
-        final String ulrWithParameters = url.concat(";create=true");
-        DriverManager.getConnection(ulrWithParameters);
+
+
+        // @todo 1 tb/tb -- if none returned: throw Exception 2015-08-04
+
+        driver.open(dataSource);
     }
 }
