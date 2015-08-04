@@ -36,6 +36,14 @@ public class Storage {
         storage = null;
     }
 
+    public void initialize() throws SQLException {
+        driver.initialize();
+    }
+
+    public void clear() throws SQLException {
+        driver.clear();
+    }
+
     Storage(BasicDataSource dataSource) throws SQLException {
         driver = createDriver(dataSource);
         if (driver == null) {

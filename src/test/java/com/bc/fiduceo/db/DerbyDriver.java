@@ -3,10 +3,11 @@ package com.bc.fiduceo.db;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DerbyDriver implements Driver {
+
+    private Connection connection;
 
     public String getUrlPattern() {
         return "jdbc:derby";
@@ -26,7 +27,29 @@ public class DerbyDriver implements Driver {
 
         final String url = dataSource.getUrl();
         final String ulrWithParameters = url.concat(";create=true");
-        DriverManager.getConnection(ulrWithParameters);
+        connection = DriverManager.getConnection(ulrWithParameters);
+    }
+
+    public void initialize() throws SQLException {
+        final Statement statement = connection.createStatement();
+        int i = statement.executeUpdate("CREATE TABLE NAMES (ID INT PRIMARY KEY, NAME VARCHAR(12))");
+//        final PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE Satellite_Observation (ID INTEGER PRIMARY KEY , StartDate TIMESTAMP, StoptDate TIMESTAMP)");
+//        final boolean execute = preparedStatement.execute();
+
+//        final DatabaseMetaData metaData = connection.getMetaData();
+//        final ResultSet tables = metaData.getTables(null, null, "%", null);
+//        while (tables.next()) {
+//            System.out.println(tables.getString("TABLE_NAME"));
+//        }
+        connection.commit();
+    }
+
+    public void clear() throws SQLException {
+        // @todo 1 tb/tb continue here 2015-08-04
+//        final PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE NAMES");
+//        preparedStatement.execute();
+
+        connection.commit();
     }
 
     public void close() throws SQLException {
