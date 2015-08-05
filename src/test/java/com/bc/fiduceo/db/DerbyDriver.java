@@ -11,6 +11,7 @@ import java.sql.Statement;
 public class DerbyDriver implements Driver {
 
     private Connection connection;
+    private String url;
 
     public String getUrlPattern() {
         return "jdbc:derby";
@@ -20,17 +21,13 @@ public class DerbyDriver implements Driver {
         try {
             final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             DriverManager.registerDriver(driverClass);
-        } catch (ClassNotFoundException e) {
-            throw new SQLException(e.getMessage());
-        } catch (InstantiationException e) {
-            throw new SQLException(e.getMessage());
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new SQLException(e.getMessage());
         }
 
-        final String url = dataSource.getUrl();
-        final String ulrWithParameters = url.concat(";create=true");
-        connection = DriverManager.getConnection(ulrWithParameters);
+        url = dataSource.getUrl();
+        final String createUrl = url.concat(";create=true");
+        connection = DriverManager.getConnection(createUrl);
     }
 
     public void initialize() throws SQLException {
@@ -42,9 +39,10 @@ public class DerbyDriver implements Driver {
 
     public void clear() throws SQLException {
         try {
-            DriverManager.getConnection("jdbc:derby:memory:fiduceo;drop=true");
+            final String dropUrl = url.concat(";drop=true");
+            DriverManager.getConnection(dropUrl);
         } catch (SQLException e) {
-            if (!e.getSQLState().equals("08006")) {
+            if (!isShutdownException(e)) {
                 throw e;
             }
         }
@@ -52,11 +50,16 @@ public class DerbyDriver implements Driver {
 
     public void close() throws SQLException {
         try {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            final String shutdownUrl = url.concat(";shutdown=true");
+            DriverManager.getConnection(shutdownUrl);
         } catch (SQLException e) {
-            if (!e.getMessage().contains("Derby system shutdown")) {
+            if (!isShutdownException(e)) {
                 throw e;
             }
         }
+    }
+
+    private boolean isShutdownException(SQLException e) {
+        return e.getSQLState().equals("08006");
     }
 }
