@@ -3,7 +3,10 @@ package com.bc.fiduceo.db;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DerbyDriver implements Driver {
 
@@ -32,24 +35,19 @@ public class DerbyDriver implements Driver {
 
     public void initialize() throws SQLException {
         final Statement statement = connection.createStatement();
-        int i = statement.executeUpdate("CREATE TABLE NAMES (ID INT PRIMARY KEY, NAME VARCHAR(12))");
-//        final PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE Satellite_Observation (ID INTEGER PRIMARY KEY , StartDate TIMESTAMP, StoptDate TIMESTAMP)");
-//        final boolean execute = preparedStatement.execute();
+        statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID INT PRIMARY KEY, NAME VARCHAR(12))");
 
-//        final DatabaseMetaData metaData = connection.getMetaData();
-//        final ResultSet tables = metaData.getTables(null, null, "%", null);
-//        while (tables.next()) {
-//            System.out.println(tables.getString("TABLE_NAME"));
-//        }
         connection.commit();
     }
 
     public void clear() throws SQLException {
-        // @todo 1 tb/tb continue here 2015-08-04
-//        final PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE NAMES");
-//        preparedStatement.execute();
-
-        connection.commit();
+        try {
+            DriverManager.getConnection("jdbc:derby:memory:fiduceo;drop=true");
+        } catch (SQLException e) {
+            if (!e.getSQLState().equals("08006")) {
+                throw e;
+            }
+        }
     }
 
     public void close() throws SQLException {
