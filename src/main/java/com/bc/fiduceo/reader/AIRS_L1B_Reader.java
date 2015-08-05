@@ -1,81 +1,89 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
-import org.esa.snap.dataio.netcdf.ProfileReadContext;
-import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosMetadataPart;
-import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosUtils;
-import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.snap.dataio.netcdf.util.RasterDigest;
-import org.esa.snap.framework.datamodel.Product;
+import com.bc.fiduceo.parse.ParseReader;
+import org.jdom2.Element;
+import ucar.ma2.Array;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 public class AIRS_L1B_Reader implements Reader {
+    private static final String CORE_METADATA = "coremetadata";
+    private Element eosElement;
+    private static volatile String value;
+
 
     private NetcdfFile netcdfFile;
 
+
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFileOpener.open(file.getPath());
-        if (netcdfFile == null) {
-            throw new IOException("Failed to open file " + file.getPath());
-        }
+        netcdfFile = NetcdfFile.open(file.getPath());
+
+        final Group eosGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+        eosElement = getEosElement(coreMateString);
     }
 
     public void close() throws IOException {
         netcdfFile.close();
     }
 
-    public SatelliteObservation read() throws IOException {
-        final Product product = new Product("dummy", "dummy", 2, 2);
-        final HdfEosMetadataPart hdfEosMetadataPart = new HdfEosMetadataPart();
-        final EosReadContext eosReadContext = new EosReadContext(netcdfFile);
-        hdfEosMetadataPart.decode(eosReadContext, product);
-
+    public SatelliteObservation read() throws IOException, ParseException {
+        String dateRange = getElementValue(eosElement, "RANGEENDINGDATE");
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        satelliteObservation.setStartTime(new Date());
+        satelliteObservation.setStopTime(new SimpleDateFormat("yyyy-MM-dd").parse(dateRange));
         return satelliteObservation;
-
     }
 
 
-    private class EosReadContext implements ProfileReadContext {
-        private static final String CORE_METADATA = "CoreMetadata";
-        private NetcdfFile netcdfFile;
-        private final Map<String, Object> propertyMap;
+    static String getElementValue(Element element, String attribute) {
+        Iterator children = element.getChildren().iterator();
+        while (children.hasNext()) {
+            Element subElement = (Element) children.next();
+            if (subElement.getName().equals(attribute)) {
+                value = subElement.getChild("VALUE").getValue();
+            } else {
+                getElementValue(subElement, attribute);
+            }
+        }
+        return value;
+    }
 
 
-        public EosReadContext(NetcdfFile netcdfFile) throws IOException {
-            this.netcdfFile = netcdfFile;
-            propertyMap = new HashMap<String, Object>();
+    // package access for testing only tb 2015-08-05
+    static Element getEosElement(String satelliteMeta) throws IOException {
+        String localSmmeta = satelliteMeta.replaceAll("\\s+=\\s+", "=");
+        localSmmeta = localSmmeta.replaceAll("\\?", "_"); // XML names cannot contain the character "?".
 
-            final Group eosGroup = netcdfFile.getRootGroup();
-            setProperty(CORE_METADATA, HdfEosUtils.getEosElement(CORE_METADATA, eosGroup));
+        final StringBuilder sb = new StringBuilder(localSmmeta.length());
+        final StringTokenizer lineFinder = new StringTokenizer(localSmmeta, "\t\n\r\f");
+        while (lineFinder.hasMoreTokens()) {
+            final String line = lineFinder.nextToken().trim();
+            sb.append(line);
+            sb.append("\n");
         }
 
-        public NetcdfFile getNetcdfFile() {
-            return netcdfFile;
-        }
+        final ParseReader parser = new ParseReader();
+        return parser.parseFromString(sb.toString());
+    }
 
-        public void setRasterDigest(RasterDigest rasterDigest) {
-
-        }
-
-        public RasterDigest getRasterDigest() {
+    // package access for testing only tb 2015-08-05
+    static String getEosMetadata(String name, Group eosGroup) throws IOException {
+        final Variable structMetadataVar = eosGroup.findVariable(name);
+        if (structMetadataVar == null) {
             return null;
         }
 
-        public void setProperty(String name, Object value) {
-            propertyMap.put(name, value);
-        }
-
-        public Object getProperty(String name) {
-            return propertyMap.get(name);
-        }
+        final Array metadataArray = structMetadataVar.read();
+        return metadataArray.toString();
     }
 }
