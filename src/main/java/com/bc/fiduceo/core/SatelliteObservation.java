@@ -1,13 +1,9 @@
 package com.bc.fiduceo.core;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosUtils;
-import org.jdom2.Content;
 import org.jdom2.Element;
-import org.jdom2.filter.Filter;
 
 import java.util.Date;
-import java.util.List;
 
 public class SatelliteObservation {
 

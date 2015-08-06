@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -31,15 +32,20 @@ public class AIRS_L1B_ReaderTest {
 
         try {
             airsL1bReader.open(airsL1bFile);
-
             final SatelliteObservation observation = airsL1bReader.read();
             assertNotNull(observation);
-//            final Date startTime = observation.getStartTime();
-//            assertNotNull(startTime);
-//            final Date expectedStart = createDate(2015, 8, 3, 0, 5, 22, 0);
 
+            final Date startTime = observation.getStartTime();
+            final Date stopTime = observation.getStopTime();
+            assertNotNull(startTime);
+            assertNotNull(stopTime);
+
+
+            final Date expectedStart = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-03 00:05:22.000000Z");
+            final Date expectedStop = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-03 00:11:21.999999Z");
             // @todo 1 TB/MB make this work :-) 2015-08-03
-            //assertEquals(expectedStart.getTime(), startTime.getTime());
+            assertEquals(expectedStart.getTime(), startTime.getTime());
+            assertEquals(expectedStop.getTime(), stopTime.getTime());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,7 +89,6 @@ public class AIRS_L1B_ReaderTest {
 
         final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement,"RANGEENDINGDATE" );
         assertNotNull(elementValue);
-        assertEquals(elementValue,"2015-08-03");
     }
 
 
