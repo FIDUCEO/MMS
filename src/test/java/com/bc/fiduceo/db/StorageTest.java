@@ -16,8 +16,8 @@ public class StorageTest {
 
     public StorageTest() {
         dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-        dataSource.setUrl("jdbc:derby:memory:fiduceo");
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:fiduceo");
     }
 
     @Test

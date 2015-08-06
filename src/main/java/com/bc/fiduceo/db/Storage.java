@@ -3,10 +3,12 @@ package com.bc.fiduceo.db;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+import com.bc.fiduceo.core.SatelliteObservation;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.BeamCoreActivator;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 
 public class Storage {
@@ -69,5 +71,13 @@ public class Storage {
         }
 
         return null;
+    }
+
+    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
+        driver.insert(satelliteObservation);
+    }
+
+    public List<SatelliteObservation> get() throws SQLException {
+        return driver.get();
     }
 }

@@ -1,12 +1,11 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.core.SatelliteObservation;
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.List;
 
 public class DerbyDriver implements Driver {
 
@@ -28,6 +27,17 @@ public class DerbyDriver implements Driver {
         url = dataSource.getUrl();
         final String createUrl = url.concat(";create=true");
         connection = DriverManager.getConnection(createUrl);
+
+        final DatabaseMetaData metaData = connection.getMetaData();
+        final ResultSet catalogs = metaData.getSchemas();
+        System.out.println("List of catalogs: ");
+        while (catalogs.next()) {
+            System.out.println(
+                    "   " + catalogs.getString("TABLE_SCHEM")
+                            + ", " + catalogs.getString("TABLE_CATALOG"));
+        }
+        catalogs.close();
+
     }
 
     public void initialize() throws SQLException {
@@ -57,6 +67,16 @@ public class DerbyDriver implements Driver {
                 throw e;
             }
         }
+    }
+
+    @Override
+    public void insert(SatelliteObservation satelliteObservation) {
+
+    }
+
+    @Override
+    public List<SatelliteObservation> get() {
+        return null;
     }
 
     private boolean isShutdownException(SQLException e) {
