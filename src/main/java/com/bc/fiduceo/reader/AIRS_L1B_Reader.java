@@ -2,6 +2,9 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -13,18 +16,23 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 public class AIRS_L1B_Reader implements Reader {
+    private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
+    private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
+
+    private static final String RANGE_BEGINNING_TIME = "RANGEBEGINNINGTIME";
+    private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
+
     private static final String CORE_METADATA = "coremetadata";
+    private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
     private Element eosElement;
     private static volatile String value;
     private NetcdfFile netcdfFile;
-
-
-    private Array array;
-
 
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -32,16 +40,16 @@ public class AIRS_L1B_Reader implements Reader {
         final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
 
         eosElement = getEosElement(coreMateString);
-//        readVariable();
     }
+
 
     public void close() throws IOException {
         netcdfFile.close();
     }
 
     public SatelliteObservation read() throws IOException, ParseException {
-        String rangeBeginningDate = getElementValue(eosElement, "RANGEBEGINNINGDATE") + " " + getElementValue(eosElement, "RANGEBEGINNINGTIME");
-        String rangeEndingDate = getElementValue(eosElement, "RANGEENDINGDATE") + " " + getElementValue(eosElement, "RANGEENDINGTIME");
+        String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
+        String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
 
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
         DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -49,24 +57,37 @@ public class AIRS_L1B_Reader implements Reader {
         satelliteObservation.setStartTime(dateFormat.parse(rangeBeginningDate));
         satelliteObservation.setStopTime(dateFormat.parse(rangeEndingDate));
 
-
-
-
-
         Sensor sensor = new Sensor();
-        sensor.setName(getElementValue(eosElement, "ASSOCIATEDSENSORSHORTNAME"));
+        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
         satelliteObservation.setSensor(sensor);
+
+        satelliteObservation.setGeometry(getGeoCoordinate());
         return satelliteObservation;
     }
 
-    private Array geoCoordinate(String coordinate) throws IOException {
+
+    private Geometry getGeoCoordinate() throws IOException {
+        Array arrayLat = null;
+        Array arrayLon = null;
         List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
-            if (variable.getShortName().startsWith(coordinate)) {
-                array= variable.read();
+            if (variable.getShortName().startsWith("sat_lat")) {
+                arrayLat = variable.read();
+            }
+
+            if (variable.getShortName().startsWith("sat_lon")) {
+                arrayLon = variable.read();
             }
         }
-        return array;
+
+        double[] geoLat = (double[]) Objects.requireNonNull(arrayLat).get1DJavaArray(double.class);
+        double[] geoLon = (double[]) Objects.requireNonNull(arrayLon).get1DJavaArray(double.class);
+
+        List<Coordinate> coordinates = new ArrayList<>();
+        for (int i = 0; i < geoLat.length; i++) {
+            coordinates.add(new Coordinate(geoLat[i], geoLon[i]));
+        }
+        return new GeometryFactory().createMultiPoint(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 
 
