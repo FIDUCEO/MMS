@@ -4,10 +4,11 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 
+@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class H2Driver implements Driver {
 
     private Connection connection;
@@ -31,7 +32,9 @@ public class H2Driver implements Driver {
     @Override
     public void initialize() throws SQLException {
         final Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID INT AUTO_INCREMENT PRIMARY KEY, StartDate TIMESTAMP )");
+        statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID INT AUTO_INCREMENT PRIMARY KEY, " +
+                "StartDate TIMESTAMP," +
+                "StopDate TIMESTAMP)");
 
         connection.commit();
     }
@@ -47,9 +50,10 @@ public class H2Driver implements Driver {
     }
 
     @Override
-    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?)");
-        preparedStatement.setDate(1, new java.sql.Date(satelliteObservation.getStartTime().getTime()));
+    public void insert(SatelliteObservation observation) throws SQLException {
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?)");
+        preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
+        preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
 
         preparedStatement.executeUpdate();
     }
@@ -66,9 +70,25 @@ public class H2Driver implements Driver {
         while (resultSet.next()) {
             final SatelliteObservation observation = new SatelliteObservation();
 
+            final Timestamp startDate = resultSet.getTimestamp("StartDate");
+            observation.setStartTime(toDate(startDate));
+
+            final Timestamp stopDate = resultSet.getTimestamp("StopDate");
+            observation.setStopTime(toDate(stopDate));
+
             resultList.add(observation);
         }
 
         return resultList;
+    }
+
+    private static Timestamp toTimeStamp(java.util.Date date) {
+        final long time = date.getTime();
+        return new Timestamp(time);
+    }
+
+    private static java.util.Date toDate(Timestamp timestamp) {
+        final long time = timestamp.getTime();
+        return new Date(time);
     }
 }

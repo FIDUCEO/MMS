@@ -41,16 +41,20 @@ public class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet() throws SQLException {
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        satelliteObservation.setStartTime(new Date(1430000000000L));
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(new Date(1430000000000L));
+        observation.setStopTime(new Date(1430001000000L));
 
-        storage.insert(satelliteObservation);
+        storage.insert(observation);
 
         final List<SatelliteObservation> result = storage.get();
         assertNotNull(result);
         assertEquals(1, result.size());
 
-        // @todo 1 tb/tb add checks for values 2015-08-06
+        final SatelliteObservation observationFromDb = result.get(0);
+        assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
+        assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
+
     }
 
 
