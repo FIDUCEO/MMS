@@ -1,6 +1,7 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
@@ -44,6 +45,7 @@ public class StorageTest_SatelliteObservation {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(new Date(1430000000000L));
         observation.setStopTime(new Date(1430001000000L));
+        observation.setNodeType(NodeType.ASCENDING);
 
         storage.insert(observation);
 
@@ -54,6 +56,7 @@ public class StorageTest_SatelliteObservation {
         final SatelliteObservation observationFromDb = result.get(0);
         assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
+        assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
 
     }
 

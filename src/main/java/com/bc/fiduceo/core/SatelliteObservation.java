@@ -1,8 +1,6 @@
 package com.bc.fiduceo.core;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.jdom2.Element;
-import ucar.ma2.Array;
 
 import java.util.Date;
 
@@ -10,6 +8,13 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
+    private Geometry geometry;
+    private Sensor sensor;
+    private NodeType nodeType;
+
+    public SatelliteObservation() {
+        nodeType = NodeType.UNDEFINED;
+    }
 
     public Geometry getGeometry() {
         return geometry;
@@ -17,15 +22,6 @@ public class SatelliteObservation {
 
     public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
-    }
-
-    private Geometry geometry;
-
-    private Sensor sensor;
-
-    public SatelliteObservation() {
-        // Set all the settings here After the meta data have be read
-
     }
 
     public Date getStartTime() {
@@ -43,10 +39,20 @@ public class SatelliteObservation {
     public void setStopTime(Date stopTime) {
         this.stopTime = stopTime;
     }
+
     public Sensor getSensor() {
         return sensor;
     }
+
     public void setSensor(Sensor sensor) {
         this.sensor = sensor;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 }
