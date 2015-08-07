@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Content;
 import org.jdom2.Element;
@@ -41,12 +42,12 @@ public class AIRS_L1B_ReaderTest {
             assertNotNull(stopTime);
 
             DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
             final Date expectedStart = dateFormat.parse("2015-08-03 00:05:22.000000Z");
             final Date expectedStop = dateFormat.parse("2015-08-03 00:11:21.999999Z");
             assertEquals(expectedStart.getTime(), startTime.getTime());
             assertEquals(expectedStop.getTime(), stopTime.getTime());
 
+            assertNotNull(observation.getGeometry());
         } finally {
             airsL1bReader.close();
         }

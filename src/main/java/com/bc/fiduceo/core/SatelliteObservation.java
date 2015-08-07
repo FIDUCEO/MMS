@@ -11,26 +11,17 @@ public class SatelliteObservation {
     private Date startTime;
     private Date stopTime;
 
-    private Geometry geoSatLon;
-    private Geometry geoSatLat;
+    public Geometry getGeometry() {
+        return geometry;
+    }
+
+    public void setGeometry(Geometry geometry) {
+        this.geometry = geometry;
+    }
+
+    private Geometry geometry;
+
     private Sensor sensor;
-
-    public Geometry getGeoSatLon() {
-        return geoSatLon;
-    }
-
-    public void setGeoSatLon(Geometry geoSatLon) {
-        this.geoSatLon = geoSatLon;
-    }
-
-    public Geometry getGeoSatLat() {
-        return geoSatLat;
-    }
-
-    public void setGeoSatLat(Array arrayLat) {
-
-        this.geoSatLat = (Geometry) arrayLat.copyTo1DJavaArray();
-    }
 
     public SatelliteObservation() {
         // Set all the settings here After the meta data have be read
