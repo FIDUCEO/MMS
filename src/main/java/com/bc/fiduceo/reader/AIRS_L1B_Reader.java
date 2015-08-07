@@ -2,7 +2,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.parse.ParseReader;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.nc2.Group;
@@ -11,8 +11,8 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -20,9 +20,11 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String CORE_METADATA = "coremetadata";
     private Element eosElement;
     private static volatile String value;
-
-
     private NetcdfFile netcdfFile;
+
+
+    private Array array;
+
 
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -30,7 +32,7 @@ public class AIRS_L1B_Reader implements Reader {
         final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
 
         eosElement = getEosElement(coreMateString);
-        readVariable();
+//        readVariable();
     }
 
     public void close() throws IOException {
@@ -42,8 +44,14 @@ public class AIRS_L1B_Reader implements Reader {
         String rangeEndingDate = getElementValue(eosElement, "RANGEENDINGDATE") + " " + getElementValue(eosElement, "RANGEENDINGTIME");
 
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        satelliteObservation.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rangeBeginningDate));
-        satelliteObservation.setStopTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rangeEndingDate));
+        DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+
+        satelliteObservation.setStartTime(dateFormat.parse(rangeBeginningDate));
+        satelliteObservation.setStopTime(dateFormat.parse(rangeEndingDate));
+
+
+
+
 
         Sensor sensor = new Sensor();
         sensor.setName(getElementValue(eosElement, "ASSOCIATEDSENSORSHORTNAME"));
@@ -51,15 +59,14 @@ public class AIRS_L1B_Reader implements Reader {
         return satelliteObservation;
     }
 
-    private void readVariable() throws IOException {
+    private Array geoCoordinate(String coordinate) throws IOException {
         List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
-            if (variable.getShortName().startsWith("sat_lon")) {
-                variable.findAttribute("flag_band");
-                variable.getElementSize();
-                variable.getDescription();
+            if (variable.getShortName().startsWith(coordinate)) {
+                array= variable.read();
             }
         }
+        return array;
     }
 
 
@@ -88,7 +95,7 @@ public class AIRS_L1B_Reader implements Reader {
             sb.append("\n");
         }
 
-        final ParseReader parser = new ParseReader();
+        final EosCoreMetaParser parser = new EosCoreMetaParser();
         return parser.parseFromString(sb.toString());
     }
 

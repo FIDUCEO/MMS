@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Content;
 import org.jdom2.Element;
 import org.junit.Test;
@@ -11,20 +12,19 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AIRS_L1B_ReaderTest {
 
     @Test
-    public void testReadSatelliteObservation() throws IOException {
+    public void testReadSatelliteObservation() throws IOException, ParseException {
         final URL resourceUrl = AIRS_L1B_ReaderTest.class.getResource("AIRS.2015.08.03.001.L1B.AMSU_Rad.v5.0.14.0.R15214205337.hdf");
         assertNotNull(resourceUrl);
         final File airsL1bFile = new File(resourceUrl.getFile());
@@ -40,17 +40,13 @@ public class AIRS_L1B_ReaderTest {
             assertNotNull(startTime);
             assertNotNull(stopTime);
 
+            DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
-            final Date expectedStart = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-03 00:05:22.000000Z");
-            final Date expectedStop = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2015-08-03 00:11:21.999999Z");
-            // @todo 1 TB/MB make this work :-) 2015-08-03
+            final Date expectedStart = dateFormat.parse("2015-08-03 00:05:22.000000Z");
+            final Date expectedStop = dateFormat.parse("2015-08-03 00:11:21.999999Z");
             assertEquals(expectedStart.getTime(), startTime.getTime());
             assertEquals(expectedStop.getTime(), stopTime.getTime());
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
         } finally {
             airsL1bReader.close();
         }
@@ -87,7 +83,7 @@ public class AIRS_L1B_ReaderTest {
         final Element mockElement = mock(Element.class);
         when(mockElement.toString()).thenReturn("2015-08-03");
 
-        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement,"RANGEENDINGDATE" );
+        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
         assertNotNull(elementValue);
     }
 
@@ -109,20 +105,6 @@ public class AIRS_L1B_ReaderTest {
         assertEquals(expected, metadata);
     }
 
-
-
-    private Date createDate(int year, int month, int day, int hour, int minute, int seconds, int millis) {
-        final Calendar cal = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month - 1);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND, seconds);
-        cal.set(Calendar.MILLISECOND, millis);
-
-        return cal.getTime();
-    }
 
     private static final String EOS_CORE_META = "\n" +
             "GROUP=INVENTORYMETADATA\n" +

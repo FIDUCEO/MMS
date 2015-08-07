@@ -1,4 +1,4 @@
-package com.bc.fiduceo.parse;
+package com.bc.fiduceo.reader;
 
 import org.jdom2.Element;
 
@@ -8,12 +8,9 @@ import java.util.StringTokenizer;
 /**
  * @author muhammad.bc
  */
-public class ParseReader {
+class EosCoreMetaParser {
 
-    public ParseReader() {
-    }
-
-    public Element parseFromString(String text) throws IOException {
+     Element parseFromString(String text) throws IOException {
 
         Element rootElem = new Element("odl");
         Element current = rootElem;
@@ -45,7 +42,7 @@ public class ParseReader {
         return rootElem;
     }
 
-    Element startGroup(Element parent, String line) throws IOException {
+    private Element startGroup(Element parent, String line) throws IOException {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("GROUP");
@@ -55,7 +52,7 @@ public class ParseReader {
         return group;
     }
 
-    void endGroup(Element current, String line) throws IOException {
+    private void endGroup(Element current, String line) throws IOException {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("END_GROUP");
@@ -63,7 +60,7 @@ public class ParseReader {
         assert name.equals(current.getName());
     }
 
-    Element startObject(Element parent, String line) throws IOException {
+    private Element startObject(Element parent, String line) throws IOException {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("OBJECT");
@@ -73,7 +70,7 @@ public class ParseReader {
         return obj;
     }
 
-    void endObject(Element current, String line) throws IOException {
+    private void endObject(Element current, String line) throws IOException {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("END_OBJECT");
@@ -81,7 +78,7 @@ public class ParseReader {
         assert name.equals(current.getName()) : name + " !+ " + current.getName();
     }
 
-    void addField(Element parent, String line) throws IOException {
+    private void addField(Element parent, String line) throws IOException {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String name = stoke.nextToken();
         if (stoke.hasMoreTokens()) {
@@ -98,7 +95,7 @@ public class ParseReader {
 
     }
 
-    void parseValueCollection(Element field, String value) {
+    private void parseValueCollection(Element field, String value) {
         if (value.startsWith("(")) {
             value = value.substring(1);
         }
@@ -115,7 +112,7 @@ public class ParseReader {
 
     }
 
-    String stripQuotes(String name) {
+    private String stripQuotes(String name) {
         if (name.startsWith("\"")) {
             name = name.substring(1);
         }
