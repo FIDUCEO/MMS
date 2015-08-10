@@ -1,6 +1,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -87,6 +88,12 @@ public class AIRS_L1B_ReaderTest {
     }
 
     @Test
+    public void testNoteType() {
+        assertNotNull(observation);
+        assertEquals(NodeType.fromId(0), observation.getNodeType());
+    }
+
+    @Test
     public void testGetEosMetadata_groupNotPresent() throws IOException {
         final Group mockGroup = mock(Group.class);
         when(mockGroup.findVariable("whatever")).thenReturn(null);
@@ -96,15 +103,9 @@ public class AIRS_L1B_ReaderTest {
 
 
     @Test
-    public void testLatIndex() {
-
-    }
-
-    @Test
     public void testElementValue() throws IOException {
         final Element mockElement = mock(Element.class);
         when(mockElement.toString()).thenReturn("2015-08-03");
-
         final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
         assertNotNull(elementValue);
     }
