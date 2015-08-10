@@ -3,6 +3,9 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -41,11 +44,13 @@ public class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet() throws SQLException {
+    public void testInsert_andGet() throws SQLException, ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(new Date(1430000000000L));
         observation.setStopTime(new Date(1430001000000L));
         observation.setNodeType(NodeType.ASCENDING);
+        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
+        observation.setGeoBounds(geometry);
 
         storage.insert(observation);
 
@@ -57,7 +62,7 @@ public class StorageTest_SatelliteObservation {
         assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
-
+        assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
     }
 
 

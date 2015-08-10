@@ -2,6 +2,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.vividsolutions.jts.geom.Geometry;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.*;
@@ -36,7 +37,8 @@ public class H2Driver implements Driver {
         statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID INT AUTO_INCREMENT PRIMARY KEY, " +
                 "StartDate TIMESTAMP," +
                 "StopDate TIMESTAMP," +
-                "NodeType TINYINT)");
+                "NodeType TINYINT," +
+                "GeoBounds GEOMETRY)");
 
         connection.commit();
     }
@@ -53,10 +55,11 @@ public class H2Driver implements Driver {
 
     @Override
     public void insert(SatelliteObservation observation) throws SQLException {
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
+        preparedStatement.setObject(4, observation.getGeoBounds());
 
         preparedStatement.executeUpdate();
     }
@@ -81,6 +84,9 @@ public class H2Driver implements Driver {
 
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
+
+            final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
+            observation.setGeoBounds(geoBounds);
 
             resultList.add(observation);
         }

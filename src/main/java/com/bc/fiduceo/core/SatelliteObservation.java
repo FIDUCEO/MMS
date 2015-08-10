@@ -8,7 +8,7 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-    private Geometry geometry;
+    private Geometry geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
 
@@ -16,12 +16,12 @@ public class SatelliteObservation {
         nodeType = NodeType.UNDEFINED;
     }
 
-    public Geometry getGeometry() {
-        return geometry;
+    public Geometry getGeoBounds() {
+        return geoBounds;
     }
 
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
+    public void setGeoBounds(Geometry geoBounds) {
+        this.geoBounds = geoBounds;
     }
 
     public Date getStartTime() {

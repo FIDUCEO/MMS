@@ -61,7 +61,7 @@ public class AIRS_L1B_Reader implements Reader {
         sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
         satelliteObservation.setSensor(sensor);
 
-        satelliteObservation.setGeometry(getGeoCoordinate());
+        satelliteObservation.setGeoBounds(getGeoCoordinate());
         return satelliteObservation;
     }
 

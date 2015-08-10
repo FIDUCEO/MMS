@@ -1,7 +1,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Content;
 import org.jdom2.Element;
@@ -47,7 +46,7 @@ public class AIRS_L1B_ReaderTest {
             assertEquals(expectedStart.getTime(), startTime.getTime());
             assertEquals(expectedStop.getTime(), stopTime.getTime());
 
-            assertNotNull(observation.getGeometry());
+            assertNotNull(observation.getGeoBounds());
         } finally {
             airsL1bReader.close();
         }
