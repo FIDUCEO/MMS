@@ -3,6 +3,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -51,6 +52,9 @@ public class StorageTest_SatelliteObservation {
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
         observation.setGeoBounds(geometry);
+        final Sensor sensor = new Sensor();
+        sensor.setName("test_sensor");
+        observation.setSensor(sensor);
 
         storage.insert(observation);
 
@@ -63,9 +67,11 @@ public class StorageTest_SatelliteObservation {
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
         assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
+        assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
     }
 
 
 
     // @todo 2 tb/tb add test with null dates 2015-08-06
+    // @todo 1 tb/tb test with existing sensor 2015-08-10
 }

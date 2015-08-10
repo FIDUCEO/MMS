@@ -2,12 +2,20 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.sql.*;
+import java.sql.Connection;
 import java.sql.Date;
-import java.util.*;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
@@ -33,12 +41,17 @@ public class H2Driver implements Driver {
 
     @Override
     public void initialize() throws SQLException {
-        final Statement statement = connection.createStatement();
+        Statement statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID INT AUTO_INCREMENT PRIMARY KEY, " +
                 "StartDate TIMESTAMP," +
                 "StopDate TIMESTAMP," +
                 "NodeType TINYINT," +
-                "GeoBounds GEOMETRY)");
+                "GeoBounds GEOMETRY, " +
+                "SensorId INT)");
+
+        statement = connection.createStatement();
+        statement.executeUpdate("CREATE TABLE SENSOR (ID INT AUTO_INCREMENT PRIMARY KEY, " +
+                "Name VARCHAR)");
 
         connection.commit();
     }
@@ -55,11 +68,18 @@ public class H2Driver implements Driver {
 
     @Override
     public void insert(SatelliteObservation observation) throws SQLException {
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?)");
+        final Sensor sensor = observation.getSensor();
+        Integer sensorId = getSensorId(sensor.getName());
+        if (sensorId == null) {
+            sensorId = insert(sensor);
+        }
+
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, observation.getGeoBounds());
+        preparedStatement.setInt(5, sensorId);
 
         preparedStatement.executeUpdate();
     }
@@ -72,7 +92,7 @@ public class H2Driver implements Driver {
         final int numValues = resultSet.getRow();
         resultSet.beforeFirst();
 
-        final List<SatelliteObservation> resultList =  new ArrayList<>(numValues);
+        final List<SatelliteObservation> resultList = new ArrayList<>(numValues);
         while (resultSet.next()) {
             final SatelliteObservation observation = new SatelliteObservation();
 
@@ -88,6 +108,10 @@ public class H2Driver implements Driver {
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
             observation.setGeoBounds(geoBounds);
 
+            final int sensorId = resultSet.getInt("SensorId");
+            final Sensor sensor = getSensor(sensorId);
+            observation.setSensor(sensor);
+
             resultList.add(observation);
         }
 
@@ -102,5 +126,40 @@ public class H2Driver implements Driver {
     private static java.util.Date toDate(Timestamp timestamp) {
         final long time = timestamp.getTime();
         return new Date(time);
+    }
+
+    private Integer getSensorId(String sensorName) throws SQLException {
+        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
+
+        if (resultSet.first()) {
+            return resultSet.getInt("ID");
+        } else {
+            return null;
+        }
+    }
+
+    private Sensor getSensor(int id) throws SQLException {
+        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        final ResultSet resultSet = statement.executeQuery("SELECT * FROM SENSOR");
+        if (resultSet.next()) {
+            final Sensor sensor = new Sensor();
+            sensor.setName(resultSet.getString("Name"));
+            return sensor;
+        } else {
+            throw new SQLException("No Sensor available for ID '" + id + "'");
+        }
+    }
+
+    private int insert(Sensor sensor) throws SQLException {
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Sensor VALUES(default, ?)", Statement.RETURN_GENERATED_KEYS);
+        preparedStatement.setString(1, sensor.getName());
+        preparedStatement.executeUpdate();
+
+        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            return generatedKeys.getInt(1);
+        }
+        return -1;
     }
 }
