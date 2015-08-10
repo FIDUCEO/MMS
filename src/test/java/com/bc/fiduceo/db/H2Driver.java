@@ -118,6 +118,18 @@ public class H2Driver implements Driver {
         return resultList;
     }
 
+    public int insert(Sensor sensor) throws SQLException {
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Sensor VALUES(default, ?)", Statement.RETURN_GENERATED_KEYS);
+        preparedStatement.setString(1, sensor.getName());
+        preparedStatement.executeUpdate();
+
+        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            return generatedKeys.getInt(1);
+        }
+        return -1;
+    }
+
     private static Timestamp toTimeStamp(java.util.Date date) {
         final long time = date.getTime();
         return new Timestamp(time);
@@ -149,17 +161,5 @@ public class H2Driver implements Driver {
         } else {
             throw new SQLException("No Sensor available for ID '" + id + "'");
         }
-    }
-
-    private int insert(Sensor sensor) throws SQLException {
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Sensor VALUES(default, ?)", Statement.RETURN_GENERATED_KEYS);
-        preparedStatement.setString(1, sensor.getName());
-        preparedStatement.executeUpdate();
-
-        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-        if (generatedKeys.next()) {
-            return generatedKeys.getInt(1);
-        }
-        return -1;
     }
 }

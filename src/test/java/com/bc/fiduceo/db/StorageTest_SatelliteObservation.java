@@ -70,8 +70,29 @@ public class StorageTest_SatelliteObservation {
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
     }
 
+    @Test
+    public void testInsert_andGet_sensorStoredInDb() throws SQLException, ParseException {
+        final Sensor sensor = new Sensor();
+        sensor.setName("test_sensor");
+
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(new Date(1430000000000L));
+        observation.setStopTime(new Date(1430001000000L));
+        observation.setNodeType(NodeType.ASCENDING);
+        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
+        observation.setGeoBounds(geometry);
+        observation.setSensor(sensor);
+
+        storage.insert(sensor);
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(sensor.getName(), result.get(0).getSensor().getName());
+    }
+
 
 
     // @todo 2 tb/tb add test with null dates 2015-08-06
-    // @todo 1 tb/tb test with existing sensor 2015-08-10
 }

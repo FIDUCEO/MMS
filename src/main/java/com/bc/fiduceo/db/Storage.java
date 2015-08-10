@@ -4,6 +4,7 @@ package com.bc.fiduceo.db;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.BeamCoreActivator;
 
@@ -47,6 +48,18 @@ public class Storage {
         driver.clear();
     }
 
+    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
+        driver.insert(satelliteObservation);
+    }
+
+    public List<SatelliteObservation> get() throws SQLException {
+        return driver.get();
+    }
+
+    public int insert(Sensor sensor) throws SQLException {
+        return driver.insert(sensor);
+    }
+
     Storage(BasicDataSource dataSource) throws SQLException {
         driver = createDriver(dataSource);
         if (driver == null) {
@@ -71,13 +84,5 @@ public class Storage {
         }
 
         return null;
-    }
-
-    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
-        driver.insert(satelliteObservation);
-    }
-
-    public List<SatelliteObservation> get() throws SQLException {
-        return driver.get();
     }
 }
