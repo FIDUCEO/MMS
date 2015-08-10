@@ -2,26 +2,28 @@ package com.bc.fiduceo.core;
 
 import com.vividsolutions.jts.geom.Geometry;
 
+import java.io.File;
 import java.util.Date;
 
 public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-    private Geometry geometry;
+    private Geometry geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
+    private File dataFile;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
     }
 
-    public Geometry getGeometry() {
-        return geometry;
+    public Geometry getGeoBounds() {
+        return geoBounds;
     }
 
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
+    public void setGeoBounds(Geometry geoBounds) {
+        this.geoBounds = geoBounds;
     }
 
     public Date getStartTime() {
@@ -54,5 +56,13 @@ public class SatelliteObservation {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    public File getDataFile() {
+        return dataFile;
+    }
+
+    public void setDataFile(File dataFile) {
+        this.dataFile = dataFile;
     }
 }

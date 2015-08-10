@@ -1,2 +1,1 @@
-com.bc.fiduceo.db.DerbyDriver
 com.bc.fiduceo.db.H2Driver

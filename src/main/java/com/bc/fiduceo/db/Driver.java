@@ -2,6 +2,7 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.SQLException;
@@ -28,4 +29,6 @@ interface Driver {
     void insert(SatelliteObservation satelliteObservation) throws SQLException;
 
     List<SatelliteObservation> get() throws SQLException;
+
+    int insert(Sensor sensor) throws SQLException;
 }
