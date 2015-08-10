@@ -79,7 +79,7 @@ public class AIRS_L1B_ReaderTest {
 
     @Test
     public void testGeoCoordinate() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
-        Geometry geometry = observation.getGeometry();
+        Geometry geometry = observation.getGeoBounds();
         assertNotNull(geometry);
         WKTReader wktReader = new WKTReader(new GeometryFactory());
         MultiPoint multiPoint = (MultiPoint) wktReader.read(MULTIPOINT);
