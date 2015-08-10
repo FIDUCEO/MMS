@@ -12,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -46,12 +47,7 @@ public class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet() throws SQLException, ParseException {
-        final SatelliteObservation observation = new SatelliteObservation();
-        observation.setStartTime(new Date(1430000000000L));
-        observation.setStopTime(new Date(1430001000000L));
-        observation.setNodeType(NodeType.ASCENDING);
-        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
-        observation.setGeoBounds(geometry);
+        final SatelliteObservation observation = crateSatelliteObservation();
         final Sensor sensor = new Sensor();
         sensor.setName("test_sensor");
         observation.setSensor(sensor);
@@ -68,19 +64,14 @@ public class StorageTest_SatelliteObservation {
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
         assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
+        assertEquals(observation.getDataFile().getAbsolutePath(), observationFromDb.getDataFile().getAbsolutePath());
     }
 
     @Test
     public void testInsert_andGet_sensorStoredInDb() throws SQLException, ParseException {
+        final SatelliteObservation observation = crateSatelliteObservation();
         final Sensor sensor = new Sensor();
         sensor.setName("test_sensor");
-
-        final SatelliteObservation observation = new SatelliteObservation();
-        observation.setStartTime(new Date(1430000000000L));
-        observation.setStopTime(new Date(1430001000000L));
-        observation.setNodeType(NodeType.ASCENDING);
-        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
-        observation.setGeoBounds(geometry);
         observation.setSensor(sensor);
 
         storage.insert(sensor);
@@ -90,6 +81,17 @@ public class StorageTest_SatelliteObservation {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(sensor.getName(), result.get(0).getSensor().getName());
+    }
+
+    private SatelliteObservation crateSatelliteObservation() throws ParseException {
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(new Date(1430000000000L));
+        observation.setStopTime(new Date(1430001000000L));
+        observation.setNodeType(NodeType.ASCENDING);
+        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
+        observation.setGeoBounds(geometry);
+        observation.setDataFile(new File("the_data.file"));
+        return observation;
     }
 
 

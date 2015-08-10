@@ -6,6 +6,7 @@ import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
 import org.apache.commons.dbcp.BasicDataSource;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -47,7 +48,8 @@ public class H2Driver implements Driver {
                 "StopDate TIMESTAMP," +
                 "NodeType TINYINT," +
                 "GeoBounds GEOMETRY, " +
-                "SensorId INT)");
+                "SensorId INT," +
+                "DataFile VARCHAR(256))");
 
         statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE SENSOR (ID INT AUTO_INCREMENT PRIMARY KEY, " +
@@ -74,12 +76,13 @@ public class H2Driver implements Driver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, observation.getGeoBounds());
         preparedStatement.setInt(5, sensorId);
+        preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
 
         preparedStatement.executeUpdate();
     }
@@ -111,6 +114,9 @@ public class H2Driver implements Driver {
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);
             observation.setSensor(sensor);
+
+            final String dataFile = resultSet.getString("DataFile");
+            observation.setDataFile(new File(dataFile));
 
             resultList.add(observation);
         }
