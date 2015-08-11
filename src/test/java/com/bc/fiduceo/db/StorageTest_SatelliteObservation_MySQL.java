@@ -1,23 +1,15 @@
 package com.bc.fiduceo.db;
 
 
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
-import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 @RunWith(DatabaseTestRunner.class)
-public class StorageTest_SatelliteObservation_MySQL extends StorageTest_SatelliteObservation{
+public class StorageTest_SatelliteObservation_MySQL extends StorageTest_SatelliteObservation {
+
+    // This test will use a local database implementation. Please make sure that you have a running MySQL database server
+    // version 5.6 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
+    // in the datasource description below. tb 2015-08-10
 
     public StorageTest_SatelliteObservation_MySQL() {
         dataSource = new BasicDataSource();
