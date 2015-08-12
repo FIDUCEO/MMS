@@ -12,5 +12,5 @@ public interface Reader {
 
     void close() throws IOException;
 
-    SatelliteObservation read() throws IOException, ParseException;
+    SatelliteObservation read() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException;
 }
