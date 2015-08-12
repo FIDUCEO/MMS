@@ -20,18 +20,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class StorageTest_SatelliteObservation {
+public abstract class StorageTest_SatelliteObservation {
 
-    private final BasicDataSource dataSource;
-    private Storage storage;
-
-    public StorageTest_SatelliteObservation() {
-        dataSource = new BasicDataSource();
-//        dataSource.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-//        dataSource.setUrl("jdbc:derby:memory:YO");
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:h2:mem:fiduceo");
-    }
+    protected BasicDataSource dataSource;
+    protected Storage storage;
 
     @Before
     public void setUp() throws SQLException {
@@ -47,7 +39,7 @@ public class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet() throws SQLException, ParseException {
-        final SatelliteObservation observation = crateSatelliteObservation();
+        final SatelliteObservation observation = createSatelliteObservation();
         final Sensor sensor = new Sensor();
         sensor.setName("test_sensor");
         observation.setSensor(sensor);
@@ -69,7 +61,7 @@ public class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet_sensorStoredInDb() throws SQLException, ParseException {
-        final SatelliteObservation observation = crateSatelliteObservation();
+        final SatelliteObservation observation = createSatelliteObservation();
         final Sensor sensor = new Sensor();
         sensor.setName("test_sensor");
         observation.setSensor(sensor);
@@ -83,7 +75,9 @@ public class StorageTest_SatelliteObservation {
         assertEquals(sensor.getName(), result.get(0).getSensor().getName());
     }
 
-    private SatelliteObservation crateSatelliteObservation() throws ParseException {
+    // @todo 2 tb/tb add test with null dates 2015-08-06
+
+    protected SatelliteObservation createSatelliteObservation() throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(new Date(1430000000000L));
         observation.setStopTime(new Date(1430001000000L));
@@ -93,8 +87,4 @@ public class StorageTest_SatelliteObservation {
         observation.setDataFile(new File("the_data.file"));
         return observation;
     }
-
-
-
-    // @todo 2 tb/tb add test with null dates 2015-08-06
 }

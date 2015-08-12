@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class Storage {
 
-    // @todo 4 tb/tb introduce hasmap with url as key - make singleton per DB-Url 2015-08-05
+    // @todo 4 tb/tb introduce hashmap with url as key - make singleton per DB-Url 2015-08-05
     private static Storage storage;
 
     private Driver driver;
