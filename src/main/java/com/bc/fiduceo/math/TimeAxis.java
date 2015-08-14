@@ -27,6 +27,9 @@ public class TimeAxis {
 
     public TimeInterval getIntersectionTime(Polygon polygon) {
         final LineString intersection = (LineString) polygon.intersection(lineString);
+        if (intersection.isEmpty()) {
+            return null;
+        }
 
         final Point startPoint = intersection.getStartPoint();
         final double pointLength = lengthIndexedLine.indexOf(startPoint.getCoordinate());
@@ -57,6 +60,10 @@ public class TimeAxis {
     }
 
     private Coordinate findProjection(Point point) {
+        // @todo 2 tb/tb we can speed up this routine by starting searching in the middle of the line
+        // go to one direction, if the abs-value of the projectionFactor increases, search in the other direction
+        // projectionFactor abs-value should decrease if we`re going in the right direction 2015-08-14
+
         final int numPoints = lineString.getNumPoints();
 
         for (int n = 0; n < numPoints - 1; n++) {

@@ -25,6 +25,16 @@ public class TimeAxisTest {
     }
 
     @Test
+    public void testGetIntersectionTime_noIntersection() throws ParseException {
+        final Polygon polygon = (Polygon) wktReader.read("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))");
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(0 -2,4 -2)");
+
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
+        final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
+        assertNull(timeInterval);
+    }
+
+    @Test
     public void testGetIntersectionTime_StraightLineWithSquare() throws ParseException {
         final Polygon polygon = (Polygon) wktReader.read("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
         final LineString lineString = (LineString) wktReader.read("LINESTRING(-2 0,4 6)");
