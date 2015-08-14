@@ -1,5 +1,7 @@
 package com.bc.fiduceo.math;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -23,7 +25,7 @@ public class TimeAxis {
         timeInterval = endTime.getTime() - startTime.getTime();
     }
 
-    public TimeInterval intersect(Polygon polygon) {
+    public TimeInterval getIntersectionTime(Polygon polygon) {
         final LineString intersection = (LineString) polygon.intersection(lineString);
 
         final Point startPoint = intersection.getStartPoint();
@@ -38,5 +40,35 @@ public class TimeAxis {
 
         final long startMillis = startTime.getTime() + offsetTime;
         return new TimeInterval(new Date(startMillis), new Date(startMillis + intersectionDuration));
+    }
+
+    public Date getTime(Point point) {
+        final Coordinate projection = findProjection(point);
+        if (projection == null) {
+            return null;
+        }
+
+        final double pointLength = lengthIndexedLine.indexOf(projection);
+        final double relativeOffset = pointLength * inverseAxisLength;
+        final long offsetTime = (long) (timeInterval * relativeOffset);
+        final long startMillis = startTime.getTime() + offsetTime;
+
+        return new Date(startMillis);
+    }
+
+    private Coordinate findProjection(Point point) {
+        final int numPoints = lineString.getNumPoints();
+
+        for (int n = 0; n < numPoints - 1; n++) {
+            final Point point1 = lineString.getPointN(n);
+            final Point point2 = lineString.getPointN(n + 1);
+            final LineSegment lineSegment = new LineSegment(point1.getCoordinate(), point2.getCoordinate());
+            final double projectionFactor = lineSegment.projectionFactor(point.getCoordinate());
+            if (projectionFactor >= 0.0 && projectionFactor < 1.0) {
+                return lineSegment.project(point.getCoordinate());
+            }
+        }
+
+        return null;
     }
 }
