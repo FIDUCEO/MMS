@@ -82,16 +82,6 @@ public class AIRS_L1B_ReaderTest {
     }
 
     @Test
-    public void testGeoCoordinate() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
-        Geometry geometry = observation.getGeoBounds();
-        assertNotNull(geometry);
-        WKTReader wktReader = new WKTReader(new GeometryFactory());
-        Polygon polygon = (Polygon) wktReader.read(POLYGON);
-        assertTrue(geometry.equals(polygon));
-        assertTrue(geometry.contains(polygon));
-    }
-
-    @Test
     public void testNoteType() {
         assertNotNull(observation);
         assertEquals(NodeType.fromId(0), observation.getNodeType());

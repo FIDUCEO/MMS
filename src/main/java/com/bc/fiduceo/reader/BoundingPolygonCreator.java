@@ -15,44 +15,55 @@ import java.util.List;
 /**
  * @muhammad.bc on 8/12/2015.
  */
-public abstract class AbstractCreatePolygon {
+public class BoundingPolygonCreator {
 
     private int intervalX = 1;
     private int intervalY = 1;
 
-    public AbstractCreatePolygon(int intervalX, int intervalY) {
+
+    public BoundingPolygonCreator(int intervalX, int intervalY) {
         this.intervalX = intervalX;
         this.intervalY = intervalY;
     }
 
 
+    public List<ArrayDouble.D2> createCoordinate(NetcdfFile netcdfFile) throws IOException {
 
-    public Geometry getCreatePolygon(NetcdfFile netcdfFile) throws IOException, com.vividsolutions.jts.io.ParseException {
         List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
-        int geoXTrack = netcdfFile.findDimension("L1B_AMSU_GeoXTrack").getLength() - 1;
-        int geoTrack = netcdfFile.findDimension("L1B_AMSU_GeoTrack").getLength() - 1;
-
-        ArrayDouble.D2 arrayLatitude = null;
-        ArrayDouble.D2 arrayLongitude = null;
-
+        List<ArrayDouble.D2> d2List = new ArrayList<>(2);
+        ArrayDouble.D2 d2Coordinate = null;
         for (Group group : groups) {
             if (group.getShortName().equals("Geolocation_Fields")) {
                 List<Variable> variables = group.getVariables();
                 for (Variable variable : variables) {
                     if (variable.getShortName().startsWith("Latitude")) {
-                        arrayLatitude = (ArrayDouble.D2) variable.read();
+                        d2Coordinate = (ArrayDouble.D2) variable.read();
+                        if (d2Coordinate == null) {
+                            throw new NullPointerException("The array is empty !!!");
+                        }
+                        d2List.add(d2Coordinate);
                     }
 
-
                     if (variable.getShortName().startsWith("Longitude")) {
-                        arrayLongitude = (ArrayDouble.D2) variable.read();
+                        d2Coordinate = (ArrayDouble.D2) variable.read();
+                        if (d2Coordinate == null) {
+                            throw new NullPointerException("The array is empty !!!");
+                        }
+                        d2List.add(d2Coordinate);
                     }
                 }
             }
         }
 
-        assert arrayLongitude != null;
-        assert arrayLatitude != null;
+        return d2List;
+    }
+
+    public Geometry createPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude)
+            throws com.vividsolutions.jts.io.ParseException {
+
+        int geoXTrack = arrayLatitude.getShape()[1]-1;
+        int geoTrack = arrayLatitude.getShape()[0]-1;
+
         List<Coordinate> coordinates = new ArrayList<>();
         for (int x = 1; x < geoXTrack; x += intervalX) {
             coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
@@ -69,6 +80,5 @@ public abstract class AbstractCreatePolygon {
         coordinates.add(coordinates.get(0));
         return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
-
 
 }

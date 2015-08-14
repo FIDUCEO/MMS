@@ -18,7 +18,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class AIRS_L1B_Reader extends  AbstractCreatePolygon implements Reader {
+public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
 
     private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
     private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
@@ -57,7 +57,7 @@ public class AIRS_L1B_Reader extends  AbstractCreatePolygon implements Reader {
 
         satelliteObservation.setStartTime(dateFormat.parse(rangeBeginningDate));
         satelliteObservation.setStopTime(dateFormat.parse(rangeEndingDate));
-        satelliteObservation.setGeoBounds(getCreatePolygon(netcdfFile));
+//        satelliteObservation.setGeoBounds(getCreatePolygon(netcdfFile));
         Sensor sensor = new Sensor();
         sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
         satelliteObservation.setSensor(sensor);
