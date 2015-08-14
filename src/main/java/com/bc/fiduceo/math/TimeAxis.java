@@ -10,21 +10,21 @@ import java.util.Date;
 public class TimeAxis {
 
     private final Date startTime;
-    private final Date endTime;
     private final LineString lineString;
     private final double inverseAxisLength;
+    private final LengthIndexedLine lengthIndexedLine;
+    private final long timeInterval;
 
     public TimeAxis(LineString lineString, Date startTime, Date endTime) {
         this.startTime = startTime;
-        this.endTime = endTime;
         this.lineString = lineString;
         this.inverseAxisLength = 1.0 / lineString.getLength();
-
+        lengthIndexedLine = new LengthIndexedLine(lineString);
+        timeInterval = endTime.getTime() - startTime.getTime();
     }
 
     public TimeInterval intersect(Polygon polygon) {
         final LineString intersection = (LineString) polygon.intersection(lineString);
-        final LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineString);  // @todo 1 tb/tb move to constructor 2015-08-14
 
         final Point startPoint = intersection.getStartPoint();
         final double pointLength = lengthIndexedLine.indexOf(startPoint.getCoordinate());
@@ -33,7 +33,6 @@ public class TimeAxis {
         final double relativeIntersection = intersectionLength * inverseAxisLength;
         final double relativeOffset = pointLength * inverseAxisLength;
 
-        final long timeInterval = endTime.getTime() - startTime.getTime();
         final long intersectionDuration = (long) (timeInterval * relativeIntersection);
         final long offsetTime = (long) (timeInterval * relativeOffset);
 
