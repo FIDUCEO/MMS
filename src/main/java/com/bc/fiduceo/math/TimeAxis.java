@@ -11,6 +11,8 @@ import java.util.Date;
 
 public class TimeAxis {
 
+    // @todo 3 tb/tb check if we can gain performance when using prepared geometries 2015-08-14
+
     private final Date startTime;
     private final LineString lineString;
     private final double inverseAxisLength;
@@ -45,6 +47,37 @@ public class TimeAxis {
         return new TimeInterval(new Date(startMillis), new Date(startMillis + intersectionDuration));
     }
 
+    public TimeInterval getProjectionTime(LineString polygonSide) {
+        final int numPoints = polygonSide.getNumPoints();
+
+        final Point startPoint = polygonSide.getPointN(0);
+        final Coordinate startProjection = findProjection(startPoint);
+
+        final Point endPoint = polygonSide.getPointN(numPoints - 1);
+        final Coordinate endProjection = findProjection(endPoint);
+
+        final double startOffset = lengthIndexedLine.indexOf(startProjection);
+        final double endOffset = lengthIndexedLine.indexOf(endProjection);
+
+        final double relativeStartOffset;
+        final double relativeEndOffset;
+        if (startOffset > endOffset) {
+            relativeStartOffset = endOffset * inverseAxisLength;
+            relativeEndOffset = startOffset * inverseAxisLength;
+        }  else {
+            relativeStartOffset = startOffset * inverseAxisLength;
+            relativeEndOffset = endOffset * inverseAxisLength;
+        }
+
+        final long startOffsetTime = (long) (relativeStartOffset * timeInterval);
+        final long endOffsetTime = (long) (relativeEndOffset * timeInterval);
+
+        final long startMillis = startTime.getTime() + startOffsetTime;
+        final long endMillis = startTime.getTime() + endOffsetTime;
+
+        return new TimeInterval(new Date(startMillis), new Date(endMillis));
+    }
+
     public Date getTime(Point point) {
         final Coordinate projection = findProjection(point);
         if (projection == null) {
@@ -71,7 +104,7 @@ public class TimeAxis {
             final Point point2 = lineString.getPointN(n + 1);
             final LineSegment lineSegment = new LineSegment(point1.getCoordinate(), point2.getCoordinate());
             final double projectionFactor = lineSegment.projectionFactor(point.getCoordinate());
-            if (projectionFactor >= 0.0 && projectionFactor < 1.0) {
+            if (projectionFactor >= 0.0 && projectionFactor <= 1.0) {
                 return lineSegment.project(point.getCoordinate());
             }
         }

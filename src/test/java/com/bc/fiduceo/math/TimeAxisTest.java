@@ -113,13 +113,23 @@ public class TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_twoSegments_PointOnLine() throws ParseException {
+    public void testGetTime_threeSegments_PointOnLine() throws ParseException {
         final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(-2 3)");
         final Date time = timeAxis.getTime(point);
         assertEquals(1000000500000L, time.getTime());
+    }
+
+    @Test
+    public void testGetTime_threeSegments() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(2 5, 1 3, -1 1, -3 0)");
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final Point point = (Point) wktReader.read("POINT(3 2)");
+        final Date time = timeAxis.getTime(point);
+        assertEquals(1000000306287L, time.getTime());
     }
 
     @Test
@@ -131,6 +141,30 @@ public class TimeAxisTest {
         final Date time = timeAxis.getTime(point);
         assertNull(time);
     }
+
+    @Test
+    public void testGetIntersectionTime_line() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, 0 3, -3 4, -5 4)");
+        final LineString polygonSide = (LineString) wktReader.read("LINESTRING(-2 0, -4 2)");
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final TimeInterval timeInterval = timeAxis.getProjectionTime(polygonSide);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
+    }
+
+    @Test
+    public void testGetIntersectionTime_line_inverseDirection() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, 0 3, -3 4, -5 4)");
+        final LineString polygonSide = (LineString) wktReader.read("LINESTRING(-4 2, -2 0)");
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final TimeInterval timeInterval = timeAxis.getProjectionTime(polygonSide);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
+    }
+
+    // @todo 1 tb/tb add tests where the polygonSide is longer than the time axis, overlaps at start, overlaps at end 2015-08-14
 
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());
