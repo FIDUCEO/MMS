@@ -29,8 +29,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.intersect(polygon);
         assertNotNull(timeInterval);
-        assertEquals(100000333333L, timeInterval.getStartTime().getTime());
-        assertEquals(100000666666L, timeInterval.getStopTime().getTime());
+        assertTimeIntervalEquals(100000333333L, 100000666666L, timeInterval);
     }
 
     @Test
@@ -41,7 +40,55 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.intersect(polygon);
         assertNotNull(timeInterval);
-        assertEquals(100000166666L, timeInterval.getStartTime().getTime());
-        assertEquals(100000499999L, timeInterval.getStopTime().getTime());
+        assertTimeIntervalEquals(100000166666L, 100000499999L, timeInterval);
+    }
+
+    @Test
+    public void testIntersectStraightLineWithRectangle_lineStart_inside() throws ParseException {
+        final Polygon polygon = (Polygon) wktReader.read("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(3 1,6 -2)");
+
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
+        final TimeInterval timeInterval = timeAxis.intersect(polygon);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(100000000000L, 100000333333L, timeInterval);
+    }
+
+    @Test
+    public void testIntersectStraightLineWithRectangle_lineEnd_inside() throws ParseException {
+        final Polygon polygon = (Polygon) wktReader.read("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 5,1 1)");
+
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
+        final TimeInterval timeInterval = timeAxis.intersect(polygon);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(100000750000L, 100001000000L, timeInterval);
+    }
+
+    @Test
+    public void testIntersectStraightLineWithRectangle_line_inside() throws ParseException {
+        final Polygon polygon = (Polygon) wktReader.read("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 1,4 1)");
+
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
+        final TimeInterval timeInterval = timeAxis.intersect(polygon);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(100000000000L, 100001000000L, timeInterval);
+    }
+
+    @Test
+    public void testIntersectSegmentedLineWithParallelogram() throws ParseException {
+        final Polygon polygon = (Polygon) wktReader.read("POLYGON((2 -2, 7 -2, 9 -5, 4 -5, 2 -2))");
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 -6, 2 -4, 4 -3, 6 -3,8 -2)");
+
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(100000000000L), new Date(100001000000L));
+        final TimeInterval timeInterval = timeAxis.intersect(polygon);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(100000385165L, 100000903707L, timeInterval);
+    }
+
+    private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
+        assertEquals(expectedStart, timeInterval.getStartTime().getTime());
+        assertEquals(expectedStop, timeInterval.getStopTime().getTime());
     }
 }
