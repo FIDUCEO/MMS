@@ -6,7 +6,7 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -73,7 +73,7 @@ public class Storage {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<Driver> driverRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
 
-        BeamCoreActivator.loadServices(driverRegistry);
+        SnapCoreActivator.loadServices(driverRegistry);
         final Set<Driver> services = driverRegistry.getServices();
         final String dbUrl = dataSource.getUrl().toLowerCase();
         for (final Driver driver : services) {
