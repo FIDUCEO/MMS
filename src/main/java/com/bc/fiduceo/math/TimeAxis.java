@@ -50,8 +50,9 @@ public class TimeAxis {
     public TimeInterval getProjectionTime(LineString polygonSide) {
         final int numPoints = polygonSide.getNumPoints();
 
+        Coordinate startProjection;
         final Point startPoint = polygonSide.getPointN(0);
-        final Coordinate startProjection = findProjection(startPoint);
+        startProjection = findProjection(startPoint);
 
         final Point endPoint = polygonSide.getPointN(numPoints - 1);
         final Coordinate endProjection = findProjection(endPoint);
