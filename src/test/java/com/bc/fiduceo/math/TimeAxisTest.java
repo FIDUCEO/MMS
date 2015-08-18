@@ -1,6 +1,5 @@
 package com.bc.fiduceo.math;
 
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -11,9 +10,7 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class TimeAxisTest {
 
@@ -108,7 +105,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(2 0)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000500000L, time.getTime());
     }
 
@@ -118,7 +115,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(-2 3)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000500000L, time.getTime());
     }
 
@@ -128,7 +125,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(3 2)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000306287L, time.getTime());
     }
 
@@ -138,7 +135,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(-7 2)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertNull(time);
     }
 
@@ -164,7 +161,28 @@ public class TimeAxisTest {
         assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
     }
 
-    // @todo 1 tb/tb add tests where the polygonSide is longer than the time axis, overlaps at start, overlaps at end 2015-08-14
+    @Test
+    public void testGetIntersectionTime_lineWithMorePoints() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(-2 -2, 0 -3, 2 -4, 4 -6, 6 -8, 7 -10, 8 -12)");
+        final LineString polygonSide = (LineString) wktReader.read("LINESTRING(-2 -7, 0 -8, 2 -10, 3 -12)");
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final TimeInterval timeInterval = timeAxis.getProjectionTime(polygonSide);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(1000000153143L, 1000000846856L, timeInterval);
+    }
+
+    @Test
+    public void testGetIntersectionTime_lineWithMorePoints_inverseDirection() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(-2 -2, 0 -3, 2 -4, 4 -6, 6 -8, 7 -10, 8 -12)");
+        final LineString polygonSide = (LineString) wktReader.read("LINESTRING(3 -12, 2 -10, 0 -8, -2 -7)");
+        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final TimeInterval timeInterval = timeAxis.getProjectionTime(polygonSide);
+        assertNotNull(timeInterval);
+        assertTimeIntervalEquals(1000000153143L, 1000000846856L, timeInterval);
+    }
+
 
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());
