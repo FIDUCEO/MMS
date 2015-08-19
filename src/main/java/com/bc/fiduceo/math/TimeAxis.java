@@ -52,10 +52,10 @@ public class TimeAxis {
 
         Coordinate startProjection;
         final Point startPoint = polygonSide.getPointN(0);
-        startProjection = findProjection(startPoint);
+        startProjection = findProjection(startPoint.getCoordinate());
 
         final Point endPoint = polygonSide.getPointN(numPoints - 1);
-        final Coordinate endProjection = findProjection(endPoint);
+        final Coordinate endProjection = findProjection(endPoint.getCoordinate());
 
         final double startOffset = lengthIndexedLine.indexOf(startProjection);
         final double endOffset = lengthIndexedLine.indexOf(endProjection);
@@ -79,8 +79,8 @@ public class TimeAxis {
         return new TimeInterval(new Date(startMillis), new Date(endMillis));
     }
 
-    public Date getTime(Point point) {
-        final Coordinate projection = findProjection(point);
+    public Date getTime(Coordinate coordinate) {
+        final Coordinate projection = findProjection(coordinate);
         if (projection == null) {
             return null;
         }
@@ -93,7 +93,7 @@ public class TimeAxis {
         return new Date(startMillis);
     }
 
-    private Coordinate findProjection(Point point) {
+    private Coordinate findProjection(Coordinate coordinate) {
         // @todo 2 tb/tb we can speed up this routine by starting searching in the middle of the line
         // go to one direction, if the abs-value of the projectionFactor increases, search in the other direction
         // projectionFactor abs-value should decrease if we`re going in the right direction 2015-08-14
@@ -104,9 +104,9 @@ public class TimeAxis {
             final Point point1 = lineString.getPointN(n);
             final Point point2 = lineString.getPointN(n + 1);
             final LineSegment lineSegment = new LineSegment(point1.getCoordinate(), point2.getCoordinate());
-            final double projectionFactor = lineSegment.projectionFactor(point.getCoordinate());
+            final double projectionFactor = lineSegment.projectionFactor(coordinate);
             if (projectionFactor >= 0.0 && projectionFactor <= 1.0) {
-                return lineSegment.project(point.getCoordinate());
+                return lineSegment.project(coordinate);
             }
         }
 

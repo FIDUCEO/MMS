@@ -108,7 +108,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(2 0)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000500000L, time.getTime());
     }
 
@@ -118,7 +118,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(-2 3)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000500000L, time.getTime());
     }
 
@@ -128,7 +128,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(3 2)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertEquals(1000000306287L, time.getTime());
     }
 
@@ -138,7 +138,7 @@ public class TimeAxisTest {
         final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) wktReader.read("POINT(-7 2)");
-        final Date time = timeAxis.getTime(point);
+        final Date time = timeAxis.getTime(point.getCoordinate());
         assertNull(time);
     }
 
