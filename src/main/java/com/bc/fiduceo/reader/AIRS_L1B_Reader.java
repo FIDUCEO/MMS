@@ -24,63 +24,16 @@ public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
     private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
     private static final String RANGE_BEGINNING_TIME = "RANGEBEGINNINGTIME";
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
-    private static volatile String value;
     private static final String CORE_METADATA = "coremetadata";
     private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
-
+    static DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    private static volatile String value;
     private Element eosElement;
     private NetcdfFile netcdfFile;
 
+
     public AIRS_L1B_Reader(int xInteral, int yInterval) {
-        super(xInteral,yInterval);
-    }
-
-
-
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        final Group eosGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
-        eosElement = getEosElement(coreMateString);
-    }
-
-
-    public void close() throws IOException {
-        netcdfFile.close();
-    }
-
-    public SatelliteObservation read() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
-        String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
-        String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
-        satelliteObservation.setStartTime(dateFormat.parse(rangeBeginningDate));
-        satelliteObservation.setStopTime(dateFormat.parse(rangeEndingDate));
-//        satelliteObservation.setGeoBounds(getCreatePolygon(netcdfFile));
-        Sensor sensor = new Sensor();
-        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
-        satelliteObservation.setSensor(sensor);
-        satelliteObservation.setNodeType(readNodeType());
-        return satelliteObservation;
-    }
-
-
-    private NodeType readNodeType() {
-        String nodeType = null;
-        List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
-        for (Group group : groups) {
-            if (group.getShortName().equals("Swath_Attributes")) {
-                List<Attribute> attributes = group.getAttributes();
-                for (Attribute attribute : attributes) {
-                    if (attribute.getShortName().equals("node_type")) {
-                        nodeType = attribute.getStringValue();
-                    }
-                }
-            }
-        }
-        assert nodeType != null;
-        return NodeType.fromId(nodeType.equals("Ascending") ? 0 : 1);
+        super(xInteral, yInterval);
     }
 
     static String getElementValue(Element element, String attribute) {
@@ -94,7 +47,6 @@ public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
         }
         return value;
     }
-
 
     // package access for testing only tb 2015-08-05
     static Element getEosElement(String satelliteMeta) throws IOException {
@@ -120,5 +72,50 @@ public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
         }
         final Array metadataArray = structMetadataVar.read();
         return metadataArray.toString();
+    }
+
+    public void open(File file) throws IOException {
+        netcdfFile = NetcdfFile.open(file.getPath());
+        final Group eosGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+        eosElement = getEosElement(coreMateString);
+    }
+
+    public void close() throws IOException {
+        netcdfFile.close();
+    }
+
+    public SatelliteObservation read() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
+        String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
+        String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
+
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
+        satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
+        satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
+        satelliteObservation.setGeoBounds(createPolygonForAIRS(netcdfFile));
+
+
+        Sensor sensor = new Sensor();
+        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
+        satelliteObservation.setSensor(sensor);
+        satelliteObservation.setNodeType(readNodeType());
+        return satelliteObservation;
+    }
+
+    private NodeType readNodeType() {
+        String nodeType = null;
+        List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
+        for (Group group : groups) {
+            if (group.getShortName().equals("Swath_Attributes")) {
+                List<Attribute> attributes = group.getAttributes();
+                for (Attribute attribute : attributes) {
+                    if (attribute.getShortName().equals("node_type")) {
+                        nodeType = attribute.getStringValue();
+                    }
+                }
+            }
+        }
+        assert nodeType != null;
+        return NodeType.fromId(nodeType.equals("Ascending") ? 0 : 1);
     }
 }

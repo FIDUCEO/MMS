@@ -6,15 +6,12 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.junit.Before;
 import org.junit.Test;
-import ucar.ma2.ArrayDouble;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -37,14 +34,9 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateCoordinate() throws IOException, ParseException {
+    public void testPolygonFromCoordinate() throws IOException, ParseException {
         NetcdfFile netcdfFile = NetcdfFile.open(productFile.getPath());
-        List<ArrayDouble.D2> coordinate = boundingPolygonCreator.createCoordinate(netcdfFile);
-        assertNotNull(coordinate);
-        assertEquals(coordinate.size(), 2);
-        assertEquals(coordinate.get(0).getSize(), 1350);
-
-        Geometry geometry = boundingPolygonCreator.createPolygon(coordinate.get(0), coordinate.get(1));
+        Geometry geometry = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
         assertNotNull(geometry);
         WKTReader wkbReader = new WKTReader(new GeometryFactory());
         assertTrue(geometry.equals(wkbReader.read(POLYGON)));
