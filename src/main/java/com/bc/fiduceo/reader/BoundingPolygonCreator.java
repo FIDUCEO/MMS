@@ -87,6 +87,9 @@ public class BoundingPolygonCreator {
         }
         for (int y = 0; y <= geoTrack; y += intervalY) {
             coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
+            if ((y + intervalY) > geoTrack) {
+                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, geoXTrack), arrayLatitude.get(geoTrack, geoXTrack)));
+            }
         }
         for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
             coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
@@ -97,7 +100,6 @@ public class BoundingPolygonCreator {
         coordinates.add(coordinates.get(0));
         return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
-
 
     protected Geometry createPolygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude)
             throws com.vividsolutions.jts.io.ParseException {
@@ -106,19 +108,30 @@ public class BoundingPolygonCreator {
         int geoTrack = arrayLatitude.getShape()[0] - 1;
 
         List<Coordinate> coordinates = new ArrayList<>();
+
+        coordinates.add(new Coordinate(arrayLongitude.get(0, 0), arrayLatitude.get(0, 0)));
+
         for (int x = 1; x < geoXTrack; x += intervalX) {
             coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
         }
+
         for (int y = 0; y <= geoTrack; y += intervalY) {
             coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
+            if ((y + intervalY) > geoTrack) {
+                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, geoXTrack), arrayLatitude.get(geoTrack, geoXTrack)));
+            }
         }
+
         for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
             coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
         }
+
         for (int y = geoTrack; y >= 0; y -= intervalY) {
             coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
         }
         coordinates.add(coordinates.get(0));
         return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
+
+
 }

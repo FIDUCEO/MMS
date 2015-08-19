@@ -13,8 +13,6 @@ import java.util.Date;
  * @muhammad.bc on 8/17/2015.
  */
 public class EumetSatReader extends BoundingPolygonCreator implements Reader {
-
-
     private NetcdfFile netcdfFile;
 
     public EumetSatReader(int intervalX, int intervalY) {
@@ -24,7 +22,6 @@ public class EumetSatReader extends BoundingPolygonCreator implements Reader {
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
-
     }
 
     @Override
