@@ -1,6 +1,5 @@
 package com.bc.fiduceo.math;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
