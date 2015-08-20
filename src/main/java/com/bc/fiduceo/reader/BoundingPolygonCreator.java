@@ -54,28 +54,10 @@ public class BoundingPolygonCreator {
                 }
             }
         }
-        return createPolygonAIRS(d2XCoordinate, d2YCoordinate);
+        return polygonAIRS(d2XCoordinate, d2YCoordinate);
     }
 
-    public Geometry createPolygonForEumetSat(NetcdfFile netcdfFile) throws IOException, com.vividsolutions.jts.io.ParseException {
-        ArrayFloat.D2 arrayLatitude = null;
-        ArrayFloat.D2 arrayLongitude = null;
-
-        List<Variable> variables = netcdfFile.getVariables();
-        for (Variable variable : variables) {
-            if (variable.getShortName().equals("lat")) {
-                arrayLatitude = (ArrayFloat.D2) variable.read();
-            }
-
-            if (variable.getShortName().startsWith("lon")) {
-                arrayLongitude = (ArrayFloat.D2) variable.read();
-            }
-        }
-        return createPolygonEumet(arrayLatitude, arrayLongitude);
-    }
-
-
-    protected Geometry createPolygonAIRS(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude)
+    private Geometry polygonAIRS(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude)
             throws com.vividsolutions.jts.io.ParseException {
 
         int geoXTrack = arrayLatitude.getShape()[1] - 1;
@@ -101,7 +83,26 @@ public class BoundingPolygonCreator {
         return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 
-    protected Geometry createPolygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude)
+
+    public Geometry createPolygonForEumetSat(NetcdfFile netcdfFile) throws IOException, com.vividsolutions.jts.io.ParseException {
+        ArrayFloat.D2 arrayLatitude = null;
+        ArrayFloat.D2 arrayLongitude = null;
+
+        List<Variable> variables = netcdfFile.getVariables();
+        for (Variable variable : variables) {
+            if (variable.getShortName().equals("lat")) {
+                arrayLatitude = (ArrayFloat.D2) variable.read();
+            }
+
+            if (variable.getShortName().startsWith("lon")) {
+                arrayLongitude = (ArrayFloat.D2) variable.read();
+            }
+        }
+        return polygonEumet(arrayLatitude, arrayLongitude);
+    }
+
+
+    private Geometry polygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude)
             throws com.vividsolutions.jts.io.ParseException {
 
         int geoXTrack = arrayLatitude.getShape()[1] - 1;

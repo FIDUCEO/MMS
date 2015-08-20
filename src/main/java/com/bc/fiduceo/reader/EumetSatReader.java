@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import ucar.nc2.NetcdfFile;
 
@@ -12,11 +13,12 @@ import java.util.Date;
 /**
  * @muhammad.bc on 8/17/2015.
  */
-public class EumetSatReader extends BoundingPolygonCreator implements Reader {
+public class EumetSatReader implements Reader {
     private NetcdfFile netcdfFile;
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     public EumetSatReader(int intervalX, int intervalY) {
-        super(intervalX, intervalY);
+        boundingPolygonCreator = new BoundingPolygonCreator(intervalX, intervalY);
     }
 
     @Override
@@ -30,13 +32,13 @@ public class EumetSatReader extends BoundingPolygonCreator implements Reader {
     }
 
     @Override
-    public SatelliteObservation read() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
+    public SatelliteObservation read() throws Exception {
         SatelliteObservation satelliteObservation = new SatelliteObservation();
 
         satelliteObservation.setStartTime(getParseDate("time_converage_start"));
         satelliteObservation.setStopTime(getParseDate("time_converage_end"));
-
-        satelliteObservation.setGeoBounds(createPolygonForEumetSat(netcdfFile));
+        Geometry polygonForEumetSat = boundingPolygonCreator.createPolygonForEumetSat(netcdfFile);
+        satelliteObservation.setGeoBounds(polygonForEumetSat);
         return satelliteObservation;
     }
 

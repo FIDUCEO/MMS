@@ -3,6 +3,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -18,7 +19,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
+public class AIRS_L1B_Reader implements Reader {
 
     private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
     private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
@@ -30,10 +31,10 @@ public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
     private static volatile String value;
     private Element eosElement;
     private NetcdfFile netcdfFile;
-
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     public AIRS_L1B_Reader(int xInteral, int yInterval) {
-        super(xInteral, yInterval);
+        boundingPolygonCreator = new BoundingPolygonCreator(xInteral,yInterval);
     }
 
     static String getElementValue(Element element, String attribute) {
@@ -92,7 +93,8 @@ public class AIRS_L1B_Reader extends BoundingPolygonCreator implements Reader {
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
         satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
         satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
-        satelliteObservation.setGeoBounds(createPolygonForAIRS(netcdfFile));
+        Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
+        satelliteObservation.setGeoBounds(polygonForAIRS);
 
 
         Sensor sensor = new Sensor();
