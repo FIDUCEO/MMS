@@ -3,7 +3,6 @@ package com.bc.fiduceo.reader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Group;
@@ -29,37 +28,39 @@ public class BoundingPolygonCreator {
     }
 
 
-    public Geometry createPolygonForAIRS(NetcdfFile netcdfFile) throws IOException, ParseException {
-
+    public Geometry createPolygonForAIRS(NetcdfFile netcdfFile) {
         List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
         ArrayDouble.D2 d2XCoordinate = null;
         ArrayDouble.D2 d2YCoordinate = null;
         for (Group group : groups) {
-            if (group.getShortName().equals("Geolocation_Fields")) {
-                List<Variable> variables = group.getVariables();
-                for (Variable variable : variables) {
-                    if (variable.getShortName().startsWith("Latitude")) {
-                        d2XCoordinate = (ArrayDouble.D2) variable.read();
-                        if (d2XCoordinate == null) {
-                            throw new NullPointerException("The array is empty !!!");
-                        }
-                    }
+            try {
+                if (group.getShortName().equals("Geolocation_Fields")) {
+                    List<Variable> variables = group.getVariables();
+                    for (Variable variable : variables) {
+                        if (variable.getShortName().startsWith("Latitude")) {
 
-                    if (variable.getShortName().startsWith("Longitude")) {
-                        d2YCoordinate = (ArrayDouble.D2) variable.read();
-                        if (d2XCoordinate == null) {
-                            throw new NullPointerException("The array is empty !!!");
+                            d2XCoordinate = (ArrayDouble.D2) variable.read();
+
+                            if (d2XCoordinate == null) {
+                                throw new NullPointerException("The array is empty !!!");
+                            }
+                        }
+                        if (variable.getShortName().startsWith("Longitude")) {
+                            d2YCoordinate = (ArrayDouble.D2) variable.read();
+                            if (d2XCoordinate == null) {
+                                throw new NullPointerException("The array is empty !!!");
+                            }
                         }
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return polygonAIRS(d2XCoordinate, d2YCoordinate);
     }
 
-    private Geometry polygonAIRS(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude)
-            throws com.vividsolutions.jts.io.ParseException {
-
+    private Geometry polygonAIRS(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
         int geoXTrack = arrayLatitude.getShape()[1] - 1;
         int geoTrack = arrayLatitude.getShape()[0] - 1;
 
@@ -84,32 +85,33 @@ public class BoundingPolygonCreator {
     }
 
 
-    public Geometry createPolygonForEumetSat(NetcdfFile netcdfFile) throws IOException, com.vividsolutions.jts.io.ParseException {
+    public Geometry createPolygonForEumetSat(NetcdfFile netcdfFile) {
         ArrayFloat.D2 arrayLatitude = null;
         ArrayFloat.D2 arrayLongitude = null;
 
         List<Variable> variables = netcdfFile.getVariables();
-        for (Variable variable : variables) {
-            if (variable.getShortName().equals("lat")) {
-                arrayLatitude = (ArrayFloat.D2) variable.read();
-            }
+        try {
+            for (Variable variable : variables) {
+                if (variable.getShortName().equals("lat")) {
+                    arrayLatitude = (ArrayFloat.D2) variable.read();
+                }
 
-            if (variable.getShortName().startsWith("lon")) {
-                arrayLongitude = (ArrayFloat.D2) variable.read();
+                if (variable.getShortName().startsWith("lon")) {
+                    arrayLongitude = (ArrayFloat.D2) variable.read();
+                }
             }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
         return polygonEumet(arrayLatitude, arrayLongitude);
     }
 
 
-    private Geometry polygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude)
-            throws com.vividsolutions.jts.io.ParseException {
+    private Geometry polygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
 
         int geoXTrack = arrayLatitude.getShape()[1] - 1;
         int geoTrack = arrayLatitude.getShape()[0] - 1;
-
         List<Coordinate> coordinates = new ArrayList<>();
-
         coordinates.add(new Coordinate(arrayLongitude.get(0, 0), arrayLatitude.get(0, 0)));
 
         for (int x = 1; x < geoXTrack; x += intervalX) {
@@ -133,6 +135,4 @@ public class BoundingPolygonCreator {
         coordinates.add(coordinates.get(0));
         return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
-
-
 }

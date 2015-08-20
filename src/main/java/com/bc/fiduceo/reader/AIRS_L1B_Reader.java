@@ -27,14 +27,14 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
     private static final String CORE_METADATA = "coremetadata";
     private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
-    static DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    private static DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
     private static volatile String value;
     private Element eosElement;
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public AIRS_L1B_Reader(int xInteral, int yInterval) {
-        boundingPolygonCreator = new BoundingPolygonCreator(xInteral,yInterval);
+        boundingPolygonCreator = new BoundingPolygonCreator(xInteral, yInterval);
     }
 
     static String getElementValue(Element element, String attribute) {
@@ -76,27 +76,39 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        final Group eosGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
-        eosElement = getEosElement(coreMateString);
+        try {
+            netcdfFile = NetcdfFile.open(file.getPath());
+            final Group eosGroup = netcdfFile.getRootGroup();
+            final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+            eosElement = getEosElement(coreMateString);
+        } catch (IOException e) {
+            throw new IOException("The AIRS product Path did not exist.");
+        }
     }
 
     public void close() throws IOException {
-        netcdfFile.close();
+        try {
+            netcdfFile.close();
+        } catch (IOException e) {
+            throw new IOException("The AIRS product can't be closed.");
+        }
     }
 
-    public SatelliteObservation read() throws IOException, ParseException, com.vividsolutions.jts.io.ParseException {
-        String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
-        String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-
+    public SatelliteObservation read() {
+        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
+        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
-        satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
-        Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
+
+        try {
+            satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
+            satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        final Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
         satelliteObservation.setGeoBounds(polygonForAIRS);
-
-
         Sensor sensor = new Sensor();
         sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
         satelliteObservation.setSensor(sensor);
@@ -106,7 +118,7 @@ public class AIRS_L1B_Reader implements Reader {
 
     private NodeType readNodeType() {
         String nodeType = null;
-        List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
+        final List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
         for (Group group : groups) {
             if (group.getShortName().equals("Swath_Attributes")) {
                 List<Attribute> attributes = group.getAttributes();
@@ -117,7 +129,9 @@ public class AIRS_L1B_Reader implements Reader {
                 }
             }
         }
-        assert nodeType != null;
+        if (nodeType == null) {
+            throw new NullPointerException("The node type is Empty.");
+        }
         return NodeType.fromId(nodeType.equals("Ascending") ? 0 : 1);
     }
 }

@@ -22,27 +22,41 @@ public class EumetSatReader implements Reader {
     }
 
     @Override
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
+    public void open(File file) {
+        try {
+            netcdfFile = NetcdfFile.open(file.getPath());
+        } catch (IOException e) {
+            System.out.println("The NetCDF did not open the product,Please check the product path.");
+        }
     }
 
     @Override
     public void close() throws IOException {
-        netcdfFile.close();
+        try {
+            netcdfFile.close();
+        } catch (IOException e) {
+            throw new IOException("The product is not close.");
+        }
     }
 
     @Override
-    public SatelliteObservation read() throws Exception {
-        SatelliteObservation satelliteObservation = new SatelliteObservation();
+    public SatelliteObservation read() {
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
 
         satelliteObservation.setStartTime(getParseDate("time_converage_start"));
         satelliteObservation.setStopTime(getParseDate("time_converage_end"));
-        Geometry polygonForEumetSat = boundingPolygonCreator.createPolygonForEumetSat(netcdfFile);
+
+        final Geometry polygonForEumetSat = boundingPolygonCreator.createPolygonForEumetSat(netcdfFile);
         satelliteObservation.setGeoBounds(polygonForEumetSat);
         return satelliteObservation;
     }
 
-    Date getParseDate(String timeCoverage) throws ParseException {
-        return ProductData.UTC.parse(netcdfFile.findGlobalAttribute(timeCoverage).getStringValue(), "yyyy-MM-dd'T'HH:mm:ss").getAsDate();
+    Date getParseDate(String timeCoverage) {
+        try {
+            return ProductData.UTC.parse(netcdfFile.findGlobalAttribute(timeCoverage).getStringValue(), "yyyy-MM-dd'T'HH:mm:ss").getAsDate();
+        } catch (ParseException e) {
+            System.out.println("The string is not parse with the PATTERN yyyy-MM-dd'T'HH:mm:ss");
+        }
+        return null;
     }
 }
