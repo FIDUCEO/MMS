@@ -1,1 +1,2 @@
 com.bc.fiduceo.db.MySQLDriver
+com.bc.fiduceo.db.PostGISDriver
