@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +22,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- * @author muhammad.bc on 8/17/2015.
- */
+@SuppressWarnings("OctalInteger")
+@RunWith(ProductReaderTestRunner.class)
 public class EumetSatReaderTest {
 
     //--- Polygon with the interval of 6 at the
