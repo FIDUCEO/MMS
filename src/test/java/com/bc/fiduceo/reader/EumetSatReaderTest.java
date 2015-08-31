@@ -33,11 +33,9 @@ public class EumetSatReaderTest {
 
     @Before
     public void setUp() throws IOException {
-        final URL urlEumetSat = EumetSatReaderTest.class.getResource("W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
-        if (urlEumetSat == null) {
-            fail("The EumetSat product is not found");
-        }
-        File file = new File(urlEumetSat.getPath());
+        final File dataDirectory = TestResourceUtil.getTestDataDirectory();
+
+        File file = new File(dataDirectory, "W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
         eumetSatReader = new EumetSatReader(6, 6);
         assertNotNull(eumetSatReader);
         eumetSatReader.open(file);
