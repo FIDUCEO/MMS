@@ -5,9 +5,7 @@ import org.jdom2.Element;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-/**
- * @author muhammad.bc
- */
+
 class EosCoreMetaParser {
 
      Element parseFromString(String text) throws IOException {

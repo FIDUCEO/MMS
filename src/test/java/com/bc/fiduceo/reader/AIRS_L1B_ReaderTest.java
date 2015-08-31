@@ -52,8 +52,6 @@ public class AIRS_L1B_ReaderTest {
         observation = airsL1bReader.read();
     }
 
-
-
     @After
     public void endTest() throws IOException {
         airsL1bReader.close();

@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 
-/**
- * @muhammad.bc on 8/17/2015.
- */
+
 public class EumetSatReader implements Reader {
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;

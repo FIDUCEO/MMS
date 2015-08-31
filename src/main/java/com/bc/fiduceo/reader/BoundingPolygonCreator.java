@@ -13,16 +13,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @muhammad.bc on 8/12/2015.
- */
-public class BoundingPolygonCreator {
+class BoundingPolygonCreator {
 
-    private int intervalX = 1;
-    private int intervalY = 1;
+    private final int intervalX;
+    private final int intervalY;
 
 
-    public BoundingPolygonCreator(int intervalX, int intervalY) {
+    BoundingPolygonCreator(int intervalX, int intervalY) {
         this.intervalX = intervalX;
         this.intervalY = intervalY;
     }
