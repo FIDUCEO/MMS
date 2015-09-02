@@ -27,14 +27,18 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
     private static final String CORE_METADATA = "coremetadata";
     private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
-    private static DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+
+    private static final int GEO_INTERVAL_X = 6;
+    private static final int GEO_INTERVAL_Y = 6;
+
     private static volatile String value;
     private Element eosElement;
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
-    public AIRS_L1B_Reader(int xInteral, int yInterval) {
-        boundingPolygonCreator = new BoundingPolygonCreator(xInteral, yInterval);
+    public AIRS_L1B_Reader() {
+        boundingPolygonCreator = new BoundingPolygonCreator(GEO_INTERVAL_X, GEO_INTERVAL_Y);
     }
 
     static String getElementValue(Element element, String attribute) {
@@ -76,22 +80,14 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     public void open(File file) throws IOException {
-        try {
-            netcdfFile = NetcdfFile.open(file.getPath());
-            final Group eosGroup = netcdfFile.getRootGroup();
-            final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
-            eosElement = getEosElement(coreMateString);
-        } catch (IOException e) {
-            throw new IOException("The AIRS product Path did not exist.");
-        }
+        netcdfFile = NetcdfFile.open(file.getPath());
+        final Group eosGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+        eosElement = getEosElement(coreMateString);
     }
 
     public void close() throws IOException {
-        try {
-            netcdfFile.close();
-        } catch (IOException e) {
-            throw new IOException("The AIRS product can't be closed.");
-        }
+        netcdfFile.close();
     }
 
     public SatelliteObservation read() {

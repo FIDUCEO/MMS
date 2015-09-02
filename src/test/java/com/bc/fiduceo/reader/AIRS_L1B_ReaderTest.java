@@ -44,7 +44,7 @@ public class AIRS_L1B_ReaderTest {
 
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.08.03.001.L1B.AMSU_Rad.v5.0.14.0.R15214205337.hdf");
 
-        airsL1bReader = new AIRS_L1B_Reader(6, 6);
+        airsL1bReader = new AIRS_L1B_Reader();
         airsL1bReader.open(airsL1bFile);
         observation = airsL1bReader.read();
     }
