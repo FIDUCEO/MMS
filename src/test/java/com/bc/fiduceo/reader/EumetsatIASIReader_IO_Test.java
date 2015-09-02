@@ -2,25 +2,19 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @SuppressWarnings("OctalInteger")
 @RunWith(ProductReaderTestRunner.class)
@@ -36,7 +30,7 @@ public class EumetsatIASIReader_IO_Test {
         final File dataDirectory = TestUtil.getTestDataDirectory();
 
         File file = new File(dataDirectory, "W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
-        eumetSatIASIReader = new EumetsatIASIReader(6, 6);
+        eumetSatIASIReader = new EumetsatIASIReader();
         eumetSatIASIReader.open(file);
 
         satelliteObservation = eumetSatIASIReader.read();

@@ -16,11 +16,15 @@ import java.util.Date;
 
 
 public class EumetsatIASIReader implements Reader {
+
+    private static final int GEO_INTERVAL_X = 6;
+    private static final int GEO_INTERVAL_Y = 6;
+
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
-    public EumetsatIASIReader(int intervalX, int intervalY) {
-        boundingPolygonCreator = new BoundingPolygonCreator(intervalX, intervalY);
+    public EumetsatIASIReader() {
+        boundingPolygonCreator = new BoundingPolygonCreator(GEO_INTERVAL_X, GEO_INTERVAL_Y);
     }
 
     @Override
