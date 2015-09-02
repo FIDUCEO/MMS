@@ -19,13 +19,10 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -43,7 +40,7 @@ public class AIRS_L1B_ReaderTest {
 
     @Before
     public void setUp() throws IOException {
-        final File dataDirectory = TestResourceUtil.getTestDataDirectory();
+        final File dataDirectory = TestUtil.getTestDataDirectory();
 
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.08.03.001.L1B.AMSU_Rad.v5.0.14.0.R15214205337.hdf");
 

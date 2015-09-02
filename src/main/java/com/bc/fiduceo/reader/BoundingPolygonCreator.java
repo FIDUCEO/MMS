@@ -17,11 +17,13 @@ class BoundingPolygonCreator {
 
     private final int intervalX;
     private final int intervalY;
+    private final GeometryFactory geometryFactory;
 
 
     BoundingPolygonCreator(int intervalX, int intervalY) {
         this.intervalX = intervalX;
         this.intervalY = intervalY;
+        geometryFactory = new GeometryFactory();
     }
 
 
@@ -78,37 +80,14 @@ class BoundingPolygonCreator {
             coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
         }
         coordinates.add(coordinates.get(0));
-        return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+        return geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 
+    public Geometry createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
+        final int geoXTrack = arrayLatitude.getShape()[1] - 1;
+        final int geoTrack = arrayLatitude.getShape()[0] - 1;
+        final List<Coordinate> coordinates = new ArrayList<>();
 
-    public Geometry createPolygonForEumetSat(NetcdfFile netcdfFile) {
-        ArrayFloat.D2 arrayLatitude = null;
-        ArrayFloat.D2 arrayLongitude = null;
-
-        List<Variable> variables = netcdfFile.getVariables();
-        try {
-            for (Variable variable : variables) {
-                if (variable.getShortName().equals("lat")) {
-                    arrayLatitude = (ArrayFloat.D2) variable.read();
-                }
-
-                if (variable.getShortName().startsWith("lon")) {
-                    arrayLongitude = (ArrayFloat.D2) variable.read();
-                }
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return polygonEumet(arrayLatitude, arrayLongitude);
-    }
-
-
-    private Geometry polygonEumet(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
-
-        int geoXTrack = arrayLatitude.getShape()[1] - 1;
-        int geoTrack = arrayLatitude.getShape()[0] - 1;
-        List<Coordinate> coordinates = new ArrayList<>();
         coordinates.add(new Coordinate(arrayLongitude.get(0, 0), arrayLatitude.get(0, 0)));
 
         for (int x = 1; x < geoXTrack; x += intervalX) {
@@ -130,6 +109,6 @@ class BoundingPolygonCreator {
             coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
         }
         coordinates.add(coordinates.get(0));
-        return new GeometryFactory().createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+        return geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 }

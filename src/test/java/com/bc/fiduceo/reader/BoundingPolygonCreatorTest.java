@@ -11,7 +11,6 @@ import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +28,7 @@ public class BoundingPolygonCreatorTest {
         boundingPolygonCreator = new BoundingPolygonCreator(8, 8);
         assertNotNull(boundingPolygonCreator);
 
-        final File testDataDirectory = TestResourceUtil.getTestDataDirectory();
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
         productFile = new File(testDataDirectory,"AIRS.2015.08.03.001.L1B.AMSU_Rad.v5.0.14.0.R15214205337.hdf");
     }
 
