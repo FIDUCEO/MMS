@@ -55,11 +55,11 @@ public class AIRS_L1B_Reader implements Reader {
 
     // package access for testing only tb 2015-08-05
     static Element getEosElement(String satelliteMeta) throws IOException {
-        String localSmmeta = satelliteMeta.replaceAll("\\s+=\\s+", "=");
-        localSmmeta = localSmmeta.replaceAll("\\?", "_");
+        String trimedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
+        trimedMetaString = trimedMetaString.replaceAll("\\?", "_");
 
-        final StringBuilder sb = new StringBuilder(localSmmeta.length());
-        final StringTokenizer lineFinder = new StringTokenizer(localSmmeta, "\t\n\r\f");
+        final StringBuilder sb = new StringBuilder(trimedMetaString.length());
+        final StringTokenizer lineFinder = new StringTokenizer(trimedMetaString, "\t\n\r\f");
         while (lineFinder.hasMoreTokens()) {
             final String line = lineFinder.nextToken().trim();
             sb.append(line);
@@ -90,7 +90,7 @@ public class AIRS_L1B_Reader implements Reader {
         netcdfFile.close();
     }
 
-    public SatelliteObservation read() {
+    public SatelliteObservation read() throws IOException {
         final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
         final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
@@ -99,7 +99,7 @@ public class AIRS_L1B_Reader implements Reader {
             satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
             satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new IOException(e.getMessage());
         }
 
 
