@@ -10,13 +10,14 @@ import java.util.Date;
 
 public class GeometryIntersector {
 
-    public static TimeInterval getIntersectingInterval(SatelliteGeometry satGeometry_1, SatelliteGeometry satGeometry_2) {
+    public static TimeInfo getIntersectingInterval(SatelliteGeometry satGeometry_1, SatelliteGeometry satGeometry_2) {
         final Geometry geometry_1 = satGeometry_1.getGeometry();
         final Geometry geometry_2 = satGeometry_2.getGeometry();
+        final TimeInfo timeInfo = new TimeInfo();
 
         final Geometry intersection = geometry_1.intersection(geometry_2);
         if (intersection.isEmpty()) {
-            return null;
+            return timeInfo;
         }
 
         final TimeAxis timeAxis_1 = satGeometry_1.getTimeAxis();
@@ -41,6 +42,8 @@ public class GeometryIntersector {
         final TimeInterval interval_1 = TimeInterval.create(sensor_1_dates);
         final TimeInterval interval_2 = TimeInterval.create(sensor_2_dates);
 
-        return interval_1.intersect(interval_2);
+        timeInfo.setTimeInterval(interval_1.intersect(interval_2));
+        timeInfo.setMinimalTimeDelta(0);
+        return timeInfo;
     }
 }

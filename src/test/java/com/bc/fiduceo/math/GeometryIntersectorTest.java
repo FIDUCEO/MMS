@@ -31,8 +31,9 @@ public class GeometryIntersectorTest {
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((0 5, 0 4, 0 3, 0 2, 1 2, 1 3, 1 4, 1 5, 0 5))",
                 "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
 
-        final TimeInterval interval = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        assertNull(interval);
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        assertNull(timeInfo.getTimeInterval());
+        assertEquals(Integer.MAX_VALUE, timeInfo.getMinimalTimeDelta());
     }
 
     @Test
@@ -42,9 +43,11 @@ public class GeometryIntersectorTest {
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
                 "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
 
-        final TimeInterval interval = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        assertEquals(1666L, interval.getStartTime().getTime());
-        assertEquals(2000L, interval.getStopTime().getTime());
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        final TimeInterval timeInterval = timeInfo.getTimeInterval();
+        assertEquals(1666L, timeInterval.getStartTime().getTime());
+        assertEquals(2000L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
     }
 
     private SatelliteGeometry createSatelliteGeometry(String polygon, String line, int startTime, int stopTime) throws ParseException {

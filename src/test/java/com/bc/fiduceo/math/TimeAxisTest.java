@@ -161,20 +161,6 @@ public class TimeAxisTest {
         assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
     }
 
-    @Test
-    public void testGetIntersectionTime_line_PolygonSide_longer() throws ParseException {
-        // @todo 1 tb/tb continue here
-//        final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, 0 3, -3 4, -5 4)");
-//        final LineString polygonSide = (LineString) wktReader.read("LINESTRING(-6 6, 3 2)");
-//        final TimeAxis timeAxis = new TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
-//
-//        final TimeInterval timeInterval = timeAxis.getProjectionTime(polygonSide);
-//        assertNotNull(timeInterval);
-//        assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
-    }
-
-    // @todo 1 tb/tb add tests where the polygonSide is longer than the time axis, overlaps at start, overlaps at end 2015-08-14
-
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());
         assertEquals(expectedStop, timeInterval.getStopTime().getTime());
