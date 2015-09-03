@@ -42,8 +42,10 @@ public class GeometryIntersector {
         final TimeInterval interval_1 = TimeInterval.create(sensor_1_dates);
         final TimeInterval interval_2 = TimeInterval.create(sensor_2_dates);
 
+        final int timeDelta = (int) Math.abs(interval_1.getStartTime().getTime() - interval_2.getStartTime().getTime());
+
         timeInfo.setTimeInterval(interval_1.intersect(interval_2));
-        timeInfo.setMinimalTimeDelta(0);
+        timeInfo.setMinimalTimeDelta(timeDelta);
         return timeInfo;
     }
 }
