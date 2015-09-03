@@ -39,7 +39,7 @@ public class ProductReaderTestRunner extends BlockJUnit4ClassRunner {
         if (executeProductTests) {
             super.runChild(method, notifier);
         } else {
-            final Description description = Description.createTestDescription(clazz, "allMethods. Database tests disabled. Set VM param -D" + PROPERTYNAME_EXECUTE_PRODUCT_TESTS + "=true to enable.");
+            final Description description = Description.createTestDescription(clazz, "allMethods. Product tests disabled. Set VM param -D" + PROPERTYNAME_EXECUTE_PRODUCT_TESTS + "=true to enable.");
             notifier.fireTestIgnored(description);
         }
     }
