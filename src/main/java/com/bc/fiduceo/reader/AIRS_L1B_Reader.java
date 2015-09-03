@@ -42,6 +42,9 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     static String getElementValue(Element element, String attribute) {
+        if (element.getName().equals(attribute)) {
+            return element.getChild("VALUE").getValue();
+        }
         for (Element subElement : element.getChildren()) {
             if (subElement.getName().equals(attribute)) {
                 value = subElement.getChild("VALUE").getValue();

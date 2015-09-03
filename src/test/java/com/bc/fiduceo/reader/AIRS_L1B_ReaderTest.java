@@ -8,6 +8,7 @@ import ucar.nc2.Group;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -35,18 +36,24 @@ public class AIRS_L1B_ReaderTest {
     public void testGetEosMetadata_groupNotPresent() throws IOException {
         final Group mockGroup = mock(Group.class);
         when(mockGroup.findVariable("whatever")).thenReturn(null);
+
         final String metadata = AIRS_L1B_Reader.getEosMetadata("whatever", mockGroup);
         assertNull(metadata);
     }
 
-    // @todo 1 tb/tb correct this failing test 2015-09-02
-//    @Test
-//    public void testElementValue() throws IOException {
-//        final Element mockElement = mock(Element.class);
-//        when(mockElement.toString()).thenReturn("2015-08-03");
-//        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
-//        assertNotNull(elementValue);
-//    }
+    @Test
+    public void testElementValue() throws IOException {
+        final Element mockElement = mock(Element.class);
+        final Element childElement = mock(Element.class);
+        when(childElement.getValue()).thenReturn("2015-08-03");
+
+        when(mockElement.getChild("VALUE")).thenReturn(childElement);
+        when(mockElement.getName()).thenReturn("RANGEENDINGDATE");
+
+        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
+        assertNotNull(elementValue);
+        assertEquals("2015-08-03", elementValue);
+    }
 
     @Test
     public void testGetEosMetadata_readMetadata() throws IOException {

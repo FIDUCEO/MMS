@@ -8,8 +8,6 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
 
 public class ProductReaderTestRunner extends BlockJUnit4ClassRunner {
 
