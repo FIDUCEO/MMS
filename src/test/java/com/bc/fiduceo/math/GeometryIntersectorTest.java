@@ -32,7 +32,7 @@ public class GeometryIntersectorTest {
                 "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        assertNull(timeInfo.getTimeInterval());
+        assertNull(timeInfo.getOverlapInterval());
         assertEquals(Integer.MAX_VALUE, timeInfo.getMinimalTimeDelta());
     }
 
@@ -44,22 +44,36 @@ public class GeometryIntersectorTest {
                 "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        final TimeInterval timeInterval = timeInfo.getTimeInterval();
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
         assertEquals(1666L, timeInterval.getStartTime().getTime());
         assertEquals(2000L, timeInterval.getStopTime().getTime());
         assertEquals(0, timeInfo.getMinimalTimeDelta());
     }
 
     @Test
-    public void testGetIntersectionTime_onSameOrbit_bothDescending() throws ParseException {
+    public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending_shiftedLon() throws ParseException {
+        final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((-4 2, -4 1, -4 0, -4 -1, -4 -2, -3 -2, -3 -1, -3 0, -3 1, -3 2, -4 2))",
+                "LINESTRING(-4 2, -4 1, -4 0, -4 -1, -4 -2)", 1000, 2000);
+        final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((-2.5 0, -2.5 1, -2.5 2, -2.5 3, -3.5 3, -3.5 2, -3.5 1, -3.5 0, -2.5 0))",
+                "LINESTRING(-2.5 0, -2.5 1, -2.5 2, -2.5 3)", 1000, 2000);
+
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1000L, timeInterval.getStartTime().getTime());
+        assertEquals(1500L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+    }
+
+    @Test
+    public void testGetIntersectionTime_onSameOrbit_bothDescending_noOverlappingTime() throws ParseException {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
                 "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
                 "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        assertNull(timeInfo.getTimeInterval());
-        assertEquals(666, timeInfo.getMinimalTimeDelta());
+        assertNull(timeInfo.getOverlapInterval());
+        assertEquals(333, timeInfo.getMinimalTimeDelta());
     }
 
     @Test
@@ -70,9 +84,66 @@ public class GeometryIntersectorTest {
                 "LINESTRING(2 5, 2 4, 2 3, 2 2)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
-        // @todo 1 tb/tb continue here 2015-09-03
-        //assertNull(timeInfo.getTimeInterval());
-        assertEquals(333, timeInfo.getMinimalTimeDelta());
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1333L, timeInterval.getStartTime().getTime());
+        assertEquals(1666L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+    }
+
+    @Test
+    public void testGetIntersectionTime_onSamePlatform() throws ParseException {
+        final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
+                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+        final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
+                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1000L, timeInterval.getStartTime().getTime());
+        assertEquals(2000L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+    }
+
+    @Test
+    public void testGetIntersectionTime_angularIntersection_intersectingTime() throws ParseException {
+        final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
+                "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1000, 2000);
+        final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
+                "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
+
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1000L, timeInterval.getStartTime().getTime());
+        assertEquals(1833L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+    }
+
+    @Test
+    public void testGetIntersectionTime_angularIntersection_noIntersectingTime() throws ParseException {
+        final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
+                "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1900, 2900);
+        final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
+                "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
+
+        final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
+        assertNull(timeInfo.getOverlapInterval());
+        assertEquals(67, timeInfo.getMinimalTimeDelta());
+    }
+
+    @Test
+    public void testCalculateTimeDelta() {
+        final TimeInterval interval_1 = new TimeInterval(new Date(2500), new Date(2800));
+        final TimeInterval interval_2 = new TimeInterval(new Date(3000), new Date(3500));
+
+        assertEquals(200, GeometryIntersector.calculateTimeDelta(interval_1, interval_2));
+    }
+
+    @Test
+    public void testCalculateTimeDelta_intervalsAreReordered() {
+        final TimeInterval interval_1 = new TimeInterval(new Date(2500), new Date(2800));
+        final TimeInterval interval_2 = new TimeInterval(new Date(3000), new Date(3500));
+
+        assertEquals(200, GeometryIntersector.calculateTimeDelta(interval_2, interval_1));
     }
 
     private SatelliteGeometry createSatelliteGeometry(String polygon, String line, int startTime, int stopTime) throws ParseException {

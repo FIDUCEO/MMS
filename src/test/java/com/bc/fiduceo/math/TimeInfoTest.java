@@ -12,7 +12,7 @@ public class TimeInfoTest {
     public void testConstruction() {
         final TimeInfo timeInfo = new TimeInfo();
 
-        assertNull(timeInfo.getTimeInterval());
+        assertNull(timeInfo.getOverlapInterval());
         assertEquals(Integer.MAX_VALUE, timeInfo.getMinimalTimeDelta());
     }
 }

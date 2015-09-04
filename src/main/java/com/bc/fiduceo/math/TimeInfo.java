@@ -3,19 +3,19 @@ package com.bc.fiduceo.math;
 
 public class TimeInfo {
 
-    private TimeInterval timeInterval;
+    private TimeInterval overlapInterval;
     private int minimalTimeDelta;
 
     public TimeInfo() {
         minimalTimeDelta = Integer.MAX_VALUE;
     }
 
-    public TimeInterval getTimeInterval() {
-        return timeInterval;
+    public TimeInterval getOverlapInterval() {
+        return overlapInterval;
     }
 
-    public void setTimeInterval(TimeInterval timeInterval) {
-        this.timeInterval = timeInterval;
+    public void setOverlapInterval(TimeInterval overlapInterval) {
+        this.overlapInterval = overlapInterval;
     }
 
     public int getMinimalTimeDelta() {

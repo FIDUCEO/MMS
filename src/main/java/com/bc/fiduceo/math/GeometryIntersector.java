@@ -42,10 +42,31 @@ public class GeometryIntersector {
         final TimeInterval interval_1 = TimeInterval.create(sensor_1_dates);
         final TimeInterval interval_2 = TimeInterval.create(sensor_2_dates);
 
-        final int timeDelta = (int) Math.abs(interval_1.getStartTime().getTime() - interval_2.getStartTime().getTime());
 
-        timeInfo.setTimeInterval(interval_1.intersect(interval_2));
-        timeInfo.setMinimalTimeDelta(timeDelta);
+        final TimeInterval overlapInterval = interval_1.intersect(interval_2);
+        timeInfo.setOverlapInterval(overlapInterval);
+
+        if (overlapInterval == null) {
+            final int timeDelta = calculateTimeDelta(interval_1, interval_2);
+            timeInfo.setMinimalTimeDelta(timeDelta);
+        } else {
+            timeInfo.setMinimalTimeDelta(0);
+        }
         return timeInfo;
+    }
+
+    // package access for testing only tb 2015-09-04
+    static int calculateTimeDelta(TimeInterval interval_1, TimeInterval interval_2) {
+        TimeInterval earlier;
+        TimeInterval later;
+        if (interval_1.getStartTime().before(interval_2.getStartTime())) {
+            earlier = interval_1;
+            later = interval_2;
+        } else {
+            earlier = interval_2;
+            later = interval_1;
+        }
+
+        return (int) (later.getStartTime().getTime() - earlier.getStopTime().getTime());
     }
 }

@@ -13,6 +13,8 @@ public class SatelliteObservation {
     private Sensor sensor;
     private NodeType nodeType;
     private File dataFile;
+    private int timeAxisStartIndex;
+    private int timeAxisEndIndex;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
@@ -64,5 +66,21 @@ public class SatelliteObservation {
 
     public void setDataFile(File dataFile) {
         this.dataFile = dataFile;
+    }
+
+    public int getTimeAxisStartIndex() {
+        return timeAxisStartIndex;
+    }
+
+    public void setTimeAxisStartIndex(int timeAxisStartIndex) {
+        this.timeAxisStartIndex = timeAxisStartIndex;
+    }
+
+    public int getTimeAxisEndIndex() {
+        return timeAxisEndIndex;
+    }
+
+    public void setTimeAxisEndIndex(int timeAxisEndIndex) {
+        this.timeAxisEndIndex = timeAxisEndIndex;
     }
 }
