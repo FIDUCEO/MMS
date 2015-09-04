@@ -32,13 +32,15 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, observation.getGeoBounds());
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
+        preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
+        preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
 
         preparedStatement.executeUpdate();
     }
@@ -73,6 +75,12 @@ public class H2Driver extends AbstractDriver {
 
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFile(new File(dataFile));
+
+            final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
+            observation.setTimeAxisStartIndex(timeAxisStartIndex);
+
+            final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
+            observation.setTimeAxisEndIndex(timeAxisEndIndex);
 
             resultList.add(observation);
         }

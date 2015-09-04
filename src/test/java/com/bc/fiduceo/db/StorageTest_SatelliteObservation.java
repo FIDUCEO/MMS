@@ -57,6 +57,8 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
         assertEquals(observation.getDataFile().getAbsolutePath(), observationFromDb.getDataFile().getAbsolutePath());
+        assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
+        assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
     }
 
     @Test
@@ -85,6 +87,8 @@ public abstract class StorageTest_SatelliteObservation {
         final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
         observation.setGeoBounds(geometry);
         observation.setDataFile(new File("the_data.file"));
+        observation.setTimeAxisStartIndex(23);
+        observation.setTimeAxisEndIndex(27);
         return observation;
     }
 }

@@ -45,13 +45,15 @@ public class MySQLDriver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, GeomFromWKB(?), ?, ?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, GeomFromWKB(?), ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, wkbWriter.write(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
+        preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
+        preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
 
         preparedStatement.executeUpdate();
     }
@@ -59,7 +61,7 @@ public class MySQLDriver extends AbstractDriver {
     @Override
     public List<SatelliteObservation> get() throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final ResultSet resultSet = statement.executeQuery("SELECT StartDate, StopDate,NodeType, AsWKB(GeoBounds), SensorId, DataFile FROM SATELLITE_OBSERVATION");
+        final ResultSet resultSet = statement.executeQuery("SELECT StartDate, StopDate,NodeType, AsWKB(GeoBounds), SensorId, DataFile, TimeAxisStartIndex, TimeAxisEndIndex FROM SATELLITE_OBSERVATION");
         resultSet.last();
         final int numValues = resultSet.getRow();
         resultSet.beforeFirst();
@@ -87,6 +89,12 @@ public class MySQLDriver extends AbstractDriver {
 
                 final String dataFile = resultSet.getString("DataFile");
                 observation.setDataFile(new File(dataFile));
+
+                final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
+                observation.setTimeAxisStartIndex(timeAxisStartIndex);
+
+                final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
+                observation.setTimeAxisEndIndex(timeAxisEndIndex);
 
                 resultList.add(observation);
             }
