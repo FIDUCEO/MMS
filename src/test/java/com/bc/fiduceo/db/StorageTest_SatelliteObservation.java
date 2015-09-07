@@ -77,8 +77,6 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(sensor.getName(), result.get(0).getSensor().getName());
     }
 
-    // @todo 2 tb/tb add test with null dates 2015-08-06
-
     protected SatelliteObservation createSatelliteObservation() throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(new Date(1430000000000L));

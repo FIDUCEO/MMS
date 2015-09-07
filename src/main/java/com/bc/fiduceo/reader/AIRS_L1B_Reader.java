@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
@@ -8,6 +9,7 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -30,8 +32,8 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
-    private static final int GEO_INTERVAL_X = 6;
-    private static final int GEO_INTERVAL_Y = 6;
+    private static final int GEO_INTERVAL_X = 12;
+    private static final int GEO_INTERVAL_Y = 12;
 
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
@@ -49,8 +51,8 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     public SatelliteObservation read() throws IOException {
-        final Group eosGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
         final Element eosElement = getEosElement(coreMateString);
 
         final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
@@ -64,14 +66,27 @@ public class AIRS_L1B_Reader implements Reader {
             throw new IOException(e.getMessage());
         }
 
-
-        final Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
-        satelliteObservation.setGeoBounds(polygonForAIRS);
-
         final Sensor sensor = new Sensor();
         sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
         satelliteObservation.setSensor(sensor);
-        satelliteObservation.setNodeType(readNodeType());
+        final NodeType nodeType = readNodeType();
+        satelliteObservation.setNodeType(nodeType);
+
+        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
+        if (l1bAirsGroup == null) {
+            throw new IOException("'L1B_AIRS_Science' data group not found");
+        }
+        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
+        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
+        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
+        final Array latitudes = latitudeVariable.read();
+        final Array longitudes = longitudeVariable.read();
+
+        final SatelliteGeometry satelliteGeometry = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+        satelliteObservation.setGeoBounds(satelliteGeometry.getGeometry());
+        satelliteObservation.setTimeAxisStartIndex(satelliteGeometry.getTimeAxisStartIndex());
+        satelliteObservation.setTimeAxisEndIndex(satelliteGeometry.getTimeAxisEndIndex());
+
         return satelliteObservation;
     }
 

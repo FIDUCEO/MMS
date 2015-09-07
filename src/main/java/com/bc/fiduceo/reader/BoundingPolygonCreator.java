@@ -1,15 +1,14 @@
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.core.SatelliteGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,61 +25,66 @@ class BoundingPolygonCreator {
         geometryFactory = new GeometryFactory();
     }
 
-
-    public Geometry createPolygonForAIRS(NetcdfFile netcdfFile) {
-        List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
-        ArrayDouble.D2 d2XCoordinate = null;
-        ArrayDouble.D2 d2YCoordinate = null;
-        for (Group group : groups) {
-            try {
-                if (group.getShortName().equals("Geolocation_Fields")) {
-                    List<Variable> variables = group.getVariables();
-                    for (Variable variable : variables) {
-                        if (variable.getShortName().startsWith("Latitude")) {
-
-                            d2XCoordinate = (ArrayDouble.D2) variable.read();
-
-                            if (d2XCoordinate == null) {
-                                throw new NullPointerException("The array is empty !!!");
-                            }
-                        }
-                        if (variable.getShortName().startsWith("Longitude")) {
-                            d2YCoordinate = (ArrayDouble.D2) variable.read();
-                            if (d2XCoordinate == null) {
-                                throw new NullPointerException("The array is empty !!!");
-                            }
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return polygonAIRS(d2XCoordinate, d2YCoordinate);
-    }
-
-    private Geometry polygonAIRS(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
-        int geoXTrack = arrayLatitude.getShape()[1] - 1;
-        int geoTrack = arrayLatitude.getShape()[0] - 1;
+    public SatelliteGeometry createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+        final int[] shape = arrayLatitude.getShape();
+        int geoXTrack = shape[1] - 1;
+        int geoTrack = shape[0] - 1;
 
         List<Coordinate> coordinates = new ArrayList<>();
-        for (int x = 1; x < geoXTrack; x += intervalX) {
-            coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
-        }
-        for (int y = 0; y <= geoTrack; y += intervalY) {
-            coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
-            if ((y + intervalY) > geoTrack) {
-                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, geoXTrack), arrayLatitude.get(geoTrack, geoXTrack)));
+
+        int timeAxisStart = Integer.MIN_VALUE;
+        int timeAxisEnd = Integer.MIN_VALUE;
+        if (nodeType == NodeType.ASCENDING) {
+            for (int x = 0; x < geoXTrack; x += intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
             }
+
+            timeAxisStart = coordinates.size();
+            timeAxisEnd = timeAxisStart;
+            for (int y = 0; y < geoTrack; y += intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
+                ++timeAxisEnd;
+            }
+
+            for (int x = geoXTrack; x > 0; x -= intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
+            }
+
+            for (int y = geoTrack; y > 0; y -= intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
+            }
+        } else {
+
+            for (int x = 1; x < geoXTrack; x += intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
+            }
+            for (int y = 0; y <= geoTrack; y += intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
+                if ((y + intervalY) > geoTrack) {
+                    coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, geoXTrack), arrayLatitude.get(geoTrack, geoXTrack)));
+                }
+            }
+            for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
+            }
+            for (int y = geoTrack; y >= 0; y -= intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
+            }
+
         }
-        for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
-            coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
-        }
-        for (int y = geoTrack; y >= 0; y -= intervalY) {
-            coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
-        }
+
+        // close the polygon
+        closePolygon(coordinates);
+
+        final Polygon polygon = geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+        final SatelliteGeometry satelliteGeometry = new SatelliteGeometry(polygon, null);
+        satelliteGeometry.setTimeAxisStartIndex(timeAxisStart);
+        satelliteGeometry.setTimeAxisEndIndex(timeAxisEnd);
+        return satelliteGeometry;
+    }
+
+    private void closePolygon(List<Coordinate> coordinates) {
         coordinates.add(coordinates.get(0));
-        return geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 
     public Geometry createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
@@ -108,7 +112,8 @@ class BoundingPolygonCreator {
         for (int y = geoTrack; y >= 0; y -= intervalY) {
             coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
         }
-        coordinates.add(coordinates.get(0));
+
+        closePolygon(coordinates);
         return geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
     }
 }

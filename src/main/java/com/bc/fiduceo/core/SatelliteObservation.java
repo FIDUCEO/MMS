@@ -18,6 +18,8 @@ public class SatelliteObservation {
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
+        timeAxisStartIndex = -1;
+        timeAxisEndIndex = -1;
     }
 
     public Geometry getGeoBounds() {
