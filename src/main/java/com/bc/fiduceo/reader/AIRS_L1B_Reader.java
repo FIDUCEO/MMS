@@ -5,6 +5,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -32,8 +33,6 @@ public class AIRS_L1B_Reader implements Reader {
     private static final int GEO_INTERVAL_X = 6;
     private static final int GEO_INTERVAL_Y = 6;
 
-    private static volatile String value;
-    private Element eosElement;
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
@@ -41,28 +40,66 @@ public class AIRS_L1B_Reader implements Reader {
         boundingPolygonCreator = new BoundingPolygonCreator(GEO_INTERVAL_X, GEO_INTERVAL_Y);
     }
 
+    public void open(File file) throws IOException {
+        netcdfFile = NetcdfFile.open(file.getPath());
+    }
+
+    public void close() throws IOException {
+        netcdfFile.close();
+    }
+
+    public SatelliteObservation read() throws IOException {
+        final Group eosGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
+        final Element eosElement = getEosElement(coreMateString);
+
+        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
+        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
+
+        try {
+            satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
+            satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+
+
+        final Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
+        satelliteObservation.setGeoBounds(polygonForAIRS);
+
+        final Sensor sensor = new Sensor();
+        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
+        satelliteObservation.setSensor(sensor);
+        satelliteObservation.setNodeType(readNodeType());
+        return satelliteObservation;
+    }
+
+
     static String getElementValue(Element element, String attribute) {
         if (element.getName().equals(attribute)) {
             return element.getChild("VALUE").getValue();
         }
         for (Element subElement : element.getChildren()) {
             if (subElement.getName().equals(attribute)) {
-                value = subElement.getChild("VALUE").getValue();
-                break;
+                return subElement.getChild("VALUE").getValue();
             } else {
-                getElementValue(subElement, attribute);
+                final String elementValue = getElementValue(subElement, attribute);
+                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
+                    return elementValue;
+                }
             }
         }
-        return value;
+        return null;
     }
 
     // package access for testing only tb 2015-08-05
     static Element getEosElement(String satelliteMeta) throws IOException {
-        String trimedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
-        trimedMetaString = trimedMetaString.replaceAll("\\?", "_");
+        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
+        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
 
-        final StringBuilder sb = new StringBuilder(trimedMetaString.length());
-        final StringTokenizer lineFinder = new StringTokenizer(trimedMetaString, "\t\n\r\f");
+        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
+        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
         while (lineFinder.hasMoreTokens()) {
             final String line = lineFinder.nextToken().trim();
             sb.append(line);
@@ -82,40 +119,7 @@ public class AIRS_L1B_Reader implements Reader {
         return metadataArray.toString();
     }
 
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        final Group eosGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, eosGroup);
-        eosElement = getEosElement(coreMateString);
-    }
-
-    public void close() throws IOException {
-        netcdfFile.close();
-    }
-
-    public SatelliteObservation read() throws IOException {
-        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
-        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-
-        try {
-            satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
-            satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-
-
-        final Geometry polygonForAIRS = boundingPolygonCreator.createPolygonForAIRS(netcdfFile);
-        satelliteObservation.setGeoBounds(polygonForAIRS);
-        Sensor sensor = new Sensor();
-        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
-        satelliteObservation.setSensor(sensor);
-        satelliteObservation.setNodeType(readNodeType());
-        return satelliteObservation;
-    }
-
-    private NodeType readNodeType() {
+    private NodeType readNodeType()  {
         String nodeType = null;
         final List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
         for (Group group : groups) {
@@ -129,8 +133,10 @@ public class AIRS_L1B_Reader implements Reader {
             }
         }
         if (nodeType == null) {
-            throw new NullPointerException("The node type is Empty.");
+            // @todo 2 tb/tb add logging here 2015-09-07
+            return NodeType.UNDEFINED;
         }
+
         return NodeType.fromId(nodeType.equals("Ascending") ? 0 : 1);
     }
 }
