@@ -56,7 +56,16 @@ public class AIRS_L1B_Reader_IO_Test {
         assertNotNull(geoBounds);
         System.out.println("geoBounds = " + geoBounds);
 
-
+//
+//        List<Coordinate> coordinates = new ArrayList<>();
+//        final Coordinate[] boundaryCoordinates = geoBounds.getCoordinates();
+//        for (int i = observation.getTimeAxisStartIndex(); i <= observation.getTimeAxisEndIndex(); i++) {
+//            coordinates.add(boundaryCoordinates[i]);
+//        }
+//
+//        final GeometryFactory geometryFactory = new GeometryFactory();
+//        final LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[coordinates.size()]));
+//        System.out.println("lineString = " + lineString);
 
 //        final WKTReader wktReader = new WKTReader();
 //        final Polygon expected = (Polygon) wktReader.read(POLYGON);

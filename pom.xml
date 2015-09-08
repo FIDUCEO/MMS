@@ -21,6 +21,11 @@
             <artifactId>jts</artifactId>
             <version>1.13</version>
         </dependency>
+        <dependency>
+            <groupId>org.jnegre.google</groupId>
+            <artifactId>s2-geometry</artifactId>
+            <version>1.2</version>
+        </dependency>
 
         <dependency>
             <groupId>commons-dbcp</groupId>
