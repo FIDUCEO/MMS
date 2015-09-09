@@ -84,5 +84,16 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-jnegre-maven</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/jnegre/maven</url>
+        </repository>
+    </repositories>
+
 
 </project>
