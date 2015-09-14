@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNull;
 @SuppressWarnings("ConstantConditions")
 public class GeometryIntersectorTest {
 
+    // @todo 1 tb/tb extend tests for multipolygon geometries and multiple time axes
     private WKTReader wktReader;
 
     @Before
@@ -150,6 +151,6 @@ public class GeometryIntersectorTest {
         final Polygon polygon_1 = (Polygon) wktReader.read(polygon);
         final LineString lineString_1 = (LineString) wktReader.read(line);
         final TimeAxis timeAxis = new TimeAxis(lineString_1, new Date(startTime), new Date(stopTime));
-        return new SatelliteGeometry(polygon_1, timeAxis);
+        return new SatelliteGeometry(polygon_1, new TimeAxis[] {timeAxis});
     }
 }

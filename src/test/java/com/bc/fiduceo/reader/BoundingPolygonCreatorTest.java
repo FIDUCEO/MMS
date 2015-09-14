@@ -1,14 +1,8 @@
 package com.bc.fiduceo.reader;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,67 +63,5 @@ public class BoundingPolygonCreatorTest {
         final Coordinate closingCoordinate = coordinates.get(3);
         assertEquals(0, closingCoordinate.x, 1e-8);
         assertEquals(0, closingCoordinate.y, 1e-8);
-    }
-
-    @Test
-    public void testNormalizePolygon_tooSmallArray() {
-        Coordinate[] coordinates = new Coordinate[0];
-        BoundingPolygonCreator.normalizePolygon(coordinates);
-        assertEquals(0, coordinates.length);
-
-        coordinates = new Coordinate[1];
-        BoundingPolygonCreator.normalizePolygon(coordinates);
-        assertEquals(1, coordinates.length);
-    }
-
-    @Test
-    public void testNormalizePolygon_noNormaization() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(10, 10);
-        coordinates[1] = new Coordinate(10, 20);
-        coordinates[2] = new Coordinate(20, 20);
-        coordinates[3] = new Coordinate(20, 10);
-        coordinates[4] = new Coordinate(10, 10);
-
-        BoundingPolygonCreator.normalizePolygon(coordinates);
-        assertEquals(10, coordinates[0].x, 1e-8);
-        assertEquals(10, coordinates[1].x, 1e-8);
-        assertEquals(20, coordinates[2].x, 1e-8);
-        assertEquals(20, coordinates[3].x, 1e-8);
-        assertEquals(10, coordinates[4].x, 1e-8);
-    }
-
-    @Test
-    public void testNormalizePolygon_normalizeEast() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(170, 10);
-        coordinates[1] = new Coordinate(170, 20);
-        coordinates[2] = new Coordinate(-175, 20);
-        coordinates[3] = new Coordinate(-175, 10);
-        coordinates[4] = new Coordinate(170, 10);
-
-        BoundingPolygonCreator.normalizePolygon(coordinates);
-        assertEquals(170, coordinates[0].x, 1e-8);
-        assertEquals(170, coordinates[1].x, 1e-8);
-        assertEquals(185, coordinates[2].x, 1e-8);
-        assertEquals(185, coordinates[3].x, 1e-8);
-        assertEquals(170, coordinates[4].x, 1e-8);
-    }
-
-    @Test
-    public void testNormalizePolygon_normalizeWest() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(-170, 10);
-        coordinates[1] = new Coordinate(-170, 20);
-        coordinates[2] = new Coordinate(175, 20);
-        coordinates[3] = new Coordinate(175, 10);
-        coordinates[4] = new Coordinate(-170, 10);
-
-        BoundingPolygonCreator.normalizePolygon(coordinates);
-        assertEquals(190, coordinates[0].x, 1e-8);
-        assertEquals(190, coordinates[1].x, 1e-8);
-        assertEquals(175, coordinates[2].x, 1e-8);
-        assertEquals(175, coordinates[3].x, 1e-8);
-        assertEquals(190, coordinates[4].x, 1e-8);
     }
 }

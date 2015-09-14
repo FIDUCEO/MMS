@@ -7,21 +7,21 @@ import com.vividsolutions.jts.geom.Geometry;
 public class SatelliteGeometry {
 
     private final Geometry geometry;
-    private final TimeAxis timeAxis;
+    private final TimeAxis[] timeAxes;
     private int timeAxisStartIndex;
     private int timeAxisEndIndex;
 
-    public SatelliteGeometry(Geometry geometry, TimeAxis timeAxis) {
+    public SatelliteGeometry(Geometry geometry, TimeAxis[] timeAxes) {
         this.geometry = geometry;
-        this.timeAxis = timeAxis;
+        this.timeAxes = timeAxes;
     }
 
     public Geometry getGeometry() {
         return geometry;
     }
 
-    public TimeAxis getTimeAxis() {
-        return timeAxis;
+    public TimeAxis[] getTimeAxes() {
+        return timeAxes;
     }
 
     public int getTimeAxisStartIndex() {

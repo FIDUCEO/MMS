@@ -10,6 +10,7 @@ import java.util.Date;
 
 public class GeometryIntersector {
 
+    // @todo 1 tb/tb extend to support multiple time axes and Multi-Polygon geometries
     public static TimeInfo getIntersectingInterval(SatelliteGeometry satGeometry_1, SatelliteGeometry satGeometry_2) {
         final Geometry geometry_1 = satGeometry_1.getGeometry();
         final Geometry geometry_2 = satGeometry_2.getGeometry();
@@ -20,20 +21,20 @@ public class GeometryIntersector {
             return timeInfo;
         }
 
-        final TimeAxis timeAxis_1 = satGeometry_1.getTimeAxis();
-        final TimeAxis timeAxis_2 = satGeometry_2.getTimeAxis();
+        final TimeAxis[] timeAxes_1 = satGeometry_1.getTimeAxes();
+        final TimeAxis[] timeAxes_2 = satGeometry_2.getTimeAxes();
 
         final Coordinate[] coordinates = intersection.getCoordinates();
         final ArrayList<Date> sensor_1_dates = new ArrayList<>(coordinates.length);
         final ArrayList<Date> sensor_2_dates = new ArrayList<>(coordinates.length);
         for (int i = 0; i < coordinates.length - 1; i++) {
             final Coordinate coordinate = coordinates[i];
-            Date time = timeAxis_1.getTime(coordinate);
+            Date time = timeAxes_1[0].getTime(coordinate);
             if (time != null) {
                 sensor_1_dates.add(time);
             }
 
-            time = timeAxis_2.getTime(coordinate);
+            time = timeAxes_2[0].getTime(coordinate);
             if (time != null) {
                 sensor_2_dates.add(time);
             }
