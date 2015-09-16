@@ -2,7 +2,6 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 
@@ -13,12 +12,10 @@ class BoundingPolygonCreator {
 
     private final int intervalX;
     private final int intervalY;
-    private final GeometryFactory geometryFactory;
 
     BoundingPolygonCreator(int intervalX, int intervalY) {
         this.intervalX = intervalX;
         this.intervalY = intervalY;
-        geometryFactory = new GeometryFactory();
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {

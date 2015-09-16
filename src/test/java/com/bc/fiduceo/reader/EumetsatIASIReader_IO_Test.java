@@ -48,9 +48,9 @@ public class EumetsatIASIReader_IO_Test {
     @Test
     public void testDateTime() {
         Date date = acquisitionInfo.getSensingStart();
-        TestUtil.assertCorrectUTCDate(date, 2013, 5, 28, 17, 25, 43);
+        TestUtil.assertCorrectUTCDate(2013, 5, 28, 17, 25, 43, date);
 
         date = acquisitionInfo.getSensingStop();
-        TestUtil.assertCorrectUTCDate(date, 2013, 5, 28, 17, 44, 54);
+        TestUtil.assertCorrectUTCDate(2013, 5, 28, 17, 44, 54, date);
     }
 }

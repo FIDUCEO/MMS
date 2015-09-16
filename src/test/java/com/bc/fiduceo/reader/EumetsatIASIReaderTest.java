@@ -26,7 +26,7 @@ public class EumetsatIASIReaderTest {
         final Date start = EumetsatIASIReader.getGlobalAttributeAsDate("time_converage_start", netcdfFile);
         assertNotNull(start);
 
-        TestUtil.assertCorrectUTCDate(start, 1999, 8, 21, 17, 11, 52);
+        TestUtil.assertCorrectUTCDate(1999, 8, 21, 17, 11, 52, start);
     }
 
     @Test

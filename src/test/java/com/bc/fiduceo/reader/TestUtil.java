@@ -29,7 +29,7 @@ class TestUtil {
         return dataDirectory;
     }
 
-    public static void assertCorrectUTCDate(Date utcDate, int year, int month, int day, int hour, int minute, int second) {
+    public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, Date utcDate) {
         final Calendar calendar = ProductData.UTC.createCalendar();
         calendar.setTime(utcDate);
 

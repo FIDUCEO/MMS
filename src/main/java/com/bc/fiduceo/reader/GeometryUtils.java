@@ -1,24 +1,37 @@
 package com.bc.fiduceo.reader;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.bc.fiduceo.core.SatelliteGeometry;
+import com.bc.fiduceo.math.TimeAxis;
+import com.vividsolutions.jts.geom.*;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 class GeometryUtils {
 
     private static final Polygon westShiftedGlobe;
     private static final Polygon eastShiftedGlobe;
     private static final Polygon centralGlobe;
+    private static final GeometryFactory geometryFactory;
 
     static {
-        final GeometryFactory geometryFactory = new GeometryFactory();
+        geometryFactory = new GeometryFactory();
 
         westShiftedGlobe = createWestShiftedGlobe(geometryFactory);
         eastShiftedGlobe = createEastShiftedGlobe(geometryFactory);
         centralGlobe = createCentralGlobe(geometryFactory);
+    }
+
+    static SatelliteGeometry prepareForStorage(AcquisitionInfo acquisitionInfo) {
+        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
+        final Polygon polygon = geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+        final TimeAxis timeAxis = createTimeAxis(polygon,
+                acquisitionInfo.getTimeAxisStartIndex(),
+                acquisitionInfo.getTimeAxisEndIndex(),
+                acquisitionInfo.getSensingStart(),
+                acquisitionInfo.getSensingStop());
+        return new SatelliteGeometry(polygon, new TimeAxis[] {timeAxis});
     }
 
     static void normalizePolygon(Coordinate[] coordinates) {
@@ -93,6 +106,17 @@ class GeometryUtils {
         return geometries.toArray(new Polygon[geometries.size()]);
     }
 
+    static TimeAxis createTimeAxis(Geometry polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
+        final Coordinate[] polygonCoordinates = polygon.getCoordinates();
+        final Coordinate[] coordinates = new Coordinate[endIndex - startIndex + 1];
+        for (int i = startIndex; i <= endIndex; i++) {
+            coordinates[i - startIndex] = polygonCoordinates[i];
+        }
+
+        final LineString lineString = geometryFactory.createLineString(coordinates);
+        return new TimeAxis(lineString, startTime, endTime);
+    }
+
     private static Polygon createCentralGlobe(GeometryFactory geometryFactory) {
         final Coordinate[] unShiftedCoordinates = new Coordinate[5];
         unShiftedCoordinates[0] = new Coordinate(-180, 90);
@@ -122,4 +146,6 @@ class GeometryUtils {
         westernShiftedCoordinates[4] = new Coordinate(-540, 90);
         return geometryFactory.createPolygon(westernShiftedCoordinates);
     }
+
+
 }
