@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader;
 
 
+import com.bc.fiduceo.core.NodeType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ class AcquisitionInfo {
     private int timeAxisEndIndex;
     private Date sensingStart;
     private Date sensingStop;
+    private NodeType nodeType;
 
     public List<Coordinate> getCoordinates() {
         return coordinates;
@@ -52,5 +54,13 @@ class AcquisitionInfo {
 
     public void setSensingStop(Date sensingStop) {
         this.sensingStop = sensingStop;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 }

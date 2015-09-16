@@ -1,8 +1,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import org.jdom2.Element;
@@ -27,7 +25,6 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String RANGE_BEGINNING_TIME = "RANGEBEGINNINGTIME";
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
     private static final String CORE_METADATA = "coremetadata";
-    private static final String ASSOCIATED_SENSORSHORT_NAME = "ASSOCIATEDSENSORSHORTNAME";
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     private static final int GEO_INTERVAL_X = 12;
@@ -55,20 +52,8 @@ public class AIRS_L1B_Reader implements Reader {
 
         final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
         final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
 
-        try {
-            satelliteObservation.setStartTime(DATEFORMAT.parse(rangeBeginningDate));
-            satelliteObservation.setStopTime(DATEFORMAT.parse(rangeEndingDate));
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-
-        final Sensor sensor = new Sensor();
-        sensor.setName(getElementValue(eosElement, ASSOCIATED_SENSORSHORT_NAME));
-        satelliteObservation.setSensor(sensor);
         final NodeType nodeType = readNodeType();
-        satelliteObservation.setNodeType(nodeType);
 
         final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
         if (l1bAirsGroup == null) {
@@ -80,7 +65,15 @@ public class AIRS_L1B_Reader implements Reader {
         final Array latitudes = latitudeVariable.read();
         final Array longitudes = longitudeVariable.read();
 
-        return boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+        acquisitionInfo.setNodeType(nodeType);
+        try {
+            acquisitionInfo.setSensingStart(DATEFORMAT.parse(rangeBeginningDate));
+            acquisitionInfo.setSensingStop(DATEFORMAT.parse(rangeEndingDate));
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+        return acquisitionInfo;
     }
 
 
@@ -127,7 +120,7 @@ public class AIRS_L1B_Reader implements Reader {
         return metadataArray.toString();
     }
 
-    private NodeType readNodeType()  {
+    private NodeType readNodeType() {
         String nodeType = null;
         final List<Group> groups = netcdfFile.getRootGroup().getGroups().get(0).getGroups();
         for (Group group : groups) {
