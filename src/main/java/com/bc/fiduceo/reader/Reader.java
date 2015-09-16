@@ -1,10 +1,7 @@
 package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.core.SatelliteObservation;
-
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 
 public interface Reader {
 
@@ -12,5 +9,5 @@ public interface Reader {
 
     void close() throws IOException;
 
-    SatelliteObservation read() throws IOException;
+    AcquisitionInfo read() throws IOException;
 }

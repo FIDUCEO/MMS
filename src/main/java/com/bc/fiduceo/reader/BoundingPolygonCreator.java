@@ -1,11 +1,8 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 
@@ -24,7 +21,7 @@ class BoundingPolygonCreator {
         geometryFactory = new GeometryFactory();
     }
 
-    public SatelliteGeometry createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
         final int[] shape = arrayLatitude.getShape();
         int geoXTrack = shape[1] - 1;
         int geoTrack = shape[0] - 1;
@@ -76,33 +73,40 @@ class BoundingPolygonCreator {
         // close the polygon
         closePolygon(coordinates);
 
-        final Coordinate[] coordinatesArray = coordinates.toArray(new Coordinate[coordinates.size()]);
-        GeometryUtils.normalizePolygon(coordinatesArray);
-        final Polygon polygon = geometryFactory.createPolygon(coordinatesArray);
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        acquisitionInfo.setCoordinates(coordinates);
+        acquisitionInfo.setTimeAxisStartIndex(timeAxisStart);
+        acquisitionInfo.setTimeAxisEndIndex(timeAxisEnd);
 
-        final Polygon[] polygons = GeometryUtils.mapToGlobe(polygon);
-        final Geometry boundingPolygon;
-        if (polygons.length > 1) {
-            boundingPolygon = geometryFactory.createMultiPolygon(polygons);
-        } else {
-            boundingPolygon = polygons[0];
-        }
+        return acquisitionInfo;
 
-        // @todo 1 tb/tb move the code below to a different class, this one should only extract the bounding geometry and the axis indices ... 2015-09-09
-//        final Coordinate[] normalizedCoordinates = polygon.getCoordinates();
-//        final List<Coordinate> timeAxisPoints = new ArrayList<>();
-//        for (int i = timeAxisStart; i <= timeAxisEnd; i++) {
-//            timeAxisPoints.add(normalizedCoordinates[i]);
+//        final Coordinate[] coordinatesArray = coordinates.toArray(new Coordinate[coordinates.size()]);
+//        GeometryUtils.normalizePolygon(coordinatesArray);
+//        final Polygon polygon = geometryFactory.createPolygon(coordinatesArray);
+//
+//        final Polygon[] polygons = GeometryUtils.mapToGlobe(polygon);
+//        final Geometry boundingPolygon;
+//        if (polygons.length > 1) {
+//            boundingPolygon = geometryFactory.createMultiPolygon(polygons);
+//        } else {
+//            boundingPolygon = polygons[0];
 //        }
-
-
-
-
-
-        final SatelliteGeometry satelliteGeometry = new SatelliteGeometry(boundingPolygon, null);
-        satelliteGeometry.setTimeAxisStartIndex(timeAxisStart);
-        satelliteGeometry.setTimeAxisEndIndex(timeAxisEnd);
-        return satelliteGeometry;
+//
+//        // @todo 1 tb/tb move the code below to a different class, this one should only extract the bounding geometry and the axis indices ... 2015-09-09
+////        final Coordinate[] normalizedCoordinates = polygon.getCoordinates();
+////        final List<Coordinate> timeAxisPoints = new ArrayList<>();
+////        for (int i = timeAxisStart; i <= timeAxisEnd; i++) {
+////            timeAxisPoints.add(normalizedCoordinates[i]);
+////        }
+//
+//
+//
+//
+//
+//        final SatelliteGeometry satelliteGeometry = new SatelliteGeometry(boundingPolygon, null);
+//        satelliteGeometry.setTimeAxisStartIndex(timeAxisStart);
+//        satelliteGeometry.setTimeAxisEndIndex(timeAxisEnd);
+//        return satelliteGeometry;
     }
 
     static void closePolygon(List<Coordinate> coordinates) {
@@ -111,7 +115,8 @@ class BoundingPolygonCreator {
         }
     }
 
-    public Geometry createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
+    // @todo 1 tb/tb add time axis tracking
+    public AcquisitionInfo createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
         final int geoXTrack = arrayLatitude.getShape()[1] - 1;
         final int geoTrack = arrayLatitude.getShape()[0] - 1;
         final List<Coordinate> coordinates = new ArrayList<>();
@@ -138,6 +143,9 @@ class BoundingPolygonCreator {
         }
 
         closePolygon(coordinates);
-        return geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        acquisitionInfo.setCoordinates(coordinates);
+        return acquisitionInfo;
     }
 }

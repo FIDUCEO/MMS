@@ -1,7 +1,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
@@ -38,20 +37,21 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public SatelliteObservation read() throws IOException {
+    public AcquisitionInfo read() throws IOException {
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
 
-        satelliteObservation.setStartTime(getGlobalAttributeAsDate("time_converage_start", netcdfFile));
-        satelliteObservation.setStopTime(getGlobalAttributeAsDate("time_converage_end", netcdfFile));
+        final Date timeConverageStart = getGlobalAttributeAsDate("time_converage_start", netcdfFile);
+        final Date timeConverageEnd = getGlobalAttributeAsDate("time_converage_end", netcdfFile);
 
         final Variable latVariable = netcdfFile.findVariable("lat");
         final Variable lonVariable = netcdfFile.findVariable("lon");
         final Array latArray = latVariable.read();
         final Array lonArray = lonVariable.read();
 
-        final Geometry polygon = boundingPolygonCreator.createIASIBoundingPolygon((ArrayFloat.D2) latArray, (ArrayFloat.D2) lonArray);
-        satelliteObservation.setGeoBounds(polygon);
-        return satelliteObservation;
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createIASIBoundingPolygon((ArrayFloat.D2) latArray, (ArrayFloat.D2) lonArray);
+        acquisitionInfo.setSensingStart(timeConverageStart);
+        acquisitionInfo.setSensingStop(timeConverageEnd);
+        return acquisitionInfo;
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {

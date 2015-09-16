@@ -1,10 +1,8 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import org.jdom2.Element;
@@ -50,7 +48,7 @@ public class AIRS_L1B_Reader implements Reader {
         netcdfFile.close();
     }
 
-    public SatelliteObservation read() throws IOException {
+    public AcquisitionInfo read() throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
         final Element eosElement = getEosElement(coreMateString);
@@ -82,12 +80,7 @@ public class AIRS_L1B_Reader implements Reader {
         final Array latitudes = latitudeVariable.read();
         final Array longitudes = longitudeVariable.read();
 
-        final SatelliteGeometry satelliteGeometry = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
-        satelliteObservation.setGeoBounds(satelliteGeometry.getGeometry());
-        satelliteObservation.setTimeAxisStartIndex(satelliteGeometry.getTimeAxisStartIndex());
-        satelliteObservation.setTimeAxisEndIndex(satelliteGeometry.getTimeAxisEndIndex());
-
-        return satelliteObservation;
+        return boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
     }
 
 

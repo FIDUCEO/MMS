@@ -1,14 +1,6 @@
 package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteObservation;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTReader;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,15 +8,10 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(ProductReaderTestRunner.class)
 public class AIRS_L1B_Reader_IO_Test {
@@ -49,12 +36,11 @@ public class AIRS_L1B_Reader_IO_Test {
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.09.02.006.L1B.AIRS_Rad.v5.0.23.0.G15246014542.hdf");
         airsL1bReader.open(airsL1bFile);
 
-        final SatelliteObservation observation = airsL1bReader.read();
-        assertNotNull(observation);
+        final AcquisitionInfo readAcquisitionInfo = airsL1bReader.read();
+        assertNotNull(readAcquisitionInfo);
 
-        final Geometry geoBounds = observation.getGeoBounds();
-        assertNotNull(geoBounds);
-        System.out.println("geoBounds = " + geoBounds);
+        final List<Coordinate> coordinates = readAcquisitionInfo.getCoordinates();
+        assertNotNull(coordinates);
 
 //
 //        List<Coordinate> coordinates = new ArrayList<>();
@@ -82,7 +68,8 @@ public class AIRS_L1B_Reader_IO_Test {
 //        assertEquals(expectedStart.getTime(), startTime.getTime());
 //        assertEquals(expectedStop.getTime(), stopTime.getTime());
 
-        assertEquals(NodeType.DESCENDING, observation.getNodeType());
+        // @todo 1 tb/tb add node info to acquisition infor 2015-09-16
+        //assertEquals(NodeType.DESCENDING, observation.getNodeType());
     }
 
     @Test
@@ -90,11 +77,11 @@ public class AIRS_L1B_Reader_IO_Test {
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.09.02.023.L1B.AIRS_Rad.v5.0.23.0.G15246021652.hdf");
         airsL1bReader.open(airsL1bFile);
 
-        final SatelliteObservation observation = airsL1bReader.read();
-        assertNotNull(observation);
+        final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
+        assertNotNull(acquisitionInfo);
 
-        final Geometry geoBounds = observation.getGeoBounds();
-        assertNotNull(geoBounds);
+//        final Geometry geoBounds = observation.getGeoBounds();
+//        assertNotNull(geoBounds);
 
 //        System.out.println("geoBounds = " + geoBounds);
 //
@@ -123,7 +110,8 @@ public class AIRS_L1B_Reader_IO_Test {
 //        assertEquals(expectedStart.getTime(), startTime.getTime());
 //        assertEquals(expectedStop.getTime(), stopTime.getTime());
 
-        assertEquals(NodeType.DESCENDING, observation.getNodeType());
+        // @todo 1 tb/tb add node info to acquisition infor 2015-09-16
+        //assertEquals(NodeType.DESCENDING, observation.getNodeType());
     }
 
     @Test
@@ -131,11 +119,11 @@ public class AIRS_L1B_Reader_IO_Test {
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.09.02.135.L1B.AIRS_Rad.v5.0.23.0.G15246114803.hdf");
         airsL1bReader.open(airsL1bFile);
 
-        final SatelliteObservation observation = airsL1bReader.read();
-        assertNotNull(observation);
+        final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
+        assertNotNull(acquisitionInfo);
 
-        final Geometry geoBounds = observation.getGeoBounds();
-        assertNotNull(geoBounds);
+//        final Geometry geoBounds = observation.getGeoBounds();
+//        assertNotNull(geoBounds);
 
 //        final WKTReader wktReader = new WKTReader();
 //        final Polygon expected = (Polygon) wktReader.read(POLYGON);
@@ -152,6 +140,7 @@ public class AIRS_L1B_Reader_IO_Test {
 //        assertEquals(expectedStart.getTime(), startTime.getTime());
 //        assertEquals(expectedStop.getTime(), stopTime.getTime());
 
-        assertEquals(NodeType.ASCENDING, observation.getNodeType());
+        // @todo 1 tb/tb add node info to acquisition infor 2015-09-16
+        //assertEquals(NodeType.ASCENDING, observation.getNodeType());
     }
 }
