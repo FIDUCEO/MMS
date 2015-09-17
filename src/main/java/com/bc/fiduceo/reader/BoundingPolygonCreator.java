@@ -76,34 +76,6 @@ class BoundingPolygonCreator {
         acquisitionInfo.setTimeAxisEndIndex(timeAxisEnd);
 
         return acquisitionInfo;
-
-//        final Coordinate[] coordinatesArray = coordinates.toArray(new Coordinate[coordinates.size()]);
-//        GeometryUtils.normalizePolygon(coordinatesArray);
-//        final Polygon polygon = geometryFactory.createPolygon(coordinatesArray);
-//
-//        final Polygon[] polygons = GeometryUtils.mapToGlobe(polygon);
-//        final Geometry boundingPolygon;
-//        if (polygons.length > 1) {
-//            boundingPolygon = geometryFactory.createMultiPolygon(polygons);
-//        } else {
-//            boundingPolygon = polygons[0];
-//        }
-//
-//        // @todo 1 tb/tb move the code below to a different class, this one should only extract the bounding geometry and the axis indices ... 2015-09-09
-////        final Coordinate[] normalizedCoordinates = polygon.getCoordinates();
-////        final List<Coordinate> timeAxisPoints = new ArrayList<>();
-////        for (int i = timeAxisStart; i <= timeAxisEnd; i++) {
-////            timeAxisPoints.add(normalizedCoordinates[i]);
-////        }
-//
-//
-//
-//
-//
-//        final SatelliteGeometry satelliteGeometry = new SatelliteGeometry(boundingPolygon, null);
-//        satelliteGeometry.setTimeAxisStartIndex(timeAxisStart);
-//        satelliteGeometry.setTimeAxisEndIndex(timeAxisEnd);
-//        return satelliteGeometry;
     }
 
     static void closePolygon(List<Coordinate> coordinates) {
