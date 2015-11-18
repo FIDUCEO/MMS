@@ -8,7 +8,6 @@ import ucar.nc2.Group;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

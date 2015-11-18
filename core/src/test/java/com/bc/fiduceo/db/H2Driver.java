@@ -1,9 +1,9 @@
 package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.vividsolutions.jts.geom.Geometry;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.core.SatelliteObservation;
 
 import java.io.File;
 import java.sql.*;
