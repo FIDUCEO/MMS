@@ -1,6 +1,6 @@
 package com.bc.fiduceo.reader;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.io.File;
 import java.io.IOException;

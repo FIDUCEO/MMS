@@ -1,7 +1,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteObservation;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;

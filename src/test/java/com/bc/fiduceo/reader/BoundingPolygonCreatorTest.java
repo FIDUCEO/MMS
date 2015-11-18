@@ -28,7 +28,7 @@ public class BoundingPolygonCreatorTest {
         productFile = new File(testDataDirectory,"AIRS.2015.08.03.001.L1B.AMSU_Rad.v5.0.14.0.R15214205337.hdf");
     }
 
-    // @todo 1 tb/tb rewrite test to use mock-arrays 2015-09-07
+    // @    todo 1 tb/tb rewrite test to use mock-arrays 2015-09-07
 
 //    @Test
 //    public void testPolygonFromCoordinate() throws IOException, ParseException {

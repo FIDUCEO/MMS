@@ -2,7 +2,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

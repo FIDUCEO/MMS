@@ -1,8 +1,8 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
