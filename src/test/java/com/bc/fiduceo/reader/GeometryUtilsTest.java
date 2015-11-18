@@ -163,8 +163,8 @@ public class GeometryUtilsTest {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         final List<Coordinate> coordinateList = createCoordinateList(new double[]{10, 10, 10, 30, 30, 30, 10}, new double[]{30, 20, 10, 10, 20, 30, 30});
         acquisitionInfo.setCoordinates(coordinateList);
-        acquisitionInfo.setTimeAxisStartIndex(0);
-        acquisitionInfo.setTimeAxisEndIndex(2);
+        acquisitionInfo.setTimeAxisStartIndices(new int[] {0});
+        acquisitionInfo.setTimeAxisEndIndices(new int[] {2});
         acquisitionInfo.setSensingStart(new Date(100000));
         acquisitionInfo.setSensingStop(new Date(200000));
         acquisitionInfo.setNodeType(NodeType.DESCENDING);

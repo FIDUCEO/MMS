@@ -20,49 +20,49 @@ class BoundingPolygonCreator {
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
         final int[] shape = arrayLatitude.getShape();
-        int geoXTrack = shape[1] - 1;
-        int geoTrack = shape[0] - 1;
+        int width = shape[1] - 1;
+        int height = shape[0] - 1;
 
         List<Coordinate> coordinates = new ArrayList<>();
 
-        int timeAxisStart;
-        int timeAxisEnd;
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
         if (nodeType == NodeType.ASCENDING) {
-            for (int x = 0; x < geoXTrack; x += intervalX) {
+            for (int x = 0; x < width; x += intervalX) {
                 coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
             }
 
-            timeAxisStart = coordinates.size();
-            timeAxisEnd = timeAxisStart;
-            for (int y = 0; y < geoTrack; y += intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
-                ++timeAxisEnd;
+            timeAxisStart[0] = coordinates.size();
+            timeAxisEnd[0] = timeAxisStart[0];
+            for (int y = 0; y < height; y += intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, width), arrayLatitude.get(y, width)));
+                ++timeAxisEnd[0];
             }
 
-            for (int x = geoXTrack; x > 0; x -= intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
+            for (int x = width; x > 0; x -= intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(height, x), arrayLatitude.get(height, x)));
             }
 
-            for (int y = geoTrack; y > 0; y -= intervalY) {
+            for (int y = height; y > 0; y -= intervalY) {
                 coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
             }
         } else {
-            timeAxisStart = 0;
-            timeAxisEnd = timeAxisStart;
-            for (int y = 0; y < geoTrack; y += intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
-                ++timeAxisEnd;
+            timeAxisStart[0] = 0;
+            timeAxisEnd[0] = 0;
+            for (int y = 0; y < height; y += intervalY) {
+                coordinates.add(new Coordinate(arrayLongitude.get(y, width), arrayLatitude.get(y, width)));
+                ++timeAxisEnd[0];
             }
 
-            for (int x = geoXTrack; x > 0; x -= intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
+            for (int x = width; x > 0; x -= intervalX) {
+                coordinates.add(new Coordinate(arrayLongitude.get(height, x), arrayLatitude.get(height, x)));
             }
 
-            for (int y = geoTrack; y > 0; y -= intervalY) {
+            for (int y = height; y > 0; y -= intervalY) {
                 coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
             }
 
-            for (int x = 0; x < geoXTrack; x += intervalX) {
+            for (int x = 0; x < width; x += intervalX) {
                 coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
             }
         }
@@ -72,16 +72,10 @@ class BoundingPolygonCreator {
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
-        acquisitionInfo.setTimeAxisStartIndex(timeAxisStart);
-        acquisitionInfo.setTimeAxisEndIndex(timeAxisEnd);
+        acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
+        acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);
 
         return acquisitionInfo;
-    }
-
-    static void closePolygon(List<Coordinate> coordinates) {
-        if (coordinates.size() > 1) {
-            coordinates.add(coordinates.get(0));
-        }
     }
 
     // @todo 1 tb/tb add time axis tracking
@@ -116,5 +110,11 @@ class BoundingPolygonCreator {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
         return acquisitionInfo;
+    }
+
+    static void closePolygon(List<Coordinate> coordinates) {
+        if (coordinates.size() > 1) {
+            coordinates.add(coordinates.get(0));
+        }
     }
 }

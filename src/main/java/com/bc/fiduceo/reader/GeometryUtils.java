@@ -23,12 +23,13 @@ class GeometryUtils {
         centralGlobe = createCentralGlobe(geometryFactory);
     }
 
+    // @todo 1 tb/tb adapt to multiple time axes 2015-11-18
     static SatelliteGeometry prepareForStorage(AcquisitionInfo acquisitionInfo) {
         final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
         final Polygon polygon = geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
         final TimeAxis timeAxis = createTimeAxis(polygon,
-                acquisitionInfo.getTimeAxisStartIndex(),
-                acquisitionInfo.getTimeAxisEndIndex(),
+                acquisitionInfo.getTimeAxisStartIndices()[0],
+                acquisitionInfo.getTimeAxisEndIndices()[0],
                 acquisitionInfo.getSensingStart(),
                 acquisitionInfo.getSensingStop());
         return new SatelliteGeometry(polygon, new TimeAxis[] {timeAxis});
@@ -109,9 +110,7 @@ class GeometryUtils {
     static TimeAxis createTimeAxis(Geometry polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
         final Coordinate[] polygonCoordinates = polygon.getCoordinates();
         final Coordinate[] coordinates = new Coordinate[endIndex - startIndex + 1];
-        for (int i = startIndex; i <= endIndex; i++) {
-            coordinates[i - startIndex] = polygonCoordinates[i];
-        }
+        System.arraycopy(polygonCoordinates, startIndex, coordinates, 0, endIndex + 1 - startIndex);
 
         final LineString lineString = geometryFactory.createLineString(coordinates);
         return new TimeAxis(lineString, startTime, endTime);

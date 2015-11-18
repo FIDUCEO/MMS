@@ -10,8 +10,8 @@ import java.util.List;
 class AcquisitionInfo {
 
     private List<Coordinate> coordinates;
-    private int timeAxisStartIndex;
-    private int timeAxisEndIndex;
+    private int[] timeAxisStartIndices;
+    private int[] timeAxisEndIndices;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
@@ -24,20 +24,20 @@ class AcquisitionInfo {
         this.coordinates = coordinates;
     }
 
-    public int getTimeAxisStartIndex() {
-        return timeAxisStartIndex;
+    public int[] getTimeAxisStartIndices() {
+        return timeAxisStartIndices;
     }
 
-    public void setTimeAxisStartIndex(int timeAxisStartIndex) {
-        this.timeAxisStartIndex = timeAxisStartIndex;
+    public void setTimeAxisStartIndices(int[] timeAxisStartIndices) {
+        this.timeAxisStartIndices = timeAxisStartIndices;
     }
 
-    public int getTimeAxisEndIndex() {
-        return timeAxisEndIndex;
+    public int[] getTimeAxisEndIndices() {
+        return timeAxisEndIndices;
     }
 
-    public void setTimeAxisEndIndex(int timeAxisEndIndex) {
-        this.timeAxisEndIndex = timeAxisEndIndex;
+    public void setTimeAxisEndIndices(int[] timeAxisEndIndices) {
+        this.timeAxisEndIndices = timeAxisEndIndices;
     }
 
     public Date getSensingStart() {
