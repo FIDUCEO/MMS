@@ -36,7 +36,7 @@ public class TimeAxisS2Test {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-2 0,4 6)");
 
         final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(100000000000L), new Date(100001000000L));
-//        final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
+        final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
 //        assertNotNull(timeInterval);
 //        assertTimeIntervalEquals(100000333333L, 100000666666L, timeInterval);
     }
