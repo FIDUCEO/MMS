@@ -4,6 +4,7 @@ import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.Date;
+import java.util.List;
 
 public class TimeAxisS2 {
 
@@ -14,8 +15,11 @@ public class TimeAxisS2 {
     }
 
     public TimeInterval getIntersectionTime(S2Polygon polygon) {
-        //polygon.
-       // polyline.
+        List<S2Polyline> s2Polylines = polygon.intersectWithPolyLine(polyline);
+        if (s2Polylines.isEmpty() ) {
+            return null;
+        }
+
         return null;
     }
 }

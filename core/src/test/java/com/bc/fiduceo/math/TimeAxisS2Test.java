@@ -30,16 +30,16 @@ public class TimeAxisS2Test {
         assertNull(timeInterval);
     }
 
-//    @Test
-//    public void testGetIntersectionTime_StraightLineWithSquare(){
-//        final S2Polygon polygon = (S2Polygon) wktReader.read("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
-//        final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-2 0,4 6)");
-//
-//        final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(100000000000L), new Date(100001000000L));
+    @Test
+    public void testGetIntersectionTime_StraightLineWithSquare(){
+        final S2Polygon polygon = (S2Polygon) wktReader.read("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
+        final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-2 0,4 6)");
+
+        final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(100000000000L), new Date(100001000000L));
 //        final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
 //        assertNotNull(timeInterval);
 //        assertTimeIntervalEquals(100000333333L, 100000666666L, timeInterval);
-//    }
+    }
 
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());
