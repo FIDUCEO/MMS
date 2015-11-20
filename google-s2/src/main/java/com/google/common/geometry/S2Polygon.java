@@ -499,7 +499,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
                 if (vertices.isEmpty()) {
                     vertices.add(p0);
                 }
-                if (vertices.get(vertices.size() - 1).angle(p0) > errorRadius.radians()) {
+                if (vertices.get(vertices.size() - 1).angle(p1) > errorRadius.radians()) {
                     vertices.add(p1);
                 }
             }

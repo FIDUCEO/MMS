@@ -1,5 +1,6 @@
 package com.bc.fiduceo.math;
 
+import com.google.common.geometry.S1Angle;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
@@ -24,7 +25,9 @@ public class TimeAxisS2 {
         // @todo 2 tb/tb check under which circumstaces we can have more than one intersection - and what doe we
         // do then ??? 2015-11-18
         final S2Polyline intersection = s2Polylines.get(0);
-        S2Point vertex = intersection.vertex(0);
+        final S2Point vertex = intersection.vertex(0);
+
+        final S1Angle arclengthAngle = polyline.getArclengthAngle();
 
         return null;
     }

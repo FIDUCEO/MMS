@@ -36,11 +36,8 @@ public class S2WKTReader {
      * @throws IllegalArgumentException if a parsing problem occurs
      */
     public S2Region read(String wellKnownText) throws IllegalArgumentException {
-        StringReader reader = new StringReader(wellKnownText);
-        try {
+        try (StringReader reader = new StringReader(wellKnownText)) {
             return read(reader);
-        } finally {
-            reader.close();
         }
     }
 
@@ -322,7 +319,7 @@ public class S2WKTReader {
      */
     private S2Polygon readPolygonText() throws IOException, IllegalArgumentException {
         String nextToken = getNextEmptyOrOpener();
-        if (nextToken.equals(EMPTY)) {
+        if (EMPTY.equals(nextToken)) {
             return new S2Polygon();
         }
         ArrayList<S2Loop> loops = new ArrayList<>();
@@ -330,7 +327,7 @@ public class S2WKTReader {
         shell.normalize();
         loops.add(shell);
         nextToken = getNextCloserOrComma();
-        while (nextToken.equals(COMMA)) {
+        while (COMMA.equals(nextToken)) {
             loops.add(readLinearRingText());
             nextToken = getNextCloserOrComma();
         }
