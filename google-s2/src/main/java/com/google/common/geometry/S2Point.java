@@ -197,4 +197,16 @@ public strictfp class S2Point implements Comparable<S2Point> {
     value += 37 * value + Double.doubleToLongBits(Math.abs(z));
     return (int) (value ^ (value >>> 32));
   }
+
+  public double getX() {
+    return x;
+  }
+
+  public double getY() {
+    return y;
+  }
+
+  public double getZ() {
+    return z;
+  }
 }

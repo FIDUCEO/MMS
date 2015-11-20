@@ -35,7 +35,7 @@ public class S2WKTReader {
      * @return a <code>S2Region</code> specified by <code>wellKnownText</code>
      * @throws IllegalArgumentException if a parsing problem occurs
      */
-    public S2Region read(String wellKnownText) throws IllegalArgumentException {
+    public Object read(String wellKnownText) throws IllegalArgumentException {
         try (StringReader reader = new StringReader(wellKnownText)) {
             return read(reader);
         }
@@ -50,7 +50,7 @@ public class S2WKTReader {
      * @return a <code>S2Region</code> read from <code>reader</code>
      * @throws IllegalArgumentException if a parsing problem occurs
      */
-    public S2Region read(Reader reader) throws IllegalArgumentException {
+    public Object read(Reader reader) throws IllegalArgumentException {
         tokenizer = new StreamTokenizer(reader);
         // set tokenizer to NOT parse numbers
         tokenizer.resetSyntax();
@@ -82,13 +82,13 @@ public class S2WKTReader {
      */
     private List<S2Point> getPoints() throws IOException, IllegalArgumentException {
         String nextToken = getNextEmptyOrOpener();
-        if (nextToken.equals(EMPTY)) {
+        if (EMPTY.equals(nextToken)) {
             return Collections.emptyList();
         }
         ArrayList<S2Point> points = new ArrayList<>();
         points.add(getPreciseCoordinate());
         nextToken = getNextCloserOrComma();
-        while (nextToken.equals(COMMA)) {
+        while (COMMA.equals(nextToken)) {
             points.add(getPreciseCoordinate());
             nextToken = getNextCloserOrComma();
         }
@@ -254,7 +254,7 @@ public class S2WKTReader {
      *                        token was encountered
      * @throws IOException    if an I/O error occurs
      */
-    private S2Region readGeometryTaggedText() throws IOException, IllegalArgumentException {
+    private Object readGeometryTaggedText() throws IOException, IllegalArgumentException {
         String type = null;
 
         try {
@@ -271,6 +271,8 @@ public class S2WKTReader {
             return readLinearRingText();
         } else if ("POLYGON".equalsIgnoreCase(type)) {
             return readPolygonText();
+        } if ("POINT".equalsIgnoreCase(type)) {
+            return readPointText();
         }
         parseErrorWithLine("Unknown geometry type: " + type);
         // should never reach here
@@ -332,5 +334,10 @@ public class S2WKTReader {
             nextToken = getNextCloserOrComma();
         }
         return new S2Polygon(loops);
+    }
+
+    private S2Point readPointText() throws IOException {
+        final List<S2Point> points = getPoints();
+        return points.get(0);
     }
 }
