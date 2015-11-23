@@ -1,4 +1,4 @@
-package com.bc.fiduceo.math;
+package com.bc.geometry.s2;
 
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
@@ -51,26 +51,6 @@ public class S2Util {
         }
 
         return xyzArray;
-    }
-
-    // @todo 2 tb/tb move to S2WKTWriter class and write tests 2015-11-23
-    public static String toWKT(S2Polyline polyline) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("LINESTRING(");
-
-        final int numVertices = polyline.numVertices();
-        for (int i = 0; i < numVertices; i++) {
-            final S2Point vertex = polyline.vertex(i);
-            final S2LatLng latLng = new S2LatLng(vertex);
-            builder.append(latLng.lngDegrees());
-            builder.append(" ");
-            builder.append(latLng.latDegrees());
-            if (i != numVertices - 1) {
-                builder.append(",");
-            }
-        }
-        builder.append(")");
-        return builder.toString();
     }
 
     public static void plot(double[][] vertices) {

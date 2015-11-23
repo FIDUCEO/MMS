@@ -1,4 +1,4 @@
-package com.bc.fiduceo.math;
+package com.bc.geometry.s2;
 
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
@@ -149,7 +149,7 @@ public class S2WKTReader {
      */
     private String getNextEmptyOrOpener() throws IOException, IllegalArgumentException {
         String nextWord = getNextWord();
-        if (nextWord.equals(EMPTY) || nextWord.equals(L_PAREN)) {
+        if (EMPTY.equals(nextWord) || L_PAREN.equals(nextWord)) {
             return nextWord;
         }
         parseErrorExpected(EMPTY + " or " + L_PAREN);
@@ -165,7 +165,7 @@ public class S2WKTReader {
      */
     private String getNextCloserOrComma() throws IOException, IllegalArgumentException {
         String nextWord = getNextWord();
-        if (nextWord.equals(COMMA) || nextWord.equals(R_PAREN)) {
+        if (COMMA.equals(nextWord) || R_PAREN.equals(nextWord)) {
             return nextWord;
         }
         parseErrorExpected(COMMA + " or " + R_PAREN);
