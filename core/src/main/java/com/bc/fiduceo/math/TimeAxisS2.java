@@ -37,18 +37,33 @@ public class TimeAxisS2 {
         final S2Polyline intersection = s2Polylines.get(0);
 
         final S2Point intersectionStartPoint = intersection.vertex(0);
-        final S2Polyline offsetGeometry = createSubLineTo(intersectionStartPoint);
-        final S1Angle offsetAngle = offsetGeometry.getArclengthAngle();
-        final long offsetTime = (long) (timeInterval * offsetAngle.radians() * invLength);
+        final long offsetTime = calculateLineDuration(intersectionStartPoint);
 
         final S2Point intersectionEndPoint = intersection.vertex(intersection.numVertices() - 1);
-        final S2Polyline totalGeometry = createSubLineTo(intersectionEndPoint);
-        final S1Angle totalAngle = totalGeometry.getArclengthAngle();
-        final long totalTime = (long) (timeInterval * totalAngle.radians() * invLength);
+        final long totalTime = calculateLineDuration(intersectionEndPoint);
+
         final long duration = totalTime - offsetTime;
 
         final long startMillis = startTime.getTime() + offsetTime;
         return new TimeInterval(new Date(startMillis), new Date(startMillis + duration));
+    }
+
+
+
+    public Date getTime(S2Point point) {
+        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(point);
+        if (nearestEdgeIndex < 0) {
+            return null;
+        }
+
+        final long offsetTime = calculateLineDuration(point);
+        final long startMillis = startTime.getTime() + offsetTime;
+
+        if (offsetTime > timeInterval) {
+            return null;    // @todo 2 tb/tb think about the consequences 2015-11-23
+        }
+
+        return new Date(startMillis);
     }
 
     // package access for testing only tb 2015-11-20
@@ -67,5 +82,11 @@ public class TimeAxisS2 {
         }
 
         return new S2Polyline(vertices);
+    }
+
+    private long calculateLineDuration(S2Point intersectionStartPoint) {
+        final S2Polyline offsetGeometry = createSubLineTo(intersectionStartPoint);
+        final S1Angle offsetAngle = offsetGeometry.getArclengthAngle();
+        return (long) (timeInterval * offsetAngle.radians() * invLength);
     }
 }

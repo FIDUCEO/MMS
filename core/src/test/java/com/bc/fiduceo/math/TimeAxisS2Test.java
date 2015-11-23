@@ -4,6 +4,8 @@ import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +15,6 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class TimeAxisS2Test {
 
@@ -99,6 +100,48 @@ public class TimeAxisS2Test {
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000384991L, 100000903592L, timeInterval);
+    }
+
+    // @todo 3 tb/tb add more tests with more complex geometries, import real satellite data boundaries and check! 2015-11-23
+
+    @Test
+    public void testGetTime_PointOnLine() throws ParseException {
+        final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(0 0, 4 0)");
+        final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(1000000000000L), new Date(1000001000000L));
+
+        final S2Point point = (S2Point) wktReader.read("POINT(2 0)");
+        final Date time = timeAxis.getTime(point);
+        assertEquals(1000000499999L, time.getTime());
+    }
+
+    @Test
+    public void testGetTime_threeSegments_PointOnLine() throws ParseException {
+        final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
+        final TimeAxisS2 timeAxis = new TimeAxisS2(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final S2Point point = (S2Point) wktReader.read("POINT(-2 3)");
+        final Date time = timeAxis.getTime(point);
+        assertEquals(1000000500315L, time.getTime());
+    }
+
+    @Test
+    public void testGetTime_threeSegments() throws ParseException {
+        final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(2 5, 1 3, -1 1, -3 0)");
+        final TimeAxisS2 timeAxis = new TimeAxisS2(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final S2Point point = (S2Point) wktReader.read("POINT(3 2)");
+        final Date time = timeAxis.getTime(point);
+        assertEquals(1000000433196L, time.getTime());   // @todo 2 tb/tb check! this is more than I expected 2015-11-23
+    }
+
+    @Test
+    public void testGetTime_twoSegments_noProjection() throws ParseException {
+        final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
+        final TimeAxisS2 timeAxis = new TimeAxisS2(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final S2Point point = (S2Point) wktReader.read("POINT(-7 2)");
+        final Date time = timeAxis.getTime(point);
+        assertNull(time);
     }
 
     @Test
