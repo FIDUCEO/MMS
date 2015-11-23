@@ -472,14 +472,14 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
                 intersections.add(new ParametrizedS2Point(1, a1));
             }
 
-            // @todo 1 tb/tb check if this does the same that the C++ code is doind 2015-11-19
+            // @todo 1 tb/tb check if this does the same that the C++ code is doing 2015-11-19
             Collections.sort(intersections);
             // At this point we have a sorted array of vertex pairs representing
             // the edge(s) obtained after clipping (a0,a1) against the polygon.
             for (int k = 0; k < intersections.size(); k += 2) {
                 final ParametrizedS2Point paramPoint_0 = intersections.get(k);
                 final ParametrizedS2Point paramPoint_1 = intersections.get(k + 1);
-                // @todo 1 tb/tb check if this is consistent wit th c´++ code 2015-11-19
+                // @todo 1 tb/tb check if this is consistent wit the c++ code 2015-11-19
                 if (paramPoint_0.compareTo(paramPoint_1) == 0) {
                     continue;
                 }
@@ -505,10 +505,10 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
             }
 
             intersections.clear();
+        }
 
-            if (!vertices.isEmpty()) {
-                result.add(new S2Polyline(vertices));
-            }
+        if (!vertices.isEmpty()) {
+            result.add(new S2Polyline(vertices));
         }
         return result;
     }

@@ -97,11 +97,7 @@ public class TimeAxisS2Test {
         final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
-        // @todo 1 tb/tb continue here 2015-11-20
-//        assertTimeIntervalEquals(100000384991L, 100000903707L, timeInterval);
-
-//        final double[][] doubles = S2Util.toXYZArray(polygon);
-//        S2Util.plot(doubles);
+        assertTimeIntervalEquals(100000384991L, 100000903592L, timeInterval);
     }
 
     @Test
@@ -148,8 +144,35 @@ public class TimeAxisS2Test {
         final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
+        assertEquals(3, subLineTo.numVertices());
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
-        assertEquals(0.08324359470667503, subLineTo.getArclengthAngle().radians(), 1e-8);
+        assertEquals(0.08551444403325324, subLineTo.getArclengthAngle().radians(), 1e-8);
+    }
+
+    @Test
+    public void testCreateSubLineTo_threePoints_firstSegment_closeToStart() {
+        final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
+        final S2Point point = (S2Point) wktReader.read("POINT(-2.66667 11.3333)");
+
+        final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(), new Date());
+        final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
+
+        assertEquals(2, subLineTo.numVertices());
+        assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
+        assertEquals(0.00814958946426777, subLineTo.getArclengthAngle().radians(), 1e-8);
+    }
+
+    @Test
+    public void testCreateSubLineTo_threePoints_firstSegment_closeToEnd() {
+        final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
+        final S2Point point = (S2Point) wktReader.read("POINT(-1.5 12.6667)");
+
+        final TimeAxisS2 timeAxis = new TimeAxisS2(polyline, new Date(), new Date());
+        final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
+
+        assertEquals(2, subLineTo.numVertices());
+        assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
+        assertEquals(0.03876475972081292, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {

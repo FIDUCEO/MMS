@@ -55,29 +55,12 @@ public class TimeAxisS2 {
     S2Polyline createSubLineTo(S2Point intersectionStartPoint) {
         final List<S2Point> vertices = new ArrayList<>();
 
-        final int lastVertexIndex = polyline.numVertices() - 1;
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(intersectionStartPoint);
         if (nearestEdgeIndex == 0) {
             vertices.add(polyline.vertex(0));
             vertices.add(intersectionStartPoint);
         } else {
-            int lastCopyIndex;
-            if (nearestEdgeIndex == lastVertexIndex) {
-                lastCopyIndex = nearestEdgeIndex - 1;
-            } else {
-                final S2Point point_0 = polyline.vertex(nearestEdgeIndex);
-                final S2Point point_1 = polyline.vertex(nearestEdgeIndex + 1);
-
-                final double angle_0 = point_0.angle(intersectionStartPoint);
-                final double angle_1 = point_1.angle(intersectionStartPoint);
-                if (angle_0 < angle_1) {
-                    lastCopyIndex = nearestEdgeIndex;  // closer to the point we need to copy
-                } else {
-                    lastCopyIndex = nearestEdgeIndex - 1; // closer to the point we want to skip
-                }
-            }
-
-            for (int i = 0; i <= lastCopyIndex; i++) {
+            for (int i = 0; i <= nearestEdgeIndex; i++) {
                 vertices.add(polyline.vertex(i));
             }
             vertices.add(intersectionStartPoint);
