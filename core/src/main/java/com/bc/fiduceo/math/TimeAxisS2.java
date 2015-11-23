@@ -48,8 +48,6 @@ public class TimeAxisS2 {
         return new TimeInterval(new Date(startMillis), new Date(startMillis + duration));
     }
 
-
-
     public Date getTime(S2Point point) {
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(point);
         if (nearestEdgeIndex < 0) {
@@ -60,7 +58,7 @@ public class TimeAxisS2 {
         final long startMillis = startTime.getTime() + offsetTime;
 
         if (offsetTime > timeInterval) {
-            return null;    // @todo 2 tb/tb think about the consequences 2015-11-23
+            return null;    // projection is outside the time axis range, beyond the last point tb 2015-11-23
         }
 
         return new Date(startMillis);
