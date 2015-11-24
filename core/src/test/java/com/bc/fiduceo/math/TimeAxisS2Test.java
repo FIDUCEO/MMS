@@ -4,17 +4,13 @@ import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class TimeAxisS2Test {
 
