@@ -1,6 +1,8 @@
-package com.bc.fiduceo.geometry;
+package com.bc.fiduceo.geometry.jts;
 
-public class JTSPolygon implements Polygon {
+import com.bc.fiduceo.geometry.Polygon;
+
+class JTSPolygon implements Polygon {
 
     private final com.vividsolutions.jts.geom.Polygon jtsPolygon;
 

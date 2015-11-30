@@ -1,27 +1,28 @@
 package com.bc.fiduceo.geometry;
 
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import com.bc.fiduceo.geometry.jts.Jtsfactory;
+import com.bc.fiduceo.geometry.s2.S2Factory;
 
-public class GeometryFactory {
+public class GeometryFactory implements AbstractGeometryFactory {
 
-    public enum Type{
+    public enum Type {
         JTS,
         S2
     }
-    private WKTReader wktReader;
+
+    private final AbstractGeometryFactory factoryImpl;
 
     public GeometryFactory(Type type) {
-        wktReader = new WKTReader();
+        if (type == Type.JTS) {
+            factoryImpl = new Jtsfactory();
+        } else if (type == Type.S2) {
+            factoryImpl = new S2Factory();
+        } else {
+            throw new IllegalArgumentException("unknown geometry factory type");
+        }
     }
 
     public Geometry parse(String wkt) {
-        final com.vividsolutions.jts.geom.Geometry geometry;
-        try {
-            geometry = wktReader.read(wkt);
-        } catch (ParseException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        return factoryImpl.parse(wkt);
     }
 }
