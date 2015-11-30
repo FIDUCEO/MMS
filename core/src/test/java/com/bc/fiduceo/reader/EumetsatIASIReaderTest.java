@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;

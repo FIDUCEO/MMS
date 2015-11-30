@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo;
 
 import org.esa.snap.core.datamodel.ProductData;
 
@@ -12,9 +12,9 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-class TestUtil {
+public class TestUtil {
 
-    static File getTestDataDirectory() throws IOException {
+    public static File getTestDataDirectory() throws IOException {
         final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
         final Properties properties = new Properties();
         properties.load(resourceStream);
