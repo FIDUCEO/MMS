@@ -1,5 +1,6 @@
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Polygon;
 
 class S2Polygon implements Polygon {
@@ -11,7 +12,19 @@ class S2Polygon implements Polygon {
     }
 
     @Override
+    public Geometry intersection(Geometry other) {
+        final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
+        intersection.initToIntersection(googlePolygon, (com.google.common.geometry.S2Polygon) other.getInner());
+        return new S2Polygon(intersection);
+    }
+
+    @Override
     public String toString() {
         return googlePolygon.toString();
+    }
+
+    @Override
+    public Object getInner() {
+        return googlePolygon;
     }
 }
