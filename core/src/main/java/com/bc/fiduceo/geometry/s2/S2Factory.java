@@ -1,9 +1,6 @@
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.AbstractGeometryFactory;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
@@ -41,15 +38,28 @@ public class S2Factory implements AbstractGeometryFactory {
 
     @Override
     public Polygon createPolygon(List<Point> points) {
-        ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
+        final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
+
+        final S2Loop s2Loop = new S2Loop(loopPoints);
+        final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
+        return new S2Polygon(googlePolygon);
+    }
+
+    @Override
+    public LineString createLineString(List<Point> points) {
+        final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
+
+        final S2Polyline s2Polyline = new S2Polyline(loopPoints);
+        return new S2LineString(s2Polyline);
+    }
+
+    private static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
+        final ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
 
         for (final Point point : points) {
             final S2LatLng s2LatLng = (S2LatLng) point.getInner();
             loopPoints.add(s2LatLng.toPoint());
         }
-
-        final S2Loop s2Loop = new S2Loop(loopPoints);
-        final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
-        return new S2Polygon(googlePolygon);
+        return loopPoints;
     }
 }

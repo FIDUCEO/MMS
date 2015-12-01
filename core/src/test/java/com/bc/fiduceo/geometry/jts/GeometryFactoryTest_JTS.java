@@ -1,10 +1,6 @@
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
+import com.bc.fiduceo.geometry.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,7 +49,7 @@ public class GeometryFactoryTest_JTS {
     }
 
     @Test
-    public void testCreatePolygon() {
+    public void testCreatePolygonFromPoints() {
         final ArrayList<Point> points = new ArrayList<>();
 
         points.add(factory.createPoint(0, 0));
@@ -65,5 +61,18 @@ public class GeometryFactoryTest_JTS {
         final Polygon polygon = factory.createPolygon(points);
         assertNotNull(polygon);
         assertEquals("POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))", polygon.toString());
+    }
+
+    @Test
+    public void testCreateLineStringFromPoints() {
+        final ArrayList<Point> points = new ArrayList<>();
+
+        points.add(factory.createPoint(11, -3));
+        points.add(factory.createPoint(11.4, -3.5));
+        points.add(factory.createPoint(12, -4.1));
+
+        final LineString lineString = factory.createLineString(points);
+        assertNotNull(lineString);
+        assertEquals("LINESTRING (11 -3, 11.4 -3.5, 12 -4.1)", lineString.toString());
     }
 }

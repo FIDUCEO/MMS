@@ -1,9 +1,6 @@
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.AbstractGeometryFactory;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
@@ -47,14 +44,27 @@ public class JtsFactory implements AbstractGeometryFactory {
 
     @Override
     public Polygon createPolygon(List<Point> points) {
+        final Coordinate[] coordinates = extractCoordinates(points);
+
+        com.vividsolutions.jts.geom.Polygon polygon = geometryFactory.createPolygon(coordinates);
+        return new JTSPolygon(polygon);
+    }
+
+    @Override
+    public LineString createLineString(List<Point> points) {
+        final Coordinate[] coordinates = extractCoordinates(points);
+
+        com.vividsolutions.jts.geom.LineString lineString = geometryFactory.createLineString(coordinates);
+        return new JTSLineString(lineString);
+    }
+
+    private static Coordinate[] extractCoordinates(List<Point> points) {
         final Coordinate[] coordinates = new Coordinate[points.size()];
 
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
             coordinates[i] = (Coordinate) point.getInner();
         }
-
-        com.vividsolutions.jts.geom.Polygon jtsPolygon = geometryFactory.createPolygon(coordinates);
-        return new JTSPolygon(jtsPolygon);
+        return coordinates;
     }
 }

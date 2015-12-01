@@ -1,9 +1,6 @@
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,7 +60,7 @@ public class GeometryFactoryTest_S2 {
     }
 
     @Test
-    public void testCreatePolygon() {
+    public void testCreatePolygonFromPoints() {
         final ArrayList<Point> points = new ArrayList<>();
 
         points.add(factory.createPoint(2, 2));
@@ -82,5 +79,20 @@ public class GeometryFactoryTest_S2 {
                 "(4.0, 2.0)\n" +
                 "(1.9999999999999996, 2.0)\n" +
                 ">\n", polygon.toString());
+    }
+
+    @Test
+    public void testCreateLineStringFromPoints() {
+        final ArrayList<Point> points = new ArrayList<>();
+
+        points.add(factory.createPoint(-106, 8));
+        points.add(factory.createPoint(-108, 8.2));
+        points.add(factory.createPoint(-109.3, 8.7));
+
+        final LineString lineString = factory.createLineString(points);
+        assertNotNull(lineString);
+
+        // @todo 3 tb/tb invent some test here to verify the correctness of creation 2015-12-01
+        //assertEquals("bla", geometry.toString());
     }
 }

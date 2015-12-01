@@ -9,4 +9,6 @@ public interface AbstractGeometryFactory {
     Point createPoint(double lon, double lat);
 
     Polygon createPolygon(List<Point> points);
+
+    LineString createLineString(List<Point> points);
 }

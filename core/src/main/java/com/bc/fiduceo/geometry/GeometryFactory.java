@@ -37,4 +37,9 @@ public class GeometryFactory implements AbstractGeometryFactory {
     public Polygon createPolygon(List<Point> points) {
         return factoryImpl.createPolygon(points);
     }
+
+    @Override
+    public LineString createLineString(List<Point> points) {
+        return factoryImpl.createLineString(points);
+    }
 }
