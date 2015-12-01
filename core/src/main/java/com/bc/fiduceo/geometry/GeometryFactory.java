@@ -25,4 +25,9 @@ public class GeometryFactory implements AbstractGeometryFactory {
     public Geometry parse(String wkt) {
         return factoryImpl.parse(wkt);
     }
+
+    @Override
+    public Point createPoint(double lon, double lat) {
+        return factoryImpl.createPoint(lon, lat);
+    }
 }

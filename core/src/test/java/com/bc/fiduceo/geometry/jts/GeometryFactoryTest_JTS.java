@@ -2,12 +2,11 @@ package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GeometryFactoryTest_JTS {
 
@@ -34,5 +33,18 @@ public class GeometryFactoryTest_JTS {
         assertTrue(geometry instanceof JTSLineString);
 
         assertEquals("LINESTRING (3 1, 3 2, 3 3, 3 4)", geometry.toString());
+    }
+
+    @Test
+    public void testCreatePoint() {
+        Point point = factory.createPoint(11.78, -23.56);
+        assertNotNull(point);
+        assertEquals(11.78, point.getLon(), 1e-8);
+        assertEquals(-23.56, point.getLat(), 1e-8);
+
+        point = factory.createPoint(-106.224, 19.86);
+        assertNotNull(point);
+        assertEquals(-106.224, point.getLon(), 1e-8);
+        assertEquals(19.86, point.getLat(), 1e-8);
     }
 }

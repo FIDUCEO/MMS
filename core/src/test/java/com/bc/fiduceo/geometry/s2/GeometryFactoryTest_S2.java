@@ -2,6 +2,7 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,5 +46,18 @@ public class GeometryFactoryTest_S2 {
 
         // @todo 3 tb/tb invent some test here to verify the correctness of parsing 2015-12-01
         //assertEquals("bla", geometry.toString());
+    }
+
+    @Test
+    public void testCreatePoint() {
+        Point point = factory.createPoint(22.89, -12.45);
+        assertNotNull(point);
+        assertEquals(22.89, point.getLon(), 1e-8);
+        assertEquals(-12.45, point.getLat(), 1e-8);
+
+        point = factory.createPoint(-107.335, 20.97);
+        assertNotNull(point);
+        assertEquals(-107.335, point.getLon(), 1e-8);
+        assertEquals(20.97, point.getLat(), 1e-8);
     }
 }
