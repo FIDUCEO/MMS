@@ -8,7 +8,7 @@ class JTSLineString implements LineString{
 
     private final com.vividsolutions.jts.geom.LineString jtsLineString;
 
-    public JTSLineString(com.vividsolutions.jts.geom.LineString jtsLineString) {
+    JTSLineString(com.vividsolutions.jts.geom.LineString jtsLineString) {
         this.jtsLineString = jtsLineString;
     }
 

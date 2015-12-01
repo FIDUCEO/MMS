@@ -7,7 +7,7 @@ class S2Polygon implements Polygon {
 
     private final com.google.common.geometry.S2Polygon googlePolygon;
 
-    public S2Polygon(Object geometry) {
+    S2Polygon(Object geometry) {
         this.googlePolygon = (com.google.common.geometry.S2Polygon) geometry;
     }
 

@@ -9,7 +9,7 @@ class JTSPoint implements Point{
 
     private final Coordinate coordinate;
 
-    public JTSPoint(Coordinate coordinate) {
+    JTSPoint(Coordinate coordinate) {
         this.coordinate = coordinate;
     }
 

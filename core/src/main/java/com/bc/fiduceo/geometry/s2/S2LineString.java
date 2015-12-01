@@ -9,7 +9,7 @@ class S2LineString implements LineString {
 
     private final S2Polyline googleLineString;
 
-    public S2LineString(S2Polyline googleLineString) {
+    S2LineString(S2Polyline googleLineString) {
         this.googleLineString = googleLineString;
     }
 

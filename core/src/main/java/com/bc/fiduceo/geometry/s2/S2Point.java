@@ -9,7 +9,7 @@ class S2Point implements Point{
 
     private final S2LatLng s2LatLng;
 
-    public S2Point(S2LatLng s2LatLng) {
+    S2Point(S2LatLng s2LatLng) {
         this.s2LatLng = s2LatLng;
     }
 
