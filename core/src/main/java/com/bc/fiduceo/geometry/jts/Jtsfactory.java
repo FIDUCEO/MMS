@@ -21,6 +21,13 @@ public class Jtsfactory implements AbstractGeometryFactory {
         } catch (ParseException e) {
             throw new RuntimeException(e.getMessage());
         }
-        return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+
+        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
+            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
+            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
+        }
+
+        throw new RuntimeException("Unsupported geometry type");
     }
 }

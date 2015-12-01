@@ -2,6 +2,7 @@ package com.bc.fiduceo.math;
 
 
 import com.bc.fiduceo.core.SatelliteGeometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
@@ -19,10 +20,12 @@ public class GeometryIntersectorTest {
 
     // @todo 1 tb/tb extend tests for multipolygon geometries and multiple time axes
     private WKTReader wktReader;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() {
         wktReader = new WKTReader();
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     @Test
