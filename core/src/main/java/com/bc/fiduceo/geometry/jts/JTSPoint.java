@@ -20,7 +20,7 @@ class JTSPoint implements Point{
 
     @Override
     public Object getInner() {
-        throw new RuntimeException("not implemented");
+        return coordinate;
     }
 
     @Override

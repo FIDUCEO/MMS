@@ -1,7 +1,9 @@
 package com.bc.fiduceo.geometry;
 
-import com.bc.fiduceo.geometry.jts.Jtsfactory;
+import com.bc.fiduceo.geometry.jts.JtsFactory;
 import com.bc.fiduceo.geometry.s2.S2Factory;
+
+import java.util.List;
 
 public class GeometryFactory implements AbstractGeometryFactory {
 
@@ -14,7 +16,7 @@ public class GeometryFactory implements AbstractGeometryFactory {
 
     public GeometryFactory(Type type) {
         if (type == Type.JTS) {
-            factoryImpl = new Jtsfactory();
+            factoryImpl = new JtsFactory();
         } else if (type == Type.S2) {
             factoryImpl = new S2Factory();
         } else {
@@ -29,5 +31,10 @@ public class GeometryFactory implements AbstractGeometryFactory {
     @Override
     public Point createPoint(double lon, double lat) {
         return factoryImpl.createPoint(lon, lat);
+    }
+
+    @Override
+    public Polygon createPolygon(List<Point> points) {
+        return factoryImpl.createPolygon(points);
     }
 }

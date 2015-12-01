@@ -30,6 +30,6 @@ class S2Point implements Point{
 
     @Override
     public Object getInner() {
-        throw new RuntimeException("not implemented");
+        return s2LatLng;
     }
 }

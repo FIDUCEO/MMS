@@ -3,12 +3,13 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+
+import static org.junit.Assert.*;
 
 public class GeometryFactoryTest_S2 {
 
@@ -59,5 +60,27 @@ public class GeometryFactoryTest_S2 {
         assertNotNull(point);
         assertEquals(-107.335, point.getLon(), 1e-8);
         assertEquals(20.97, point.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreatePolygon() {
+        final ArrayList<Point> points = new ArrayList<>();
+
+        points.add(factory.createPoint(2, 2));
+        points.add(factory.createPoint(4, 2));
+        points.add(factory.createPoint(4, 4));
+        points.add(factory.createPoint(2, 4));
+        points.add(factory.createPoint(2, 2));
+
+        final Polygon polygon = factory.createPolygon(points);
+        assertNotNull(polygon);
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(1.9999999999999996, 2.0)\n" +
+                "(2.0, 4.0)\n" +
+                "(4.0, 4.0)\n" +
+                "(4.0, 2.0)\n" +
+                "(1.9999999999999996, 2.0)\n" +
+                ">\n", polygon.toString());
     }
 }
