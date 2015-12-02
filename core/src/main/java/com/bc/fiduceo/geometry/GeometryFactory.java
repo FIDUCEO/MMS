@@ -1,7 +1,7 @@
 package com.bc.fiduceo.geometry;
 
-import com.bc.fiduceo.geometry.jts.JtsFactory;
-import com.bc.fiduceo.geometry.s2.S2Factory;
+import com.bc.fiduceo.geometry.jts.JtsGeometryFactory;
+import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ public class GeometryFactory implements AbstractGeometryFactory {
 
     public GeometryFactory(Type type) {
         if (type == Type.JTS) {
-            factoryImpl = new JtsFactory();
+            factoryImpl = new JtsGeometryFactory();
         } else if (type == Type.S2) {
-            factoryImpl = new S2Factory();
+            factoryImpl = new S2GeometryFactory();
         } else {
             throw new IllegalArgumentException("unknown geometry factory type");
         }

@@ -8,12 +8,12 @@ import com.vividsolutions.jts.io.WKTReader;
 
 import java.util.List;
 
-public class JtsFactory implements AbstractGeometryFactory {
+public class JtsGeometryFactory implements AbstractGeometryFactory {
 
     private final WKTReader wktReader;
     private final GeometryFactory geometryFactory;
 
-    public JtsFactory() {
+    public JtsGeometryFactory() {
         wktReader = new WKTReader();
         geometryFactory = new GeometryFactory();
     }

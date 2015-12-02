@@ -9,11 +9,11 @@ import com.google.common.geometry.S2Polyline;
 import java.util.ArrayList;
 import java.util.List;
 
-public class S2Factory implements AbstractGeometryFactory {
+public class S2GeometryFactory implements AbstractGeometryFactory {
 
     private final S2WKTReader s2WKTReader;
 
-    public S2Factory() {
+    public S2GeometryFactory() {
         s2WKTReader = new S2WKTReader();
     }
 
