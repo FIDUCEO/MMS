@@ -24,6 +24,7 @@ package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
 
 class JTSLineString implements LineString{
 
@@ -35,6 +36,16 @@ class JTSLineString implements LineString{
 
     @Override
     public Geometry intersection(Geometry other) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return jtsLineString.isEmpty();
+    }
+
+    @Override
+    public Point[] getCoordinates() {
         throw new RuntimeException("not implemented");
     }
 

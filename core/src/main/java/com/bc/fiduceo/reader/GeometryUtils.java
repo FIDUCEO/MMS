@@ -22,8 +22,13 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteGeometry;
-import com.bc.fiduceo.math.TimeAxis;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.math.TimeAxisJTS;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,29 +36,33 @@ import java.util.List;
 
 class GeometryUtils {
 
-    private static final Polygon westShiftedGlobe;
-    private static final Polygon eastShiftedGlobe;
-    private static final Polygon centralGlobe;
+    private static final com.bc.fiduceo.geometry.Polygon westShiftedGlobe;
+    private static final com.bc.fiduceo.geometry.Polygon eastShiftedGlobe;
+    private static final com.bc.fiduceo.geometry.Polygon centralGlobe;
     private static final GeometryFactory geometryFactory;
+    private static final com.bc.fiduceo.geometry.GeometryFactory geoFactory;
 
     static {
         geometryFactory = new GeometryFactory();
 
-        westShiftedGlobe = createWestShiftedGlobe(geometryFactory);
-        eastShiftedGlobe = createEastShiftedGlobe(geometryFactory);
-        centralGlobe = createCentralGlobe(geometryFactory);
+        // @todo 2 tb/tb move this to a common place, we should switch factories at one point onöy 2015-12-03
+        geoFactory = new com.bc.fiduceo.geometry.GeometryFactory(com.bc.fiduceo.geometry.GeometryFactory.Type.JTS);
+
+        westShiftedGlobe = createWestShiftedGlobe();
+        eastShiftedGlobe = createEastShiftedGlobe();
+        centralGlobe = createCentralGlobe();
     }
 
     // @todo 1 tb/tb adapt to multiple time axes 2015-11-18
     static SatelliteGeometry prepareForStorage(AcquisitionInfo acquisitionInfo) {
-        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
-        final Polygon polygon = geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
-        final TimeAxis timeAxis = createTimeAxis(polygon,
+        final List<Point> coordinates = acquisitionInfo.getCoordinates();
+        final com.bc.fiduceo.geometry.Polygon polygon = geoFactory.createPolygon(coordinates);
+        final TimeAxisJTS timeAxis = createTimeAxis(polygon,
                 acquisitionInfo.getTimeAxisStartIndices()[0],
                 acquisitionInfo.getTimeAxisEndIndices()[0],
                 acquisitionInfo.getSensingStart(),
                 acquisitionInfo.getSensingStop());
-        return new SatelliteGeometry(polygon, new TimeAxis[] {timeAxis});
+        return new SatelliteGeometry(polygon, new TimeAxisJTS[]{timeAxis});
     }
 
     static void normalizePolygon(Coordinate[] coordinates) {
@@ -106,66 +115,66 @@ class GeometryUtils {
         }
     }
 
-    static Polygon[] mapToGlobe(Geometry geometry) {
-        final ArrayList<Polygon> geometries = new ArrayList<>();
-        final Polygon westShifted = (Polygon) westShiftedGlobe.intersection(geometry).clone();
+    // @todo 2 tb/tb this functionality is completely JTS stuff - move to jts package. Introduce a "prepareForStorage" method
+    // that does all this and keep empty implementation for S2 2015-12-03
+    static com.bc.fiduceo.geometry.Polygon[] mapToGlobe(com.bc.fiduceo.geometry.Geometry geometry) {
+        final ArrayList<com.bc.fiduceo.geometry.Polygon> geometries = new ArrayList<>();
+        final com.bc.fiduceo.geometry.Polygon westShifted = (com.bc.fiduceo.geometry.Polygon) westShiftedGlobe.intersection(geometry);
         if (!westShifted.isEmpty()) {
-            westShifted.apply(new LonShifter(360.0));
+            westShifted.shiftLon(360.0);
             geometries.add(westShifted);
         }
 
-        final Polygon central = (Polygon)centralGlobe.intersection(geometry).clone();
+        final com.bc.fiduceo.geometry.Polygon central = (com.bc.fiduceo.geometry.Polygon) centralGlobe.intersection(geometry);
         if (!central.isEmpty()) {
             geometries.add(central);
         }
 
-        final Polygon eastShifted = (Polygon) eastShiftedGlobe.intersection(geometry).clone();
+        final com.bc.fiduceo.geometry.Polygon eastShifted = (com.bc.fiduceo.geometry.Polygon) eastShiftedGlobe.intersection(geometry);
         if (!eastShifted.isEmpty()) {
-            eastShifted.apply(new LonShifter(-360.0));
+            eastShifted.shiftLon(-360.0);
             geometries.add(eastShifted);
         }
 
-        return geometries.toArray(new Polygon[geometries.size()]);
+        return geometries.toArray(new com.bc.fiduceo.geometry.Polygon[geometries.size()]);
     }
 
-    static TimeAxis createTimeAxis(Geometry polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
+    static TimeAxisJTS createTimeAxis(Geometry polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
         final Coordinate[] polygonCoordinates = polygon.getCoordinates();
         final Coordinate[] coordinates = new Coordinate[endIndex - startIndex + 1];
         System.arraycopy(polygonCoordinates, startIndex, coordinates, 0, endIndex + 1 - startIndex);
 
         final LineString lineString = geometryFactory.createLineString(coordinates);
-        return new TimeAxis(lineString, startTime, endTime);
+        return new TimeAxisJTS(lineString, startTime, endTime);
     }
 
-    private static Polygon createCentralGlobe(GeometryFactory geometryFactory) {
-        final Coordinate[] unShiftedCoordinates = new Coordinate[5];
-        unShiftedCoordinates[0] = new Coordinate(-180, 90);
-        unShiftedCoordinates[1] = new Coordinate(-180, -90);
-        unShiftedCoordinates[2] = new Coordinate(180, -90);
-        unShiftedCoordinates[3] = new Coordinate(180, 90);
-        unShiftedCoordinates[4] = new Coordinate(-180, 90);
-        return geometryFactory.createPolygon(unShiftedCoordinates);
+    private static com.bc.fiduceo.geometry.Polygon createCentralGlobe() {
+        final List<Point> pointList = new ArrayList<>(5);
+        pointList.add(geoFactory.createPoint(-180, 90));
+        pointList.add(geoFactory.createPoint(-180, -90));
+        pointList.add(geoFactory.createPoint(180, -90));
+        pointList.add(geoFactory.createPoint(180, 90));
+        pointList.add(geoFactory.createPoint(-180, 90));
+        return geoFactory.createPolygon(pointList);
     }
 
-    private static Polygon createEastShiftedGlobe(GeometryFactory geometryFactory) {
-        final Coordinate[] easternShiftedCoordinates = new Coordinate[5];
-        easternShiftedCoordinates[0] = new Coordinate(180, 90);
-        easternShiftedCoordinates[1] = new Coordinate(180, -90);
-        easternShiftedCoordinates[2] = new Coordinate(540, -90);
-        easternShiftedCoordinates[3] = new Coordinate(540, 90);
-        easternShiftedCoordinates[4] = new Coordinate(180, 90);
-        return geometryFactory.createPolygon(easternShiftedCoordinates);
+    private static com.bc.fiduceo.geometry.Polygon createEastShiftedGlobe() {
+        final List<Point> pointList = new ArrayList<>(5);
+        pointList.add(geoFactory.createPoint(180, 90));
+        pointList.add(geoFactory.createPoint(180, -90));
+        pointList.add(geoFactory.createPoint(540, -90));
+        pointList.add(geoFactory.createPoint(540, 90));
+        pointList.add(geoFactory.createPoint(180, 90));
+        return geoFactory.createPolygon(pointList);
     }
 
-    private static Polygon createWestShiftedGlobe(GeometryFactory geometryFactory) {
-        final Coordinate[] westernShiftedCoordinates = new Coordinate[5];
-        westernShiftedCoordinates[0] = new Coordinate(-540, 90);
-        westernShiftedCoordinates[1] = new Coordinate(-540, -90);
-        westernShiftedCoordinates[2] = new Coordinate(-180, -90);
-        westernShiftedCoordinates[3] = new Coordinate(-180, 90);
-        westernShiftedCoordinates[4] = new Coordinate(-540, 90);
-        return geometryFactory.createPolygon(westernShiftedCoordinates);
+    private static com.bc.fiduceo.geometry.Polygon createWestShiftedGlobe() {
+        final List<Point> pointList = new ArrayList<>(5);
+        pointList.add(geoFactory.createPoint(-540, 90));
+        pointList.add(geoFactory.createPoint(-540, -90));
+        pointList.add(geoFactory.createPoint(-180, -90));
+        pointList.add(geoFactory.createPoint(-180, 90));
+        pointList.add(geoFactory.createPoint(-540, 90));
+        return geoFactory.createPolygon(pointList);
     }
-
-
 }

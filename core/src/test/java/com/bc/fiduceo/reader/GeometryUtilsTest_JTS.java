@@ -23,10 +23,10 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteGeometry;
-import com.bc.fiduceo.math.TimeAxis;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.math.TimeAxisJTS;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.junit.Before;
@@ -39,13 +39,15 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class GeometryUtilsTest {
+public class GeometryUtilsTest_JTS {
 
     private WKTReader wktReader;
+    private GeometryFactory factory;
 
     @Before
     public void setUp() {
         wktReader = new WKTReader();
+        factory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     @Test
@@ -112,27 +114,27 @@ public class GeometryUtilsTest {
 
     @Test
     public void testMapToGlobe_onlyPointsInGlobe() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((10 10, 20 10, 20 20, 10 20, 10 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((10 10, 20 10, 20 20, 10 20, 10 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final  com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(1, mappedPolygons.length);
         assertEquals("POLYGON ((10 10, 10 20, 20 20, 20 10, 10 10))", mappedPolygons[0].toString());
     }
 
     @Test
     public void testMapToGlobe_westShiftedOnlyGlobe() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((-200 10, -190 10, -190 20, -200 20, -200 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -190 10, -190 20, -200 20, -200 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon [] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(1, mappedPolygons.length);
         assertEquals("POLYGON ((160 10, 160 20, 170 20, 170 10, 160 10))", mappedPolygons[0].toString());
     }
 
     @Test
     public void testMapToGlobe_westShiftedAndCentralGlobe() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((-200 10, -170 10, -170 20, -200 20, -200 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -170 10, -170 20, -200 20, -200 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final  com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(2, mappedPolygons.length);
         assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
         assertEquals("POLYGON ((-180 10, -180 20, -170 20, -170 10, -180 10))", mappedPolygons[1].toString());
@@ -140,18 +142,18 @@ public class GeometryUtilsTest {
 
     @Test
     public void testMapToGlobe_eastShiftedOnlyGlobe() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((200 10, 210 10, 210 20, 200 20, 200 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((200 10, 210 10, 210 20, 200 20, 200 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(1, mappedPolygons.length);
         assertEquals("POLYGON ((-160 10, -160 20, -150 20, -150 10, -160 10))", mappedPolygons[0].toString());
     }
 
     @Test
     public void testMapToGlobe_eastShiftedAndCentralGlobe() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((170 10, 210 10, 210 20, 170 20, 170 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((170 10, 210 10, 210 20, 170 20, 170 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(2, mappedPolygons.length);
         assertEquals("POLYGON ((180 20, 180 10, 170 10, 170 20, 180 20))", mappedPolygons[0].toString());
         assertEquals("POLYGON ((-180 10, -180 20, -150 20, -150 10, -180 10))", mappedPolygons[1].toString());
@@ -159,9 +161,9 @@ public class GeometryUtilsTest {
 
     @Test
     public void testMapToGlobe_allShiftsPresent() throws ParseException {
-        final Geometry polygonInGlobe = wktReader.read("POLYGON((-200 10, 210 10, 210 20, -200 20, -200 10))");
+        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, 210 10, 210 20, -200 20, -200 10))");
 
-        final Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(3, mappedPolygons.length);
         assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
         assertEquals("POLYGON ((-180 10, -180 20, 180 20, 180 10, -180 10))", mappedPolygons[1].toString());
@@ -172,7 +174,7 @@ public class GeometryUtilsTest {
     public void testCreateTimeAxis() throws ParseException {
         final Geometry polygon = wktReader.read("POLYGON((10 30, 10 20, 10 10, 20 10, 30 10, 30 20, 30 30, 20 30, 10 30))");
 
-        final TimeAxis timeAxis =  GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
+        final TimeAxisJTS timeAxis =  GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
         assertNotNull(timeAxis);
         assertEquals(1000, timeAxis.getTime(new Coordinate(10, 30)).getTime());
         assertEquals(1500, timeAxis.getTime(new Coordinate(10, 20)).getTime());
@@ -197,7 +199,7 @@ public class GeometryUtilsTest {
         assertNotNull(geometry);
         assertEquals("POLYGON ((10 30, 10 20, 10 10, 30 10, 30 20, 30 30, 10 30))", geometry.toString());
 
-        final TimeAxis[] timeAxes = satelliteGeometry.getTimeAxes();
+        final TimeAxisJTS[] timeAxes = satelliteGeometry.getTimeAxes();
         assertNotNull(timeAxes);
         assertEquals(1, timeAxes.length);
         assertEquals(150000, timeAxes[0].getTime(new Coordinate(10, 20)).getTime());

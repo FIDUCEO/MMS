@@ -26,6 +26,10 @@ public interface Geometry {
 
     Geometry intersection(Geometry other);
 
+    boolean isEmpty();
+
+    Point[] getCoordinates();
+
     Object getInner();
 
     String toString();

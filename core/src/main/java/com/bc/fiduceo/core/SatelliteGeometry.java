@@ -22,8 +22,8 @@
 package com.bc.fiduceo.core;
 
 
-import com.bc.fiduceo.math.TimeAxis;
-import com.vividsolutions.jts.geom.Geometry;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.TimeAxis;
 
 public class SatelliteGeometry {
 

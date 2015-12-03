@@ -174,7 +174,7 @@ public class GeometryIntersectorTest {
     private SatelliteGeometry createSatelliteGeometry(String polygon, String line, int startTime, int stopTime) throws ParseException {
         final Polygon polygon_1 = (Polygon) wktReader.read(polygon);
         final LineString lineString_1 = (LineString) wktReader.read(line);
-        final TimeAxis timeAxis = new TimeAxis(lineString_1, new Date(startTime), new Date(stopTime));
-        return new SatelliteGeometry(polygon_1, new TimeAxis[] {timeAxis});
+        final TimeAxisJTS timeAxis = new TimeAxisJTS(lineString_1, new Date(startTime), new Date(stopTime));
+        return new SatelliteGeometry(polygon_1, new TimeAxisJTS[] {timeAxis});
     }
 }

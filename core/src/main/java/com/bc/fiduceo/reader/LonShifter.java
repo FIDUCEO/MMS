@@ -24,7 +24,7 @@ package com.bc.fiduceo.reader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateFilter;
 
-class LonShifter implements CoordinateFilter {
+public class LonShifter implements CoordinateFilter {
 
     private final double displacement;
 

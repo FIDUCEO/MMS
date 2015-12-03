@@ -22,7 +22,8 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 
@@ -33,10 +34,14 @@ class BoundingPolygonCreator {
 
     private final int intervalX;
     private final int intervalY;
+    private final GeometryFactory geometryFactory;
 
     BoundingPolygonCreator(int intervalX, int intervalY) {
         this.intervalX = intervalX;
         this.intervalY = intervalY;
+
+        // @todo 1 tb/tb inject the factory 2015-12-03
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
@@ -44,47 +49,63 @@ class BoundingPolygonCreator {
         int width = shape[1] - 1;
         int height = shape[0] - 1;
 
-        List<Coordinate> coordinates = new ArrayList<>();
+        List<Point> coordinates = new ArrayList<>();
 
         int[] timeAxisStart = new int[2];
         int[] timeAxisEnd = new int[2];
         if (nodeType == NodeType.ASCENDING) {
             for (int x = 0; x < width; x += intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
+                final double lon = arrayLongitude.get(0, x);
+                final double lat = arrayLatitude.get(0, x);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
 
             timeAxisStart[0] = coordinates.size();
             timeAxisEnd[0] = timeAxisStart[0];
             for (int y = 0; y < height; y += intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, width), arrayLatitude.get(y, width)));
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
                 ++timeAxisEnd[0];
             }
 
             for (int x = width; x > 0; x -= intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(height, x), arrayLatitude.get(height, x)));
+                final double lon = arrayLongitude.get(height, x);
+                final double lat = arrayLatitude.get(height, x);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
 
             for (int y = height; y > 0; y -= intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         } else {
             timeAxisStart[0] = 0;
             timeAxisEnd[0] = 0;
             for (int y = 0; y < height; y += intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, width), arrayLatitude.get(y, width)));
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
                 ++timeAxisEnd[0];
             }
 
             for (int x = width; x > 0; x -= intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(height, x), arrayLatitude.get(height, x)));
+                final double lon = arrayLongitude.get(height, x);
+                final double lat = arrayLatitude.get(height, x);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
 
             for (int y = height; y > 0; y -= intervalY) {
-                coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
 
             for (int x = 0; x < width; x += intervalX) {
-                coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
+                final double lon = arrayLongitude.get(0, x);
+                final double lat = arrayLatitude.get(0, x);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         }
 
@@ -103,27 +124,39 @@ class BoundingPolygonCreator {
     public AcquisitionInfo createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
         final int geoXTrack = arrayLatitude.getShape()[1] - 1;
         final int geoTrack = arrayLatitude.getShape()[0] - 1;
-        final List<Coordinate> coordinates = new ArrayList<>();
+        final List<Point> coordinates = new ArrayList<>();
 
-        coordinates.add(new Coordinate(arrayLongitude.get(0, 0), arrayLatitude.get(0, 0)));
+        float lon = arrayLongitude.get(0, 0);
+        float lat = arrayLatitude.get(0, 0);
+        coordinates.add(geometryFactory.createPoint(lon, lat));
 
         for (int x = 1; x < geoXTrack; x += intervalX) {
-            coordinates.add(new Coordinate(arrayLongitude.get(0, x), arrayLatitude.get(0, x)));
+            lon = arrayLongitude.get(0, x);
+            lat = arrayLatitude.get(0, x);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
         }
 
         for (int y = 0; y <= geoTrack; y += intervalY) {
-            coordinates.add(new Coordinate(arrayLongitude.get(y, geoXTrack), arrayLatitude.get(y, geoXTrack)));
+            lon = arrayLongitude.get(y, geoXTrack);
+            lat = arrayLatitude.get(y, geoXTrack);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
             if ((y + intervalY) > geoTrack) {
-                coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, geoXTrack), arrayLatitude.get(geoTrack, geoXTrack)));
+                lon = arrayLongitude.get(geoTrack, geoXTrack);
+                lat = arrayLatitude.get(geoTrack, geoXTrack);
+                coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         }
 
         for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
-            coordinates.add(new Coordinate(arrayLongitude.get(geoTrack, x), arrayLatitude.get(geoTrack, x)));
+            lon = arrayLongitude.get(geoTrack, x);
+            lat = arrayLatitude.get(geoTrack, x);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
         }
 
         for (int y = geoTrack; y >= 0; y -= intervalY) {
-            coordinates.add(new Coordinate(arrayLongitude.get(y, 0), arrayLatitude.get(y, 0)));
+            lon = arrayLongitude.get(y, 0);
+            lat = arrayLatitude.get(y, 0);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
         }
 
         closePolygon(coordinates);
@@ -133,7 +166,7 @@ class BoundingPolygonCreator {
         return acquisitionInfo;
     }
 
-    static void closePolygon(List<Coordinate> coordinates) {
+    static void closePolygon(List<Point> coordinates) {
         if (coordinates.size() > 1) {
             coordinates.add(coordinates.get(0));
         }

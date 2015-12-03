@@ -23,8 +23,9 @@ package com.bc.fiduceo.math;
 
 
 import com.bc.fiduceo.core.SatelliteGeometry;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,11 +46,11 @@ public class GeometryIntersector {
         final TimeAxis[] timeAxes_1 = satGeometry_1.getTimeAxes();
         final TimeAxis[] timeAxes_2 = satGeometry_2.getTimeAxes();
 
-        final Coordinate[] coordinates = intersection.getCoordinates();
+        final Point[] coordinates = intersection.getCoordinates();
         final ArrayList<Date> sensor_1_dates = new ArrayList<>(coordinates.length);
         final ArrayList<Date> sensor_2_dates = new ArrayList<>(coordinates.length);
         for (int i = 0; i < coordinates.length - 1; i++) {
-            final Coordinate coordinate = coordinates[i];
+            final Point coordinate = coordinates[i];
             Date time = timeAxes_1[0].getTime(coordinate);
             if (time != null) {
                 sensor_1_dates.add(time);

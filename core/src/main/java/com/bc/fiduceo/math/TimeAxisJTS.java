@@ -30,7 +30,7 @@ import com.vividsolutions.jts.linearref.LengthIndexedLine;
 
 import java.util.Date;
 
-public class TimeAxis {
+public class TimeAxisJTS {
 
     // @todo 3 tb/tb check if we can gain performance when using prepared geometries 2015-08-14
 
@@ -40,7 +40,7 @@ public class TimeAxis {
     private final LengthIndexedLine lengthIndexedLine;
     private final long timeInterval;
 
-    public TimeAxis(LineString lineString, Date startTime, Date endTime) {
+    public TimeAxisJTS(LineString lineString, Date startTime, Date endTime) {
         this.startTime = startTime;
         this.lineString = lineString;
         this.inverseAxisLength = 1.0 / lineString.getLength();

@@ -50,6 +50,16 @@ class S2Point implements Point{
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public Point[] getCoordinates() {
+        return new Point[] {this};
+    }
+
+    @Override
     public Object getInner() {
         return s2LatLng;
     }

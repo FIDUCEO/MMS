@@ -40,6 +40,17 @@ class S2Polygon implements Polygon {
     }
 
     @Override
+    public boolean isEmpty() {
+        // @todo 2 tb/tb check if this is the correct condition, write tests 2015-12-03
+        return googlePolygon.numLoops() == 0;
+    }
+
+    @Override
+    public void shiftLon(double lon) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public String toString() {
         return googlePolygon.toString();
     }

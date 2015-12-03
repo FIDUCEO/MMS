@@ -23,6 +23,7 @@ package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.reader.LonShifter;
 
 class JTSPolygon implements Polygon {
 
@@ -36,6 +37,16 @@ class JTSPolygon implements Polygon {
     public Geometry intersection(Geometry other) {
         final com.vividsolutions.jts.geom.Polygon intersection = (com.vividsolutions.jts.geom.Polygon) jtsPolygon.intersection((com.vividsolutions.jts.geom.Geometry) other.getInner()).clone();
         return new JTSPolygon(intersection);
+    }
+
+    @Override
+    public void shiftLon(double lon) {
+        jtsPolygon.apply(new LonShifter(lon));
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return jtsPolygon.isEmpty();
     }
 
     @Override

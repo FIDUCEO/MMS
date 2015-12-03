@@ -26,7 +26,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
 
-class JTSPoint implements Point{
+class JTSPoint implements Point {
 
     private final Coordinate coordinate;
 
@@ -37,6 +37,17 @@ class JTSPoint implements Point{
     @Override
     public Geometry intersection(Geometry other) {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    // @todo 2 tb/tb write test 2015-12-03
+    @Override
+    public Point[] getCoordinates() {
+        return new Point[]{this};
     }
 
     @Override

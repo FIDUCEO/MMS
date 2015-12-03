@@ -23,25 +23,25 @@ package com.bc.fiduceo.reader;
 
 
 import com.bc.fiduceo.core.NodeType;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.bc.fiduceo.geometry.Point;
 
 import java.util.Date;
 import java.util.List;
 
 class AcquisitionInfo {
 
-    private List<Coordinate> coordinates;
+    private List<Point> coordinates;
     private int[] timeAxisStartIndices;
     private int[] timeAxisEndIndices;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
 
-    public List<Coordinate> getCoordinates() {
+    public List<Point> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(List<Coordinate> coordinates) {
+    public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
     }
 
