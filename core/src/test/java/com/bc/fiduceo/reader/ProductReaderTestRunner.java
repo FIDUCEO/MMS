@@ -27,7 +27,6 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ProductReaderTestRunner extends BlockJUnit4ClassRunner {
@@ -37,7 +36,7 @@ public class ProductReaderTestRunner extends BlockJUnit4ClassRunner {
     private boolean executeProductTests;
     private final Class<?> clazz;
 
-    public ProductReaderTestRunner(Class<?> klass) throws InitializationError, IOException {
+    public ProductReaderTestRunner(Class<?> klass) throws InitializationError {
         super(klass);
 
         this.clazz = klass;
