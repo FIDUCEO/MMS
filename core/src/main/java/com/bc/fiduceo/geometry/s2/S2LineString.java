@@ -24,6 +24,8 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Polyline;
 
 class S2LineString implements LineString {
@@ -42,6 +44,23 @@ class S2LineString implements LineString {
     @Override
     public Geometry intersection(Geometry other) {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    // @todo 2 tb/tb wrte tests 2015-12-14
+    @Override
+    public Point[] getCoordinates() {
+        final int numVertices = googleLineString.numVertices();
+        final Point[] coordinates = new Point[numVertices];
+        for (int i = 0; i < numVertices; i++) {
+            final com.google.common.geometry.S2Point googlePoint = googleLineString.vertex(i);
+            coordinates[i] = new S2Point(new S2LatLng(googlePoint));
+        }
+        return coordinates;
     }
 
     @Override

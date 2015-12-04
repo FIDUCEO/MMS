@@ -23,6 +23,7 @@ package com.bc.fiduceo.geometry;
 import com.bc.fiduceo.geometry.jts.JtsGeometryFactory;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 
+import java.util.Date;
 import java.util.List;
 
 public class GeometryFactory implements AbstractGeometryFactory {
@@ -61,5 +62,10 @@ public class GeometryFactory implements AbstractGeometryFactory {
     @Override
     public LineString createLineString(List<Point> points) {
         return factoryImpl.createLineString(points);
+    }
+
+    @Override
+    public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
+        return factoryImpl.createTimeAxis(lineString, startTime, endTime);
     }
 }

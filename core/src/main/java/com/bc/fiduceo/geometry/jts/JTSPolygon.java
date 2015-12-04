@@ -22,8 +22,10 @@
 package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.LonShifter;
+import com.vividsolutions.jts.geom.Coordinate;
 
 class JTSPolygon implements Polygon {
 
@@ -42,6 +44,17 @@ class JTSPolygon implements Polygon {
     @Override
     public void shiftLon(double lon) {
         jtsPolygon.apply(new LonShifter(lon));
+    }
+
+    // @todo 2 tb/tb wite tests 2015-12-04
+    @Override
+    public Point[] getCoordinates() {
+        final Coordinate[] jtsCoordinates = jtsPolygon.getCoordinates();
+        final Point[] coordinates = new Point[jtsCoordinates.length];
+        for (int i = 0; i < jtsCoordinates.length; i++) {
+            coordinates[i] = new JTSPoint(jtsCoordinates[i]);
+        }
+        return coordinates;
     }
 
     @Override

@@ -24,6 +24,9 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.math.TimeAxisJTS;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -172,19 +175,19 @@ public class GeometryUtilsTest_JTS {
 
     @Test
     public void testCreateTimeAxis() throws ParseException {
-        final Geometry polygon = wktReader.read("POLYGON((10 30, 10 20, 10 10, 20 10, 30 10, 30 20, 30 30, 20 30, 10 30))");
+        final Polygon polygon = (Polygon) factory.parse("POLYGON((10 30, 10 20, 10 10, 20 10, 30 10, 30 20, 30 30, 20 30, 10 30))");
 
-        final TimeAxisJTS timeAxis =  GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
+        final TimeAxis timeAxis =  GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
         assertNotNull(timeAxis);
-        assertEquals(1000, timeAxis.getTime(new Coordinate(10, 30)).getTime());
-        assertEquals(1500, timeAxis.getTime(new Coordinate(10, 20)).getTime());
-        assertEquals(2000, timeAxis.getTime(new Coordinate(10, 10)).getTime());
+        assertEquals(1000, timeAxis.getTime(factory.createPoint(10, 30)).getTime());
+        assertEquals(1500, timeAxis.getTime(factory.createPoint(10, 20)).getTime());
+        assertEquals(2000, timeAxis.getTime(factory.createPoint(10, 10)).getTime());
     }
 
     @Test
     public void testPrepareForStorage_onePolygon_oneAxis_descending() {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        final List<Coordinate> coordinateList = createCoordinateList(new double[]{10, 10, 10, 30, 30, 30, 10}, new double[]{30, 20, 10, 10, 20, 30, 30});
+        final List<Point> coordinateList = createCoordinateList(new double[]{10, 10, 10, 30, 30, 30, 10}, new double[]{30, 20, 10, 10, 20, 30, 30});
         acquisitionInfo.setCoordinates(coordinateList);
         acquisitionInfo.setTimeAxisStartIndices(new int[] {0});
         acquisitionInfo.setTimeAxisEndIndices(new int[] {2});
@@ -195,21 +198,21 @@ public class GeometryUtilsTest_JTS {
         final SatelliteGeometry satelliteGeometry = GeometryUtils.prepareForStorage(acquisitionInfo);
         assertNotNull(satelliteGeometry);
 
-        final Geometry geometry = satelliteGeometry.getGeometry();
+        final com.bc.fiduceo.geometry.Geometry geometry = satelliteGeometry.getGeometry();
         assertNotNull(geometry);
         assertEquals("POLYGON ((10 30, 10 20, 10 10, 30 10, 30 20, 30 30, 10 30))", geometry.toString());
 
-        final TimeAxisJTS[] timeAxes = satelliteGeometry.getTimeAxes();
+        final TimeAxis[] timeAxes = satelliteGeometry.getTimeAxes();
         assertNotNull(timeAxes);
         assertEquals(1, timeAxes.length);
-        assertEquals(150000, timeAxes[0].getTime(new Coordinate(10, 20)).getTime());
+        assertEquals(150000, timeAxes[0].getTime(factory.createPoint(10, 20)).getTime());
     }
 
-    private List<Coordinate> createCoordinateList(double[] lons, double[] lats) {
-        final ArrayList<Coordinate> coordinates = new ArrayList<>(lons.length);
+    private List<Point> createCoordinateList(double[] lons, double[] lats) {
+        final ArrayList<Point> coordinates = new ArrayList<>(lons.length);
 
         for (int i = 0; i < lons.length; i++){
-            coordinates.add(new Coordinate(lons[i], lats[i]));
+            coordinates.add(factory.createPoint(lons[i], lats[i]));
         }
 
         return coordinates;

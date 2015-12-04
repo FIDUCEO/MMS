@@ -28,6 +28,7 @@ import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class S2GeometryFactory implements AbstractGeometryFactory {
@@ -72,6 +73,11 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
 
         final S2Polyline s2Polyline = new S2Polyline(loopPoints);
         return new S2LineString(s2Polyline);
+    }
+
+    @Override
+    public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
+        throw new RuntimeException("not implemented");
     }
 
     private static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {

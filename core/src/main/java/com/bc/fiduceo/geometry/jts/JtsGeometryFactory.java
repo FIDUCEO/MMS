@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import java.util.Date;
 import java.util.List;
 
 public class JtsGeometryFactory implements AbstractGeometryFactory {
@@ -77,6 +78,11 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
 
         com.vividsolutions.jts.geom.LineString lineString = geometryFactory.createLineString(coordinates);
         return new JTSLineString(lineString);
+    }
+
+    @Override
+    public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
+        throw new RuntimeException("not implemented");
     }
 
     private static Coordinate[] extractCoordinates(List<Point> points) {

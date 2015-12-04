@@ -24,10 +24,7 @@ package com.bc.fiduceo.math;
 
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,17 +37,15 @@ import static org.junit.Assert.assertNull;
 public class GeometryIntersectorTest {
 
     // @todo 1 tb/tb extend tests for multipolygon geometries and multiple time axes
-    private WKTReader wktReader;
     private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() {
-        wktReader = new WKTReader();
         geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     @Test
-    public void testGetIntersectionTime_noGeometricIntersection() throws ParseException {
+    public void testGetIntersectionTime_noGeometricIntersection() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
                 "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((0 5, 0 4, 0 3, 0 2, 1 2, 1 3, 1 4, 1 5, 0 5))",
@@ -62,7 +57,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending() throws ParseException {
+    public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
                 "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
@@ -76,7 +71,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending_shiftedLon() throws ParseException {
+    public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending_shiftedLon() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((-4 2, -4 1, -4 0, -4 -1, -4 -2, -3 -2, -3 -1, -3 0, -3 1, -3 2, -4 2))",
                 "LINESTRING(-4 2, -4 1, -4 0, -4 -1, -4 -2)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((-2.5 0, -2.5 1, -2.5 2, -2.5 3, -3.5 3, -3.5 2, -3.5 1, -3.5 0, -2.5 0))",
@@ -90,7 +85,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_onSameOrbit_bothDescending_noOverlappingTime() throws ParseException {
+    public void testGetIntersectionTime_onSameOrbit_bothDescending_noOverlappingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
                 "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
@@ -102,7 +97,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_onSameOrbit_bothDescending_closerInTime() throws ParseException {
+    public void testGetIntersectionTime_onSameOrbit_bothDescending_closerInTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
                 "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 5, 2 4, 2 3, 2 2, 3 2, 3 3, 3 4, 3 5, 2 5))",
@@ -116,7 +111,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_onSamePlatform() throws ParseException {
+    public void testGetIntersectionTime_onSamePlatform() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
                 "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
@@ -130,7 +125,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_angularIntersection_intersectingTime() throws ParseException {
+    public void testGetIntersectionTime_angularIntersection_intersectingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
                 "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
@@ -144,7 +139,7 @@ public class GeometryIntersectorTest {
     }
 
     @Test
-    public void testGetIntersectionTime_angularIntersection_noIntersectingTime() throws ParseException {
+    public void testGetIntersectionTime_angularIntersection_noIntersectingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
                 "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1900, 2900);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
@@ -171,10 +166,10 @@ public class GeometryIntersectorTest {
         assertEquals(200, GeometryIntersector.calculateTimeDelta(interval_2, interval_1));
     }
 
-    private SatelliteGeometry createSatelliteGeometry(String polygon, String line, int startTime, int stopTime) throws ParseException {
-        final Polygon polygon_1 = (Polygon) wktReader.read(polygon);
-        final LineString lineString_1 = (LineString) wktReader.read(line);
-        final TimeAxisJTS timeAxis = new TimeAxisJTS(lineString_1, new Date(startTime), new Date(stopTime));
-        return new SatelliteGeometry(polygon_1, new TimeAxisJTS[] {timeAxis});
+    private SatelliteGeometry createSatelliteGeometry(String polygonWkt, String lineWkt, int startTime, int stopTime) {
+        final com.bc.fiduceo.geometry.Polygon polygon = (com.bc.fiduceo.geometry.Polygon) geometryFactory.parse(polygonWkt);
+        final com.bc.fiduceo.geometry.LineString lineString = (com.bc.fiduceo.geometry.LineString) geometryFactory.parse(lineWkt);
+        final TimeAxis timeAxis = geometryFactory.createTimeAxis(lineString, new Date(startTime), new Date(stopTime));
+        return new SatelliteGeometry(polygon, new TimeAxis[]{timeAxis});
     }
 }

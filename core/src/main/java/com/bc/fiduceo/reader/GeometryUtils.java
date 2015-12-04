@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.math.TimeAxisJTS;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Geometry;
@@ -31,6 +32,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -57,12 +59,12 @@ class GeometryUtils {
     static SatelliteGeometry prepareForStorage(AcquisitionInfo acquisitionInfo) {
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         final com.bc.fiduceo.geometry.Polygon polygon = geoFactory.createPolygon(coordinates);
-        final TimeAxisJTS timeAxis = createTimeAxis(polygon,
+        final TimeAxis timeAxis = createTimeAxis(polygon,
                 acquisitionInfo.getTimeAxisStartIndices()[0],
                 acquisitionInfo.getTimeAxisEndIndices()[0],
                 acquisitionInfo.getSensingStart(),
                 acquisitionInfo.getSensingStop());
-        return new SatelliteGeometry(polygon, new TimeAxisJTS[]{timeAxis});
+        return new SatelliteGeometry(polygon, new TimeAxis[]{timeAxis});
     }
 
     static void normalizePolygon(Coordinate[] coordinates) {
@@ -139,13 +141,16 @@ class GeometryUtils {
         return geometries.toArray(new com.bc.fiduceo.geometry.Polygon[geometries.size()]);
     }
 
-    static TimeAxisJTS createTimeAxis(Geometry polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
-        final Coordinate[] polygonCoordinates = polygon.getCoordinates();
-        final Coordinate[] coordinates = new Coordinate[endIndex - startIndex + 1];
+    static TimeAxis createTimeAxis(com.bc.fiduceo.geometry.Polygon polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
+        final Point[] polygonCoordinates = polygon.getCoordinates();
+        final Point[] coordinates = new Point[endIndex - startIndex + 1];
         System.arraycopy(polygonCoordinates, startIndex, coordinates, 0, endIndex + 1 - startIndex);
 
-        final LineString lineString = geometryFactory.createLineString(coordinates);
-        return new TimeAxisJTS(lineString, startTime, endTime);
+        // @todo 3 tb/tb decide here: either you stick to arrays or to lists - but not use both 2015-12-04
+        final ArrayList<Point> coordinateList = new ArrayList<>(coordinates.length);
+        Collections.addAll(coordinateList, coordinates);
+        final com.bc.fiduceo.geometry.LineString lineString = geoFactory.createLineString(coordinateList);
+        return geoFactory.createTimeAxis(lineString, startTime, endTime);
     }
 
     private static com.bc.fiduceo.geometry.Polygon createCentralGlobe() {

@@ -22,6 +22,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.bc.fiduceo.core.NodeType;
 import org.esa.snap.core.datamodel.ProductData;
@@ -67,7 +68,7 @@ public class AIRS_L1B_Reader_IO_Test {
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
         assertNotNull(acquisitionInfo);
 
-        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
+        final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(41, coordinates.size());
         assertCoordinate(-164.84726526737956, 78.65846904183893, coordinates.get(0));
@@ -91,7 +92,7 @@ public class AIRS_L1B_Reader_IO_Test {
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
         assertNotNull(acquisitionInfo);
 
-        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
+        final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(41, coordinates.size());
         assertCoordinate(-6.4170300611108315, 88.23613967607469, coordinates.get(1));
@@ -115,7 +116,7 @@ public class AIRS_L1B_Reader_IO_Test {
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
         assertNotNull(acquisitionInfo);
 
-        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
+        final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(41, coordinates.size());
         assertCoordinate(-3.5416849171828058, 15.6620445809086, coordinates.get(2));
@@ -138,8 +139,8 @@ public class AIRS_L1B_Reader_IO_Test {
         assertEquals(expectedDate.getTime(), date.getTime());
     }
 
-    private void assertCoordinate(double expectedX, double expectedY, Coordinate coordinate) {
-        assertEquals(expectedX, coordinate.x, 1e-8);
-        assertEquals(expectedY, coordinate.y, 1e-8);
+    private void assertCoordinate(double expectedX, double expectedY, Point coordinate) {
+        assertEquals(expectedX, coordinate.getLon(), 1e-8);
+        assertEquals(expectedY, coordinate.getLat(), 1e-8);
     }
 }

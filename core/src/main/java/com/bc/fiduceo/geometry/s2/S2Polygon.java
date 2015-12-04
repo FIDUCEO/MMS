@@ -22,7 +22,12 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Loop;
+
+import java.util.ArrayList;
 
 class S2Polygon implements Polygon {
 
@@ -48,6 +53,22 @@ class S2Polygon implements Polygon {
     @Override
     public void shiftLon(double lon) {
         throw new RuntimeException("not implemented");
+    }
+
+    // @todo 2 tb/tb write tests 2015-12-04
+    @Override
+    public Point[] getCoordinates() {
+        final ArrayList<Point> coordinates = new ArrayList<>();
+        final int numLoops = googlePolygon.numLoops();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = googlePolygon.loop(i);
+            final int numVertices = loop.numVertices();
+            for (int k = 0; k < numVertices; k++) {
+                final com.google.common.geometry.S2Point googlePoint = loop.vertex(i);
+                coordinates.add(new S2Point(new S2LatLng(googlePoint)));
+            }
+        }
+        return coordinates.toArray(new Point[coordinates.size()]);
     }
 
     @Override

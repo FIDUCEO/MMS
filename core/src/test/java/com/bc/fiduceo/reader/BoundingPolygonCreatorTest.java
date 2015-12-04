@@ -22,6 +22,8 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,11 +42,13 @@ import static org.junit.Assert.assertTrue;
 public class BoundingPolygonCreatorTest {
 
     private BoundingPolygonCreator boundingPolygonCreator;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws IOException {
         boundingPolygonCreator = new BoundingPolygonCreator(8, 8);
         assertNotNull(boundingPolygonCreator);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     @Test
@@ -55,7 +59,7 @@ public class BoundingPolygonCreatorTest {
         final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon(latitudes, longitudes, NodeType.ASCENDING);
         assertNotNull(acquisitionInfo);
 
-        final List<Coordinate> coordinates = acquisitionInfo.getCoordinates();
+        final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertEquals(5, coordinates.size());
         assertEquals(1, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(2, acquisitionInfo.getTimeAxisEndIndices()[0]);
@@ -64,7 +68,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testClosePolygon_emptyList() {
-        final ArrayList<Coordinate> coordinates = new ArrayList<>();
+        final ArrayList<Point> coordinates = new ArrayList<>();
 
         BoundingPolygonCreator.closePolygon(coordinates);
 
@@ -73,17 +77,17 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testClosePolygon() {
-        final ArrayList<Coordinate> coordinates = new ArrayList<>();
-        coordinates.add(new Coordinate(0, 0));
-        coordinates.add(new Coordinate(1, 1));
-        coordinates.add(new Coordinate(1, 3));
+        final ArrayList<Point> coordinates = new ArrayList<>();
+        coordinates.add(geometryFactory.createPoint(0, 0));
+        coordinates.add(geometryFactory.createPoint(1, 1));
+        coordinates.add(geometryFactory.createPoint(1, 3));
 
         BoundingPolygonCreator.closePolygon(coordinates);
 
         assertEquals(4, coordinates.size());
-        final Coordinate closingCoordinate = coordinates.get(3);
-        assertEquals(0, closingCoordinate.x, 1e-8);
-        assertEquals(0, closingCoordinate.y, 1e-8);
+        final Point closingCoordinate = coordinates.get(3);
+        assertEquals(0, closingCoordinate.getLon(), 1e-8);
+        assertEquals(0, closingCoordinate.getLat(), 1e-8);
     }
 
     private static final double[][] AIRS_LONGITUDES = new double[][] {{138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
