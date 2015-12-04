@@ -46,6 +46,8 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
             return new S2Polygon(geometry);
         } else if (geometry instanceof com.google.common.geometry.S2Polyline) {
             return new S2LineString((S2Polyline) geometry);
+        } else if (geometry instanceof com.google.common.geometry.S2Point) {
+            return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
         }
 
         throw new RuntimeException("Unsupported geometry type");
@@ -77,7 +79,8 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
-        throw new RuntimeException("not implemented");
+        final S2Polyline inner = (S2Polyline) lineString.getInner();
+        return new S2TimeAxis(inner, startTime, endTime);
     }
 
     private static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {

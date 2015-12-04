@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -19,26 +18,29 @@
  *
  */
 
-package com.bc.fiduceo.math;
+package com.bc.fiduceo.geometry.s2;
 
-import com.google.common.geometry.S1Angle;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.math.TimeInterval;
+import com.google.common.geometry.*;
 import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TimeAxisS2 {
+class S2TimeAxis implements TimeAxis {
 
     private final S2Polyline polyline;
     private final double invLength;
     private final Date startTime;
     private final long timeInterval;
 
-    public TimeAxisS2(S2Polyline polyline, Date startTime, Date endTime) {
-        this.polyline = polyline;
+    public S2TimeAxis(S2Polyline lineString, Date startTime, Date endTime) {
+        this.polyline = lineString;
 
         final S1Angle arclengthAngle = polyline.getArclengthAngle();
         this.invLength = 1.0 / arclengthAngle.radians();
@@ -47,8 +49,10 @@ public class TimeAxisS2 {
         this.timeInterval = endTime.getTime() - startTime.getTime();
     }
 
-    public TimeInterval getIntersectionTime(S2Polygon polygon) {
-        List<S2Polyline> s2Polylines = polygon.intersectWithPolyLine(polyline);
+    @Override
+    public TimeInterval getIntersectionTime(Polygon polygon) {
+        final com.google.common.geometry.S2Polygon inner = (com.google.common.geometry.S2Polygon) polygon.getInner();
+        List<S2Polyline> s2Polylines = inner.intersectWithPolyLine(polyline);
         if (s2Polylines.isEmpty()) {
             return null;
         }
@@ -69,13 +73,20 @@ public class TimeAxisS2 {
         return new TimeInterval(new Date(startMillis), new Date(startMillis + duration));
     }
 
-    public Date getTime(S2Point point) {
-        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(point);
+    @Override
+    public TimeInterval getProjectionTime(LineString polygonSide) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Date getTime(Point coordinate) {
+        final com.google.common.geometry.S2Point inner = ((S2LatLng) coordinate.getInner()).toPoint();
+        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(inner);
         if (nearestEdgeIndex < 0) {
             return null;
         }
 
-        final long offsetTime = calculateLineDuration(point);
+        final long offsetTime = calculateLineDuration(inner);
         final long startMillis = startTime.getTime() + offsetTime;
 
         if (offsetTime > timeInterval) {
@@ -86,7 +97,7 @@ public class TimeAxisS2 {
     }
 
     // package access for testing only tb 2015-11-20
-    S2Polyline createSubLineTo(S2Point intersectionStartPoint) {
+    S2Polyline createSubLineTo(com.google.common.geometry.S2Point intersectionStartPoint) {
         final List<S2Point> vertices = new ArrayList<>();
 
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(intersectionStartPoint);
