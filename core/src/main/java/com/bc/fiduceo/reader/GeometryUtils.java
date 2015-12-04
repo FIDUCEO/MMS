@@ -24,8 +24,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +36,9 @@ class GeometryUtils {
     private static final com.bc.fiduceo.geometry.Polygon westShiftedGlobe;
     private static final com.bc.fiduceo.geometry.Polygon eastShiftedGlobe;
     private static final com.bc.fiduceo.geometry.Polygon centralGlobe;
-    private static final GeometryFactory geometryFactory;
     private static final com.bc.fiduceo.geometry.GeometryFactory geoFactory;
 
     static {
-        geometryFactory = new GeometryFactory();
-
         // @todo 2 tb/tb move this to a common place, we should switch factories at one point onöy 2015-12-03
         geoFactory = new com.bc.fiduceo.geometry.GeometryFactory(com.bc.fiduceo.geometry.GeometryFactory.Type.JTS);
 
