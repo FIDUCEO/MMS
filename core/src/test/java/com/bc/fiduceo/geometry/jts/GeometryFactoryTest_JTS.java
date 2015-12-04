@@ -57,6 +57,12 @@ public class GeometryFactoryTest_JTS {
     }
 
     @Test
+    public void testParsePoint() {
+        final Geometry geometry = factory.parse("POINT(4 0)");
+        assertNotNull(geometry);
+    }
+
+    @Test
     public void testCreatePoint() {
         Point point = factory.createPoint(11.78, -23.56);
         assertNotNull(point);

@@ -24,12 +24,8 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.bc.fiduceo.math.TimeAxisJTS;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 
 import java.util.ArrayList;
 import java.util.Collections;

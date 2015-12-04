@@ -57,6 +57,8 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
             return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
         } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
             return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
+            return new JTSPoint(geometry.getCoordinate());
         }
 
         throw new RuntimeException("Unsupported geometry type");
