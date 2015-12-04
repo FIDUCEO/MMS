@@ -22,7 +22,11 @@
 package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.*;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -82,7 +86,8 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
-        throw new RuntimeException("not implemented");
+        final com.vividsolutions.jts.geom.LineString jtsLineString = (com.vividsolutions.jts.geom.LineString) lineString.getInner();
+        return new JTSTimeAxis(jtsLineString, startTime, endTime);
     }
 
     private static Coordinate[] extractCoordinates(List<Point> points) {

@@ -56,6 +56,6 @@ class JTSLineString implements LineString{
 
     @Override
     public Object getInner() {
-        throw new RuntimeException("not implemented");
+        return jtsLineString;
     }
 }
