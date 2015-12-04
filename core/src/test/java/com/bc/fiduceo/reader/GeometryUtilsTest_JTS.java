@@ -29,7 +29,6 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,12 +41,10 @@ import static org.junit.Assert.assertNotNull;
 
 public class GeometryUtilsTest_JTS {
 
-    private WKTReader wktReader;
     private GeometryFactory factory;
 
     @Before
     public void setUp() {
-        wktReader = new WKTReader();
         factory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
@@ -117,7 +114,7 @@ public class GeometryUtilsTest_JTS {
     public void testMapToGlobe_onlyPointsInGlobe() throws ParseException {
         final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((10 10, 20 10, 20 20, 10 20, 10 10))");
 
-        final  com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(1, mappedPolygons.length);
         assertEquals("POLYGON ((10 10, 10 20, 20 20, 20 10, 10 10))", mappedPolygons[0].toString());
     }
@@ -126,7 +123,7 @@ public class GeometryUtilsTest_JTS {
     public void testMapToGlobe_westShiftedOnlyGlobe() throws ParseException {
         final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -190 10, -190 20, -200 20, -200 10))");
 
-        final com.bc.fiduceo.geometry.Polygon [] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(1, mappedPolygons.length);
         assertEquals("POLYGON ((160 10, 160 20, 170 20, 170 10, 160 10))", mappedPolygons[0].toString());
     }
@@ -135,7 +132,7 @@ public class GeometryUtilsTest_JTS {
     public void testMapToGlobe_westShiftedAndCentralGlobe() throws ParseException {
         final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -170 10, -170 20, -200 20, -200 10))");
 
-        final  com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
+        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
         assertEquals(2, mappedPolygons.length);
         assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
         assertEquals("POLYGON ((-180 10, -180 20, -170 20, -170 10, -180 10))", mappedPolygons[1].toString());
@@ -175,7 +172,7 @@ public class GeometryUtilsTest_JTS {
     public void testCreateTimeAxis() throws ParseException {
         final Polygon polygon = (Polygon) factory.parse("POLYGON((10 30, 10 20, 10 10, 20 10, 30 10, 30 20, 30 30, 20 30, 10 30))");
 
-        final TimeAxis timeAxis =  GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
+        final TimeAxis timeAxis = GeometryUtils.createTimeAxis(polygon, 0, 2, new Date(1000), new Date(2000));
         assertNotNull(timeAxis);
         assertEquals(1000, timeAxis.getTime(factory.createPoint(10, 30)).getTime());
         assertEquals(1500, timeAxis.getTime(factory.createPoint(10, 20)).getTime());
@@ -187,8 +184,8 @@ public class GeometryUtilsTest_JTS {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         final List<Point> coordinateList = createCoordinateList(new double[]{10, 10, 10, 30, 30, 30, 10}, new double[]{30, 20, 10, 10, 20, 30, 30});
         acquisitionInfo.setCoordinates(coordinateList);
-        acquisitionInfo.setTimeAxisStartIndices(new int[] {0});
-        acquisitionInfo.setTimeAxisEndIndices(new int[] {2});
+        acquisitionInfo.setTimeAxisStartIndices(new int[]{0});
+        acquisitionInfo.setTimeAxisEndIndices(new int[]{2});
         acquisitionInfo.setSensingStart(new Date(100000));
         acquisitionInfo.setSensingStop(new Date(200000));
         acquisitionInfo.setNodeType(NodeType.DESCENDING);
@@ -209,7 +206,7 @@ public class GeometryUtilsTest_JTS {
     private List<Point> createCoordinateList(double[] lons, double[] lats) {
         final ArrayList<Point> coordinates = new ArrayList<>(lons.length);
 
-        for (int i = 0; i < lons.length; i++){
+        for (int i = 0; i < lons.length; i++) {
             coordinates.add(factory.createPoint(lons[i], lats[i]));
         }
 
