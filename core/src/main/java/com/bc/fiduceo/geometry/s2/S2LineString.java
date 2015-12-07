@@ -48,7 +48,7 @@ class S2LineString implements LineString {
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return googleLineString.numVertices() <= 0;
     }
 
     // @todo 2 tb/tb wrte tests 2015-12-14
