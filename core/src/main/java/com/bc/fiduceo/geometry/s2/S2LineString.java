@@ -51,7 +51,6 @@ class S2LineString implements LineString {
         return googleLineString.numVertices() <= 0;
     }
 
-    // @todo 2 tb/tb wrte tests 2015-12-14
     @Override
     public Point[] getCoordinates() {
         final int numVertices = googleLineString.numVertices();
