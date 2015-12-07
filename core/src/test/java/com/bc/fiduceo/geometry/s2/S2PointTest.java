@@ -22,9 +22,13 @@
 package com.bc.fiduceo.geometry.s2;
 
 
+import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 public class S2PointTest {
@@ -32,10 +36,46 @@ public class S2PointTest {
     @Test
     public void testGetInner() {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(11, 87);
-
         final S2Point s2Point = new S2Point(s2LatLng);
 
         final Object inner = s2Point.getInner();
         assertSame(s2LatLng, inner);
+    }
+
+    @Test
+    public void testGetLon() {
+        final S2Point s2Point = createS2Point(12, 88);
+
+        assertEquals(88, s2Point.getLon(), 1e-8);
+    }
+
+    @Test
+    public void testGetLat() {
+        final S2Point s2Point = createS2Point(13, 89);
+
+        assertEquals(13, s2Point.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testIsEmpty() {
+        final S2Point s2Point = createS2Point(13, 89);
+
+        assertFalse(s2Point.isEmpty());
+    }
+
+    @Test
+    public void testGetCoordinates() {
+        final S2Point s2Point = createS2Point(14, 90);
+
+        final Point[] coordinates = s2Point.getCoordinates();
+        assertNotNull(coordinates);
+        assertEquals(1, coordinates.length);
+        assertEquals(90, coordinates[0].getLon(), 1e-8);
+        assertEquals(14, coordinates[0].getLat(), 1e-8);
+    }
+
+    private S2Point createS2Point(int latDegrees, int lngDegrees) {
+        final S2LatLng s2LatLng = S2LatLng.fromDegrees(latDegrees, lngDegrees);
+        return new S2Point(s2LatLng);
     }
 }
