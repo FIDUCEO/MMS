@@ -44,7 +44,6 @@ class JTSPoint implements Point {
         return false;
     }
 
-    // @todo 2 tb/tb write test 2015-12-03
     @Override
     public Point[] getCoordinates() {
         return new Point[]{this};

@@ -22,20 +22,57 @@
 package com.bc.fiduceo.geometry.jts;
 
 
+import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
+import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 public class JTSPointTest {
 
+    private static final double LON = 23.44;
+    private static final double LAT = 34.109;
+
+    private Coordinate coordinate;
+    private JTSPoint jtsPoint;
+
+    @Before
+    public void setUp() {
+        coordinate = new Coordinate(LON, LAT);
+        jtsPoint = new JTSPoint(coordinate);
+    }
+
     @Test
     public void testGetInner() {
-        final Coordinate coordinate = new Coordinate(23, 34);
-
-        final JTSPoint jtsPoint = new JTSPoint(coordinate);
-
         final Object inner = jtsPoint.getInner();
         assertSame(coordinate, inner);
+    }
+
+    @Test
+    public void testIsEmpty() {
+        assertFalse(jtsPoint.isEmpty());
+    }
+
+    @Test
+    public void testGetLon() {
+        assertEquals(LON, jtsPoint.getLon(), 1e-8);
+    }
+
+    @Test
+    public void testGetLat() {
+        assertEquals(LAT, jtsPoint.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testGetCoordinates() {
+        final Point[] coordinates = jtsPoint.getCoordinates();
+        assertNotNull(coordinates);
+        assertEquals(1, coordinates.length);
+        assertEquals(LON, coordinates[0].getLon(), 1e-8);
+        assertEquals(LAT, coordinates[0].getLat(), 1e-8);
     }
 }
