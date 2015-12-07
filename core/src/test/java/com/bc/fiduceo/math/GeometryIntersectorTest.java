@@ -24,6 +24,8 @@ package com.bc.fiduceo.math;
 
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
 import org.junit.Test;
@@ -167,8 +169,8 @@ public class GeometryIntersectorTest {
     }
 
     private SatelliteGeometry createSatelliteGeometry(String polygonWkt, String lineWkt, int startTime, int stopTime) {
-        final com.bc.fiduceo.geometry.Polygon polygon = (com.bc.fiduceo.geometry.Polygon) geometryFactory.parse(polygonWkt);
-        final com.bc.fiduceo.geometry.LineString lineString = (com.bc.fiduceo.geometry.LineString) geometryFactory.parse(lineWkt);
+        final Polygon polygon = (Polygon) geometryFactory.parse(polygonWkt);
+        final LineString lineString = (LineString) geometryFactory.parse(lineWkt);
         final TimeAxis timeAxis = geometryFactory.createTimeAxis(lineString, new Date(startTime), new Date(stopTime));
         return new SatelliteGeometry(polygon, new TimeAxis[]{timeAxis});
     }
