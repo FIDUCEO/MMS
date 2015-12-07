@@ -26,7 +26,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 
-class JTSLineString implements LineString{
+class JTSLineString implements LineString {
 
     private final com.vividsolutions.jts.geom.LineString jtsLineString;
 
