@@ -38,6 +38,9 @@ class BoundingPolygonCreator {
     private final GeometryFactory geometryFactory;
 
     BoundingPolygonCreator(Interval interval, GeometryFactory geometryFactory) {
+        if ((interval.getX() <= 0)||(interval.getY() <= 0)) {
+            throw new RuntimeException("invalid interval");
+        }
         this.intervalX = interval.getX();
         this.intervalY = interval.getY();
 
