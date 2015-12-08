@@ -26,6 +26,7 @@ import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.SnapCoreActivator;
 
@@ -41,9 +42,9 @@ public class Storage {
     private Driver driver;
 
 
-    public static Storage create(BasicDataSource dataSource) throws SQLException {
+    public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         if (storage == null) {
-            storage = new Storage(dataSource);
+            storage = new Storage(dataSource, geometryFactory);
         }
         return storage;
     }
@@ -81,11 +82,13 @@ public class Storage {
         return driver.insert(sensor);
     }
 
-    Storage(BasicDataSource dataSource) throws SQLException {
+    Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         driver = createDriver(dataSource);
         if (driver == null) {
             throw new IllegalArgumentException("No database driver registered for URL `" + dataSource.getUrl() + "`");
         }
+
+        driver.setGeometryFactory(geometryFactory);
 
         driver.open(dataSource);
     }

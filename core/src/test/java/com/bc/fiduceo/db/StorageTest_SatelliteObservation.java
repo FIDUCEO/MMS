@@ -24,6 +24,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -48,7 +49,8 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Before
     public void setUp() throws SQLException {
-        storage = Storage.create(dataSource);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
     }
 

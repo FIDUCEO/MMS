@@ -25,6 +25,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
@@ -38,6 +39,7 @@ public class MySQLDriver extends AbstractDriver {
 
     private final WKBWriter wkbWriter;
     private final WKBReader wkbReader;
+    private GeometryFactory geometryFactory;
 
     public MySQLDriver() {
         wkbWriter = new WKBWriter();
@@ -47,6 +49,11 @@ public class MySQLDriver extends AbstractDriver {
     @Override
     public String getUrlPattern() {
         return "jdbc:mysql";
+    }
+
+    @Override
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
     }
 
     @Override

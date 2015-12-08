@@ -24,6 +24,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
@@ -42,6 +43,8 @@ public class PostGISDriver extends AbstractDriver {
     private WKBWriter wkbWriter;
     private WKBReader wkbReader;
 
+    private GeometryFactory geometryFactory;
+
     public PostGISDriver() {
         wkbWriter = new WKBWriter();
         wkbReader = new WKBReader();
@@ -50,6 +53,12 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public String getUrlPattern() {
         return "jdbc:postgresql";
+    }
+
+
+    @Override
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
     }
 
     @Override

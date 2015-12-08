@@ -96,10 +96,14 @@ public abstract class BoundingPolygonCreatorTest {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertEquals(5, coordinates.size());
+        assertEquals(138.19514475348302, coordinates.get(0).getLon(), 1e-8);
+        assertEquals(71.15288152754994, coordinates.get(0).getLat(), 1e-8);
+        assertEquals(136.90199908664985, coordinates.get(3).getLon(), 1e-8);
+        assertEquals(71.41032171663477, coordinates.get(3).getLat(), 1e-8);
+
         assertEquals(1, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(2, acquisitionInfo.getTimeAxisEndIndices()[0]);
     }
-
 
     protected static final double[][] AIRS_LONGITUDES = new double[][]{{138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
             {137.7680766938059, 138.34196788102574, 138.888842745419, 139.43625059118625},

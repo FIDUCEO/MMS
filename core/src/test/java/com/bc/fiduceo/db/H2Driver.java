@@ -22,6 +22,7 @@
 package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -35,6 +36,8 @@ import java.util.List;
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class H2Driver extends AbstractDriver {
 
+    private GeometryFactory geometryFactory;
+
     @Override
     public String getUrlPattern() {
         return "jdbc:h2";
@@ -43,6 +46,11 @@ public class H2Driver extends AbstractDriver {
     @Override
     public void clear() throws SQLException {
         // nothing to do here tb 2015-08-06
+    }
+
+    @Override
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
     }
 
     @Override

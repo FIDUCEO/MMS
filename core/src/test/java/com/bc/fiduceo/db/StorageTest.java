@@ -22,6 +22,7 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
 
@@ -34,16 +35,19 @@ import static org.junit.Assert.fail;
 public class StorageTest {
 
     private final BasicDataSource dataSource;
+    private final GeometryFactory geometryFactory;
 
     public StorageTest() {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setUrl("jdbc:h2:mem:fiduceo");
+
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
     @Test
     public void testCreate_and_close() throws SQLException {
-        final Storage storage = Storage.create(dataSource);
+        final Storage storage = Storage.create(dataSource, geometryFactory);
         assertNotNull(storage);
 
         storage.close();
@@ -51,10 +55,10 @@ public class StorageTest {
 
     @Test
     public void testStorageIsSingleton() throws SQLException {
-        final Storage storage_1 = Storage.create(dataSource);
+        final Storage storage_1 = Storage.create(dataSource, geometryFactory);
         assertNotNull(storage_1);
 
-        final Storage storage_2 = Storage.create(dataSource);
+        final Storage storage_2 = Storage.create(dataSource, geometryFactory);
         assertNotNull(storage_2);
 
         try {
@@ -66,7 +70,7 @@ public class StorageTest {
 
     @Test
     public void testCallingCloseTwice_noExceptionThrown() throws SQLException {
-        final Storage storage = Storage.create(dataSource);
+        final Storage storage = Storage.create(dataSource, geometryFactory);
 
         storage.close();
         storage.close();
@@ -78,7 +82,7 @@ public class StorageTest {
         weirdDataSource.setUrl("stupid:unregistered:data_base:driver");
 
         try {
-            Storage.create(weirdDataSource);
+            Storage.create(weirdDataSource, geometryFactory);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
