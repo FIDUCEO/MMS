@@ -21,7 +21,9 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
@@ -55,7 +57,11 @@ public class AIRS_L1B_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public AIRS_L1B_Reader() {
-        boundingPolygonCreator = new BoundingPolygonCreator(GEO_INTERVAL_X, GEO_INTERVAL_Y);
+        final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
+        // @todo 1 tb/tb inject factory 2015-12-08
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+
+        boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }
 
     public void open(File file) throws IOException {

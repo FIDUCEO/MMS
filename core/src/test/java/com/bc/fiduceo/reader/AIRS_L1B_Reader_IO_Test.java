@@ -61,7 +61,7 @@ public class AIRS_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testRead_closeToPole() throws com.vividsolutions.jts.io.ParseException, IOException, ParseException {
+    public void testRead_closeToPole() throws IOException, ParseException {
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.09.02.006.L1B.AIRS_Rad.v5.0.23.0.G15246014542.hdf");
         airsL1bReader.open(airsL1bFile);
 
@@ -85,7 +85,7 @@ public class AIRS_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testRead_descendingNode() throws com.vividsolutions.jts.io.ParseException, IOException, ParseException {
+    public void testRead_descendingNode() throws IOException, ParseException {
         final File airsL1bFile = new File(dataDirectory, "AIRS.2015.09.02.023.L1B.AIRS_Rad.v5.0.23.0.G15246021652.hdf");
         airsL1bReader.open(airsL1bFile);
 

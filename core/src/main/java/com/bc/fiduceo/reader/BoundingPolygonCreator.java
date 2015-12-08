@@ -21,6 +21,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
@@ -36,12 +37,11 @@ class BoundingPolygonCreator {
     private final int intervalY;
     private final GeometryFactory geometryFactory;
 
-    BoundingPolygonCreator(int intervalX, int intervalY) {
-        this.intervalX = intervalX;
-        this.intervalY = intervalY;
+    BoundingPolygonCreator(Interval interval, GeometryFactory geometryFactory) {
+        this.intervalX = interval.getX();
+        this.intervalY = interval.getY();
 
-        // @todo 1 tb/tb inject the factory 2015-12-03
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        this.geometryFactory = geometryFactory;
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {

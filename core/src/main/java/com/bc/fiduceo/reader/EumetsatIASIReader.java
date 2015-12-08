@@ -21,7 +21,9 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
@@ -44,7 +46,11 @@ public class EumetsatIASIReader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public EumetsatIASIReader() {
-        boundingPolygonCreator = new BoundingPolygonCreator(GEO_INTERVAL_X, GEO_INTERVAL_Y);
+        final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
+        // @todo 1 tb/tb inject factory 2015-12-08
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+
+        boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }
 
     @Override
