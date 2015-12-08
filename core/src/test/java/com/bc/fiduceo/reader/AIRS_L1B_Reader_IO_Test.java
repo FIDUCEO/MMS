@@ -21,9 +21,9 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.ProductReaderTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.Point;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.bc.fiduceo.core.NodeType;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;

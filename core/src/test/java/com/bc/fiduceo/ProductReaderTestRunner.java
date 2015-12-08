@@ -19,7 +19,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo;
 
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
