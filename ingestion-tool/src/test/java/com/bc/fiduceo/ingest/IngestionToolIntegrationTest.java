@@ -27,14 +27,14 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_notInputParameter() throws ParseException {
-        // @todo 3 tb/tb find a way to steal system.err to implement assertions 2015-12-09
+        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         final String[] args = new String[0];
         IngestionToolMain.main(args);
     }
 
     @Test
     public void testIngest_help() throws ParseException {
-        // @todo 3 tb/tb find a way to steal system.err to implement assertions 2015-12-09
+        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         String[] args = new String[] {"-h"};
         IngestionToolMain.main(args);
 
