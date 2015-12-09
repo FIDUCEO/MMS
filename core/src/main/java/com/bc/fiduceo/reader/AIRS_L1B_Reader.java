@@ -50,6 +50,7 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String CORE_METADATA = "coremetadata";
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
+    // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
 

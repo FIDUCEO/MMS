@@ -22,7 +22,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -39,6 +38,7 @@ import java.util.Date;
 
 public class EumetsatIASIReader implements Reader {
 
+    // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 6;
     private static final int GEO_INTERVAL_Y = 6;
 
@@ -65,8 +65,6 @@ public class EumetsatIASIReader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-
         final Date timeConverageStart = getGlobalAttributeAsDate("time_converage_start", netcdfFile);
         final Date timeConverageEnd = getGlobalAttributeAsDate("time_converage_end", netcdfFile);
 
