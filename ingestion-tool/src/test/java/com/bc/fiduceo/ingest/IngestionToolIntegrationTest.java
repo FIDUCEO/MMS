@@ -38,12 +38,11 @@ import static org.junit.Assert.fail;
 @RunWith(IOTestRunner.class)
 public class IngestionToolIntegrationTest {
 
-    private File testDirectory;
     private File configDir;
 
     @Before
     public void setUp() {
-        testDirectory = TestUtil.createTestDirectory();
+        final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
             fail("unable to create test directory: " + configDir.getAbsolutePath());

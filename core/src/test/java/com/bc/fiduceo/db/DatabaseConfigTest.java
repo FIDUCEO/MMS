@@ -55,11 +55,7 @@ public class DatabaseConfigTest {
 
     @Test
     public void testLoadAndGetDataSource() throws IOException {
-        // @todo 3 tb/tb create helper method in TestUtils class 2015-12-10
-        final File databaseConfigFile = new File(testDirectory, "database.properties");
-        if (!databaseConfigFile.createNewFile()) {
-            fail("Unable to create test file: " + databaseConfigFile.getAbsolutePath());
-        }
+        final File databaseConfigFile = TestUtil.createFileInTestDir("database.properties");
 
         final PrintWriter printWriter = new PrintWriter(databaseConfigFile);
         printWriter.write("driverClassName = driver-class\n");
@@ -77,6 +73,7 @@ public class DatabaseConfigTest {
         assertEquals("user-name", dataSource.getUsername());
         assertEquals("pass-word", dataSource.getPassword());
     }
+
 
     @Test
     public void testGetDatasource_throwsWhenNotLoaded() {

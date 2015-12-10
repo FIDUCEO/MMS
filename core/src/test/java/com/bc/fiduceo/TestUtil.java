@@ -67,8 +67,7 @@ public class TestUtil {
     }
 
     public static File createTestDirectory() {
-        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
-        final File testDir = new File(tempDirPath, TEST_DIRECTORY);
+        final File testDir = getTestDir();
         if (!testDir.mkdirs()) {
             fail("unable to create test directory: " + testDir.getAbsolutePath());
         }
@@ -77,13 +76,27 @@ public class TestUtil {
     }
 
     public static void deleteTestDirectory() {
-        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
-        final File testDir = new File(tempDirPath, TEST_DIRECTORY);
+        final File testDir = getTestDir();
         if (testDir.isDirectory()) {
             final boolean deleted = FileUtils.deleteTree(testDir);
             if (!deleted) {
                 fail("unable to delete test directory: " + testDir.getAbsolutePath());
             }
         }
+    }
+
+    public static File createFileInTestDir(String fileName) throws IOException {
+        final File testDirectory = getTestDir();
+
+        final File databaseConfigFile = new File(testDirectory, fileName);
+        if (!databaseConfigFile.createNewFile()) {
+            fail("Unable to create test file: " + databaseConfigFile.getAbsolutePath());
+        }
+        return databaseConfigFile;
+    }
+
+    private static File getTestDir() {
+        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
+        return new File(tempDirPath, TEST_DIRECTORY);
     }
 }
