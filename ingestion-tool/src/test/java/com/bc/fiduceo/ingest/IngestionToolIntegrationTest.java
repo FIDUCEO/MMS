@@ -20,28 +20,39 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
+@RunWith(IOTestRunner.class)
 public class IngestionToolIntegrationTest {
 
     private File testDirectory;
+    private File configDir;
 
     @Before
     public void setUp() {
         testDirectory = TestUtil.createTestDirectory();
+        configDir = new File(testDirectory, "config");
+        if (!configDir.mkdir()) {
+            fail("unable to create test directory: " + configDir.getAbsolutePath());
+        }
     }
 
     @After
     public void tearDown() {
-          TestUtil.deleteTestDirectory();
+        TestUtil.deleteTestDirectory();
     }
 
     @Test
@@ -62,13 +73,72 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_missingSystemProperties() throws ParseException {
-        String[] args = new String[]{"-s airs.aqua"};
+    public void testIngest_missingSystemProperties() throws ParseException, IOException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
+
+        writeDatabaseProperties();
 
         try {
             IngestionToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testIngest_missingDatabaseProperties() throws ParseException, IOException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
+
+        writeSystemProperties();
+
+        try {
+            IngestionToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+//    @Test
+//    public void testIngest_AIRS() throws ParseException, IOException {
+//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
+//
+//        writeSystemProperties();
+//        writeDatabaseProperties();
+//
+//        IngestionToolMain.main(args);
+//    }
+
+    private void writeDatabaseProperties() throws IOException {
+        final Properties properties = new Properties();
+        properties.setProperty("driverClassName", "org.h2.Driver");
+        properties.setProperty("url", "jdbc:h2:mem:fiduceo");
+        properties.setProperty("username", "ignore");
+        properties.setProperty("password", "ignore");
+
+        storePropertieToTemp(properties, "database.properties");
+    }
+
+    private void writeSystemProperties() throws IOException {
+        final Properties properties = new Properties();
+        properties.setProperty("archive_root", TestUtil.getTestDataDirectory().getAbsolutePath());
+
+        storePropertieToTemp(properties, "system.properties");
+    }
+
+    private void storePropertieToTemp(Properties properties, String child) throws IOException {
+        final File dataSourcePropertiesFile = new File(configDir, child);
+        if (!dataSourcePropertiesFile.createNewFile()) {
+            fail("Unable to create test file: " + dataSourcePropertiesFile.getAbsolutePath());
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(dataSourcePropertiesFile);
+            properties.store(outputStream, "");
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
         }
     }
 }

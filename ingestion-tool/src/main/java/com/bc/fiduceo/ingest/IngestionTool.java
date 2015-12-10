@@ -41,7 +41,7 @@ class IngestionTool {
         writer.write("ingestion-tool version " + VERSION + "\n\n");
 
         final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 80, "ingestion-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+        helpFormatter.printHelp(writer, 120, "ingestion-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
     }
@@ -54,6 +54,9 @@ class IngestionTool {
 
         final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
         options.addOption(sensorOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'");
+        options.addOption(configOption);
 
         return options;
     }

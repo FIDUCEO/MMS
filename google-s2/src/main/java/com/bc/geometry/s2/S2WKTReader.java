@@ -120,7 +120,7 @@ public class S2WKTReader {
         double x = getNextNumber();
         double y = getNextNumber();
         if (isNumberNext()) {
-            double z = getNextNumber();
+            getNextNumber();
         }
         return S2LatLng.fromDegrees(y, x).toPoint();
     }
@@ -270,13 +270,11 @@ public class S2WKTReader {
      *
      * @return a <code>Geometry</code> specified by the next token
      * in the stream
-     * @throws ParseException if the coordinates used to create a <code>Polygon</code>
-     *                        shell and holes do not form closed linestrings, or if an unexpected
-     *                        token was encountered
-     * @throws IOException    if an I/O error occurs
+     *
+     * @throws IOException if an I/O error occurs
      */
-    private Object readGeometryTaggedText() throws IOException, IllegalArgumentException {
-        String type = null;
+    private Object readGeometryTaggedText() throws IOException {
+        String type;
 
         try {
             type = getNextWord();
@@ -292,7 +290,8 @@ public class S2WKTReader {
             return readLinearRingText();
         } else if ("POLYGON".equalsIgnoreCase(type)) {
             return readPolygonText();
-        } if ("POINT".equalsIgnoreCase(type)) {
+        }
+        if ("POINT".equalsIgnoreCase(type)) {
             return readPointText();
         }
         parseErrorWithLine("Unknown geometry type: " + type);

@@ -29,14 +29,14 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.InputStream;
 
-public class ProductReaderTestRunner extends BlockJUnit4ClassRunner {
+public class IOTestRunner extends BlockJUnit4ClassRunner {
 
     private static final String PROPERTYNAME_EXECUTE_PRODUCT_TESTS = "com.bc.fiduceo.product.tests.execute";
 
     private boolean executeProductTests;
     private final Class<?> clazz;
 
-    public ProductReaderTestRunner(Class<?> klass) throws InitializationError {
+    public IOTestRunner(Class<?> klass) throws InitializationError {
         super(klass);
 
         this.clazz = klass;

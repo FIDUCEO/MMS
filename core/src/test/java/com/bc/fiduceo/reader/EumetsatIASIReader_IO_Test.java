@@ -21,7 +21,7 @@
 
 package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.ProductReaderTestRunner;
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("OctalInteger")
-@RunWith(ProductReaderTestRunner.class)
+@RunWith(IOTestRunner.class)
 public class EumetsatIASIReader_IO_Test {
 
     //--- Polygon with the interval of 6 at the

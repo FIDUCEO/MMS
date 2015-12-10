@@ -21,7 +21,7 @@
 
 package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.ProductReaderTestRunner;
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.core.NodeType;
@@ -41,7 +41,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(ProductReaderTestRunner.class)
+@RunWith(IOTestRunner.class)
 public class AIRS_L1B_Reader_IO_Test {
 
     private AIRS_L1B_Reader airsL1bReader;
