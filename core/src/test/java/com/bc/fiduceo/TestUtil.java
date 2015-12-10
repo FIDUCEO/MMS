@@ -22,6 +22,7 @@
 package com.bc.fiduceo;
 
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TestUtil {
+
+    private static final String SYSTEM_TEMP_PROPETY = "java.io.tmpdir";
+    private static final String TEST_DIRECTORY = "fiduceo_test";
 
     public static File getTestDataDirectory() throws IOException {
         final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
@@ -60,5 +64,26 @@ public class TestUtil {
         assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
         assertEquals(minute, calendar.get(Calendar.MINUTE));
         assertEquals(second, calendar.get(Calendar.SECOND));
+    }
+
+    public static File createTestDirectory() {
+        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
+        final File testDir = new File(tempDirPath, TEST_DIRECTORY);
+        if (!testDir.mkdirs()) {
+            fail("unable to create test directory: " + testDir.getAbsolutePath());
+        }
+
+        return testDir;
+    }
+
+    public static void deleteTestDirectory() {
+        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
+        final File testDir = new File(tempDirPath, TEST_DIRECTORY);
+        if (testDir.isDirectory()) {
+            final boolean deleted = FileUtils.deleteTree(testDir);
+            if (!deleted) {
+                fail("unable to delete test directory: " + testDir.getAbsolutePath());
+            }
+        }
     }
 }

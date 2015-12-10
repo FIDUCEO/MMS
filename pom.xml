@@ -12,6 +12,7 @@
     <modules>
         <module>google-s2</module>
         <module>core</module>
+        <module>ingestion-tool</module>
     </modules>
 
     <dependencyManagement>

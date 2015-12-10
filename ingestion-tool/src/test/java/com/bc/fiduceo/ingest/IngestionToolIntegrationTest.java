@@ -20,10 +20,29 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
+import static org.junit.Assert.fail;
+
 public class IngestionToolIntegrationTest {
+
+    private File testDirectory;
+
+    @Before
+    public void setUp() {
+        testDirectory = TestUtil.createTestDirectory();
+    }
+
+    @After
+    public void tearDown() {
+          TestUtil.deleteTestDirectory();
+    }
 
     @Test
     public void testIngest_notInputParameter() throws ParseException {
@@ -35,10 +54,21 @@ public class IngestionToolIntegrationTest {
     @Test
     public void testIngest_help() throws ParseException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
-        String[] args = new String[] {"-h"};
+        String[] args = new String[]{"-h"};
         IngestionToolMain.main(args);
 
-        args = new String[] {"--help"};
+        args = new String[]{"--help"};
         IngestionToolMain.main(args);
+    }
+
+    @Test
+    public void testIngest_missingSystemProperties() throws ParseException {
+        String[] args = new String[]{"-s airs.aqua"};
+
+        try {
+            IngestionToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

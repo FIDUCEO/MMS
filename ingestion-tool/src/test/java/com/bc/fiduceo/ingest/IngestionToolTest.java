@@ -27,7 +27,9 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class IngestionToolTest {
 
@@ -41,9 +43,9 @@ public class IngestionToolTest {
         assertEquals("ingestion-tool version 1.0.0\n" +
                 "\n" +
                 "usage: ingestion-tool <options>\n" +
-                "Valid options are:" +
-                "\n" +
-                "   -h,--help   Prints the tool usage.\n", outputStream.toString());
+                "Valid options are:\n" +
+                "   -h,--help           Prints the tool usage.\n" +
+                "   -s,--sensor <arg>   Defines the sensor to be ingested.\n", outputStream.toString());
     }
 
     @Test
@@ -54,5 +56,18 @@ public class IngestionToolTest {
 
         final Option helpOption = options.getOption("h");
         assertNotNull(helpOption);
+        assertEquals("h", helpOption.getOpt());
+        assertEquals("help", helpOption.getLongOpt());
+        assertEquals("Prints the tool usage.", helpOption.getDescription());
+        assertFalse(helpOption.hasArg());
+        assertFalse(helpOption.isRequired());
+
+        final Option sensorOption = options.getOption("sensor");
+        assertNotNull(sensorOption);
+        assertEquals("s", sensorOption.getOpt());
+        assertEquals("sensor", sensorOption.getLongOpt());
+        assertEquals("Defines the sensor to be ingested.", sensorOption.getDescription());
+        assertTrue(sensorOption.hasArg());
+        assertFalse(sensorOption.isRequired());
     }
 }

@@ -23,14 +23,33 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>core</artifactId>
+        <artifactId>fiduceo-master</artifactId>
         <groupId>com.bc.fiduceo</groupId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../core/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ingestion</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.bc.fiduceo</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.bc.fiduceo</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -33,7 +33,7 @@ class IngestionTool {
     static String VERSION = "1.0.0";
 
     void run(CommandLine commandLine) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     void printUsageTo(OutputStream outputStream) {
@@ -51,6 +51,9 @@ class IngestionTool {
 
         final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
         options.addOption(helpOption);
+
+        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
+        options.addOption(sensorOption);
 
         return options;
     }
