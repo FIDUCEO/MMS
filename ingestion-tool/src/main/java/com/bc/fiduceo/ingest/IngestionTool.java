@@ -20,11 +20,14 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.db.DatabaseConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
@@ -32,8 +35,16 @@ class IngestionTool {
 
     static String VERSION = "1.0.0";
 
-    void run(CommandLine commandLine) {
-        throw new RuntimeException("Not implemented");
+    void run(CommandLine commandLine) throws IOException {
+        final String configValue = commandLine.getOptionValue("config");
+        final File configDirectory = new File(configValue);
+
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDirectory);
+
+        if (!new File(configDirectory, "system.properties").isFile()) {
+            throw new RuntimeException("implement stuff here");
+        }
     }
 
     void printUsageTo(OutputStream outputStream) {
@@ -55,7 +66,7 @@ class IngestionTool {
         final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
         options.addOption(sensorOption);
 
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'");
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
         return options;

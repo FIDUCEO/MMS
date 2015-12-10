@@ -25,9 +25,11 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import java.io.IOException;
+
 public class IngestionToolMain {
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, IOException {
         final IngestionTool ingestionTool = new IngestionTool();
 
         if (args.length == 0) {

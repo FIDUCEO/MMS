@@ -56,14 +56,14 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_notInputParameter() throws ParseException {
+    public void testIngest_notInputParameter() throws ParseException, IOException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         final String[] args = new String[0];
         IngestionToolMain.main(args);
     }
 
     @Test
-    public void testIngest_help() throws ParseException {
+    public void testIngest_help() throws ParseException, IOException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         String[] args = new String[]{"-h"};
         IngestionToolMain.main(args);
@@ -98,15 +98,15 @@ public class IngestionToolIntegrationTest {
         }
     }
 
-//    @Test
-//    public void testIngest_AIRS() throws ParseException, IOException {
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
-//
-//        writeSystemProperties();
-//        writeDatabaseProperties();
-//
-//        IngestionToolMain.main(args);
-//    }
+    @Test
+    public void testIngest_AIRS() throws ParseException, IOException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
+
+        writeSystemProperties();
+        writeDatabaseProperties();
+
+        IngestionToolMain.main(args);
+    }
 
     private void writeDatabaseProperties() throws IOException {
         final Properties properties = new Properties();
