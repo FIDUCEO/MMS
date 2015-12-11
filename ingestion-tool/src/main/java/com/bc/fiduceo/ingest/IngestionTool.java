@@ -48,8 +48,10 @@ class IngestionTool {
     }
 
     void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("ingestion-tool version " + VERSION + "\n\n");
+        writer.write("ingestion-tool version " + VERSION);
+        writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
         helpFormatter.printHelp(writer, 120, "ingestion-tool <options>", "Valid options are:", getOptions(), 3, 3, "");

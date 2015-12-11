@@ -22,16 +22,21 @@ package com.bc.fiduceo.ingest;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class IngestionToolTest {
+
+    private String ls;
+
+    @Before
+    public void SetUp() {
+        ls = System.lineSeparator();
+    }
 
     @Test
     public void testPrintUsageTo() {
@@ -40,13 +45,13 @@ public class IngestionToolTest {
 
         ingestionTool.printUsageTo(outputStream);
 
-        assertEquals("ingestion-tool version 1.0.0\n" +
-                "\n" +
-                "usage: ingestion-tool <options>\n" +
-                "Valid options are:\n" +
-                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'.\n" +
-                "   -h,--help           Prints the tool usage.\n" +
-                "   -s,--sensor <arg>   Defines the sensor to be ingested.\n", outputStream.toString());
+        assertEquals("ingestion-tool version 1.0.0" + ls +
+                ls +
+                "usage: ingestion-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
+                "   -h,--help           Prints the tool usage." + ls +
+                "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls, outputStream.toString());
     }
 
     @Test
