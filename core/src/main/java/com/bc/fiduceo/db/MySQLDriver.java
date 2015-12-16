@@ -22,16 +22,20 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
 import java.io.File;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,15 +58,6 @@ public class MySQLDriver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
-    }
-
-    @Override
-    public void clear() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE SATELLITE_OBSERVATION");
-
-        connection.createStatement();
-        statement.execute("DROP TABLE SENSOR");
     }
 
     @Override

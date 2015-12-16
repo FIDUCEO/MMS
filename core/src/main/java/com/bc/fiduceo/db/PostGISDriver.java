@@ -80,15 +80,6 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
-    public void clear() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute("DROP TABLE SATELLITE_OBSERVATION");
-
-        connection.createStatement();
-        statement.execute("DROP TABLE SENSOR");
-    }
-
-    @Override
     public void insert(SatelliteObservation observation) throws SQLException {
         final Sensor sensor = observation.getSensor();
         Integer sensorId = getSensorId(sensor.getName());

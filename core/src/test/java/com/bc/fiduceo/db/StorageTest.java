@@ -54,21 +54,6 @@ public class StorageTest {
     }
 
     @Test
-    public void testStorageIsSingleton() throws SQLException {
-        final Storage storage_1 = Storage.create(dataSource, geometryFactory);
-        assertNotNull(storage_1);
-
-        final Storage storage_2 = Storage.create(dataSource, geometryFactory);
-        assertNotNull(storage_2);
-
-        try {
-            assertSame(storage_1, storage_2);
-        } finally {
-            storage_1.close();
-        }
-    }
-
-    @Test
     public void testCallingCloseTwice_noExceptionThrown() throws SQLException {
         final Storage storage = Storage.create(dataSource, geometryFactory);
 

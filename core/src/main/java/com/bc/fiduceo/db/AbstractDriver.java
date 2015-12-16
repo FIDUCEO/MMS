@@ -63,6 +63,15 @@ public abstract class AbstractDriver implements Driver {
     }
 
     @Override
+    public void clear() throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute("DROP TABLE SATELLITE_OBSERVATION");
+
+        connection.createStatement();
+        statement.execute("DROP TABLE SENSOR");
+    }
+
+    @Override
     public void close() throws SQLException {
         connection.close();
     }

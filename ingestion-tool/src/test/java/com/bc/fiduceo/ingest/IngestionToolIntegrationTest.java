@@ -112,20 +112,25 @@ public class IngestionToolIntegrationTest {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
 
-        writeSystemProperties();
-        writeDatabaseProperties();
+        try {
+            writeSystemProperties();
+            writeDatabaseProperties();
 
-        IngestionToolMain.main(args);
+            IngestionToolMain.main(args);
 
-        final List<SatelliteObservation> satelliteObservations = storage.get();
-        assertEquals(1, satelliteObservations.size());
-
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+        } finally {
+            storage.close();
+        }
     }
 
     private BasicDataSource getDatasource() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setUrl("jdbc:h2:mem:fiduceo");
+        dataSource.setUsername("");
+        dataSource.setPassword("sa");
         return dataSource;
     }
 
@@ -134,8 +139,8 @@ public class IngestionToolIntegrationTest {
         final BasicDataSource datasource = getDatasource();
         properties.setProperty("driverClassName", datasource.getDriverClassName());
         properties.setProperty("url", datasource.getUrl());
-        properties.setProperty("username", "ignore");
-        properties.setProperty("password", "ignore");
+        properties.setProperty("username", datasource.getUsername());
+        properties.setProperty("password", datasource.getPassword());
 
         storePropertiesToTemp(properties, "database.properties");
     }

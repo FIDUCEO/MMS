@@ -37,29 +37,19 @@ import java.util.Set;
 public class Storage {
 
     // @todo 4 tb/tb introduce hashmap with url as key - make singleton per DB-Url 2015-08-05
-    private static Storage storage;
 
     private Driver driver;
 
 
     public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
-        if (storage == null) {
-            storage = new Storage(dataSource, geometryFactory);
-        }
-        return storage;
+        return new Storage(dataSource, geometryFactory);
     }
 
     public void close() throws SQLException {
-        if (storage == null) {
-            return;
-        }
-
         if (driver != null) {
             driver.close();
             driver = null;
         }
-
-        storage = null;
     }
 
     public void initialize() throws SQLException {

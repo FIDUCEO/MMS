@@ -56,8 +56,10 @@ public abstract class StorageTest_SatelliteObservation {
 
     @After
     public void tearDown() throws SQLException {
-        storage.clear();
-        storage.close();
+        if (storage != null) {
+            storage.clear();
+            storage.close();
+        }
     }
 
     @Test

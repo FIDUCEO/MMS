@@ -63,6 +63,9 @@ class IngestionTool {
         satelliteObservation.setStopTime(new Date());
         satelliteObservation.setDataFile(new File("."));
         storage.insert(satelliteObservation);
+
+        storage.close();
+
     }
 
     void printUsageTo(OutputStream outputStream) {
