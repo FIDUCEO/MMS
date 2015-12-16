@@ -22,7 +22,11 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,8 +35,11 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
@@ -55,14 +62,14 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_notInputParameter() throws ParseException, IOException {
+    public void testIngest_notInputParameter() throws ParseException, IOException, SQLException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         final String[] args = new String[0];
         IngestionToolMain.main(args);
     }
 
     @Test
-    public void testIngest_help() throws ParseException, IOException {
+    public void testIngest_help() throws ParseException, IOException, SQLException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         String[] args = new String[]{"-h"};
         IngestionToolMain.main(args);
@@ -72,7 +79,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_missingSystemProperties() throws ParseException, IOException {
+    public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
 
         writeDatabaseProperties();
@@ -85,7 +92,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_missingDatabaseProperties() throws ParseException, IOException {
+    public void testIngest_missingDatabaseProperties() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
 
         writeSystemProperties();
@@ -98,33 +105,49 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_AIRS() throws ParseException, IOException {
+    public void testIngest_AIRS() throws ParseException, IOException, SQLException {
+        // @todo 2 tb/tb move geometry factory type to some other location, parametrize test 2015-12-16
+        final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
+        storage.initialize();
+
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs.aqua"};
 
         writeSystemProperties();
         writeDatabaseProperties();
 
         IngestionToolMain.main(args);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get();
+        assertEquals(1, satelliteObservations.size());
+
+    }
+
+    private BasicDataSource getDatasource() {
+        final BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:fiduceo");
+        return dataSource;
     }
 
     private void writeDatabaseProperties() throws IOException {
         final Properties properties = new Properties();
-        properties.setProperty("driverClassName", "org.h2.Driver");
-        properties.setProperty("url", "jdbc:h2:mem:fiduceo");
+        final BasicDataSource datasource = getDatasource();
+        properties.setProperty("driverClassName", datasource.getDriverClassName());
+        properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", "ignore");
         properties.setProperty("password", "ignore");
 
-        storePropertieToTemp(properties, "database.properties");
+        storePropertiesToTemp(properties, "database.properties");
     }
 
     private void writeSystemProperties() throws IOException {
         final Properties properties = new Properties();
-        properties.setProperty("archive_root", TestUtil.getTestDataDirectory().getAbsolutePath());
+        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
 
-        storePropertieToTemp(properties, "system.properties");
+        storePropertiesToTemp(properties, "system.properties");
     }
 
-    private void storePropertieToTemp(Properties properties, String child) throws IOException {
+    private void storePropertiesToTemp(Properties properties, String child) throws IOException {
         final File dataSourcePropertiesFile = new File(configDir, child);
         if (!dataSourcePropertiesFile.createNewFile()) {
             fail("Unable to create test file: " + dataSourcePropertiesFile.getAbsolutePath());

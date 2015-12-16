@@ -20,7 +20,11 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.db.DatabaseConfig;
+import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -30,12 +34,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.Date;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
 
-    void run(CommandLine commandLine) throws IOException {
+    void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
@@ -45,6 +51,18 @@ class IngestionTool {
         if (!new File(configDirectory, "system.properties").isFile()) {
             throw new RuntimeException("implement stuff here");
         }
+
+        // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
+        final Storage storage = Storage.create(databaseConfig.getDataSource(), new GeometryFactory(GeometryFactory.Type.JTS));
+
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
+        final Sensor sensor = new Sensor();
+        sensor.setName("replace me");
+        satelliteObservation.setSensor(sensor);
+        satelliteObservation.setStartTime(new Date());
+        satelliteObservation.setStopTime(new Date());
+        satelliteObservation.setDataFile(new File("."));
+        storage.insert(satelliteObservation);
     }
 
     void printUsageTo(OutputStream outputStream) {

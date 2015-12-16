@@ -18,33 +18,33 @@
  *
  */
 
-package com.bc.fiduceo.ingest;
+package com.bc.fiduceo.core;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Properties;
 
-public class IngestionToolMain {
+public class SystemConfig {
 
-    public static void main(String[] args) throws ParseException, IOException, SQLException {
-        final IngestionTool ingestionTool = new IngestionTool();
+    private final Properties properties;
 
-        if (args.length == 0) {
-            ingestionTool.printUsageTo(System.err);
-            return;
+    public SystemConfig() {
+        properties = new Properties();
+    }
+
+    public void loadFrom(File configDirectory) throws IOException {
+        final File systemPropertiesFile = new File(configDirectory, "system.properties");
+        if (!systemPropertiesFile.isFile()) {
+            throw new RuntimeException("Configuration file not found: " + systemPropertiesFile.getAbsolutePath());
         }
 
-        final CommandLineParser parser = new PosixParser();
-        final CommandLine commandLine = parser.parse(ingestionTool.getOptions(), args);
-        if (commandLine.hasOption("h")) {
-            ingestionTool.printUsageTo(System.err);
-            return;
+        try (FileInputStream fileInputStream = new FileInputStream(systemPropertiesFile)) {
+            properties.load(fileInputStream);
         }
+    }
 
-        ingestionTool.run(commandLine);
+    public String getArchiveRoot() {
+        return properties.getProperty("archive-root");
     }
 }

@@ -61,6 +61,12 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
+    public void testGet_emptyDatabase() throws SQLException {
+        final List<SatelliteObservation> satelliteObservations = storage.get();
+        assertEquals(0, satelliteObservations.size());
+    }
+
+    @Test
     public void testInsert_andGet() throws SQLException, ParseException {
         final SatelliteObservation observation = createSatelliteObservation();
         final Sensor sensor = new Sensor();
