@@ -29,8 +29,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,9 +55,11 @@ public class SystemConfigTest {
     public void testLoadAndGetParameter() throws IOException {
         final File systemConfigFile = TestUtil.createFileInTestDir("system.properties");
 
-        final PrintWriter printWriter = new PrintWriter(systemConfigFile);
-        printWriter.write("archive-root = " + testDirectory.getAbsolutePath() + "\n");
-        printWriter.close();
+        final Properties properties = new Properties();
+        properties.setProperty("archive-root", testDirectory.getAbsolutePath());
+        final FileOutputStream outputStream = new FileOutputStream(systemConfigFile);
+        properties.store(outputStream, "");
+        outputStream.close();
 
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(testDirectory);
