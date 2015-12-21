@@ -36,10 +36,7 @@ import java.util.Set;
 
 public class Storage {
 
-    // @todo 4 tb/tb introduce hashmap with url as key - make singleton per DB-Url 2015-08-05
-
     private Driver driver;
-
 
     public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         return new Storage(dataSource, geometryFactory);

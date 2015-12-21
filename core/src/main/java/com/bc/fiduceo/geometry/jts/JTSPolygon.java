@@ -45,7 +45,6 @@ class JTSPolygon implements Polygon {
         jtsPolygon.apply(new LonShifter(lon));
     }
 
-    // @todo 2 tb/tb wite tests 2015-12-04
     @Override
     public Point[] getCoordinates() {
         final Coordinate[] jtsCoordinates = jtsPolygon.getCoordinates();
