@@ -28,6 +28,8 @@ public interface AbstractGeometryFactory {
 
     Geometry parse(String wkt);
 
+    byte[] toStorageFormat(Geometry geometry);
+
     Point createPoint(double lon, double lat);
 
     Polygon createPolygon(List<Point> points);

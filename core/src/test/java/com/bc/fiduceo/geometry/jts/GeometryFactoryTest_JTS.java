@@ -22,6 +22,14 @@
 package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,10 +40,12 @@ import static org.junit.Assert.*;
 public class GeometryFactoryTest_JTS {
 
     private GeometryFactory factory;
+    private WKBReader wkbReader;
 
     @Before
     public void setUp() {
         factory = new GeometryFactory(GeometryFactory.Type.JTS);
+        wkbReader = new WKBReader();
     }
 
     @Test
@@ -60,6 +70,70 @@ public class GeometryFactoryTest_JTS {
     public void testParsePoint() {
         final Geometry geometry = factory.parse("POINT(4 0)");
         assertNotNull(geometry);
+        assertTrue(geometry instanceof JTSPoint);
+
+        final JTSPoint point = (JTSPoint) geometry;
+
+        assertEquals(4.0, point.getLon(), 1e-8);
+        assertEquals(0.0, point.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testToStorageFormat_point() throws ParseException {
+        final Geometry pointGeometry = factory.parse("POINT(6 -1)");
+
+        final byte[] bytes = factory.toStorageFormat(pointGeometry);
+        assertNotNull(bytes);
+        assertEquals(21, bytes.length);
+
+        final com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(bytes);
+        assertTrue(geometry instanceof com.vividsolutions.jts.geom.Point);
+        final com.vividsolutions.jts.geom.Point jtsPoint = (com.vividsolutions.jts.geom.Point) geometry;
+        assertEquals(6.0, jtsPoint.getX(), 1e-8);
+        assertEquals(-1.0, jtsPoint.getY(), 1e-8);
+    }
+
+    @Test
+    public void testToStorageFormat_lineString() throws ParseException {
+        final Geometry lineStringGeometry = factory.parse("LINESTRING (-108 11, -107 12, -106 13)");
+
+        final byte[] bytes = factory.toStorageFormat(lineStringGeometry);
+        assertNotNull(bytes);
+        assertEquals(57, bytes.length);
+
+        final com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(bytes);
+        assertTrue(geometry instanceof com.vividsolutions.jts.geom.LineString);
+        final com.vividsolutions.jts.geom.LineString jtsLineString = (com.vividsolutions.jts.geom.LineString) geometry;
+
+        Coordinate coordinate = jtsLineString.getCoordinateN(0);
+        assertEquals(-108.0, coordinate.x, 1e-8);
+        assertEquals(11.0, coordinate.y, 1e-8);
+
+        coordinate = jtsLineString.getCoordinateN(2);
+        assertEquals(-106.0, coordinate.x, 1e-8);
+        assertEquals(13.0, coordinate.y, 1e-8);
+    }
+
+    @Test
+    public void testToStorageFormat_polygon() throws ParseException {
+        final Geometry polygonGeometry = factory.parse("POLYGON((-8 0, -7 0, -7 1, -8 1, -8 0))");
+
+        final byte[] bytes = factory.toStorageFormat(polygonGeometry);
+        assertNotNull(bytes);
+        assertEquals(93, bytes.length);
+
+        final com.vividsolutions.jts.geom.Geometry geometry = wkbReader.read(bytes);
+        assertTrue(geometry instanceof com.vividsolutions.jts.geom.Polygon);
+
+        final com.vividsolutions.jts.geom.Polygon jtsPolygon = (com.vividsolutions.jts.geom.Polygon) geometry;
+        final Coordinate[] coordinates = jtsPolygon.getCoordinates();
+        assertEquals(5, coordinates.length);
+
+        assertEquals(-8.0, coordinates[0].x, 1e-8);
+        assertEquals(0.0, coordinates[0].y, 1e-8);
+
+        assertEquals(-7.0, coordinates[2].x, 1e-8);
+        assertEquals(1.0, coordinates[2].y, 1e-8);
     }
 
     @Test

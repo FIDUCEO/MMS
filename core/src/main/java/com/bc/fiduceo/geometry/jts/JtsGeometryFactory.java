@@ -29,6 +29,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
 import java.util.Date;
@@ -38,9 +39,11 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
 
     private final WKTReader wktReader;
     private final GeometryFactory geometryFactory;
+    private final WKBWriter wkbWriter;
 
     public JtsGeometryFactory() {
         wktReader = new WKTReader();
+        wkbWriter = new WKBWriter();
         geometryFactory = new GeometryFactory();
     }
 
@@ -62,6 +65,20 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
 
         throw new RuntimeException("Unsupported geometry type");
+    }
+
+    @Override
+    public byte[] toStorageFormat(Geometry geometry) {
+        com.vividsolutions.jts.geom.Geometry jtsGeometry;
+        final Object inner = geometry.getInner();
+        if (inner instanceof Coordinate) {
+            final Coordinate jtsCoordinate = (Coordinate) inner;
+            jtsGeometry = geometryFactory.createPoint(jtsCoordinate);
+        } else {
+            jtsGeometry = (com.vividsolutions.jts.geom.Geometry) inner;
+        }
+
+        return wkbWriter.write(jtsGeometry);
     }
 
     @Override

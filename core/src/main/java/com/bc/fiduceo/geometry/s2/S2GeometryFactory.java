@@ -54,6 +54,12 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public byte[] toStorageFormat(Geometry geometry) {
+        // @todo 1 tb/tb do it 2015-12-22
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point createPoint(double lon, double lat) {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(lat, lon);
 
