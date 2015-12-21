@@ -30,6 +30,8 @@ public interface AbstractGeometryFactory {
 
     byte[] toStorageFormat(Geometry geometry);
 
+    Geometry fromStorageFormat(byte[] rawData);
+
     Point createPoint(double lon, double lat);
 
     Polygon createPolygon(List<Point> points);

@@ -21,13 +21,12 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import org.junit.Before;
@@ -35,7 +34,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GeometryFactoryTest_JTS {
 
@@ -134,6 +135,60 @@ public class GeometryFactoryTest_JTS {
 
         assertEquals(-7.0, coordinates[2].x, 1e-8);
         assertEquals(1.0, coordinates[2].y, 1e-8);
+    }
+
+    @Test
+    public void testFromStorageFormat_point() {
+        final Geometry pointGeometry = factory.parse("POINT(7 -2)");
+
+        final byte[] storageFormat = factory.toStorageFormat(pointGeometry);
+        final Geometry geometry = factory.fromStorageFormat(storageFormat);
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof Point);
+
+        final Point point = (Point) geometry;
+        assertEquals(7.0, point.getLon(), 1e-8);
+        assertEquals(-2.0, point.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testFromStorageFormat_lineString() {
+        final Geometry lineStringGeometry = factory.parse("LINESTRING (-109 10, -108 11, -107 12)");
+
+        final byte[] storageFormat = factory.toStorageFormat(lineStringGeometry);
+        final Geometry geometry = factory.fromStorageFormat(storageFormat);
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof LineString);
+
+        final LineString lineString = (LineString) geometry;
+        final Point[] coordinates = lineString.getCoordinates();
+        assertEquals(3, coordinates.length);
+
+        assertEquals(-109, coordinates[0].getLon(), 1e-8);
+        assertEquals(10, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-107, coordinates[2].getLon(), 1e-8);
+        assertEquals(12, coordinates[2].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testFromStorageFormat_polygon() {
+        final Geometry polygonGeometry = factory.parse("POLYGON((-9 1, -8 1, -8 2, -9 2, -9 1))");
+
+        final byte[] storageFormat = factory.toStorageFormat(polygonGeometry);
+        final Geometry geometry = factory.fromStorageFormat(storageFormat);
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof Polygon);
+
+        final Polygon polygon = (Polygon) geometry;
+        final Point[] coordinates = polygon.getCoordinates();
+        assertEquals(5, coordinates.length);
+
+        assertEquals(-9, coordinates[0].getLon(), 1e-8);
+        assertEquals(1, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-8, coordinates[2].getLon(), 1e-8);
+        assertEquals(2, coordinates[2].getLat(), 1e-8);
     }
 
     @Test

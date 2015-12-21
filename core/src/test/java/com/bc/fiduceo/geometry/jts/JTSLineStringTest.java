@@ -20,11 +20,14 @@
 
 package com.bc.fiduceo.geometry.jts;
 
+import com.bc.fiduceo.geometry.Point;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -64,5 +67,25 @@ public class JTSLineStringTest {
     @Test
     public void testGetInner() {
         assertSame(innerLineString, lineString.getInner());
+    }
+
+    @Test
+    public void testGetPoints() {
+        final Coordinate[] innerCoordinates = new Coordinate[3];
+        innerCoordinates[0] = new Coordinate(21, -5);
+        innerCoordinates[1] = new Coordinate(22, -6);
+        innerCoordinates[2] = new Coordinate(23, -8);
+
+        when(innerLineString.getCoordinates()).thenReturn(innerCoordinates);
+
+        final Point[] coordinates = lineString.getCoordinates();
+        assertNotNull(coordinates);
+        assertEquals(3, coordinates.length);
+
+        assertEquals(21, coordinates[0].getLon(), 1e-8);
+        assertEquals(-5, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(23, coordinates[2].getLon(), 1e-8);
+        assertEquals(-8, coordinates[2].getLat(), 1e-8);
     }
 }
