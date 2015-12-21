@@ -53,7 +53,8 @@ class IngestionTool {
         }
 
         // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
-        final Storage storage = Storage.create(databaseConfig.getDataSource(), new GeometryFactory(GeometryFactory.Type.JTS));
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
 
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
         final Sensor sensor = new Sensor();
@@ -62,6 +63,7 @@ class IngestionTool {
         satelliteObservation.setStartTime(new Date());
         satelliteObservation.setStopTime(new Date());
         satelliteObservation.setDataFile(new File("."));
+        satelliteObservation.setGeoBounds(geometryFactory.parse("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))"));
         storage.insert(satelliteObservation);
 
         storage.close();

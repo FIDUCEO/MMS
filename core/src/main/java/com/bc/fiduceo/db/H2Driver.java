@@ -26,6 +26,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.vividsolutions.jts.io.WKBWriter;
 
 import java.io.File;
 import java.sql.*;
@@ -37,6 +38,7 @@ import java.util.List;
 public class H2Driver extends AbstractDriver {
 
     private GeometryFactory geometryFactory;
+    private WKBWriter wkbWriter;
 
     @Override
     public String getUrlPattern() {
@@ -46,6 +48,7 @@ public class H2Driver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+        wkbWriter = new WKBWriter();
     }
 
     @Override
@@ -60,7 +63,7 @@ public class H2Driver extends AbstractDriver {
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        preparedStatement.setObject(4, observation.getGeoBounds());
+        preparedStatement.setObject(4, observation.getGeoBounds().getInner());
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -90,8 +93,10 @@ public class H2Driver extends AbstractDriver {
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
+            // @todo 2 tb/tb remove this when H2GIS is working properly 2015-12-22
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
-            observation.setGeoBounds(geoBounds);
+            final byte[] geoBoundsWkb = wkbWriter.write(geoBounds);
+            observation.setGeoBounds(geometryFactory.fromStorageFormat(geoBoundsWkb));
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

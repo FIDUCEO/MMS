@@ -46,10 +46,11 @@ public abstract class StorageTest_SatelliteObservation {
 
     protected BasicDataSource dataSource;
     protected Storage storage;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws SQLException {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
     }
@@ -113,7 +114,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStartTime(new Date(1430000000000L));
         observation.setStopTime(new Date(1430001000000L));
         observation.setNodeType(NodeType.ASCENDING);
-        final Geometry geometry = new WKTReader().read("POLYGON((10 5,12 5,12 7,10 7,10 5))");
+        final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.parse("POLYGON((10 5,12 5,12 7,10 7,10 5))");
         observation.setGeoBounds(geometry);
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);
