@@ -22,13 +22,11 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.bc.fiduceo.core.NodeType;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;

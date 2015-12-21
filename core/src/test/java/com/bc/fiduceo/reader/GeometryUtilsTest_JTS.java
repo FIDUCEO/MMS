@@ -49,68 +49,6 @@ public class GeometryUtilsTest_JTS {
     }
 
     @Test
-    public void testNormalizePolygon_tooSmallArray() {
-        Coordinate[] coordinates = new Coordinate[0];
-        GeometryUtils.normalizePolygon(coordinates);
-        assertEquals(0, coordinates.length);
-
-        coordinates = new Coordinate[1];
-        GeometryUtils.normalizePolygon(coordinates);
-        assertEquals(1, coordinates.length);
-    }
-
-    @Test
-    public void testNormalizePolygon_noNormaization() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(10, 10);
-        coordinates[1] = new Coordinate(10, 20);
-        coordinates[2] = new Coordinate(20, 20);
-        coordinates[3] = new Coordinate(20, 10);
-        coordinates[4] = new Coordinate(10, 10);
-
-        GeometryUtils.normalizePolygon(coordinates);
-        assertEquals(10, coordinates[0].x, 1e-8);
-        assertEquals(10, coordinates[1].x, 1e-8);
-        assertEquals(20, coordinates[2].x, 1e-8);
-        assertEquals(20, coordinates[3].x, 1e-8);
-        assertEquals(10, coordinates[4].x, 1e-8);
-    }
-
-    @Test
-    public void testNormalizePolygon_normalizeEast() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(170, 10);
-        coordinates[1] = new Coordinate(170, 20);
-        coordinates[2] = new Coordinate(-175, 20);
-        coordinates[3] = new Coordinate(-175, 10);
-        coordinates[4] = new Coordinate(170, 10);
-
-        GeometryUtils.normalizePolygon(coordinates);
-        assertEquals(170, coordinates[0].x, 1e-8);
-        assertEquals(170, coordinates[1].x, 1e-8);
-        assertEquals(185, coordinates[2].x, 1e-8);
-        assertEquals(185, coordinates[3].x, 1e-8);
-        assertEquals(170, coordinates[4].x, 1e-8);
-    }
-
-    @Test
-    public void testNormalizePolygon_normalizeWest() {
-        final Coordinate[] coordinates = new Coordinate[5];
-        coordinates[0] = new Coordinate(-170, 10);
-        coordinates[1] = new Coordinate(-170, 20);
-        coordinates[2] = new Coordinate(175, 20);
-        coordinates[3] = new Coordinate(175, 10);
-        coordinates[4] = new Coordinate(-170, 10);
-
-        GeometryUtils.normalizePolygon(coordinates);
-        assertEquals(190, coordinates[0].x, 1e-8);
-        assertEquals(190, coordinates[1].x, 1e-8);
-        assertEquals(175, coordinates[2].x, 1e-8);
-        assertEquals(175, coordinates[3].x, 1e-8);
-        assertEquals(190, coordinates[4].x, 1e-8);
-    }
-
-    @Test
     public void testMapToGlobe_onlyPointsInGlobe() throws ParseException {
         final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((10 10, 20 10, 20 20, 10 20, 10 10))");
 
