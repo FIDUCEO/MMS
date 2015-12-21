@@ -24,7 +24,6 @@ package com.bc.fiduceo.geometry.jts;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.reader.LonShifter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 class JTSPolygon implements Polygon {
