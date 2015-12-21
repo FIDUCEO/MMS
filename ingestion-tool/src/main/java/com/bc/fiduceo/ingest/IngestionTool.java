@@ -22,13 +22,19 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.reader.AIRS_L1B_Reader;
+import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.io.WildcardMatcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +42,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 class IngestionTool {
 
@@ -48,25 +55,56 @@ class IngestionTool {
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.loadFrom(configDirectory);
 
-        if (!new File(configDirectory, "system.properties").isFile()) {
-            throw new RuntimeException("implement stuff here");
-        }
+        final SystemConfig systemConfig = new SystemConfig();
+        systemConfig.loadFrom(configDirectory);
 
         // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
 
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-        final Sensor sensor = new Sensor();
-        sensor.setName("replace me");
-        satelliteObservation.setSensor(sensor);
-        satelliteObservation.setStartTime(new Date());
-        satelliteObservation.setStopTime(new Date());
-        satelliteObservation.setDataFile(new File("."));
-        satelliteObservation.setGeoBounds(geometryFactory.parse("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))"));
-        storage.insert(satelliteObservation);
+        // @todo 2 tb/tb check if database is already set up. If not, call initialize(). tb 2015-12-22
 
-        storage.close();
+        try {
+            ingestMetadata(systemConfig, geometryFactory, storage);
+        } finally {
+            storage.close();
+        }
+    }
+
+    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage) throws SQLException, IOException {
+        final String archiveRoot = systemConfig.getArchiveRoot();
+
+        // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
+        // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
+        final File[] glob = WildcardMatcher.glob(archiveRoot + File.separator + "AIRS*.hdf");
+
+        // @todo 1 tb/** the reader should be requested from a factory, passing in the command line argument for the sensor 2015-12-22
+        final AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
+        for (final File file : glob) {
+            reader.open(file);
+
+            try {
+                final AcquisitionInfo aquisitionInfo = reader.read();
+                final SatelliteObservation satelliteObservation = new SatelliteObservation();
+                final Sensor sensor = new Sensor();
+                sensor.setName("airs-aqua");
+                satelliteObservation.setSensor(sensor);
+
+                satelliteObservation.setStartTime(aquisitionInfo.getSensingStart());
+                satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
+                satelliteObservation.setDataFile(file.getAbsoluteFile());
+
+                final List<Point> coordinates = aquisitionInfo.getCoordinates();
+                satelliteObservation.setGeoBounds(geometryFactory.createPolygon(coordinates));
+
+                storage.insert(satelliteObservation);
+
+            } finally {
+
+                reader.close();
+            }
+        }
+
 
     }
 
