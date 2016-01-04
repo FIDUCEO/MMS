@@ -28,7 +28,7 @@ import com.bc.fiduceo.geometry.Point;
 import java.util.Date;
 import java.util.List;
 
-class AcquisitionInfo {
+public class AcquisitionInfo {
 
     private List<Point> coordinates;
     private int[] timeAxisStartIndices;

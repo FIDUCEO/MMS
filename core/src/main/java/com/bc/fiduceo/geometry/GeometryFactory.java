@@ -50,6 +50,16 @@ public class GeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public byte[] toStorageFormat(Geometry geometry) {
+        return factoryImpl.toStorageFormat(geometry);
+    }
+
+    @Override
+    public Geometry fromStorageFormat(byte[] rawData) {
+        return factoryImpl.fromStorageFormat(rawData);
+    }
+
+    @Override
     public Point createPoint(double lon, double lat) {
         return factoryImpl.createPoint(lon, lat);
     }

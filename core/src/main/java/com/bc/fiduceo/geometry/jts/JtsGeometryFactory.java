@@ -29,6 +29,8 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
 import java.util.Date;
@@ -38,9 +40,13 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
 
     private final WKTReader wktReader;
     private final GeometryFactory geometryFactory;
+    private final WKBWriter wkbWriter;
+    private final WKBReader wkbReader;
 
     public JtsGeometryFactory() {
         wktReader = new WKTReader();
+        wkbWriter = new WKBWriter();
+        wkbReader = new WKBReader();
         geometryFactory = new GeometryFactory();
     }
 
@@ -53,15 +59,33 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
             throw new RuntimeException(e.getMessage());
         }
 
-        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-            return new JTSPoint(geometry.getCoordinate());
+        return convertGeometry(geometry);
+    }
+
+    @Override
+    public byte[] toStorageFormat(Geometry geometry) {
+        com.vividsolutions.jts.geom.Geometry jtsGeometry;
+        final Object inner = geometry.getInner();
+        if (inner instanceof Coordinate) {
+            final Coordinate jtsCoordinate = (Coordinate) inner;
+            jtsGeometry = geometryFactory.createPoint(jtsCoordinate);
+        } else {
+            jtsGeometry = (com.vividsolutions.jts.geom.Geometry) inner;
         }
 
-        throw new RuntimeException("Unsupported geometry type");
+        return wkbWriter.write(jtsGeometry);
+    }
+
+    @Override
+    public Geometry fromStorageFormat(byte[] rawData) {
+        final com.vividsolutions.jts.geom.Geometry geometry;
+        try {
+            geometry = wkbReader.read(rawData);
+        } catch (ParseException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return convertGeometry(geometry);
     }
 
     @Override
@@ -90,6 +114,17 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         final com.vividsolutions.jts.geom.LineString jtsLineString = (com.vividsolutions.jts.geom.LineString) lineString.getInner();
         return new JTSTimeAxis(jtsLineString, startTime, endTime);
+    }
+
+    private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
+        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
+            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
+            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
+            return new JTSPoint(geometry.getCoordinate());
+        }
+        throw new RuntimeException("Unsupported geometry type");
     }
 
     private static Coordinate[] extractCoordinates(List<Point> points) {

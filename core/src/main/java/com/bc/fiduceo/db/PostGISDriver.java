@@ -21,11 +21,10 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
@@ -91,7 +90,7 @@ public class PostGISDriver extends AbstractDriver {
         preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        preparedStatement.setObject(4, wkbWriter.write(observation.getGeoBounds()));
+        preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -109,40 +108,37 @@ public class PostGISDriver extends AbstractDriver {
         resultSet.beforeFirst();
 
         final List<SatelliteObservation> resultList = new ArrayList<>(numValues);
-        try {
-            while (resultSet.next()) {
-                final SatelliteObservation observation = new SatelliteObservation();
+        while (resultSet.next()) {
+            final SatelliteObservation observation = new SatelliteObservation();
 
-                final Timestamp startDate = resultSet.getTimestamp("StartDate");
-                observation.setStartTime(toDate(startDate));
+            final Timestamp startDate = resultSet.getTimestamp("StartDate");
+            observation.setStartTime(toDate(startDate));
 
-                final Timestamp stopDate = resultSet.getTimestamp("StopDate");
-                observation.setStopTime(toDate(stopDate));
+            final Timestamp stopDate = resultSet.getTimestamp("StopDate");
+            observation.setStopTime(toDate(stopDate));
 
-                final int nodeTypeId = resultSet.getInt("NodeType");
-                observation.setNodeType(NodeType.fromId(nodeTypeId));
+            final int nodeTypeId = resultSet.getInt("NodeType");
+            observation.setNodeType(NodeType.fromId(nodeTypeId));
 
-                final byte[] geoBoundsBytes = resultSet.getBytes("ST_AsBinary");
-                observation.setGeoBounds(wkbReader.read(geoBoundsBytes));
+            final byte[] geoBoundsBytes = resultSet.getBytes("ST_AsBinary");
+            observation.setGeoBounds(geometryFactory.fromStorageFormat(geoBoundsBytes));
 
-                final int sensorId = resultSet.getInt("SensorId");
-                final Sensor sensor = getSensor(sensorId);
-                observation.setSensor(sensor);
+            final int sensorId = resultSet.getInt("SensorId");
+            final Sensor sensor = getSensor(sensorId);
+            observation.setSensor(sensor);
 
-                final String dataFile = resultSet.getString("DataFile");
-                observation.setDataFile(new File(dataFile));
+            final String dataFile = resultSet.getString("DataFile");
+            observation.setDataFile(new File(dataFile));
 
-                final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
-                observation.setTimeAxisStartIndex(timeAxisStartIndex);
+            final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
+            observation.setTimeAxisStartIndex(timeAxisStartIndex);
 
-                final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
-                observation.setTimeAxisEndIndex(timeAxisEndIndex);
+            final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
+            observation.setTimeAxisEndIndex(timeAxisEndIndex);
 
-                resultList.add(observation);
-            }
-        } catch (ParseException e) {
-            throw new SQLException(e.getMessage());
+            resultList.add(observation);
         }
+
 
         return resultList;
     }

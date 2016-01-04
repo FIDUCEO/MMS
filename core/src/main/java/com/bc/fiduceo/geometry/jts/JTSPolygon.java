@@ -24,7 +24,6 @@ package com.bc.fiduceo.geometry.jts;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.reader.LonShifter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 class JTSPolygon implements Polygon {
@@ -46,7 +45,6 @@ class JTSPolygon implements Polygon {
         jtsPolygon.apply(new LonShifter(lon));
     }
 
-    // @todo 2 tb/tb wite tests 2015-12-04
     @Override
     public Point[] getCoordinates() {
         final Coordinate[] jtsCoordinates = jtsPolygon.getCoordinates();

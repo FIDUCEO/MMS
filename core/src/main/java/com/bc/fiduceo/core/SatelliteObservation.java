@@ -23,7 +23,8 @@ package com.bc.fiduceo.core;
 
 
 
-import com.vividsolutions.jts.geom.Geometry;
+
+import com.bc.fiduceo.geometry.Geometry;
 
 import java.io.File;
 import java.util.Date;
@@ -32,7 +33,6 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-    // @todo 1 tb/tb replace with fiduceo geometry
     private Geometry geoBounds;
     private Sensor sensor;
     private NodeType nodeType;

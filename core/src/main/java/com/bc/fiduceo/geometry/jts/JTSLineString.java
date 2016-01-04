@@ -25,6 +25,7 @@ package com.bc.fiduceo.geometry.jts;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
+import com.vividsolutions.jts.geom.Coordinate;
 
 class JTSLineString implements LineString {
 
@@ -46,7 +47,13 @@ class JTSLineString implements LineString {
 
     @Override
     public Point[] getCoordinates() {
-        throw new RuntimeException("not implemented");
+        final Coordinate[] coordinates = jtsLineString.getCoordinates();
+        final Point[] points = new Point[coordinates.length];
+        for (int i = 0; i < coordinates.length; i++) {
+            final Coordinate coordinate = coordinates[i];
+            points[i] = new JTSPoint(coordinate);
+        }
+        return points;
     }
 
     @Override

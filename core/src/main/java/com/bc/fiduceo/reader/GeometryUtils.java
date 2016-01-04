@@ -24,7 +24,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.vividsolutions.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,55 +58,6 @@ class GeometryUtils {
         return new SatelliteGeometry(polygon, new TimeAxis[]{timeAxis});
     }
 
-    static void normalizePolygon(Coordinate[] coordinates) {
-        if (coordinates.length < 2) {
-            return;
-        }
-
-        final double[] originalLon = new double[coordinates.length];
-        for (int i = 0; i < originalLon.length; i++) {
-            originalLon[i] = coordinates[i].x;
-        }
-
-        double lonDiff;
-        double increment = 0.f;
-        double minLon = Double.MAX_VALUE;
-        double maxLon = -Double.MAX_VALUE;
-        for (int i = 1; i < coordinates.length; i++) {
-            final Coordinate coordinate = coordinates[i];
-
-            lonDiff = originalLon[i] - originalLon[i - 1];
-            if (lonDiff > 180.0F) {
-                increment -= 360.0;
-            } else if (lonDiff < -180.0) {
-                increment += 360.0;
-            }
-
-            coordinate.x += increment;
-            if (coordinate.x < minLon) {
-                minLon = coordinate.x;
-            }
-            if (coordinate.x > maxLon) {
-                maxLon = coordinate.x;
-            }
-        }
-
-        boolean negNormalized = false;
-        boolean posNormalized = false;
-
-        if (minLon < -180.0) {
-            posNormalized = true;
-        }
-        if (maxLon > 180.0) {
-            negNormalized = true;
-        }
-
-        if (!negNormalized && posNormalized) {
-            for (final Coordinate coordinate : coordinates) {
-                coordinate.x += 360.0;
-            }
-        }
-    }
 
     // @todo 2 tb/tb this functionality is completely JTS stuff - move to jts package. Introduce a "prepareForStorage" method
     // that does all this and keep empty implementation for S2 2015-12-03
