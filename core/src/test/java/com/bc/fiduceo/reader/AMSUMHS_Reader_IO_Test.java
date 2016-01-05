@@ -2,7 +2,6 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Point;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
@@ -24,27 +23,28 @@ import java.util.List;
  * @author muhammad.bc
  */
 @RunWith(IOTestRunner.class)
-public class HDF_Reader_IO_Test {
+public class AMSUMHS_Reader_IO_Test {
 
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-    private HDF_Reader reader;
+    private AMSU_MHS_Reader reader;
     private File testDataDirectory;
+    private File file;
 
     @Before
     public void setUp() throws IOException {
-        reader = new HDF_Reader();
+        reader = new AMSU_MHS_Reader();
         testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @Test
     public void testOpenH5() throws IOException {
-        File file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
     }
 
     @Test
     public void testGetElementValues() throws IOException {
-        File file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
         AcquisitionInfo read = reader.read();
         Assert.assertNotNull(read.getSensingStart());
@@ -75,7 +75,7 @@ public class HDF_Reader_IO_Test {
 
     @After
     public void testCloseH5() throws IOException {
-        File file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
         reader.close();
     }

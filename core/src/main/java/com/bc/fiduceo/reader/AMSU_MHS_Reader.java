@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author muhammad.bc
  */
-public class HDF_Reader implements Reader {
+public class AMSU_MHS_Reader implements Reader {
 
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
     private final static int IntervalX = 10;
@@ -30,7 +30,7 @@ public class HDF_Reader implements Reader {
     private NetcdfFile netcdfFile;
 
 
-    public HDF_Reader() {
+    public AMSU_MHS_Reader() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
     }
@@ -46,7 +46,7 @@ public class HDF_Reader implements Reader {
     }
 
     @Override
-    public AcquisitionInfo read() throws Exception {
+    public AcquisitionInfo read() throws IOException {
         Array latitude = null;
         Array longitude = null;
         int startTime = 0;
@@ -64,8 +64,8 @@ public class HDF_Reader implements Reader {
                 longitude = geo.read();
             }
         }
-        if (latitude==null || longitude ==null){
-            throw new Exception("The H5 file is courupted");
+        if (latitude == null || longitude == null) {
+            throw new IOException("The H5 file is courupted");
         }
 
         AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayInt.D2) latitude, (ArrayInt.D2) longitude, NodeType.ASCENDING);
@@ -97,7 +97,6 @@ public class HDF_Reader implements Reader {
         return acquisitionInfo;
     }
 
-
     private Date getDate(int year, int day_of_yr, int time) throws ParseException {
         Calendar calendar = Calendar.getInstance();
         Date timeConvert = new SimpleDateFormat("HHmmssSSSSSS").parse(String.valueOf(time));
@@ -114,4 +113,6 @@ public class HDF_Reader implements Reader {
         String yr = String.valueOf(calendar.get(Calendar.YEAR));
         return DATEFORMAT.parse(yr + "-" + mn + "-" + dy + " " + hour + ":" + min + ":" + second + "." + mlSecond);
     }
+
+
 }
