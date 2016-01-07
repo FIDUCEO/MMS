@@ -69,4 +69,29 @@ public class SobolSamplingPointGeneratorTest {
             assertTrue(time >= startTime && time <= stopTime);
         }
     }
+
+    @Test
+    public void testCreateTime() {
+         assertEquals(100, SobolSamplingPointGenerator.createTime(0, 100, 200));
+         assertEquals(133, SobolSamplingPointGenerator.createTime(0.33, 100, 200));
+         assertEquals(150, SobolSamplingPointGenerator.createTime(0.5, 100, 200));
+         assertEquals(167, SobolSamplingPointGenerator.createTime(0.67, 100, 200));
+         assertEquals(200, SobolSamplingPointGenerator.createTime(1.0, 100, 200));
+    }
+
+    @Test
+    public void testCreateLat() {
+         assertEquals(90.0, SobolSamplingPointGenerator.createLat(0.0), 1e-8);
+         assertEquals(54.0, SobolSamplingPointGenerator.createLat(0.2), 1e-8);
+         assertEquals(0.0, SobolSamplingPointGenerator.createLat(0.5), 1e-8);
+         assertEquals(-90.0, SobolSamplingPointGenerator.createLat(1.0), 1e-8);
+    }
+
+    @Test
+    public void testCreateLon() {
+        assertEquals(-180.0, SobolSamplingPointGenerator.createLon(0.0), 1e-8);
+        assertEquals(-72.0, SobolSamplingPointGenerator.createLon(0.3), 1e-8);
+        assertEquals(0.0, SobolSamplingPointGenerator.createLon(0.5), 1e-8);
+        assertEquals(180.0, SobolSamplingPointGenerator.createLon(1.0), 1e-8);
+    }
 }

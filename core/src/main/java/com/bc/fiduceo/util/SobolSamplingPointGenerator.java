@@ -28,32 +28,35 @@ import java.util.List;
 public class SobolSamplingPointGenerator {
 
     public List<SamplingPoint> createSamples(int sampleCount, int sampleSkip, long startTime, long stopTime) {
-        final SobolSequenceGenerator sequenceGenerator = new SobolSequenceGenerator(4);
+        final SobolSequenceGenerator sequenceGenerator = new SobolSequenceGenerator(3);
         sequenceGenerator.skip(sampleSkip);
         final List<SamplingPoint> sampleList = new ArrayList<>(sampleCount);
 
         for (int i = 0; i < sampleCount; i++) {
-            final int index = sequenceGenerator.getNextIndex();
             final double[] sample = sequenceGenerator.nextVector();
             final double x = sample[0];
             final double y = sample[1];
             final double t = sample[2];
-            final double random = sample[3];
 
-            final double lon = x * 360.0 - 180.0;
-            final double lat = 90.0 - y * 180.0;
-            final long time = (long) (t * (stopTime - startTime)) + startTime;
+            final double lon = createLon(x);
+            final double lat = createLat(y);
+            final long time = createTime(t, startTime, stopTime);
 
-            final SamplingPoint samplingPoint = new SamplingPoint(lon, lat, time);
-            // @todo 3 tb/tb maybe extend the functionality to the commented out stuff below. If we really need this. 2016-01-07
-//            final SamplingPoint p = new SamplingPoint(lon, lat, time, random);
-//            p.setIndex(index);
-//            p.setInsituDatasetId(InsituDatasetId.dummy_bc);
-//            p.setDatasetName(String.valueOf(index));
-
-            sampleList.add(samplingPoint);
+            sampleList.add(new SamplingPoint(lon, lat, time));
         }
 
         return sampleList;
+    }
+
+    static long createTime(double t, long startTime, long stopTime) {
+        return (long) (t * (stopTime - startTime)) + startTime;
+    }
+
+    static double createLat(double y) {
+        return 90.0 - y * 180.0;
+    }
+
+    static double createLon(double x) {
+        return x * 360.0 - 180.0;
     }
 }
