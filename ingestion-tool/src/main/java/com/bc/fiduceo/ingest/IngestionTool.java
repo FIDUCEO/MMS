@@ -33,7 +33,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
 
 import java.io.File;
@@ -41,7 +40,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 class IngestionTool {
@@ -76,11 +74,11 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        final File[] glob = WildcardMatcher.glob(archiveRoot + File.separator + "AIRS*.hdf");
+        final File[] inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "AIRS*.hdf");
 
         // @todo 1 tb/** the reader should be requested from a factory, passing in the command line argument for the sensor 2015-12-22
         final AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
-        for (final File file : glob) {
+        for (final File file : inputFiles) {
             reader.open(file);
 
             try {
@@ -98,9 +96,7 @@ class IngestionTool {
                 satelliteObservation.setGeoBounds(geometryFactory.createPolygon(coordinates));
 
                 storage.insert(satelliteObservation);
-
             } finally {
-
                 reader.close();
             }
         }
