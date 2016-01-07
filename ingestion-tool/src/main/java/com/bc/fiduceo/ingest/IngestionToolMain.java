@@ -40,7 +40,7 @@ public class IngestionToolMain {
 
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(ingestionTool.getOptions(), args);
-        if (commandLine.hasOption("h")) {
+        if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
             ingestionTool.printUsageTo(System.err);
             return;
         }
