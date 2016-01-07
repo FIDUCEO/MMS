@@ -31,14 +31,14 @@ import java.util.StringTokenizer;
 
 /**
  * Implementation of a Sobol sequence.
- * <p/>
+ * <p>
  * A Sobol sequence is a low-discrepancy sequence with the property that for all values of N,
  * its subsequence (x1, ... xN) has a low discrepancy. It can be used to generate pseudo-random
  * points in a space S, which are equi-distributed.
- * <p/>
+ * <p>
  * The implementation already comes with support for up to 21201 dimensions with direction numbers
  * calculated from <a href="http://web.maths.unsw.edu.au/~fkuo/sobol/">Stephen Joe and Frances Kuo</a>.
- * <p/>
+ * <p>
  * The generator supports two modes:
  * <ul>
  * <li>sequential generation of points: {@link #nextVector()}</li>
@@ -136,14 +136,12 @@ public class SobolSequenceGenerator {
 
     /**
      * Load the direction vector for each dimension from the given stream.
-     * <p/>
+     * <p>
      * The input stream <i>must</i> be an ASCII text containing one
      * valid direction vector per line.
      *
      * @param is the input stream to read the direction vector from
-     *
      * @return the last dimension that has been read from the input stream
-     *
      * @throws IOException if the stream could not be read
      */
     private int initFromStream(final InputStream is) throws IOException {
@@ -180,8 +178,7 @@ public class SobolSequenceGenerator {
                         return dim;
                     }
                 } catch (NoSuchElementException | NumberFormatException e) {
-                    throw new NoSuchElementException(
-                            "Could not parse line '" + line + "' in line number " + lineNumber);
+                    throw new NoSuchElementException("Could not parse line '" + line + "' in line number " + lineNumber);
                 }
                 lineNumber++;
             }
@@ -238,11 +235,10 @@ public class SobolSequenceGenerator {
 
     /**
      * Skip to the i-th point in the Sobol sequence.
-     * <p/>
+     * <p>
      * This operation can be performed in O(1).
      *
      * @param index the index in the sequence to skip to
-     *
      * @return the i-th point in the Sobol sequence
      */
     private double[] skipTo(final int index) {
@@ -273,22 +269,12 @@ public class SobolSequenceGenerator {
 
     /**
      * Skips the first n points in the Sobol sequence.
-     * <p/>
+     * <p>
      * This operation can be performed in O(1).
      *
      * @param n the number of points to skip
      */
     public void skip(final int n) {
         skipTo(n - 1);
-    }
-
-    /**
-     * Returns the index i of the next point in the Sobol sequence that will be returned
-     * by calling {@link #nextVector()}.
-     *
-     * @return the index of the next point
-     */
-    public int getNextIndex() {
-        return count;
     }
 }
