@@ -25,6 +25,16 @@ public class SamplingPoint {
     private double lat;
     private long time;
 
+    public SamplingPoint(double lon, double lat, long time) {
+        this.lon = lon;
+        this.lat = lat;
+        this.time = time;
+    }
+
+    public SamplingPoint() {
+        this(Double.NaN, Double.NaN, Long.MIN_VALUE);
+    }
+
     public void setLon(double lon) {
         this.lon = lon;
     }

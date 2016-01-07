@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SamplingPointTest {
 
@@ -68,5 +69,24 @@ public class SamplingPointTest {
 
         samplingPoint.setTime(time_2);
         assertEquals(time_2, samplingPoint.getTime());
+    }
+
+    @Test
+    public void testParametrizedConstruction() {
+        final double lon = -108.33;
+        final double lat = 56.2;
+        final long time = 116677288276L;
+        final SamplingPoint samplingPoint = new SamplingPoint(lon, lat, time);
+
+        assertEquals(lon, samplingPoint.getLon(), 1e-8);
+        assertEquals(lat, samplingPoint.getLat(), 1e-8);
+        assertEquals(time, samplingPoint.getTime());
+    }
+
+    @Test
+    public void testDefaultConstruction() {
+        assertTrue(Double.isNaN(samplingPoint.getLon()));
+        assertTrue(Double.isNaN(samplingPoint.getLat()));
+        assertEquals(Long.MIN_VALUE, samplingPoint.getTime());
     }
 }
