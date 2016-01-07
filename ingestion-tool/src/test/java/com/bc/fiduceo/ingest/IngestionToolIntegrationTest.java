@@ -34,11 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -51,13 +49,6 @@ import static org.junit.Assert.fail;
 public class IngestionToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
-    private final String expected = "ingestion-tool version 1.0.0" + ls +
-            ls +
-            "usage: ingestion-tool <options>" + ls +
-            "Valid options are:" + ls +
-            "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
-            "   -h,--help           Prints the tool usage." + ls +
-            "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls;
     private File configDir;
 
     @Before
@@ -74,33 +65,20 @@ public class IngestionToolIntegrationTest {
         TestUtil.deleteTestDirectory();
     }
 
-    //    @Test
+    @Test
     public void testIngest_notInputParameter() throws ParseException, IOException, SQLException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09 (Done mb)
         final String[] args = new String[0];
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        System.setErr(new PrintStream(outContent));
         IngestionToolMain.main(args);
-        assertEquals(expected, outContent.toString());
     }
 
-    //    @Test
+    @Test
     public void testIngest_help() throws ParseException, IOException, SQLException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09 (Done mb)
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setErr(new PrintStream(outputStream));
         String[] args = new String[]{"-h"};
         IngestionToolMain.main(args);
-        assertEquals(expected, outputStream.toString());
-
-
-        outputStream.reset();
-        System.setErr(new PrintStream(outputStream));
         args = new String[]{"--help"};
         IngestionToolMain.main(args);
-        assertEquals(expected, outputStream.toString());
-        outputStream.close();
-
     }
 
     @Test
