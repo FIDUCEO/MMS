@@ -56,9 +56,10 @@ public class AMSU_MHS_Reader_IO_Test {
     }
 
     @Test
-    public void testOpenH5() throws IOException {
+    public void testOpenHDF5() throws IOException {
         file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
+        reader.close();
     }
 
     @Test
@@ -93,7 +94,7 @@ public class AMSU_MHS_Reader_IO_Test {
     }
 
     @After
-    public void testCloseH5() throws IOException {
+    public void testCloseHDF5() throws IOException {
         file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
         reader.close();

@@ -41,7 +41,6 @@ import java.util.List;
 
 public class AMSU_MHS_Reader implements Reader {
 
-    private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
     private final static int IntervalX = 10;
     private final static int IntervalY = 10;
     private final BoundingPolygonCreator boundingPolygonCreator;
@@ -87,7 +86,7 @@ public class AMSU_MHS_Reader implements Reader {
             }
         }
         if (latitude == null || longitude == null) {
-            throw new IOException("The H5 file is courupted");
+            throw new IOException("The HDF5 file is courupted");
         }
 
         AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayInt.D2) latitude, (ArrayInt.D2) longitude, NodeType.ASCENDING);
@@ -125,15 +124,7 @@ public class AMSU_MHS_Reader implements Reader {
         calendar.setTime(timeConvert);
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
-
-        String hour = String.valueOf(calendar.get(Calendar.HOUR));
-        String min = String.valueOf(calendar.get(Calendar.MINUTE));
-        String second = String.valueOf(calendar.get(Calendar.SECOND));
-        String mlSecond = String.valueOf(calendar.get(Calendar.MILLISECOND));
-        String dy = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        String mn = String.valueOf(calendar.get(Calendar.MONTH));
-        String yr = String.valueOf(calendar.get(Calendar.YEAR));
-        return DATEFORMAT.parse(yr + "-" + mn + "-" + dy + " " + hour + ":" + min + ":" + second + "." + mlSecond);
+        return calendar.getTime();
     }
 
 
