@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -26,14 +27,12 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +42,7 @@ public class AMSU_MHS_Reader implements Reader {
 
     private final static int IntervalX = 10;
     private final static int IntervalY = 10;
+
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
 
@@ -62,6 +62,7 @@ public class AMSU_MHS_Reader implements Reader {
         netcdfFile.close();
     }
 
+    @Override
     public String getReaderName() {
         return "AMSU-B";
     }
@@ -70,12 +71,7 @@ public class AMSU_MHS_Reader implements Reader {
     public AcquisitionInfo read() throws IOException {
         Array latitude = null;
         Array longitude = null;
-        int startTime = 0;
-        int endTime = 0;
-        int startYear = 0;
-        int endYear = 0;
-        int startDay = 0;
-        int endDay = 0;
+
 
         List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
         for (Variable geo : geolocation) {
@@ -86,46 +82,45 @@ public class AMSU_MHS_Reader implements Reader {
             }
         }
         if (latitude == null || longitude == null) {
-            throw new IOException("The HDF5 file is courupted");
+            throw new IOException("The H5 file is courupted");
         }
 
-        AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayInt.D2) latitude, (ArrayInt.D2) longitude, NodeType.ASCENDING);
-        Array read;
-        List<Variable> variables = netcdfFile.findGroup("Data").getVariables();
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayInt.D2) latitude, (ArrayInt.D2) longitude, NodeType.ASCENDING);
 
-        for (Variable data : variables) {
-            if (data.getShortName().equals("scnlintime")) {
-                read = data.read();
-                startTime = read.getInt(0);
-                endTime = read.getInt((int) data.getSize() - 1);
-            } else if (data.getShortName().equals("scnlinyr")) {
-                read = data.read();
-                startYear = read.getInt(0);
-                endYear = read.getInt((int) data.getSize() - 1);
-            } else if (data.getShortName().equals("scnlindy")) {
-                read = data.read();
-                startDay = read.getInt(0);
-                endDay = read.getInt((int) data.getSize() - 1);
-            }
-        }
-        try {
-            acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
-            acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        final int startYear = getGlobalAttributeAsInteger("startdatayr");
+        final int startDay = getGlobalAttributeAsInteger("startdatady");
+        final int startTime = getGlobalAttributeAsInteger("startdatatime_ms");
+
+        final int endYear = getGlobalAttributeAsInteger("enddatayr");
+        final int endDay = getGlobalAttributeAsInteger("enddatady");
+        final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
+
+        acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
+        acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
 
         return acquisitionInfo;
     }
 
-    private Date getDate(int year, int day_of_yr, int time) throws ParseException {
-        Calendar calendar = Calendar.getInstance();
-        Date timeConvert = new SimpleDateFormat("HHmmssSSSSSS").parse(String.valueOf(time));
-        calendar.setTime(timeConvert);
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
-        return calendar.getTime();
+    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
+        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (attribute == null) {
+            throw new IOException("Global attribute '" + attributeName + "' not found.");
+        }
+        return attribute.getNumericValue().intValue();
     }
 
+    private Date getDate(int year, int day_of_yr, int time) {
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
 
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.MILLISECOND, time);
+
+        return calendar.getTime();
+    }
 }

@@ -21,6 +21,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.TestUtil;
 import org.esa.snap.core.datamodel.ProductData;
 import org.jdom2.Content;
 import org.jdom2.Element;
@@ -101,16 +102,7 @@ public class AIRS_L1B_ReaderTest {
         final AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
 
         final Date date = reader.parseDate("2012-07-11", "14:33:54.876543Z");
-
-        final Calendar calendar = ProductData.UTC.createCalendar();
-        calendar.setTime(date);
-        assertEquals(2012, calendar.get(Calendar.YEAR));
-        assertEquals(6, calendar.get(Calendar.MONTH));  // month is zero based tb 2016-01-08
-        assertEquals(11, calendar.get(Calendar.DAY_OF_MONTH));
-        assertEquals(14, calendar.get(Calendar.HOUR_OF_DAY));
-        assertEquals(33, calendar.get(Calendar.MINUTE));
-        assertEquals(54, calendar.get(Calendar.SECOND));
-        assertEquals(876, calendar.get(Calendar.MILLISECOND));
+        TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
     }
 
     private static final String EOS_CORE_META = "\n" +

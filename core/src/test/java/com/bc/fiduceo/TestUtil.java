@@ -66,6 +66,19 @@ public class TestUtil {
         assertEquals(second, calendar.get(Calendar.SECOND));
     }
 
+    public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, int millisecond, Date utcDate) {
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.setTime(utcDate);
+
+        assertEquals(year, calendar.get(Calendar.YEAR));
+        assertEquals(month - 1, calendar.get(Calendar.MONTH));
+        assertEquals(day, calendar.get(Calendar.DAY_OF_MONTH));
+        assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals(minute, calendar.get(Calendar.MINUTE));
+        assertEquals(second, calendar.get(Calendar.SECOND));
+        assertEquals(millisecond, calendar.get(Calendar.MILLISECOND));
+    }
+
     public static File createTestDirectory() {
         final File testDir = getTestDir();
         if (!testDir.mkdirs()) {
