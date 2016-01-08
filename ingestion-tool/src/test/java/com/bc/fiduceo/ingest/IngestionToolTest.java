@@ -54,9 +54,8 @@ public class IngestionToolTest {
                              "Valid options are:" + ls +
                              "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
                              "   -h,--help           Prints the tool usage." + ls +
-                             "   -n,--name <arg>     Define the name of file." + ls +
-                             "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls
-                , outputStream.toString());
+                             "   -n,--name <arg>     Define the name of the product file." + ls +
+                             "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls, outputStream.toString());
     }
 
     @Test
