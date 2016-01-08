@@ -52,7 +52,7 @@ public class AIRS_L1B_Reader_IO_Test {
     public void setUp() throws IOException {
         dataDirectory = TestUtil.getTestDataDirectory();
         airsL1bReader = new AIRS_L1B_Reader();
-        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.S");
     }
 
     @After
@@ -78,8 +78,8 @@ public class AIRS_L1B_Reader_IO_Test {
         assertEquals(0, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(12, acquisitionInfo.getTimeAxisEndIndices()[0]);
 
-        assertCorrectDate("2015-09-02 00:35:22.000000Z", acquisitionInfo.getSensingStart());
-        assertCorrectDate("2015-09-02 00:41:21.999999Z", acquisitionInfo.getSensingStop());
+        assertCorrectDate("2015-09-02 00:35:22.000Z", acquisitionInfo.getSensingStart());
+        assertCorrectDate("2015-09-02 00:41:21.999Z", acquisitionInfo.getSensingStop());
 
         assertEquals(NodeType.DESCENDING, acquisitionInfo.getNodeType());
     }
@@ -102,8 +102,8 @@ public class AIRS_L1B_Reader_IO_Test {
         assertEquals(0, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(12, acquisitionInfo.getTimeAxisEndIndices()[0]);
 
-        assertCorrectDate("2015-09-02 02:17:22.000000Z", acquisitionInfo.getSensingStart());
-        assertCorrectDate("2015-09-02 02:23:21.999999Z", acquisitionInfo.getSensingStop());
+        assertCorrectDate("2015-09-02 02:17:22.000Z", acquisitionInfo.getSensingStart());
+        assertCorrectDate("2015-09-02 02:23:21.999Z", acquisitionInfo.getSensingStop());
 
         assertEquals(NodeType.DESCENDING, acquisitionInfo.getNodeType());
     }
@@ -126,8 +126,8 @@ public class AIRS_L1B_Reader_IO_Test {
         assertEquals(8, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(20, acquisitionInfo.getTimeAxisEndIndices()[0]);
 
-        assertCorrectDate("2015-09-02 13:29:22.000000Z", acquisitionInfo.getSensingStart());
-        assertCorrectDate("2015-09-02 13:35:21.999999Z", acquisitionInfo.getSensingStop());
+        assertCorrectDate("2015-09-02 13:29:22.000Z", acquisitionInfo.getSensingStart());
+        assertCorrectDate("2015-09-02 13:35:21.999Z", acquisitionInfo.getSensingStop());
 
         assertEquals(NodeType.ASCENDING, acquisitionInfo.getNodeType());
     }

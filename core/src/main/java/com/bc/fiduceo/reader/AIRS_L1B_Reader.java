@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -48,13 +49,12 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String RANGE_BEGINNING_TIME = "RANGEBEGINNINGTIME";
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
     private static final String CORE_METADATA = "coremetadata";
-    private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
 
     private NetcdfFile netcdfFile;
+    private final DateFormat dateFormat;
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public AIRS_L1B_Reader() {
@@ -63,6 +63,7 @@ public class AIRS_L1B_Reader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.S");
     }
 
     public void open(File file) throws IOException {
@@ -78,9 +79,6 @@ public class AIRS_L1B_Reader implements Reader {
         final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
         final Element eosElement = getEosElement(coreMateString);
 
-        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
-        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-
         final NodeType nodeType = readNodeType();
 
         final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
@@ -95,13 +93,30 @@ public class AIRS_L1B_Reader implements Reader {
 
         final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
         acquisitionInfo.setNodeType(nodeType);
+
         try {
-            acquisitionInfo.setSensingStart(DATEFORMAT.parse(rangeBeginningDate));
-            acquisitionInfo.setSensingStop(DATEFORMAT.parse(rangeEndingDate));
+            final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
+            final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
+
+            acquisitionInfo.setSensingStart(sensingStart);
+            acquisitionInfo.setSensingStop(sensingStop);
         } catch (ParseException e) {
             throw new IOException(e.getMessage());
         }
+
         return acquisitionInfo;
+    }
+
+    // package access for testing only tb 2016-01-08
+    Date parseDate(String dateString, String timeString) throws ParseException {
+        final String timeStringWithMillis = stripMicrosecs(timeString);
+        final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
+        return dateFormat.parse(rangeBeginningDate);
+    }
+
+    private String stripMicrosecs(String timeString) {
+        final int lastDotIndex = timeString.lastIndexOf('.');
+        return timeString.substring(0, lastDotIndex + 4);
     }
 
 
