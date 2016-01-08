@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -42,6 +41,7 @@ public class EumetsatIASIReader implements Reader {
     private static final int GEO_INTERVAL_X = 6;
     private static final int GEO_INTERVAL_Y = 6;
 
+
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
@@ -53,6 +53,20 @@ public class EumetsatIASIReader implements Reader {
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }
 
+    static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
+        try {
+            final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
+            if (globalAttribute == null) {
+                throw new IOException("Requested attribute '" + timeCoverage + "' not found");
+            }
+
+            final String attributeValue = globalAttribute.getStringValue();
+            return ProductData.UTC.parse(attributeValue, "yyyy-MM-dd'T'HH:mm:ss").getAsDate();
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -61,6 +75,11 @@ public class EumetsatIASIReader implements Reader {
     @Override
     public void close() throws IOException {
         netcdfFile.close();
+    }
+
+    @Override
+    public String getReaderName() {
+        return "EUMETASAT";
     }
 
     @Override
@@ -77,19 +96,5 @@ public class EumetsatIASIReader implements Reader {
         acquisitionInfo.setSensingStart(timeConverageStart);
         acquisitionInfo.setSensingStop(timeConverageEnd);
         return acquisitionInfo;
-    }
-
-    static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
-        try {
-            final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
-            if (globalAttribute == null) {
-                throw new IOException("Requested attribute '" + timeCoverage + "' not found");
-            }
-
-            final String attributeValue = globalAttribute.getStringValue();
-            return ProductData.UTC.parse(attributeValue, "yyyy-MM-dd'T'HH:mm:ss").getAsDate();
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -21,18 +20,27 @@
 
 package com.bc.fiduceo.reader;
 
-import java.io.File;
-import java.io.IOException;
+import com.bc.ceres.core.ServiceRegistry;
+import com.bc.ceres.core.ServiceRegistryManager;
+import org.esa.snap.SnapCoreActivator;
 
-public interface Reader {
+import java.util.Set;
 
-    void open(File file) throws IOException;
+/**
+ * @author muhammad.bc
+ */
+public class FilterReaders {
 
-    void close() throws IOException;
-
-    String getReaderName();
-
-    AcquisitionInfo read() throws IOException;
-
-
+    public Reader getReader(String sensorType) {
+        final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        final ServiceRegistry<Reader> readerRegistry = serviceRegistryManager.getServiceRegistry(Reader.class);
+        SnapCoreActivator.loadServices(readerRegistry);
+        final Set<Reader> services = readerRegistry.getServices();
+        for (Reader reader : services) {
+            if (sensorType.contains(reader.getReaderName())) {
+                return reader;
+            }
+        }
+        return null;
+    }
 }

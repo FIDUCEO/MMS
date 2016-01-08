@@ -27,7 +27,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class IngestionToolTest {
 
@@ -46,12 +49,14 @@ public class IngestionToolTest {
         ingestionTool.printUsageTo(outputStream);
 
         assertEquals("ingestion-tool version 1.0.0" + ls +
-                ls +
-                "usage: ingestion-tool <options>" + ls +
-                "Valid options are:" + ls +
-                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
-                "   -h,--help           Prints the tool usage." + ls +
-                "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls, outputStream.toString());
+                             ls +
+                             "usage: ingestion-tool <options>" + ls +
+                             "Valid options are:" + ls +
+                             "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
+                             "   -h,--help           Prints the tool usage." + ls +
+                             "   -n,--name <arg>     Define the name of file." + ls +
+                             "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls
+                , outputStream.toString());
     }
 
     @Test
@@ -80,5 +85,16 @@ public class IngestionToolTest {
         assertEquals("config", configOption.getLongOpt());
         assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
         assertTrue(configOption.hasArg());
+
+        final Option cnameOption = options.getOption("name");
+        assertNotNull(cnameOption);
+        assertEquals("n", cnameOption.getOpt());
+        assertEquals("name", cnameOption.getLongOpt());
+        assertTrue(cnameOption.hasArg());
+    }
+
+    @Test
+    public void testInjectSensorName() {
+
     }
 }

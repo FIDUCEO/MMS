@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -49,11 +48,9 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
     private static final String CORE_METADATA = "coremetadata";
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
-
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
 
@@ -64,46 +61,6 @@ public class AIRS_L1B_Reader implements Reader {
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }
-
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-    }
-
-    public void close() throws IOException {
-        netcdfFile.close();
-    }
-
-    public AcquisitionInfo read() throws IOException {
-        final Group rootGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
-        final Element eosElement = getEosElement(coreMateString);
-
-        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
-        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
-
-        final NodeType nodeType = readNodeType();
-
-        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
-        if (l1bAirsGroup == null) {
-            throw new IOException("'L1B_AIRS_Science' data group not found");
-        }
-        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
-        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
-        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
-        final Array latitudes = latitudeVariable.read();
-        final Array longitudes = longitudeVariable.read();
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
-        acquisitionInfo.setNodeType(nodeType);
-        try {
-            acquisitionInfo.setSensingStart(DATEFORMAT.parse(rangeBeginningDate));
-            acquisitionInfo.setSensingStop(DATEFORMAT.parse(rangeEndingDate));
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-        return acquisitionInfo;
-    }
-
 
     static String getElementValue(Element element, String attribute) {
         if (element.getName().equals(attribute)) {
@@ -146,6 +103,50 @@ public class AIRS_L1B_Reader implements Reader {
         }
         final Array metadataArray = structMetadataVar.read();
         return metadataArray.toString();
+    }
+
+    public void open(File file) throws IOException {
+        netcdfFile = NetcdfFile.open(file.getPath());
+    }
+
+    public void close() throws IOException {
+        netcdfFile.close();
+    }
+
+    @Override
+    public String getReaderName() {
+        return  "AIRS";
+    }
+
+    public AcquisitionInfo read() throws IOException {
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
+        final Element eosElement = getEosElement(coreMateString);
+
+        final String rangeBeginningDate = getElementValue(eosElement, RANGE_BEGINNING_DATE) + " " + getElementValue(eosElement, RANGE_BEGINNING_TIME);
+        final String rangeEndingDate = getElementValue(eosElement, RANGE_ENDING_DATE) + " " + getElementValue(eosElement, RANGE_ENDING_TIME);
+
+        final NodeType nodeType = readNodeType();
+
+        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
+        if (l1bAirsGroup == null) {
+            throw new IOException("'L1B_AIRS_Science' data group not found");
+        }
+        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
+        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
+        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
+        final Array latitudes = latitudeVariable.read();
+        final Array longitudes = longitudeVariable.read();
+
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+        acquisitionInfo.setNodeType(nodeType);
+        try {
+            acquisitionInfo.setSensingStart(DATEFORMAT.parse(rangeBeginningDate));
+            acquisitionInfo.setSensingStop(DATEFORMAT.parse(rangeEndingDate));
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+        return acquisitionInfo;
     }
 
     private NodeType readNodeType() {

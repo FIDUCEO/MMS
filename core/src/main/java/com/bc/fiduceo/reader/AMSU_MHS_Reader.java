@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -62,6 +61,10 @@ public class AMSU_MHS_Reader implements Reader {
     @Override
     public void close() throws IOException {
         netcdfFile.close();
+    }
+
+    public String getReaderName() {
+        return "AMSU-B";
     }
 
     @Override

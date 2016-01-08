@@ -114,8 +114,7 @@ public class IngestionToolIntegrationTest {
         final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
         storage.initialize();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
-
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua", "-n", "AIRS.*.hdf"};
         try {
             writeSystemProperties();
             writeDatabaseProperties();
@@ -123,11 +122,11 @@ public class IngestionToolIntegrationTest {
             IngestionToolMain.main(args);
 
             final List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(3, satelliteObservations.size());
+            assertTrue(satelliteObservations.size() > 0);
 
             final SatelliteObservation observation = satelliteObservations.get(1);
             final Sensor sensor = observation.getSensor();
-            assertEquals("airs-aqua", sensor.getName());
+            assertTrue(sensor.getName().contains("AIRS"));
 
             // @todo 2 tb/** check why the database strips off the hour/minute/second part of the dates  2015-12-22
             assertEquals("2015-09-02", observation.getStartTime().toString());
@@ -140,6 +139,33 @@ public class IngestionToolIntegrationTest {
 
             // @todo 1 tb/** this is not correct, check why and correct 2015-12-22
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+        } finally {
+            storage.close();
+        }
+    }
+
+
+    @Test
+    public void testIngest_AMSU() throws ParseException, IOException, SQLException {
+        // @todo 1 tb/** this test relies on the results being returned in a specifi order - change this 2015-12-22
+        // @todo 2 tb/tb move geometry factory type to some other location, parametrize test 2015-12-16
+        final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
+        storage.initialize();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsu-b", "-n", "*.h5"};
+        try {
+            writeSystemProperties();
+            writeDatabaseProperties();
+
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertTrue(satelliteObservations.size() > 0);
+
+            final SatelliteObservation observation = satelliteObservations.get(0);
+            final Sensor sensor = observation.getSensor();
+            assertEquals("AMSU-B", sensor.getName());
+
         } finally {
             storage.close();
         }

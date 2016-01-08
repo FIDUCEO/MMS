@@ -27,8 +27,9 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.reader.AIRS_L1B_Reader;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.FilterReaders;
+import com.bc.fiduceo.reader.Reader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -40,7 +41,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class IngestionTool {
 
@@ -48,6 +52,8 @@ class IngestionTool {
 
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
+        final String sensorType = commandLine.getOptionValue("s").toUpperCase();
+        final String fname = commandLine.getOptionValue("n");
         final File configDirectory = new File(configValue);
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -63,29 +69,28 @@ class IngestionTool {
         // @todo 2 tb/tb check if database is already set up. If not, call initialize(). tb 2015-12-22
 
         try {
-            ingestMetadata(systemConfig, geometryFactory, storage);
+            ingestMetadata(systemConfig, geometryFactory, storage, sensorType, fname);
         } finally {
             storage.close();
         }
     }
 
-    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage) throws SQLException, IOException {
-        final String archiveRoot = systemConfig.getArchiveRoot();
+    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType, String wildcard) throws SQLException, IOException {
 
+        final String archiveRoot = systemConfig.getArchiveRoot();
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        final File[] inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "AIRS*.hdf");
-
-        // @todo 1 tb/** the reader should be requested from a factory, passing in the command line argument for the sensor 2015-12-22
-        final AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
+        //@todo 1 mb/** check the wildcard
+        final File[] inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + wildcard);
+        FilterReaders filterReaders = new FilterReaders();
+        Reader reader = filterReaders.getReader(sensorType);
         for (final File file : inputFiles) {
             reader.open(file);
-
             try {
                 final AcquisitionInfo aquisitionInfo = reader.read();
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
                 final Sensor sensor = new Sensor();
-                sensor.setName("airs-aqua");
+                sensor.setName(sensorType);
                 satelliteObservation.setSensor(sensor);
 
                 satelliteObservation.setStartTime(aquisitionInfo.getSensingStart());
@@ -102,6 +107,22 @@ class IngestionTool {
         }
 
 
+    }
+
+    //todo 1 mb to search easily within a bulk of file with wildcard
+    File[] getSensorFiles(String archiveRoot,String sensorType) {
+        Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
+        Matcher matcher = pattern.matcher("NSS.MHSX.NK.D15357.S1248.E1419.B9158283");
+        ArrayList<File> arrayList = new ArrayList<>();
+        File[] files = new File(archiveRoot).listFiles();
+
+        for (File file : files) {
+            String name = file.getName();
+            if (pattern.matcher(name).find()) {
+                arrayList.add(file);
+            }
+        }
+        return null;
     }
 
     void printUsageTo(OutputStream outputStream) {
@@ -124,6 +145,9 @@ class IngestionTool {
 
         final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
         options.addOption(sensorOption);
+
+        final Option sensorNameOption = new Option("n", "name", true, "Define the name of the product file.");
+        options.addOption(sensorNameOption);
 
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);

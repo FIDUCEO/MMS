@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -18,21 +17,34 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
-
 package com.bc.fiduceo.reader;
 
-import java.io.File;
-import java.io.IOException;
+import org.junit.Assert;
+import org.junit.Test;
 
-public interface Reader {
+import java.util.regex.Pattern;
 
-    void open(File file) throws IOException;
+/**
+ * @author muhammad.bc
+ */
+public class FilterReadersTest {
+    Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
 
-    void close() throws IOException;
+    @Test
+    public void getReaderTest() {
+        FilterReaders filterReaders = new FilterReaders();
 
-    String getReaderName();
+        Reader reader = filterReaders.getReader("AMSU-B");
+        String readerName = reader.getReaderName();
+        Assert.assertTrue(readerName.equals("AMSU-B"));
 
-    AcquisitionInfo read() throws IOException;
 
+        Reader airs = filterReaders.getReader("AIRS");
+        String readerAirs = airs.getReaderName();
+        Assert.assertTrue(readerAirs.equals("AIRS"));
 
+        Reader eumesatReader = filterReaders.getReader("EUMETASAT");
+        String readerEum = eumesatReader.getReaderName();
+        Assert.assertTrue(readerEum.equals("EUMETASAT"));
+    }
 }
