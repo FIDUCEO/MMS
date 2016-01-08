@@ -74,6 +74,11 @@ public class AIRS_L1B_Reader implements Reader {
         netcdfFile.close();
     }
 
+    @Override
+    public String getReaderName() {
+        return "AIRS";
+    }
+
     public AcquisitionInfo read() throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
