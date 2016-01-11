@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class AMSU_MHS_Reader implements Reader {
+public class AMSU_MHS_L1B_Reader implements Reader {
 
     private final static int IntervalX = 10;
     private final static int IntervalY = 10;
@@ -47,7 +47,7 @@ public class AMSU_MHS_Reader implements Reader {
     private NetcdfFile netcdfFile;
 
 
-    public AMSU_MHS_Reader() {
+    public AMSU_MHS_L1B_Reader() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
     }

@@ -1,3 +1,3 @@
-com.bc.fiduceo.reader.AMSU_MHS_Reader
+com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader
 com.bc.fiduceo.reader.AIRS_L1B_Reader
 com.bc.fiduceo.reader.EumetsatIASIReader
