@@ -30,6 +30,7 @@ import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -68,11 +69,12 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
+    @Ignore
     public void testInsert_andGet() throws SQLException, ParseException {
+        // @todo 1 tb/tb continue with this 2016-01-11
+
         final SatelliteObservation observation = createSatelliteObservation();
-        final Sensor sensor = new Sensor();
-        sensor.setName("test_sensor");
-        observation.setSensor(sensor);
+
 
         storage.insert(observation);
 
@@ -94,10 +96,8 @@ public abstract class StorageTest_SatelliteObservation {
     @Test
     public void testInsert_andGet_sensorStoredInDb() throws SQLException, ParseException {
         final SatelliteObservation observation = createSatelliteObservation();
-        final Sensor sensor = new Sensor();
-        sensor.setName("test_sensor");
-        observation.setSensor(sensor);
 
+        final Sensor sensor = observation.getSensor();
         storage.insert(sensor);
         storage.insert(observation);
 
@@ -107,16 +107,71 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(sensor.getName(), result.get(0).getSensor().getName());
     }
 
-    protected SatelliteObservation createSatelliteObservation() throws ParseException {
+    @Test
+    public void testSearchByTimeRange_startTime_matchObservation() throws ParseException, SQLException {
+        final Date startTime = new Date(1000000000L);
+        final Date stopTime = new Date(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Date earchTime = new Date(1000400000L);
+        parameter.setStartTime(earchTime);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_startTime_laterThanObservation() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(new Date(1000000000L), new Date(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(new Date(1001400000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+
+    @Test
+    public void testSearchByTimeRange_searchTimeInObservationRange() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(new Date(1000000000L), new Date(1001000000L));
+        storage.insert(observation);                                                 //1000400000L
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(new Date(1000400000L));
+        parameter.setStopTime(new Date(1000700000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        //assertEquals(1, result.size());
+
+        final List<SatelliteObservation> satelliteObservations = storage.get();
+        final SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+    }
+
+    private SatelliteObservation createSatelliteObservation() throws ParseException {
+        final Date startTime = new Date(1430000000000L);
+        final Date stopTime = new Date(1430001000000L);
+        return createSatelliteObservation(startTime, stopTime);
+    }
+
+    private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
-        observation.setStartTime(new Date(1430000000000L));
-        observation.setStopTime(new Date(1430001000000L));
+        observation.setStartTime(startTime);
+        observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
         final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.parse("POLYGON((10 5,12 5,12 7,10 7,10 5))");
         observation.setGeoBounds(geometry);
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);
+
+        final Sensor sensor = new Sensor();
+        sensor.setName("test_sensor");
+        observation.setSensor(sensor);
+
         return observation;
     }
 }

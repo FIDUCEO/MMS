@@ -65,6 +65,10 @@ public class Storage {
         return driver.get();
     }
 
+    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
+        return driver.get(parameter);
+    }
+
     public int insert(Sensor sensor) throws SQLException {
         return driver.insert(sensor);
     }

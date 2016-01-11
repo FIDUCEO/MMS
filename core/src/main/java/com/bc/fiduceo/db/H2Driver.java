@@ -21,17 +21,24 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.geom.Geometry;
-import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.core.SatelliteObservation;
 import com.vividsolutions.jts.io.WKBWriter;
 
 import java.io.File;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
@@ -39,6 +46,13 @@ public class H2Driver extends AbstractDriver {
 
     private GeometryFactory geometryFactory;
     private WKBWriter wkbWriter;
+    private static final SimpleDateFormat dateFormat;
+
+    static {
+        final TimeZone utc = TimeZone.getTimeZone("UTC");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        dateFormat.setTimeZone(utc);
+    }
 
     @Override
     public String getUrlPattern() {
@@ -60,8 +74,8 @@ public class H2Driver extends AbstractDriver {
         }
 
         final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?, ?)");
-        preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
-        preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
+        preparedStatement.setString(1, dateFormat.format(observation.getStartTime()));
+        preparedStatement.setString(2, dateFormat.format(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, observation.getGeoBounds().getInner());
         preparedStatement.setInt(5, sensorId);
@@ -74,8 +88,14 @@ public class H2Driver extends AbstractDriver {
 
     @Override
     public List<SatelliteObservation> get() throws SQLException {
+        return get(null);
+    }
+
+    @Override
+    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final ResultSet resultSet = statement.executeQuery("SELECT * FROM SATELLITE_OBSERVATION");
+        final String sql = createSql(parameter);
+        final ResultSet resultSet = statement.executeQuery(sql);
         resultSet.last();
         final int numValues = resultSet.getRow();
         resultSet.beforeFirst();
@@ -114,6 +134,38 @@ public class H2Driver extends AbstractDriver {
             resultList.add(observation);
         }
 
+        //org.h2.tools.Server.startWebServer(connection);
+
         return resultList;
+    }
+
+    static String createSql(QueryParameter parameter) {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM SATELLITE_OBSERVATION");
+        if (parameter == null) {
+            return sql.toString();
+        }
+
+        sql.append(" WHERE ");
+
+        final java.util.Date startTime = parameter.getStartTime();
+        final Date stopTime = parameter.getStopTime();
+        if (startTime != null) {
+            sql.append("stopDate >= '");
+            sql.append(dateFormat.format(startTime));
+            sql.append("'");
+
+            if (stopTime != null) {
+                sql.append(" AND ");
+            }
+        }
+
+        if (stopTime != null) {
+            sql.append("startDate <= '");
+            sql.append(dateFormat.format(stopTime));
+            sql.append("'");
+        }
+
+        return sql.toString();
     }
 }

@@ -120,7 +120,11 @@ public class MySQLDriver extends AbstractDriver {
             resultList.add(observation);
         }
 
-
         return resultList;
+    }
+
+    @Override
+    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
+        throw new RuntimeException("not implemented");
     }
 }
