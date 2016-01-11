@@ -38,20 +38,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author muhammad.bc
  */
 @RunWith(IOTestRunner.class)
-public class AMSU_MHS_Reader_IO_Test {
+public class AMSU_MHS_L1B_Reader_IO_Test {
 
     private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-    private AMSU_MHS_Reader reader;
+    private AMSU_MHS_L1B_Reader reader;
     private File testDataDirectory;
     private File file;
 
     @Before
     public void setUp() throws IOException {
-        reader = new AMSU_MHS_Reader();
+        reader = new AMSU_MHS_L1B_Reader();
         testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
@@ -63,15 +66,28 @@ public class AMSU_MHS_Reader_IO_Test {
     }
 
     @Test
-    public void testGetElementValues() throws IOException {
+    public void testGetElementValues() throws IOException, ParseException {
         file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
         reader.open(file);
         AcquisitionInfo read = reader.read();
-        Assert.assertNotNull(read.getSensingStart());
-        Assert.assertNotNull(read.getSensingStop());
         List<Point> coordinates = read.getCoordinates();
-        Assert.assertNotNull(coordinates);
+        Assert.assertNotNull(read.getSensingStop());
+        Assert.assertNotNull(read.getSensingStart());
+        assertNotNull(coordinates);
 
+        assertEquals(497, coordinates.size());
+        assertCoordinate(-978654.0, 214099.0, coordinates.get(0));
+        assertCoordinate(-785613.0, 260409.0, coordinates.get(10));
+        assertCoordinate(-978654.0, 214099.0, coordinates.get(coordinates.size() - 1));
+
+        //todo mb to check why parse give wong date with the actual date acquired.
+        assertEquals("1450048530128", String.valueOf(read.getSensingStart().getTime()));
+        assertEquals("1450054892787", String.valueOf(read.getSensingStop().getTime()));
+    }
+
+    private void assertCoordinate(double expectedX, double expectedY, Point coordinate) {
+        assertEquals(expectedX, coordinate.getLon(), 1e-8);
+        assertEquals(expectedY, coordinate.getLat(), 1e-8);
     }
 
     @Test
@@ -89,6 +105,7 @@ public class AMSU_MHS_Reader_IO_Test {
         String dy = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
         String mn = String.valueOf(calendar.get(Calendar.MONTH));
         String yr = String.valueOf(calendar.get(Calendar.YEAR));
+
         Date date = DATEFORMAT.parse(yr + "-" + mn + "-" + dy + " " + hour + ":" + min + ":" + second + "." + mlSecond);
         Assert.assertNotNull(date);
     }
