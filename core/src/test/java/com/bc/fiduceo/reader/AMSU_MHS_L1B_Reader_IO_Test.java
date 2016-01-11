@@ -22,7 +22,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.Point;
-import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,10 +30,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +42,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(IOTestRunner.class)
 public class AMSU_MHS_L1B_Reader_IO_Test {
 
-    private static final DateFormat DATEFORMAT = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
     private AMSU_MHS_L1B_Reader reader;
     private File testDataDirectory;
     private File file;
@@ -59,14 +55,14 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
     @Test
     public void testOpenHDF5() throws IOException {
-        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         reader.open(file);
         reader.close();
     }
 
     @Test
     public void testAcqusitionInfo() throws IOException, ParseException {
-        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         reader.open(file);
         AcquisitionInfo read = reader.read();
         List<Point> coordinates = read.getCoordinates();
@@ -79,8 +75,8 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
         assertCoordinate(-785613.0, 260409.0, coordinates.get(10));
         assertCoordinate(-978654.0, 214099.0, coordinates.get(coordinates.size() - 1));
 
-        assertEquals(DATEFORMAT.parse("2015-12-14T00:15:30.128+0100"), read.getSensingStart());
-        assertEquals(DATEFORMAT.parse("2015-12-14T02:01:32.787+0100"), read.getSensingStop());
+        TestUtil.assertCorrectUTCDate(2015, 12, 13, 23, 15, 30, 128, read.getSensingStart());
+        TestUtil.assertCorrectUTCDate(2015, 12, 14, 1, 1, 32, 787, read.getSensingStop());
 
     }
 
@@ -92,7 +88,7 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
     @After
     public void testCloseHDF5() throws IOException {
-        file = new File(testDataDirectory, "fiduceo_test_product_AMSU_B.h5");
+        file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         reader.open(file);
         reader.close();
     }
