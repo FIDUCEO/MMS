@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -21,15 +20,25 @@
 
 package com.bc.fiduceo.db;
 
+import java.util.Date;
 
-import org.apache.commons.dbcp.BasicDataSource;
+public class QueryParameter {
+    private Date startTime;
+    private Date stopTime;
 
-public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteObservation {
+    public void setStartTime(Date startDate) {
+        this.startTime = startDate;
+    }
 
-    public StorageTest_SatelliteObservation_H2() {
-        dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.h2.Driver");
-//        dataSource.setUrl("jdbc:h2:mem:fiduceo;TRACE_LEVEL_SYSTEM_OUT=2");
-        dataSource.setUrl("jdbc:h2:mem:fiduceo");
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStopTime(Date stopTime) {
+        this.stopTime = stopTime;
+    }
+
+    public Date getStopTime() {
+        return stopTime;
     }
 }

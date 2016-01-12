@@ -102,7 +102,8 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public List<SatelliteObservation> get() throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final ResultSet resultSet = statement.executeQuery("SELECT StartDate, StopDate,NodeType, ST_AsBinary(GeoBounds), SensorId, DataFile, TimeAxisStartIndex, TimeAxisEndIndex FROM SATELLITE_OBSERVATION");
+        final String sql = createSql();
+        final ResultSet resultSet = statement.executeQuery(sql);
         resultSet.last();
         final int numValues = resultSet.getRow();
         resultSet.beforeFirst();
@@ -139,7 +140,15 @@ public class PostGISDriver extends AbstractDriver {
             resultList.add(observation);
         }
 
-
         return resultList;
+    }
+
+    private String createSql() {
+        return "SELECT StartDate, StopDate, NodeType, ST_AsBinary(GeoBounds), SensorId, DataFile, TimeAxisStartIndex, TimeAxisEndIndex FROM SATELLITE_OBSERVATION";
+    }
+
+    @Override
+    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
+        throw new RuntimeException("not implemented");
     }
 }

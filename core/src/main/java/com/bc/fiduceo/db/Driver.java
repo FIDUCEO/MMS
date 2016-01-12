@@ -53,8 +53,8 @@ public interface Driver {
     void insert(SatelliteObservation satelliteObservation) throws SQLException;
 
     List<SatelliteObservation> get() throws SQLException;
+    List<SatelliteObservation> get(QueryParameter parameter) throws SQLException;
 
     int insert(Sensor sensor) throws SQLException;
-
 
 }
