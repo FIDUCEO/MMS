@@ -64,9 +64,9 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
         assertNotNull(coordinates);
         assertEquals(101, coordinates.size());
-        assertCoordinate(-9.786540247228802E9, 2.140990054085958E9, coordinates.get(0));
-        assertCoordinate(-7.76048019604622E9, 8.695230219659992E9, coordinates.get(10));
-        assertCoordinate(-9.786540247228802E9, 2.140990054085958E9, coordinates.get(coordinates.size() - 1));
+        assertCoordinate(-97.86539752771205, 21.409899459140433, coordinates.get(0));
+        assertCoordinate(-77.60479803953785, 86.95229780340014, coordinates.get(10));
+        assertCoordinate(-97.86539752771205, 21.409899459140433, coordinates.get(coordinates.size() - 1));
 
         assertNotNull(read.getSensingStart());
         assertNotNull(read.getSensingStop());
