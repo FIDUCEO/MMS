@@ -22,21 +22,23 @@
 package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.*;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 import com.vividsolutions.jts.io.WKTReader;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class JtsGeometryFactory implements AbstractGeometryFactory {
+
+    private final com.vividsolutions.jts.geom.Polygon westShiftedGlobe;
+    private final com.vividsolutions.jts.geom.Polygon eastShiftedGlobe;
+    private final com.vividsolutions.jts.geom.Polygon centralGlobe;
 
     private final WKTReader wktReader;
     private final GeometryFactory geometryFactory;
@@ -48,6 +50,10 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         wkbWriter = new WKBWriter();
         wkbReader = new WKBReader();
         geometryFactory = new GeometryFactory();
+
+        centralGlobe = createCentralGlobe();
+        eastShiftedGlobe = createEastShiftedGlobe();
+        westShiftedGlobe = createWestShiftedGlobe();
     }
 
     @Override
@@ -98,9 +104,40 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     public Polygon createPolygon(List<Point> points) {
         final Coordinate[] coordinates = extractCoordinates(points);
 
-        com.vividsolutions.jts.geom.Polygon polygon = geometryFactory.createPolygon(coordinates);
-        return new JTSPolygon(polygon);
+        //plotMultipoint(coordinates);
+
+        JtsUtils.normalizePolygon(coordinates);
+
+        //plotMultipoint(coordinates);
+
+        final com.vividsolutions.jts.geom.Polygon polygon = geometryFactory.createPolygon(coordinates);
+        final com.vividsolutions.jts.geom.Polygon[] polygons = mapToGlobe(polygon);
+        if (polygons.length == 1) {
+            return new JTSPolygon(polygons[0]);
+        } else {
+            final MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(polygons);
+            return new JTSMultiPolygon(multiPolygon);
+        }
     }
+
+//    private void plotMultipoint(Coordinate[] coordinates) {
+//        final StringBuffer stringBuffer = new StringBuffer();
+//        stringBuffer.append("MULTIPOINT(");
+//
+//        for (int i = 0; i < coordinates.length; i++) {
+//            Coordinate coordinate = coordinates[i];
+//            stringBuffer.append(coordinate.x);
+//            stringBuffer.append(" ");
+//            stringBuffer.append(coordinate.y);
+//            if (i < coordinates.length - 1) {
+//                stringBuffer.append(",");
+//            }
+//        }
+//
+//        stringBuffer.append(")");
+//
+//        System.out.println(stringBuffer.toString());
+//    }
 
     @Override
     public LineString createLineString(List<Point> points) {
@@ -119,6 +156,8 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
         if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
             return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiPolygon) {
+            return new JTSMultiPolygon((com.vividsolutions.jts.geom.MultiPolygon) geometry);
         } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
             return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
         } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
@@ -127,6 +166,7 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         throw new RuntimeException("Unsupported geometry type");
     }
 
+    // @todo 3 tb/** make package local and write test 2016-01-12
     private static Coordinate[] extractCoordinates(List<Point> points) {
         final Coordinate[] coordinates = new Coordinate[points.size()];
 
@@ -135,5 +175,57 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
             coordinates[i] = (Coordinate) point.getInner();
         }
         return coordinates;
+    }
+
+    com.vividsolutions.jts.geom.Polygon[] mapToGlobe(com.vividsolutions.jts.geom.Polygon polygon) {
+        final ArrayList<com.vividsolutions.jts.geom.Polygon> geometries = new ArrayList<>();
+        final com.vividsolutions.jts.geom.Polygon westShifted = (com.vividsolutions.jts.geom.Polygon) westShiftedGlobe.intersection((com.vividsolutions.jts.geom.Polygon) polygon.clone());
+        if (!westShifted.isEmpty()) {
+            westShifted.apply(new LonShifter(360.0));
+            geometries.add(westShifted);
+        }
+
+        final com.vividsolutions.jts.geom.Polygon central = (com.vividsolutions.jts.geom.Polygon) centralGlobe.intersection((com.vividsolutions.jts.geom.Polygon) polygon.clone());
+        if (!central.isEmpty()) {
+            geometries.add(central);
+        }
+
+        final com.vividsolutions.jts.geom.Polygon eastShifted = (com.vividsolutions.jts.geom.Polygon) eastShiftedGlobe.intersection((com.vividsolutions.jts.geom.Polygon) polygon.clone());
+        if (!eastShifted.isEmpty()) {
+            eastShifted.apply(new LonShifter(-360.0));
+            geometries.add(eastShifted);
+        }
+
+        return geometries.toArray(new com.vividsolutions.jts.geom.Polygon[geometries.size()]);
+    }
+
+    private com.vividsolutions.jts.geom.Polygon createCentralGlobe() {
+        final Coordinate[] pointList = new Coordinate[5];
+        pointList[0] = new Coordinate(-180, 90);
+        pointList[1] = new Coordinate(-180, -90);
+        pointList[2] = new Coordinate(180, -90);
+        pointList[3] = new Coordinate(180, 90);
+        pointList[4] = new Coordinate(-180, 90);
+        return geometryFactory.createPolygon(pointList);
+    }
+
+    private com.vividsolutions.jts.geom.Polygon createEastShiftedGlobe() {
+        final Coordinate[] pointList = new Coordinate[5];
+        pointList[0] = new Coordinate(180, 90);
+        pointList[1] = new Coordinate(180, -90);
+        pointList[2] = new Coordinate(540, -90);
+        pointList[3] = new Coordinate(540, 90);
+        pointList[4] = new Coordinate(180, 90);
+        return geometryFactory.createPolygon(pointList);
+    }
+
+    private com.vividsolutions.jts.geom.Polygon createWestShiftedGlobe() {
+        final Coordinate[] pointList = new Coordinate[5];
+        pointList[0] = new Coordinate(-540, 90);
+        pointList[1] = new Coordinate(-540, -90);
+        pointList[2] = new Coordinate(-180, -90);
+        pointList[3] = new Coordinate(-180, 90);
+        pointList[4] = new Coordinate(-540, 90);
+        return geometryFactory.createPolygon(pointList);
     }
 }
