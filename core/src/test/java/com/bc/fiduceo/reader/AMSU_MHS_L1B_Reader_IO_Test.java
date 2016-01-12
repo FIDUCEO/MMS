@@ -21,12 +21,14 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayDouble;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,19 +65,49 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
         assertNotNull(coordinates);
         assertEquals(497, coordinates.size());
-        assertCoordinate(-978654.0, 214099.0, coordinates.get(0));
-        assertCoordinate(-785613.0, 260409.0, coordinates.get(10));
-        assertCoordinate(-978654.0, 214099.0, coordinates.get(coordinates.size() - 1));
+        assertCoordinate(-97.8654, 21.4099, coordinates.get(0));
+        assertCoordinate(-78.5613, 26.0409, coordinates.get(10));
+        assertCoordinate(-97.8654, 21.4099, coordinates.get(coordinates.size() - 1));
 
         assertNotNull(read.getSensingStart());
         assertNotNull(read.getSensingStop());
         TestUtil.assertCorrectUTCDate(2015, 12, 13, 23, 15, 30, 128, read.getSensingStart());
         TestUtil.assertCorrectUTCDate(2015, 12, 14, 1, 1, 32, 787, read.getSensingStop());
+
+        SatelliteGeometry satelliteGeometry = GeometryUtils.prepareForStorage(read);
+        Polygon[] polygons = GeometryUtils.mapToGlobe(satelliteGeometry.getGeometry());
     }
 
     private void assertCoordinate(double expectedX, double expectedY, Point coordinate) {
         assertEquals(expectedX, coordinate.getLon(), 1e-8);
         assertEquals(expectedY, coordinate.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testScale() {
+        int[] next = {4, 6};
+        ArrayDouble arrayDouble = new ArrayDouble(next);
+        double[] h = (double[]) arrayDouble.copyTo1DJavaArray();
+        for (int i = 0; i < h.length; i++) {
+            arrayDouble.setDouble(i, i * 2);
+        }
+        ArrayDouble.D2 aDouble = (ArrayDouble.D2) rescaleCoordinate(arrayDouble).copy();
+        int[] shape = aDouble.getShape();
+
+        assertEquals(shape[0], 4);
+        assertEquals(shape[1], 6);
+        assertEquals(aDouble.get(0, 0), 0.0, 1e-8);
+        assertEquals(aDouble.get(3, 5), 4.6, 1e-8);
+
+    }
+
+
+    private ArrayDouble rescaleCoordinate(ArrayDouble coordinate) {
+        double[] h = (double[]) coordinate.copyTo1DJavaArray();
+        for (int i = 0; i < h.length; i++) {
+            coordinate.setDouble(i, (h[i] / 10));
+        }
+        return coordinate;
     }
 
 

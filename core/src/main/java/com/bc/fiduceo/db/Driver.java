@@ -30,7 +30,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import java.sql.SQLException;
 import java.util.List;
 
-interface Driver {
+public interface Driver {
 
     /**
      * Used for the identification of the database-drivers. Must return the beginning of the driver-specific JDBC-Url,

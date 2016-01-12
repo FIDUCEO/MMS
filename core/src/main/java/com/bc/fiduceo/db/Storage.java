@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -22,21 +21,29 @@
 package com.bc.fiduceo.db;
 
 
-import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.esa.snap.SnapCoreActivator;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 public class Storage {
 
     private Driver driver;
+
+    Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
+        driver = createDriver(dataSource);
+        if (driver == null) {
+            throw new IllegalArgumentException("No database driver registered for URL `" + dataSource.getUrl() + "`");
+        }
+
+        driver.setGeometryFactory(geometryFactory);
+
+        driver.open(dataSource);
+    }
 
     public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         return new Storage(dataSource, geometryFactory);
@@ -69,31 +76,9 @@ public class Storage {
         return driver.insert(sensor);
     }
 
-    Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
-        driver = createDriver(dataSource);
-        if (driver == null) {
-            throw new IllegalArgumentException("No database driver registered for URL `" + dataSource.getUrl() + "`");
-        }
-
-        driver.setGeometryFactory(geometryFactory);
-
-        driver.open(dataSource);
-    }
-
     private Driver createDriver(BasicDataSource dataSource) {
-        final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        final ServiceRegistry<Driver> driverRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
-
-        SnapCoreActivator.loadServices(driverRegistry);
-        final Set<Driver> services = driverRegistry.getServices();
         final String dbUrl = dataSource.getUrl().toLowerCase();
-        for (final Driver driver : services) {
-            final String urlPattern = driver.getUrlPattern().toLowerCase();
-            if (dbUrl.startsWith(urlPattern)) {
-                return driver;
-            }
-        }
-
-        return null;
+        ServicesUtils syServicesUtils = new ServicesUtils<>();
+        return (Driver) syServicesUtils.getReader(Driver.class, dbUrl);
     }
 }

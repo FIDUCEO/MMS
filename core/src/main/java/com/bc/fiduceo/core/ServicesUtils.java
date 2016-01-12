@@ -17,11 +17,12 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
-
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.core;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+import com.bc.fiduceo.db.Driver;
+import com.bc.fiduceo.reader.Reader;
 import org.esa.snap.SnapCoreActivator;
 
 import java.util.Set;
@@ -29,15 +30,22 @@ import java.util.Set;
 /**
  * @author muhammad.bc
  */
-public class FilterReaders {
+public class ServicesUtils<T> {
 
-    public Reader getReader(String sensorType) {
+    public T getReader(Class<T> pass, String searchTerm) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        final ServiceRegistry<Reader> readerRegistry = serviceRegistryManager.getServiceRegistry(Reader.class);
+        ServiceRegistry<T> readerRegistry = serviceRegistryManager.getServiceRegistry(pass);
         SnapCoreActivator.loadServices(readerRegistry);
-        final Set<Reader> services = readerRegistry.getServices();
-        for (Reader reader : services) {
-            if (sensorType.contains(reader.getReaderName())) {
+        final Set<T> services = readerRegistry.getServices();
+        for (T reader : services) {
+            String readerName;
+            if (pass.getName().contains("Driver")) {
+                readerName = ((Driver) reader).getUrlPattern().toLowerCase();
+            } else {
+                readerName = ((Reader) reader).getReaderName();
+            }
+
+            if (searchTerm.contains(readerName)) {
                 return reader;
             }
         }

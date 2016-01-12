@@ -22,13 +22,13 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.FilterReaders;
 import com.bc.fiduceo.reader.Reader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -82,8 +82,8 @@ class IngestionTool {
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
         //@todo 1 mb/** check the wildcard
         final File[] inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + wildcard);
-        FilterReaders filterReaders = new FilterReaders();
-        Reader reader = filterReaders.getReader(sensorType);
+        ServicesUtils servicesUtils = new ServicesUtils<>();
+        Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
         for (final File file : inputFiles) {
             reader.open(file);
             try {
@@ -110,12 +110,15 @@ class IngestionTool {
     }
 
     //todo 1 mb to search easily within a bulk of file with wildcard
-    File[] getSensorFiles(String archiveRoot,String sensorType) {
+    File[] getSensorFiles(String archiveRoot, String sensorType, String wildCard) throws IOException {
         Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
         Matcher matcher = pattern.matcher("NSS.MHSX.NK.D15357.S1248.E1419.B9158283");
         ArrayList<File> arrayList = new ArrayList<>();
-        File[] files = new File(archiveRoot).listFiles();
 
+        if (wildCard.isEmpty()) {
+            return WildcardMatcher.glob(archiveRoot + File.separator + "");
+        }
+        File[] files = new File(archiveRoot).listFiles();
         for (File file : files) {
             String name = file.getName();
             if (pattern.matcher(name).find()) {

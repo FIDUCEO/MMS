@@ -19,6 +19,8 @@
  */
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.ServicesUtils;
+import com.bc.fiduceo.db.Driver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,24 +29,41 @@ import java.util.regex.Pattern;
 /**
  * @author muhammad.bc
  */
-public class FilterReadersTest {
+public class ServicesUtilsTest {
     Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
+    private Driver driver;
+    private Reader reader;
+    private String searchTerm;
 
     @Test
     public void getReaderTest() {
-        FilterReaders filterReaders = new FilterReaders();
-
-        Reader reader = filterReaders.getReader("AMSU-B");
+        ServicesUtils servicesUtils = new ServicesUtils<>();
+        reader = (Reader) servicesUtils.getReader(Reader.class, "AIRS");
         String readerName = reader.getReaderName();
-        Assert.assertTrue(readerName.equals("AMSU-B"));
+        Assert.assertTrue(readerName.equals("AIRS"));
 
 
-        Reader airs = filterReaders.getReader("AIRS");
-        String readerAirs = airs.getReaderName();
+        reader = (Reader) servicesUtils.getReader(Reader.class, "AIRS");
+        String readerAirs = reader.getReaderName();
         Assert.assertTrue(readerAirs.equals("AIRS"));
 
-        Reader eumesatReader = filterReaders.getReader("EUMETASAT");
-        String readerEum = eumesatReader.getReaderName();
+        reader = (Reader) servicesUtils.getReader(Reader.class, "EUMETASAT");
+        String readerEum = reader.getReaderName();
         Assert.assertTrue(readerEum.equals("EUMETASAT"));
+
+
+        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:h2:mem:fiduceo");
+        searchTerm = driver.getUrlPattern().toLowerCase();
+        Assert.assertTrue(searchTerm.equals("jdbc:h2"));
+
+
+        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:mysql://localhost:3306/test");
+        searchTerm = driver.getUrlPattern().toLowerCase();
+        Assert.assertTrue(searchTerm.equals("jdbc:mysql"));
+
+
+        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:postgresql://localhost:5432/test");
+        searchTerm = driver.getUrlPattern().toLowerCase();
+        Assert.assertTrue(searchTerm.equals("jdbc:postgresql"));
     }
 }
