@@ -63,7 +63,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
     @Override
     public String getReaderName() {
-        return "AMSU-B";
+        return "AMSU-B MHS";
     }
 
     @Override

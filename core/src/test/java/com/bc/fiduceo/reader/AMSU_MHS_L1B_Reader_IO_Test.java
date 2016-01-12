@@ -47,7 +47,6 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
     public void setUp() throws IOException {
         reader = new AMSU_MHS_L1B_Reader();
         File testDataDirectory = TestUtil.getTestDataDirectory();
-
         File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         reader.open(file);
     }

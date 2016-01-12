@@ -43,12 +43,11 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
-    private String regexAMSU = "'?[A-Z].+[AMBX|MHSX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
-    private String regexAIRS = "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
 
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
@@ -76,33 +75,12 @@ class IngestionTool {
 
     private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType) throws SQLException, IOException {
 
-
-        final String archiveRoot = systemConfig.getArchiveRoot();
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        //@todo 1 mb/** check the wildcard
-        File[] inputFiles = null;
-        List<File> inputFileList = new ArrayList<>();
-        if (sensorType.toLowerCase().contains("amsu-b")) {
-            inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
-            for (File file : inputFiles) {
-                if (file.getCanonicalFile().getName().matches(regexAMSU)) {
-                    inputFileList.add(file);
-                }
-            }
-        } else if (sensorType.toLowerCase().contains("airs")) {
-            inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "*.hdf");
-            for (File file : inputFiles) {
-                if (file.getCanonicalFile().getName().matches(regexAIRS)) {
-                    inputFileList.add(file);
-                }
-            }
-        }
-
-
+        File[] searchFilesResult = getSearchResult(systemConfig, sensorType.toLowerCase());
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
-        for (final File file : inputFileList) {
+        for (final File file : searchFilesResult) {
             reader.open(file);
             try {
                 final AcquisitionInfo aquisitionInfo = reader.read();
@@ -123,8 +101,32 @@ class IngestionTool {
                 reader.close();
             }
         }
+    }
 
-
+    File[] getSearchResult(SystemConfig systemConfig, String search) throws IOException {
+        String archiveRoot = systemConfig.getArchiveRoot();
+        File[] glob;
+        String regex;
+        List<File> inputFileList = new ArrayList<>();
+        if (search.contains("amsu-b")) {
+            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
+            regex = "'?[A-Z].+[AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+        } else if (search.contains("mhs")) {
+            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
+            regex = "'?[A-Z].+[MHSX].M1.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI|MM].h5";
+        } else {
+            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.hdf");
+            regex = "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
+        }
+        if (Objects.isNull(glob)) {
+            return null;
+        }
+        for (File file : glob) {
+            if (file.getCanonicalFile().getName().matches(regex)) {
+                inputFileList.add(file);
+            }
+        }
+        return inputFileList.toArray(new File[inputFileList.size()]);
     }
 
     void printUsageTo(OutputStream outputStream) {

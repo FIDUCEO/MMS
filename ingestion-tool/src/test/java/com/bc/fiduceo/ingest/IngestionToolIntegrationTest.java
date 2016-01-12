@@ -169,6 +169,30 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_MHS() throws ParseException, IOException, SQLException {
+        final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
+        storage.initialize();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mhs"};
+        try {
+            writeSystemProperties();
+            writeDatabaseProperties();
+
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertTrue(satelliteObservations.size() > 0);
+
+            final SatelliteObservation observation = satelliteObservations.get(0);
+            final Sensor sensor = observation.getSensor();
+            assertEquals("MHS", sensor.getName());
+
+        } finally {
+            storage.close();
+        }
+    }
+
     private BasicDataSource getDatasource() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");

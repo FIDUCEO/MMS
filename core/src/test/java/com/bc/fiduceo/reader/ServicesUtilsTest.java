@@ -24,20 +24,18 @@ import com.bc.fiduceo.db.Driver;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.regex.Pattern;
-
 /**
  * @author muhammad.bc
  */
 public class ServicesUtilsTest {
-    Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
-    private Driver driver;
-    private Reader reader;
-    private String searchTerm;
-
     @Test
     public void getReaderTest() {
+        Driver driver;
+        Reader reader;
+        String searchTerm;
         ServicesUtils servicesUtils = new ServicesUtils<>();
+        Assert.assertNotNull(servicesUtils);
+
         reader = (Reader) servicesUtils.getReader(Reader.class, "AIRS");
         String readerName = reader.getReaderName();
         Assert.assertTrue(readerName.equals("AIRS"));
@@ -66,4 +64,5 @@ public class ServicesUtilsTest {
         searchTerm = driver.getUrlPattern().toLowerCase();
         Assert.assertTrue(searchTerm.equals("jdbc:postgresql"));
     }
+
 }
