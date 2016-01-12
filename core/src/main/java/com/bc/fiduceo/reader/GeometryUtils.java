@@ -32,18 +32,11 @@ import java.util.List;
 
 class GeometryUtils {
 
-    private static final com.bc.fiduceo.geometry.Polygon westShiftedGlobe;
-    private static final com.bc.fiduceo.geometry.Polygon eastShiftedGlobe;
-    private static final com.bc.fiduceo.geometry.Polygon centralGlobe;
     private static final com.bc.fiduceo.geometry.GeometryFactory geoFactory;
 
     static {
         // @todo 2 tb/tb move this to a common place, we should switch factories at one point onöy 2015-12-03
         geoFactory = new com.bc.fiduceo.geometry.GeometryFactory(com.bc.fiduceo.geometry.GeometryFactory.Type.JTS);
-
-        westShiftedGlobe = createWestShiftedGlobe();
-        eastShiftedGlobe = createEastShiftedGlobe();
-        centralGlobe = createCentralGlobe();
     }
 
     // @todo 1 tb/tb adapt to multiple time axes 2015-11-18
@@ -58,31 +51,6 @@ class GeometryUtils {
         return new SatelliteGeometry(polygon, new TimeAxis[]{timeAxis});
     }
 
-
-    // @todo 2 tb/tb this functionality is completely JTS stuff - move to jts package. Introduce a "prepareForStorage" method
-    // that does all this and keep empty implementation for S2 2015-12-03
-    static com.bc.fiduceo.geometry.Polygon[] mapToGlobe(com.bc.fiduceo.geometry.Geometry geometry) {
-        final ArrayList<com.bc.fiduceo.geometry.Polygon> geometries = new ArrayList<>();
-        final com.bc.fiduceo.geometry.Polygon westShifted = (com.bc.fiduceo.geometry.Polygon) westShiftedGlobe.intersection(geometry);
-        if (!westShifted.isEmpty()) {
-            westShifted.shiftLon(360.0);
-            geometries.add(westShifted);
-        }
-
-        final com.bc.fiduceo.geometry.Polygon central = (com.bc.fiduceo.geometry.Polygon) centralGlobe.intersection(geometry);
-        if (!central.isEmpty()) {
-            geometries.add(central);
-        }
-
-        final com.bc.fiduceo.geometry.Polygon eastShifted = (com.bc.fiduceo.geometry.Polygon) eastShiftedGlobe.intersection(geometry);
-        if (!eastShifted.isEmpty()) {
-            eastShifted.shiftLon(-360.0);
-            geometries.add(eastShifted);
-        }
-
-        return geometries.toArray(new com.bc.fiduceo.geometry.Polygon[geometries.size()]);
-    }
-
     static TimeAxis createTimeAxis(com.bc.fiduceo.geometry.Polygon polygon, int startIndex, int endIndex, Date startTime, Date endTime) {
         final Point[] polygonCoordinates = polygon.getCoordinates();
         final Point[] coordinates = new Point[endIndex - startIndex + 1];
@@ -93,35 +61,5 @@ class GeometryUtils {
         Collections.addAll(coordinateList, coordinates);
         final com.bc.fiduceo.geometry.LineString lineString = geoFactory.createLineString(coordinateList);
         return geoFactory.createTimeAxis(lineString, startTime, endTime);
-    }
-
-    private static com.bc.fiduceo.geometry.Polygon createCentralGlobe() {
-        final List<Point> pointList = new ArrayList<>(5);
-        pointList.add(geoFactory.createPoint(-180, 90));
-        pointList.add(geoFactory.createPoint(-180, -90));
-        pointList.add(geoFactory.createPoint(180, -90));
-        pointList.add(geoFactory.createPoint(180, 90));
-        pointList.add(geoFactory.createPoint(-180, 90));
-        return geoFactory.createPolygon(pointList);
-    }
-
-    private static com.bc.fiduceo.geometry.Polygon createEastShiftedGlobe() {
-        final List<Point> pointList = new ArrayList<>(5);
-        pointList.add(geoFactory.createPoint(180, 90));
-        pointList.add(geoFactory.createPoint(180, -90));
-        pointList.add(geoFactory.createPoint(540, -90));
-        pointList.add(geoFactory.createPoint(540, 90));
-        pointList.add(geoFactory.createPoint(180, 90));
-        return geoFactory.createPolygon(pointList);
-    }
-
-    private static com.bc.fiduceo.geometry.Polygon createWestShiftedGlobe() {
-        final List<Point> pointList = new ArrayList<>(5);
-        pointList.add(geoFactory.createPoint(-540, 90));
-        pointList.add(geoFactory.createPoint(-540, -90));
-        pointList.add(geoFactory.createPoint(-180, -90));
-        pointList.add(geoFactory.createPoint(-180, 90));
-        pointList.add(geoFactory.createPoint(-540, 90));
-        return geoFactory.createPolygon(pointList);
     }
 }

@@ -27,7 +27,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.io.ParseException;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,64 +45,6 @@ public class GeometryUtilsTest_JTS {
     @Before
     public void setUp() {
         factory = new GeometryFactory(GeometryFactory.Type.JTS);
-    }
-
-    @Test
-    public void testMapToGlobe_onlyPointsInGlobe() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((10 10, 20 10, 20 20, 10 20, 10 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(1, mappedPolygons.length);
-        assertEquals("POLYGON ((10 10, 10 20, 20 20, 20 10, 10 10))", mappedPolygons[0].toString());
-    }
-
-    @Test
-    public void testMapToGlobe_westShiftedOnlyGlobe() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -190 10, -190 20, -200 20, -200 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(1, mappedPolygons.length);
-        assertEquals("POLYGON ((160 10, 160 20, 170 20, 170 10, 160 10))", mappedPolygons[0].toString());
-    }
-
-    @Test
-    public void testMapToGlobe_westShiftedAndCentralGlobe() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, -170 10, -170 20, -200 20, -200 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(2, mappedPolygons.length);
-        assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
-        assertEquals("POLYGON ((-180 10, -180 20, -170 20, -170 10, -180 10))", mappedPolygons[1].toString());
-    }
-
-    @Test
-    public void testMapToGlobe_eastShiftedOnlyGlobe() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((200 10, 210 10, 210 20, 200 20, 200 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(1, mappedPolygons.length);
-        assertEquals("POLYGON ((-160 10, -160 20, -150 20, -150 10, -160 10))", mappedPolygons[0].toString());
-    }
-
-    @Test
-    public void testMapToGlobe_eastShiftedAndCentralGlobe() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((170 10, 210 10, 210 20, 170 20, 170 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(2, mappedPolygons.length);
-        assertEquals("POLYGON ((180 20, 180 10, 170 10, 170 20, 180 20))", mappedPolygons[0].toString());
-        assertEquals("POLYGON ((-180 10, -180 20, -150 20, -150 10, -180 10))", mappedPolygons[1].toString());
-    }
-
-    @Test
-    public void testMapToGlobe_allShiftsPresent() throws ParseException {
-        final com.bc.fiduceo.geometry.Polygon polygonInGlobe = (com.bc.fiduceo.geometry.Polygon) factory.parse("POLYGON((-200 10, 210 10, 210 20, -200 20, -200 10))");
-
-        final com.bc.fiduceo.geometry.Polygon[] mappedPolygons = GeometryUtils.mapToGlobe(polygonInGlobe);
-        assertEquals(3, mappedPolygons.length);
-        assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
-        assertEquals("POLYGON ((-180 10, -180 20, 180 20, 180 10, -180 10))", mappedPolygons[1].toString());
-        assertEquals("POLYGON ((-180 10, -180 20, -150 20, -150 10, -180 10))", mappedPolygons[2].toString());
     }
 
     @Test
@@ -133,12 +74,12 @@ public class GeometryUtilsTest_JTS {
 
         final com.bc.fiduceo.geometry.Geometry geometry = satelliteGeometry.getGeometry();
         assertNotNull(geometry);
-        assertEquals("POLYGON ((10 30, 10 20, 10 10, 30 10, 30 20, 30 30, 10 30))", geometry.toString());
+        assertEquals("POLYGON ((10 30, 30 30, 30 20, 30 10, 10 10, 10 20, 10 30))", geometry.toString());
 
         final TimeAxis[] timeAxes = satelliteGeometry.getTimeAxes();
         assertNotNull(timeAxes);
         assertEquals(1, timeAxes.length);
-        assertEquals(150000, timeAxes[0].getTime(factory.createPoint(10, 20)).getTime());
+        assertEquals(100000, timeAxes[0].getTime(factory.createPoint(10, 20)).getTime());
     }
 
     private List<Point> createCoordinateList(double[] lons, double[] lats) {

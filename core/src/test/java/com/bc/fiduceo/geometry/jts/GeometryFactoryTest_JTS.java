@@ -59,6 +59,15 @@ public class GeometryFactoryTest_JTS {
     }
 
     @Test
+    public void testParseMultiPolygon() {
+        final Geometry geometry = factory.parse("MULTIPOLYGON(((0 0, 0 1, 1 1, 1 0, 0 0)), ((2 1, 2 2, 3 2, 3 1, 2 1)))");
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof JTSMultiPolygon);
+
+        assertEquals("MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0, 0 0)), ((2 1, 2 2, 3 2, 3 1, 2 1)))", geometry.toString());
+    }
+
+    @Test
     public void testParseLineString() {
         final Geometry geometry = factory.parse("LINESTRING(3 1, 3 2, 3 3, 3 4)");
         assertNotNull(geometry);
@@ -216,7 +225,7 @@ public class GeometryFactoryTest_JTS {
 
         final Polygon polygon = factory.createPolygon(points);
         assertNotNull(polygon);
-        assertEquals("POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))", polygon.toString());
+        assertEquals("POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))", polygon.toString());
     }
 
     @Test

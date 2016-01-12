@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -27,28 +26,33 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
-class JTSPolygon implements Polygon {
+class JTSMultiPolygon implements Polygon {
 
-    private final com.vividsolutions.jts.geom.Polygon jtsPolygon;
+    private final MultiPolygon innerMultiPolygon;
 
-    JTSPolygon(com.vividsolutions.jts.geom.Polygon jtsPolygon) {
-        this.jtsPolygon = jtsPolygon;
-    }
-
-    @Override
-    public Geometry intersection(Geometry other) {
-        final com.vividsolutions.jts.geom.Polygon intersection = (com.vividsolutions.jts.geom.Polygon) jtsPolygon.intersection((com.vividsolutions.jts.geom.Geometry) other.getInner()).clone();
-        return new JTSPolygon(intersection);
+    public JTSMultiPolygon(MultiPolygon innerMultiPolygon) {
+        this.innerMultiPolygon = innerMultiPolygon;
     }
 
     @Override
     public void shiftLon(double lon) {
-        jtsPolygon.apply(new LonShifter(lon));
+        innerMultiPolygon.apply(new LonShifter(lon));
+    }
+
+    @Override
+    public Geometry intersection(Geometry other) {
+        final com.vividsolutions.jts.geom.Polygon intersection = (com.vividsolutions.jts.geom.Polygon) innerMultiPolygon.intersection((com.vividsolutions.jts.geom.Geometry) other.getInner()).clone();
+        return new JTSPolygon(intersection);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return innerMultiPolygon.isEmpty();
     }
 
     @Override
     public Point[] getCoordinates() {
-        final Coordinate[] jtsCoordinates = jtsPolygon.getCoordinates();
+        final Coordinate[] jtsCoordinates = innerMultiPolygon.getCoordinates();
         final Point[] coordinates = new Point[jtsCoordinates.length];
         for (int i = 0; i < jtsCoordinates.length; i++) {
             coordinates[i] = new JTSPoint(jtsCoordinates[i]);
@@ -57,17 +61,12 @@ class JTSPolygon implements Polygon {
     }
 
     @Override
-    public boolean isEmpty() {
-        return jtsPolygon.isEmpty();
+    public Object getInner() {
+        return innerMultiPolygon;
     }
 
     @Override
     public String toString() {
-        return jtsPolygon.toString();
-    }
-
-    @Override
-    public Object getInner() {
-        return jtsPolygon;
+        return innerMultiPolygon.toString();
     }
 }
