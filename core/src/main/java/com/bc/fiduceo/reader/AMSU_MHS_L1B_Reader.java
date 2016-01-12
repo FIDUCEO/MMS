@@ -113,7 +113,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         ArrayDouble arrayDouble = new ArrayDouble(shape);
 
         for (int i = 0; i < coordinates.length; i++) {
-            arrayDouble.setDouble(i, (coordinates[i] / scale));
+            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
         }
         return (ArrayDouble.D2) arrayDouble.copy();
     }
@@ -137,7 +137,6 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         calendar.set(Calendar.MILLISECOND, 0);
 
         calendar.add(Calendar.MILLISECOND, time);
-
         return calendar.getTime();
     }
 }
