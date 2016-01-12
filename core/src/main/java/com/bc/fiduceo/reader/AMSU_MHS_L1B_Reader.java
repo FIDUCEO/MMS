@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -26,6 +25,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -40,9 +40,8 @@ import java.util.List;
 
 public class AMSU_MHS_L1B_Reader implements Reader {
 
-    private final static int IntervalX = 10;
-    private final static int IntervalY = 10;
-
+    private final static int IntervalX = 50;
+    private final static int IntervalY = 50;
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
 
@@ -69,23 +68,30 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
+
         Array latitude = null;
         Array longitude = null;
-
+        float latScale = 1;
+        float longScale = 1;
 
         List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
         for (Variable geo : geolocation) {
             if (geo.getShortName().equals("Latitude")) {
                 latitude = geo.read();
+                latScale = (float) geo.findAttribute("Scale").getNumericValue();
             } else if (geo.getShortName().equals("Longitude")) {
                 longitude = geo.read();
+                longScale = (float) geo.findAttribute("Scale").getNumericValue();
             }
         }
         if (latitude == null || longitude == null) {
             throw new IOException("The H5 file is courupted");
         }
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayInt.D2) latitude, (ArrayInt.D2) longitude, NodeType.ASCENDING);
+        ArrayDouble.D2 arrayDoubleLatitude = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        ArrayDouble.D2 arrayDoubleLongitude = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude, NodeType.ASCENDING);
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
@@ -99,6 +105,17 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
 
         return acquisitionInfo;
+    }
+
+    private ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
+        int[] shape = coodinate.getShape();
+        ArrayDouble arrayDouble = new ArrayDouble(shape);
+
+        for (int i = 0; i < coordinates.length; i++) {
+            arrayDouble.setDouble(i, (coordinates[i] / scale));
+        }
+        return (ArrayDouble.D2) arrayDouble.copy();
     }
 
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {

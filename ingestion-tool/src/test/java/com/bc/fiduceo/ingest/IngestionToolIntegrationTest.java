@@ -114,7 +114,7 @@ public class IngestionToolIntegrationTest {
         final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
         storage.initialize();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua", "-n", "AIRS.*.hdf"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs"};
         try {
             writeSystemProperties();
             writeDatabaseProperties();
@@ -147,12 +147,10 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AMSU() throws ParseException, IOException, SQLException {
-        // @todo 1 tb/** this test relies on the results being returned in a specifi order - change this 2015-12-22
-        // @todo 2 tb/tb move geometry factory type to some other location, parametrize test 2015-12-16
         final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
         storage.initialize();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsu-b", "-n", "*.h5"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsu-b"};
         try {
             writeSystemProperties();
             writeDatabaseProperties();

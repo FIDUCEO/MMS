@@ -43,17 +43,16 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
+    private String regexAMSU = "'?[A-Z].+[AMBX|MHSX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    private String regexAIRS = "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
 
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
         final String sensorType = commandLine.getOptionValue("s").toUpperCase();
-        final String fname = commandLine.getOptionValue("n");
         final File configDirectory = new File(configValue);
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -69,22 +68,41 @@ class IngestionTool {
         // @todo 2 tb/tb check if database is already set up. If not, call initialize(). tb 2015-12-22
 
         try {
-            ingestMetadata(systemConfig, geometryFactory, storage, sensorType, fname);
+            ingestMetadata(systemConfig, geometryFactory, storage, sensorType);
         } finally {
             storage.close();
         }
     }
 
-    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType, String wildcard) throws SQLException, IOException {
+    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType) throws SQLException, IOException {
+
 
         final String archiveRoot = systemConfig.getArchiveRoot();
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
         //@todo 1 mb/** check the wildcard
-        final File[] inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + wildcard);
+        File[] inputFiles = null;
+        List<File> inputFileList = new ArrayList<>();
+        if (sensorType.toLowerCase().contains("amsu-b")) {
+            inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
+            for (File file : inputFiles) {
+                if (file.getCanonicalFile().getName().matches(regexAMSU)) {
+                    inputFileList.add(file);
+                }
+            }
+        } else if (sensorType.toLowerCase().contains("airs")) {
+            inputFiles = WildcardMatcher.glob(archiveRoot + File.separator + "*.hdf");
+            for (File file : inputFiles) {
+                if (file.getCanonicalFile().getName().matches(regexAIRS)) {
+                    inputFileList.add(file);
+                }
+            }
+        }
+
+
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
-        for (final File file : inputFiles) {
+        for (final File file : inputFileList) {
             reader.open(file);
             try {
                 final AcquisitionInfo aquisitionInfo = reader.read();
@@ -109,25 +127,6 @@ class IngestionTool {
 
     }
 
-    //todo 1 mb to search easily within a bulk of file with wildcard
-    File[] getSensorFiles(String archiveRoot, String sensorType, String wildCard) throws IOException {
-        Pattern pattern = Pattern.compile("'?[A-Z].+[MHSX|AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.d5");
-        Matcher matcher = pattern.matcher("NSS.MHSX.NK.D15357.S1248.E1419.B9158283");
-        ArrayList<File> arrayList = new ArrayList<>();
-
-        if (wildCard.isEmpty()) {
-            return WildcardMatcher.glob(archiveRoot + File.separator + "");
-        }
-        File[] files = new File(archiveRoot).listFiles();
-        for (File file : files) {
-            String name = file.getName();
-            if (pattern.matcher(name).find()) {
-                arrayList.add(file);
-            }
-        }
-        return null;
-    }
-
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
@@ -148,9 +147,6 @@ class IngestionTool {
 
         final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
         options.addOption(sensorOption);
-
-        final Option sensorNameOption = new Option("n", "name", true, "Define the name of the product file.");
-        options.addOption(sensorNameOption);
 
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);

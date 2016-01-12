@@ -54,7 +54,6 @@ public class IngestionToolTest {
                              "Valid options are:" + ls +
                              "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
                              "   -h,--help           Prints the tool usage." + ls +
-                             "   -n,--name <arg>     Define the name of the product file." + ls +
                              "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls, outputStream.toString());
     }
 
@@ -84,12 +83,6 @@ public class IngestionToolTest {
         assertEquals("config", configOption.getLongOpt());
         assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
         assertTrue(configOption.hasArg());
-
-        final Option cnameOption = options.getOption("name");
-        assertNotNull(cnameOption);
-        assertEquals("n", cnameOption.getOpt());
-        assertEquals("name", cnameOption.getLongOpt());
-        assertTrue(cnameOption.hasArg());
     }
 
     @Test
