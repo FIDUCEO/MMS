@@ -26,5 +26,9 @@ public interface Point extends Geometry {
 
     double getLon();
 
+    void setLon(double lon);
+
     double getLat();
+
+    void setLat(double lat);
 }

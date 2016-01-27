@@ -28,7 +28,7 @@ import com.google.common.geometry.S2LatLng;
 
 class S2Point implements Point{
 
-    private final S2LatLng s2LatLng;
+    private S2LatLng s2LatLng;
 
     S2Point(S2LatLng s2LatLng) {
         this.s2LatLng = s2LatLng;
@@ -42,6 +42,16 @@ class S2Point implements Point{
     @Override
     public double getLat() {
         return s2LatLng.latDegrees();
+    }
+
+    @Override
+    public void setLon(double lon) {
+        s2LatLng = S2LatLng.fromDegrees(s2LatLng.latDegrees(), lon);
+    }
+
+    @Override
+    public void setLat(double lat) {
+        s2LatLng = S2LatLng.fromDegrees(lat, s2LatLng.lngDegrees());
     }
 
     @Override
