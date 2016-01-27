@@ -21,13 +21,19 @@
 package com.bc.fiduceo.geometry.jts;
 
 
+import com.bc.fiduceo.geometry.Point;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class JTSGeometryFactoryTest {
 
@@ -96,5 +102,28 @@ public class JTSGeometryFactoryTest {
         assertEquals("POLYGON ((180 20, 180 10, 160 10, 160 20, 180 20))", mappedPolygons[0].toString());
         assertEquals("POLYGON ((-180 10, -180 20, 180 20, 180 10, -180 10))", mappedPolygons[1].toString());
         assertEquals("POLYGON ((-180 10, -180 20, -150 20, -150 10, -180 10))", mappedPolygons[2].toString());
+    }
+
+    @Test
+    public void testExtractCoordinates() {
+        final List<Point> pointList = new ArrayList<>();
+        pointList.add(factory.createPoint(10, 11));
+        pointList.add(factory.createPoint(12, 13));
+        pointList.add(factory.createPoint(14, 15));
+
+        final Coordinate[] coordinates = JtsGeometryFactory.extractCoordinates(pointList);
+        assertNotNull(coordinates);
+        assertEquals(3, coordinates.length);
+        assertEquals(12, coordinates[1].x, 1e-8);
+        assertEquals(13, coordinates[1].y, 1e-8);
+    }
+
+    @Test
+    public void testExtractCoordinates_emptyList() {
+        final List<Point> pointList = new ArrayList<>();
+
+        final Coordinate[] coordinates = JtsGeometryFactory.extractCoordinates(pointList);
+        assertNotNull(coordinates);
+        assertEquals(0, coordinates.length);
     }
 }
