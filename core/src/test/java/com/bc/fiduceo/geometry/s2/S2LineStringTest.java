@@ -21,8 +21,9 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.geometry.*;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polyline;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,8 +32,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class S2LineStringTest {
 

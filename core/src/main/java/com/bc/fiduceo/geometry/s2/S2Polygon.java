@@ -46,7 +46,6 @@ class S2Polygon implements Polygon {
 
     @Override
     public boolean isEmpty() {
-        // @todo 2 tb/tb check if this is the correct condition, write tests 2015-12-03
         return googlePolygon.numLoops() == 0;
     }
 
@@ -55,7 +54,7 @@ class S2Polygon implements Polygon {
         throw new RuntimeException("not implemented");
     }
 
-    // @todo 2 tb/tb write tests 2015-12-04
+
     @Override
     public Point[] getCoordinates() {
         final ArrayList<Point> coordinates = new ArrayList<>();
@@ -64,10 +63,12 @@ class S2Polygon implements Polygon {
             final S2Loop loop = googlePolygon.loop(i);
             final int numVertices = loop.numVertices();
             for (int k = 0; k < numVertices; k++) {
-                final com.google.common.geometry.S2Point googlePoint = loop.vertex(i);
+                final com.google.common.geometry.S2Point googlePoint = loop.vertex(k);
                 coordinates.add(new S2Point(new S2LatLng(googlePoint)));
             }
         }
+        // @todo 2 tb/** the S2 loops do not contain the closing point. Check if we need to add this point here.
+        // check what happens when the polygon contains more than one loop tb 2016-01-27
         return coordinates.toArray(new Point[coordinates.size()]);
     }
 

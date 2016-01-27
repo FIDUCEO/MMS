@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -72,6 +71,13 @@ public class S2PointTest {
         assertEquals(1, coordinates.length);
         assertEquals(90, coordinates[0].getLon(), 1e-8);
         assertEquals(14, coordinates[0].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testToString() {
+        final S2Point s2Point = createS2Point(16, 88);
+
+        assertEquals("POINT(88.0 16.0)", s2Point.toString());
     }
 
     private S2Point createS2Point(int latDegrees, int lngDegrees) {

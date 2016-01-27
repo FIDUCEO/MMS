@@ -63,4 +63,9 @@ class S2Point implements Point{
     public Object getInner() {
         return s2LatLng;
     }
+
+    @Override
+    public String toString() {
+        return "POINT(" + s2LatLng.lngDegrees() + " " + s2LatLng.latDegrees() + ")";
+    }
 }

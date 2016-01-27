@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -21,13 +20,19 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GeometryFactoryTest_S2 {
 
@@ -45,16 +50,16 @@ public class GeometryFactoryTest_S2 {
         assertTrue(geometry instanceof S2Polygon);
 
         assertEquals("Polygon: (1) loops:\n" +
-                "loop <\n" +
-                "(6.0, 1.9999999999999996)\n" +
-                "(4.999999999999999, 1.9999999999999996)\n" +
-                "(4.0, 2.0)\n" +
-                "(3.0000000000000004, 1.9999999999999996)\n" +
-                "(3.000000000000001, 3.0000000000000004)\n" +
-                "(4.0, 3.0000000000000004)\n" +
-                "(4.999999999999999, 3.0000000000000004)\n" +
-                "(6.000000000000001, 3.0000000000000004)\n" +
-                ">\n", geometry.toString());
+                             "loop <\n" +
+                             "(6.0, 1.9999999999999996)\n" +
+                             "(4.999999999999999, 1.9999999999999996)\n" +
+                             "(4.0, 2.0)\n" +
+                             "(3.0000000000000004, 1.9999999999999996)\n" +
+                             "(3.000000000000001, 3.0000000000000004)\n" +
+                             "(4.0, 3.0000000000000004)\n" +
+                             "(4.999999999999999, 3.0000000000000004)\n" +
+                             "(6.000000000000001, 3.0000000000000004)\n" +
+                             ">\n", geometry.toString());
     }
 
     @Test
@@ -93,13 +98,13 @@ public class GeometryFactoryTest_S2 {
         final Polygon polygon = factory.createPolygon(points);
         assertNotNull(polygon);
         assertEquals("Polygon: (1) loops:\n" +
-                "loop <\n" +
-                "(1.9999999999999996, 2.0)\n" +
-                "(2.0, 4.0)\n" +
-                "(4.0, 4.0)\n" +
-                "(4.0, 2.0)\n" +
-                "(1.9999999999999996, 2.0)\n" +
-                ">\n", polygon.toString());
+                             "loop <\n" +
+                             "(1.9999999999999996, 2.0)\n" +
+                             "(2.0, 4.0)\n" +
+                             "(4.0, 4.0)\n" +
+                             "(4.0, 2.0)\n" +
+                             "(1.9999999999999996, 2.0)\n" +
+                             ">\n", polygon.toString());
     }
 
     @Test
