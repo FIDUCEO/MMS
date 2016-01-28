@@ -38,10 +38,11 @@ import java.util.List;
  * degree point (using the shorter connection between them). If the number of crossings is
  * odd the point is inside.
  *
- * @author Martin Boettcher
+ * @author Martin Boettcher, Tom Block
  */
 public class PolarOrbitingPolygon {
 
+    // @todo 2 remove this class 2016-01-27
     public static class Point {
 
         final double lat;

@@ -21,7 +21,12 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.AbstractGeometryFactory;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -153,21 +158,7 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         return new JTSTimeAxis(jtsLineString, startTime, endTime);
     }
 
-    private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
-        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiPolygon) {
-            return new JTSMultiPolygon((com.vividsolutions.jts.geom.MultiPolygon) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-            return new JTSPoint(geometry.getCoordinate());
-        }
-        throw new RuntimeException("Unsupported geometry type");
-    }
-
-    // @todo 3 tb/** make package local and write test 2016-01-12
-    private static Coordinate[] extractCoordinates(List<Point> points) {
+    static Coordinate[] extractCoordinates(List<Point> points) {
         final Coordinate[] coordinates = new Coordinate[points.size()];
 
         for (int i = 0; i < points.size(); i++) {
@@ -197,6 +188,19 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
 
         return geometries.toArray(new com.vividsolutions.jts.geom.Polygon[geometries.size()]);
+    }
+
+    private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
+        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
+            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiPolygon) {
+            return new JTSMultiPolygon((com.vividsolutions.jts.geom.MultiPolygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
+            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
+            return new JTSPoint(geometry.getCoordinate());
+        }
+        throw new RuntimeException("Unsupported geometry type");
     }
 
     private com.vividsolutions.jts.geom.Polygon createCentralGlobe() {

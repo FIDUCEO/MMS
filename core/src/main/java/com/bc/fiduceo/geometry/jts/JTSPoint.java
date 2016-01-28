@@ -63,4 +63,14 @@ class JTSPoint implements Point {
     public double getLat() {
         return coordinate.y;
     }
+
+    @Override
+    public void setLon(double lon) {
+        coordinate.x = lon;
+    }
+
+    @Override
+    public void setLat(double lat) {
+        coordinate.y = lat;
+    }
 }

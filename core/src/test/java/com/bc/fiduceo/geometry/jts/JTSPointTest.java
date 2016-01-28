@@ -63,8 +63,24 @@ public class JTSPointTest {
     }
 
     @Test
+    public void testSetGetLon() {
+        final double lon = 23.9987;
+
+        jtsPoint.setLon(lon);
+        assertEquals(lon, jtsPoint.getLon(), 1e-8);
+    }
+
+    @Test
     public void testGetLat() {
         assertEquals(LAT, jtsPoint.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testSetGetLat() {
+        final double lat = -11.6334;
+
+        jtsPoint.setLat(lat);
+        assertEquals(lat, jtsPoint.getLat(), 1e-8);
     }
 
     @Test

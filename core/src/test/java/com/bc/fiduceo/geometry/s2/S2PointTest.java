@@ -49,10 +49,26 @@ public class S2PointTest {
     }
 
     @Test
+    public void testSetGetLon() {
+        final S2Point s2Point = createS2Point(9.34, 11.665);
+
+        s2Point.setLon(-88.23);
+        assertEquals(-88.23, s2Point.getLon(), 1e-8);
+    }
+
+    @Test
     public void testGetLat() {
         final S2Point s2Point = createS2Point(13, 89);
 
         assertEquals(13, s2Point.getLat(), 1e-8);
+    }
+
+    @Test
+    public void testSetGetLat() {
+        final S2Point s2Point = createS2Point(10.34, 10.665);
+
+        s2Point.setLat(22.667);
+        assertEquals(22.667, s2Point.getLat(), 1e-8);
     }
 
     @Test
@@ -80,7 +96,7 @@ public class S2PointTest {
         assertEquals("POINT(88.0 16.0)", s2Point.toString());
     }
 
-    private S2Point createS2Point(int latDegrees, int lngDegrees) {
+    private S2Point createS2Point(double latDegrees, double lngDegrees) {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(latDegrees, lngDegrees);
         return new S2Point(s2LatLng);
     }
