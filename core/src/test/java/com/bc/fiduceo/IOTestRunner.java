@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -32,9 +31,8 @@ import java.io.InputStream;
 public class IOTestRunner extends BlockJUnit4ClassRunner {
 
     private static final String PROPERTYNAME_EXECUTE_PRODUCT_TESTS = "com.bc.fiduceo.product.tests.execute";
-
-    private boolean executeProductTests;
     private final Class<?> clazz;
+    private boolean executeProductTests;
 
     public IOTestRunner(Class<?> klass) throws InitializationError {
         super(klass);

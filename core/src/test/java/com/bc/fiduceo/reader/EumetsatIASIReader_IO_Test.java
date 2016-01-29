@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("OctalInteger")
 @RunWith(IOTestRunner.class)
@@ -63,7 +61,7 @@ public class EumetsatIASIReader_IO_Test {
 
     @Test
     public void testGeoCoordinate() throws com.vividsolutions.jts.io.ParseException {
-       acquisitionInfo.getCoordinates();
+        acquisitionInfo.getCoordinates();
 
 
     }

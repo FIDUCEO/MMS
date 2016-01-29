@@ -58,7 +58,7 @@ public class JTSLineStringTest {
     }
 
     @Test
-    public void testToString(){
+    public void testToString() {
         when(innerLineString.toString()).thenReturn("yepp!");
 
         assertEquals("yepp!", lineString.toString());

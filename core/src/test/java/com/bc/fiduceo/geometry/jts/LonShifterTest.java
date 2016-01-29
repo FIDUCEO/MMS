@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -41,7 +40,6 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.jts.LonShifter;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.junit.Test;
 

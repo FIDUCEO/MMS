@@ -47,6 +47,7 @@ class BoundingPolygonCreator {
         this.intervalY = interval.getY();
 
         this.geometryFactory = geometryFactory;
+
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {

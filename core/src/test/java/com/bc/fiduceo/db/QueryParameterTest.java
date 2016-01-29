@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 public class QueryParameterTest {
 
     @Test
-    public void testSetGetStartTime(){
+    public void testSetGetStartTime() {
         final Date startTime = new Date(100000000L);
 
         final QueryParameter parameter = new QueryParameter();
@@ -39,7 +39,7 @@ public class QueryParameterTest {
 
 
     @Test
-    public void testSetGetStopTime(){
+    public void testSetGetStopTime() {
         final Date stopTime = new Date(100200000L);
 
         final QueryParameter parameter = new QueryParameter();

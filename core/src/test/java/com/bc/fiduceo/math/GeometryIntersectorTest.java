@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -49,9 +48,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_noGeometricIntersection() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
-                "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
+                                                                              "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((0 5, 0 4, 0 3, 0 2, 1 2, 1 3, 1 4, 1 5, 0 5))",
-                "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
+                                                                              "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         assertNull(timeInfo.getOverlapInterval());
@@ -61,9 +60,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
-                "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
+                                                                              "LINESTRING(2 1,2 2, 2 3, 2 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
-                "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
+                                                                              "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         final TimeInterval timeInterval = timeInfo.getOverlapInterval();
@@ -75,9 +74,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_onSameOrbit_ascendingAndDescending_shiftedLon() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((-4 2, -4 1, -4 0, -4 -1, -4 -2, -3 -2, -3 -1, -3 0, -3 1, -3 2, -4 2))",
-                "LINESTRING(-4 2, -4 1, -4 0, -4 -1, -4 -2)", 1000, 2000);
+                                                                              "LINESTRING(-4 2, -4 1, -4 0, -4 -1, -4 -2)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((-2.5 0, -2.5 1, -2.5 2, -2.5 3, -3.5 3, -3.5 2, -3.5 1, -3.5 0, -2.5 0))",
-                "LINESTRING(-2.5 0, -2.5 1, -2.5 2, -2.5 3)", 1000, 2000);
+                                                                              "LINESTRING(-2.5 0, -2.5 1, -2.5 2, -2.5 3)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         final TimeInterval timeInterval = timeInfo.getOverlapInterval();
@@ -89,9 +88,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_onSameOrbit_bothDescending_noOverlappingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
-                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+                                                                              "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))",
-                "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
+                                                                              "LINESTRING(2 6, 2 5, 2 4, 2 3)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         assertNull(timeInfo.getOverlapInterval());
@@ -101,9 +100,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_onSameOrbit_bothDescending_closerInTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
-                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+                                                                              "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 5, 2 4, 2 3, 2 2, 3 2, 3 3, 3 4, 3 5, 2 5))",
-                "LINESTRING(2 5, 2 4, 2 3, 2 2)", 1000, 2000);
+                                                                              "LINESTRING(2 5, 2 4, 2 3, 2 2)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         final TimeInterval timeInterval = timeInfo.getOverlapInterval();
@@ -115,9 +114,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_onSamePlatform() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
-                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+                                                                              "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
-                "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
+                                                                              "LINESTRING(2 4,2 3, 2 2, 2 1)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         final TimeInterval timeInterval = timeInfo.getOverlapInterval();
@@ -129,9 +128,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_angularIntersection_intersectingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
-                "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1000, 2000);
+                                                                              "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1000, 2000);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
-                "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
+                                                                              "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         final TimeInterval timeInterval = timeInfo.getOverlapInterval();
@@ -143,9 +142,9 @@ public class GeometryIntersectorTest {
     @Test
     public void testGetIntersectionTime_angularIntersection_noIntersectingTime() {
         final SatelliteGeometry satelliteGeometry_1 = createSatelliteGeometry("POLYGON((3 1, 3 2, 3 3, 4 4, 2 4, 2 3, 2 2, 2 1, 3 1))",
-                "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1900, 2900);
+                                                                              "LINESTRING(3 1, 3 2, 3 3, 3 4)", 1900, 2900);
         final SatelliteGeometry satelliteGeometry_2 = createSatelliteGeometry("POLYGON((2 1, 3 2, 4 3, 5 4, 4 5, 3 4, 2 3, 1 2, 2 1))",
-                "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
+                                                                              "LINESTRING(2 1, 3 2, 4 3, 5 4)", 1000, 2000);
 
         final TimeInfo timeInfo = GeometryIntersector.getIntersectingInterval(satelliteGeometry_1, satelliteGeometry_2);
         assertNull(timeInfo.getOverlapInterval());

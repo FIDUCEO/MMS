@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -22,7 +21,6 @@
 package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.httpclient.util.DateUtil;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

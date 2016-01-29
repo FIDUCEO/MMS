@@ -58,7 +58,7 @@ public class SobolSamplingPointGeneratorTest {
         final List<SamplingPoint> samples = generator.createSamples(100, 69845, startTime, stopTime);
 
         assertEquals(100, samples.size());
-        for(final SamplingPoint samplingPoint : samples) {
+        for (final SamplingPoint samplingPoint : samples) {
             final double lon = samplingPoint.getLon();
             assertTrue(lon >= -180.0 && lon <= 180.0);
 
@@ -72,19 +72,19 @@ public class SobolSamplingPointGeneratorTest {
 
     @Test
     public void testCreateTime() {
-         assertEquals(100, SobolSamplingPointGenerator.createTime(0, 100, 200));
-         assertEquals(133, SobolSamplingPointGenerator.createTime(0.33, 100, 200));
-         assertEquals(150, SobolSamplingPointGenerator.createTime(0.5, 100, 200));
-         assertEquals(167, SobolSamplingPointGenerator.createTime(0.67, 100, 200));
-         assertEquals(200, SobolSamplingPointGenerator.createTime(1.0, 100, 200));
+        assertEquals(100, SobolSamplingPointGenerator.createTime(0, 100, 200));
+        assertEquals(133, SobolSamplingPointGenerator.createTime(0.33, 100, 200));
+        assertEquals(150, SobolSamplingPointGenerator.createTime(0.5, 100, 200));
+        assertEquals(167, SobolSamplingPointGenerator.createTime(0.67, 100, 200));
+        assertEquals(200, SobolSamplingPointGenerator.createTime(1.0, 100, 200));
     }
 
     @Test
     public void testCreateLat() {
-         assertEquals(90.0, SobolSamplingPointGenerator.createLat(0.0), 1e-8);
-         assertEquals(54.0, SobolSamplingPointGenerator.createLat(0.2), 1e-8);
-         assertEquals(0.0, SobolSamplingPointGenerator.createLat(0.5), 1e-8);
-         assertEquals(-90.0, SobolSamplingPointGenerator.createLat(1.0), 1e-8);
+        assertEquals(90.0, SobolSamplingPointGenerator.createLat(0.0), 1e-8);
+        assertEquals(54.0, SobolSamplingPointGenerator.createLat(0.2), 1e-8);
+        assertEquals(0.0, SobolSamplingPointGenerator.createLat(0.5), 1e-8);
+        assertEquals(-90.0, SobolSamplingPointGenerator.createLat(1.0), 1e-8);
     }
 
     @Test

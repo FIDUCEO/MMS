@@ -77,8 +77,16 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
 
         final S2Loop s2Loop = new S2Loop(loopPoints);
+        boolean s2LoopValid = s2Loop.isValid();
+        System.out.println("s2LoopValid = " + s2LoopValid);
+
+        List<S2Loop> loopList = new ArrayList<>();
+        loopList.add(s2Loop);
+        boolean loopListValid = com.google.common.geometry.S2Polygon.isValid(loopList);
+        System.out.println("loopListValid = " + loopListValid);
+
         final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
-        return new S2Polygon(googlePolygon);
+        return  new S2Polygon(googlePolygon);
     }
 
     @Override
@@ -95,7 +103,7 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         return new S2TimeAxis(inner, startTime, endTime);
     }
 
-    private static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
+    public static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
         final ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
 
         for (final Point point : points) {

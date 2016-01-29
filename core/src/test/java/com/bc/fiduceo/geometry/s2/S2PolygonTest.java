@@ -19,6 +19,8 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -34,6 +36,7 @@ public class S2PolygonTest {
     private S2WKTReader s2WKTReader;
     private NetcdfFile netcdfFile;
     private AMSU_MHS_L1B_Reader reader;
+
 
     @Before
     public void setUp() throws IOException {
@@ -150,34 +153,19 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void testPolygonIntersectFromFile() throws IOException {
-        Polygon filePolygon = getPolygonFromFile();
-//        com.bc.fiduceo.geometry.Polygon filePolygon = getPolygonFromFile();
-        String s1 = TestUtil.plotPolygon(filePolygon.getCoordinates());
-        assertNotNull(filePolygon);
+    public void testS2PolygonSplit() throws IOException {
+        List<Polygon> polygonHalf = getHalfPolygonFromFile();
+        System.out.println("plotPolygon_first = " + TestUtil.plotMultipoint(polygonHalf.get(0).getCoordinates()));
+        System.out.println("plotPolygon_Second = " + TestUtil.plotMultipoint(polygonHalf.get(1).getCoordinates()));
+    }
 
-        Geometry simplePolygon = createS2Polygon("POLYGON ((-100 50, 0 50, 90 50, 90 -50, 0 -50, -100 -50, -100 50))");
-        assertNotNull(simplePolygon);
-
-        final Geometry intersection = simplePolygon.intersection(filePolygon);
-        assertNotNull(intersection);
-        Point[] coordinates = intersection.getCoordinates();
-        assertEquals(141.0140009848692, coordinates[0].getLon(), 1e-8);
-        assertEquals(-69.69470278654627, coordinates[0].getLat(), 1e-8);
-
-        assertEquals(86.49586285175872, coordinates[49].getLon(), 1e-8);
-        assertEquals(-51.6150312821608, coordinates[49].getLat(), 1e-8);
-
-        assertEquals(-68.4959028168305, coordinates[99].getLat(), 1e-8);
-        assertEquals(148.82660078750632, coordinates[99].getLon(), 1e-8);
-
-
-        com.bc.fiduceo.geometry.GeometryFactory factoryS2 = new GeometryFactory(GeometryFactory.Type.S2);
-        String s = TestUtil.plotPolygon(coordinates);
+    @Test
+    public void splitMock() {
 
     }
 
-    private Polygon getPolygonFromFile() throws IOException {
+    @Test
+    public void getPolygonFromFile() throws IOException {
         Array latitude = null;
         Array longitude = null;
         float latScale = 1;
@@ -195,7 +183,51 @@ public class S2PolygonTest {
         ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
         ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
-        return TestUtil.allBoundingPolygon(arrayLong, arrayLat, NodeType.ASCENDING, GeometryFactory.Type.S2);
+        Polygon filePolygon = TestUtil.allBoundingPoint(arrayLat, arrayLong, NodeType.ASCENDING, GeometryFactory.Type.S2);
+        Point[] coordinates = filePolygon.getCoordinates();
+
+        assertEquals(coordinates[0].getLon(), -97.86539752771206, 1e-8);
+        assertEquals(coordinates[0].getLat(), 21.40989945914043, 1e-8);
+
+        List<Point> points = Arrays.asList(coordinates);
+        boolean validation = TestUtil.checkPointValidation(points);
+
+        assertFalse(validation);
+        List<Polygon> polygons = new ArrayList<>();
+
+        if (!validation) {
+            polygons = TestUtil.halfBoundaryPoints(arrayLat, arrayLong, NodeType.ASCENDING,
+                                                   GeometryFactory.Type.S2);
+        }
+        Polygon firstHalfPolygon = polygons.get(0);
+        Polygon secondHalfPolygon = polygons.get(1);
+
+        String s = TestUtil.plotMultipoint(firstHalfPolygon.getCoordinates());
+        String s_ = TestUtil.plotMultipoint(secondHalfPolygon.getCoordinates());
+
+        assertTrue(TestUtil.checkPointValidation(Arrays.asList(secondHalfPolygon.getCoordinates())));
+        assertTrue(TestUtil.checkPointValidation(Arrays.asList(firstHalfPolygon.getCoordinates())));
+    }
+
+    private List<Polygon> getHalfPolygonFromFile() throws IOException {
+        Array latitude = null;
+        Array longitude = null;
+        float latScale = 1;
+        float longScale = 1;
+        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
+        for (Variable geo : geolocation) {
+            if (geo.getShortName().equals("Latitude")) {
+                latitude = geo.read();
+                latScale = (float) geo.findAttribute("Scale").getNumericValue();
+            } else if (geo.getShortName().equals("Longitude")) {
+                longitude = geo.read();
+                longScale = (float) geo.findAttribute("Scale").getNumericValue();
+            }
+        }
+        ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+
+        return TestUtil.halfBoundaryPoints(arrayLat, arrayLong, NodeType.ASCENDING, GeometryFactory.Type.S2);
     }
 
     private S2Polygon createS2Polygon(String wellKnownText) {

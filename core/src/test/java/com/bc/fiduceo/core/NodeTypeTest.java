@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -36,9 +35,9 @@ public class NodeTypeTest {
 
     @Test
     public void testFromId() {
-         assertEquals(NodeType.ASCENDING, NodeType.fromId(0));
-         assertEquals(NodeType.DESCENDING, NodeType.fromId(1));
-         assertEquals(NodeType.UNDEFINED, NodeType.fromId(2));
-         assertEquals(NodeType.UNDEFINED, NodeType.fromId(9));
+        assertEquals(NodeType.ASCENDING, NodeType.fromId(0));
+        assertEquals(NodeType.DESCENDING, NodeType.fromId(1));
+        assertEquals(NodeType.UNDEFINED, NodeType.fromId(2));
+        assertEquals(NodeType.UNDEFINED, NodeType.fromId(9));
     }
 }

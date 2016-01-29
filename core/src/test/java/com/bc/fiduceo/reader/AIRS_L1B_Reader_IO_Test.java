@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -23,8 +22,8 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Point;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;

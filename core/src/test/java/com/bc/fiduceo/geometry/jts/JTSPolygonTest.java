@@ -21,8 +21,6 @@
 package com.bc.fiduceo.geometry.jts;
 
 import com.bc.fiduceo.geometry.Point;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -71,7 +69,7 @@ public class JTSPolygonTest {
 
     @Test
     public void testGetInner() {
-         assertSame(innerPolygon, polygon.getInner());
+        assertSame(innerPolygon, polygon.getInner());
     }
 
     @Test

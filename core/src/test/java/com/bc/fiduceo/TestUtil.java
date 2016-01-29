@@ -23,7 +23,8 @@ package com.bc.fiduceo;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.geometry.S2LatLng;
+import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.esa.snap.core.datamodel.ProductData;
@@ -121,7 +122,7 @@ public class TestUtil {
         return new File(tempDirPath, TEST_DIRECTORY);
     }
 
-    public static com.bc.fiduceo.geometry.Polygon allBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType, GeometryFactory.Type type) {
+    public static com.bc.fiduceo.geometry.Polygon allBoundingPoint(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType, GeometryFactory.Type type) {
         final int[] shape = arrayLatitude.getShape();
         int width = shape[1] - 1;
         int height = shape[0] - 1;
@@ -195,6 +196,190 @@ public class TestUtil {
         return geometryFactory.createPolygon(coordinates);
     }
 
+    public static List<com.bc.fiduceo.geometry.Polygon> halfBoundaryPoints(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType, GeometryFactory.Type type) {
+        final int[] shape = arrayLatitude.getShape();
+        int width = shape[1] - 1;
+        int height = (shape[0] - 1);
+        int intervalX = 10;
+        int intervalY = 10;
+        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
+        List<Point> coordinatesFirst = new ArrayList<>();
+        List<Point> coordinatesSecond = new ArrayList<>();
+        List<com.bc.fiduceo.geometry.Polygon> polygonList = new ArrayList<>();
+
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+        if (nodeType == NodeType.ASCENDING) {
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(0, x);
+                final double lat = arrayLatitude.get(0, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            timeAxisStart[0] = coordinatesFirst.size();
+            timeAxisEnd[0] = timeAxisStart[0];
+            // First Half
+            int firstHalf = height / 2;
+            for (int y = 0; y < firstHalf; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+                ++timeAxisEnd[0];
+            }
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(firstHalf, x);
+                final double lat = arrayLatitude.get(firstHalf, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = firstHalf; y > 0; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+            if (GeometryFactory.Type.JTS == type) {
+                coordinatesFirst.add(coordinatesFirst.get(0));
+            }
+            if (type == GeometryFactory.Type.S2) {
+                coordinatesFirst.add(coordinatesFirst.get(0));
+            }
+
+            //------ Second half
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(firstHalf, x);
+                final double lat = arrayLatitude.get(firstHalf, x);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = firstHalf; y < height; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(height, x);
+                final double lat = arrayLatitude.get(height, x);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+
+            for (int y = height; y > firstHalf; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            if (GeometryFactory.Type.JTS == type) {
+                coordinatesSecond.add(coordinatesSecond.get(0));
+            }
+        }
+
+        polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
+        polygonList.add(geometryFactory.createPolygon(coordinatesSecond));
+        return polygonList;
+    }
+
+    public static List<com.bc.fiduceo.geometry.Polygon> halfBoundaryPoints(ArrayDouble.D2 arrayLatitude,
+                                                                           ArrayDouble.D2 arrayLongitude,
+                                                                           NodeType nodeType,
+                                                                           GeometryFactory.Type type,
+                                                                          int length) {
+        final int[] shape = arrayLatitude.getShape();
+        int width = shape[1] - 1;
+        int height = (shape[0] - 1);
+        int intervalX = 10;
+        int intervalY = 10;
+        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
+        List<Point> coordinatesFirst = new ArrayList<>();
+        List<Point> coordinatesSecond = new ArrayList<>();
+        List<com.bc.fiduceo.geometry.Polygon> polygonList = new ArrayList<>();
+
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+        if (nodeType == NodeType.ASCENDING) {
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(0, x);
+                final double lat = arrayLatitude.get(0, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            timeAxisStart[0] = coordinatesFirst.size();
+            timeAxisEnd[0] = timeAxisStart[0];
+            // First Half
+            int firstHalf = height / 2;
+            for (int y = 0; y < firstHalf; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+                ++timeAxisEnd[0];
+            }
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(firstHalf, x);
+                final double lat = arrayLatitude.get(firstHalf, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = firstHalf; y > 0; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+            if (GeometryFactory.Type.JTS == type) {
+                coordinatesFirst.add(coordinatesFirst.get(0));
+            }
+            if (type == GeometryFactory.Type.S2) {
+                coordinatesFirst.add(coordinatesFirst.get(0));
+            }
+
+            //------ Second half
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(firstHalf, x);
+                final double lat = arrayLatitude.get(firstHalf, x);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = firstHalf; y < height; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(height, x);
+                final double lat = arrayLatitude.get(height, x);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+
+            for (int y = height; y > firstHalf; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            if (GeometryFactory.Type.JTS == type) {
+                coordinatesSecond.add(coordinatesSecond.get(0));
+            }
+        }
+
+        polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
+        polygonList.add(geometryFactory.createPolygon(coordinatesSecond));
+        return polygonList;
+    }
+
+    public static boolean checkPointValidation(List<Point> coordinatesFirst) {
+        List<S2Point> s2Points = S2GeometryFactory.extractS2Points(coordinatesFirst);
+        S2Loop s2Loop = new S2Loop(s2Points);
+        return s2Loop.isValid();
+    }
+
     public static Coordinate[] getCoordinates(List<Point> points) {
         final Coordinate[] coordinates = new Coordinate[points.size()];
         for (int i = 0; i < points.size(); i++) {
@@ -204,13 +389,9 @@ public class TestUtil {
         return coordinates;
     }
 
-    public static S2Point createS2Point(double lon, double lat) {
-        return S2LatLng.fromDegrees(lat, lon).toPoint();
-    }
-
-    public static String plotPolygon(Point[] points) {
+    public static String plotMultipoint(Point[] points) {
         final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("POLYGON((");
+        stringBuffer.append("MULTIPOINT(");
 
         for (int i = 0; i < points.length; i++) {
             Point coordinate = points[i];
@@ -221,11 +402,7 @@ public class TestUtil {
                 stringBuffer.append(",");
             }
         }
-        stringBuffer.append(",");
-        stringBuffer.append(points[0].getLon());
-        stringBuffer.append(" ");
-        stringBuffer.append(points[0].getLat());
-        stringBuffer.append("))");
+        stringBuffer.append(")");
 
         System.out.println(stringBuffer.toString());
         return stringBuffer.toString();
@@ -240,6 +417,10 @@ public class TestUtil {
             arrayDouble.setDouble(i, ((coordinates[i] * scale)));
         }
         return (ArrayDouble.D2) arrayDouble.copy();
+    }
+
+    public void splitPolygon(List<Point> points) {
+
     }
 
 }

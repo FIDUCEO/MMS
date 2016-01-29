@@ -17,9 +17,18 @@
 package com.google.common.geometry;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultimap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -29,20 +38,20 @@ import java.util.logging.Logger;
  * left side of the loop. Loops may be specified in any order. A point is
  * defined to be inside the polygon if it is contained by an odd number of
  * loops.
- * <p>
+ * <p/>
  * Polygons have the following restrictions:
- * <p>
+ * <p/>
  * - Loops may not cross, i.e. the boundary of a loop may not intersect both
  * the interior and exterior of any other loop.
- * <p>
+ * <p/>
  * - Loops may not share edges, i.e. if a loop contains an edge AB, then no
  * other loop may contain AB or BA.
- * <p>
+ * <p/>
  * - No loop may cover more than half the area of the sphere. This ensures that
  * no loop properly contains the complement of any other loop, even if the loops
  * are from different polygons. (Loops that represent exact hemispheres are
  * allowed.)
- * <p>
+ * <p/>
  * Loops may share vertices, however no vertex may appear twice in a single
  * loop.
  */
@@ -100,6 +109,265 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         for (int i = 0; i < src.numLoops(); ++i) {
             loops.add(new S2Loop(src.loop(i)));
         }
+    }
+
+    /**
+     * Return true if the given loops form a valid polygon. Assumes that that all
+     * of the given loops have already been validated.
+     */
+    public static boolean isValid(final List<S2Loop> loops) {
+        // If a loop contains an edge AB, then no other loop may contain AB or BA.
+        // We only need this test if there are at least two loops, assuming that
+        // each loop has already been validated.
+        if (loops.size() > 1) {
+            Map<UndirectedEdge, LoopVertexIndexPair> edges = Maps.newHashMap();
+            for (int i = 0; i < loops.size(); ++i) {
+                S2Loop lp = loops.get(i);
+                for (int j = 0; j < lp.numVertices(); ++j) {
+                    UndirectedEdge key = new UndirectedEdge(lp.vertex(j), lp.vertex(j + 1));
+                    LoopVertexIndexPair value = new LoopVertexIndexPair(i, j);
+                    if (edges.containsKey(key)) {
+                        LoopVertexIndexPair other = edges.get(key);
+                        log.info(
+                                "Duplicate edge: loop " + i + ", edge " + j + " and loop " + other.getLoopIndex()
+                                        + ", edge " + other.getVertexIndex());
+                        return false;
+                    } else {
+                        edges.put(key, value);
+                    }
+                }
+            }
+        }
+
+        // Verify that no loop covers more than half of the sphere, and that no
+        // two loops cross.
+        for (int i = 0; i < loops.size(); ++i) {
+            if (!loops.get(i).isNormalized()) {
+                log.info("Loop " + i + " encloses more than half the sphere");
+                return false;
+            }
+            for (int j = i + 1; j < loops.size(); ++j) {
+                // This test not only checks for edge crossings, it also detects
+                // cases where the two boundaries cross at a shared vertex.
+                if (loops.get(i).containsOrCrosses(loops.get(j)) < 0) {
+                    log.info("Loop " + i + " crosses loop " + j);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static void addIntersection(S2Point a0,
+                                        S2Point a1,
+                                        S2Point b0,
+                                        S2Point b1,
+                                        boolean addSharedEdges,
+                                        int crossing,
+                                        List<ParametrizedS2Point> intersections) {
+        if (crossing > 0) {
+            // There is a proper edge crossing.
+            S2Point x = S2EdgeUtil.getIntersection(a0, a1, b0, b1);
+            double t = S2EdgeUtil.getDistanceFraction(x, a0, a1);
+            intersections.add(new ParametrizedS2Point(t, x));
+        } else if (S2EdgeUtil.vertexCrossing(a0, a1, b0, b1)) {
+            // There is a crossing at one of the vertices. The basic rule is simple:
+            // if a0 equals one of the "b" vertices, the crossing occurs at t=0;
+            // otherwise, it occurs at t=1.
+            //
+            // This has the effect that when two symmetric edges are encountered (an
+            // edge an its reverse), neither one is included in the output. When two
+            // duplicate edges are encountered, both are included in the output. The
+            // "addSharedEdges" flag allows one of these two copies to be removed by
+            // changing its intersection parameter from 0 to 1.
+            double t = (a0 == b0 || a0 == b1) ? 0 : 1;
+            if (!addSharedEdges && a1 == b1) {
+                t = 1;
+            }
+            intersections.add(new ParametrizedS2Point(t, t == 0 ? a0 : a1));
+        }
+    }
+
+    /**
+     * Find all points where the polygon B intersects the edge (a0,a1), and add
+     * the corresponding parameter values (in the range [0,1]) to "intersections".
+     */
+    private static void clipEdge(final S2Point a0, final S2Point a1, S2LoopSequenceIndex bIndex,
+                                 boolean addSharedEdges, List<ParametrizedS2Point> intersections) {
+        S2LoopSequenceIndex.DataEdgeIterator it = new S2LoopSequenceIndex.DataEdgeIterator(bIndex);
+        it.getCandidates(a0, a1);
+        S2EdgeUtil.EdgeCrosser crosser = new S2EdgeUtil.EdgeCrosser(a0, a1, a0);
+        S2Point from = null;
+        S2Point to = null;
+        for (; it.hasNext(); it.next()) {
+            S2Point previousTo = to;
+            S2Edge fromTo = bIndex.edgeFromTo(it.index());
+            from = fromTo.getStart();
+            to = fromTo.getEnd();
+            if (previousTo != from) {
+                crosser.restartAt(from);
+            }
+            int crossing = crosser.robustCrossing(to);
+            if (crossing < 0) {
+                continue;
+            }
+            addIntersection(a0, a1, from, to, addSharedEdges, crossing, intersections);
+        }
+    }
+
+    /**
+     * Clip the boundary of A to the interior of B, and add the resulting edges to
+     * "builder". Shells are directed CCW and holes are directed clockwise, unless
+     * "reverseA" or "reverseB" is true in which case these directions in the
+     * corresponding polygon are reversed. If "invertB" is true, the boundary of A
+     * is clipped to the exterior rather than the interior of B. If
+     * "adSharedEdges" is true, then the output will include any edges that are
+     * shared between A and B (both edges must be in the same direction after any
+     * edge reversals are taken into account).
+     */
+    private static void clipBoundary(final S2Polygon a,
+                                     boolean reverseA,
+                                     final S2Polygon b,
+                                     boolean reverseB,
+                                     boolean invertB,
+                                     boolean addSharedEdges,
+                                     S2PolygonBuilder builder) {
+        S2PolygonIndex bIndex = new S2PolygonIndex(b, reverseB);
+        bIndex.predictAdditionalCalls(a.getNumVertices());
+
+        List<ParametrizedS2Point> intersections = Lists.newArrayList();
+        for (S2Loop aLoop : a.loops) {
+            int n = aLoop.numVertices();
+            int dir = (aLoop.isHole() ^ reverseA) ? -1 : 1;
+            boolean inside = b.contains(aLoop.vertex(0)) ^ invertB;
+            for (int j = (dir > 0) ? 0 : n; n > 0; --n, j += dir) {
+                S2Point a0 = aLoop.vertex(j);
+                S2Point a1 = aLoop.vertex(j + dir);
+                intersections.clear();
+                clipEdge(a0, a1, bIndex, addSharedEdges, intersections);
+
+                if (inside) {
+                    intersections.add(new ParametrizedS2Point(0.0, a0));
+                }
+                inside = ((intersections.size() & 0x1) == 0x1);
+                // assert ((b.contains(a1) ^ invertB) == inside);
+                if (inside) {
+                    intersections.add(new ParametrizedS2Point(1.0, a1));
+                }
+
+                // Remove duplicates and produce a list of unique intersections.
+                Collections.sort(intersections);
+                for (int size = intersections.size(), i = 1; i < size; i += 2) {
+                    builder.addEdge(intersections.get(i - 1).getPoint(), intersections.get(i).getPoint());
+                }
+            }
+        }
+    }
+
+    /**
+     * Return a polygon which is the union of the given polygons. Note: clears the
+     * List!
+     */
+    public static S2Polygon destructiveUnion(List<S2Polygon> polygons) {
+        return destructiveUnionSloppy(polygons, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
+    }
+
+    /**
+     * Return a polygon which is the union of the given polygons; combines
+     * vertices that form edges that are almost identical, as defined by
+     * vertexMergeRadius. Note: clears the List!
+     */
+    public static S2Polygon destructiveUnionSloppy(
+            List<S2Polygon> polygons, S1Angle vertexMergeRadius) {
+        // Effectively create a priority queue of polygons in order of number of
+        // vertices. Repeatedly union the two smallest polygons and add the result
+        // to the queue until we have a single polygon to return.
+
+        // map: # of vertices -> polygon
+        TreeMultimap<Integer, S2Polygon> queue = TreeMultimap.create();
+
+        for (S2Polygon polygon : polygons) {
+            queue.put(polygon.getNumVertices(), polygon);
+        }
+        polygons.clear();
+
+        Set<Map.Entry<Integer, S2Polygon>> queueSet = queue.entries();
+        while (queueSet.size() > 1) {
+            // Pop two simplest polygons from queue.
+            queueSet = queue.entries();
+            Iterator<Map.Entry<Integer, S2Polygon>> smallestIter = queueSet.iterator();
+
+            Map.Entry<Integer, S2Polygon> smallest = smallestIter.next();
+            int aSize = smallest.getKey().intValue();
+            S2Polygon aPolygon = smallest.getValue();
+            smallestIter.remove();
+
+            smallest = smallestIter.next();
+            int bSize = smallest.getKey().intValue();
+            S2Polygon bPolygon = smallest.getValue();
+            smallestIter.remove();
+
+            // Union and add result back to queue.
+            S2Polygon unionPolygon = new S2Polygon();
+            unionPolygon.initToUnionSloppy(aPolygon, bPolygon, vertexMergeRadius);
+            int unionSize = aSize + bSize;
+            queue.put(unionSize, unionPolygon);
+            // We assume that the number of vertices in the union polygon is the
+            // sum of the number of vertices in the original polygons, which is not
+            // always true, but will almost always be a decent approximation, and
+            // faster than recomputing.
+        }
+
+        if (queue.isEmpty()) {
+            return new S2Polygon();
+        } else {
+            return queue.get(queue.asMap().firstKey()).first();
+        }
+    }
+
+    // For each map entry, sorts the value list.
+    private static void sortValueLoops(Map<S2Loop, List<S2Loop>> loopMap) {
+        for (S2Loop key : loopMap.keySet()) {
+            Collections.sort(loopMap.get(key));
+        }
+    }
+
+    private static void insertLoop(S2Loop newLoop, S2Loop parent, Map<S2Loop, List<S2Loop>> loopMap) {
+        List<S2Loop> children = loopMap.get(parent);
+
+        if (children == null) {
+            children = Lists.newArrayList();
+            loopMap.put(parent, children);
+        }
+
+        for (S2Loop child : children) {
+            if (child.containsNested(newLoop)) {
+                insertLoop(newLoop, child, loopMap);
+                return;
+            }
+        }
+
+        // No loop may contain the complement of another loop. (Handling this case
+        // is significantly more complicated.)
+        // assert (parent == null || !newLoop.containsNested(parent));
+
+        // Some of the children of the parent loop may now be children of
+        // the new loop.
+        List<S2Loop> newChildren = loopMap.get(newLoop);
+        for (int i = 0; i < children.size(); ) {
+            S2Loop child = children.get(i);
+            if (newLoop.containsNested(child)) {
+                if (newChildren == null) {
+                    newChildren = Lists.newArrayList();
+                    loopMap.put(newLoop, newChildren);
+                }
+                newChildren.add(child);
+                children.remove(i);
+            } else {
+                ++i;
+            }
+        }
+        children.add(newLoop);
     }
 
     /**
@@ -188,53 +456,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         numVertices = 0;
     }
 
-    /**
-     * Return true if the given loops form a valid polygon. Assumes that that all
-     * of the given loops have already been validated.
-     */
-    public static boolean isValid(final List<S2Loop> loops) {
-        // If a loop contains an edge AB, then no other loop may contain AB or BA.
-        // We only need this test if there are at least two loops, assuming that
-        // each loop has already been validated.
-        if (loops.size() > 1) {
-            Map<UndirectedEdge, LoopVertexIndexPair> edges = Maps.newHashMap();
-            for (int i = 0; i < loops.size(); ++i) {
-                S2Loop lp = loops.get(i);
-                for (int j = 0; j < lp.numVertices(); ++j) {
-                    UndirectedEdge key = new UndirectedEdge(lp.vertex(j), lp.vertex(j + 1));
-                    LoopVertexIndexPair value = new LoopVertexIndexPair(i, j);
-                    if (edges.containsKey(key)) {
-                        LoopVertexIndexPair other = edges.get(key);
-                        log.info(
-                                "Duplicate edge: loop " + i + ", edge " + j + " and loop " + other.getLoopIndex()
-                                        + ", edge " + other.getVertexIndex());
-                        return false;
-                    } else {
-                        edges.put(key, value);
-                    }
-                }
-            }
-        }
-
-        // Verify that no loop covers more than half of the sphere, and that no
-        // two loops cross.
-        for (int i = 0; i < loops.size(); ++i) {
-            if (!loops.get(i).isNormalized()) {
-                log.info("Loop " + i + " encloses more than half the sphere");
-                return false;
-            }
-            for (int j = i + 1; j < loops.size(); ++j) {
-                // This test not only checks for edge crossings, it also detects
-                // cases where the two boundaries cross at a shared vertex.
-                if (loops.get(i).containsOrCrosses(loops.get(j)) < 0) {
-                    log.info("Loop " + i + " crosses loop " + j);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public int numLoops() {
         return loops.size();
     }
@@ -288,8 +509,8 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
                 S2Point currentCentroid = areaCentroid.getCentroid();
                 centroidSum =
                         new S2Point(centroidSum.x + loopSign * currentCentroid.x,
-                                centroidSum.y + loopSign * currentCentroid.y,
-                                centroidSum.z + loopSign * currentCentroid.z);
+                                    centroidSum.y + loopSign * currentCentroid.y,
+                                    centroidSum.z + loopSign * currentCentroid.z);
             }
         }
 
@@ -329,7 +550,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
      * angle formed between P, the origin and the nearest point on the polygon to
      * P. This angle in radians is equivalent to the arclength along the unit
      * sphere.
-     * <p>
+     * <p/>
      * If the point is contained inside the polygon, the distance returned is 0.
      */
     public S1Angle getDistance(S2Point p) {
@@ -346,7 +567,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
 
         return minDistance;
     }
-
 
     /**
      * Return true if this polygon contains the given other polygon, i.e. if
@@ -514,229 +734,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Indexing structure to efficiently clipEdge() of a polygon. This is an
-     * abstract class because we need to use if for both polygons (for
-     * initToIntersection() and friends) and for sets of lists of points (for
-     * initToSimplified()).
-     * <p>
-     * Usage -- in your subclass, create an array of vertex counts for each loop
-     * in the loop sequence and pass it to this constructor. Overwrite
-     * edgeFromTo(), calling decodeIndex() and use the resulting two indices to
-     * access your accessing vertices.
-     */
-    private abstract static class S2LoopSequenceIndex extends S2EdgeIndex {
-        /**
-         * Map from the unidimensional edge index to the loop this edge belongs to.
-         */
-        private final int[] indexToLoop;
-
-        /**
-         * Reverse of indexToLoop: maps a loop index to the unidimensional index
-         * of the first edge in the loop.
-         */
-        private final int[] loopToFirstIndex;
-
-        /**
-         * Must be called by each subclass with the array of vertices per loop. The
-         * length of the array is the number of loops, and the <code>i</code>
-         * <sup>th</sup> loop's vertex count is in the <code>i</code>
-         * <sup>th</sup> index of the array.
-         */
-        public S2LoopSequenceIndex(int[] numVertices) {
-            int totalEdges = 0;
-            for (int edges : numVertices) {
-                totalEdges += edges;
-            }
-            indexToLoop = new int[totalEdges];
-            loopToFirstIndex = new int[numVertices.length];
-
-            totalEdges = 0;
-            for (int j = 0; j < numVertices.length; j++) {
-                loopToFirstIndex[j] = totalEdges;
-                for (int i = 0; i < numVertices[j]; i++) {
-                    indexToLoop[totalEdges] = j;
-                    totalEdges++;
-                }
-            }
-        }
-
-        public final LoopVertexIndexPair decodeIndex(int index) {
-            int loopIndex = indexToLoop[index];
-            int vertexInLoop = index - loopToFirstIndex[loopIndex];
-            return new LoopVertexIndexPair(loopIndex, vertexInLoop);
-        }
-
-        // It is faster to return both vertices at once. It makes a difference
-        // for small polygons.
-        public abstract S2Edge edgeFromTo(int index);
-
-        @Override
-        public final int getNumEdges() {
-            return indexToLoop.length;
-        }
-
-        @Override
-        public S2Point edgeFrom(int index) {
-            S2Edge fromTo = edgeFromTo(index);
-            S2Point from = fromTo.getStart();
-            return from;
-        }
-
-        @Override
-        protected S2Point edgeTo(int index) {
-            S2Edge fromTo = edgeFromTo(index);
-            S2Point to = fromTo.getEnd();
-            return to;
-        }
-    }
-
-    // Indexing structure for an S2Polygon.
-    private static final class S2PolygonIndex extends S2LoopSequenceIndex {
-        private final S2Polygon poly;
-        private final boolean reverse;
-
-        private static int[] getVertices(S2Polygon poly) {
-            int[] vertices = new int[poly.numLoops()];
-            for (int i = 0; i < vertices.length; i++) {
-                vertices[i] = poly.loop(i).numVertices();
-            }
-            return vertices;
-        }
-
-        public S2PolygonIndex(S2Polygon poly, boolean reverse) {
-            super(getVertices(poly));
-            this.poly = poly;
-            this.reverse = reverse;
-        }
-
-        @Override
-        public S2Edge edgeFromTo(int index) {
-            LoopVertexIndexPair indices = decodeIndex(index);
-            int loopIndex = indices.getLoopIndex();
-            int vertexInLoop = indices.getVertexIndex();
-            S2Loop loop = poly.loop(loopIndex);
-            int fromIndex;
-            int toIndex;
-            if (loop.isHole() ^ reverse) {
-                fromIndex = loop.numVertices() - 1 - vertexInLoop;
-                toIndex = 2 * loop.numVertices() - 2 - vertexInLoop;
-            } else {
-                fromIndex = vertexInLoop;
-                toIndex = vertexInLoop + 1;
-            }
-            S2Point from = loop.vertex(fromIndex);
-            S2Point to = loop.vertex(toIndex);
-            return new S2Edge(from, to);
-        }
-    }
-
-    private static void addIntersection(S2Point a0,
-                                        S2Point a1,
-                                        S2Point b0,
-                                        S2Point b1,
-                                        boolean addSharedEdges,
-                                        int crossing,
-                                        List<ParametrizedS2Point> intersections) {
-        if (crossing > 0) {
-            // There is a proper edge crossing.
-            S2Point x = S2EdgeUtil.getIntersection(a0, a1, b0, b1);
-            double t = S2EdgeUtil.getDistanceFraction(x, a0, a1);
-            intersections.add(new ParametrizedS2Point(t, x));
-        } else if (S2EdgeUtil.vertexCrossing(a0, a1, b0, b1)) {
-            // There is a crossing at one of the vertices. The basic rule is simple:
-            // if a0 equals one of the "b" vertices, the crossing occurs at t=0;
-            // otherwise, it occurs at t=1.
-            //
-            // This has the effect that when two symmetric edges are encountered (an
-            // edge an its reverse), neither one is included in the output. When two
-            // duplicate edges are encountered, both are included in the output. The
-            // "addSharedEdges" flag allows one of these two copies to be removed by
-            // changing its intersection parameter from 0 to 1.
-            double t = (a0 == b0 || a0 == b1) ? 0 : 1;
-            if (!addSharedEdges && a1 == b1) {
-                t = 1;
-            }
-            intersections.add(new ParametrizedS2Point(t, t == 0 ? a0 : a1));
-        }
-    }
-
-    /**
-     * Find all points where the polygon B intersects the edge (a0,a1), and add
-     * the corresponding parameter values (in the range [0,1]) to "intersections".
-     */
-    private static void clipEdge(final S2Point a0, final S2Point a1, S2LoopSequenceIndex bIndex,
-                                 boolean addSharedEdges, List<ParametrizedS2Point> intersections) {
-        S2LoopSequenceIndex.DataEdgeIterator it = new S2LoopSequenceIndex.DataEdgeIterator(bIndex);
-        it.getCandidates(a0, a1);
-        S2EdgeUtil.EdgeCrosser crosser = new S2EdgeUtil.EdgeCrosser(a0, a1, a0);
-        S2Point from = null;
-        S2Point to = null;
-        for (; it.hasNext(); it.next()) {
-            S2Point previousTo = to;
-            S2Edge fromTo = bIndex.edgeFromTo(it.index());
-            from = fromTo.getStart();
-            to = fromTo.getEnd();
-            if (previousTo != from) {
-                crosser.restartAt(from);
-            }
-            int crossing = crosser.robustCrossing(to);
-            if (crossing < 0) {
-                continue;
-            }
-            addIntersection(a0, a1, from, to, addSharedEdges, crossing, intersections);
-        }
-    }
-
-    /**
-     * Clip the boundary of A to the interior of B, and add the resulting edges to
-     * "builder". Shells are directed CCW and holes are directed clockwise, unless
-     * "reverseA" or "reverseB" is true in which case these directions in the
-     * corresponding polygon are reversed. If "invertB" is true, the boundary of A
-     * is clipped to the exterior rather than the interior of B. If
-     * "adSharedEdges" is true, then the output will include any edges that are
-     * shared between A and B (both edges must be in the same direction after any
-     * edge reversals are taken into account).
-     */
-    private static void clipBoundary(final S2Polygon a,
-                                     boolean reverseA,
-                                     final S2Polygon b,
-                                     boolean reverseB,
-                                     boolean invertB,
-                                     boolean addSharedEdges,
-                                     S2PolygonBuilder builder) {
-        S2PolygonIndex bIndex = new S2PolygonIndex(b, reverseB);
-        bIndex.predictAdditionalCalls(a.getNumVertices());
-
-        List<ParametrizedS2Point> intersections = Lists.newArrayList();
-        for (S2Loop aLoop : a.loops) {
-            int n = aLoop.numVertices();
-            int dir = (aLoop.isHole() ^ reverseA) ? -1 : 1;
-            boolean inside = b.contains(aLoop.vertex(0)) ^ invertB;
-            for (int j = (dir > 0) ? 0 : n; n > 0; --n, j += dir) {
-                S2Point a0 = aLoop.vertex(j);
-                S2Point a1 = aLoop.vertex(j + dir);
-                intersections.clear();
-                clipEdge(a0, a1, bIndex, addSharedEdges, intersections);
-
-                if (inside) {
-                    intersections.add(new ParametrizedS2Point(0.0, a0));
-                }
-                inside = ((intersections.size() & 0x1) == 0x1);
-                // assert ((b.contains(a1) ^ invertB) == inside);
-                if (inside) {
-                    intersections.add(new ParametrizedS2Point(1.0, a1));
-                }
-
-                // Remove duplicates and produce a list of unique intersections.
-                Collections.sort(intersections);
-                for (int size = intersections.size(), i = 1; i < size; i += 2) {
-                    builder.addEdge(intersections.get(i - 1).getPoint(), intersections.get(i).getPoint());
-                }
-            }
-        }
-    }
-
-    /**
      * Returns total number of vertices in all loops.
      */
     public int getNumVertices() {
@@ -751,7 +748,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
      * default, the merge radius is just large enough to compensate for errors
      * that occur when computing intersection points between edges
      * (S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE).
-     * <p>
+     * <p/>
      * If you are going to convert the resulting polygon to a lower-precision
      * format, it is necessary to increase the merge radius in order to get a
      * valid result after rounding (i.e. no duplicate vertices, etc). For example,
@@ -776,8 +773,8 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         S2PolygonBuilder.Options options = S2PolygonBuilder.Options.DIRECTED_XOR;
         options.setMergeDistance(vertexMergeRadius);
         S2PolygonBuilder builder = new S2PolygonBuilder(options);
-        clipBoundary(a, false, b, false, false, true, builder);
-        clipBoundary(b, false, a, false, false, false, builder);
+        clipBoundary(a, false, b, false, true, true, builder);
+        clipBoundary(b, false, a, false, true, false, builder);
         if (!builder.assemblePolygon(this, null)) {
             // TODO (andriy): do something more meaningful here.
             log.severe("Bad directed edges");
@@ -803,67 +800,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         if (!builder.assemblePolygon(this, null)) {
             // TODO(andriy): do something more meaningful here.
             log.severe("Bad directed edges");
-        }
-    }
-
-    /**
-     * Return a polygon which is the union of the given polygons. Note: clears the
-     * List!
-     */
-    public static S2Polygon destructiveUnion(List<S2Polygon> polygons) {
-        return destructiveUnionSloppy(polygons, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
-    }
-
-    /**
-     * Return a polygon which is the union of the given polygons; combines
-     * vertices that form edges that are almost identical, as defined by
-     * vertexMergeRadius. Note: clears the List!
-     */
-    public static S2Polygon destructiveUnionSloppy(
-            List<S2Polygon> polygons, S1Angle vertexMergeRadius) {
-        // Effectively create a priority queue of polygons in order of number of
-        // vertices. Repeatedly union the two smallest polygons and add the result
-        // to the queue until we have a single polygon to return.
-
-        // map: # of vertices -> polygon
-        TreeMultimap<Integer, S2Polygon> queue = TreeMultimap.create();
-
-        for (S2Polygon polygon : polygons) {
-            queue.put(polygon.getNumVertices(), polygon);
-        }
-        polygons.clear();
-
-        Set<Map.Entry<Integer, S2Polygon>> queueSet = queue.entries();
-        while (queueSet.size() > 1) {
-            // Pop two simplest polygons from queue.
-            queueSet = queue.entries();
-            Iterator<Map.Entry<Integer, S2Polygon>> smallestIter = queueSet.iterator();
-
-            Map.Entry<Integer, S2Polygon> smallest = smallestIter.next();
-            int aSize = smallest.getKey().intValue();
-            S2Polygon aPolygon = smallest.getValue();
-            smallestIter.remove();
-
-            smallest = smallestIter.next();
-            int bSize = smallest.getKey().intValue();
-            S2Polygon bPolygon = smallest.getValue();
-            smallestIter.remove();
-
-            // Union and add result back to queue.
-            S2Polygon unionPolygon = new S2Polygon();
-            unionPolygon.initToUnionSloppy(aPolygon, bPolygon, vertexMergeRadius);
-            int unionSize = aSize + bSize;
-            queue.put(unionSize, unionPolygon);
-            // We assume that the number of vertices in the union polygon is the
-            // sum of the number of vertices in the original polygons, which is not
-            // always true, but will almost always be a decent approximation, and
-            // faster than recomputing.
-        }
-
-        if (queue.isEmpty()) {
-            return new S2Polygon();
-        } else {
-            return queue.get(queue.asMap().firstKey()).first();
         }
     }
 
@@ -1008,51 +944,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         return inside;
     }
 
-    // For each map entry, sorts the value list.
-    private static void sortValueLoops(Map<S2Loop, List<S2Loop>> loopMap) {
-        for (S2Loop key : loopMap.keySet()) {
-            Collections.sort(loopMap.get(key));
-        }
-    }
-
-    private static void insertLoop(S2Loop newLoop, S2Loop parent, Map<S2Loop, List<S2Loop>> loopMap) {
-        List<S2Loop> children = loopMap.get(parent);
-
-        if (children == null) {
-            children = Lists.newArrayList();
-            loopMap.put(parent, children);
-        }
-
-        for (S2Loop child : children) {
-            if (child.containsNested(newLoop)) {
-                insertLoop(newLoop, child, loopMap);
-                return;
-            }
-        }
-
-        // No loop may contain the complement of another loop. (Handling this case
-        // is significantly more complicated.)
-        // assert (parent == null || !newLoop.containsNested(parent));
-
-        // Some of the children of the parent loop may now be children of
-        // the new loop.
-        List<S2Loop> newChildren = loopMap.get(newLoop);
-        for (int i = 0; i < children.size(); ) {
-            S2Loop child = children.get(i);
-            if (newLoop.containsNested(child)) {
-                if (newChildren == null) {
-                    newChildren = Lists.newArrayList();
-                    loopMap.put(newLoop, newChildren);
-                }
-                newChildren.add(child);
-                children.remove(i);
-            } else {
-                ++i;
-            }
-        }
-        children.add(newLoop);
-    }
-
     private void initLoop(S2Loop loop, int depth, Map<S2Loop, List<S2Loop>> loopMap) {
         if (loop != null) {
             loop.setDepth(depth);
@@ -1161,6 +1052,123 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         return sb.toString();
     }
 
+    /**
+     * Indexing structure to efficiently clipEdge() of a polygon. This is an
+     * abstract class because we need to use if for both polygons (for
+     * initToIntersection() and friends) and for sets of lists of points (for
+     * initToSimplified()).
+     * <p/>
+     * Usage -- in your subclass, create an array of vertex counts for each loop
+     * in the loop sequence and pass it to this constructor. Overwrite
+     * edgeFromTo(), calling decodeIndex() and use the resulting two indices to
+     * access your accessing vertices.
+     */
+    private abstract static class S2LoopSequenceIndex extends S2EdgeIndex {
+        /**
+         * Map from the unidimensional edge index to the loop this edge belongs to.
+         */
+        private final int[] indexToLoop;
+
+        /**
+         * Reverse of indexToLoop: maps a loop index to the unidimensional index
+         * of the first edge in the loop.
+         */
+        private final int[] loopToFirstIndex;
+
+        /**
+         * Must be called by each subclass with the array of vertices per loop. The
+         * length of the array is the number of loops, and the <code>i</code>
+         * <sup>th</sup> loop's vertex count is in the <code>i</code>
+         * <sup>th</sup> index of the array.
+         */
+        public S2LoopSequenceIndex(int[] numVertices) {
+            int totalEdges = 0;
+            for (int edges : numVertices) {
+                totalEdges += edges;
+            }
+            indexToLoop = new int[totalEdges];
+            loopToFirstIndex = new int[numVertices.length];
+
+            totalEdges = 0;
+            for (int j = 0; j < numVertices.length; j++) {
+                loopToFirstIndex[j] = totalEdges;
+                for (int i = 0; i < numVertices[j]; i++) {
+                    indexToLoop[totalEdges] = j;
+                    totalEdges++;
+                }
+            }
+        }
+
+        public final LoopVertexIndexPair decodeIndex(int index) {
+            int loopIndex = indexToLoop[index];
+            int vertexInLoop = index - loopToFirstIndex[loopIndex];
+            return new LoopVertexIndexPair(loopIndex, vertexInLoop);
+        }
+
+        // It is faster to return both vertices at once. It makes a difference
+        // for small polygons.
+        public abstract S2Edge edgeFromTo(int index);
+
+        @Override
+        public final int getNumEdges() {
+            return indexToLoop.length;
+        }
+
+        @Override
+        public S2Point edgeFrom(int index) {
+            S2Edge fromTo = edgeFromTo(index);
+            S2Point from = fromTo.getStart();
+            return from;
+        }
+
+        @Override
+        protected S2Point edgeTo(int index) {
+            S2Edge fromTo = edgeFromTo(index);
+            S2Point to = fromTo.getEnd();
+            return to;
+        }
+    }
+
+    // Indexing structure for an S2Polygon.
+    private static final class S2PolygonIndex extends S2LoopSequenceIndex {
+        private final S2Polygon poly;
+        private final boolean reverse;
+
+        public S2PolygonIndex(S2Polygon poly, boolean reverse) {
+            super(getVertices(poly));
+            this.poly = poly;
+            this.reverse = reverse;
+        }
+
+        private static int[] getVertices(S2Polygon poly) {
+            int[] vertices = new int[poly.numLoops()];
+            for (int i = 0; i < vertices.length; i++) {
+                vertices[i] = poly.loop(i).numVertices();
+            }
+            return vertices;
+        }
+
+        @Override
+        public S2Edge edgeFromTo(int index) {
+            LoopVertexIndexPair indices = decodeIndex(index);
+            int loopIndex = indices.getLoopIndex();
+            int vertexInLoop = indices.getVertexIndex();
+            S2Loop loop = poly.loop(loopIndex);
+            int fromIndex;
+            int toIndex;
+            if (loop.isHole() ^ reverse) {
+                fromIndex = loop.numVertices() - 1 - vertexInLoop;
+                toIndex = 2 * loop.numVertices() - 2 - vertexInLoop;
+            } else {
+                fromIndex = vertexInLoop;
+                toIndex = vertexInLoop + 1;
+            }
+            S2Point from = loop.vertex(fromIndex);
+            S2Point to = loop.vertex(toIndex);
+            return new S2Edge(from, to);
+        }
+    }
+
     private static final class UndirectedEdge {
         // Note: An UndirectedEdge and an S2Edge can never be considered equal (in
         // terms of the equals() method) and hence they re not be related types.
@@ -1186,7 +1194,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         @Override
         public String toString() {
             return String.format("Edge: (%s <-> %s)\n   or [%s <-> %s]",
-                    a.toDegreesString(), b.toDegreesString(), a, b);
+                                 a.toDegreesString(), b.toDegreesString(), a, b);
         }
 
         @Override
