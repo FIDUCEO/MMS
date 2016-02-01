@@ -80,6 +80,10 @@ class IngestionTool {
         File[] searchFilesResult = getSearchResult(systemConfig, sensorType.toLowerCase());
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
+
+        if (sensorType.contains("AMSU")){
+            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        }
         for (final File file : searchFilesResult) {
             reader.open(file);
             try {
