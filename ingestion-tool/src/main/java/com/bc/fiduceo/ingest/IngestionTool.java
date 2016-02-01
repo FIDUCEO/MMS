@@ -28,8 +28,12 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.geometry.s2.S2WKTReader;
+import com.google.common.geometry.S2Polygon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -80,10 +84,12 @@ class IngestionTool {
         File[] searchFilesResult = getSearchResult(systemConfig, sensorType.toLowerCase());
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
+        S2WKTReader s2WKTReader = new S2WKTReader();
         for (final File file : searchFilesResult) {
             reader.open(file);
             try {
                 final AcquisitionInfo aquisitionInfo = reader.read();
+
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
                 final Sensor sensor = new Sensor();
                 sensor.setName(sensorType);
@@ -94,8 +100,15 @@ class IngestionTool {
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
                 final List<Point> coordinates = aquisitionInfo.getCoordinates();
-                satelliteObservation.setGeoBounds(geometryFactory.createPolygon(coordinates));
+                final List<Polygon> polygons = aquisitionInfo.getPolygons();
+                if (coordinates == null) {
 
+                    final String s = BoundingPolygonCreator.plotMultipoint(polygons);
+                    final S2Polygon read = (S2Polygon) s2WKTReader.read(s);
+
+                    satelliteObservation.setGeoBounds(polygons.get(0));
+
+                }
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();

@@ -91,7 +91,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         ArrayDouble.D2 arrayDoubleLatitude = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
         ArrayDouble.D2 arrayDoubleLongitude = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude, NodeType.ASCENDING);
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude, NodeType.ASCENDING);
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
@@ -107,7 +107,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         return acquisitionInfo;
     }
 
-    private ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+    public static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
         int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
         int[] shape = coodinate.getShape();
         ArrayDouble arrayDouble = new ArrayDouble(shape);

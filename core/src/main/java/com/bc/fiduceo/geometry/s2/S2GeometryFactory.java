@@ -75,15 +75,10 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     @Override
     public Polygon createPolygon(List<Point> points) {
         final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
-
         final S2Loop s2Loop = new S2Loop(loopPoints);
-        boolean s2LoopValid = s2Loop.isValid();
-        System.out.println("s2LoopValid = " + s2LoopValid);
 
         List<S2Loop> loopList = new ArrayList<>();
         loopList.add(s2Loop);
-        boolean loopListValid = com.google.common.geometry.S2Polygon.isValid(loopList);
-        System.out.println("loopListValid = " + loopListValid);
 
         final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
         return  new S2Polygon(googlePolygon);

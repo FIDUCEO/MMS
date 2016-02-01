@@ -1,12 +1,12 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.geometry.s2.S2WKTReader;
 import org.junit.After;
 import org.junit.Before;
@@ -20,13 +20,9 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @tom.bc
@@ -134,7 +130,6 @@ public class S2PolygonTest {
 
         Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
         assertNotNull(intersection);
-        // This is do to the egdes are the same
         assertEquals(intersection.toString(), "Polygon: (0) loops:\n");
     }
 
@@ -153,14 +148,7 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void testS2PolygonSplit() throws IOException {
-        List<Polygon> polygonHalf = getHalfPolygonFromFile();
-        System.out.println("plotPolygon_first = " + TestUtil.plotMultipoint(polygonHalf.get(0).getCoordinates()));
-        System.out.println("plotPolygon_Second = " + TestUtil.plotMultipoint(polygonHalf.get(1).getCoordinates()));
-    }
-
-    @Test
-    public void multiSplit() throws IOException {
+    public void createValidMultiplePolygon() throws IOException {
         Array latitude = null;
         Array longitude = null;
         float latScale = 1;
@@ -176,88 +164,24 @@ public class S2PolygonTest {
                 longScale = (float) geo.findAttribute("Scale").getNumericValue();
             }
         }
-        ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
         final int[] shape = arrayLat.getShape();
         int width = shape[1] - 1;
         int height = (shape[0] - 1);
 
         for (int i = 1; i <= 4; i++) {
-            polygonList = TestUtil.drawPolygonNBounding(arrayLat, arrayLong, GeometryFactory.Type.S2, width, height, i);
-                if (TestUtil.isPointValidation(polygonList)) {
-                    break;
-                }
+            polygonList = BoundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, GeometryFactory.Type.S2, width, height, i);
+            if (TestUtil.isPointValidation(polygonList)) {
+                break;
+            }
         }
+
+        assertEquals(polygonList.get(0).getCoordinates()[0].getLon(), -97.86539752771206, 1e-8);
+        assertEquals(polygonList.get(0).getCoordinates()[0].getLat(), 21.40989945914043, 1e-8);
         assertTrue(TestUtil.isPointValidation(polygonList));
     }
-
-    @Test
-    public void getPolygonFromFile() throws IOException {
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
-
-        Polygon filePolygon = TestUtil.allBoundingPoint(arrayLat, arrayLong, NodeType.ASCENDING, GeometryFactory.Type.S2);
-        Point[] coordinates = filePolygon.getCoordinates();
-
-        assertEquals(coordinates[0].getLon(), -97.86539752771206, 1e-8);
-        assertEquals(coordinates[0].getLat(), 21.40989945914043, 1e-8);
-
-        List<Point> points = Arrays.asList(coordinates);
-        boolean validation = TestUtil.checkPointValidPoints(points);
-
-        assertFalse(validation);
-        List<Polygon> polygons = new ArrayList<>();
-
-        if (!validation) {
-            polygons = TestUtil.halfBoundaryPoints(arrayLat, arrayLong, NodeType.ASCENDING,
-                                                   GeometryFactory.Type.S2);
-        }
-        Polygon firstHalfPolygon = polygons.get(0);
-        Polygon secondHalfPolygon = polygons.get(1);
-
-        String s = TestUtil.plotMultipoint(firstHalfPolygon.getCoordinates());
-        String s_ = TestUtil.plotMultipoint(secondHalfPolygon.getCoordinates());
-
-        assertTrue(TestUtil.checkPointValidPoints(Arrays.asList(secondHalfPolygon.getCoordinates())));
-        assertTrue(TestUtil.checkPointValidPoints(Arrays.asList(firstHalfPolygon.getCoordinates())));
-    }
-
-    private List<Polygon> getHalfPolygonFromFile() throws IOException {
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
-
-        return TestUtil.halfBoundaryPoints(arrayLat, arrayLong, NodeType.ASCENDING, GeometryFactory.Type.S2);
-    }
-
 
     private S2Polygon createS2Polygon(String wellKnownText) {
         com.google.common.geometry.S2Polygon polygon_1 = (com.google.common.geometry.S2Polygon) s2WKTReader.read(wellKnownText);

@@ -20,13 +20,37 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayInt;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(IOTestRunner.class)
 public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
+
+    private NetcdfFile netcdfFile;
 
     @Before
     public void setUp() throws IOException {
@@ -34,5 +58,54 @@ public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
         final Interval interval = new Interval(8, 8);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+
+        File testDataDirectory = TestUtil.getTestDataDirectory();
+        File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
+        netcdfFile = NetcdfFile.open(file.getPath());
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        netcdfFile.close();
+    }
+
+
+    @Test
+    public void testCreateBoundingPolygon() throws IOException {
+
+        Array latitude = null;
+        Array longitude = null;
+        float latScale = 1;
+        float longScale = 1;
+
+        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
+        for (Variable geo : geolocation) {
+            if (geo.getShortName().equals("Latitude")) {
+                latitude = geo.read();
+                latScale = (float) geo.findAttribute("Scale").getNumericValue();
+            } else if (geo.getShortName().equals("Longitude")) {
+                longitude = geo.read();
+                longScale = (float) geo.findAttribute("Scale").getNumericValue();
+            }
+        }
+        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+
+        final int[] shape = arrayLat.getShape();
+        int width = shape[1] - 1;
+        int height = (shape[0] - 1);
+
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayLat, arrayLong, NodeType.UNDEFINED);
+        assertNotNull(acquisitionInfo);
+
+        final List<Polygon> polygons = acquisitionInfo.getPolygons();
+        assertTrue(polygons.size() > 0);
+
+
+        final Point[] points = polygons.get(0).getCoordinates();
+
+        assertTrue(points.length == 52);
+        assertEquals(points[0].getLon(), -97.86539752771206, 1e-8);
+        assertEquals(points[0].getLat(), 21.40989945914043, 1e-8);
     }
 }

@@ -24,13 +24,18 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-class BoundingPolygonCreator {
+public class BoundingPolygonCreator {
 
     private final int intervalX;
     private final int intervalY;
@@ -53,11 +58,99 @@ class BoundingPolygonCreator {
         }
     }
 
-    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+    public static List<Polygon> createPolygonsBounding(ArrayDouble.D2 arrayLatitude,
+                                                       ArrayDouble.D2 arrayLongitude,
+                                                       GeometryFactory.Type type,
+                                                       int width,
+                                                       int totalHeight,
+                                                       int dept) {
+
+
+        int intervalX = 50;
+        int intervalY = 50;
+        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
+
+        List<Point> coordinatesSecond = new ArrayList<>();
+        List<Polygon> polygonList = new ArrayList<>();
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+        timeAxisEnd[0] = timeAxisStart[0];
+
+        int maxHeight = 0;
+        int initialHeight = 0;
+
+        while (true) {
+            List<Point> coordinatesFirst = new ArrayList<>();
+            maxHeight = maxHeight + (totalHeight / dept);
+            if (maxHeight > totalHeight) {
+                maxHeight = totalHeight;
+            }
+
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(initialHeight, x);
+                final double lat = arrayLatitude.get(initialHeight, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            timeAxisStart[0] = coordinatesFirst.size();
+            timeAxisEnd[0] = timeAxisStart[0];
+
+            for (int y = initialHeight; y < maxHeight; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+                ++timeAxisEnd[0];
+            }
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(maxHeight, x);
+                final double lat = arrayLatitude.get(maxHeight, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = maxHeight; y > initialHeight; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+            if (GeometryFactory.Type.JTS == type) {
+                coordinatesSecond.add(coordinatesSecond.get(0));
+            }
+            polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
+
+            initialHeight = maxHeight;
+            if (maxHeight == totalHeight) {
+                break;
+            }
+        }
+        return polygonList;
+    }
+
+    public static boolean isPointValidation(List<Polygon> polygonList) {
+        boolean valid = true;
+        for (Polygon polygon : polygonList) {
+
+            List<Point> points = Arrays.asList(polygon.getCoordinates());
+            List<S2Point> s2Points = S2GeometryFactory.extractS2Points(points);
+            S2Loop s2Loop = new S2Loop(s2Points);
+            valid = s2Loop.isValid();
+            if (!valid) {
+                return false;
+            }
+        }
+        return valid;
+    }
+
+    public static List<Point> allBoundingPoint(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
+                                               NodeType nodeType, GeometryFactory.Type type,
+                                               int intervalX, int intervalY) {
         final int[] shape = arrayLatitude.getShape();
         int width = shape[1] - 1;
         int height = shape[0] - 1;
 
+
+        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
         List<Point> coordinates = new ArrayList<>();
 
         int[] timeAxisStart = new int[2];
@@ -117,9 +210,82 @@ class BoundingPolygonCreator {
                 coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         }
+        if (GeometryFactory.Type.JTS == type) {
+            coordinates.add(coordinates.get(0));
+        }
+        return coordinates;
+    }
 
-        // close the polygon
-        closePolygon(coordinates);
+    public static String plotMultipoint(List<Polygon> polygonList) {
+
+        final StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("MULTIPOINT(");
+
+
+        for (int j = 0; j < polygonList.size(); j++) {
+            Polygon polygon = polygonList.get(j);
+            final Point[] points = polygon.getCoordinates();
+            for (int i = 0; i < points.length; i++) {
+                Point coordinate = points[i];
+                stringBuffer.append(coordinate.getLon());
+                stringBuffer.append(" ");
+                stringBuffer.append(coordinate.getLat());
+                if (i < points.length - 1) {
+                    stringBuffer.append(",");
+                }
+            }
+            if (j < polygonList.size() - 1) {
+                stringBuffer.append(",");
+            }
+        }
+        stringBuffer.append(")");
+
+        System.out.println(stringBuffer.toString());
+        return stringBuffer.toString();
+    }
+
+    public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+        final int[] shape = arrayLatitude.getShape();
+        List<Polygon> polygonsBounding = new ArrayList<>();
+        int width = shape[1] - 1;
+        int height = shape[0] - 1;
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+
+
+        for (int i = 1; i <= 4; i++) {
+            polygonsBounding = createPolygonsBounding(arrayLatitude, arrayLongitude, GeometryFactory.Type.S2, width, height, i);
+            if (isPointValidation(polygonsBounding)) {
+                break;
+            }
+        }
+
+        try {
+            if (polygonsBounding.size() == 0) {
+                throw new Exception("There is no point is create from the boundary");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        acquisitionInfo.setPolygons(polygonsBounding);
+        acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
+        acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);
+
+        return acquisitionInfo;
+    }
+
+    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+        final int[] shape = arrayLatitude.getShape();
+        int width = shape[1] - 1;
+        int height = shape[0] - 1;
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+
+        final List<Point> coordinates = allBoundingPoint(arrayLatitude, arrayLongitude, nodeType, GeometryFactory.Type.S2, intervalX, intervalY);
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);

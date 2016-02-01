@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 
 import java.util.Date;
 import java.util.List;
@@ -31,11 +32,20 @@ import java.util.List;
 public class AcquisitionInfo {
 
     private List<Point> coordinates;
+    private List<Polygon> polygons;
     private int[] timeAxisStartIndices;
     private int[] timeAxisEndIndices;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
+
+    public List<Polygon> getPolygons() {
+        return polygons;
+    }
+
+    public void setPolygons(List<Polygon> polygons) {
+        this.polygons = polygons;
+    }
 
     public List<Point> getCoordinates() {
         return coordinates;
