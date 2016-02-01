@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -25,10 +24,8 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
-import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +37,19 @@ class BoundingPolygonCreator {
     private final GeometryFactory geometryFactory;
 
     BoundingPolygonCreator(Interval interval, GeometryFactory geometryFactory) {
-        if ((interval.getX() <= 0)||(interval.getY() <= 0)) {
+        if ((interval.getX() <= 0) || (interval.getY() <= 0)) {
             throw new RuntimeException("invalid interval");
         }
         this.intervalX = interval.getX();
         this.intervalY = interval.getY();
 
         this.geometryFactory = geometryFactory;
+    }
+
+    static void closePolygon(List<Point> coordinates) {
+        if (coordinates.size() > 1) {
+            coordinates.add(coordinates.get(0));
+        }
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
@@ -115,83 +118,9 @@ class BoundingPolygonCreator {
         }
 
         // close the polygon
-        closePolygon(coordinates);
-
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        acquisitionInfo.setCoordinates(coordinates);
-        acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
-        acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);
-
-        return acquisitionInfo;
-    }
-
-    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayInt.D2 arrayLatitude, ArrayInt.D2 arrayLongitude, NodeType nodeType) {
-        final int[] shape = arrayLatitude.getShape();
-        int width = shape[1] - 1;
-        int height = shape[0] - 1;
-
-        List<Point> coordinates = new ArrayList<>();
-
-        int[] timeAxisStart = new int[2];
-        int[] timeAxisEnd = new int[2];
-        if (nodeType == NodeType.ASCENDING) {
-            for (int x = 0; x < width; x += intervalX) {
-                final double lon = arrayLongitude.get(0, x);
-                final double lat = arrayLatitude.get(0, x);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            timeAxisStart[0] = coordinates.size();
-            timeAxisEnd[0] = timeAxisStart[0];
-            for (int y = 0; y < height; y += intervalY) {
-                final double lon = arrayLongitude.get(y, width);
-                final double lat = arrayLatitude.get(y, width);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-                ++timeAxisEnd[0];
-            }
-
-            for (int x = width; x > 0; x -= intervalX) {
-                final double lon = arrayLongitude.get(height, x);
-                final double lat = arrayLatitude.get(height, x);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int y = height; y > 0; y -= intervalY) {
-                final double lon = arrayLongitude.get(y, 0);
-                final double lat = arrayLatitude.get(y, 0);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-        } else {
-            timeAxisStart[0] = 0;
-            timeAxisEnd[0] = 0;
-            for (int y = 0; y < height; y += intervalY) {
-                final double lon = arrayLongitude.get(y, width);
-                final double lat = arrayLatitude.get(y, width);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-                ++timeAxisEnd[0];
-            }
-
-            for (int x = width; x > 0; x -= intervalX) {
-                final double lon = arrayLongitude.get(height, x);
-                final double lat = arrayLatitude.get(height, x);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int y = height; y > 0; y -= intervalY) {
-                final double lon = arrayLongitude.get(y, 0);
-                final double lat = arrayLatitude.get(y, 0);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int x = 0; x < width; x += intervalX) {
-                final double lon = arrayLongitude.get(0, x);
-                final double lat = arrayLatitude.get(0, x);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
+        if (GeometryFactory.Type.JTS == geometryFactory.getType()) {
+            closePolygon(coordinates);
         }
-
-        // close the polygon
-        closePolygon(coordinates);
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
@@ -245,11 +174,5 @@ class BoundingPolygonCreator {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
         return acquisitionInfo;
-    }
-
-    static void closePolygon(List<Point> coordinates) {
-        if (coordinates.size() > 1) {
-            coordinates.add(coordinates.get(0));
-        }
     }
 }
