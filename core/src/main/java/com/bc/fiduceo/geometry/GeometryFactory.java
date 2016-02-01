@@ -34,8 +34,10 @@ public class GeometryFactory implements AbstractGeometryFactory {
     }
 
     private final AbstractGeometryFactory factoryImpl;
+    private Type type;
 
     public GeometryFactory(Type type) {
+        this.type = type;
         if (type == Type.JTS) {
             factoryImpl = new JtsGeometryFactory();
         } else if (type == Type.S2) {
@@ -43,6 +45,10 @@ public class GeometryFactory implements AbstractGeometryFactory {
         } else {
             throw new IllegalArgumentException("unknown geometry factory type");
         }
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public Geometry parse(String wkt) {
