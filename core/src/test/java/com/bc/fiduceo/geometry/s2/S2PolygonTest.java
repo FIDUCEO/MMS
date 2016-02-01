@@ -160,8 +160,36 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void splitMock() {
+    public void multiSplit() throws IOException {
+        Array latitude = null;
+        Array longitude = null;
+        float latScale = 1;
+        float longScale = 1;
+        List<Polygon> polygonList = new ArrayList<>();
+        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
+        for (Variable geo : geolocation) {
+            if (geo.getShortName().equals("Latitude")) {
+                latitude = geo.read();
+                latScale = (float) geo.findAttribute("Scale").getNumericValue();
+            } else if (geo.getShortName().equals("Longitude")) {
+                longitude = geo.read();
+                longScale = (float) geo.findAttribute("Scale").getNumericValue();
+            }
+        }
+        ArrayDouble.D2 arrayLong = TestUtil.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = TestUtil.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
+        final int[] shape = arrayLat.getShape();
+        int width = shape[1] - 1;
+        int height = (shape[0] - 1);
+
+        for (int i = 1; i <= 4; i++) {
+            polygonList = TestUtil.drawPolygonNBounding(arrayLat, arrayLong, GeometryFactory.Type.S2, width, height, i);
+                if (TestUtil.isPointValidation(polygonList)) {
+                    break;
+                }
+        }
+        assertTrue(TestUtil.isPointValidation(polygonList));
     }
 
     @Test
@@ -190,7 +218,7 @@ public class S2PolygonTest {
         assertEquals(coordinates[0].getLat(), 21.40989945914043, 1e-8);
 
         List<Point> points = Arrays.asList(coordinates);
-        boolean validation = TestUtil.checkPointValidation(points);
+        boolean validation = TestUtil.checkPointValidPoints(points);
 
         assertFalse(validation);
         List<Polygon> polygons = new ArrayList<>();
@@ -205,8 +233,8 @@ public class S2PolygonTest {
         String s = TestUtil.plotMultipoint(firstHalfPolygon.getCoordinates());
         String s_ = TestUtil.plotMultipoint(secondHalfPolygon.getCoordinates());
 
-        assertTrue(TestUtil.checkPointValidation(Arrays.asList(secondHalfPolygon.getCoordinates())));
-        assertTrue(TestUtil.checkPointValidation(Arrays.asList(firstHalfPolygon.getCoordinates())));
+        assertTrue(TestUtil.checkPointValidPoints(Arrays.asList(secondHalfPolygon.getCoordinates())));
+        assertTrue(TestUtil.checkPointValidPoints(Arrays.asList(firstHalfPolygon.getCoordinates())));
     }
 
     private List<Polygon> getHalfPolygonFromFile() throws IOException {
@@ -229,6 +257,7 @@ public class S2PolygonTest {
 
         return TestUtil.halfBoundaryPoints(arrayLat, arrayLong, NodeType.ASCENDING, GeometryFactory.Type.S2);
     }
+
 
     private S2Polygon createS2Polygon(String wellKnownText) {
         com.google.common.geometry.S2Polygon polygon_1 = (com.google.common.geometry.S2Polygon) s2WKTReader.read(wellKnownText);
