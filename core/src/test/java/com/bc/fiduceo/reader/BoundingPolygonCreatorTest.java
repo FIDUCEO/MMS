@@ -31,10 +31,21 @@ import ucar.ma2.ArrayDouble;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class BoundingPolygonCreatorTest {
 
+    protected static final double[][] AIRS_LONGITUDES = new double[][]{{138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
+            {137.7680766938059, 138.34196788102574, 138.888842745419, 139.43625059118625},
+            {137.32780413935305, 137.90682957068157, 138.4586123358709, 138.9939729311918},
+            {136.90199908664985, 137.46778019306842, 138.01571817610454, 138.53923435004424}};
+    protected static final double[][] AIRS_LATITUDES = new double[][]{{71.15288152754994, 71.4359164390965, 71.69661607793569, 71.9452820772289},
+            {71.23974580787146, 71.52412094894252, 71.78608894421787, 72.03976926305718},
+            {71.32088787959934, 71.61122828082071, 71.87850964766172, 72.12942839534938},
+            {71.41032171663477, 71.69739504897453, 71.96597011172345, 72.21432551071354}};
     protected BoundingPolygonCreator boundingPolygonCreator;
     protected GeometryFactory geometryFactory;
 
@@ -95,7 +106,7 @@ public abstract class BoundingPolygonCreatorTest {
         assertNotNull(acquisitionInfo);
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
-        assertEquals(5, coordinates.size());
+        assertTrue(coordinates.size() > 3);
         assertEquals(138.19514475348302, coordinates.get(0).getLon(), 1e-8);
         assertEquals(71.15288152754994, coordinates.get(0).getLat(), 1e-8);
         assertEquals(136.90199908664985, coordinates.get(3).getLon(), 1e-8);
@@ -104,14 +115,4 @@ public abstract class BoundingPolygonCreatorTest {
         assertEquals(1, acquisitionInfo.getTimeAxisStartIndices()[0]);
         assertEquals(2, acquisitionInfo.getTimeAxisEndIndices()[0]);
     }
-
-    protected static final double[][] AIRS_LONGITUDES = new double[][]{{138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
-            {137.7680766938059, 138.34196788102574, 138.888842745419, 139.43625059118625},
-            {137.32780413935305, 137.90682957068157, 138.4586123358709, 138.9939729311918},
-            {136.90199908664985, 137.46778019306842, 138.01571817610454, 138.53923435004424}};
-
-    protected static final double[][] AIRS_LATITUDES = new double[][]{{71.15288152754994, 71.4359164390965, 71.69661607793569, 71.9452820772289},
-            {71.23974580787146, 71.52412094894252, 71.78608894421787, 72.03976926305718},
-            {71.32088787959934, 71.61122828082071, 71.87850964766172, 72.12942839534938},
-            {71.41032171663477, 71.69739504897453, 71.96597011172345, 72.21432551071354}};
 }

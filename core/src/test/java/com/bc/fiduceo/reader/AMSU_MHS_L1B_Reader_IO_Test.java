@@ -71,9 +71,6 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
         assertNotNull(read.getSensingStop());
         TestUtil.assertCorrectUTCDate(2015, 12, 13, 23, 15, 30, 128, read.getSensingStart());
         TestUtil.assertCorrectUTCDate(2015, 12, 14, 1, 1, 32, 787, read.getSensingStop());
-
-        SatelliteGeometry satelliteGeometry = GeometryUtils.prepareForStorage(read);
-//        Polygon[] polygons = GeometryUtils.mapToGlobe(satelliteGeometry.getGeometry());
     }
 
     private void assertCoordinate(double expectedX, double expectedY, Point coordinate) {
