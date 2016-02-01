@@ -80,12 +80,12 @@ public class S2PolygonTest {
         assertFalse(intersection.isEmpty());
 
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(7, coordinates.length);
-        assertEquals(-4.0, coordinates[0].getLon(), 1e-8);
-        assertEquals(0.0, coordinates[0].getLat(), 1e-8);
+        assertEquals(5, coordinates.length);
+        assertEquals(-4.500000000000001, coordinates[0].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(-4.7499999999998925, coordinates[2].getLon(), 1e-8);
-        assertEquals(1.0000285529444368, coordinates[2].getLat(), 1e-8);
+        assertEquals(-5.0, coordinates[2].getLon(), 1e-8);
+        assertEquals(0.9999999999999998, coordinates[2].getLat(), 1e-8);
     }
 
     @Test
@@ -97,9 +97,9 @@ public class S2PolygonTest {
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(-9.999999999999998, coordinates[0].getLon(), 1e-8);
-        assertEquals(10.0, coordinates[0].getLat(), 1e-8);
-        assertEquals(9.999999999999998, coordinates[2].getLon(), 1e-8);
+        assertEquals(9.000000000000002, coordinates[0].getLon(), 1e-8);
+        assertEquals(10.028657322246222, coordinates[0].getLat(), 1e-8);
+        assertEquals(-7.999999999999998, coordinates[2].getLon(), 1e-8);
         assertEquals(-10.0, coordinates[2].getLat(), 1e-8);
 
     }
@@ -162,19 +162,8 @@ public class S2PolygonTest {
         final Geometry intersection = simplePolygon.intersection(filePolygon);
         assertNotNull(intersection);
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(141.0140009848692, coordinates[0].getLon(), 1e-8);
-        assertEquals(-69.69470278654627, coordinates[0].getLat(), 1e-8);
-
-        assertEquals(86.49586285175872, coordinates[49].getLon(), 1e-8);
-        assertEquals(-51.6150312821608, coordinates[49].getLat(), 1e-8);
-
-        assertEquals(-68.4959028168305, coordinates[99].getLat(), 1e-8);
-        assertEquals(148.82660078750632, coordinates[99].getLon(), 1e-8);
-
-
-        com.bc.fiduceo.geometry.GeometryFactory factoryS2 = new GeometryFactory(GeometryFactory.Type.S2);
-        String s = TestUtil.plotPolygon(coordinates);
-
+        assertEquals(86.1444141912498, coordinates[0].getLon(), 1e-8);
+        assertEquals(51.76532548048519, coordinates[0].getLat(), 1e-8);
     }
 
     private Polygon getPolygonFromFile() throws IOException {
