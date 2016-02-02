@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -270,7 +269,6 @@ public class S2WKTReader {
      *
      * @return a <code>Geometry</code> specified by the next token
      * in the stream
-     *
      * @throws IOException if an I/O error occurs
      */
     private Object readGeometryTaggedText() throws IOException {
@@ -290,6 +288,8 @@ public class S2WKTReader {
             return readLinearRingText();
         } else if ("POLYGON".equalsIgnoreCase(type)) {
             return readPolygonText();
+        } else if ("MULTIPOINT".equalsIgnoreCase(type)) {
+            return null;
         }
         if ("POINT".equalsIgnoreCase(type)) {
             return readPointText();
@@ -340,6 +340,23 @@ public class S2WKTReader {
      * @throws IOException    if an I/O error occurs
      */
     private S2Polygon readPolygonText() throws IOException, IllegalArgumentException {
+        String nextToken = getNextEmptyOrOpener();
+        if (EMPTY.equals(nextToken)) {
+            return new S2Polygon();
+        }
+        ArrayList<S2Loop> loops = new ArrayList<>();
+        S2Loop shell = readLinearRingText();
+        shell.normalize();
+        loops.add(shell);
+        nextToken = getNextCloserOrComma();
+        while (COMMA.equals(nextToken)) {
+            loops.add(readLinearRingText());
+            nextToken = getNextCloserOrComma();
+        }
+        return new S2Polygon(loops);
+    }
+
+    private S2Polygon readMultiPointText() throws IOException, IllegalArgumentException {
         String nextToken = getNextEmptyOrOpener();
         if (EMPTY.equals(nextToken)) {
             return new S2Polygon();

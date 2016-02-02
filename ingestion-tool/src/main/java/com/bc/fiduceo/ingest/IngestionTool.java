@@ -102,12 +102,12 @@ class IngestionTool {
                 final List<Point> coordinates = aquisitionInfo.getCoordinates();
                 final List<Polygon> polygons = aquisitionInfo.getPolygons();
                 if (coordinates == null) {
-
-                    final String s = BoundingPolygonCreator.plotMultipoint(polygons);
-                    final S2Polygon read = (S2Polygon) s2WKTReader.read(s);
+                    //Todo set to multi points
+                    final String multiPoint = BoundingPolygonCreator.plotMultiPoint(polygons);
+                    final String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(polygons);
+                    final S2Polygon read = (S2Polygon) s2WKTReader.read(multiPoint);
 
                     satelliteObservation.setGeoBounds(polygons.get(0));
-
                 }
                 storage.insert(satelliteObservation);
             } finally {

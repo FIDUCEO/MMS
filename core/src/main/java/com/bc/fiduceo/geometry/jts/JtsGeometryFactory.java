@@ -109,11 +109,11 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     public Polygon createPolygon(List<Point> points) {
         final Coordinate[] coordinates = extractCoordinates(points);
 
-        //plotMultipoint(coordinates);
+        //plotMultiPoint(coordinates);
 
         JtsUtils.normalizePolygon(coordinates);
 
-        //plotMultipoint(coordinates);
+        //plotMultiPoint(coordinates);
 
         final com.vividsolutions.jts.geom.Polygon polygon = geometryFactory.createPolygon(coordinates);
         final com.vividsolutions.jts.geom.Polygon[] polygons = mapToGlobe(polygon);
@@ -125,7 +125,7 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
     }
 
-//    private void plotMultipoint(Coordinate[] coordinates) {
+//    private void plotMultiPoint(Coordinate[] coordinates) {
 //        final StringBuffer stringBuffer = new StringBuffer();
 //        stringBuffer.append("MULTIPOINT(");
 //

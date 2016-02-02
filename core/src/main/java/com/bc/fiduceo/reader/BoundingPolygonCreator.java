@@ -216,7 +216,7 @@ public class BoundingPolygonCreator {
         return coordinates;
     }
 
-    public static String plotMultipoint(List<Polygon> polygonList) {
+    public static String plotMultiPoint(List<Polygon> polygonList) {
 
         final StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("MULTIPOINT(");
@@ -243,6 +243,37 @@ public class BoundingPolygonCreator {
         System.out.println(stringBuffer.toString());
         return stringBuffer.toString();
     }
+
+    public static String plotMultiPolygon(List<Polygon> polygonList) {
+//        "MULTIPOLYGON ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20))";
+        final StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("MULTIPOLYGON(");
+
+
+        for (int j = 0; j < polygonList.size(); j++) {
+            Polygon polygon = polygonList.get(j);
+            final Point[] points = polygon.getCoordinates();
+            stringBuffer.append("(");
+            for (int i = 0; i < points.length; i++) {
+                Point coordinate = points[i];
+                stringBuffer.append(coordinate.getLon());
+                stringBuffer.append(" ");
+                stringBuffer.append(coordinate.getLat());
+                if (i < points.length - 1) {
+                    stringBuffer.append(",");
+                }
+            }
+            stringBuffer.append(")");
+            if (j < polygonList.size() - 1) {
+                stringBuffer.append(",");
+            }
+        }
+        stringBuffer.append(")");
+
+        System.out.println(stringBuffer.toString());
+        return stringBuffer.toString();
+    }
+
 
     public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
         final int[] shape = arrayLatitude.getShape();
