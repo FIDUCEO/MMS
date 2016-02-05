@@ -13,6 +13,7 @@
         <module>google-s2</module>
         <module>core</module>
         <module>ingestion-tool</module>
+        <module>matchup-tool</module>
     </modules>
 
     <dependencyManagement>
