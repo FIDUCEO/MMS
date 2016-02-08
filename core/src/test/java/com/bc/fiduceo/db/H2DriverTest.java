@@ -30,6 +30,13 @@ import static org.junit.Assert.assertEquals;
 public class H2DriverTest {
 
     @Test
+    public void testGetUrlPattern() {
+        final H2Driver driver = new H2Driver();
+
+        assertEquals("jdbc:h2", driver.getUrlPattern());
+    }
+
+    @Test
     public void testCreateSql_noParameter() {
         final String sql = H2Driver.createSql(null);
 

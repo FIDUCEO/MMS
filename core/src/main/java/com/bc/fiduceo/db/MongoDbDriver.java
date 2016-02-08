@@ -20,36 +20,107 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.bson.Document;
 
+import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MongoDbDriver extends AbstractDriver {
 
+    private MongoClient mongoClient;
+    private GeometryFactory geometryFactory;
+    private MongoDatabase database;
+
     @Override
     public String getUrlPattern() {
-        return null;
+        return "mongodb";
+    }
+
+    @Override
+    public void open(BasicDataSource dataSource) throws SQLException {
+        final MongoClientURI clientURI = new MongoClientURI(dataSource.getUrl());
+        mongoClient = new MongoClient(clientURI);
+        database = mongoClient.getDatabase("FIDUCEO");
+    }
+
+    @Override
+    public void close() throws SQLException {
+        if (mongoClient != null) {
+            mongoClient.close();
+            mongoClient = null;
+        }
+    }
+
+    @Override
+    public void initialize() throws SQLException {
+        // nothing to initialize tb 2016-02-08
+    }
+
+    @Override
+    public void clear() throws SQLException {
+        final MongoCollection<Document> satelliteObservation = database.getCollection("SATELLITE_OBSERVATION");
+        satelliteObservation.drop();
     }
 
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
-
+        this.geometryFactory = geometryFactory;
     }
 
     @Override
     public void insert(SatelliteObservation satelliteObservation) throws SQLException {
+        final MongoCollection<Document> observationCollection = database.getCollection("SATELLITE_OBSERVATION");
+        final Document document = new Document("dataFile", satelliteObservation.getDataFile().getAbsolutePath());
+        document.append("startTime", satelliteObservation.getStartTime());
+        document.append("stopTime", satelliteObservation.getStopTime());
+        document.append("nodeType", satelliteObservation.getNodeType().toId());
 
+        observationCollection.insertOne(document);
     }
 
     @Override
     public List<SatelliteObservation> get() throws SQLException {
-        return null;
+        final MongoCollection<Document> observationCollection = database.getCollection("SATELLITE_OBSERVATION");
+        final List<SatelliteObservation> resultList = new ArrayList<>();
+
+        final FindIterable<Document> documents = observationCollection.find();
+        for (Document document : documents) {
+            final SatelliteObservation satelliteObservation = new SatelliteObservation();
+
+            final String dataFile = document.getString("dataFile");
+            satelliteObservation.setDataFile(new File(dataFile));
+
+            final Date startTime = document.getDate("startTime");
+            satelliteObservation.setStartTime(startTime);
+
+            final Date stopTime = document.getDate("stopTime");
+            satelliteObservation.setStopTime(stopTime);
+
+            final Integer nodeTypeId = document.getInteger("nodeType");
+            satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
+
+            resultList.add(satelliteObservation);
+        }
+
+        return resultList;
     }
 
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-        return null;
+        throw new RuntimeException("not implemented");
     }
 }

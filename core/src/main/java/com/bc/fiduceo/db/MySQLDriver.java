@@ -41,14 +41,7 @@ import java.util.List;
 
 public class MySQLDriver extends AbstractDriver {
 
-    private final WKBWriter wkbWriter;
-    private final WKBReader wkbReader;
     private GeometryFactory geometryFactory;
-
-    public MySQLDriver() {
-        wkbWriter = new WKBWriter();
-        wkbReader = new WKBReader();
-    }
 
     @Override
     public String getUrlPattern() {

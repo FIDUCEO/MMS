@@ -20,21 +20,17 @@
 
 package com.bc.fiduceo.db;
 
-import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 
-@RunWith(DatabaseTestRunner.class)
-public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_SatelliteObservation {
+import static org.junit.Assert.assertEquals;
 
-    // This test will use a local database implementation. Please make sure that you have a running MongoDb database server
-    // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
-    // in the datasource description below. tb 2016-02-08
+public class MongoDbDriverTest {
 
-    public StorageTest_SatelliteObservation_MongoDB() {
-        dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("mongodb");
-        dataSource.setUrl("mongodb://localhost:27017/test");
-        dataSource.setUsername("fiduceo");
-        dataSource.setPassword("oecudif");
+    @Test
+    public void testGetUrlPattern() {
+        final MongoDbDriver driver = new MongoDbDriver();
+
+        assertEquals("mongodb", driver.getUrlPattern());
+
     }
 }
