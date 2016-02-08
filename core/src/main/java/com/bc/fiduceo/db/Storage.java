@@ -29,6 +29,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.TimeZone;
 
 public class Storage {
 
@@ -81,8 +82,11 @@ public class Storage {
     }
 
     private Driver createDriver(BasicDataSource dataSource) {
+        // ensure all dates are interpreted as UTC
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         final String dbUrl = dataSource.getUrl().toLowerCase();
-        ServicesUtils syServicesUtils = new ServicesUtils<>();
+        final ServicesUtils syServicesUtils = new ServicesUtils<>();
         return (Driver) syServicesUtils.getReader(Driver.class, dbUrl);
     }
 }

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 
 import java.util.Date;
@@ -38,7 +39,7 @@ public class H2DriverTest {
     @Test
     public void testCreateSql_startTime() {
         final QueryParameter parameter = new QueryParameter();
-        final Date startDate = new Date(1200000000000L);
+        final Date startDate = TimeUtils.create(1200000000000L);
         parameter.setStartTime(startDate);
 
         final String sql = H2Driver.createSql(parameter);
@@ -49,7 +50,7 @@ public class H2DriverTest {
     @Test
     public void testCreateSql_stopTime() {
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStopTime(new Date(1210000000000L));
+        parameter.setStopTime(TimeUtils.create(1210000000000L));
 
         final String sql = H2Driver.createSql(parameter);
 
@@ -59,8 +60,8 @@ public class H2DriverTest {
     @Test
     public void testCreateSql_startAndStopTime() {
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(new Date(1220000000000L));
-        parameter.setStopTime(new Date(1230000000000L));
+        parameter.setStartTime(TimeUtils.create(1220000000000L));
+        parameter.setStopTime(TimeUtils.create(1230000000000L));
 
         final String sql = H2Driver.createSql(parameter);
 

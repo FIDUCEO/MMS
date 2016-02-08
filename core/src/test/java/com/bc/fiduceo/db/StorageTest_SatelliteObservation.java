@@ -26,15 +26,17 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -69,7 +71,6 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    @Ignore
     public void testInsert_andGet() throws SQLException, ParseException {
         // @todo 1 tb/tb continue with this 2016-01-11
 
@@ -109,14 +110,14 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testSearchByTimeRange_startTime_matchObservation() throws ParseException, SQLException {
-        final Date startTime = new Date(1000000000L);
-        final Date stopTime = new Date(1001000000L);
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
         storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
-        final Date earchTime = new Date(1000400000L);
-        parameter.setStartTime(earchTime);
+        final Date searchTime = TimeUtils.create(1000400000L);
+        parameter.setStartTime(searchTime);
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(1, result.size());
@@ -124,11 +125,11 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testSearchByTimeRange_startTime_laterThanObservation() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(new Date(1000000000L), new Date(1001000000L));
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(new Date(1001400000L));
+        parameter.setStartTime(TimeUtils.create(1001400000L));
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(0, result.size());
@@ -137,12 +138,12 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testSearchByTimeRange_searchTimeInObservationRange() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(new Date(1000000000L), new Date(1001000000L));
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);                                                 //1000400000L
 
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(new Date(1000400000L));
-        parameter.setStopTime(new Date(1000700000L));
+        parameter.setStartTime(TimeUtils.create(1000400000L));
+        parameter.setStopTime(TimeUtils.create(1000700000L));
 
         final List<SatelliteObservation> result = storage.get(parameter);
         //assertEquals(1, result.size());
@@ -152,8 +153,8 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {
-        final Date startTime = new Date(1430000000000L);
-        final Date stopTime = new Date(1430001000000L);
+        final Date startTime = TimeUtils.create(1430000000000L);
+        final Date stopTime = TimeUtils.create(1430001000000L);
         return createSatelliteObservation(startTime, stopTime);
     }
 

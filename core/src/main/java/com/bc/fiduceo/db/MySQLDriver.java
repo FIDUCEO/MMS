@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
@@ -68,8 +69,8 @@ public class MySQLDriver extends AbstractDriver {
         }
 
         final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, GeomFromWKB(?), ?, ?, ?, ?)");
-        preparedStatement.setTimestamp(1, toTimeStamp(observation.getStartTime()));
-        preparedStatement.setTimestamp(2, toTimeStamp(observation.getStopTime()));
+        preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
+        preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
@@ -93,10 +94,10 @@ public class MySQLDriver extends AbstractDriver {
             final SatelliteObservation observation = new SatelliteObservation();
 
             final Timestamp startDate = resultSet.getTimestamp("StartDate");
-            observation.setStartTime(toDate(startDate));
+            observation.setStartTime(TimeUtils.toDate(startDate));
 
             final Timestamp stopDate = resultSet.getTimestamp("StopDate");
-            observation.setStopTime(toDate(stopDate));
+            observation.setStopTime(TimeUtils.toDate(stopDate));
 
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
