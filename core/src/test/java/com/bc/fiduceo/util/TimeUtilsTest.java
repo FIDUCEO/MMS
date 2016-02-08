@@ -63,6 +63,14 @@ public class TimeUtilsTest {
     }
 
     @Test
+    public void testParse_withFormat() {
+        final Date date = TimeUtils.parse("2014-08-23 18:16:04.334", "yyyy-MM-dd HH:mm:ss.S");
+
+        assertNotNull(date);
+        assertEquals("2014-08-23 18:16:04.334", TimeUtils.format(date, "yyyy-MM-dd HH:mm:ss.S"));
+    }
+
+    @Test
     public void testTimeStampToDate() {
         final Timestamp timestamp = new Timestamp(1435000000234L);
 

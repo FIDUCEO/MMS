@@ -24,7 +24,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.esa.snap.core.datamodel.ProductData;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -36,7 +36,6 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -52,9 +51,9 @@ public class AIRS_L1B_Reader implements Reader {
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
     private NetcdfFile netcdfFile;
-    private final DateFormat dateFormat;
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public AIRS_L1B_Reader() {
@@ -63,7 +62,6 @@ public class AIRS_L1B_Reader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
-        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.S");
     }
 
     public void open(File file) throws IOException {
@@ -116,7 +114,7 @@ public class AIRS_L1B_Reader implements Reader {
     Date parseDate(String dateString, String timeString) throws ParseException {
         final String timeStringWithMillis = stripMicrosecs(timeString);
         final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
-        return dateFormat.parse(rangeBeginningDate);
+        return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
     }
 
     private String stripMicrosecs(String timeString) {

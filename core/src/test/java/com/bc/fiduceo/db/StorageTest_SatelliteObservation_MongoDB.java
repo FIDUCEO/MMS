@@ -21,7 +21,9 @@
 package com.bc.fiduceo.db;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.runner.RunWith;
 
+@RunWith(DatabaseTestRunner.class)
 public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_SatelliteObservation {
 
     // This test will use a local database implementation. Please make sure that you have a running MongoDb database server

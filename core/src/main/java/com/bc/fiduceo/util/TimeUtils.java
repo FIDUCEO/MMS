@@ -23,6 +23,7 @@ package com.bc.fiduceo.util;
 import org.esa.snap.core.datamodel.ProductData;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -54,6 +55,14 @@ public class TimeUtils {
         final Calendar calendar = calendarThreadLocal.get();
         calendar.setTimeInMillis(date.getTime());
         return new Timestamp(calendar.getTimeInMillis());
+    }
+
+    public static Date parse(String dateString, String pattern) {
+        try {
+            return ProductData.UTC.createDateFormat(pattern).parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException("Unparseable date: " + dateString);
+        }
     }
 
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {

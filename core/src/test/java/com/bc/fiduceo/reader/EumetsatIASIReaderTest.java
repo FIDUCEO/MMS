@@ -62,8 +62,8 @@ public class EumetsatIASIReaderTest {
 
         try {
             EumetsatIASIReader.getGlobalAttributeAsDate("the_failing_attribute", netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 

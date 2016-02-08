@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
@@ -128,9 +129,8 @@ public class IngestionToolIntegrationTest {
             final Sensor sensor = observation.getSensor();
             assertTrue(sensor.getName().contains("AIRS"));
 
-            // @todo 2 tb/** check why the database strips off the hour/minute/second part of the dates  2015-12-22
-            assertEquals("2015-09-02", observation.getStartTime().toString());
-            assertEquals("2015-09-02", observation.getStopTime().toString());
+            assertEquals("02-Sep-2015 02:17:22", TimeUtils.format(observation.getStartTime()));
+            assertEquals("02-Sep-2015 02:23:21", TimeUtils.format(observation.getStopTime()));
             // @todo 1 tb/** something is wrong with the path stored in the DB check and resolve 2015-12-22
             assertTrue(observation.getDataFile().getAbsolutePath().contains("AIRS.2015.09.02.023.L1B.AIRS_Rad.v5.0.23.0.G15246021652.hdf"));
 
@@ -223,6 +223,7 @@ public class IngestionToolIntegrationTest {
     private void storePropertiesToTemp(Properties properties, String child) throws IOException {
         final File dataSourcePropertiesFile = new File(configDir, child);
         if (!dataSourcePropertiesFile.createNewFile()) {
+            fail("unable to create test file: " + dataSourcePropertiesFile.getAbsolutePath());
         }
 
         FileOutputStream outputStream = null;
