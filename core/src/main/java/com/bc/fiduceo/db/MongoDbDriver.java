@@ -22,6 +22,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
@@ -42,6 +43,8 @@ import java.util.Date;
 import java.util.List;
 
 public class MongoDbDriver extends AbstractDriver {
+
+    private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
 
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
@@ -74,7 +77,7 @@ public class MongoDbDriver extends AbstractDriver {
 
     @Override
     public void clear() throws SQLException {
-        final MongoCollection<Document> satelliteObservation = database.getCollection("SATELLITE_OBSERVATION");
+        final MongoCollection<Document> satelliteObservation = database.getCollection(SATELLITE_DATA_COLLECTION);
         satelliteObservation.drop();
     }
 
@@ -85,19 +88,30 @@ public class MongoDbDriver extends AbstractDriver {
 
     @Override
     public void insert(SatelliteObservation satelliteObservation) throws SQLException {
-        final MongoCollection<Document> observationCollection = database.getCollection("SATELLITE_OBSERVATION");
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+
         final Document document = new Document("dataFile", satelliteObservation.getDataFile().getAbsolutePath());
         document.append("startTime", satelliteObservation.getStartTime());
         document.append("stopTime", satelliteObservation.getStopTime());
         document.append("nodeType", satelliteObservation.getNodeType().toId());
         document.append("geoBounds", convertToGeoJSON(satelliteObservation.getGeoBounds()));
+        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+        document.append("sensor", new Document("name", satelliteObservation.getSensor().getName()));
+        document.append("timeAxisStartIndex", satelliteObservation.getTimeAxisStartIndex());
+        document.append("timeAxisEndIndex", satelliteObservation.getTimeAxisEndIndex());
 
         observationCollection.insertOne(document);
     }
 
     @Override
+    public int insert(Sensor sensor) throws SQLException {
+        // we use embedded storage at the moment, no need to separately ingest the sensor tb 2016-02-09
+        return -1;
+    }
+
+    @Override
     public List<SatelliteObservation> get() throws SQLException {
-        final MongoCollection<Document> observationCollection = database.getCollection("SATELLITE_OBSERVATION");
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
         final List<SatelliteObservation> resultList = new ArrayList<>();
 
         final FindIterable<Document> documents = observationCollection.find();
@@ -119,6 +133,15 @@ public class MongoDbDriver extends AbstractDriver {
             final Document geoBounds = (Document) document.get("geoBounds");
             final Geometry geometry = convertToGeometry(geoBounds);
             satelliteObservation.setGeoBounds(geometry);
+
+            // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+            final Document jsonSensor = (Document) document.get("sensor");
+            final Sensor sensor = new Sensor();
+            sensor.setName(jsonSensor.getString("name"));
+            satelliteObservation.setSensor(sensor);
+
+            satelliteObservation.setTimeAxisStartIndex(document.getInteger("timeAxisStartIndex"));
+            satelliteObservation.setTimeAxisEndIndex(document.getInteger("timeAxisEndIndex"));
 
             resultList.add(satelliteObservation);
         }
@@ -174,6 +197,6 @@ public class MongoDbDriver extends AbstractDriver {
            return geometryFactory.createPolygon(polygonPoints);
 
         }
-        throw new RuntimeException("Geomtry type support not implemented yet");
+        throw new RuntimeException("Geometry type support not implemented yet");
     }
 }
