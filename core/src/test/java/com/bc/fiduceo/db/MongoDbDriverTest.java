@@ -20,9 +20,13 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class MongoDbDriverTest {
 
@@ -31,6 +35,25 @@ public class MongoDbDriverTest {
         final MongoDbDriver driver = new MongoDbDriver();
 
         assertEquals("mongodb", driver.getUrlPattern());
+    }
 
+    @Test
+    public void testConvertToGeoJSON_noInput() {
+        try {
+            MongoDbDriver.convertToGeoJSON(null);
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testConvertToGeoJSON_polygon() {
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Geometry polygon = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
+
+        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
+        assertNotNull(geoJSON);
+        assertEquals("{ \"type\" : \"Polygon\", \"coordinates\" : [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]] }",
+                geoJSON.toJson());
     }
 }

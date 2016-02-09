@@ -24,11 +24,14 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
 
@@ -123,7 +126,28 @@ public class MongoDbDriver extends AbstractDriver {
         throw new RuntimeException("not implemented");
     }
 
+    @SuppressWarnings("unchecked")
     static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
-        return null;
+        if (geometry == null) {
+            throw new IllegalArgumentException("geometry is null");
+        }
+
+        if (geometry instanceof Polygon) {
+            final Point[] coordinates = geometry.getCoordinates();
+            final ArrayList<Position> polygonPoints = new ArrayList<>();
+
+            for (final Point coordinate : coordinates) {
+                final Position position = new Position(coordinate.getLon(), coordinate.getLat());
+                polygonPoints.add(position);
+            }
+
+            if (coordinates[0].getLon() != coordinates[coordinates.length - 1].getLon() ||  coordinates[0].getLat() != coordinates[coordinates.length - 1].getLat())  {
+                final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
+                polygonPoints.add(position);
+            }
+            return new com.mongodb.client.model.geojson.Polygon(polygonPoints);
+        }
+
+        throw new RuntimeException("Geometry type support not implemented");
     }
 }
