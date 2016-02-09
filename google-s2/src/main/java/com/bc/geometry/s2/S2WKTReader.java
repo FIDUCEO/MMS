@@ -44,7 +44,7 @@ public class S2WKTReader {
     private static final String NAN_SYMBOL = "NaN";
 
     private StreamTokenizer tokenizer;
-
+    private String MULTIPOLYGON = "MULTIPOLYGON";
 
     /**
      * Reads a Well-Known Text representation of a {@link S2Region}
@@ -288,8 +288,8 @@ public class S2WKTReader {
             return readLinearRingText();
         } else if ("POLYGON".equalsIgnoreCase(type)) {
             return readPolygonText();
-        } else if ("MULTIPOINT".equalsIgnoreCase(type)) {
-            return null;
+        } else if ("MULTIPOLYGON".equalsIgnoreCase(type)) {
+            return readMultiPolygonText();
         }
         if ("POINT".equalsIgnoreCase(type)) {
             return readPointText();
@@ -377,4 +377,39 @@ public class S2WKTReader {
         final List<S2Point> points = getPoints();
         return points.get(0);
     }
+
+    private List<S2Point> getMultiPolygonPoints() throws IOException, IllegalArgumentException {
+        ArrayList<S2Point> points = new ArrayList<>();
+        points.add(getPreciseCoordinate());
+        String nextToken = getNextCloserOrComma();
+        while (COMMA.equals(nextToken)) {
+            points.add(getPreciseCoordinate());
+            nextToken = getNextCloserOrComma();
+        }
+        return points;
+    }
+
+
+    private List<S2Polygon> readMultiPolygonText() throws IOException, IllegalArgumentException {
+        List<S2Polygon> s2PolygonList = new ArrayList<>();
+        while (true) {
+            int i = tokenizer.nextToken();
+            if (StreamTokenizer.TT_WORD == i && !tokenizer.sval.equals(MULTIPOLYGON)) {
+                tokenizer.pushBack();
+                List<S2Point> points = getMultiPolygonPoints();
+                S2Loop s2Loop = new S2Loop(points);
+                s2Loop.normalize();
+                s2PolygonList.add(new S2Polygon(s2Loop));
+            }
+            if (i == ')') {
+                int i1 = tokenizer.nextToken();
+                if (i1 == StreamTokenizer.TT_EOF) {
+                    break;
+                }
+                tokenizer.pushBack();
+            }
+        }
+        return s2PolygonList;
+    }
+
 }
