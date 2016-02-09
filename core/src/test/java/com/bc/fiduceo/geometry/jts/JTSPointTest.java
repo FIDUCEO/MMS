@@ -31,6 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class JTSPointTest {
 
@@ -90,5 +91,18 @@ public class JTSPointTest {
         assertEquals(1, coordinates.length);
         assertEquals(LON, coordinates[0].getLon(), 1e-8);
         assertEquals(LAT, coordinates[0].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testEquals() {
+        assertTrue(jtsPoint.equals(jtsPoint));
+
+        final JTSPoint equalPoint = new JTSPoint(new Coordinate(LON, LAT));
+        assertTrue(jtsPoint.equals(equalPoint));
+        assertTrue(equalPoint.equals(jtsPoint));
+
+        final JTSPoint notEqualPoint = new JTSPoint(new Coordinate(LON + 0.000001, LAT - 0.0000001));
+        assertFalse(jtsPoint.equals(notEqualPoint));
+        assertFalse(notEqualPoint.equals(jtsPoint));
     }
 }

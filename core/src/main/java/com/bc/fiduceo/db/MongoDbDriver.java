@@ -141,7 +141,7 @@ public class MongoDbDriver extends AbstractDriver {
                 polygonPoints.add(position);
             }
 
-            if (coordinates[0].getLon() != coordinates[coordinates.length - 1].getLon() ||  coordinates[0].getLat() != coordinates[coordinates.length - 1].getLat())  {
+            if (!coordinates[0].equals(coordinates[coordinates.length - 1]))  {
                 final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
                 polygonPoints.add(position);
             }
