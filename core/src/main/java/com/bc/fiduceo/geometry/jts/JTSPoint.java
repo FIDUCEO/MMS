@@ -73,4 +73,9 @@ class JTSPoint implements Point {
     public void setLat(double lat) {
         coordinate.y = lat;
     }
+
+    @Override
+    public boolean equals(Point other) {
+        return other == this || other.getLon() == getLon() && other.getLat() == getLat();
+    }
 }

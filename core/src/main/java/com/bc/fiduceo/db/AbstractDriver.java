@@ -25,7 +25,12 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.Sensor;
 import org.apache.commons.dbcp.BasicDataSource;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public abstract class AbstractDriver implements Driver {
 
@@ -110,15 +115,5 @@ public abstract class AbstractDriver implements Driver {
         } else {
             return null;
         }
-    }
-
-    protected static Timestamp toTimeStamp(java.util.Date date) {
-        final long time = date.getTime();
-        return new Timestamp(time);
-    }
-
-    protected static java.util.Date toDate(Timestamp timestamp) {
-        final long time = timestamp.getTime();
-        return new Date(time);
     }
 }

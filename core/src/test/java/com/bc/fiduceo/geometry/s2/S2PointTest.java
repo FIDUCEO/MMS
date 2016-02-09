@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class S2PointTest {
 
@@ -94,6 +95,21 @@ public class S2PointTest {
         final S2Point s2Point = createS2Point(16, 88);
 
         assertEquals("POINT(88.0 16.0)", s2Point.toString());
+    }
+
+    @Test
+    public void testEquals() {
+        final S2Point s2Point = createS2Point(18, 108);
+
+        assertTrue(s2Point.equals(s2Point));
+
+        final S2Point s2Point_equal = createS2Point(18, 108);
+        assertTrue(s2Point.equals(s2Point_equal));
+        assertTrue(s2Point_equal.equals(s2Point));
+
+        final S2Point s2Point_notEqual = createS2Point(18.0000001, 107.9999999);
+        assertFalse(s2Point.equals(s2Point_notEqual));
+        assertFalse(s2Point_notEqual.equals(s2Point));
     }
 
     private S2Point createS2Point(double latDegrees, double lngDegrees) {

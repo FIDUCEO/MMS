@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2015 Brockmann Consult GmbH
+  ~ Copyright (C) 2016 Brockmann Consult GmbH
   ~ This code was developed for the EC project "Fidelity and Uncertainty in
   ~ Climate Data Records from Earth Observations (FIDUCEO)".
   ~ Grant Agreement: 638822
@@ -29,33 +29,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ingestion-tool</artifactId>
+    <artifactId>matchup-tool</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>com.bc.fiduceo</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.bc.fiduceo</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 
 </project>

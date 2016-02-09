@@ -78,4 +78,9 @@ class S2Point implements Point{
     public String toString() {
         return "POINT(" + s2LatLng.lngDegrees() + " " + s2LatLng.latDegrees() + ")";
     }
+
+    @Override
+    public boolean equals(Point other) {
+        return other == this || other.getLon() == getLon() && other.getLat() == getLat();
+    }
 }

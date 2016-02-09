@@ -1,14 +1,17 @@
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.reader.ReadersPlugin;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 
+@RunWith(IOTestRunner.class)
 public class InjectionParameterTest {
 
     @Test

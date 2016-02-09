@@ -25,7 +25,6 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 
@@ -34,6 +33,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public abstract class BoundingPolygonCreatorTest {
@@ -106,13 +106,13 @@ public abstract class BoundingPolygonCreatorTest {
         assertNotNull(acquisitionInfo);
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
-        assertEquals(4, coordinates.size());
+        assertTrue(coordinates.size() > 3);
         assertEquals(138.19514475348302, coordinates.get(0).getLon(), 1e-8);
         assertEquals(71.15288152754994, coordinates.get(0).getLat(), 1e-8);
         assertEquals(136.90199908664985, coordinates.get(3).getLon(), 1e-8);
         assertEquals(71.41032171663477, coordinates.get(3).getLat(), 1e-8);
+
+        assertEquals(1, acquisitionInfo.getTimeAxisStartIndices()[0]);
+        assertEquals(2, acquisitionInfo.getTimeAxisEndIndices()[0]);
     }
-
-
-
 }

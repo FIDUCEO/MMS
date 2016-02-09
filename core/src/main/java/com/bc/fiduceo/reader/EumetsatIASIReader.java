@@ -22,7 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.esa.snap.core.datamodel.ProductData;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
@@ -31,7 +31,6 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 
 
@@ -40,6 +39,8 @@ public class EumetsatIASIReader implements Reader {
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 6;
     private static final int GEO_INTERVAL_Y = 6;
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 
     private NetcdfFile netcdfFile;
@@ -54,17 +55,13 @@ public class EumetsatIASIReader implements Reader {
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
-        try {
-            final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
-            if (globalAttribute == null) {
-                throw new IOException("Requested attribute '" + timeCoverage + "' not found");
-            }
-
-            final String attributeValue = globalAttribute.getStringValue();
-            return ProductData.UTC.parse(attributeValue, "yyyy-MM-dd'T'HH:mm:ss").getAsDate();
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
+        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
+        if (globalAttribute == null) {
+            throw new IOException("Requested attribute '" + timeCoverage + "' not found");
         }
+
+        final String attributeValue = globalAttribute.getStringValue();
+        return TimeUtils.parse(attributeValue, DATE_FORMAT);
     }
 
     @Override

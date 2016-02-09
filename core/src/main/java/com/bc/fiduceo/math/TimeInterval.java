@@ -21,6 +21,8 @@
 
 package com.bc.fiduceo.math;
 
+import com.bc.fiduceo.util.TimeUtils;
+
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class TimeInterval {
             }
         }
 
-        return new TimeInterval(new Date(min), new Date(max));
+        return new TimeInterval(TimeUtils.create(min), TimeUtils.create(max));
     }
 
     public TimeInterval(Date startTime, Date stopTime) {

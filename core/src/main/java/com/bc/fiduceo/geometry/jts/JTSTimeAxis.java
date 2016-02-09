@@ -25,6 +25,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.math.TimeInterval;
+import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.linearref.LengthIndexedLine;
@@ -66,7 +67,7 @@ class JTSTimeAxis implements TimeAxis {
         final long offsetTime = (long) (timeInterval * relativeOffset);
 
         final long startMillis = startTime.getTime() + offsetTime;
-        return new TimeInterval(new Date(startMillis), new Date(startMillis + intersectionDuration));
+        return new TimeInterval(TimeUtils.create(startMillis), TimeUtils.create(startMillis + intersectionDuration));
     }
 
     @Override
@@ -100,7 +101,7 @@ class JTSTimeAxis implements TimeAxis {
         final long startMillis = startTime.getTime() + startOffsetTime;
         final long endMillis = startTime.getTime() + endOffsetTime;
 
-        return new TimeInterval(new Date(startMillis), new Date(endMillis));
+        return new TimeInterval(TimeUtils.create(startMillis), TimeUtils.create(endMillis));
     }
 
     @Override
@@ -116,7 +117,7 @@ class JTSTimeAxis implements TimeAxis {
         final long offsetTime = (long) (timeInterval * relativeOffset);
         final long startMillis = startTime.getTime() + offsetTime;
 
-        return new Date(startMillis);
+        return TimeUtils.create(startMillis);
     }
 
     private Coordinate findProjection(Coordinate coordinate) {

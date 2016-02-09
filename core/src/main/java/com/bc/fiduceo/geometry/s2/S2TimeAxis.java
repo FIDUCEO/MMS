@@ -25,6 +25,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.math.TimeInterval;
+import com.bc.fiduceo.util.TimeUtils;
 import com.google.common.geometry.*;
 import com.google.common.geometry.S2Point;
 
@@ -70,7 +71,7 @@ class S2TimeAxis implements TimeAxis {
         final long duration = totalTime - offsetTime;
 
         final long startMillis = startTime.getTime() + offsetTime;
-        return new TimeInterval(new Date(startMillis), new Date(startMillis + duration));
+        return new TimeInterval(TimeUtils.create(startMillis), TimeUtils.create(startMillis + duration));
     }
 
     @Override
@@ -93,7 +94,7 @@ class S2TimeAxis implements TimeAxis {
             return null;    // projection is outside the time axis range, beyond the last point tb 2015-11-23
         }
 
-        return new Date(startMillis);
+        return TimeUtils.create(startMillis);
     }
 
     // package access for testing only tb 2015-11-20
