@@ -22,13 +22,12 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
@@ -122,5 +121,9 @@ public class MongoDbDriver extends AbstractDriver {
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
         throw new RuntimeException("not implemented");
+    }
+
+    static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
+        return null;
     }
 }
