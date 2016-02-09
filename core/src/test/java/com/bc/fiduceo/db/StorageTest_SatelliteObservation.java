@@ -163,7 +163,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStartTime(startTime);
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
-        final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.parse("POLYGON((10 5,12 5,12 7,10 7,10 5))");
+        final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
         observation.setGeoBounds(geometry);
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);

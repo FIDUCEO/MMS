@@ -90,6 +90,7 @@ public class MongoDbDriver extends AbstractDriver {
         document.append("startTime", satelliteObservation.getStartTime());
         document.append("stopTime", satelliteObservation.getStopTime());
         document.append("nodeType", satelliteObservation.getNodeType().toId());
+        document.append("geoBounds", convertToGeoJSON(satelliteObservation.getGeoBounds()));
 
         observationCollection.insertOne(document);
     }
@@ -114,6 +115,10 @@ public class MongoDbDriver extends AbstractDriver {
 
             final Integer nodeTypeId = document.getInteger("nodeType");
             satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
+
+            final Document geoBounds = (Document) document.get("geoBounds");
+            final Geometry geometry = convertToGeometry(geoBounds);
+            satelliteObservation.setGeoBounds(geometry);
 
             resultList.add(satelliteObservation);
         }
@@ -141,7 +146,7 @@ public class MongoDbDriver extends AbstractDriver {
                 polygonPoints.add(position);
             }
 
-            if (!coordinates[0].equals(coordinates[coordinates.length - 1]))  {
+            if (!coordinates[0].equals(coordinates[coordinates.length - 1])) {
                 final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
                 polygonPoints.add(position);
             }
@@ -149,5 +154,26 @@ public class MongoDbDriver extends AbstractDriver {
         }
 
         throw new RuntimeException("Geometry type support not implemented");
+    }
+
+    @SuppressWarnings("unchecked")
+    Geometry convertToGeometry(Document geoDocument) {
+        final String type = geoDocument.getString("type");
+        if ("Polygon".equals(type)) {
+            final ArrayList<Point> polygonPoints = new ArrayList<>();
+            final ArrayList linearRings = (ArrayList) geoDocument.get("coordinates");
+            for (Object linearRing : linearRings) {
+                final ArrayList coordinates = (ArrayList) linearRing;
+                for (Object coordinate : coordinates) {
+                    final ArrayList<Double> point = (ArrayList<Double>) coordinate;
+                    final Point point1 = geometryFactory.createPoint(point.get(0), point.get(1));
+                    polygonPoints.add(point1);
+                }
+            }
+
+           return geometryFactory.createPolygon(polygonPoints);
+
+        }
+        throw new RuntimeException("Geomtry type support not implemented yet");
     }
 }
