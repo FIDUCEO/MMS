@@ -28,6 +28,7 @@ public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteOb
     public StorageTest_SatelliteObservation_H2() {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
+        // the following line dumps all database interactions to the console window tb 2016-02-10
 //        dataSource.setUrl("jdbc:h2:mem:fiduceo;TRACE_LEVEL_SYSTEM_OUT=2");
         dataSource.setUrl("jdbc:h2:mem:fiduceo");
     }

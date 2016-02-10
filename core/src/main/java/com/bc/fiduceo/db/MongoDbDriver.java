@@ -177,6 +177,12 @@ public class MongoDbDriver extends AbstractDriver {
         if (startTime != null){
             queryConstraints.append(STOP_TIME_KEY, new Document("$gt", startTime));
         }
+
+        final Date stopTime = parameter.getStopTime();
+        if (stopTime != null){
+            queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
+        }
+
         return queryConstraints;
     }
 

@@ -108,7 +108,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_startTime_matchObservation() throws ParseException, SQLException {
+    public void testSearchByTime_startTime_matchObservation() throws ParseException, SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -123,7 +123,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_startTime_laterThanObservation() throws ParseException, SQLException {
+    public void testSearchByTime_startTime_laterThanObservation() throws ParseException, SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -137,16 +137,97 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchTimeInObservationRange() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
-        storage.insert(observation);                                                 //1000400000L
+    public void testSearchByTime_stopTime_matchObservation() throws ParseException, SQLException {
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
+        storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(TimeUtils.create(1000400000L));
-        parameter.setStopTime(TimeUtils.create(1000700000L));
+        final Date searchTime = TimeUtils.create(1000400000L);
+        parameter.setStopTime(searchTime);
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTime_stopTime_earlierThanObservation() throws ParseException, SQLException {
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStopTime(TimeUtils.create(1000000000L - 100L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_Earlier() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L - 1000L));
+        parameter.setStopTime(TimeUtils.create(1000000000L - 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_intersectSensorStart() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L - 500L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_inSensorRange() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L + 500L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_intersectSensorStop() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1001000000L - 500L));
+        parameter.setStopTime(TimeUtils.create(1001000000L + 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_later() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1001000000L + 500L));
+        parameter.setStopTime(TimeUtils.create(1001000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {
