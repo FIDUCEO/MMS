@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class ServicesUtils<T> {
 
-    public T getReader(Class<T> pass, String searchTerm) {
+    public T getServices(Class<T> pass, String searchTerm) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         ServiceRegistry<T> readerRegistry = serviceRegistryManager.getServiceRegistry(pass);
         SnapCoreActivator.loadServices(readerRegistry);
@@ -42,7 +42,7 @@ public class ServicesUtils<T> {
             if (pass.getName().contains("Driver")) {
                 content = ((Driver) service).getUrlPattern().toLowerCase();
             } else {
-                content = ((Reader) service).getReaderName();
+                content = ((Reader) service).toString();
             }
 
             if (content.contains(searchTerm) || searchTerm.contains(content)) {

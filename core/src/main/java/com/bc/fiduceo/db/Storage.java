@@ -87,6 +87,6 @@ public class Storage {
 
         final String dbUrl = dataSource.getUrl().toLowerCase();
         final ServicesUtils syServicesUtils = new ServicesUtils<>();
-        return (Driver) syServicesUtils.getReader(Driver.class, dbUrl);
+        return (Driver) syServicesUtils.getServices(Driver.class, dbUrl);
     }
 }
