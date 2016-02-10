@@ -44,7 +44,6 @@ public class S2WKTReader {
     private static final String NAN_SYMBOL = "NaN";
 
     private StreamTokenizer tokenizer;
-    private String MULTIPOLYGON = "MULTIPOLYGON";
 
     /**
      * Reads a Well-Known Text representation of a {@link S2Region}
@@ -290,8 +289,7 @@ public class S2WKTReader {
             return readPolygonText();
         } else if ("MULTIPOLYGON".equalsIgnoreCase(type)) {
             return readMultiPolygonText();
-        }
-        if ("POINT".equalsIgnoreCase(type)) {
+        }else if ("POINT".equalsIgnoreCase(type)) {
             return readPointText();
         }
         parseErrorWithLine("Unknown geometry type: " + type);
@@ -394,7 +392,7 @@ public class S2WKTReader {
         List<S2Polygon> s2PolygonList = new ArrayList<>();
         while (true) {
             int i = tokenizer.nextToken();
-            if (StreamTokenizer.TT_WORD == i && !tokenizer.sval.equals(MULTIPOLYGON)) {
+            if (StreamTokenizer.TT_WORD == i) {
                 tokenizer.pushBack();
                 List<S2Point> points = getMultiPolygonPoints();
                 S2Loop s2Loop = new S2Loop(points);
