@@ -81,9 +81,13 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        File[] searchFilesResult = getSearchResult(systemConfig, sensorType.toLowerCase());
         ServicesUtils servicesUtils = new ServicesUtils<>();
-        Reader reader = (Reader) servicesUtils.getReader(Reader.class, sensorType);
+        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
+
+        String regEx = reader.getPattern();
+        File[] searchFilesResult = getSearchResult(systemConfig, regEx);
+
+
         S2WKTReader s2WKTReader = new S2WKTReader();
         for (final File file : searchFilesResult) {
             reader.open(file);
@@ -102,40 +106,28 @@ class IngestionTool {
                 final List<Point> coordinates = aquisitionInfo.getCoordinates();
                 final List<Polygon> polygons = aquisitionInfo.getPolygons();
                 if (coordinates == null) {
-                    //Todo set to multi points
-                    final String multiPoint = BoundingPolygonCreator.plotMultiPoint(polygons);
                     final String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(polygons);
-                    final S2Polygon read = (S2Polygon) s2WKTReader.read(multiPoint);
-
-                    satelliteObservation.setGeoBounds(polygons.get(0));
+                    List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read(multiPolygon);
                 }
-                storage.insert(satelliteObservation);
+//                storage.insert(satelliteObservation);
             } finally {
                 reader.close();
             }
         }
     }
 
-    File[] getSearchResult(SystemConfig systemConfig, String search) throws IOException {
+    File[] getSearchResult(SystemConfig systemConfig, String regEx) throws IOException {
         String archiveRoot = systemConfig.getArchiveRoot();
         File[] glob;
         String regex;
         List<File> inputFileList = new ArrayList<>();
-        if (search.contains("amsu-b")) {
-            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
-            regex = "'?[A-Z].+[AMBX].NK.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
-        } else if (search.contains("mhs")) {
-            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.h5");
-            regex = "'?[A-Z].+[MHSX].M1.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI|MM].h5";
-        } else {
-            glob = WildcardMatcher.glob(archiveRoot + File.separator + "*.hdf");
-            regex = "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
-        }
+        glob = WildcardMatcher.glob(archiveRoot + File.separator + "*");
+
         if (Objects.isNull(glob)) {
             return null;
         }
         for (File file : glob) {
-            if (file.getCanonicalFile().getName().matches(regex)) {
+            if (file.getCanonicalFile().getName().matches(regEx)) {
                 inputFileList.add(file);
             }
         }
