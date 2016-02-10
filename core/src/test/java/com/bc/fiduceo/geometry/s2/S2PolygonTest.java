@@ -95,7 +95,7 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void testIntersact_intersactionNorth() {
+    public void testIntersect_intersectionNorth() {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))");
 
@@ -111,7 +111,7 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void testIntersact_intersactionSouth() {
+    public void testIntersect_intersectionSouth() {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-8 -12,-8 10,9 10,9 -12,-8 -12))");
 
@@ -121,7 +121,7 @@ public class S2PolygonTest {
     }
 
     @Test
-    public void testIntersact_intersactionEast() {
+    public void testIntersect_intersectionEast() {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-10 -8,12 -8,12 9,-10 9,-10 -8))");
 
