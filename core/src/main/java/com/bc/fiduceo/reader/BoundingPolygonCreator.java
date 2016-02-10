@@ -58,13 +58,8 @@ public class BoundingPolygonCreator {
         }
     }
 
-    public static List<Polygon> createPolygonsBounding(ArrayDouble.D2 arrayLatitude,
-                                                       ArrayDouble.D2 arrayLongitude,
-                                                       GeometryFactory.Type type,
-                                                       int width,
-                                                       int totalHeight,
-                                                       int dept) {
-
+    public static List<Polygon> createPolygonsBounding(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
+                                                       GeometryFactory.Type type, int width, int totalHeight, int dept) {
 
         int intervalX = 50;
         int intervalY = 50;
@@ -216,39 +211,10 @@ public class BoundingPolygonCreator {
         return coordinates;
     }
 
-    public static String plotMultiPoint(List<Polygon> polygonList) {
-
-        final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("MULTIPOINT(");
-
-
-        for (int j = 0; j < polygonList.size(); j++) {
-            Polygon polygon = polygonList.get(j);
-            final Point[] points = polygon.getCoordinates();
-            for (int i = 0; i < points.length; i++) {
-                Point coordinate = points[i];
-                stringBuffer.append(coordinate.getLon());
-                stringBuffer.append(" ");
-                stringBuffer.append(coordinate.getLat());
-                if (i < points.length - 1) {
-                    stringBuffer.append(",");
-                }
-            }
-            if (j < polygonList.size() - 1) {
-                stringBuffer.append(",");
-            }
-        }
-        stringBuffer.append(")");
-
-        System.out.println(stringBuffer.toString());
-        return stringBuffer.toString();
-    }
 
     public static String plotMultiPolygon(List<Polygon> polygonList) {
-//        "MULTIPOLYGON ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20))";
         final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("MULTIPOLYGON(");
-
+        stringBuffer.append("MULTIPOLYGON((");
 
         for (int j = 0; j < polygonList.size(); j++) {
             Polygon polygon = polygonList.get(j);
@@ -268,14 +234,13 @@ public class BoundingPolygonCreator {
                 stringBuffer.append(",");
             }
         }
-        stringBuffer.append(")");
-
-        System.out.println(stringBuffer.toString());
+        stringBuffer.append("))");
         return stringBuffer.toString();
     }
 
 
-    public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+    //todo mba : include the NodeType.
+    public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
         final int[] shape = arrayLatitude.getShape();
         List<Polygon> polygonsBounding = new ArrayList<>();
         int width = shape[1] - 1;
@@ -291,7 +256,6 @@ public class BoundingPolygonCreator {
                 break;
             }
         }
-
         try {
             if (polygonsBounding.size() == 0) {
                 throw new Exception("There is no point is create from the boundary");
@@ -309,10 +273,6 @@ public class BoundingPolygonCreator {
     }
 
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
-        final int[] shape = arrayLatitude.getShape();
-        int width = shape[1] - 1;
-        int height = shape[0] - 1;
-
         int[] timeAxisStart = new int[2];
         int[] timeAxisEnd = new int[2];
 
