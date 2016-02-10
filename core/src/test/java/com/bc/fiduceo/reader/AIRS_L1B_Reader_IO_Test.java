@@ -93,7 +93,7 @@ public class AIRS_L1B_Reader_IO_Test {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(41, coordinates.size());
+        assertEquals(40, coordinates.size());
         assertCoordinate(-6.4170300611108315, 88.23613967607469, coordinates.get(1));
         assertCoordinate(-13.02427652238762, 69.09764314472332, coordinates.get(11));
         assertCoordinate(27.651190877552047, 64.80095475900657, coordinates.get(21));

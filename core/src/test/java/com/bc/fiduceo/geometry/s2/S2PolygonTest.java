@@ -1,6 +1,7 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
@@ -22,7 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @tom.bc
@@ -164,15 +168,17 @@ public class S2PolygonTest {
                 longScale = (float) geo.findAttribute("Scale").getNumericValue();
             }
         }
-        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        ArrayDouble.D2 arrayLong = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
         final int[] shape = arrayLat.getShape();
         int width = shape[1] - 1;
         int height = (shape[0] - 1);
 
+        GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
         for (int i = 1; i <= 4; i++) {
-            polygonList = BoundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, GeometryFactory.Type.S2, width, height, i);
+            polygonList = boundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, width, height, i);
             if (TestUtil.isPointValidation(polygonList)) {
                 break;
             }
@@ -181,6 +187,17 @@ public class S2PolygonTest {
         assertEquals(polygonList.get(0).getCoordinates()[0].getLon(), -97.86539752771206, 1e-8);
         assertEquals(polygonList.get(0).getCoordinates()[0].getLat(), 21.40989945914043, 1e-8);
         assertTrue(TestUtil.isPointValidation(polygonList));
+    }
+
+    private ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
+        int[] shape = coodinate.getShape();
+        ArrayDouble arrayDouble = new ArrayDouble(shape);
+
+        for (int i = 0; i < coordinates.length; i++) {
+            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
+        }
+        return (ArrayDouble.D2) arrayDouble.copy();
     }
 
     private S2Polygon createS2Polygon(String wellKnownText) {

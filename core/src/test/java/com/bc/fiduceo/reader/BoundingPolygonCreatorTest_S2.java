@@ -23,12 +23,10 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +38,6 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -88,14 +85,14 @@ public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
                 longScale = (float) geo.findAttribute("Scale").getNumericValue();
             }
         }
-        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        ArrayDouble.D2 arrayLong = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
         final int[] shape = arrayLat.getShape();
         int width = shape[1] - 1;
         int height = (shape[0] - 1);
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayLat, arrayLong, NodeType.UNDEFINED);
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayLat, arrayLong);
         assertNotNull(acquisitionInfo);
 
         final List<Polygon> polygons = acquisitionInfo.getPolygons();
@@ -107,5 +104,16 @@ public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
         assertTrue(points.length == 52);
         assertEquals(points[0].getLon(), -97.86539752771206, 1e-8);
         assertEquals(points[0].getLat(), 21.40989945914043, 1e-8);
+    }
+
+    private ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
+        int[] shape = coodinate.getShape();
+        ArrayDouble arrayDouble = new ArrayDouble(shape);
+
+        for (int i = 0; i < coordinates.length; i++) {
+            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
+        }
+        return (ArrayDouble.D2) arrayDouble.copy();
     }
 }

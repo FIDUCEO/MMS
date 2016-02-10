@@ -35,29 +35,29 @@ public class ServicesUtilsTest {
         Reader reader;
         ServicesUtils servicesUtils = new ServicesUtils<>();
 
-        reader = (Reader) servicesUtils.getReader(Reader.class, "AIRS");
+        reader = (Reader) servicesUtils.getServices(Reader.class, "AIRS");
         assertTrue("AIRS".equals("AIRS"));
 
 
-        reader = (Reader) servicesUtils.getReader(Reader.class, "AMSU");
+        reader = (Reader) servicesUtils.getServices(Reader.class, "AMSU");
         assertTrue("AMSU".contains("AMSU"));
 
-        reader = (Reader) servicesUtils.getReader(Reader.class, "MHS");
+        reader = (Reader) servicesUtils.getServices(Reader.class, "MHS");
         assertTrue("MHS".contains("MHS"));
 
-        reader = (Reader) servicesUtils.getReader(Reader.class, "EUMETSAT");
+        reader = (Reader) servicesUtils.getServices(Reader.class, "EUMETSAT");
         assertTrue("EUMETSAT".equals("EUMETSAT"));
 
 
-        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:h2:mem:fiduceo");
+        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:h2:mem:fiduceo");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:h2"));
 
 
-        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:mysql://localhost:3306/test");
+        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:mysql://localhost:3306/test");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:mysql"));
 
 
-        driver = (Driver) servicesUtils.getReader(Driver.class, "jdbc:postgresql://localhost:5432/test");
+        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:postgresql://localhost:5432/test");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:postgresql"));
     }
 

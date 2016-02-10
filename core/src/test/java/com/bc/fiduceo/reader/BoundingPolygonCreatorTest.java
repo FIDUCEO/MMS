@@ -111,8 +111,5 @@ public abstract class BoundingPolygonCreatorTest {
         assertEquals(71.15288152754994, coordinates.get(0).getLat(), 1e-8);
         assertEquals(136.90199908664985, coordinates.get(3).getLon(), 1e-8);
         assertEquals(71.41032171663477, coordinates.get(3).getLat(), 1e-8);
-
-        assertEquals(1, acquisitionInfo.getTimeAxisStartIndices()[0]);
-        assertEquals(2, acquisitionInfo.getTimeAxisEndIndices()[0]);
     }
 }
