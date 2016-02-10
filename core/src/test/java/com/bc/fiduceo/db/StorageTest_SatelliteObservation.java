@@ -124,7 +124,9 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testSearchByTimeRange_startTime_laterThanObservation() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
         storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
@@ -133,7 +135,6 @@ public abstract class StorageTest_SatelliteObservation {
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(0, result.size());
     }
-
 
     @Test
     public void testSearchByTimeRange_searchTimeInObservationRange() throws ParseException, SQLException {
@@ -145,10 +146,7 @@ public abstract class StorageTest_SatelliteObservation {
         parameter.setStopTime(TimeUtils.create(1000700000L));
 
         final List<SatelliteObservation> result = storage.get(parameter);
-        //assertEquals(1, result.size());
-
-        final List<SatelliteObservation> satelliteObservations = storage.get();
-        final SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+        assertEquals(1, result.size());
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {
