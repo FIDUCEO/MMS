@@ -96,7 +96,7 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public String getPattern() {
+    public String getRegEx() {
         return "";
     }
 }

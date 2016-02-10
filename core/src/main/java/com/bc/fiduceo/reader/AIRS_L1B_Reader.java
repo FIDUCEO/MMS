@@ -111,7 +111,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String getPattern() {
+    public String getRegEx() {
         return  "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
     }
 

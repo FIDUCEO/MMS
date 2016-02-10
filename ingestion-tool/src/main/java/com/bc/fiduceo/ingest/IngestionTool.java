@@ -84,7 +84,7 @@ class IngestionTool {
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
 
-        String regEx = reader.getPattern();
+        String regEx = reader.getRegEx();
         File[] searchFilesResult = getSearchResult(systemConfig, regEx);
 
 

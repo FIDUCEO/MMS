@@ -62,7 +62,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String getPattern() {
+    public String getRegEx() {
         return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
     }
 
