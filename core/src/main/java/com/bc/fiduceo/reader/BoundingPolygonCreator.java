@@ -261,6 +261,11 @@ public class BoundingPolygonCreator {
         }
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        List<Point> pointList = new ArrayList<>();
+        for (Polygon polygon:polygonsBounding){
+            pointList.addAll(Arrays.asList(polygon.getCoordinates()));
+        }
+        acquisitionInfo.setCoordinates(pointList);
         acquisitionInfo.setPolygons(polygonsBounding);
         acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
         acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);

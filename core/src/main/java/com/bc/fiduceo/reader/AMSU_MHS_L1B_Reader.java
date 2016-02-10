@@ -46,7 +46,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
 
     public AMSU_MHS_L1B_Reader() {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
     }
 
