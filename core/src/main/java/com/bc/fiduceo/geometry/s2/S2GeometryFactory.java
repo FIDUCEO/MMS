@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -21,7 +20,12 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.AbstractGeometryFactory;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
@@ -39,6 +43,16 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         s2WKTReader = new S2WKTReader();
     }
 
+    public static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
+        final ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
+
+        for (final Point point : points) {
+            final S2LatLng s2LatLng = (S2LatLng) point.getInner();
+            loopPoints.add(s2LatLng.toPoint());
+        }
+        return loopPoints;
+    }
+
     @Override
     public Geometry parse(String wkt) {
         final Object geometry = s2WKTReader.read(wkt);
@@ -50,6 +64,9 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
             return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
         }
 
+        if ((List<S2Polygon>) geometry != null) {
+                return new S2MultiPolygon((List<com.google.common.geometry.S2Polygon>) geometry);
+        }
         throw new RuntimeException("Unsupported geometry type");
     }
 
@@ -81,7 +98,7 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         loopList.add(s2Loop);
 
         final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
-        return  new S2Polygon(googlePolygon);
+        return new S2Polygon(googlePolygon);
     }
 
     @Override
@@ -96,15 +113,5 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         final S2Polyline inner = (S2Polyline) lineString.getInner();
         return new S2TimeAxis(inner, startTime, endTime);
-    }
-
-    public static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
-        final ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
-
-        for (final Point point : points) {
-            final S2LatLng s2LatLng = (S2LatLng) point.getInner();
-            loopPoints.add(s2LatLng.toPoint());
-        }
-        return loopPoints;
     }
 }
