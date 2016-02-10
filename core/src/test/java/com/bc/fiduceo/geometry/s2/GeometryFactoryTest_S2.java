@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -69,8 +68,12 @@ public class GeometryFactoryTest_S2 {
         assertNotNull(geometry);
         assertTrue(geometry instanceof S2LineString);
 
-        // @todo 3 tb/tb invent some test here to verify the correctness of parsing 2015-12-01
-        //assertEquals("bla", geometry.toString());
+        Point[] coordinates = geometry.getCoordinates();
+        assertEquals(coordinates[0].getLon(), 1.9999999999999996, 1e-8);
+        assertEquals(coordinates[0].getLat(), 1.0, 1e-8);
+
+        assertEquals(coordinates[3].getLon(), 5.0, 1e-8);
+        assertEquals(coordinates[3].getLat(), 4.0, 1e-8);
     }
 
     @Test
@@ -124,14 +127,14 @@ public class GeometryFactoryTest_S2 {
     }
 
     @Test
-    public void testS2GeomeryMultiPoylgonParse(){
+    public void testS2GeomeryMultiPoylgonParse() {
         GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         S2MultiPolygon s2MultiPolygon = (S2MultiPolygon) geometryFactory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
         Point[] coordinates = s2MultiPolygon.getCoordinates();
         assertTrue(coordinates.length > 2);
         assertNotNull(s2MultiPolygon);
-        assertEquals(coordinates[0].toString(),"POINT(29.999999999999993 20.0)");
-        assertEquals(coordinates[1].toString(),"POINT(100.0 10.0)");
+        assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
+        assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
 
     }
 }

@@ -1,5 +1,6 @@
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Geometry;
@@ -12,6 +13,7 @@ import com.bc.geometry.s2.S2WKTReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
@@ -29,8 +31,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @tom.bc
+ * @author tom.bc
  */
+@RunWith(IOTestRunner.class)
 public class S2PolygonTest {
 
     private S2WKTReader s2WKTReader;
