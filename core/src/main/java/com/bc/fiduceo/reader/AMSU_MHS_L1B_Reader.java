@@ -21,7 +21,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -51,6 +50,22 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
     }
 
+    public ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
+        int[] shape = coodinate.getShape();
+        ArrayDouble arrayDouble = new ArrayDouble(shape);
+
+        for (int i = 0; i < coordinates.length; i++) {
+            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
+        }
+        return (ArrayDouble.D2) arrayDouble.copy();
+    }
+
+    @Override
+    public String getPattern() {
+        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    }
+
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -62,7 +77,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String getReaderName() {
+    public String toString() {
         return "AMSU-B MHS";
     }
 
@@ -91,7 +106,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         ArrayDouble.D2 arrayDoubleLatitude = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
         ArrayDouble.D2 arrayDoubleLongitude = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude, NodeType.ASCENDING);
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude);
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
@@ -105,17 +120,6 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
 
         return acquisitionInfo;
-    }
-
-    public static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
-        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
-        int[] shape = coodinate.getShape();
-        ArrayDouble arrayDouble = new ArrayDouble(shape);
-
-        for (int i = 0; i < coordinates.length; i++) {
-            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
-        }
-        return (ArrayDouble.D2) arrayDouble.copy();
     }
 
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {

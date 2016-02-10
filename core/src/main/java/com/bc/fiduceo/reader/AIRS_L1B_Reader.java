@@ -73,7 +73,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String getReaderName() {
+    public String toString() {
         return "AIRS";
     }
 
@@ -108,6 +108,11 @@ public class AIRS_L1B_Reader implements Reader {
         }
 
         return acquisitionInfo;
+    }
+
+    @Override
+    public String getPattern() {
+        return  "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
     }
 
     // package access for testing only tb 2016-01-08

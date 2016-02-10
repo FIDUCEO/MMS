@@ -30,9 +30,10 @@ public interface Reader {
 
     void close() throws IOException;
 
-    String getReaderName();
+    String toString();
 
     AcquisitionInfo read() throws IOException;
 
+    String getPattern();
 
 }

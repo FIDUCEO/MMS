@@ -16,12 +16,10 @@ public class ReaderFactory<T, V> {
 
     public Reader createReader(String sensor) {
         ServicesUtils<Reader> servicesUtils = new ServicesUtils<>();
-        return servicesUtils.getReader(Reader.class, sensor);
+        return servicesUtils.getServices(Reader.class, sensor);
     }
 
     public File[] getSearchResult(File systemConfig, String search) throws IOException {
-        //get the products archive
-//        String archiveRoot = systemConfig.getArchiveRoot();
         String archiveRoot = systemConfig.getAbsolutePath();
         File[] glob = null;
         String regex = null;

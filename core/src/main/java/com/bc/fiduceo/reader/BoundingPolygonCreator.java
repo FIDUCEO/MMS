@@ -41,7 +41,7 @@ public class BoundingPolygonCreator {
     private final int intervalY;
     private final GeometryFactory geometryFactory;
 
-    BoundingPolygonCreator(Interval interval, GeometryFactory geometryFactory) {
+    public BoundingPolygonCreator(Interval interval, GeometryFactory geometryFactory) {
         if ((interval.getX() <= 0) || (interval.getY() <= 0)) {
             throw new RuntimeException("invalid interval");
         }
@@ -56,70 +56,6 @@ public class BoundingPolygonCreator {
         if (coordinates.size() > 1) {
             coordinates.add(coordinates.get(0));
         }
-    }
-
-    public static List<Polygon> createPolygonsBounding(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
-                                                       GeometryFactory.Type type, int width, int totalHeight, int dept) {
-
-        int intervalX = 50;
-        int intervalY = 50;
-        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
-
-        List<Point> coordinatesSecond = new ArrayList<>();
-        List<Polygon> polygonList = new ArrayList<>();
-
-        int[] timeAxisStart = new int[2];
-        int[] timeAxisEnd = new int[2];
-        timeAxisEnd[0] = timeAxisStart[0];
-
-        int maxHeight = 0;
-        int initialHeight = 0;
-
-        while (true) {
-            List<Point> coordinatesFirst = new ArrayList<>();
-            maxHeight = maxHeight + (totalHeight / dept);
-            if (maxHeight > totalHeight) {
-                maxHeight = totalHeight;
-            }
-
-            for (int x = 0; x < width; x += intervalX) {
-                final double lon = arrayLongitude.get(initialHeight, x);
-                final double lat = arrayLatitude.get(initialHeight, x);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            timeAxisStart[0] = coordinatesFirst.size();
-            timeAxisEnd[0] = timeAxisStart[0];
-
-            for (int y = initialHeight; y < maxHeight; y += intervalY) {
-                final double lon = arrayLongitude.get(y, width);
-                final double lat = arrayLatitude.get(y, width);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-                ++timeAxisEnd[0];
-            }
-
-            for (int x = width; x > 0; x -= intervalX) {
-                final double lon = arrayLongitude.get(maxHeight, x);
-                final double lat = arrayLatitude.get(maxHeight, x);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int y = maxHeight; y > initialHeight; y -= intervalY) {
-                final double lon = arrayLongitude.get(y, 0);
-                final double lat = arrayLatitude.get(y, 0);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-            if (GeometryFactory.Type.JTS == type) {
-                coordinatesSecond.add(coordinatesSecond.get(0));
-            }
-            polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
-
-            initialHeight = maxHeight;
-            if (maxHeight == totalHeight) {
-                break;
-            }
-        }
-        return polygonList;
     }
 
     public static boolean isPointValidation(List<Polygon> polygonList) {
@@ -137,15 +73,40 @@ public class BoundingPolygonCreator {
         return valid;
     }
 
-    public static List<Point> allBoundingPoint(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
-                                               NodeType nodeType, GeometryFactory.Type type,
-                                               int intervalX, int intervalY) {
+    public static String plotMultiPolygon(List<Polygon> polygonList) {
+        final StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("MULTIPOLYGON((");
+
+        for (int j = 0; j < polygonList.size(); j++) {
+            Polygon polygon = polygonList.get(j);
+            final Point[] points = polygon.getCoordinates();
+            stringBuffer.append("(");
+            for (int i = 0; i < points.length; i++) {
+                Point coordinate = points[i];
+                stringBuffer.append(coordinate.getLon());
+                stringBuffer.append(" ");
+                stringBuffer.append(coordinate.getLat());
+                if (i < points.length - 1) {
+                    stringBuffer.append(",");
+                }
+            }
+            stringBuffer.append(")");
+            if (j < polygonList.size() - 1) {
+                stringBuffer.append(",");
+            }
+        }
+        stringBuffer.append("))");
+        return stringBuffer.toString();
+    }
+
+    public List<Point> allBoundingPoint(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
+                                        NodeType nodeType,
+                                        int intervalX, int intervalY) {
         final int[] shape = arrayLatitude.getShape();
         int width = shape[1] - 1;
         int height = shape[0] - 1;
 
 
-        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
         List<Point> coordinates = new ArrayList<>();
 
         int[] timeAxisStart = new int[2];
@@ -205,39 +166,74 @@ public class BoundingPolygonCreator {
                 coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         }
-        if (GeometryFactory.Type.JTS == type) {
+        if (GeometryFactory.Type.JTS == geometryFactory.getType()) {
             coordinates.add(coordinates.get(0));
         }
         return coordinates;
     }
 
+    public List<Polygon> createPolygonsBounding(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
+                                                int width, int totalHeight, int dept) {
 
-    public static String plotMultiPolygon(List<Polygon> polygonList) {
-        final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("MULTIPOLYGON((");
+        int intervalX = 50;
+        int intervalY = 50;
 
-        for (int j = 0; j < polygonList.size(); j++) {
-            Polygon polygon = polygonList.get(j);
-            final Point[] points = polygon.getCoordinates();
-            stringBuffer.append("(");
-            for (int i = 0; i < points.length; i++) {
-                Point coordinate = points[i];
-                stringBuffer.append(coordinate.getLon());
-                stringBuffer.append(" ");
-                stringBuffer.append(coordinate.getLat());
-                if (i < points.length - 1) {
-                    stringBuffer.append(",");
-                }
+        List<Point> coordinatesSecond = new ArrayList<>();
+        List<Polygon> polygonList = new ArrayList<>();
+
+        int[] timeAxisStart = new int[2];
+        int[] timeAxisEnd = new int[2];
+        timeAxisEnd[0] = timeAxisStart[0];
+
+        int maxHeight = 0;
+        int initialHeight = 0;
+
+        while (true) {
+            List<Point> coordinatesFirst = new ArrayList<>();
+            maxHeight = maxHeight + (totalHeight / dept);
+            if (maxHeight > totalHeight) {
+                maxHeight = totalHeight;
             }
-            stringBuffer.append(")");
-            if (j < polygonList.size() - 1) {
-                stringBuffer.append(",");
+
+            for (int x = 0; x < width; x += intervalX) {
+                final double lon = arrayLongitude.get(initialHeight, x);
+                final double lat = arrayLatitude.get(initialHeight, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            timeAxisStart[0] = coordinatesFirst.size();
+            timeAxisEnd[0] = timeAxisStart[0];
+
+            for (int y = initialHeight; y < maxHeight; y += intervalY) {
+                final double lon = arrayLongitude.get(y, width);
+                final double lat = arrayLatitude.get(y, width);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+                ++timeAxisEnd[0];
+            }
+
+            for (int x = width; x > 0; x -= intervalX) {
+                final double lon = arrayLongitude.get(maxHeight, x);
+                final double lat = arrayLatitude.get(maxHeight, x);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+
+            for (int y = maxHeight; y > initialHeight; y -= intervalY) {
+                final double lon = arrayLongitude.get(y, 0);
+                final double lat = arrayLatitude.get(y, 0);
+                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
+            }
+            if (GeometryFactory.Type.JTS == geometryFactory.getType()) {
+                coordinatesSecond.add(coordinatesSecond.get(0));
+            }
+            polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
+
+            initialHeight = maxHeight;
+            if (maxHeight == totalHeight) {
+                break;
             }
         }
-        stringBuffer.append("))");
-        return stringBuffer.toString();
+        return polygonList;
     }
-
 
     //todo mba : include the NodeType.
     public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
@@ -251,7 +247,7 @@ public class BoundingPolygonCreator {
 
 
         for (int i = 1; i <= 4; i++) {
-            polygonsBounding = createPolygonsBounding(arrayLatitude, arrayLongitude, GeometryFactory.Type.S2, width, height, i);
+            polygonsBounding = createPolygonsBounding(arrayLatitude, arrayLongitude, width, height, i);
             if (isPointValidation(polygonsBounding)) {
                 break;
             }
@@ -276,7 +272,7 @@ public class BoundingPolygonCreator {
         int[] timeAxisStart = new int[2];
         int[] timeAxisEnd = new int[2];
 
-        final List<Point> coordinates = allBoundingPoint(arrayLatitude, arrayLongitude, nodeType, GeometryFactory.Type.S2, intervalX, intervalY);
+        final List<Point> coordinates = allBoundingPoint(arrayLatitude, arrayLongitude, nodeType, intervalX, intervalY);
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);

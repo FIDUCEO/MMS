@@ -75,7 +75,7 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public String getReaderName() {
+    public String toString() {
         return "EUMETASAT";
     }
 
@@ -93,5 +93,10 @@ public class EumetsatIASIReader implements Reader {
         acquisitionInfo.setSensingStart(timeConverageStart);
         acquisitionInfo.setSensingStop(timeConverageEnd);
         return acquisitionInfo;
+    }
+
+    @Override
+    public String getPattern() {
+        return "";
     }
 }
