@@ -33,7 +33,6 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
