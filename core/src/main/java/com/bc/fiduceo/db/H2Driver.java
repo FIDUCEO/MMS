@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.sql.PreparedStatement;
@@ -138,28 +139,43 @@ public class H2Driver extends AbstractDriver {
 
     static String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM SATELLITE_OBSERVATION");
+        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID");
         if (parameter == null) {
             return sql.toString();
         }
 
         sql.append(" WHERE ");
 
+        boolean appendAnd = false;
+
         final Date startTime = parameter.getStartTime();
         final Date stopTime = parameter.getStopTime();
         if (startTime != null) {
-            sql.append("stopDate >= '");
+            sql.append("obs.stopDate >= '");
             sql.append(TimeUtils.format(startTime, DATE_PATTERN));
             sql.append("'");
 
-            if (stopTime != null) {
-                sql.append(" AND ");
-            }
+            appendAnd = true;
         }
 
         if (stopTime != null) {
-            sql.append("startDate <= '");
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+            sql.append("obs.startDate <= '");
             sql.append(TimeUtils.format(stopTime, DATE_PATTERN));
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String sensorName = parameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("sen.Name = '");
+            sql.append(sensorName);
             sql.append("'");
         }
 

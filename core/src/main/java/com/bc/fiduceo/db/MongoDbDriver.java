@@ -35,6 +35,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -45,6 +46,14 @@ import java.util.List;
 public class MongoDbDriver extends AbstractDriver {
 
     private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
+    public static final String DATA_FILE_KEY = "dataFile";
+    public static final String START_TIME_KEY = "startTime";
+    public static final String STOP_TIME_KEY = "stopTime";
+    public static final String NODE_TYPE_KEY = "nodeType";
+    public static final String GEO_BOUNDS_KEY = "geoBounds";
+    public static final String SENSOR_KEY = "sensor";
+    public static final String TIME_AXIS_START_KEY = "timeAxisStartIndex";
+    public static final String TIME_AXIS_END_KEY = "timeAxisEndIndex";
 
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
@@ -90,15 +99,15 @@ public class MongoDbDriver extends AbstractDriver {
     public void insert(SatelliteObservation satelliteObservation) throws SQLException {
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
 
-        final Document document = new Document("dataFile", satelliteObservation.getDataFile().getAbsolutePath());
-        document.append("startTime", satelliteObservation.getStartTime());
-        document.append("stopTime", satelliteObservation.getStopTime());
-        document.append("nodeType", satelliteObservation.getNodeType().toId());
-        document.append("geoBounds", convertToGeoJSON(satelliteObservation.getGeoBounds()));
+        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFile().getAbsolutePath());
+        document.append(START_TIME_KEY, satelliteObservation.getStartTime());
+        document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
+        document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
+        document.append(GEO_BOUNDS_KEY, convertToGeoJSON(satelliteObservation.getGeoBounds()));
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
-        document.append("sensor", new Document("name", satelliteObservation.getSensor().getName()));
-        document.append("timeAxisStartIndex", satelliteObservation.getTimeAxisStartIndex());
-        document.append("timeAxisEndIndex", satelliteObservation.getTimeAxisEndIndex());
+        document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
+        document.append(TIME_AXIS_START_KEY, satelliteObservation.getTimeAxisStartIndex());
+        document.append(TIME_AXIS_END_KEY, satelliteObservation.getTimeAxisEndIndex());
 
         observationCollection.insertOne(document);
     }
@@ -111,49 +120,80 @@ public class MongoDbDriver extends AbstractDriver {
 
     @Override
     public List<SatelliteObservation> get() throws SQLException {
-        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
-        final List<SatelliteObservation> resultList = new ArrayList<>();
-
-        final FindIterable<Document> documents = observationCollection.find();
-        for (Document document : documents) {
-            final SatelliteObservation satelliteObservation = new SatelliteObservation();
-
-            final String dataFile = document.getString("dataFile");
-            satelliteObservation.setDataFile(new File(dataFile));
-
-            final Date startTime = document.getDate("startTime");
-            satelliteObservation.setStartTime(startTime);
-
-            final Date stopTime = document.getDate("stopTime");
-            satelliteObservation.setStopTime(stopTime);
-
-            final Integer nodeTypeId = document.getInteger("nodeType");
-            satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
-
-            final Document geoBounds = (Document) document.get("geoBounds");
-            final Geometry geometry = convertToGeometry(geoBounds);
-            satelliteObservation.setGeoBounds(geometry);
-
-            // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
-            final Document jsonSensor = (Document) document.get("sensor");
-            final Sensor sensor = new Sensor();
-            sensor.setName(jsonSensor.getString("name"));
-            satelliteObservation.setSensor(sensor);
-
-            satelliteObservation.setTimeAxisStartIndex(document.getInteger("timeAxisStartIndex"));
-            satelliteObservation.setTimeAxisEndIndex(document.getInteger("timeAxisEndIndex"));
-
-            resultList.add(satelliteObservation);
-        }
-
-        return resultList;
+        return get(null);
     }
 
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-        throw new RuntimeException("not implemented");
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+        final List<SatelliteObservation> resultList = new ArrayList<>();
+
+        final Document queryDocument = createQueryDocument(parameter);
+        final FindIterable<Document> documents = observationCollection.find(queryDocument);
+        for (Document document : documents) {
+            final SatelliteObservation satelliteObservation = getSatelliteObservation(document);
+            resultList.add(satelliteObservation);
+        }
+        return resultList;
     }
 
+    private SatelliteObservation getSatelliteObservation(Document document) {
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
+
+        final String dataFile = document.getString(DATA_FILE_KEY);
+        satelliteObservation.setDataFile(new File(dataFile));
+
+        final Date startTime = document.getDate(START_TIME_KEY);
+        satelliteObservation.setStartTime(startTime);
+
+        final Date stopTime = document.getDate(STOP_TIME_KEY);
+        satelliteObservation.setStopTime(stopTime);
+
+        final Integer nodeTypeId = document.getInteger(NODE_TYPE_KEY);
+        satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
+
+        final Document geoBounds = (Document) document.get(GEO_BOUNDS_KEY);
+        final Geometry geometry = convertToGeometry(geoBounds);
+        satelliteObservation.setGeoBounds(geometry);
+
+        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+        final Document jsonSensor = (Document) document.get(SENSOR_KEY);
+        final Sensor sensor = new Sensor();
+        sensor.setName(jsonSensor.getString("name"));
+        satelliteObservation.setSensor(sensor);
+
+        satelliteObservation.setTimeAxisStartIndex(document.getInteger(TIME_AXIS_START_KEY));
+        satelliteObservation.setTimeAxisEndIndex(document.getInteger(TIME_AXIS_END_KEY));
+        return satelliteObservation;
+    }
+
+    // static access for testing only tb 2016-02-09
+    // @todo 2 tb/tb write tests!! 2016-02-11
+    static Document createQueryDocument(QueryParameter parameter) {
+        if (parameter == null) {
+            return new Document();
+        }
+
+        final Document queryConstraints = new Document();
+        final Date startTime = parameter.getStartTime();
+        if (startTime != null){
+            queryConstraints.append(STOP_TIME_KEY, new Document("$gt", startTime));
+        }
+
+        final Date stopTime = parameter.getStopTime();
+        if (stopTime != null){
+            queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
+        }
+
+        final String sensorName = parameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
+        }
+
+        return queryConstraints;
+    }
+
+    // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
     static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
         if (geometry == null) {
@@ -179,6 +219,7 @@ public class MongoDbDriver extends AbstractDriver {
         throw new RuntimeException("Geometry type support not implemented");
     }
 
+    // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
@@ -194,7 +235,7 @@ public class MongoDbDriver extends AbstractDriver {
                 }
             }
 
-           return geometryFactory.createPolygon(polygonPoints);
+            return geometryFactory.createPolygon(polygonPoints);
 
         }
         throw new RuntimeException("Geometry type support not implemented yet");

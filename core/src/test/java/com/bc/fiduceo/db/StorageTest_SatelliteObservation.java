@@ -28,14 +28,12 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +41,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public abstract class StorageTest_SatelliteObservation {
+
+    private static String SENSOR_NAME = "test_sensor";
 
     protected BasicDataSource dataSource;
     protected Storage storage;
@@ -71,11 +71,7 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet() throws SQLException, ParseException {
-        // @todo 1 tb/tb continue with this 2016-01-11
-
         final SatelliteObservation observation = createSatelliteObservation();
-
-
         storage.insert(observation);
 
         final List<SatelliteObservation> result = storage.get();
@@ -108,7 +104,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_startTime_matchObservation() throws ParseException, SQLException {
+    public void testSearchByTime_startTime_matchObservation() throws ParseException, SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -123,8 +119,10 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_startTime_laterThanObservation() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+    public void testSearchByTime_startTime_laterThanObservation() throws ParseException, SQLException {
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
         storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
@@ -134,21 +132,164 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(0, result.size());
     }
 
-
     @Test
-    public void testSearchByTimeRange_searchTimeInObservationRange() throws ParseException, SQLException {
-        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
-        storage.insert(observation);                                                 //1000400000L
+    public void testSearchByTime_stopTime_matchObservation() throws ParseException, SQLException {
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
+        storage.insert(observation);
 
         final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(TimeUtils.create(1000400000L));
-        parameter.setStopTime(TimeUtils.create(1000700000L));
+        final Date searchTime = TimeUtils.create(1000400000L);
+        parameter.setStopTime(searchTime);
 
         final List<SatelliteObservation> result = storage.get(parameter);
-        //assertEquals(1, result.size());
+        assertEquals(1, result.size());
+    }
 
-        final List<SatelliteObservation> satelliteObservations = storage.get();
-        final SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+    @Test
+    public void testSearchByTime_stopTime_earlierThanObservation() throws ParseException, SQLException {
+        final Date startTime = TimeUtils.create(1000000000L);
+        final Date stopTime = TimeUtils.create(1001000000L);
+        final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStopTime(TimeUtils.create(1000000000L - 100L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_Earlier() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L - 1000L));
+        parameter.setStopTime(TimeUtils.create(1000000000L - 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_intersectSensorStart() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L - 500L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_inSensorRange() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1000000000L + 500L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_intersectSensorStop() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1001000000L - 500L));
+        parameter.setStopTime(TimeUtils.create(1001000000L + 500L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByTimeRange_searchRange_later() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setStartTime(TimeUtils.create(1001000000L + 500L));
+        parameter.setStopTime(TimeUtils.create(1001000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchBySensor_matching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchBySensor_notMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("strange-name");
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchBySensorAndTime_matching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+        parameter.setStartTime(TimeUtils.create(1000000000L - 100L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchBySensorAndTime_timeNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+        parameter.setStartTime(TimeUtils.create(1000000000L - 2000L));
+        parameter.setStopTime(TimeUtils.create(1000000000L - 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchBySensorAndTime_sensorNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("blablabla");
+        parameter.setStartTime(TimeUtils.create(1000000000L - 100L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {
@@ -169,7 +310,8 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setTimeAxisEndIndex(27);
 
         final Sensor sensor = new Sensor();
-        sensor.setName("test_sensor");
+
+        sensor.setName(SENSOR_NAME);
         observation.setSensor(sensor);
 
         return observation;
