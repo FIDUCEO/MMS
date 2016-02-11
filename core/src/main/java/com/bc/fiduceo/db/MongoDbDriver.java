@@ -195,8 +195,8 @@ public class MongoDbDriver extends AbstractDriver {
 
         final Geometry geometry = parameter.getGeometry();
         if (geometry != null) {
-            final com.mongodb.client.model.geojson.Geometry geoJSON = convertToGeoJSON(geometry);
-            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects", new Document("$geometry", geoJSON)));
+            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects",
+                    new Document("$geometry", convertToGeoJSON(geometry))));
         }
 
         return queryConstraints;
