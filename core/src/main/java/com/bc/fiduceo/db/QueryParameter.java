@@ -20,12 +20,15 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.geometry.Geometry;
+
 import java.util.Date;
 
 public class QueryParameter {
     private Date startTime;
     private Date stopTime;
     private String sensorName;
+    private Geometry geometry;
 
     public void setStartTime(Date startDate) {
         this.startTime = startDate;
@@ -49,5 +52,13 @@ public class QueryParameter {
 
     public void setSensorName(String sensorName) {
         this.sensorName = sensorName;
+    }
+
+    public void setGeometry(Geometry geometry) {
+        this.geometry = geometry;
+    }
+
+    public Geometry getGeometry() {
+        return geometry;
     }
 }
