@@ -75,12 +75,12 @@ public class BoundingPolygonCreator {
 
     public static String plotMultiPolygon(List<Polygon> polygonList) {
         final StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("MULTIPOLYGON((");
+        stringBuffer.append("MULTIPOLYGON(");
 
         for (int j = 0; j < polygonList.size(); j++) {
             Polygon polygon = polygonList.get(j);
             final Point[] points = polygon.getCoordinates();
-            stringBuffer.append("(");
+            stringBuffer.append("((");
             for (int i = 0; i < points.length; i++) {
                 Point coordinate = points[i];
                 stringBuffer.append(coordinate.getLon());
@@ -90,12 +90,12 @@ public class BoundingPolygonCreator {
                     stringBuffer.append(",");
                 }
             }
-            stringBuffer.append(")");
+            stringBuffer.append("))");
             if (j < polygonList.size() - 1) {
                 stringBuffer.append(",");
             }
         }
-        stringBuffer.append("))");
+        stringBuffer.append(")");
         return stringBuffer.toString();
     }
 
