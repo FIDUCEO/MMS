@@ -28,12 +28,12 @@ class S2MultiPolygon implements Polygon {
     @Override
     public Geometry intersection(Geometry other) {
         List<com.google.common.geometry.S2Polygon> s2PolygonIntersect = new ArrayList<>();
-        final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
         for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
+            com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
             intersection.initToIntersection(s2Polygon, (com.google.common.geometry.S2Polygon) other.getInner());
             s2PolygonIntersect.add(intersection);
         }
-        return new S2Polygon(intersection);
+        return new S2MultiPolygon(s2PolygonIntersect);
     }
 
     @Override
