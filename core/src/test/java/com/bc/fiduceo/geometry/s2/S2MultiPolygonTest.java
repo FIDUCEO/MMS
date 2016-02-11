@@ -1,5 +1,6 @@
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
@@ -11,6 +12,7 @@ import com.bc.geometry.s2.S2WKTReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
@@ -26,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author muhammad.bc
  */
+@RunWith(IOTestRunner.class)
 public class S2MultiPolygonTest {
     private S2WKTReader s2WKTReader;
     private NetcdfFile netcdfFile;
