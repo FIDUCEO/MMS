@@ -179,6 +179,8 @@ public class H2Driver extends AbstractDriver {
             sql.append("'");
         }
 
+        final com.bc.fiduceo.geometry.Geometry geometry = parameter.getGeometry();
+
         return sql.toString();
     }
 }

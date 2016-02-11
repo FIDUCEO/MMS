@@ -27,11 +27,13 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
@@ -81,7 +83,8 @@ public class MongoDbDriver extends AbstractDriver {
 
     @Override
     public void initialize() throws SQLException {
-        // nothing to initialize tb 2016-02-08
+        final MongoCollection<Document> satelliteObservations = database.getCollection(SATELLITE_DATA_COLLECTION);
+        satelliteObservations.createIndex(new BasicDBObject(GEO_BOUNDS_KEY, "2dsphere"));
     }
 
     @Override
@@ -176,18 +179,24 @@ public class MongoDbDriver extends AbstractDriver {
 
         final Document queryConstraints = new Document();
         final Date startTime = parameter.getStartTime();
-        if (startTime != null){
+        if (startTime != null) {
             queryConstraints.append(STOP_TIME_KEY, new Document("$gt", startTime));
         }
 
         final Date stopTime = parameter.getStopTime();
-        if (stopTime != null){
+        if (stopTime != null) {
             queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
         }
 
         final String sensorName = parameter.getSensorName();
         if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
             queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
+        }
+
+        final Geometry geometry = parameter.getGeometry();
+        if (geometry != null) {
+            final com.mongodb.client.model.geojson.Geometry geoJSON = convertToGeoJSON(geometry);
+            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects", new Document("$geometry", geoJSON)));
         }
 
         return queryConstraints;
