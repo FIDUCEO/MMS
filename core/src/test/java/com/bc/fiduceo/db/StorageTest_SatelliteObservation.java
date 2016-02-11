@@ -28,14 +28,12 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -71,11 +69,7 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_andGet() throws SQLException, ParseException {
-        // @todo 1 tb/tb continue with this 2016-01-11
-
         final SatelliteObservation observation = createSatelliteObservation();
-
-
         storage.insert(observation);
 
         final List<SatelliteObservation> result = storage.get();

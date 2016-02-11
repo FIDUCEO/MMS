@@ -21,9 +21,11 @@
 package com.bc.fiduceo.db;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 @RunWith(DatabaseTestRunner.class)
+@Ignore
 public class StorageTest_SatelliteObservation_PostGIS extends StorageTest_SatelliteObservation {
 
     // This test will use a local database implementation. Please make sure that you have a running PostgreSQL database server
