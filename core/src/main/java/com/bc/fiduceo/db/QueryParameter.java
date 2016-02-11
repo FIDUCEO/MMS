@@ -25,6 +25,7 @@ import java.util.Date;
 public class QueryParameter {
     private Date startTime;
     private Date stopTime;
+    private String sensorName;
 
     public void setStartTime(Date startDate) {
         this.startTime = startDate;
@@ -40,5 +41,13 @@ public class QueryParameter {
 
     public Date getStopTime() {
         return stopTime;
+    }
+
+    public String getSensorName() {
+        return sensorName;
+    }
+
+    public void setSensorName(String sensorName) {
+        this.sensorName = sensorName;
     }
 }

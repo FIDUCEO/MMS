@@ -35,6 +35,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -167,6 +168,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // static access for testing only tb 2016-02-09
+    // @todo 2 tb/tb write tests!! 2016-02-11
     static Document createQueryDocument(QueryParameter parameter) {
         if (parameter == null) {
             return new Document();
@@ -181,6 +183,11 @@ public class MongoDbDriver extends AbstractDriver {
         final Date stopTime = parameter.getStopTime();
         if (stopTime != null){
             queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
+        }
+
+        final String sensorName = parameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
         }
 
         return queryConstraints;

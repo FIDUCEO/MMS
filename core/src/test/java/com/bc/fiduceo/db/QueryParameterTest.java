@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.db;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
@@ -28,22 +29,38 @@ import static org.junit.Assert.assertEquals;
 
 public class QueryParameterTest {
 
+    private QueryParameter parameter;
+
+    @Before
+    public void setUp() {
+        parameter = new QueryParameter();
+    }
+
     @Test
     public void testSetGetStartTime() {
         final Date startTime = new Date(100000000L);
 
-        final QueryParameter parameter = new QueryParameter();
         parameter.setStartTime(startTime);
         assertEquals(startTime.getTime(), parameter.getStartTime().getTime());
     }
-
 
     @Test
     public void testSetGetStopTime() {
         final Date stopTime = new Date(100200000L);
 
-        final QueryParameter parameter = new QueryParameter();
         parameter.setStopTime(stopTime);
         assertEquals(stopTime.getTime(), parameter.getStopTime().getTime());
+    }
+
+    @Test
+    public void testSetGetSensorName() {
+        final String sensor_name_1 = "what a name";
+        final String sensor_name_2 = "sen-sor";
+
+        parameter.setSensorName(sensor_name_1);
+        assertEquals(sensor_name_1, parameter.getSensorName());
+
+        parameter.setSensorName(sensor_name_2);
+        assertEquals(sensor_name_2, parameter.getSensorName());
     }
 }

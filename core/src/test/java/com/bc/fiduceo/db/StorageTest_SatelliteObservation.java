@@ -42,6 +42,8 @@ import static org.junit.Assert.assertNotNull;
 
 public abstract class StorageTest_SatelliteObservation {
 
+    private static String SENSOR_NAME = "test_sensor";
+
     protected BasicDataSource dataSource;
     protected Storage storage;
     private GeometryFactory geometryFactory;
@@ -224,6 +226,30 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(0, result.size());
     }
 
+    @Test
+    public void testSearchBySensor_matching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchBySensor_notMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("strange-name");
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
     private SatelliteObservation createSatelliteObservation() throws ParseException {
         final Date startTime = TimeUtils.create(1430000000000L);
         final Date stopTime = TimeUtils.create(1430001000000L);
@@ -242,7 +268,8 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setTimeAxisEndIndex(27);
 
         final Sensor sensor = new Sensor();
-        sensor.setName("test_sensor");
+
+        sensor.setName(SENSOR_NAME);
         observation.setSensor(sensor);
 
         return observation;
