@@ -250,6 +250,48 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(0, result.size());
     }
 
+    @Test
+    public void testSearchBySensorAndTime_matching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+        parameter.setStartTime(TimeUtils.create(1000000000L - 100L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchBySensorAndTime_timeNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName(SENSOR_NAME);
+        parameter.setStartTime(TimeUtils.create(1000000000L - 2000L));
+        parameter.setStopTime(TimeUtils.create(1000000000L - 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchBySensorAndTime_sensorNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("blablabla");
+        parameter.setStartTime(TimeUtils.create(1000000000L - 100L));
+        parameter.setStopTime(TimeUtils.create(1000000000L + 1000L));
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
     private SatelliteObservation createSatelliteObservation() throws ParseException {
         final Date startTime = TimeUtils.create(1430000000000L);
         final Date stopTime = TimeUtils.create(1430001000000L);

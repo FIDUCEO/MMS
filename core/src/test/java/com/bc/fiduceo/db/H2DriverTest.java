@@ -84,4 +84,15 @@ public class H2DriverTest {
 
         assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID WHERE sen.Name = 'sensor_name'", sql);
     }
+
+    @Test
+    public void testCreateSql_sensorNameAndStartTime() {
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("sensor_name");
+        parameter.setStartTime(TimeUtils.create(1240000000000L));
+
+        final String sql = H2Driver.createSql(parameter);
+
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID WHERE obs.stopDate >= '2009-04-17 20:26:40.0' AND sen.Name = 'sensor_name'", sql);
+    }
 }
