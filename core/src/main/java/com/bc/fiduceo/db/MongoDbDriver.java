@@ -219,6 +219,8 @@ public class MongoDbDriver extends AbstractDriver {
             return new com.mongodb.client.model.geojson.Polygon(geometryPoints);
         } else if (geometry instanceof LineString) {
             return new com.mongodb.client.model.geojson.LineString(geometryPoints);
+        } else if (geometry instanceof Point) {
+            return new com.mongodb.client.model.geojson.Point(geometryPoints.get(0));
         }
 
         throw new RuntimeException("Geometry type support not implemented");

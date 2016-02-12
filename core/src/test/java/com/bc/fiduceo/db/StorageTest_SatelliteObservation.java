@@ -371,6 +371,32 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(1, result.size());
     }
 
+    @Test
+    public void testSearchByGeometry_point_geometryNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POINT (-22 38)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_point_geometryContained() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POINT (11 6.5)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
     private SatelliteObservation createSatelliteObservation() throws ParseException {
         final Date startTime = TimeUtils.create(1430000000000L);
         final Date stopTime = TimeUtils.create(1430001000000L);

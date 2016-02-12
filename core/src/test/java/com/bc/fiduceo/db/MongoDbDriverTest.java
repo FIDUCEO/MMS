@@ -79,6 +79,16 @@ public class MongoDbDriverTest {
     }
 
     @Test
+    public void testConvertToGeoJSON_point() {
+        final Geometry polygon = geometryFactory.parse("POINT(2 3)");
+
+        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
+        assertNotNull(geoJSON);
+        assertEquals("{ \"type\" : \"Point\", \"coordinates\" : [1.9999999999999996, 3.0000000000000004] }",
+                geoJSON.toJson());
+    }
+
+    @Test
     public void testConvertToGeometry_polygon() {
         final Document jsonPolygon = new Document("type", "Polygon");
         final ArrayList<ArrayList<ArrayList<Double>>> linearRings = new ArrayList<>();
