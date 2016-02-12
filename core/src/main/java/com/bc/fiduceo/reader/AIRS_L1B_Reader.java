@@ -73,7 +73,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String toString() {
+    public String sensorTypeName() {
         return "AIRS";
     }
 

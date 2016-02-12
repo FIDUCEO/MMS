@@ -30,7 +30,7 @@ public interface Reader {
 
     void close() throws IOException;
 
-    String toString();
+    String sensorTypeName();
 
     AcquisitionInfo read() throws IOException;
 

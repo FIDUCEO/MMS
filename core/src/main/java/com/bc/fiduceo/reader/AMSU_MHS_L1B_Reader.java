@@ -77,7 +77,8 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String toString() {
+    public String sensorTypeName() {
+//        ReadersPlugin.valueOf(ReadersPlugin.METOP_A,)
         return "AMSU-B MHS";
     }
 

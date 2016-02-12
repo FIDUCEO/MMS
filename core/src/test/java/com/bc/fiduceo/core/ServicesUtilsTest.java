@@ -17,10 +17,11 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.core;
 
 import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.db.Driver;
+import com.bc.fiduceo.reader.Reader;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;

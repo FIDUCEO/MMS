@@ -42,7 +42,7 @@ public class ServicesUtils<T> {
             if (pass.getName().contains("Driver")) {
                 content = ((Driver) service).getUrlPattern().toLowerCase();
             } else {
-                content = ((Reader) service).toString();
+                content = ((Reader) service).sensorTypeName();
             }
 
             if (content.contains(searchTerm) || searchTerm.contains(content)) {
