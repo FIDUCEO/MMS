@@ -74,6 +74,11 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public String format(Geometry geometry) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public byte[] toStorageFormat(Geometry geometry) {
         com.vividsolutions.jts.geom.Geometry jtsGeometry;
         final Object inner = geometry.getInner();

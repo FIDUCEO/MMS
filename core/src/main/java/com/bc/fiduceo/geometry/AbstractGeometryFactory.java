@@ -28,6 +28,8 @@ public interface AbstractGeometryFactory {
 
     Geometry parse(String wkt);
 
+    String format(Geometry geometry);
+
     byte[] toStorageFormat(Geometry geometry);
 
     Geometry fromStorageFormat(byte[] rawData);

@@ -137,7 +137,7 @@ public class H2Driver extends AbstractDriver {
         return resultList;
     }
 
-    static String createSql(QueryParameter parameter) {
+    String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID");
         if (parameter == null) {
@@ -177,9 +177,20 @@ public class H2Driver extends AbstractDriver {
             sql.append("sen.Name = '");
             sql.append(sensorName);
             sql.append("'");
+            appendAnd = true;
         }
 
         final com.bc.fiduceo.geometry.Geometry geometry = parameter.getGeometry();
+        if (geometry != null) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+//            sql.append("ST_Intersects(obs.GeoBounds, ");
+//            sql.append(geometryFactory.)
+
+        }
+
 
         return sql.toString();
     }
