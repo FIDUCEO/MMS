@@ -77,6 +77,17 @@ public class GeometryFactoryTest_S2 {
     }
 
     @Test
+    public void testParseMultiPoylgonParse() {
+        S2MultiPolygon s2MultiPolygon = (S2MultiPolygon) factory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
+        assertNotNull(s2MultiPolygon);
+
+        Point[] coordinates = s2MultiPolygon.getCoordinates();
+        assertEquals(6, coordinates.length);
+        assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
+        assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
+    }
+
+    @Test
     public void testCreatePoint() {
         Point point = factory.createPoint(22.89, -12.45);
         assertNotNull(point);
@@ -124,17 +135,5 @@ public class GeometryFactoryTest_S2 {
 
         // @todo 3 tb/tb invent some test here to verify the correctness of creation 2015-12-01
         //assertEquals("bla", geometry.sensorTypeName());
-    }
-
-    @Test
-    public void testS2GeomeryMultiPoylgonParse() {
-        GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        S2MultiPolygon s2MultiPolygon = (S2MultiPolygon) geometryFactory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
-        Point[] coordinates = s2MultiPolygon.getCoordinates();
-        assertTrue(coordinates.length > 2);
-        assertNotNull(s2MultiPolygon);
-        assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
-        assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
-
     }
 }

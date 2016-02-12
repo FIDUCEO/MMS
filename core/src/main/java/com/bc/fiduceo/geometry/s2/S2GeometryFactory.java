@@ -53,6 +53,7 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         return loopPoints;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Geometry parse(String wkt) {
         final Object geometry = s2WKTReader.read(wkt);
@@ -62,10 +63,8 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
             return new S2LineString((S2Polyline) geometry);
         } else if (geometry instanceof com.google.common.geometry.S2Point) {
             return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
-        }
-
-        if ((List<S2Polygon>) geometry != null) {
-                return new S2MultiPolygon((List<com.google.common.geometry.S2Polygon>) geometry);
+        } else if (geometry instanceof List) {
+            return new S2MultiPolygon((List<com.google.common.geometry.S2Polygon>) geometry);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
@@ -98,9 +97,6 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     public Polygon createPolygon(List<Point> points) {
         final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
         final S2Loop s2Loop = new S2Loop(loopPoints);
-
-        List<S2Loop> loopList = new ArrayList<>();
-        loopList.add(s2Loop);
 
         final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
         return new S2Polygon(googlePolygon);
