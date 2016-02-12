@@ -17,7 +17,9 @@ public enum ReadersPlugin {
     NOAA_17("NM"),
     NOAA_16("NL"),
     NOAA_18("NN"),
-    NOAA_19("NP");
+    NOAA_19("NP"),
+    EUMETSAT("EUMETSAT"),
+    AIRS("AIRS");
 
     String type;
 

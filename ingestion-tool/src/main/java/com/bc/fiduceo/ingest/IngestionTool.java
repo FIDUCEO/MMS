@@ -32,6 +32,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReadersPlugin;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Polygon;
 import org.apache.commons.cli.CommandLine;
@@ -44,6 +45,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +86,7 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
+        sensorType = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
 
@@ -109,6 +115,8 @@ class IngestionTool {
                     final String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(polygons);
                     List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read(multiPolygon);
                 }
+
+                //todo mba : not yet finalize about the method of insertion.
 //                storage.insert(satelliteObservation);
             } finally {
                 reader.close();
@@ -119,7 +127,6 @@ class IngestionTool {
     File[] getSearchResult(SystemConfig systemConfig, String regEx) throws IOException {
         String archiveRoot = systemConfig.getArchiveRoot();
         File[] glob;
-        String regex;
         List<File> inputFileList = new ArrayList<>();
         glob = WildcardMatcher.glob(archiveRoot + File.separator + "*");
 
@@ -131,8 +138,12 @@ class IngestionTool {
                 inputFileList.add(file);
             }
         }
+
+
+
         return inputFileList.toArray(new File[inputFileList.size()]);
     }
+
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -159,5 +170,38 @@ class IngestionTool {
         options.addOption(configOption);
 
         return options;
+    }
+
+    private static class FileFinder extends SimpleFileVisitor<Path> {
+        private final String pattern;
+        List<File> fileList = new ArrayList<>();
+
+        public FileFinder(String pattern) {
+            this.pattern = pattern;
+        }
+
+        void find(Path file) {
+            Path name = file.getFileName();
+            if (name != null && name.toString().matches(pattern)) {
+                fileList.add(file.toFile());
+            }
+        }
+
+        public List<File> getFileList() {
+            return fileList;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            find(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file,
+                                               IOException exc) {
+            System.err.println(exc);
+            return FileVisitResult.CONTINUE;
+        }
     }
 }

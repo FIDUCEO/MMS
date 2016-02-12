@@ -20,18 +20,27 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SystemConfig;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(IOTestRunner.class)
 public class IngestionToolTest {
 
     private String ls;
@@ -86,7 +95,15 @@ public class IngestionToolTest {
     }
 
     @Test
-    public void testInjectSensorName() {
+    public void testFileGlob() throws IOException {
 
+        File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
+        assertTrue(files != null);
+    }
+
+    private File[] setFileFilter(String location, String regEx) {
+        File fileLocation = new File(location);
+        FileFilter wildcardFileFilter = new WildcardFileFilter(regEx);
+        return fileLocation.listFiles(wildcardFileFilter);
     }
 }

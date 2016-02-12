@@ -76,7 +76,7 @@ public class EumetsatIASIReader implements Reader {
 
     @Override
     public String sensorTypeName() {
-        return "EUMETASAT";
+        return ReadersPlugin.EUMETSAT.getType();
     }
 
     @Override
