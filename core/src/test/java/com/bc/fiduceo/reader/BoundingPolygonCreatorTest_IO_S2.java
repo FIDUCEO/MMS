@@ -46,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
-public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
+public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest {
 
     private NetcdfFile netcdfFile;
     private AMSU_MHS_L1B_Reader reader;

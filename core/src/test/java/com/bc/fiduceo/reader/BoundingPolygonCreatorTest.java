@@ -20,14 +20,22 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.geometry.s2.S2WKTReader;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
+import ucar.nc2.NetcdfFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +56,7 @@ public abstract class BoundingPolygonCreatorTest {
             {71.41032171663477, 71.69739504897453, 71.96597011172345, 72.21432551071354}};
     protected BoundingPolygonCreator boundingPolygonCreator;
     protected GeometryFactory geometryFactory;
+
 
     @Test
     public void testClosePolygon_emptyList() {
@@ -112,4 +121,6 @@ public abstract class BoundingPolygonCreatorTest {
         assertEquals(136.90199908664985, coordinates.get(3).getLon(), 1e-8);
         assertEquals(71.41032171663477, coordinates.get(3).getLat(), 1e-8);
     }
+
+
 }
