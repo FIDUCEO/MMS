@@ -71,6 +71,11 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public String format(Geometry geometry) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public byte[] toStorageFormat(Geometry geometry) {
         // @todo 1 tb/tb do it 2015-12-22
         throw new RuntimeException("not implemented");

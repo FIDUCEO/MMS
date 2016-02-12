@@ -51,8 +51,14 @@ public class GeometryFactory implements AbstractGeometryFactory {
         return type;
     }
 
+    @Override
     public Geometry parse(String wkt) {
         return factoryImpl.parse(wkt);
+    }
+
+    @Override
+    public String format(Geometry geometry) {
+        return factoryImpl.format(geometry);
     }
 
     @Override

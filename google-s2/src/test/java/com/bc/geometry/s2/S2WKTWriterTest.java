@@ -59,6 +59,19 @@ public class S2WKTWriterTest {
         assertEquals("LINESTRING(1.9999999999999996 -39.0,1.0 -39.5,0.0 -40.0)", wkt);
     }
 
+    @Test
+    public void testWritePoint() {
+        final S2Point s2Point = createS2Point(-18.7, 45.9);
+
+        final String wkt= S2WKTWriter.write(s2Point);
+        assertEquals("POINT(-18.7,45.9)", wkt);
+    }
+
+//    @Test
+//    public void testWritePolygon() {
+//
+//    }
+
     private static S2Point createS2Point(double lon, double lat) {
         return S2LatLng.fromDegrees(lat, lon).toPoint();
     }

@@ -24,6 +24,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
@@ -292,6 +293,110 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(0, result.size());
     }
 
+    @Test
+    public void testSearchByGeometry_polygon_geometryNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POLYGON ((1 5, 1 7, 2 7, 2 5, 1 5))");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_polygon_geometryMatching_instersects() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POLYGON ((11 3, 11 8, 11.2 8, 11.2 3, 11 3))");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_polygon_geometryMatching_contains() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POLYGON ((11 5.5, 11 6, 11.5 6, 11.5 5.5, 11 5.5))");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (-8 -12, -9 -14, -11 -17)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryIntersecting() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (8 6, 11 6.5, 14 7 )");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryContained() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (10.5 6, 11 6.5, 11.5 6.2)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_point_geometryNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POINT (-22 38)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_point_geometryContained() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POINT (11 6.5)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
     private SatelliteObservation createSatelliteObservation() throws ParseException {
         final Date startTime = TimeUtils.create(1430000000000L);
         final Date stopTime = TimeUtils.create(1430001000000L);
@@ -303,7 +408,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStartTime(startTime);
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
-        final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
+        final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
         observation.setGeoBounds(geometry);
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);

@@ -27,26 +27,42 @@ import com.google.common.geometry.S2Polyline;
 
 public class S2WKTWriter {
 
-    public static String write(S2Polyline polyline) {
-        final int numVertices = polyline.numVertices();
-        if (numVertices < 2) {
-            throw new IllegalArgumentException("Linestring contains less that 2 vertices.");
-        }
-
+    public static String write(Object geometry) {
         final StringBuilder builder = new StringBuilder();
-        builder.append("LINESTRING(");
+        if (geometry instanceof S2Polyline) {
+            final S2Polyline polyline = (S2Polyline) geometry;
 
-        for (int i = 0; i < numVertices; i++) {
-            final S2Point vertex = polyline.vertex(i);
-            final S2LatLng latLng = new S2LatLng(vertex);
-            builder.append(latLng.lngDegrees());
-            builder.append(" ");
-            builder.append(latLng.latDegrees());
-            if (i != numVertices - 1) {
-                builder.append(",");
+            final int numVertices = polyline.numVertices();
+            if (numVertices < 2) {
+                throw new IllegalArgumentException("Linestring contains less that 2 vertices.");
             }
+
+
+            builder.append("LINESTRING(");
+
+            for (int i = 0; i < numVertices; i++) {
+                final S2Point vertex = polyline.vertex(i);
+                final S2LatLng latLng = new S2LatLng(vertex);
+                builder.append(latLng.lngDegrees());
+                builder.append(" ");
+                builder.append(latLng.latDegrees());
+                if (i != numVertices - 1) {
+                    builder.append(",");
+                }
+            }
+            builder.append(")");
+            return builder.toString();
+        } else if (geometry instanceof S2Point) {
+            final S2Point point = (S2Point) geometry;
+            final S2LatLng s2LatLng = new S2LatLng(point);
+            builder.append("POINT(");
+            builder.append(s2LatLng.lngDegrees());
+            builder.append(",");
+            builder.append(s2LatLng.latDegrees());
+            builder.append(")");
+            return builder.toString();
         }
-        builder.append(")");
-        return builder.toString();
+
+        throw new IllegalArgumentException("unsupported geometry type: " + geometry.toString());
     }
 }
