@@ -294,7 +294,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByGeometry_geometryNotMatching() throws ParseException, SQLException {
+    public void testSearchByGeometry_polygon_geometryNotMatching() throws ParseException, SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -304,6 +304,71 @@ public abstract class StorageTest_SatelliteObservation {
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_polygon_geometryMatching_instersects() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POLYGON ((11 3, 11 8, 11.2 8, 11.2 3, 11 3))");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_polygon_geometryMatching_contains() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("POLYGON ((11 5.5, 11 6, 11.5 6, 11.5 5.5, 11 5.5))");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryNotMatching() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (-8 -12, -9 -14, -11 -17)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryIntersecting() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (8 6, 11 6.5, 14 7 )");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchByGeometry_lineString_geometryContained() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse("LINESTRING (10.5 6, 11 6.5, 11.5 6.2)");
+        parameter.setGeometry(geometry);
+
+        final List<SatelliteObservation> result = storage.get(parameter);
+        assertEquals(1, result.size());
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {

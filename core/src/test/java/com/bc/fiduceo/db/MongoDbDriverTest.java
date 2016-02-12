@@ -23,7 +23,6 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.bson.Document;
-import org.bson.codecs.DoubleCodec;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,11 +35,13 @@ import static org.junit.Assert.fail;
 public class MongoDbDriverTest {
 
     private MongoDbDriver driver;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() {
         driver = new MongoDbDriver();
-        driver.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        driver.setGeometryFactory(geometryFactory);
     }
 
     @Test
@@ -53,19 +54,28 @@ public class MongoDbDriverTest {
         try {
             MongoDbDriver.convertToGeoJSON(null);
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
     @Test
     public void testConvertToGeoJSON_polygon() {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Geometry polygon = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
 
-//        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
-//        assertNotNull(geoJSON);
-//        assertEquals("{ \"type\" : \"Polygon\", \"coordinates\" : [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]] }",
-//                geoJSON.toJson());
+        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
+        assertNotNull(geoJSON);
+        assertEquals("{ \"type\" : \"Polygon\", \"coordinates\" : [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]] }",
+                geoJSON.toJson());
+    }
+
+    @Test
+    public void testConvertToGeoJSON_lineString() {
+        final Geometry polygon = geometryFactory.parse("LINESTRING(1 2, 2 4, 3 -1)");
+
+        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
+        assertNotNull(geoJSON);
+        assertEquals("{ \"type\" : \"LineString\", \"coordinates\" : [[0.9999999999999998, 2.0], [2.0, 4.0], [3.0000000000000004, -1.0]] }",
+                geoJSON.toJson());
     }
 
     @Test

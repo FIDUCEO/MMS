@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.mongodb.BasicDBObject;
@@ -208,23 +209,29 @@ public class MongoDbDriver extends AbstractDriver {
             throw new IllegalArgumentException("geometry is null");
         }
 
+        final Point[] coordinates = geometry.getCoordinates();
+        final ArrayList<Position> geometryPoints = extractPointsFromGeometry(coordinates);
         if (geometry instanceof Polygon) {
-            final Point[] coordinates = geometry.getCoordinates();
-            final ArrayList<Position> polygonPoints = new ArrayList<>();
-
-            for (final Point coordinate : coordinates) {
-                final Position position = new Position(coordinate.getLon(), coordinate.getLat());
-                polygonPoints.add(position);
-            }
-
             if (!coordinates[0].equals(coordinates[coordinates.length - 1])) {
                 final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
-                polygonPoints.add(position);
+                geometryPoints.add(position);
             }
-            return new com.mongodb.client.model.geojson.Polygon(polygonPoints);
+            return new com.mongodb.client.model.geojson.Polygon(geometryPoints);
+        } else if (geometry instanceof LineString) {
+            return new com.mongodb.client.model.geojson.LineString(geometryPoints);
         }
 
         throw new RuntimeException("Geometry type support not implemented");
+    }
+
+    private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {
+        final ArrayList<Position> polygonPoints = new ArrayList<>();
+
+        for (final Point coordinate : coordinates) {
+            final Position position = new Position(coordinate.getLon(), coordinate.getLat());
+            polygonPoints.add(position);
+        }
+        return polygonPoints;
     }
 
     // static access for testing only tb 2016-02-09
