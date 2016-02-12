@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -74,7 +73,7 @@ public class AIRS_L1B_Reader implements Reader {
 
     @Override
     public String sensorTypeName() {
-        return "AIRS";
+        return ReadersPlugin.AIRS.getType();
     }
 
     public AcquisitionInfo read() throws IOException {
