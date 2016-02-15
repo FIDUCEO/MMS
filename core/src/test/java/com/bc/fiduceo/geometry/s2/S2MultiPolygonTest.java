@@ -54,7 +54,7 @@ public class S2MultiPolygonTest {
     @Test
     public void testIntersectMultiPolygon_polygon_intersectOnePolygon() {
         final S2Polygon s2Polygon = createS2Polygon("POLYGON ((30 60, 30 75, 40 75, 40 60))");
-        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 75)))");
 
         final Geometry intersection = s2MultiPolygon.intersection(s2Polygon);
         assertNotNull(intersection);
@@ -69,7 +69,8 @@ public class S2MultiPolygonTest {
                              "(59.99999999999999, 39.99999999999999)\n" +
                              "(70.56149333496859, 40.00000000000001)\n" +
                              "(70.0, 49.99999999999999)\n" +
-                             "(90.0, 20.0)\n" +
+                             "(90.0, 49.99999999999999)\n" +
+                             "(75.0, 20.0)\n" +
                              "(70.0, 20.0)\n" +
                              ">\n", result.toString());
 
