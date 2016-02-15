@@ -21,12 +21,14 @@
 package com.bc.fiduceo.matchup;
 
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class MatchupToolTest {
 
@@ -40,13 +42,34 @@ public class MatchupToolTest {
     @Test
     public void testPrintUsageTo() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final MatchupTool ingestionTool = new MatchupTool();
+        final MatchupTool matchupTool = new MatchupTool();
 
-        ingestionTool.printUsageTo(outputStream);
+        matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.0" + ls + ls+
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -h,--help   Prints the tool usage." + ls, outputStream.toString());
+                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
+                "   -h,--help           Prints the tool usage." + ls, outputStream.toString());
+    }
+
+    @Test
+    public void testGetOptions() {
+        final Options options = MatchupTool.getOptions();
+        assertNotNull(options);
+
+        final Option helpOption = options.getOption("h");
+        assertNotNull(helpOption);
+        assertEquals("h", helpOption.getOpt());
+        assertEquals("help", helpOption.getLongOpt());
+        assertEquals("Prints the tool usage.", helpOption.getDescription());
+        assertFalse(helpOption.hasArg());
+
+        final Option configOption = options.getOption("config");
+        assertNotNull(configOption);
+        assertEquals("c", configOption.getOpt());
+        assertEquals("config", configOption.getLongOpt());
+        assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
+        assertTrue(configOption.hasArg());
     }
 }
