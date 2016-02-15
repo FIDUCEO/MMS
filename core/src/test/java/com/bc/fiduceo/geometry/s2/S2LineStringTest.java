@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class S2LineStringTest {
@@ -78,5 +79,16 @@ public class S2LineStringTest {
         assertEquals(22.6, coordinates[0].getLon(), 1e-8);
         assertEquals(-11.6, coordinates[1].getLat(), 1e-8);
         assertEquals(21.5, coordinates[1].getLon(), 1e-8);
+    }
+
+    @Test
+    public void testGetInner() {
+        final ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(new S2Point(0.1, 0.2, 0.5));
+        final S2Polyline innerLineString = new S2Polyline(vertices);
+        final S2LineString s2LineString = new S2LineString(innerLineString);
+
+        assertNotNull(s2LineString.getInner());
+        assertSame(innerLineString, s2LineString.getInner());
     }
 }

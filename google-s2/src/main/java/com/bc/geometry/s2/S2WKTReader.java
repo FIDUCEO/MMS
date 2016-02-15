@@ -285,11 +285,13 @@ public class S2WKTReader {
             return readLineStringText();
         } else if ("LINEARRING".equalsIgnoreCase(type)) {
             return readLinearRingText();
+        } else if ("MULTILINESTRING".equalsIgnoreCase(type)) {
+            return readMultiLineString();
         } else if ("POLYGON".equalsIgnoreCase(type)) {
             return readPolygonText();
         } else if ("MULTIPOLYGON".equalsIgnoreCase(type)) {
             return readMultiPolygonText();
-        }else if ("POINT".equalsIgnoreCase(type)) {
+        } else if ("POINT".equalsIgnoreCase(type)) {
             return readPointText();
         }
         parseErrorWithLine("Unknown geometry type: " + type);
@@ -327,6 +329,7 @@ public class S2WKTReader {
         return new S2Loop(points);
     }
 
+
     /**
      * Creates a <code>Polygon</code> using the next token in the stream.
      *
@@ -338,23 +341,6 @@ public class S2WKTReader {
      * @throws IOException    if an I/O error occurs
      */
     private S2Polygon readPolygonText() throws IOException, IllegalArgumentException {
-        String nextToken = getNextEmptyOrOpener();
-        if (EMPTY.equals(nextToken)) {
-            return new S2Polygon();
-        }
-        ArrayList<S2Loop> loops = new ArrayList<>();
-        S2Loop shell = readLinearRingText();
-        shell.normalize();
-        loops.add(shell);
-        nextToken = getNextCloserOrComma();
-        while (COMMA.equals(nextToken)) {
-            loops.add(readLinearRingText());
-            nextToken = getNextCloserOrComma();
-        }
-        return new S2Polygon(loops);
-    }
-
-    private S2Polygon readMultiPointText() throws IOException, IllegalArgumentException {
         String nextToken = getNextEmptyOrOpener();
         if (EMPTY.equals(nextToken)) {
             return new S2Polygon();
@@ -410,4 +396,40 @@ public class S2WKTReader {
         return s2PolygonList;
     }
 
+
+    private List<S2Polyline> readMultiLineString() throws IOException, IllegalArgumentException {
+        List<S2Polyline> s2LoopList = new ArrayList<>();
+        while (true) {
+            int i = tokenizer.nextToken();
+            if (StreamTokenizer.TT_WORD == i) {
+                tokenizer.pushBack();
+                S2Polyline polyline = getMultiLineStringPoints();
+                s2LoopList.add(polyline);
+            }
+            if (i == ')') {
+                int i1 = tokenizer.nextToken();
+                if (i1 == StreamTokenizer.TT_EOF) {
+                    break;
+                }
+                tokenizer.pushBack();
+            }
+        }
+        return s2LoopList;
+    }
+
+
+    private S2Polyline getMultiLineStringPoints() throws IOException, IllegalArgumentException {
+        ArrayList<S2Point> points = new ArrayList<>();
+        points.add(getPreciseCoordinate());
+        String nextToken = getNextCloserOrComma();
+        while (COMMA.equals(nextToken)) {
+            points.add(getPreciseCoordinate());
+            nextToken = getNextCloserOrComma();
+        }
+
+        if (points.size() > 1 && points.get(0).equals(points.get(points.size() - 1))) {
+            points.remove(points.size() - 1);
+        }
+        return new S2Polyline(points);
+    }
 }
