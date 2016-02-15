@@ -21,6 +21,8 @@
 
 package com.bc.fiduceo.geometry;
 
+import com.google.common.geometry.S2Polygon;
+
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +41,8 @@ public interface AbstractGeometryFactory {
     Polygon createPolygon(List<Point> points);
 
     LineString createLineString(List<Point> points);
+
+    MultiPolygon createMultiPolygon(List<Polygon> polygonList);
 
     TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime);
 }

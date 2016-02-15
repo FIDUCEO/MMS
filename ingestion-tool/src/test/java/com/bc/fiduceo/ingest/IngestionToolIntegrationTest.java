@@ -22,12 +22,10 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
@@ -48,8 +46,6 @@ import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class IngestionToolIntegrationTest {
-
-    private final String ls = System.lineSeparator();
     private File configDir;
 
     @Before
@@ -152,18 +148,17 @@ public class IngestionToolIntegrationTest {
         final Storage storage = Storage.create(getDatasource(), new GeometryFactory(GeometryFactory.Type.S2));
         storage.initialize();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsu-b"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
             writeSystemProperties();
             writeDatabaseProperties();
-
             IngestionToolMain.main(args);
 
-//            final List<SatelliteObservation> satelliteObservations = storage.get();
-//            assertTrue(satelliteObservations.size() > 0);
-//            final SatelliteObservation observation = satelliteObservations.get(0);
-//            final Sensor sensor = observation.getSensor();
-//            assertEquals("AMSU-B", sensor.getName());
+            // final List<SatelliteObservation> satelliteObservations = storage.get();
+            // assertTrue(satelliteObservations.size() > 0);
+            // final SatelliteObservation observation = satelliteObservations.get(0);
+            // final Sensor sensor = observation.getSensor();
+            // assertEquals("AMSU-B", sensor.getName());
 
         } finally {
             storage.close();
@@ -182,12 +177,11 @@ public class IngestionToolIntegrationTest {
 
             IngestionToolMain.main(args);
 
-//            final List<SatelliteObservation> satelliteObservations = storage.get();
-//            assertTrue(satelliteObservations.size() > 0);
-//
-//            final SatelliteObservation observation = satelliteObservations.get(0);
-//            final Sensor sensor = observation.getSensor();
-//            assertEquals("MHS", sensor.getName());
+            // final List<SatelliteObservation> satelliteObservations = storage.get();
+            // assertTrue(satelliteObservations.size() > 0);
+            // final SatelliteObservation observation = satelliteObservations.get(0);
+            // final Sensor sensor = observation.getSensor();
+            // assertEquals("MHS", sensor.getName());
 
         } finally {
             storage.close();

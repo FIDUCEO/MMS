@@ -23,11 +23,13 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 

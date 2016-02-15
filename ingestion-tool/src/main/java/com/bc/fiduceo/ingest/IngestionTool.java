@@ -26,37 +26,52 @@ import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReadersPlugin;
-import com.bc.geometry.s2.S2WKTReader;
-import com.google.common.geometry.S2Polygon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.esa.snap.core.util.io.WildcardMatcher;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
+
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
+        options.addOption(sensorOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        return options;
+    }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
@@ -70,7 +85,7 @@ class IngestionTool {
         systemConfig.loadFrom(configDirectory);
 
         // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
 
         // @todo 2 tb/tb check if database is already set up. If not, call initialize(). tb 2015-12-22
@@ -90,11 +105,8 @@ class IngestionTool {
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
 
-        String regEx = reader.getRegEx();
-        File[] searchFilesResult = getSearchResult(systemConfig, regEx);
+        List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
 
-
-        S2WKTReader s2WKTReader = new S2WKTReader();
         for (final File file : searchFilesResult) {
             reader.open(file);
             try {
@@ -109,14 +121,11 @@ class IngestionTool {
                 satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
-                final List<Point> coordinates = aquisitionInfo.getCoordinates();
-                final List<Polygon> polygons = aquisitionInfo.getPolygons();
-                if (coordinates == null) {
-                    final String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(polygons);
-                    List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read(multiPolygon);
-                }
+                MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(aquisitionInfo.getPolygons());
+                String multiPolygon1 = BoundingPolygonCreator.plotMultiPolygon((List<Polygon>) multiPolygon.getInner());
 
-                //todo mba : not yet finalize about the method of insertion.
+                Geometry parse = geometryFactory.parse(multiPolygon1);
+                satelliteObservation.setGeoBounds(parse);
 //                storage.insert(satelliteObservation);
             } finally {
                 reader.close();
@@ -124,26 +133,12 @@ class IngestionTool {
         }
     }
 
-    File[] getSearchResult(SystemConfig systemConfig, String regEx) throws IOException {
-        String archiveRoot = systemConfig.getArchiveRoot();
-        File[] glob;
-        List<File> inputFileList = new ArrayList<>();
-        glob = WildcardMatcher.glob(archiveRoot + File.separator + "*");
-
-        if (Objects.isNull(glob)) {
-            return null;
-        }
-        for (File file : glob) {
-            if (file.getCanonicalFile().getName().matches(regEx)) {
-                inputFileList.add(file);
-            }
-        }
-
-
-
-        return inputFileList.toArray(new File[inputFileList.size()]);
+    List<File> searchReaderFiles(SystemConfig systemConfig, String regEx) throws IOException {
+        Path start = new File(systemConfig.getArchiveRoot()).toPath();
+        FileFinder fileFinder = new FileFinder(regEx);
+        Files.walkFileTree(start, fileFinder);
+        return fileFinder.getFileList();
     }
-
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -157,32 +152,17 @@ class IngestionTool {
         writer.flush();
     }
 
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
-        options.addOption(sensorOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        return options;
-    }
-
     private static class FileFinder extends SimpleFileVisitor<Path> {
-        private final String pattern;
+        private final PathMatcher matcher;
         List<File> fileList = new ArrayList<>();
 
         public FileFinder(String pattern) {
-            this.pattern = pattern;
+            matcher = FileSystems.getDefault().getPathMatcher("regex:" + pattern);
         }
 
         void find(Path file) {
             Path name = file.getFileName();
-            if (name != null && name.toString().matches(pattern)) {
+            if (name != null && matcher.matches(name)) {
                 fileList.add(file.toFile());
             }
         }
@@ -195,11 +175,12 @@ class IngestionTool {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             find(file);
             return FileVisitResult.CONTINUE;
+
+
         }
 
         @Override
-        public FileVisitResult visitFileFailed(Path file,
-                                               IOException exc) {
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
             System.err.println(exc);
             return FileVisitResult.CONTINUE;
         }

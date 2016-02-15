@@ -1,6 +1,26 @@
+/*
+ * Copyright (C) 2015 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.geometry.S2LatLng;
@@ -13,18 +33,18 @@ import java.util.List;
 /**
  * @author muhammad.bc
  */
-class S2MultiPolygon implements Polygon {
+class S2MultiPolygon implements MultiPolygon {
     private List<com.google.common.geometry.S2Polygon> polygonList;
 
-    public S2MultiPolygon(List<com.google.common.geometry.S2Polygon> polygonList) {
-        this.polygonList = polygonList;
+//    public S2MultiPolygon(List<com.google.common.geometry.S2Polygon> resultList) {
+//        this.polygonList = resultList;
+//    }
 
+    public S2MultiPolygon(List<?> polygonList) {
+            this.polygonList = (List<com.google.common.geometry.S2Polygon>) polygonList;
     }
 
-    @Override
-    public void shiftLon(double lon) {
 
-    }
 
     @Override
     public Geometry intersection(Geometry other) {
@@ -50,6 +70,7 @@ class S2MultiPolygon implements Polygon {
     private Geometry intersectS2MultiPolygon(Geometry other) {
         List<com.google.common.geometry.S2Polygon> resultList = new ArrayList<>();
         for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
+
             com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
 
             intersection.initToIntersection(s2Polygon, (com.google.common.geometry.S2Polygon) other.getInner());

@@ -23,6 +23,7 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.AbstractGeometryFactory;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
@@ -64,7 +65,7 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         } else if (geometry instanceof com.google.common.geometry.S2Point) {
             return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
         } else if (geometry instanceof List) {
-            return new S2MultiPolygon((List<com.google.common.geometry.S2Polygon>) geometry);
+            return new S2MultiPolygon((List<Polygon>) geometry);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
@@ -109,6 +110,12 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         final S2Polyline s2Polyline = new S2Polyline(loopPoints);
         return new S2LineString(s2Polyline);
     }
+
+    @Override
+    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        return new S2MultiPolygon(polygonList);
+    }
+
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {

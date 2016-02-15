@@ -158,6 +158,11 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public com.bc.fiduceo.geometry.MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        return null;
+    }
+
+    @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         final com.vividsolutions.jts.geom.LineString jtsLineString = (com.vividsolutions.jts.geom.LineString) lineString.getInner();
         return new JTSTimeAxis(jtsLineString, startTime, endTime);

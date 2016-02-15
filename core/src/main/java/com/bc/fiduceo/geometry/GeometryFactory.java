@@ -28,14 +28,8 @@ import java.util.List;
 
 public class GeometryFactory implements AbstractGeometryFactory {
 
-    public enum Type {
-        JTS,
-        S2
-    }
-
     private final AbstractGeometryFactory factoryImpl;
     private Type type;
-
     public GeometryFactory(Type type) {
         this.type = type;
         if (type == Type.JTS) {
@@ -87,7 +81,17 @@ public class GeometryFactory implements AbstractGeometryFactory {
     }
 
     @Override
+    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        return factoryImpl.createMultiPolygon(polygonList);
+    }
+
+    @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         return factoryImpl.createTimeAxis(lineString, startTime, endTime);
+    }
+
+    public enum Type {
+        JTS,
+        S2
     }
 }
