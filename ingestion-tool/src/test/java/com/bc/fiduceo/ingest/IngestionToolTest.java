@@ -44,16 +44,17 @@ import static org.junit.Assert.assertTrue;
 public class IngestionToolTest {
 
     private String ls;
+    private IngestionTool ingestionTool;
 
     @Before
     public void SetUp() {
         ls = System.lineSeparator();
+        ingestionTool = new IngestionTool();
     }
 
     @Test
     public void testPrintUsageTo() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final IngestionTool ingestionTool = new IngestionTool();
 
         ingestionTool.printUsageTo(outputStream);
 
@@ -68,8 +69,7 @@ public class IngestionToolTest {
 
     @Test
     public void testGetOptions() {
-        final IngestionTool ingestionTool = new IngestionTool();
-        final Options options = ingestionTool.getOptions();
+        final Options options = IngestionTool.getOptions();
         assertNotNull(options);
 
         final Option helpOption = options.getOption("h");
@@ -96,7 +96,6 @@ public class IngestionToolTest {
 
     @Test
     public void testFileGlob() throws IOException {
-
         File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
         assertTrue(files != null);
     }

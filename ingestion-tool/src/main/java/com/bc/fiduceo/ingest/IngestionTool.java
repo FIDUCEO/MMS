@@ -157,7 +157,7 @@ class IngestionTool {
         writer.flush();
     }
 
-    Options getOptions() {
+    static Options getOptions() {
         final Options options = new Options();
 
         final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
