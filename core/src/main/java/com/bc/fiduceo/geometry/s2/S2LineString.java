@@ -64,6 +64,6 @@ class S2LineString implements LineString {
 
     @Override
     public Object getInner() {
-        throw new RuntimeException("not implemented");
+        return googleLineString;
     }
 }
