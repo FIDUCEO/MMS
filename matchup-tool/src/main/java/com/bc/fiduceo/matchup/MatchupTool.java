@@ -49,6 +49,9 @@ class MatchupTool {
         final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
         options.addOption(helpOption);
 
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
         return options;
     }
 }
