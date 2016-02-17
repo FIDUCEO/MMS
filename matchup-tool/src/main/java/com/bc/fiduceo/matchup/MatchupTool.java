@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,16 @@ class MatchupTool {
 
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
+
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
 
         // input required:
         // - primary sensor
@@ -74,6 +85,12 @@ class MatchupTool {
 
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
+
+        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        options.addOption(endOption);
 
         return options;
     }
