@@ -121,12 +121,13 @@ class IngestionTool {
                 satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
-                MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(aquisitionInfo.getPolygons());
+                MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
                 String multiPolygon1 = BoundingPolygonCreator.plotMultiPolygon((List<Polygon>) multiPolygon.getInner());
+                satelliteObservation.setWellknowText(multiPolygon1);
 
                 Geometry parse = geometryFactory.parse(multiPolygon1);
                 satelliteObservation.setGeoBounds(parse);
-//                storage.insert(satelliteObservation);
+                storage.insert(satelliteObservation);
             } finally {
                 reader.close();
             }

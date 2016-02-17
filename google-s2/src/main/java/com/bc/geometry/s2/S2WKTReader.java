@@ -45,6 +45,7 @@ public class S2WKTReader {
 
     private StreamTokenizer tokenizer;
 
+
     /**
      * Reads a Well-Known Text representation of a {@link S2Region}
      * from a {@link String}.
@@ -351,7 +352,11 @@ public class S2WKTReader {
         loops.add(shell);
         nextToken = getNextCloserOrComma();
         while (COMMA.equals(nextToken)) {
-            loops.add(readLinearRingText());
+            S2Loop e = readLinearRingText();
+            loops.add(e);
+//            if (!loops.contains(e)) {
+//                loops.add(e);
+//            }
             nextToken = getNextCloserOrComma();
         }
         return new S2Polygon(loops);

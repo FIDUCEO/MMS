@@ -22,6 +22,7 @@ package com.bc.fiduceo.geometry;
 
 import com.bc.fiduceo.geometry.jts.JtsGeometryFactory;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.google.common.geometry.S2Polygon;
 
 import java.util.Date;
 import java.util.List;

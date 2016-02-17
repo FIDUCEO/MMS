@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -20,8 +19,6 @@
  */
 
 package com.bc.fiduceo.geometry;
-
-import com.google.common.geometry.S2Polygon;
 
 import java.util.Date;
 import java.util.List;

@@ -27,6 +27,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.google.common.geometry.S2Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;

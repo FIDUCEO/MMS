@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -22,8 +21,6 @@
 package com.bc.fiduceo.core;
 
 
-
-
 import com.bc.fiduceo.geometry.Geometry;
 
 import java.io.File;
@@ -39,11 +36,20 @@ public class SatelliteObservation {
     private File dataFile;
     private int timeAxisStartIndex;
     private int timeAxisEndIndex;
+    private String wkt;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
         timeAxisStartIndex = -1;
         timeAxisEndIndex = -1;
+    }
+
+    public String getWellknowText() {
+        return wkt;
+    }
+
+    public void setWellknowText(String wkt) {
+        this.wkt = wkt;
     }
 
     public Geometry getGeoBounds() {

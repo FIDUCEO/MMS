@@ -22,12 +22,12 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,15 +35,21 @@ import java.util.List;
  */
 class S2MultiPolygon implements MultiPolygon {
     private List<com.google.common.geometry.S2Polygon> polygonList;
+    private List<Point> pointList;
 
-//    public S2MultiPolygon(List<com.google.common.geometry.S2Polygon> resultList) {
-//        this.polygonList = resultList;
-//    }
 
-    public S2MultiPolygon(List<?> polygonList) {
-            this.polygonList = (List<com.google.common.geometry.S2Polygon>) polygonList;
+    public S2MultiPolygon(Object object) {
+        pointList = new ArrayList<>();
+        final ArrayList s2PolygonList = (ArrayList) object;
+        if (s2PolygonList.size() != 0) {
+            if (s2PolygonList.get(0) instanceof S2Polygon) {
+                for (S2Polygon s2Polygon : (List<S2Polygon>) object) {
+                    pointList.addAll(Arrays.asList(s2Polygon.getCoordinates()));
+                }
+            }
+        }
+        this.polygonList = (List<com.google.common.geometry.S2Polygon>) object;
     }
-
 
 
     @Override
@@ -94,7 +100,11 @@ class S2MultiPolygon implements MultiPolygon {
 
     @Override
     public Point[] getCoordinates() {
-        List<Point> pointList = new ArrayList<>();
+
+
+        if (pointList.size() > 0) {
+            return pointList.toArray(new Point[pointList.size()]);
+        }
         for (com.google.common.geometry.S2Polygon polygon : polygonList) {
             int i = polygon.numLoops();
             for (int j = 0; j < i; j++) {

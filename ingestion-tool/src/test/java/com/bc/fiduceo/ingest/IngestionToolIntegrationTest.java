@@ -177,11 +177,11 @@ public class IngestionToolIntegrationTest {
 
             IngestionToolMain.main(args);
 
-            // final List<SatelliteObservation> satelliteObservations = storage.get();
-            // assertTrue(satelliteObservations.size() > 0);
-            // final SatelliteObservation observation = satelliteObservations.get(0);
-            // final Sensor sensor = observation.getSensor();
-            // assertEquals("MHS", sensor.getName());
+             final List<SatelliteObservation> satelliteObservations = storage.get();
+             assertTrue(satelliteObservations.size() > 0);
+             final SatelliteObservation observation = satelliteObservations.get(0);
+             final Sensor sensor = observation.getSensor();
+             assertEquals("MHS", sensor.getName());
 
         } finally {
             storage.close();

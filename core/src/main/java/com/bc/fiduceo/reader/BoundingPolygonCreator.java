@@ -23,7 +23,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
@@ -267,8 +266,9 @@ public class BoundingPolygonCreator {
         for (Polygon polygon:polygonsBounding){
             pointList.addAll(Arrays.asList(polygon.getCoordinates()));
         }
+
         acquisitionInfo.setCoordinates(pointList);
-        acquisitionInfo.setPolygons(polygonsBounding);
+        acquisitionInfo.setMultiPolygons(polygonsBounding);
         acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
         acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);
 

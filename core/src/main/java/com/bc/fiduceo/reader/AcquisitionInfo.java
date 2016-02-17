@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -32,19 +31,19 @@ import java.util.List;
 public class AcquisitionInfo {
 
     private List<Point> coordinates;
-    private List<Polygon> polygons;
+    private List<Polygon> multiPolygons;
     private int[] timeAxisStartIndices;
     private int[] timeAxisEndIndices;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
 
-    public List<Polygon> getPolygons() {
-        return polygons;
+    public List<Polygon> getMultiPolygons() {
+        return multiPolygons;
     }
 
-    public void setPolygons(List<Polygon> polygons) {
-        this.polygons = polygons;
+    public void setMultiPolygons(List<Polygon> multiPolygons) {
+        this.multiPolygons = multiPolygons;
     }
 
     public List<Point> getCoordinates() {

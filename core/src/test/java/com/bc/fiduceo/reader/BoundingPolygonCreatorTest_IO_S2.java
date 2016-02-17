@@ -97,7 +97,7 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayLat, arrayLong);
         assertNotNull(acquisitionInfo);
 
-        final List<Polygon> polygons = acquisitionInfo.getPolygons();
+        final List<Polygon> polygons = acquisitionInfo.getMultiPolygons();
         assertTrue(polygons.size() > 0);
 
 
