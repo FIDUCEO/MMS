@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -39,8 +40,18 @@ class MatchupTool {
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDirectory);
+
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
+
+        // input required:
+        // - primary sensor
+        // - secondary sensor (optional)
+        // - insitu type (optional)
+        // - start time (year/doy) (yyyy-DDD)
+        // - end time (year/doy)
     }
 
     void printUsageTo(OutputStream outputStream) {

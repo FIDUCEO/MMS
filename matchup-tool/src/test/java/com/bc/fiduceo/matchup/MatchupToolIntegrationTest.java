@@ -83,4 +83,17 @@ public class MatchupToolIntegrationTest {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testIngest_missingDatabaseProperties() throws ParseException, IOException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath()};
+
+        TestUtil.writeSystemProperties(configDir);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }

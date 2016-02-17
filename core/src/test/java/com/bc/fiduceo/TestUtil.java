@@ -90,6 +90,13 @@ public class TestUtil {
         TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
     }
 
+    public static void writeSystemProperties(File configDir) throws IOException {
+        final Properties properties = new Properties();
+        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
+
+        TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
+    }
+
     public static BasicDataSource getInMemoryDatasource() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");

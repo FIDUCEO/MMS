@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -94,7 +93,7 @@ public class IngestionToolIntegrationTest {
     public void testIngest_missingDatabaseProperties() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
 
-        writeSystemProperties();
+        TestUtil.writeSystemProperties(configDir);
 
         try {
             IngestionToolMain.main(args);
@@ -112,7 +111,7 @@ public class IngestionToolIntegrationTest {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs"};
         try {
-            writeSystemProperties();
+            TestUtil.writeSystemProperties(configDir);
             TestUtil.writeDatabaseProperties(configDir);
 
             IngestionToolMain.main(args);
@@ -148,7 +147,7 @@ public class IngestionToolIntegrationTest {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
-            writeSystemProperties();
+            TestUtil.writeSystemProperties(configDir);
             TestUtil.writeDatabaseProperties(configDir);
             IngestionToolMain.main(args);
 
@@ -170,26 +169,19 @@ public class IngestionToolIntegrationTest {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
-            writeSystemProperties();
+            TestUtil.writeSystemProperties(configDir);
             TestUtil.writeDatabaseProperties(configDir);
 
             IngestionToolMain.main(args);
 
-             final List<SatelliteObservation> satelliteObservations = storage.get();
-             assertTrue(satelliteObservations.size() > 0);
-             final SatelliteObservation observation = satelliteObservations.get(0);
-             final Sensor sensor = observation.getSensor();
-             assertEquals("MHS", sensor.getName());
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertTrue(satelliteObservations.size() > 0);
+            final SatelliteObservation observation = satelliteObservations.get(0);
+            final Sensor sensor = observation.getSensor();
+            assertEquals("MHS", sensor.getName());
 
         } finally {
             storage.close();
         }
-    }
-
-    private void writeSystemProperties() throws IOException {
-        final Properties properties = new Properties();
-        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
-
-        TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
     }
 }
