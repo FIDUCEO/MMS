@@ -20,14 +20,30 @@
 
 package com.bc.fiduceo.matchup;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
+import java.io.IOException;
+
 public class MatchupToolMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException, IOException {
         final MatchupTool matchupTool = new MatchupTool();
 
         if (args.length == 0) {
             matchupTool.printUsageTo(System.err);
             return;
         }
+
+        final CommandLineParser parser = new PosixParser();
+        final CommandLine commandLine = parser.parse(MatchupTool.getOptions(), args);
+        if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
+            matchupTool.printUsageTo(System.err);
+            return;
+        }
+
+        matchupTool.run(commandLine);
     }
 }

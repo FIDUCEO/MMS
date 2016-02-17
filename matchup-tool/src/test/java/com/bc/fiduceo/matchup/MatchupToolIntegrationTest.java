@@ -21,15 +21,38 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import static org.junit.Assert.fail;
+
 @RunWith(IOTestRunner.class)
 public class MatchupToolIntegrationTest {
+
+    private File configDir;
+
+    @Before
+    public void setUp() {
+        final File testDirectory = TestUtil.createTestDirectory();
+        configDir = new File(testDirectory, "config");
+        if (!configDir.mkdir()) {
+            fail("unable to create test directory: " + configDir.getAbsolutePath());
+        }
+    }
+
+    @After
+    public void tearDown() {
+        TestUtil.deleteTestDirectory();
+    }
+
 
     @Test
     public void testIngest_notInputParameter() throws ParseException, IOException, SQLException {
@@ -40,11 +63,24 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testIngest_help() throws ParseException, IOException, SQLException {
-        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
+        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2016-02-16
         String[] args = new String[]{"-h"};
         MatchupToolMain.main(args);
 
         args = new String[]{"--help"};
         MatchupToolMain.main(args);
+    }
+
+    @Test
+    public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath()};
+
+        TestUtil.writeDatabaseProperties(configDir);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

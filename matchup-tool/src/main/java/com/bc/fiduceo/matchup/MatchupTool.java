@@ -20,16 +20,28 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.core.SystemConfig;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
 class MatchupTool {
 
     static String VERSION = "1.0.0";
+
+    public void run(CommandLine commandLine) throws IOException {
+        final String configValue = commandLine.getOptionValue("config");
+        final File configDirectory = new File(configValue);
+
+        final SystemConfig systemConfig = new SystemConfig();
+        systemConfig.loadFrom(configDirectory);
+    }
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();

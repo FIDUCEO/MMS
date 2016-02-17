@@ -28,11 +28,13 @@ import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.ArrayDouble;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -58,6 +60,43 @@ public class TestUtil {
             fail("Property 'dataDirectory' supplied does not exist: '" + dataDirectoryProperty + "'");
         }
         return dataDirectory;
+    }
+
+    public static void storePropertiesToTemp(Properties properties, File configDir, String child) throws IOException {
+        final File dataSourcePropertiesFile = new File(configDir, child);
+        if (!dataSourcePropertiesFile.createNewFile()) {
+            fail("unable to create test file: " + dataSourcePropertiesFile.getAbsolutePath());
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(dataSourcePropertiesFile);
+            properties.store(outputStream, "");
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
+    }
+
+    public static void writeDatabaseProperties(File configDir) throws IOException {
+        final Properties properties = new Properties();
+        final BasicDataSource datasource = TestUtil.getInMemoryDatasource();
+        properties.setProperty("driverClassName", datasource.getDriverClassName());
+        properties.setProperty("url", datasource.getUrl());
+        properties.setProperty("username", datasource.getUsername());
+        properties.setProperty("password", datasource.getPassword());
+
+        TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
+    }
+
+    public static BasicDataSource getInMemoryDatasource() {
+        final BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:fiduceo");
+        dataSource.setUsername("");
+        dataSource.setPassword("sa");
+        return dataSource;
     }
 
     public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, Date utcDate) {
