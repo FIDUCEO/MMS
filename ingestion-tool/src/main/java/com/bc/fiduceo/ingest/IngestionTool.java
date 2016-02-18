@@ -87,8 +87,9 @@ class IngestionTool {
         // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
-
-        // @todo 2 tb/tb check if database is already set up. If not, call initialize(). tb 2015-12-22
+        if (!storage.isInitialized()) {
+            storage.initialize();
+        }
 
         try {
             ingestMetadata(systemConfig, geometryFactory, storage, sensorType);

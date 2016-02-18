@@ -27,9 +27,7 @@ import com.bc.fiduceo.geometry.*;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.geojson.PolygonCoordinates;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -44,103 +42,19 @@ import java.util.List;
 
 public class MongoDbDriver extends AbstractDriver {
 
-    public static final String DATA_FILE_KEY = "dataFile";
-    public static final String START_TIME_KEY = "startTime";
-    public static final String STOP_TIME_KEY = "stopTime";
-    public static final String NODE_TYPE_KEY = "nodeType";
-    public static final String GEO_BOUNDS_KEY = "geoBounds";
-    public static final String SENSOR_KEY = "sensor";
-    public static final String TIME_AXIS_START_KEY = "timeAxisStartIndex";
-    public static final String TIME_AXIS_END_KEY = "timeAxisEndIndex";
+    private static final String DATA_FILE_KEY = "dataFile";
+    private static final String START_TIME_KEY = "startTime";
+    private static final String STOP_TIME_KEY = "stopTime";
+    private static final String NODE_TYPE_KEY = "nodeType";
+    private static final String GEO_BOUNDS_KEY = "geoBounds";
+    private static final String SENSOR_KEY = "sensor";
+    private static final String TIME_AXIS_START_KEY = "timeAxisStartIndex";
+    private static final String TIME_AXIS_END_KEY = "timeAxisEndIndex";
     private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
+
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
     private MongoDatabase database;
-
-    // static access for testing only tb 2016-02-09
-    // @todo 2 tb/tb write tests!! 2016-02-11
-    static Document createQueryDocument(QueryParameter parameter) {
-        if (parameter == null) {
-            return new Document();
-        }
-
-        final Document queryConstraints = new Document();
-        final Date startTime = parameter.getStartTime();
-        if (startTime != null) {
-            queryConstraints.append(STOP_TIME_KEY, new Document("$gt", startTime));
-        }
-
-        final Date stopTime = parameter.getStopTime();
-        if (stopTime != null) {
-            queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
-        }
-
-        final String sensorName = parameter.getSensorName();
-        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
-            queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
-        }
-
-        final Geometry geometry = parameter.getGeometry();
-        if (geometry != null) {
-            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects",
-                    new Document("$geometry", convertToGeoJSON(geometry))));
-        }
-
-        return queryConstraints;
-    }
-
-    // static access for testing only tb 2016-02-09
-    @SuppressWarnings("unchecked")
-    static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
-        if (geometry == null) {
-            throw new IllegalArgumentException("geometry is null");
-        }
-
-        final Point[] coordinates = geometry.getCoordinates();
-        final ArrayList<Position> geometryPoints = extractPointsFromGeometry(coordinates);
-        if (geometry instanceof Polygon) {
-            if (!coordinates[0].equals(coordinates[coordinates.length - 1])) {
-                final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
-                geometryPoints.add(position);
-            }
-            return new com.mongodb.client.model.geojson.Polygon(geometryPoints);
-        } else if (geometry instanceof LineString) {
-            return new com.mongodb.client.model.geojson.LineString(geometryPoints);
-        } else if (geometry instanceof Point) {
-            return new com.mongodb.client.model.geojson.Point(geometryPoints.get(0));
-        } else if (geometry instanceof MultiPolygon) {
-            List<PolygonCoordinates> polygonCoordinates = gePolygonCoordinates((MultiPolygon) geometry);
-            return new com.mongodb.client.model.geojson.MultiPolygon(polygonCoordinates);
-        }
-
-        throw new RuntimeException("Geometry type support not implemented");
-    }
-
-    private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {
-        final ArrayList<Position> polygonPoints = new ArrayList<>();
-
-
-        for (final Point coordinate : coordinates) {
-            final Position position = new Position(coordinate.getLon(), coordinate.getLat());
-            polygonPoints.add(position);
-        }
-        return polygonPoints;
-    }
-
-    private static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
-        List<Polygon> s2PolygonList = (List<Polygon>) multiPolygon.getInner();
-        List<PolygonCoordinates> polygonCoordinatesList = new ArrayList<>();
-        for (Polygon s2Polygon : s2PolygonList) {
-            ArrayList<Position> positions = extractPointsFromGeometry(s2Polygon.getCoordinates());
-
-            if (!positions.get(0).equals(positions.get(positions.size() - 1))) {
-                positions.add(positions.get(0));
-            }
-
-            polygonCoordinatesList.add(new PolygonCoordinates(positions));
-        }
-        return polygonCoordinatesList;
-    }
 
     @Override
     public String getUrlPattern() {
@@ -160,6 +74,18 @@ public class MongoDbDriver extends AbstractDriver {
             mongoClient.close();
             mongoClient = null;
         }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        final MongoIterable<String> collectionNames = database.listCollectionNames();
+        for (String collectionName : collectionNames) {
+            if (SATELLITE_DATA_COLLECTION.equals(collectionName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -291,5 +217,90 @@ public class MongoDbDriver extends AbstractDriver {
             return geometryFactory.createMultiPolygon(polygonList);
         }
         throw new RuntimeException("Geometry type support not implemented yet");
+    }
+
+    private static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
+        List<Polygon> s2PolygonList = (List<Polygon>) multiPolygon.getInner();
+        List<PolygonCoordinates> polygonCoordinatesList = new ArrayList<>();
+        for (Polygon s2Polygon : s2PolygonList) {
+            ArrayList<Position> positions = extractPointsFromGeometry(s2Polygon.getCoordinates());
+
+            if (!positions.get(0).equals(positions.get(positions.size() - 1))) {
+                positions.add(positions.get(0));
+            }
+
+            polygonCoordinatesList.add(new PolygonCoordinates(positions));
+        }
+        return polygonCoordinatesList;
+    }
+
+    // static access for testing only tb 2016-02-09
+    // @todo 2 tb/tb write tests!! 2016-02-11
+    static Document createQueryDocument(QueryParameter parameter) {
+        if (parameter == null) {
+            return new Document();
+        }
+
+        final Document queryConstraints = new Document();
+        final Date startTime = parameter.getStartTime();
+        if (startTime != null) {
+            queryConstraints.append(STOP_TIME_KEY, new Document("$gt", startTime));
+        }
+
+        final Date stopTime = parameter.getStopTime();
+        if (stopTime != null) {
+            queryConstraints.append(START_TIME_KEY, new Document("$lt", stopTime));
+        }
+
+        final String sensorName = parameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
+        }
+
+        final Geometry geometry = parameter.getGeometry();
+        if (geometry != null) {
+            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects",
+                    new Document("$geometry", convertToGeoJSON(geometry))));
+        }
+
+        return queryConstraints;
+    }
+
+    // static access for testing only tb 2016-02-09
+    @SuppressWarnings("unchecked")
+    static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
+        if (geometry == null) {
+            throw new IllegalArgumentException("geometry is null");
+        }
+
+        final Point[] coordinates = geometry.getCoordinates();
+        final ArrayList<Position> geometryPoints = extractPointsFromGeometry(coordinates);
+        if (geometry instanceof Polygon) {
+            if (!coordinates[0].equals(coordinates[coordinates.length - 1])) {
+                final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
+                geometryPoints.add(position);
+            }
+            return new com.mongodb.client.model.geojson.Polygon(geometryPoints);
+        } else if (geometry instanceof LineString) {
+            return new com.mongodb.client.model.geojson.LineString(geometryPoints);
+        } else if (geometry instanceof Point) {
+            return new com.mongodb.client.model.geojson.Point(geometryPoints.get(0));
+        } else if (geometry instanceof MultiPolygon) {
+            List<PolygonCoordinates> polygonCoordinates = gePolygonCoordinates((MultiPolygon) geometry);
+            return new com.mongodb.client.model.geojson.MultiPolygon(polygonCoordinates);
+        }
+
+        throw new RuntimeException("Geometry type support not implemented");
+    }
+
+    private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {
+        final ArrayList<Position> polygonPoints = new ArrayList<>();
+
+
+        for (final Point coordinate : coordinates) {
+            final Position position = new Position(coordinate.getLon(), coordinate.getLat());
+            polygonPoints.add(position);
+        }
+        return polygonPoints;
     }
 }

@@ -22,6 +22,9 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
+import com.bc.fiduceo.db.QueryParameter;
+import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -32,12 +35,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 class MatchupTool {
 
     static String VERSION = "1.0.0";
 
-    public void run(CommandLine commandLine) throws IOException {
+    public void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
@@ -56,6 +60,12 @@ class MatchupTool {
         if (StringUtils.isNullOrEmpty(endDateString)) {
             throw new RuntimeException("cmd-line parameter `end` missing");
         }
+
+        // @todo 2 tb/tb parametrize geometry factory type 2016-02-18
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+
+        storage.get(new QueryParameter());
 
         // input required:
         // - primary sensor

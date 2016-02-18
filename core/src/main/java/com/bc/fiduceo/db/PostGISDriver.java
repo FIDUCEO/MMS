@@ -62,6 +62,11 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
+    public boolean isInitialized() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public void initialize() throws SQLException {
         Statement statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE SATELLITE_OBSERVATION (ID SERIAL PRIMARY KEY, " +

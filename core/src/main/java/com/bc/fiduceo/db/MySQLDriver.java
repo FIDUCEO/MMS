@@ -54,6 +54,11 @@ public class MySQLDriver extends AbstractDriver {
     }
 
     @Override
+    public boolean isInitialized() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public void insert(SatelliteObservation observation) throws SQLException {
         final Sensor sensor = observation.getSensor();
         Integer sensorId = getSensorId(sensor.getName());
