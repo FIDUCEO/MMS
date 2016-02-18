@@ -77,7 +77,9 @@ public class H2Driver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        preparedStatement.setObject(4, observation.getGeoBounds().getInner());
+        final String wkt = geometryFactory.format(observation.getGeoBounds());
+        final String quotedWkt = "'" + wkt + "'";
+        preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());

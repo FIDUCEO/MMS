@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
@@ -38,6 +39,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 class MatchupTool {
 
@@ -46,7 +48,7 @@ class MatchupTool {
     public void run(CommandLine commandLine) throws IOException, SQLException {
         final MatchupToolContext context = initialize(commandLine);
 
-        runMatchupGeneration(context.getStorage());
+        runMatchupGeneration(context);
 
         // input required:
         // - primary sensor
@@ -88,11 +90,14 @@ class MatchupTool {
         return context;
     }
 
-    private void runMatchupGeneration(Storage storage) throws SQLException {
+    private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
         final QueryParameter parameter = new QueryParameter();
         parameter.setSensorName("amsub-noaa15");
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
 
-        storage.get(parameter);
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
     }
 
     // package access for testing only tb 2016-02-18

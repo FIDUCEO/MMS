@@ -21,48 +21,75 @@
 
 package com.bc.geometry.s2;
 
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polyline;
+import com.google.common.geometry.*;
 
 public class S2WKTWriter {
 
     public static String write(Object geometry) {
-        final StringBuilder builder = new StringBuilder();
+
         if (geometry instanceof S2Polyline) {
-            final S2Polyline polyline = (S2Polyline) geometry;
-
-            final int numVertices = polyline.numVertices();
-            if (numVertices < 2) {
-                throw new IllegalArgumentException("Linestring contains less that 2 vertices.");
-            }
-
-
-            builder.append("LINESTRING(");
-
-            for (int i = 0; i < numVertices; i++) {
-                final S2Point vertex = polyline.vertex(i);
-                final S2LatLng latLng = new S2LatLng(vertex);
-                builder.append(latLng.lngDegrees());
-                builder.append(" ");
-                builder.append(latLng.latDegrees());
-                if (i != numVertices - 1) {
-                    builder.append(",");
-                }
-            }
-            builder.append(")");
-            return builder.toString();
+            return writeLinestringWKT((S2Polyline) geometry);
         } else if (geometry instanceof S2Point) {
-            final S2Point point = (S2Point) geometry;
-            final S2LatLng s2LatLng = new S2LatLng(point);
-            builder.append("POINT(");
-            builder.append(s2LatLng.lngDegrees());
-            builder.append(",");
-            builder.append(s2LatLng.latDegrees());
-            builder.append(")");
-            return builder.toString();
+            return writePointWkt((S2Point) geometry);
+        } else if (geometry instanceof S2Polygon) {
+            return writePolygonWkt((S2Polygon) geometry);
         }
 
         throw new IllegalArgumentException("unsupported geometry type: " + geometry.toString());
+    }
+
+    private static String writePolygonWkt(S2Polygon polygon) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("POLYGON((");
+        final int numLoops = polygon.numLoops();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = polygon.loop(i);
+            final int numVertices = loop.numVertices();
+            for (int k = 0; k < numVertices; k++) {
+                appendWktPoint(loop.vertex(k), builder);
+                builder.append(",");
+            }
+            appendWktPoint(loop.vertex(0), builder);
+        }
+
+        builder.append("))");
+        return builder.toString();
+    }
+
+    @SuppressWarnings("StringBufferReplaceableByString")
+    private static String writePointWkt(S2Point geometry) {
+        final StringBuilder builder = new StringBuilder();
+        final S2LatLng s2LatLng = new S2LatLng(geometry);
+        builder.append("POINT(");
+        builder.append(s2LatLng.lngDegrees());
+        builder.append(",");
+        builder.append(s2LatLng.latDegrees());
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static String writeLinestringWKT(S2Polyline geometry) {
+        final int numVertices = geometry.numVertices();
+        if (numVertices < 2) {
+            throw new IllegalArgumentException("Linestring contains less that 2 vertices.");
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("LINESTRING(");
+        for (int i = 0; i < numVertices; i++) {
+            appendWktPoint(geometry.vertex(i), builder);
+            if (i != numVertices - 1) {
+                builder.append(",");
+            }
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static void appendWktPoint(S2Point vertex, StringBuilder builder) {
+        final S2LatLng latLng = new S2LatLng(vertex);
+        builder.append(latLng.lngDegrees());
+        builder.append(" ");
+        builder.append(latLng.latDegrees());
     }
 }
