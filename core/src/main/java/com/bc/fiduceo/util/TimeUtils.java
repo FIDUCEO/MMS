@@ -65,6 +65,21 @@ public class TimeUtils {
         }
     }
 
+    public static Date parseDOYBeginOfDay(String dateString) {
+        return parse(dateString, "yyyy-DDD");
+    }
+
+    public static Date parseDOYEndOfDay(String dateFormat) {
+        final Date date = parseDOYBeginOfDay(dateFormat);
+        final Calendar calendar = calendarThreadLocal.get();
+        calendar.setTimeInMillis(date.getTime());
+        calendar.add(Calendar.HOUR_OF_DAY, 23);
+        calendar.add(Calendar.MINUTE, 59);
+        calendar.add(Calendar.SECOND, 59);
+        calendar.add(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
+    }
+
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {
         @Override
         protected Calendar initialValue() {
