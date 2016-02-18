@@ -27,19 +27,15 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-public class StorageTest {
+public abstract class StorageTest {
 
-    private final BasicDataSource dataSource;
+    protected BasicDataSource dataSource;
+
     private final GeometryFactory geometryFactory;
 
     public StorageTest() {
-        dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:h2:mem:fiduceo");
-
         geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
@@ -69,5 +65,32 @@ public class StorageTest {
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
+    }
+
+    @Test
+    public void testIsInitialized_storageClosed() throws SQLException {
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+
+        storage.clear();
+        storage.close();
+
+        assertFalse(storage.isInitialized());
+    }
+
+    @Test
+    public void testIsInitialized_storageCleared() throws SQLException {
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+
+        storage.clear();
+
+        assertFalse(storage.isInitialized());
+    }
+
+    @Test
+    public void testIsInitialized_initialized() throws SQLException {
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+        storage.initialize();
+
+        assertTrue(storage.isInitialized());
     }
 }

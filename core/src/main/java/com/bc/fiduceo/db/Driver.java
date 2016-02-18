@@ -44,6 +44,8 @@ public interface Driver {
 
     void open(BasicDataSource dataSource) throws SQLException;
 
+    boolean isInitialized() throws SQLException;
+
     void initialize() throws SQLException;
 
     void clear() throws SQLException;

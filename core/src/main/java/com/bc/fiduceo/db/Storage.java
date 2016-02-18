@@ -57,6 +57,13 @@ public class Storage {
         }
     }
 
+    public boolean isInitialized() throws SQLException {
+        if (driver == null) {
+            return false;
+        }
+        return driver.isInitialized();
+    }
+
     public void initialize() throws SQLException {
         driver.initialize();
     }

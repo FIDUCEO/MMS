@@ -60,6 +60,12 @@ public class H2Driver extends AbstractDriver {
     }
 
     @Override
+    public boolean isInitialized() throws SQLException {
+        final ResultSet tables = connection.getMetaData().getTables(null, null, "SATELLITE_OBSERVATION", null);
+        return tables.next();
+    }
+
+    @Override
     public void insert(SatelliteObservation observation) throws SQLException {
         final Sensor sensor = observation.getSensor();
         Integer sensorId = getSensorId(sensor.getName());

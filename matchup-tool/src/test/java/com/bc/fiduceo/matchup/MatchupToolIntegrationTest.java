@@ -73,8 +73,49 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath()};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
 
+        TestUtil.writeDatabaseProperties(configDir);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testIngest_missingDatabaseProperties() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
+
+        TestUtil.writeSystemProperties(configDir);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testIngest_missingStartDate() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-e", "1999-176"};
+
+        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeDatabaseProperties(configDir);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testIngest_missingEndDate() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124"};
+
+        TestUtil.writeSystemProperties(configDir);
         TestUtil.writeDatabaseProperties(configDir);
 
         try {

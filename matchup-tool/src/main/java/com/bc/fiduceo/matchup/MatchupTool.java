@@ -21,26 +21,58 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
+import com.bc.fiduceo.db.QueryParameter;
+import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 class MatchupTool {
 
     static String VERSION = "1.0.0";
 
-    public void run(CommandLine commandLine) throws IOException {
+    public void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDirectory);
+
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
+
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
+
+        // @todo 2 tb/tb parametrize geometry factory type 2016-02-18
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+
+        storage.get(new QueryParameter());
+
+        // input required:
+        // - primary sensor
+        // - secondary sensor (optional)
+        // - insitu type (optional)
+        // - start time (year/doy) (yyyy-DDD)
+        // - end time (year/doy)
     }
 
     void printUsageTo(OutputStream outputStream) {
@@ -63,6 +95,12 @@ class MatchupTool {
 
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
+
+        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        options.addOption(endOption);
 
         return options;
     }

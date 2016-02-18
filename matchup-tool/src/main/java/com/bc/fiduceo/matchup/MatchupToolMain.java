@@ -26,10 +26,11 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class MatchupToolMain {
 
-    public static void main(String[] args) throws ParseException, IOException {
+    public static void main(String[] args) throws ParseException, IOException, SQLException {
         final MatchupTool matchupTool = new MatchupTool();
 
         if (args.length == 0) {

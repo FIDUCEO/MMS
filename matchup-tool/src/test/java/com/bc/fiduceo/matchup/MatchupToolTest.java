@@ -50,7 +50,9 @@ public class MatchupToolTest {
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
                 "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
-                "   -h,--help           Prints the tool usage." + ls, outputStream.toString());
+                "   -e,--end <arg>      Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help           Prints the tool usage." + ls +
+                "   -s,--start <arg>    Defines the processing start-date, format 'yyyy-DDD'" + ls, outputStream.toString());
     }
 
     @Test
@@ -71,5 +73,19 @@ public class MatchupToolTest {
         assertEquals("config", configOption.getLongOpt());
         assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
         assertTrue(configOption.hasArg());
+
+        final Option startOption = options.getOption("start");
+        assertNotNull(startOption);
+        assertEquals("s", startOption.getOpt());
+        assertEquals("start", startOption.getLongOpt());
+        assertEquals("Defines the processing start-date, format 'yyyy-DDD'", startOption.getDescription());
+        assertTrue(startOption.hasArg());
+
+        final Option endOption = options.getOption("end");
+        assertNotNull(endOption);
+        assertEquals("e", endOption.getOpt());
+        assertEquals("end", endOption.getLongOpt());
+        assertEquals("Defines the processing end-date, format 'yyyy-DDD'", endOption.getDescription());
+        assertTrue(endOption.hasArg());
     }
 }
