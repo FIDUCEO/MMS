@@ -1,1 +1,1 @@
-com.bc.fiduceo.db.H2Driver
+com.bc.fiduceo.db.MongoDbDriver

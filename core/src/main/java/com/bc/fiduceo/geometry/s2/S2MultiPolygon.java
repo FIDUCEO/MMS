@@ -38,13 +38,16 @@ class S2MultiPolygon implements MultiPolygon {
     private List<Point> pointList;
 
 
+    @SuppressWarnings("unchecked")
     public S2MultiPolygon(Object object) {
         pointList = new ArrayList<>();
         final ArrayList s2PolygonList = (ArrayList) object;
-        if (s2PolygonList.size() != 0) {
-            if (s2PolygonList.get(0) instanceof S2Polygon) {
-                for (S2Polygon s2Polygon : (List<S2Polygon>) object) {
-                    pointList.addAll(Arrays.asList(s2Polygon.getCoordinates()));
+        if (s2PolygonList != null) {
+            if (s2PolygonList.size() != 0) {
+                if (s2PolygonList.get(0) instanceof S2Polygon) {
+                    for (S2Polygon s2Polygon : (List<S2Polygon>) object) {
+                        pointList.addAll(Arrays.asList(s2Polygon.getCoordinates()));
+                    }
                 }
             }
         }
@@ -62,6 +65,7 @@ class S2MultiPolygon implements MultiPolygon {
         throw new NullPointerException("Must not reach here !!!");
     }
 
+    @SuppressWarnings("unchecked")
     private Geometry intersectS2MultiLineString(Geometry other) {
         List<S2Polyline> s2PolylineList = new ArrayList<>();
         for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {

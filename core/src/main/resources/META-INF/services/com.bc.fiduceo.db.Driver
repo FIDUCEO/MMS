@@ -1,3 +1,4 @@
 com.bc.fiduceo.db.MySQLDriver
 com.bc.fiduceo.db.PostGISDriver
 com.bc.fiduceo.db.MongoDbDriver
+com.bc.fiduceo.db.H2Driver

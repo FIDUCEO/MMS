@@ -81,7 +81,7 @@ public class TestUtil {
 
     public static void writeDatabaseProperties(File configDir) throws IOException {
         final Properties properties = new Properties();
-        final BasicDataSource datasource = TestUtil.getInMemoryDatasource();
+        final BasicDataSource datasource = TestUtil.getInFileDatasourceMongoDB();
         properties.setProperty("driverClassName", datasource.getDriverClassName());
         properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", datasource.getUsername());
@@ -90,12 +90,21 @@ public class TestUtil {
         TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
     }
 
-    public static BasicDataSource getInMemoryDatasource() {
+    public static BasicDataSource getInMemoryDatasourceH2() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setUrl("jdbc:h2:mem:fiduceo");
         dataSource.setUsername("");
         dataSource.setPassword("sa");
+        return dataSource;
+    }
+
+    public static BasicDataSource getInFileDatasourceMongoDB() {
+        final BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("mongodb");
+        dataSource.setUrl("mongodb://localhost:27017/test");
+        dataSource.setUsername("fiduceo");
+        dataSource.setPassword("oecudif");
         return dataSource;
     }
 

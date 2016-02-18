@@ -28,10 +28,7 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReadersPlugin;
 import org.apache.commons.cli.CommandLine;
@@ -101,9 +98,9 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        sensorType = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
+        String sensorTypeacronym = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
         ServicesUtils servicesUtils = new ServicesUtils<>();
-        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
+        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorTypeacronym);
 
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
 
@@ -121,12 +118,14 @@ class IngestionTool {
                 satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
-                MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
-                String multiPolygon1 = BoundingPolygonCreator.plotMultiPolygon((List<Polygon>) multiPolygon.getInner());
-                satelliteObservation.setWellknowText(multiPolygon1);
 
-                Geometry parse = geometryFactory.parse(multiPolygon1);
-                satelliteObservation.setGeoBounds(parse);
+                Geometry geometry;
+                if (aquisitionInfo.getMultiPolygons().size() > 0) {
+                    geometry = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
+                } else {
+                    geometry = geometryFactory.createPolygon(aquisitionInfo.getCoordinates());
+                }
+                satelliteObservation.setGeoBounds(geometry);
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();
