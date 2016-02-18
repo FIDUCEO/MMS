@@ -37,7 +37,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -106,6 +111,13 @@ public class TestUtil {
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
         return dataSource;
+    }
+
+    public static void writeSystemProperties(File configDir) throws IOException {
+        final Properties properties = new Properties();
+        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
+
+        TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
     }
 
     public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, Date utcDate) {
