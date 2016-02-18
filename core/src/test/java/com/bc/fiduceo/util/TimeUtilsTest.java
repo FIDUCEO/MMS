@@ -71,6 +71,28 @@ public class TimeUtilsTest {
     }
 
     @Test
+    public void testParseYearDOYBeginOfDay() {
+        Date date = TimeUtils.parseDOYBeginOfDay("2007-124");
+        assertNotNull(date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 4, 0, 0, 0, 0, date);
+
+        date = TimeUtils.parseDOYBeginOfDay("2007-125");
+        assertNotNull(date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 5, 0, 0, 0, 0, date);
+    }
+
+    @Test
+    public void testParseYearDOYEndOfDay() {
+        Date date = TimeUtils.parseDOYEndOfDay("2007-126");
+        assertNotNull(date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 6, 23, 59, 59, 999, date);
+
+//        date = TimeUtils.parseDOYBeginOfDay("2007-125");
+//        assertNotNull(date);
+//        TestUtil.assertCorrectUTCDate(2007, 5, 5, 0, 0, 0, 0, date);
+    }
+
+    @Test
     public void testTimeStampToDate() {
         final Timestamp timestamp = new Timestamp(1435000000234L);
 

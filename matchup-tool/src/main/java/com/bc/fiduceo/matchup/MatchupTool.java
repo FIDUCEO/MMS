@@ -25,6 +25,7 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -36,12 +37,27 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Date;
 
 class MatchupTool {
 
     static String VERSION = "1.0.0";
 
     public void run(CommandLine commandLine) throws IOException, SQLException {
+        final MatchupToolContext context = initialize(commandLine);
+
+        runMatchupGeneration(context.getStorage());
+
+        // input required:
+        // - primary sensor
+        // - secondary sensor (optional)
+        // - insitu type (optional)
+        // - start time (year/doy) (yyyy-DDD)
+        // - end time (year/doy)
+    }
+
+    private MatchupToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
+        final MatchupToolContext context = new MatchupToolContext();
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
@@ -55,26 +71,31 @@ class MatchupTool {
         if (StringUtils.isNullOrEmpty(startDateString)) {
             throw new RuntimeException("cmd-line parameter `start` missing");
         }
+        final Date startDate = TimeUtils.parseDOYBeginOfDay(startDateString);
+        context.setStartDate(startDate);
 
         final String endDateString = commandLine.getOptionValue("end");
         if (StringUtils.isNullOrEmpty(endDateString)) {
             throw new RuntimeException("cmd-line parameter `end` missing");
         }
+        final Date endDate = TimeUtils.parseDOYEndOfDay(endDateString);
+        context.setEndDate(endDate);
 
         // @todo 2 tb/tb parametrize geometry factory type 2016-02-18
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
-
-        storage.get(new QueryParameter());
-
-        // input required:
-        // - primary sensor
-        // - secondary sensor (optional)
-        // - insitu type (optional)
-        // - start time (year/doy) (yyyy-DDD)
-        // - end time (year/doy)
+        context.setStorage(storage);
+        return context;
     }
 
+    private void runMatchupGeneration(Storage storage) throws SQLException {
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setSensorName("amsub-noaa15");
+
+        storage.get(parameter);
+    }
+
+    // package access for testing only tb 2016-02-18
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
@@ -87,6 +108,7 @@ class MatchupTool {
         writer.flush();
     }
 
+    // package access for testing only tb 2016-02-18
     static Options getOptions() {
         final Options options = new Options();
 
