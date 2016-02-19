@@ -22,11 +22,10 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.dbcp.BasicDataSource;
 
 public class StorageTest_H2 extends StorageTest {
 
     public StorageTest_H2() {
-        dataSource = TestUtil.getInMemoryDatasource();
+        dataSource = TestUtil.getDatasource_H2();
     }
 }

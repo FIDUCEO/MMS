@@ -84,7 +84,7 @@ public class IngestionToolIntegrationTest {
     public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
 
-        TestUtil.writeDatabaseProperties(configDir);
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
 
         try {
             IngestionToolMain.main(args);
@@ -111,13 +111,13 @@ public class IngestionToolIntegrationTest {
     public void testIngest_AIRS() throws ParseException, IOException, SQLException {
         // @todo 1 tb/** this test relies on the results being returned in a specifi order - change this 2015-12-22
         // @todo 2 tb/tb move geometry factory type to some other location, parametrize test 2015-12-16
-        final Storage storage = Storage.create(TestUtil.getInMemoryDatasource(), new GeometryFactory(GeometryFactory.Type.JTS));
+        final Storage storage = Storage.create(TestUtil.getDatasource_H2(), new GeometryFactory(GeometryFactory.Type.JTS));
         storage.initialize();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs"};
         try {
             writeSystemProperties();
-            TestUtil.writeDatabaseProperties(configDir);
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
 
             IngestionToolMain.main(args);
 
@@ -144,12 +144,12 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AMSU() throws ParseException, IOException, SQLException {
-        final Storage storage = Storage.create(TestUtil.getInFileDatasourceMongoDB(), new GeometryFactory(GeometryFactory.Type.S2));
+        final Storage storage = Storage.create(TestUtil.getDatasourceMongo_DB(), new GeometryFactory(GeometryFactory.Type.S2));
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
             writeSystemProperties();
-            TestUtil.writeDatabaseProperties(configDir);
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
 
             IngestionToolMain.main(args);
             List<SatelliteObservation> satelliteObservations = storage.get();
@@ -165,12 +165,12 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_MHS() throws ParseException, IOException, SQLException {
-        final Storage storage = Storage.create(TestUtil.getInFileDatasourceMongoDB(), new GeometryFactory(GeometryFactory.Type.S2));
+        final Storage storage = Storage.create(TestUtil.getDatasourceMongo_DB(), new GeometryFactory(GeometryFactory.Type.S2));
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
             writeSystemProperties();
-            TestUtil.writeDatabaseProperties(configDir);
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
 
             IngestionToolMain.main(args);
             List<SatelliteObservation> satelliteObservations = storage.get();

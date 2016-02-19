@@ -80,7 +80,7 @@ public class MatchupToolIntegrationTest {
     public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
 
-        TestUtil.writeDatabaseProperties(configDir);
+        TestUtil.writeDatabaseProperties_H2(configDir);
 
         try {
             MatchupToolMain.main(args);
@@ -107,7 +107,7 @@ public class MatchupToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-e", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeDatabaseProperties(configDir);
+        TestUtil.writeDatabaseProperties_H2(configDir);
 
         try {
             MatchupToolMain.main(args);
@@ -121,7 +121,7 @@ public class MatchupToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124"};
 
         TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeDatabaseProperties(configDir);
+        TestUtil.writeDatabaseProperties_H2(configDir);
 
         try {
             MatchupToolMain.main(args);
@@ -133,7 +133,7 @@ public class MatchupToolIntegrationTest {
     @Test
     public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Storage storage = Storage.create(TestUtil.getInMemoryDatasource(), geometryFactory);
+        final Storage storage = Storage.create(TestUtil.getDatasource_H2(), geometryFactory);
         storage.initialize();
 
         try {

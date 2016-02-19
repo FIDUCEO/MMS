@@ -22,13 +22,12 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 
 @Ignore
 public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteObservation {
 
     public StorageTest_SatelliteObservation_H2() {
-        dataSource = TestUtil.getInMemoryDatasource();
+        dataSource = TestUtil.getDatasource_H2();
     }
 }
