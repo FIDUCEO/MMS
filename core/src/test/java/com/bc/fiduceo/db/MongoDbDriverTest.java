@@ -22,11 +22,18 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.geometry.s2.S2WKTReader;
+import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +43,7 @@ public class MongoDbDriverTest {
 
     private MongoDbDriver driver;
     private GeometryFactory geometryFactory;
+
 
     @Before
     public void setUp() {
@@ -133,4 +141,55 @@ public class MongoDbDriverTest {
                 "(7.999999999999998, -12.000000000000002)\n" +
                 ">\n", geometry.toString());
     }
+
+    @Test
+    public void testConvertToGeometry_multipolygon() {
+        final S2WKTReader s2WKTReader = new S2WKTReader();
+
+        Document jsonMultiPolygon = new Document("type", "MultiPolygon");
+
+        List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
+        final ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> last = new ArrayList<>();
+
+        final ArrayList<ArrayList<ArrayList<Double>>> polygonList = new ArrayList<>();
+        for (S2Polygon s2Polygon : s2PolygonList) {
+            for (int i = 0; i < s2Polygon.numLoops(); i++) {
+                S2Loop loop = s2Polygon.loop(i);
+                final ArrayList<ArrayList<Double>> pointsList = new ArrayList<>();
+                for (int j = 0; j < loop.numVertices(); j++) {
+                    final ArrayList<Double> vertexList = new ArrayList<>();
+                    S2Point vertex = loop.vertex(j);
+                    vertexList.add(vertex.getX());
+                    vertexList.add(vertex.getY());
+                    pointsList.add(vertexList);
+                }
+                polygonList.add(pointsList);
+            }
+        }
+        last.add(polygonList);
+        jsonMultiPolygon.append("coordinates", last);
+        Geometry geometry = driver.convertToGeometry(jsonMultiPolygon);
+        assertNotNull(geometry);
+        assertEquals(geometry.getCoordinates().length, 7);
+        MultiPolygon multiPolygon = (MultiPolygon)geometry;
+        List<Polygon> polygonsList = (List<Polygon>) multiPolygon.getInner();
+
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(0.34202014332566866, 0.9396926207859083)\n" +
+                "(0.7660444431189782, 0.6427876096865394)\n" +
+                "(0.7198463103929542, 0.6040227735550537)\n" +
+                "(0.21984631039295416, 0.6040227735550537)\n" +
+                ">\n", polygonsList.get(0).toString());
+
+
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(0.11697777844051101, 0.32139380484326974)\n" +
+                "(0.2620026302293851, 0.2198463103929543)\n" +
+                "(4.6906693763513654E-17, 3.935938943670993E-17)\n" +
+                ">\n", polygonsList.get(1).toString());
+
+    }
+
 }

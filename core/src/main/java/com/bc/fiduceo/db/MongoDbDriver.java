@@ -182,10 +182,10 @@ public class MongoDbDriver extends AbstractDriver {
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
-        final ArrayList coordinatesList = (ArrayList) geoDocument.get("coordinates");
         if ("Polygon".equals(type)) {
             final ArrayList<Point> polygonPoints = new ArrayList<>();
-            for (Object linearRing : coordinatesList) {
+            final ArrayList linearRings = (ArrayList) geoDocument.get("coordinates");
+            for (Object linearRing : linearRings) {
                 final ArrayList coordinates = (ArrayList) linearRing;
                 for (Object coordinate : coordinates) {
                     final ArrayList<Double> point = (ArrayList<Double>) coordinate;
@@ -195,18 +195,21 @@ public class MongoDbDriver extends AbstractDriver {
             }
             return geometryFactory.createPolygon(polygonPoints);
         } else if ("MultiPolygon".equals(type)) {
+
             List<Polygon> polygonList = new ArrayList<>();
-            for (int i = 0; i < coordinatesList.size(); i++) {
-                final List<Point> pointList = new ArrayList<>();
-                final ArrayList coordinates = (ArrayList) coordinatesList.get(i);
+            ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
+            for (int i = 0; i < polycoordinates.size(); i++) {
+
+                final ArrayList coordinates = (ArrayList) polycoordinates.get(i);
                 for (Object coordinate : coordinates) {
                     final ArrayList<Double> point = (ArrayList<Double>) coordinate;
+                    List<Point> pointList = new ArrayList<>();
                     for (Object object : point) {
                         ArrayList<Double> m = (ArrayList<Double>) object;
                         pointList.add(geometryFactory.createPoint(m.get(0), m.get(1)));
                     }
+                    polygonList.add(geometryFactory.createPolygon(pointList));
                 }
-                polygonList.add(geometryFactory.createPolygon(pointList));
             }
             return geometryFactory.createMultiPolygon(polygonList);
         }
