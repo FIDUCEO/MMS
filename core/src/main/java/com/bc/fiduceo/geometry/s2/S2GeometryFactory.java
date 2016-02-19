@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.geometry.s2.S2WKTReader;
+import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Polyline;
@@ -65,14 +66,14 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         } else if (geometry instanceof com.google.common.geometry.S2Point) {
             return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
         } else if (geometry instanceof List) {
-            return new S2MultiPolygon((List<Polygon>) geometry);
+            return new S2MultiPolygon(geometry);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
 
     @Override
     public String format(Geometry geometry) {
-        throw new RuntimeException("not implemented");
+        return S2WKTWriter.write(geometry.getInner());
     }
 
     @Override
