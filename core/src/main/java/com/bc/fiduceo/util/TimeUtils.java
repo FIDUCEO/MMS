@@ -80,6 +80,13 @@ public class TimeUtils {
         return calendar.getTime();
     }
 
+    public static Date addSeconds(int seconds, Date date) {
+        final Calendar calendar = calendarThreadLocal.get();
+        calendar.setTimeInMillis(date.getTime());
+        calendar.add(Calendar.SECOND, seconds);
+        return calendar.getTime();
+    }
+
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {
         @Override
         protected Calendar initialValue() {

@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo;
 
-import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
@@ -31,13 +29,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
-import ucar.ma2.ArrayDouble;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,18 +80,23 @@ public class TestUtil {
         }
     }
 
-    public static void writeDatabaseProperties(File configDir) throws IOException {
+    public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
         final Properties properties = new Properties();
-        final BasicDataSource datasource = TestUtil.getInFileDatasourceMongoDB();
-        properties.setProperty("driverClassName", datasource.getDriverClassName());
-        properties.setProperty("url", datasource.getUrl());
-        properties.setProperty("username", datasource.getUsername());
-        properties.setProperty("password", datasource.getPassword());
+        final BasicDataSource datasource = TestUtil.getDatasourceMongo_DB();
+        convertToProperties(properties, datasource);
 
         TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
     }
 
-    public static BasicDataSource getInMemoryDatasource() {
+    public static void writeDatabaseProperties_H2(File configDir) throws IOException {
+        final Properties properties = new Properties();
+        final BasicDataSource datasource = TestUtil.getDatasource_H2();
+        convertToProperties(properties, datasource);
+
+        TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
+    }
+
+    public static BasicDataSource getDatasource_H2() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         // the following line dumps all database interactions to the console window tb 2016-02-10
@@ -106,7 +107,7 @@ public class TestUtil {
         return dataSource;
     }
 
-    public static BasicDataSource getInFileDatasourceMongoDB() {
+    public static BasicDataSource getDatasourceMongo_DB() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("mongodb");
         dataSource.setUrl("mongodb://localhost:27017/test");
@@ -180,93 +181,6 @@ public class TestUtil {
         return new File(tempDirPath, TEST_DIRECTORY);
     }
 
-    public static List<com.bc.fiduceo.geometry.Polygon> halfBoundaryPoints(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType, GeometryFactory.Type type) {
-        final int[] shape = arrayLatitude.getShape();
-        int width = shape[1] - 1;
-        int height = (shape[0] - 1);
-        int intervalX = 10;
-        int intervalY = 10;
-        com.bc.fiduceo.geometry.GeometryFactory geometryFactory = new com.bc.fiduceo.geometry.GeometryFactory(type);
-        List<Point> coordinatesFirst = new ArrayList<>();
-        List<Point> coordinatesSecond = new ArrayList<>();
-        List<com.bc.fiduceo.geometry.Polygon> polygonList = new ArrayList<>();
-
-
-        int[] timeAxisStart = new int[2];
-        int[] timeAxisEnd = new int[2];
-        if (nodeType == NodeType.ASCENDING) {
-            for (int x = 0; x < width; x += intervalX) {
-                final double lon = arrayLongitude.get(0, x);
-                final double lat = arrayLatitude.get(0, x);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            timeAxisStart[0] = coordinatesFirst.size();
-            timeAxisEnd[0] = timeAxisStart[0];
-            // First Half
-            int firstHalf = height / 2;
-            for (int y = 0; y < firstHalf; y += intervalY) {
-                final double lon = arrayLongitude.get(y, width);
-                final double lat = arrayLatitude.get(y, width);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-                ++timeAxisEnd[0];
-            }
-
-            for (int x = width; x > 0; x -= intervalX) {
-                final double lon = arrayLongitude.get(firstHalf, x);
-                final double lat = arrayLatitude.get(firstHalf, x);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int y = firstHalf; y > 0; y -= intervalY) {
-                final double lon = arrayLongitude.get(y, 0);
-                final double lat = arrayLatitude.get(y, 0);
-                coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
-            }
-            if (GeometryFactory.Type.JTS == type) {
-                coordinatesFirst.add(coordinatesFirst.get(0));
-            }
-            if (type == GeometryFactory.Type.S2) {
-                coordinatesFirst.add(coordinatesFirst.get(0));
-            }
-
-            //------ Second half
-            for (int x = 0; x < width; x += intervalX) {
-                final double lon = arrayLongitude.get(firstHalf, x);
-                final double lat = arrayLatitude.get(firstHalf, x);
-                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            for (int y = firstHalf; y < height; y += intervalY) {
-                final double lon = arrayLongitude.get(y, width);
-                final double lat = arrayLatitude.get(y, width);
-                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
-            }
-
-
-            for (int x = width; x > 0; x -= intervalX) {
-                final double lon = arrayLongitude.get(height, x);
-                final double lat = arrayLatitude.get(height, x);
-                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
-            }
-
-
-            for (int y = height; y > firstHalf; y -= intervalY) {
-                final double lon = arrayLongitude.get(y, 0);
-                final double lat = arrayLatitude.get(y, 0);
-                coordinatesSecond.add(geometryFactory.createPoint(lon, lat));
-            }
-
-            if (GeometryFactory.Type.JTS == type) {
-                coordinatesSecond.add(coordinatesSecond.get(0));
-            }
-        }
-
-        polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
-        polygonList.add(geometryFactory.createPolygon(coordinatesSecond));
-        return polygonList;
-    }
-
     public static Coordinate[] getCoordinates(List<Point> points) {
         final Coordinate[] coordinates = new Coordinate[points.size()];
         for (int i = 0; i < points.size(); i++) {
@@ -289,6 +203,13 @@ public class TestUtil {
             }
         }
         return valid;
+    }
+
+    private static void convertToProperties(Properties properties, BasicDataSource datasource) {
+        properties.setProperty("driverClassName", datasource.getDriverClassName());
+        properties.setProperty("url", datasource.getUrl());
+        properties.setProperty("username", datasource.getUsername());
+        properties.setProperty("password", datasource.getPassword());
     }
 
 }
