@@ -153,7 +153,7 @@ public class IngestionToolIntegrationTest {
 
             IngestionToolMain.main(args);
             List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(satelliteObservations.size(), 46);
+            assertEquals(satelliteObservations.size(), 1);
             SatelliteObservation observationFromDb = satelliteObservations.get(0);
             assertEquals(observationFromDb.getSensor().getName(), "NOAA-15");
 
@@ -176,7 +176,7 @@ public class IngestionToolIntegrationTest {
 
             IngestionToolMain.main(args);
             List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(satelliteObservations.size(), 46);
+            assertEquals(satelliteObservations.size(), 1);
             SatelliteObservation observationFromDb = satelliteObservations.get(0);
             assertEquals(observationFromDb.getSensor().getName(), "NOAA-15");
         } finally {
