@@ -145,7 +145,7 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AMSU() throws ParseException, IOException, SQLException {
-        final Storage storage = Storage.create(TestUtil.getInMemoryDatasourceH2(), new GeometryFactory(GeometryFactory.Type.S2));
+        final Storage storage = Storage.create(TestUtil.getInFileDatasourceMongoDB(), new GeometryFactory(GeometryFactory.Type.S2));
         storage.initialize();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
