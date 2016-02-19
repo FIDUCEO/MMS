@@ -21,11 +21,9 @@
 package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.TestUtil;
-import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -87,9 +85,9 @@ public class TimeUtilsTest {
         assertNotNull(date);
         TestUtil.assertCorrectUTCDate(2007, 5, 6, 23, 59, 59, 999, date);
 
-//        date = TimeUtils.parseDOYBeginOfDay("2007-125");
-//        assertNotNull(date);
-//        TestUtil.assertCorrectUTCDate(2007, 5, 5, 0, 0, 0, 0, date);
+        date = TimeUtils.parseDOYEndOfDay("2007-127");
+        assertNotNull(date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 7, 23, 59, 59, 999, date);
     }
 
     @Test
@@ -107,5 +105,17 @@ public class TimeUtilsTest {
 
         final Timestamp timestamp = TimeUtils.toTimestamp(date);
         assertEquals(1435100000345L, timestamp.getTime());
+    }
+
+    @Test
+    public void testAddSeconds() {
+        Date date = TimeUtils.parseDOYBeginOfDay("2007-130");
+        TestUtil.assertCorrectUTCDate(2007, 5, 10, 0, 0, 0, 0, date);
+
+        Date adjustedDate = TimeUtils.addSeconds(300, date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 10, 0, 5, 0, 0, adjustedDate);
+
+        adjustedDate = TimeUtils.addSeconds(-300, date);
+        TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
     }
 }

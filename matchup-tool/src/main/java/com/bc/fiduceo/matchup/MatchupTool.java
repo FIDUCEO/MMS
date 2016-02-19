@@ -32,7 +32,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.io.ObservableInputStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,14 +92,26 @@ class MatchupTool {
 
     private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
         final QueryParameter parameter = new QueryParameter();
+        // @todo 2 tb/tb sensor/platform from use-case configuration 2016-02-19
         parameter.setSensorName("amsub-noaa15");
         parameter.setStartTime(context.getStartDate());
         parameter.setStopTime(context.getEndDate());
 
         final Storage storage = context.getStorage();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+
+        // @todo 2 tb/tb time delta shall be read from use-case configuration 2016-02-19
+        final int timeDelta = 300;
         for (final SatelliteObservation observation : primaryObservations) {
-            observation.getStartTime();
+            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, observation.getStartTime());
+            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, observation.getStopTime());
+
+            // @todo 2 tb/tb sensor/platform from use-case configuration 2016-02-19
+            parameter.setSensorName("mhs-noaa15");
+            parameter.setStartTime(searchTimeStart);
+            parameter.setStopTime(searchTimeEnd);
+
+            final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
         }
     }
 
