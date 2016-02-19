@@ -102,6 +102,7 @@ class IngestionTool {
         String sensorTypeacronym = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorTypeacronym);
+        Geometry geometry;
 
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
 
@@ -119,12 +120,14 @@ class IngestionTool {
                 satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
-
-                Geometry geometry;
-                if (aquisitionInfo.getMultiPolygons().size() > 0) {
-                    geometry = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
+                if (aquisitionInfo.getMultiPolygons() == null) {
+                    geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(aquisitionInfo.getCoordinates());
                 } else {
-                    geometry = geometryFactory.createPolygon(aquisitionInfo.getCoordinates());
+                    if (aquisitionInfo.getMultiPolygons().size() > 0) {
+                        geometry = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
+                    } else {
+                        geometry = geometryFactory.createPolygon(aquisitionInfo.getCoordinates());
+                    }
                 }
                 satelliteObservation.setGeoBounds(geometry);
                 storage.insert(satelliteObservation);
