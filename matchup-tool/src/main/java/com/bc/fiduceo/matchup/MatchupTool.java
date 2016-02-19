@@ -112,6 +112,9 @@ class MatchupTool {
             parameter.setStopTime(searchTimeEnd);
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
+            for (final SatelliteObservation secondary : secondaryObservations) {
+                // @todo 1 tb/tb perform the intersection 216-02-19
+            }
         }
     }
 

@@ -25,7 +25,9 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +36,6 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
@@ -131,25 +132,49 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException {
+    public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException, IOException, ParseException {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(TestUtil.getDatasource_H2(), geometryFactory);
         storage.initialize();
 
         try {
-            final SatelliteObservation amsubObservation = new SatelliteObservation();
-            amsubObservation.setStartTime(new Date(100000000L));
-            amsubObservation.setStopTime(new Date(100100000L));
-            amsubObservation.setGeoBounds(geometryFactory.parse("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))"));
-            final Sensor amsub = new Sensor();
-            amsub.setName("amsub-noaa15");
-            amsubObservation.setSensor(amsub);
-            amsubObservation.setDataFile(new File("."));
+            final Geometry geometry = geometryFactory.parse("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))");
+            final SatelliteObservation amsubObservation = createSatelliteObservation(geometry, "2010-07-21 16:34:19", "2010-07-21 16:55:07");
             storage.insert(amsubObservation);
+
+            final SatelliteObservation mhsObservation = new SatelliteObservation();
+            mhsObservation.setStartTime(TimeUtils.parseDOYBeginOfDay("2007-140"));
+            mhsObservation.setStopTime(TimeUtils.parseDOYEndOfDay("2007-140"));
+            mhsObservation.setGeoBounds(geometry);
+            final Sensor mhs = new Sensor();
+            mhs.setName("mhs-n15");
+            mhsObservation.setSensor(mhs);
+            mhsObservation.setDataFile(new File("."));
+            storage.insert(mhsObservation);
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "2007-100", "--end", "2007-200"};
+
+            TestUtil.writeSystemProperties(configDir);
+            TestUtil.writeDatabaseProperties_H2(configDir);
+            MatchupToolMain.main(args);
+
+            // @todo 1 tb/tb assert that no output file is generated 2016-02-19
 
         } finally {
             storage.clear();
             storage.close();
         }
+    }
+
+    private SatelliteObservation createSatelliteObservation(Geometry geometry, String startDate, String stopDate) {
+        final SatelliteObservation amsubObservation = new SatelliteObservation();
+        amsubObservation.setStartTime(TimeUtils.parse(startDate, "yyyy-MM-dd hh:mm:ss"));
+        amsubObservation.setStopTime(TimeUtils.parse(stopDate, "yyyy-MM-dd hh:mm:ss"));
+        amsubObservation.setGeoBounds(geometry);
+        final Sensor amsub = new Sensor();
+        amsub.setName("amsub-n15");
+        amsubObservation.setSensor(amsub);
+        amsubObservation.setDataFile(new File("."));
+        return amsubObservation;
     }
 }
