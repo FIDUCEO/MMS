@@ -22,7 +22,6 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.db.Storage;
@@ -148,7 +147,8 @@ public class MatchupToolIntegrationTest {
             amsubObservation.setDataFile(new File("."));
             storage.insert(amsubObservation);
 
-        }finally {
+        } finally {
+            storage.clear();
             storage.close();
         }
     }

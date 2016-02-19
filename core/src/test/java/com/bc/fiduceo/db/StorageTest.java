@@ -89,8 +89,13 @@ public abstract class StorageTest {
     @Test
     public void testIsInitialized_initialized() throws SQLException {
         final Storage storage = Storage.create(dataSource, geometryFactory);
-        storage.initialize();
+        try {
+            storage.initialize();
 
-        assertTrue(storage.isInitialized());
+            assertTrue(storage.isInitialized());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
     }
 }

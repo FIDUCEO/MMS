@@ -32,6 +32,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.io.ObservableInputStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,6 +99,9 @@ class MatchupTool {
 
         final Storage storage = context.getStorage();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+        for (final SatelliteObservation observation : primaryObservations) {
+            observation.getStartTime();
+        }
     }
 
     // package access for testing only tb 2016-02-18

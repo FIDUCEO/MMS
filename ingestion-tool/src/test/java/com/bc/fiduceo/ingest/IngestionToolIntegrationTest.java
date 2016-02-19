@@ -136,6 +136,7 @@ public class IngestionToolIntegrationTest {
             // @todo 1 tb/** this is not correct, check why and correct 2015-12-22
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
         } finally {
+            storage.clear();
             storage.close();
         }
     }
@@ -144,7 +145,6 @@ public class IngestionToolIntegrationTest {
     @Test
     public void testIngest_AMSU() throws ParseException, IOException, SQLException {
         final Storage storage = Storage.create(TestUtil.getInFileDatasourceMongoDB(), new GeometryFactory(GeometryFactory.Type.S2));
-        storage.initialize();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {
@@ -166,8 +166,6 @@ public class IngestionToolIntegrationTest {
     @Test
     public void testIngest_MHS() throws ParseException, IOException, SQLException {
         final Storage storage = Storage.create(TestUtil.getInFileDatasourceMongoDB(), new GeometryFactory(GeometryFactory.Type.S2));
-        storage.clear();
-        storage.initialize();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "noaa-15"};
         try {

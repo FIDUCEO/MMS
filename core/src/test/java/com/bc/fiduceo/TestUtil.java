@@ -98,9 +98,11 @@ public class TestUtil {
     public static BasicDataSource getInMemoryDatasource() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
+        // the following line dumps all database interactions to the console window tb 2016-02-10
+//        dataSource.setUrl("jdbc:h2:mem:fiduceo;TRACE_LEVEL_SYSTEM_OUT=2");
         dataSource.setUrl("jdbc:h2:mem:fiduceo");
-        dataSource.setUsername("");
-        dataSource.setPassword("sa");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
         return dataSource;
     }
 
