@@ -99,9 +99,9 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        String sensorTypeacronym = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
+        String sensorType_Acronym = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
         ServicesUtils servicesUtils = new ServicesUtils<>();
-        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorTypeacronym);
+        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType_Acronym);
         Geometry geometry;
 
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
@@ -121,6 +121,7 @@ class IngestionTool {
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
                 if (aquisitionInfo.getMultiPolygons() == null) {
+                    //todo: mba to specify which Geometry library to use on each reader. 2016-19-02
                     geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(aquisitionInfo.getCoordinates());
                 } else {
                     if (aquisitionInfo.getMultiPolygons().size() > 0) {

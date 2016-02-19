@@ -121,6 +121,7 @@ public class MongoDbDriverTest {
         linearRings.add(pointList);
         jsonPolygon.append("coordinates", linearRings);
 
+
         final Geometry geometry = driver.convertToGeometry(jsonPolygon);
         assertNotNull(geometry);
         assertEquals("Polygon: (1) loops:\n" +

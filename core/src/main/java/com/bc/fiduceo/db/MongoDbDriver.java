@@ -178,13 +178,14 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // static access for testing only tb 2016-02-09
+    //todo: write a test to test multipolygon conversion.
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
+        final ArrayList coordinatesList = (ArrayList) geoDocument.get("coordinates");
         if ("Polygon".equals(type)) {
             final ArrayList<Point> polygonPoints = new ArrayList<>();
-            final ArrayList linearRings = (ArrayList) geoDocument.get("coordinates");
-            for (Object linearRing : linearRings) {
+            for (Object linearRing : coordinatesList) {
                 final ArrayList coordinates = (ArrayList) linearRing;
                 for (Object coordinate : coordinates) {
                     final ArrayList<Double> point = (ArrayList<Double>) coordinate;
@@ -192,18 +193,12 @@ public class MongoDbDriver extends AbstractDriver {
                     polygonPoints.add(point1);
                 }
             }
-
             return geometryFactory.createPolygon(polygonPoints);
-
         } else if ("MultiPolygon".equals(type)) {
-
             List<Polygon> polygonList = new ArrayList<>();
-
-            ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
-            for (int i = 0; i < polycoordinates.size(); i++) {
-                List<Point> pointList = new ArrayList<>();
-
-                final ArrayList coordinates = (ArrayList) polycoordinates.get(i);
+            for (int i = 0; i < coordinatesList.size(); i++) {
+                final List<Point> pointList = new ArrayList<>();
+                final ArrayList coordinates = (ArrayList) coordinatesList.get(i);
                 for (Object coordinate : coordinates) {
                     final ArrayList<Double> point = (ArrayList<Double>) coordinate;
                     for (Object object : point) {
@@ -213,7 +208,6 @@ public class MongoDbDriver extends AbstractDriver {
                 }
                 polygonList.add(geometryFactory.createPolygon(pointList));
             }
-
             return geometryFactory.createMultiPolygon(polygonList);
         }
         throw new RuntimeException("Geometry type support not implemented yet");
@@ -228,7 +222,6 @@ public class MongoDbDriver extends AbstractDriver {
             if (!positions.get(0).equals(positions.get(positions.size() - 1))) {
                 positions.add(positions.get(0));
             }
-
             polygonCoordinatesList.add(new PolygonCoordinates(positions));
         }
         return polygonCoordinatesList;
