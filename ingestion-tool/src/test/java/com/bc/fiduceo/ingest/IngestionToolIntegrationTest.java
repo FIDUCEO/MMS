@@ -121,10 +121,7 @@ public class IngestionToolIntegrationTest {
 
             IngestionToolMain.main(args);
 
-            // TODO: mba the insert is not yet concluded.
             final List<SatelliteObservation> satelliteObservations = storage.get();
-            assertTrue(satelliteObservations.size() > 0);
-
             final SatelliteObservation observation = satelliteObservations.get(1);
             final Sensor sensor = observation.getSensor();
             assertTrue(sensor.getName().contains("AIRS"));
