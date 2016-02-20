@@ -147,6 +147,7 @@ public class MongoDbDriver extends AbstractDriver {
         return resultList;
     }
 
+
     private SatelliteObservation getSatelliteObservation(Document document) {
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
 
@@ -178,7 +179,6 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // static access for testing only tb 2016-02-09
-    //todo: write a test to test multipolygon conversion.
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
@@ -195,12 +195,10 @@ public class MongoDbDriver extends AbstractDriver {
             }
             return geometryFactory.createPolygon(polygonPoints);
         } else if ("MultiPolygon".equals(type)) {
-
             List<Polygon> polygonList = new ArrayList<>();
             ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
-            for (int i = 0; i < polycoordinates.size(); i++) {
-
-                final ArrayList coordinates = (ArrayList) polycoordinates.get(i);
+            for (Object polycoordinate : polycoordinates) {
+                final ArrayList coordinates = (ArrayList) polycoordinate;
                 for (Object coordinate : coordinates) {
                     final ArrayList<Double> point = (ArrayList<Double>) coordinate;
                     List<Point> pointList = new ArrayList<>();
@@ -216,7 +214,8 @@ public class MongoDbDriver extends AbstractDriver {
         throw new RuntimeException("Geometry type support not implemented yet");
     }
 
-    private static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
+    @SuppressWarnings("unchecked")
+    public static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
         List<Polygon> s2PolygonList = (List<Polygon>) multiPolygon.getInner();
         List<PolygonCoordinates> polygonCoordinatesList = new ArrayList<>();
         for (Polygon s2Polygon : s2PolygonList) {
@@ -291,7 +290,6 @@ public class MongoDbDriver extends AbstractDriver {
 
     private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {
         final ArrayList<Position> polygonPoints = new ArrayList<>();
-
 
         for (final Point coordinate : coordinates) {
             final Position position = new Position(coordinate.getLon(), coordinate.getLat());

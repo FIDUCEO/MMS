@@ -24,17 +24,19 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
+import com.mongodb.client.model.geojson.PolygonCoordinates;
+import com.mongodb.client.model.geojson.Position;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -97,6 +99,24 @@ public class MongoDbDriverTest {
     }
 
     @Test
+    public void testConvertToGeoJSON_MultiPolygon() {
+        MultiPolygon multiPolygon = getMultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
+        com.mongodb.client.model.geojson.MultiPolygon mongoMultiPolygon = (com.mongodb.client.model.geojson.MultiPolygon) MongoDbDriver.convertToGeoJSON(multiPolygon);
+        assertNotNull(mongoMultiPolygon);
+        List<PolygonCoordinates> polygonCoordinatesList = mongoMultiPolygon.getCoordinates();
+        assertEquals(polygonCoordinatesList.size(),2);
+
+        assertEquals(polygonCoordinatesList.get(0).getExterior().size(),5);
+        assertEquals(polygonCoordinatesList.get(1).getExterior().size(),4);
+
+        assertEquals(polygonCoordinatesList.get(0).getExterior().get(0).toString(),"Position{values=[20.0, 0.0]}");
+        assertEquals(polygonCoordinatesList.get(0).getExterior().get(1).toString(),"Position{values=[49.99999999999999, 0.0]}");
+
+        assertEquals(polygonCoordinatesList.get(1).getExterior().get(0).toString(),"Position{values=[20.0, 70.0]}");
+        assertEquals(polygonCoordinatesList.get(1).getExterior().get(1).toString(),"Position{values=[49.99999999999999, 70.0]}");
+    }
+
+    @Test
     public void testConvertToGeometry_polygon() {
         final Document jsonPolygon = new Document("type", "Polygon");
         final ArrayList<ArrayList<ArrayList<Double>>> linearRings = new ArrayList<>();
@@ -144,10 +164,9 @@ public class MongoDbDriverTest {
 
     @Test
     public void testConvertToGeometry_multipolygon() {
-        final S2WKTReader s2WKTReader = new S2WKTReader();
-
         Document jsonMultiPolygon = new Document("type", "MultiPolygon");
 
+        final S2WKTReader s2WKTReader = new S2WKTReader();
         List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
         final ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> last = new ArrayList<>();
 
@@ -171,7 +190,7 @@ public class MongoDbDriverTest {
         Geometry geometry = driver.convertToGeometry(jsonMultiPolygon);
         assertNotNull(geometry);
         assertEquals(geometry.getCoordinates().length, 7);
-        MultiPolygon multiPolygon = (MultiPolygon)geometry;
+        MultiPolygon multiPolygon = (MultiPolygon) geometry;
         List<Polygon> polygonsList = (List<Polygon>) multiPolygon.getInner();
 
         assertEquals("Polygon: (1) loops:\n" +
@@ -192,4 +211,31 @@ public class MongoDbDriverTest {
 
     }
 
+    @Test
+    public void testGetPolygonCoordinates() {
+        MultiPolygon multiPolygon = getMultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
+        List<PolygonCoordinates> polygonCoordinates = MongoDbDriver.gePolygonCoordinates(multiPolygon);
+        assertNotNull(polygonCoordinates);
+
+        assertEquals(polygonCoordinates.size(),2);
+
+        assertEquals(polygonCoordinates.get(0).getExterior().size(),5);
+        assertEquals(polygonCoordinates.get(1).getExterior().size(),4);
+
+        assertEquals(polygonCoordinates.get(0).getExterior().get(0).toString(),"Position{values=[20.0, 0.0]}");
+        assertEquals(polygonCoordinates.get(0).getExterior().get(1).toString(),"Position{values=[49.99999999999999, 0.0]}");
+
+        assertEquals(polygonCoordinates.get(1).getExterior().get(0).toString(),"Position{values=[20.0, 70.0]}");
+        assertEquals(polygonCoordinates.get(1).getExterior().get(1).toString(),"Position{values=[49.99999999999999, 70.0]}");
+    }
+
+    private MultiPolygon getMultiPolygon(String wkt) {
+        final S2WKTReader s2WKTReader = new S2WKTReader();
+        List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read(wkt);
+        List<Polygon> polygonList = new ArrayList<>();
+        S2GeometryFactory s2GeometryFactory = new S2GeometryFactory();
+        polygonList.add(s2GeometryFactory.createPolygon(s2PolygonList.get(0)));
+        polygonList.add(s2GeometryFactory.createPolygon(s2PolygonList.get(1)));
+        return s2GeometryFactory.createMultiPolygon(polygonList);
+    }
 }

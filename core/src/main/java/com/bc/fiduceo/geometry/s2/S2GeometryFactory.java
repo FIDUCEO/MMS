@@ -104,6 +104,10 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         return new S2Polygon(googlePolygon);
     }
 
+    public Polygon createPolygon(com.google.common.geometry.S2Polygon s2Polygon){
+        return new S2Polygon(s2Polygon);
+    }
+
     @Override
     public LineString createLineString(List<Point> points) {
         final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);

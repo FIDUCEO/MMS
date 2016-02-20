@@ -236,7 +236,7 @@ public class BoundingPolygonCreator {
         return polygonList;
     }
 
-    //todo mba : include the NodeType.
+    //todo mba : include the NodeType 2016-02-10.
     public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
         final int[] shape = arrayLatitude.getShape();
         List<Polygon> polygonsBounding = new ArrayList<>();
@@ -327,9 +327,7 @@ public class BoundingPolygonCreator {
             lat = arrayLatitude.get(y, 0);
             coordinates.add(geometryFactory.createPoint(lon, lat));
         }
-
         closePolygon(coordinates);
-
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
         return acquisitionInfo;
