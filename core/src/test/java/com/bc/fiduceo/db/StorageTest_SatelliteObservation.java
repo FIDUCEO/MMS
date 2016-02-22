@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -34,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -47,17 +49,19 @@ public abstract class StorageTest_SatelliteObservation {
 
     protected BasicDataSource dataSource;
     protected Storage storage;
-    private GeometryFactory geometryFactory;
+    protected GeometryFactory geometryFactory;
+    protected AMSU_MHS_L1B_Reader reader;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
+
     }
 
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() throws SQLException, IOException {
         if (storage != null) {
             storage.clear();
             storage.close();
@@ -83,7 +87,18 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
-        assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
+        if (geometryFactory.getType() == GeometryFactory.Type.S2) {
+            assertEquals("Polygon: (1) loops:\n" +
+                    "loop <\n" +
+                    "(4.999999999999998, 12.0)\n" +
+                    "(7.000000000000001, 12.000000000000004)\n" +
+                    "(7.0, 9.999999999999998)\n" +
+                    "(4.999999999999998, 9.999999999999998)\n" +
+                    "(4.999999999999998, 12.0)\n" +
+                    ">\n", observationFromDb.getGeoBounds().toString());
+        } else {
+            assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
+        }
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
         assertEquals(observation.getDataFile().getAbsolutePath(), observationFromDb.getDataFile().getAbsolutePath());
         assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
@@ -397,12 +412,6 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(1, result.size());
     }
 
-    private SatelliteObservation createSatelliteObservation() throws ParseException {
-        final Date startTime = TimeUtils.create(1430000000000L);
-        final Date stopTime = TimeUtils.create(1430001000000L);
-        return createSatelliteObservation(startTime, stopTime);
-    }
-
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(startTime);
@@ -421,4 +430,12 @@ public abstract class StorageTest_SatelliteObservation {
 
         return observation;
     }
+
+    private SatelliteObservation createSatelliteObservation() throws ParseException {
+        final Date startTime = TimeUtils.create(1430000000000L);
+        final Date stopTime = TimeUtils.create(1430001000000L);
+        return createSatelliteObservation(startTime, stopTime);
+    }
+
+
 }
