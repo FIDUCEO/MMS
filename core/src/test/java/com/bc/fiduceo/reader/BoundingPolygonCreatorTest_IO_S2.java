@@ -73,36 +73,12 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
 
     @Test
     public void testCreateBoundingPolygon() throws IOException {
-
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
-
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        ArrayDouble.D2 arrayLong = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
-
-        final int[] shape = arrayLat.getShape();
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayLat, arrayLong);
+        final AcquisitionInfo acquisitionInfo = reader.read();
         assertNotNull(acquisitionInfo);
 
         final List<Polygon> polygons = acquisitionInfo.getMultiPolygons();
         assertTrue(polygons.size() > 0);
-
-
         final Point[] points = polygons.get(0).getCoordinates();
-
         assertTrue(points.length == 52);
         assertEquals(points[0].getLon(), -97.86539752771206, 1e-8);
         assertEquals(points[0].getLat(), 21.40989945914043, 1e-8);
@@ -156,6 +132,4 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         assertEquals(polygonList.get(0).getCoordinates()[0].getLat(), 21.40989945914043, 1e-8);
         assertTrue(TestUtil.isPointValidation(polygonList));
     }
-
-
 }

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -44,7 +45,6 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     private final static int IntervalY = 50;
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
-    private List<String> sensorList = Arrays.asList("NOAA-15", "NOAA-14");
 
 
     public AMSU_MHS_L1B_Reader() {
@@ -80,9 +80,31 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
     @Override
     public boolean checkSensorTypeName(String sensorType) {
-        String parseSensorType = ReaderUtils.parseSensorType(sensorType);
-        return sensorList.contains(parseSensorType);
+        return getSensorTypes().containsKey(sensorType);
     }
+
+    @Override
+    public HashMap<String, String> getSensorTypes() {
+        HashMap<String, String> sensorListHashMap = new HashMap<>();
+
+        sensorListHashMap.put("amsub-nn	", "TN");
+        sensorListHashMap.put("amsub-n06", "NA");
+        sensorListHashMap.put("amsub-n07", "NC");
+        sensorListHashMap.put("amsub-n08", "NE");
+        sensorListHashMap.put("amsub-n09", "NF");
+        sensorListHashMap.put("amsub-n10", "NG");
+        sensorListHashMap.put("amsub-n11", "NH");
+        sensorListHashMap.put("amsub-n12", "ND");
+        sensorListHashMap.put("amsub-n14", "NJ");
+        sensorListHashMap.put("amsub-n15", "NK");
+        sensorListHashMap.put("amsub-n16", "NL");
+        sensorListHashMap.put("amsub-n17", "NM");
+        sensorListHashMap.put("amsub-n18", "NN");
+        sensorListHashMap.put("amsub-n19", "NPrime");
+
+        return sensorListHashMap;
+    }
+
 
     @Override
     public AcquisitionInfo read() throws IOException {

@@ -35,7 +35,7 @@ public class ServicesUtilsTest {
         Reader reader;
         ServicesUtils servicesUtils = new ServicesUtils<>();
 
-        reader = (Reader) servicesUtils.getServices(Reader.class, "NOAA-15");
+        reader = (Reader) servicesUtils.getServices(Reader.class, "amsub-n15");
         assertTrue(reader.toString().contains("AMSU_MHS_L1B"));
 
 

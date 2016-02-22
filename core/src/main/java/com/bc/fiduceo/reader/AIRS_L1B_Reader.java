@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -119,6 +120,11 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public boolean checkSensorTypeName(String sensor) {
         return sensorList.contains(sensor);
+    }
+
+    @Override
+    public HashMap<String, String> getSensorTypes() {
+        return null;
     }
 
     public AcquisitionInfo read() throws IOException {

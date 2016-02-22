@@ -71,7 +71,7 @@ class IngestionTool {
 
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
-        final String sensorType = commandLine.getOptionValue("s").toUpperCase();
+        final String sensorType = commandLine.getOptionValue("s");
         final File configDirectory = new File(configValue);
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();
@@ -98,10 +98,9 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
+        Geometry geometry;
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
-        Geometry geometry;
-
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
 
         for (final File file : searchFilesResult) {
@@ -178,8 +177,6 @@ class IngestionTool {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             find(file);
             return FileVisitResult.CONTINUE;
-
-
         }
 
         @Override

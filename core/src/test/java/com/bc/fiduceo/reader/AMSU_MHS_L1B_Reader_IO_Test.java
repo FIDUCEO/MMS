@@ -32,10 +32,12 @@ import ucar.ma2.ArrayDouble;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(IOTestRunner.class)
@@ -95,6 +97,19 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
     }
 
+    @Test
+    public void testGetSensorTypes_CheckSensorType(){
+        HashMap<String, String> sensorTypes = reader.getSensorTypes();
+        assertEquals("NK",sensorTypes.get("amsub-n15"));
+        assertEquals("NN",sensorTypes.get("amsub-n18"));
+
+        assertEquals(null,sensorTypes.get(""));
+        assertEquals(null,sensorTypes.get("not exist"));
+
+
+        assertTrue(reader.checkSensorTypeName("amsub-n18"));
+        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5",reader.getRegEx());
+    }
 
     private ArrayDouble rescaleCoordinate(ArrayDouble coordinate) {
         double[] h = (double[]) coordinate.copyTo1DJavaArray();

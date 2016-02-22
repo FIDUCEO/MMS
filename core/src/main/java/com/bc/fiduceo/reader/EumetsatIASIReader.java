@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -80,6 +81,11 @@ public class EumetsatIASIReader implements Reader {
     @Override
     public boolean checkSensorTypeName(String sensorType) {
         return sensorList.contains(sensorType);
+    }
+
+    @Override
+    public HashMap<String, String> getSensorTypes() {
+        return null;
     }
 
     @Override

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -23,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public interface Reader {
 
@@ -31,6 +31,8 @@ public interface Reader {
     void close() throws IOException;
 
     boolean checkSensorTypeName(String sensorType);
+
+    HashMap<String, String> getSensorTypes();
 
     AcquisitionInfo read() throws IOException;
 
