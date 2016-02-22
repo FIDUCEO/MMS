@@ -113,7 +113,28 @@ class MatchupTool {
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
-                // @todo 1 tb/tb perform the intersection 216-02-19
+                // @todo 1 tb/tb perform the intersection 2016-02-19
+                // - calculate intersecting area (in lon/lat) - polygon.
+                // -- if no polygon or empty -> continue
+                //
+                // - detect overlapping time interval from time axes
+                // -- if not withing required time delta -> continue
+                //
+                // - detect all pixels (x/y) in primary observation that are contained in intersecting area
+                // -- for each pixel:
+                // --- find closest pixel in secondary observation
+                // --- perform check on pixel time delta -> remove pixels that do not fulfil
+                // --- perform check on pixel spatial delta -> remove pixels that are further away
+                // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
+                // --- perform cloud processing (optional) -> remove pixels or add flags
+                //
+                // - if pixels are left: create output file
+                // - for all remaining pixels:
+                // -- extract pixel window for all bands and write to output (primary and secondary observation)
+                // -- store metadata of each sensor-acquisition as described in use-case
+                //
+                //
+
             }
         }
     }
