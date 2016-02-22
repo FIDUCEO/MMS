@@ -139,17 +139,10 @@ public class MatchupToolIntegrationTest {
 
         try {
             final Geometry geometry = geometryFactory.parse("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))");
-            final SatelliteObservation amsubObservation = createSatelliteObservation(geometry, "2010-07-21 16:34:19", "2010-07-21 16:55:07");
+            final SatelliteObservation amsubObservation = createSatelliteObservation(geometry, "amsub-n15", "2010-07-21 16:34:19", "2010-07-21 16:55:07");
             storage.insert(amsubObservation);
 
-            final SatelliteObservation mhsObservation = new SatelliteObservation();
-            mhsObservation.setStartTime(TimeUtils.parseDOYBeginOfDay("2007-140"));
-            mhsObservation.setStopTime(TimeUtils.parseDOYEndOfDay("2007-140"));
-            mhsObservation.setGeoBounds(geometry);
-            final Sensor mhs = new Sensor();
-            mhs.setName("mhs-n15");
-            mhsObservation.setSensor(mhs);
-            mhsObservation.setDataFile(new File("."));
+            final SatelliteObservation mhsObservation = createSatelliteObservation(geometry, "mhs-n18", "2010-08-21 16:34:19", "2010-08-21 16:55:07");
             storage.insert(mhsObservation);
 
             final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "2007-100", "--end", "2007-200"};
@@ -166,15 +159,15 @@ public class MatchupToolIntegrationTest {
         }
     }
 
-    private SatelliteObservation createSatelliteObservation(Geometry geometry, String startDate, String stopDate) {
-        final SatelliteObservation amsubObservation = new SatelliteObservation();
-        amsubObservation.setStartTime(TimeUtils.parse(startDate, "yyyy-MM-dd hh:mm:ss"));
-        amsubObservation.setStopTime(TimeUtils.parse(stopDate, "yyyy-MM-dd hh:mm:ss"));
-        amsubObservation.setGeoBounds(geometry);
-        final Sensor amsub = new Sensor();
-        amsub.setName("amsub-n15");
-        amsubObservation.setSensor(amsub);
-        amsubObservation.setDataFile(new File("."));
-        return amsubObservation;
+    private SatelliteObservation createSatelliteObservation(Geometry geometry, String sensorName, String startDate, String stopDate) {
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(TimeUtils.parse(startDate, "yyyy-MM-dd hh:mm:ss"));
+        observation.setStopTime(TimeUtils.parse(stopDate, "yyyy-MM-dd hh:mm:ss"));
+        observation.setGeoBounds(geometry);
+        final Sensor sensor = new Sensor();
+        sensor.setName(sensorName);
+        observation.setSensor(sensor);
+        observation.setDataFile(new File("."));
+        return observation;
     }
 }
