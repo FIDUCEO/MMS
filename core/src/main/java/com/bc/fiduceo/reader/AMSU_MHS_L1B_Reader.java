@@ -32,6 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     private final static int IntervalY = 50;
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
+    private List<String> sensorList = Arrays.asList("NOAA-15", "NOAA-14");
 
 
     public AMSU_MHS_L1B_Reader() {
@@ -77,8 +79,9 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String sensorTypeName() {
-        return ReadersPlugin.NOAA_15.getType();
+    public boolean checkSensorTypeName(String sensorType) {
+        String parseSensorType = ReaderUtils.parseSensorType(sensorType);
+        return sensorList.contains(parseSensorType);
     }
 
     @Override

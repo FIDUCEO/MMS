@@ -30,7 +30,6 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReadersPlugin;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -99,9 +98,8 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        String sensorType_Acronym = ReadersPlugin.valueOf(sensorType.toUpperCase().trim().replace('-', '_')).getType();
         ServicesUtils servicesUtils = new ServicesUtils<>();
-        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType_Acronym);
+        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
         Geometry geometry;
 
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());

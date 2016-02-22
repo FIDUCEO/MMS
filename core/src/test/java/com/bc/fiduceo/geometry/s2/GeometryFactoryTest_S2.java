@@ -134,6 +134,6 @@ public class GeometryFactoryTest_S2 {
         assertNotNull(lineString);
 
         // @todo 3 tb/tb invent some test here to verify the correctness of creation 2015-12-01
-        //assertEquals("bla", geometry.sensorTypeName());
+        //assertEquals("bla", geometry.checkSensorTypeName());
     }
 }

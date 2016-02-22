@@ -36,6 +36,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -51,6 +52,7 @@ public class AIRS_L1B_Reader implements Reader {
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+    private List<String> sensorList = Arrays.asList("AIRS");
 
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
@@ -62,70 +64,6 @@ public class AIRS_L1B_Reader implements Reader {
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }
-
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-    }
-
-    public void close() throws IOException {
-        netcdfFile.close();
-    }
-
-    @Override
-    public String sensorTypeName() {
-        return ReadersPlugin.AIRS.getType();
-    }
-
-    public AcquisitionInfo read() throws IOException {
-        final Group rootGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
-        final Element eosElement = getEosElement(coreMateString);
-
-        final NodeType nodeType = readNodeType();
-
-        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
-        if (l1bAirsGroup == null) {
-            throw new IOException("'L1B_AIRS_Science' data group not found");
-        }
-        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
-        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
-        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
-        final Array latitudes = latitudeVariable.read();
-        final Array longitudes = longitudeVariable.read();
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
-        acquisitionInfo.setNodeType(nodeType);
-
-        try {
-            final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
-            final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
-
-            acquisitionInfo.setSensingStart(sensingStart);
-            acquisitionInfo.setSensingStop(sensingStop);
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-
-        return acquisitionInfo;
-    }
-
-    @Override
-    public String getRegEx() {
-        return  "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
-    }
-
-    // package access for testing only tb 2016-01-08
-    Date parseDate(String dateString, String timeString) throws ParseException {
-        final String timeStringWithMillis = stripMicrosecs(timeString);
-        final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
-        return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
-    }
-
-    private String stripMicrosecs(String timeString) {
-        final int lastDotIndex = timeString.lastIndexOf('.');
-        return timeString.substring(0, lastDotIndex + 4);
-    }
-
 
     static String getElementValue(Element element, String attribute) {
         if (element.getName().equals(attribute)) {
@@ -168,6 +106,69 @@ public class AIRS_L1B_Reader implements Reader {
         }
         final Array metadataArray = structMetadataVar.read();
         return metadataArray.toString();
+    }
+
+    public void open(File file) throws IOException {
+        netcdfFile = NetcdfFile.open(file.getPath());
+    }
+
+    public void close() throws IOException {
+        netcdfFile.close();
+    }
+
+    @Override
+    public boolean checkSensorTypeName(String sensor) {
+        return sensorList.contains(sensor);
+    }
+
+    public AcquisitionInfo read() throws IOException {
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
+        final Element eosElement = getEosElement(coreMateString);
+
+        final NodeType nodeType = readNodeType();
+
+        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
+        if (l1bAirsGroup == null) {
+            throw new IOException("'L1B_AIRS_Science' data group not found");
+        }
+        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
+        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
+        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
+        final Array latitudes = latitudeVariable.read();
+        final Array longitudes = longitudeVariable.read();
+
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+        acquisitionInfo.setNodeType(nodeType);
+
+        try {
+            final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
+            final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
+
+            acquisitionInfo.setSensingStart(sensingStart);
+            acquisitionInfo.setSensingStop(sensingStop);
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        return acquisitionInfo;
+    }
+
+    @Override
+    public String getRegEx() {
+        return "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
+    }
+
+    // package access for testing only tb 2016-01-08
+    Date parseDate(String dateString, String timeString) throws ParseException {
+        final String timeStringWithMillis = stripMicrosecs(timeString);
+        final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
+        return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
+    }
+
+    private String stripMicrosecs(String timeString) {
+        final int lastDotIndex = timeString.lastIndexOf('.');
+        return timeString.substring(0, lastDotIndex + 4);
     }
 
     private NodeType readNodeType() {

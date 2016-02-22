@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -21,19 +20,11 @@
 
 package com.bc.fiduceo.reader;
 
-import java.io.File;
-import java.io.IOException;
-
-public interface Reader {
-
-    void open(File file) throws IOException;
-
-    void close() throws IOException;
-
-    boolean checkSensorTypeName(String sensorType);
-
-    AcquisitionInfo read() throws IOException;
-
-    String getRegEx();
-
+public class ReaderUtils {
+    public static String parseSensorType(String sensor) {
+        if (sensor == null || sensor.equals("")) {
+            throw new NullPointerException("The sensor name must not be empty or null.");
+        }
+        return sensor.toUpperCase().trim().replace('_', '-').toString();
+    }
 }

@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -164,9 +165,9 @@ public class MongoDbDriverTest {
 
     @Test
     public void testConvertToGeometry_multipolygon() {
-        Document jsonMultiPolygon = new Document("type", "MultiPolygon");
-
         final S2WKTReader s2WKTReader = new S2WKTReader();
+
+        Document jsonMultiPolygon = new Document("type", "MultiPolygon");
         List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
         final ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> last = new ArrayList<>();
 

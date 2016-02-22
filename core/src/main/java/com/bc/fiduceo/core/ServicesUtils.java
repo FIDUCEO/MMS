@@ -32,20 +32,26 @@ import java.util.Set;
  */
 public class ServicesUtils<T> {
 
+
     public T getServices(Class<T> pass, String searchTerm) {
+        boolean isReaderSensorType = false;
+        String content = " ";
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         ServiceRegistry<T> readerRegistry = serviceRegistryManager.getServiceRegistry(pass);
         SnapCoreActivator.loadServices(readerRegistry);
         final Set<T> services = readerRegistry.getServices();
         for (T service : services) {
-            String content;
             if (pass.getName().contains("Driver")) {
                 content = ((Driver) service).getUrlPattern().toLowerCase();
             } else {
-                content = ((Reader) service).sensorTypeName();
+                isReaderSensorType = ((Reader) service).checkSensorTypeName(searchTerm);
             }
 
-            if (content.contains(searchTerm) || searchTerm.contains(content)) {
+            if (searchTerm.contains(content)) {
+                return service;
+            }
+
+            if (isReaderSensorType) {
                 return service;
             }
         }

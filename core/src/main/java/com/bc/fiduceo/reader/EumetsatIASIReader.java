@@ -31,7 +31,9 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 
 public class EumetsatIASIReader implements Reader {
@@ -41,6 +43,7 @@ public class EumetsatIASIReader implements Reader {
     private static final int GEO_INTERVAL_Y = 6;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private List<String> sensorList = Arrays.asList("Eumetsat");
 
 
     private NetcdfFile netcdfFile;
@@ -75,8 +78,8 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public String sensorTypeName() {
-        return ReadersPlugin.EUMETSAT.getType();
+    public boolean checkSensorTypeName(String sensorType) {
+        return sensorList.contains(sensorType);
     }
 
     @Override
