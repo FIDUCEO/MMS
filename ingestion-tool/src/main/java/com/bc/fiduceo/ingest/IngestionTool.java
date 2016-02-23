@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -48,6 +49,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 class IngestionTool {
@@ -66,17 +69,43 @@ class IngestionTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
+        final Option startOption = new Option("start", "start_time", true, "Define the start time of the mission.");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("end", "end_time", true, "Define the end time of the mission.");
+        options.addOption(endOption);
+
+        final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
+        options.addOption(versionOption);
+
+        final Option parallelOption = new Option("p", "parallel", true, "Define the number of concurrent execution.");
+        parallelOption.setType(Number.class);
+        options.addOption(parallelOption);
+
         return options;
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
+
         final String configValue = commandLine.getOptionValue("config");
         final String sensorType = commandLine.getOptionValue("s");
-        final File configDirectory = new File(configValue);
 
+        final String startTime = commandLine.getOptionValue("start");
+        final String endTime = commandLine.getOptionValue("end");
+
+        final String version = commandLine.getOptionValue("v");
+        final String concurrent = commandLine.getOptionValue("parallel");
+
+        if (!(startTime == null && endTime == null)) {
+            Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
+            Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
+            HashMap<Integer, Integer> daysInterval = TimeUtils.getDaysInterval(startDate, endDate, Integer.parseInt(concurrent));
+        }
+
+
+        final File configDirectory = new File(configValue);
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.loadFrom(configDirectory);
-
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
 
@@ -93,6 +122,7 @@ class IngestionTool {
             storage.close();
         }
     }
+
 
     private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType) throws SQLException, IOException {
 

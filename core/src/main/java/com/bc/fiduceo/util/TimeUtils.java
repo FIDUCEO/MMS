@@ -24,8 +24,11 @@ import org.esa.snap.core.datamodel.ProductData;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class TimeUtils {
 
@@ -67,6 +70,75 @@ public class TimeUtils {
 
     public static Date parseDOYBeginOfDay(String dateString) {
         return parse(dateString, "yyyy-DDD");
+    }
+
+    //todo:mba to get the product name then finilize on the seach (2016-02-23).
+    public static HashMap<Integer, Integer> getDaysInterval(Date startDate, Date endDate, int interval) {
+        if (startDate == null || endDate == null) {
+            throw new NullPointerException("The start date or end date is Null");
+        }
+        Calendar calendarStart = Calendar.getInstance();
+        calendarStart.setTime(startDate);
+        Calendar calendarEnd = Calendar.getInstance();
+        calendarEnd.setTime(endDate);
+        long diff = calendarStart.getTimeInMillis() - calendarEnd.getTimeInMillis();
+        diff = diff / (24 * 60 * 60 * 1000);
+        diff = diff < 0 ? -1 * diff : diff;
+        diff = diff / interval;
+
+        HashMap<Integer, Integer> integerHashMap = new HashMap<>();
+        int start = calendarStart.get(Calendar.DAY_OF_YEAR);
+
+        for (int i = 0; i < interval; i++) {
+            int end = (int) (start + diff);
+            integerHashMap.put(start, end);
+            start = end + 1;
+        }
+
+        return integerHashMap;
+    }
+
+
+    //todo:mba to get the product name then finilize on the seach (2016-02-23) option.
+    public static List<Calendar[]> getDaysIntervalYear(Date startDate, Date endDate, int interval) {
+        if (startDate == null || endDate == null) {
+            throw new NullPointerException("The start date or end date is Null");
+        }
+        Calendar calendarStart = Calendar.getInstance();
+        calendarStart.setTime(startDate);
+        Calendar calendarEnd = Calendar.getInstance();
+        calendarEnd.setTime(endDate);
+        long diff = calendarStart.getTimeInMillis() - calendarEnd.getTimeInMillis();
+        diff = diff / (24 * 60 * 60 * 1000);
+        diff = diff < 0 ? -1 * diff : diff;
+        diff = diff / interval;
+
+        int start = calendarStart.get(Calendar.DAY_OF_YEAR);
+        int startYear = calendarStart.get(Calendar.YEAR);
+        int endYear = calendarEnd.get(Calendar.YEAR);
+
+        List<Calendar[]> calendarList = new ArrayList<>();
+        for (int i = 0; i < interval; i++) {
+            Calendar instance[] = new Calendar[2];
+            instance[0] = Calendar.getInstance();
+            instance[0].set(Calendar.DAY_OF_YEAR, start);
+            instance[0].set(Calendar.YEAR, startYear);
+
+            int end = (int) (start + diff);
+            instance[1] = Calendar.getInstance();
+            if (end < 365) {
+                instance[1].set(Calendar.DAY_OF_YEAR, end);
+                instance[1].set(Calendar.YEAR, startYear);
+            } else {
+                end = end - 365;
+                instance[1].set(Calendar.DAY_OF_YEAR, end);
+                instance[1].set(Calendar.YEAR, endYear = (endYear - startYear) == 1 ? endYear : ++startYear);
+                startYear = endYear;
+            }
+            calendarList.add(instance);
+            start = end + 1;
+        }
+        return calendarList;
     }
 
     public static Date parseDOYEndOfDay(String dateFormat) {

@@ -148,7 +148,7 @@ public class IngestionToolIntegrationTest {
     public void testIngest_AMSU_MHS() throws ParseException, IOException, SQLException {
         final Storage storage = Storage.create(TestUtil.getDatasourceMongo_DB(), new GeometryFactory(GeometryFactory.Type.S2));
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2012-03", "-end", "2013-05", "-v", "1.0", "-p", "3"};
         try {
             writeSystemProperties();
             TestUtil.writeDatabaseProperties_MongoDb(configDir);
@@ -225,6 +225,13 @@ public class IngestionToolIntegrationTest {
             storage.clear();
             storage.close();
         }
+    }
+
+
+    @Test
+    public void testRun() throws ParseException, SQLException, IOException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2012-03-06", "-end", "2013-05-06", "-v", "1.0", "-p", "3"};
+        IngestionToolMain.main(args);
     }
 
     private void writeSystemProperties() throws IOException {

@@ -24,9 +24,13 @@ import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class TimeUtilsTest {
@@ -117,5 +121,190 @@ public class TimeUtilsTest {
 
         adjustedDate = TimeUtils.addSeconds(-300, date);
         TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
+    }
+
+    @Test
+    public void testGetDayBetween() {
+        HashMap<Integer, Integer> daysBetween = TimeUtils.getDaysInterval(TimeUtils.parseDOYBeginOfDay("2015-23"), TimeUtils.parseDOYBeginOfDay("2015-304"), 2);
+        assertFalse(daysBetween.isEmpty());
+        Object[] startDaysKey = daysBetween.keySet().toArray();
+        Object[] endDaysValue = daysBetween.values().toArray();
+
+        assertEquals(startDaysKey[1], 23);
+        assertEquals(endDaysValue[1], 163);
+
+        assertEquals(startDaysKey[0], 164);
+        assertEquals(endDaysValue[0], 304);
+    }
+
+    @Test
+    public void testGetDaysBetweenYrs() {
+        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
+        assertFalse(daysIntervalYear.isEmpty());
+
+        Calendar calendars[] = daysIntervalYear.get(0);
+
+        int dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        int yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 360);
+        assertEquals(yearStart, 2015);
+
+        int dayEnd = calendars[1].get(Calendar.DAY_OF_YEAR);
+        int yearEnd = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayEnd, 363);
+        assertEquals(yearEnd, 2015);
+
+
+        calendars = daysIntervalYear.get(1);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 364);
+        assertEquals(yearStart, 2015);
+
+        dayEnd = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearEnd = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayEnd, 2);
+        assertEquals(yearEnd, 2016);
+
+
+        calendars = daysIntervalYear.get(2);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 3);
+        assertEquals(yearStart, 2016);
+
+        dayEnd = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearEnd = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayEnd, 6);
+        assertEquals(yearEnd, 2016);
+    }
+
+    @Test
+    public void testGetDaysBetweenYr() {
+        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2010-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 10);
+        assertFalse(daysIntervalYear.isEmpty());
+        assertEquals(daysIntervalYear.size(), 10);
+
+        //----
+        Calendar calendars[] = daysIntervalYear.get(0);
+        int dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        int yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 360);
+        assertEquals(yearStart, 2010);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 178);
+        assertEquals(yearStart, 2011);
+
+        //----
+        calendars = daysIntervalYear.get(1);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 179);
+        assertEquals(yearStart, 2011);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 362);
+        assertEquals(yearStart, 2011);
+
+        //----
+        calendars = daysIntervalYear.get(2);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 363);
+        assertEquals(yearStart, 2011);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 181);
+        assertEquals(yearStart, 2012);
+
+        //----
+        calendars = daysIntervalYear.get(3);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 182);
+        assertEquals(yearStart, 2012);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 366);
+        assertEquals(yearStart, 2012);
+
+        //----
+        calendars = daysIntervalYear.get(4);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 1);
+        assertEquals(yearStart, 2013);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 184);
+        assertEquals(yearStart, 2013);
+
+        //----
+        calendars = daysIntervalYear.get(5);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 185);
+        assertEquals(yearStart, 2013);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 3);
+        assertEquals(yearStart, 2014);
+
+
+        //----
+        calendars = daysIntervalYear.get(6);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 4);
+        assertEquals(yearStart, 2014);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 187);
+        assertEquals(yearStart, 2014);
+
+        //----
+        calendars = daysIntervalYear.get(7);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 188);
+        assertEquals(yearStart, 2014);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 6);
+        assertEquals(yearStart, 2015);
+
+        //----
+        calendars = daysIntervalYear.get(8);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 7);
+        assertEquals(yearStart, 2015);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 190);
+        assertEquals(yearStart, 2015);
+
+        //----
+        calendars = daysIntervalYear.get(9);
+        dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 191);
+        assertEquals(yearStart, 2015);
+
+        dayStart = calendars[1].get(Calendar.DAY_OF_YEAR);
+        yearStart = calendars[1].get(Calendar.YEAR);
+        assertEquals(dayStart, 9);
+        assertEquals(yearStart, 2016);
+
     }
 }

@@ -34,7 +34,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class IngestionToolTest {
@@ -88,6 +91,37 @@ public class IngestionToolTest {
         assertEquals("config", configOption.getLongOpt());
         assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
         assertTrue(configOption.hasArg());
+
+        final Option startTime = options.getOption("start_time");
+        assertNotNull(startTime);
+        assertEquals("start", startTime.getOpt());
+        assertEquals("start_time", startTime.getLongOpt());
+        assertEquals("Define the start time of the mission.", startTime.getDescription());
+        assertTrue(startTime.hasArg());
+
+
+        final Option endTime = options.getOption("end_time");
+        assertNotNull(endTime);
+        assertEquals("end", endTime.getOpt());
+        assertEquals("end_time", endTime.getLongOpt());
+        assertEquals("Define the end time of the mission.", endTime.getDescription());
+        assertTrue(endTime.hasArg());
+
+
+        final Option version = options.getOption("version");
+        assertNotNull(version);
+        assertEquals("v", version.getOpt());
+        assertEquals("version", version.getLongOpt());
+        assertEquals("Define the sensor version.", version.getDescription());
+        assertTrue(version.hasArg());
+
+
+        final Option concurrent = options.getOption("parallel");
+        assertNotNull(concurrent);
+        assertEquals("p", concurrent.getOpt());
+        assertEquals("parallel", concurrent.getLongOpt());
+        assertEquals("Define the number of concurrent execution.", concurrent.getDescription());
+        assertTrue(concurrent.hasArg());
     }
 
     @Test
@@ -95,6 +129,7 @@ public class IngestionToolTest {
         File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
         assertTrue(files != null);
     }
+
 
     private File[] setFileFilter(String location, String regEx) {
         File fileLocation = new File(location);
