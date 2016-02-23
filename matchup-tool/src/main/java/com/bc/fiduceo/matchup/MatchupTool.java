@@ -83,8 +83,7 @@ class MatchupTool {
         final Date endDate = TimeUtils.parseDOYEndOfDay(endDateString);
         context.setEndDate(endDate);
 
-        // @todo 2 tb/tb parametrize geometry factory type 2016-02-18
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
         return context;

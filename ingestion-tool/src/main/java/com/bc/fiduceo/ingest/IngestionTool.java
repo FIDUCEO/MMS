@@ -54,21 +54,6 @@ class IngestionTool {
 
     static String VERSION = "1.0.0";
 
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
-        options.addOption(sensorOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        return options;
-    }
-
     void run(CommandLine commandLine) throws IOException, SQLException {
         final String configValue = commandLine.getOptionValue("config");
         final String sensorType = commandLine.getOptionValue("s");
@@ -80,8 +65,7 @@ class IngestionTool {
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
 
-        // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
@@ -152,6 +136,21 @@ class IngestionTool {
         helpFormatter.printHelp(writer, 120, "ingestion-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
+    }
+
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
+        options.addOption(sensorOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        return options;
     }
 
     private static class FileFinder extends SimpleFileVisitor<Path> {
