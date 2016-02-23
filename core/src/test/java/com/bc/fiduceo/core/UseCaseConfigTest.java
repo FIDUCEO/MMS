@@ -23,6 +23,7 @@ package com.bc.fiduceo.core;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -108,5 +109,42 @@ public class UseCaseConfigTest {
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertEquals("use-case 20", useCaseConfig.getName());
         assertEquals(300, useCaseConfig.getTimeDelta());
+    }
+
+    @Test
+    public void testGetPrimarySensor_emptySensorList() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+
+        final Sensor sensor = useCaseConfig.getPrimarySensor();
+        assertNull(sensor);
+    }
+
+    @Test
+    public void testGetPrimarySensor_noPrimarySensorInList() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+        sensorList.add(new Sensor("second"));
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setSensors(sensorList);
+
+        final Sensor sensor = useCaseConfig.getPrimarySensor();
+        assertNull(sensor);
+    }
+
+    @Test
+    public void testGetPrimarySensor_primarySensorInList() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+
+        final Sensor second = new Sensor();
+        second.setName("second");
+        second.setPrimary(true);
+        sensorList.add(second);
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setSensors(sensorList);
+
+        final Sensor sensor = useCaseConfig.getPrimarySensor();
+        assertNotNull(sensor);
+        assertEquals("second", sensor.getName());
     }
 }

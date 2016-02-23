@@ -26,6 +26,13 @@ public class Sensor {
     private String name;
     private boolean primary;
 
+    public Sensor(String name) {
+        this.name = name;
+    }
+
+    public Sensor() {
+    }
+
     public String getName() {
         return name;
     }

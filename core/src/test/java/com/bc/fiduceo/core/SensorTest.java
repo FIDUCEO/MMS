@@ -53,4 +53,11 @@ public class SensorTest {
         sensor.setPrimary(true);
         assertTrue(sensor.isPrimary());
     }
+
+    @Test
+    public void testParameterConstructor() {
+        final Sensor sensor = new Sensor("wirbelwind");
+
+        assertEquals("wirbelwind", sensor.getName());
+    }
 }

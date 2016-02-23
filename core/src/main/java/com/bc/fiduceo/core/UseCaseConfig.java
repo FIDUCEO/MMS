@@ -49,6 +49,19 @@ public class UseCaseConfig {
         return sensors;
     }
 
+    public void setSensors(List<Sensor> sensors) {
+        this.sensors = sensors;
+    }
+
+    public Sensor getPrimarySensor() {
+        for (final Sensor sensor : sensors) {
+            if (sensor.isPrimary()) {
+                return sensor;
+            }
+        }
+        return null;
+    }
+
     public int getTimeDelta() {
         return timeDelta;
     }
@@ -61,4 +74,6 @@ public class UseCaseConfig {
         xStream.alias("sensor", Sensor.class);
         return xStream;
     }
+
+
 }
