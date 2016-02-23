@@ -21,14 +21,20 @@
 package com.bc.fiduceo.matchup;
 
 
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.util.TimeUtils;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MatchupToolTest {
 
@@ -87,5 +93,45 @@ public class MatchupToolTest {
         assertEquals("end", endOption.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'", endOption.getDescription());
         assertTrue(endOption.hasArg());
+    }
+
+    @Test
+    public void testGetEndDate() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("end")).thenReturn("1998-345");
+
+        final Date endDate = MatchupTool.getEndDate(commandLine);
+        TestUtil.assertCorrectUTCDate(1998, 12, 11, 23, 59, 59, 999, endDate);
+    }
+
+    @Test
+    public void testGetEndDate_missingValue() {
+        final CommandLine commandLine = mock(CommandLine.class);
+
+        try {
+            MatchupTool.getEndDate(commandLine);
+            fail("RuntimeException expected");
+        } catch(RuntimeException expected){
+        }
+    }
+
+    @Test
+    public void testGetStartDate() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("1999-346");
+
+        final Date startDate = MatchupTool.getStartDate(commandLine);
+        TestUtil.assertCorrectUTCDate(1999, 12, 12, 0, 0, 0, 0, startDate);
+    }
+
+    @Test
+    public void testGetStartDate_missingValue() {
+        final CommandLine commandLine = mock(CommandLine.class);
+
+        try {
+            MatchupTool.getStartDate(commandLine);
+            fail("RuntimeException expected");
+        } catch(RuntimeException expected){
+        }
     }
 }

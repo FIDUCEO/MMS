@@ -60,6 +60,7 @@ class MatchupTool {
 
     private MatchupToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
         final MatchupToolContext context = new MatchupToolContext();
+
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
 
@@ -68,20 +69,10 @@ class MatchupTool {
 
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
+        context.setSystemConfig(systemConfig);
 
-        final String startDateString = commandLine.getOptionValue("start");
-        if (StringUtils.isNullOrEmpty(startDateString)) {
-            throw new RuntimeException("cmd-line parameter `start` missing");
-        }
-        final Date startDate = TimeUtils.parseDOYBeginOfDay(startDateString);
-        context.setStartDate(startDate);
-
-        final String endDateString = commandLine.getOptionValue("end");
-        if (StringUtils.isNullOrEmpty(endDateString)) {
-            throw new RuntimeException("cmd-line parameter `end` missing");
-        }
-        final Date endDate = TimeUtils.parseDOYEndOfDay(endDateString);
-        context.setEndDate(endDate);
+        context.setStartDate(getStartDate(commandLine));
+        context.setEndDate(getEndDate(commandLine));
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
@@ -168,5 +159,21 @@ class MatchupTool {
         options.addOption(endOption);
 
         return options;
+    }
+
+    static Date getEndDate(CommandLine commandLine) {
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
+        return TimeUtils.parseDOYEndOfDay(endDateString);
+    }
+
+    static Date getStartDate(CommandLine commandLine) {
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+        return TimeUtils.parseDOYBeginOfDay(startDateString);
     }
 }
