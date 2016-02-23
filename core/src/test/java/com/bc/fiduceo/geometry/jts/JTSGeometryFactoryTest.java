@@ -126,4 +126,27 @@ public class JTSGeometryFactoryTest {
         assertNotNull(coordinates);
         assertEquals(0, coordinates.length);
     }
+
+    @Test
+    public void testCreatePolygon_closedPointList() {
+        final List<Point> pointList = new ArrayList<>();
+        pointList.add(factory.createPoint(10, 11));
+        pointList.add(factory.createPoint(10, 12));
+        pointList.add(factory.createPoint(14, 15));
+        pointList.add(factory.createPoint(10, 11));
+
+        final com.bc.fiduceo.geometry.Polygon polygon = factory.createPolygon(pointList);
+        assertEquals("POLYGON ((10 11, 10 12, 14 15, 10 11))", polygon.toString());
+    }
+
+    @Test
+    public void testCreatePolygon_openPointList() {
+        final List<Point> pointList = new ArrayList<>();
+        pointList.add(factory.createPoint(-2, 3));
+        pointList.add(factory.createPoint(-3, 3));
+        pointList.add(factory.createPoint(-1, 1));
+
+        final com.bc.fiduceo.geometry.Polygon polygon = factory.createPolygon(pointList);
+        assertEquals("POLYGON ((-2 3, -1 1, -3 3, -2 3))", polygon.toString());
+    }
 }

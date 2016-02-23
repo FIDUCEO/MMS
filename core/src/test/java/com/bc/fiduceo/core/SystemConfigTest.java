@@ -55,6 +55,7 @@ public class SystemConfigTest {
 
         final Properties properties = new Properties();
         properties.setProperty("archive-root", testDirectory.getAbsolutePath());
+        properties.setProperty("geometry-library-type", "S2");
         final FileOutputStream outputStream = new FileOutputStream(systemConfigFile);
         properties.store(outputStream, "");
         outputStream.close();
@@ -63,5 +64,6 @@ public class SystemConfigTest {
         systemConfig.loadFrom(testDirectory);
 
         assertEquals(testDirectory.getAbsolutePath(), systemConfig.getArchiveRoot());
+        assertEquals("S2", systemConfig.getGeometryLibraryType());
     }
 }

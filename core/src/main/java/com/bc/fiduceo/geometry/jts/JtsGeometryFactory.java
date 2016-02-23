@@ -21,13 +21,7 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.AbstractGeometryFactory;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
-import com.google.common.geometry.S2Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -113,14 +107,10 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
 
     @Override
     public Polygon createPolygon(List<Point> points) {
+        ensureClosedPolygon(points);
         final Coordinate[] coordinates = extractCoordinates(points);
 
-        //plotMultiPoint(coordinates);
-
         JtsUtils.normalizePolygon(coordinates);
-
-        //plotMultiPoint(coordinates);
-
         final com.vividsolutions.jts.geom.Polygon polygon = geometryFactory.createPolygon(coordinates);
         final com.vividsolutions.jts.geom.Polygon[] polygons = mapToGlobe(polygon);
         if (polygons.length == 1) {
@@ -131,24 +121,14 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
     }
 
-//    private void plotMultiPoint(Coordinate[] coordinates) {
-//        final StringBuffer stringBuffer = new StringBuffer();
-//        stringBuffer.append("MULTIPOINT(");
-//
-//        for (int i = 0; i < coordinates.length; i++) {
-//            Coordinate coordinate = coordinates[i];
-//            stringBuffer.append(coordinate.x);
-//            stringBuffer.append(" ");
-//            stringBuffer.append(coordinate.y);
-//            if (i < coordinates.length - 1) {
-//                stringBuffer.append(",");
-//            }
-//        }
-//
-//        stringBuffer.append(")");
-//
-//        System.out.println(stringBuffer.toString());
-//    }
+    static void ensureClosedPolygon(List<Point> points) {
+        final Point first = points.get(0);
+        final int lastIndex = points.size() - 1;
+        final Point last = points.get(lastIndex);
+        if (!first.equals(last)) {
+            points.add(points.get(0));
+        }
+    }
 
     @Override
     public LineString createLineString(List<Point> points) {

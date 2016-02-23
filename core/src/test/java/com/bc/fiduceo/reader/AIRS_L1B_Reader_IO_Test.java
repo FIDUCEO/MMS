@@ -69,7 +69,7 @@ public class AIRS_L1B_Reader_IO_Test {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(41, coordinates.size());
+        assertEquals(40, coordinates.size());
         assertCoordinate(-164.84726526737956, 78.65846904183893, coordinates.get(0));
         assertCoordinate(14.132166700261118, 82.20332415748388, coordinates.get(10));
         assertCoordinate(71.66176722582615, 70.98479982855267, coordinates.get(20));
@@ -93,7 +93,7 @@ public class AIRS_L1B_Reader_IO_Test {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(41, coordinates.size());
+        assertEquals(40, coordinates.size());
         assertCoordinate(-6.4170300611108315, 88.23613967607469, coordinates.get(1));
         assertCoordinate(-13.02427652238762, 69.09764314472332, coordinates.get(11));
         assertCoordinate(27.651190877552047, 64.80095475900657, coordinates.get(21));
@@ -118,7 +118,7 @@ public class AIRS_L1B_Reader_IO_Test {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(41, coordinates.size());
+        assertEquals(40, coordinates.size());
         assertCoordinate(-3.5416849171828058, 15.6620445809086, coordinates.get(2));
         assertCoordinate(5.98667051416274, 24.885289473168978, coordinates.get(12));
         assertCoordinate(-2.9671231963127838, 38.0742812192399, coordinates.get(22));

@@ -28,7 +28,6 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 
@@ -75,7 +74,7 @@ public class BoundingPolygonCreator {
     }
 
     public static String plotMultiPolygon(List<Polygon> polygonList) {
-        final StringBuffer stringBuffer = new StringBuffer();
+        final StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("MULTIPOLYGON(");
 
         for (int j = 0; j < polygonList.size(); j++) {
@@ -167,9 +166,7 @@ public class BoundingPolygonCreator {
                 coordinates.add(geometryFactory.createPoint(lon, lat));
             }
         }
-        if (GeometryFactory.Type.JTS == geometryFactory.getType()) {
-            coordinates.add(coordinates.get(0));
-        }
+
         return coordinates;
     }
 
@@ -223,9 +220,7 @@ public class BoundingPolygonCreator {
                 final double lat = arrayLatitude.get(y, 0);
                 coordinatesFirst.add(geometryFactory.createPoint(lon, lat));
             }
-            if (GeometryFactory.Type.JTS == geometryFactory.getType()) {
-                coordinatesSecond.add(coordinatesSecond.get(0));
-            }
+
             polygonList.add(geometryFactory.createPolygon(coordinatesFirst));
 
             initialHeight = maxHeight;
@@ -263,7 +258,7 @@ public class BoundingPolygonCreator {
 
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         List<Point> pointList = new ArrayList<>();
-        for (Polygon polygon:polygonsBounding){
+        for (Polygon polygon : polygonsBounding) {
             pointList.addAll(Arrays.asList(polygon.getCoordinates()));
         }
 
