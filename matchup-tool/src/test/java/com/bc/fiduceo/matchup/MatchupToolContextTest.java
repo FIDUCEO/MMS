@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,5 +61,13 @@ public class MatchupToolContextTest {
 
         context.setStorage(storage);
         assertSame(storage, context.getStorage());
+    }
+
+    @Test
+    public void testSetGetUseCaseConfig() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+
+        context.setUseCaseConfig(useCaseConfig);
+        assertSame(useCaseConfig, context.getUseCaseConfig());
     }
 }

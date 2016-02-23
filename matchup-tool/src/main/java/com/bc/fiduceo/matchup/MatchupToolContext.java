@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup;
 
 
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 
 import java.util.Date;
@@ -31,6 +32,7 @@ class MatchupToolContext {
     private Date endDate;
     private Storage storage;
     private SystemConfig systemConfig;
+    private UseCaseConfig useCaseConfig;
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
@@ -62,5 +64,13 @@ class MatchupToolContext {
 
     public void setSystemConfig(SystemConfig systemConfig) {
         this.systemConfig = systemConfig;
+    }
+
+    public void setUseCaseConfig(UseCaseConfig useCaseConfig) {
+        this.useCaseConfig = useCaseConfig;
+    }
+
+    public UseCaseConfig getUseCaseConfig() {
+        return useCaseConfig;
     }
 }

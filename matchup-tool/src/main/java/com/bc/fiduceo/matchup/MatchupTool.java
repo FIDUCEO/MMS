@@ -21,7 +21,9 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -74,6 +77,16 @@ class MatchupTool {
         context.setStartDate(getStartDate(commandLine));
         context.setEndDate(getEndDate(commandLine));
 
+        // @todo 1 tb/tb read this from the configuration file
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n15");
+        sensor.setPrimary(true);
+        sensorList.add(sensor);
+        useCaseConfig.setSensors(sensorList);
+        context.setUseCaseConfig(useCaseConfig);
+        // -----------------------------------------------------
+
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
@@ -81,11 +94,7 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
-        final QueryParameter parameter = new QueryParameter();
-        // @todo 2 tb/tb sensor/platform from use-case configuration 2016-02-19
-        parameter.setSensorName("amsub-noaa15");
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
+        final QueryParameter parameter = getPrimarySensorParameter(context);
 
         final Storage storage = context.getStorage();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
@@ -129,6 +138,17 @@ class MatchupTool {
         }
     }
 
+    // package access for testing only tb 2016-02-23
+    static QueryParameter getPrimarySensorParameter(MatchupToolContext context) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
+        // @todo 1 tb/tb add checks for null here and throw 2016-02-23
+        parameter.setSensorName(primarySensor.getName());
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
+        return parameter;
+    }
+
     // package access for testing only tb 2016-02-18
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -161,6 +181,7 @@ class MatchupTool {
         return options;
     }
 
+    // package access for testing only tb 2016-02-23
     static Date getEndDate(CommandLine commandLine) {
         final String endDateString = commandLine.getOptionValue("end");
         if (StringUtils.isNullOrEmpty(endDateString)) {
@@ -169,6 +190,7 @@ class MatchupTool {
         return TimeUtils.parseDOYEndOfDay(endDateString);
     }
 
+    // package access for testing only tb 2016-02-23
     static Date getStartDate(CommandLine commandLine) {
         final String startDateString = commandLine.getOptionValue("start");
         if (StringUtils.isNullOrEmpty(startDateString)) {

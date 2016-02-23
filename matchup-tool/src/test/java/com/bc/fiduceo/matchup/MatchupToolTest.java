@@ -22,7 +22,11 @@ package com.bc.fiduceo.matchup;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.util.TimeUtils;
+import com.google.common.geometry.S2;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -30,7 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -133,5 +139,27 @@ public class MatchupToolTest {
             fail("RuntimeException expected");
         } catch(RuntimeException expected){
         }
+    }
+
+    @Test
+    public void testGetPrimarySensorParameter() {
+        final MatchupToolContext context = new MatchupToolContext();
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay("2002-23"));
+        context.setEndDate(TimeUtils.parseDOYEndOfDay("2002-23"));
+
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensor.setPrimary(true);
+        sensorList.add(sensor);
+        useCaseConfig.setSensors(sensorList);
+        context.setUseCaseConfig(useCaseConfig);
+
+        final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
+        assertNotNull(parameter);
+        assertEquals("amsub-n16", parameter.getSensorName());
+        TestUtil.assertCorrectUTCDate(2002, 1, 23, 0, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(2002, 1, 23, 23, 59, 59, 999, parameter.getStopTime());
+
     }
 }
