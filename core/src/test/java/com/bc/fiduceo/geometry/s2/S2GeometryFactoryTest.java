@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class GeometryFactoryTest_S2 {
+public class S2GeometryFactoryTest {
 
     private GeometryFactory factory;
 
@@ -77,7 +77,7 @@ public class GeometryFactoryTest_S2 {
     }
 
     @Test
-    public void testParseMultiPoylgonParse() {
+    public void testParseMultiPoylgon() {
         S2MultiPolygon s2MultiPolygon = (S2MultiPolygon) factory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
         assertNotNull(s2MultiPolygon);
 
@@ -85,6 +85,39 @@ public class GeometryFactoryTest_S2 {
         assertEquals(6, coordinates.length);
         assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
         assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
+    }
+
+    @Test
+    public void testFormat_point() {
+        final Point point = factory.createPoint(34.8, -72.44);
+
+        final String wkt = factory.format(point);
+        assertEquals("POINT(34.8,-72.44)", wkt);
+    }
+
+    @Test
+    public void testFormat_lineString() {
+        final ArrayList<Point> points = new ArrayList<>();
+        points.add(factory.createPoint(3, 1));
+        points.add(factory.createPoint(4, 2));
+        points.add(factory.createPoint(5, 1));
+        final LineString lineString = factory.createLineString(points);
+
+        final String wkt = factory.format(lineString);
+        assertEquals("LINESTRING(3.0000000000000004 1.0,4.0 2.0,5.0 0.9999999999999998)", wkt);
+    }
+
+    @Test
+    public void testFormat_polygon() {
+        final ArrayList<Point> points = new ArrayList<>();
+        points.add(factory.createPoint(3, 1));
+        points.add(factory.createPoint(4, 2));
+        points.add(factory.createPoint(5, 1));
+        points.add(factory.createPoint(3, 1));
+        final Polygon polygon = factory.createPolygon(points);
+
+        final String wkt = factory.format(polygon);
+        assertEquals("POLYGON((3.0000000000000004 1.0,4.0 2.0,5.0 0.9999999999999998,3.0000000000000004 1.0,3.0000000000000004 1.0))", wkt);
     }
 
     @Test

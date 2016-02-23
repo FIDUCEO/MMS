@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -21,31 +20,44 @@
 
 package com.bc.fiduceo.core;
 
-public class Sensor {
+import org.junit.Before;
+import org.junit.Test;
 
-    private String name;
-    private boolean primary;
+import static org.junit.Assert.*;
 
-    public Sensor(String name) {
-        this.name = name;
+public class SensorTest {
+
+    private Sensor sensor;
+
+    @Before
+    public void setUp() {
+        sensor = new Sensor();
     }
 
-    public Sensor() {
+    @Test
+    public void testSetGetName() {
+        final String name_1 = "blabla";
+        final String name_2 = "sensor-popensor";
+
+        sensor.setName(name_1);
+        assertEquals(name_1, sensor.getName());
+
+        sensor.setName(name_2);
+        assertEquals(name_2, sensor.getName());
     }
 
-    public String getName() {
-        return name;
+    @Test
+    public void testSetIsPrimary() {
+        assertFalse(sensor.isPrimary());
+
+        sensor.setPrimary(true);
+        assertTrue(sensor.isPrimary());
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Test
+    public void testParameterConstructor() {
+        final Sensor sensor = new Sensor("wirbelwind");
 
-    public boolean isPrimary() {
-        return primary;
-    }
-
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
+        assertEquals("wirbelwind", sensor.getName());
     }
 }

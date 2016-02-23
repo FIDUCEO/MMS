@@ -104,8 +104,10 @@ class IngestionTool {
 
 
         final File configDirectory = new File(configValue);
+
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.loadFrom(configDirectory);
+
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(configDirectory);
 
@@ -122,7 +124,6 @@ class IngestionTool {
             storage.close();
         }
     }
-
 
     private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType) throws SQLException, IOException {
 

@@ -47,4 +47,8 @@ public class SystemConfig {
     public String getArchiveRoot() {
         return properties.getProperty("archive-root");
     }
+
+    public String getGeometryLibraryType() {
+        return properties.getProperty("geometry-library-type");
+    }
 }

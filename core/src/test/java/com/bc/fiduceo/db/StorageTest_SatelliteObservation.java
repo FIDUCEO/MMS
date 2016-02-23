@@ -40,8 +40,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public abstract class StorageTest_SatelliteObservation {
 
@@ -87,18 +86,11 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
-        if (geometryFactory.getType() == GeometryFactory.Type.S2) {
-            assertEquals("Polygon: (1) loops:\n" +
-                    "loop <\n" +
-                    "(4.999999999999998, 12.0)\n" +
-                    "(7.000000000000001, 12.000000000000004)\n" +
-                    "(7.0, 9.999999999999998)\n" +
-                    "(4.999999999999998, 9.999999999999998)\n" +
-                    "(4.999999999999998, 12.0)\n" +
-                    ">\n", observationFromDb.getGeoBounds().toString());
-        } else {
-            assertEquals(observation.getGeoBounds().toString(), observationFromDb.getGeoBounds().toString());
-        }
+
+        // @todo 3 tb/tb intersection test is not the best here - invent something more cleve 2016-02-23
+        final Geometry intersection = observation.getGeoBounds().intersection(observationFromDb.getGeoBounds());
+        assertFalse(intersection.isEmpty());
+
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
         assertEquals(observation.getDataFile().getAbsolutePath(), observationFromDb.getDataFile().getAbsolutePath());
         assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());

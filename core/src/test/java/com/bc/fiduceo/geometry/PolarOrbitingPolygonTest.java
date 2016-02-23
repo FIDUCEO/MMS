@@ -1,6 +1,7 @@
 package com.bc.fiduceo.geometry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -84,8 +85,10 @@ public class PolarOrbitingPolygonTest {
         assertFalse(PolarOrbitingPolygon.isEdgeCrossingEquator(-60.0, -30.0));
     }
 
+    @Ignore
     @Test
     public void testAtsr2Polygon() {
+        // this is an extremely expensive test. We should remove the ignore annotation when we are sure that we are going to use this class. tb 2016-02-23
         final double skip = 2.5;
         final int expectedMatches = 519;
 

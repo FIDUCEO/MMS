@@ -66,6 +66,15 @@ public class S2WKTWriterTest {
     }
 
     @Test
+    public void testWritePoint_S2LatLong() {
+        final S2Point s2Point = createS2Point(-19.8, 46.0);
+        final S2LatLng s2LatLng = new S2LatLng(s2Point);
+
+        final String wkt = S2WKTWriter.write(s2LatLng);
+        assertEquals("POINT(-19.800000000000004,46.0)", wkt);
+    }
+
+    @Test
     public void testWritePolygon() {
         vertices.add(createS2Point(0, 0));
         vertices.add(createS2Point(0, 1));

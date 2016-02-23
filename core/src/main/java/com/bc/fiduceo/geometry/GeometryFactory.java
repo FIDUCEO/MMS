@@ -22,7 +22,6 @@ package com.bc.fiduceo.geometry;
 
 import com.bc.fiduceo.geometry.jts.JtsGeometryFactory;
 import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
-import com.google.common.geometry.S2Polygon;
 
 import java.util.Date;
 import java.util.List;
@@ -30,9 +29,8 @@ import java.util.List;
 public class GeometryFactory implements AbstractGeometryFactory {
 
     private final AbstractGeometryFactory factoryImpl;
-    private Type type;
+
     public GeometryFactory(Type type) {
-        this.type = type;
         if (type == Type.JTS) {
             factoryImpl = new JtsGeometryFactory();
         } else if (type == Type.S2) {
@@ -42,8 +40,14 @@ public class GeometryFactory implements AbstractGeometryFactory {
         }
     }
 
-    public Type getType() {
-        return type;
+    public GeometryFactory(String type) {
+        if ("S2".equalsIgnoreCase(type)) {
+            factoryImpl = new S2GeometryFactory();
+        } else if ("JTS".equalsIgnoreCase(type)) {
+            factoryImpl = new JtsGeometryFactory();
+        } else {
+            throw new IllegalArgumentException("unknown geometry factory type");
+        }
     }
 
     @Override
