@@ -40,6 +40,16 @@ public class GeometryFactory implements AbstractGeometryFactory {
         }
     }
 
+    public GeometryFactory(String type) {
+        if ("S2".equalsIgnoreCase(type)) {
+            factoryImpl = new S2GeometryFactory();
+        } else if ("JTS".equalsIgnoreCase(type)) {
+            factoryImpl = new JtsGeometryFactory();
+        } else {
+            throw new IllegalArgumentException("unknown geometry factory type");
+        }
+    }
+
     @Override
     public Geometry parse(String wkt) {
         return factoryImpl.parse(wkt);
