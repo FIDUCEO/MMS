@@ -31,6 +31,8 @@ public class S2WKTWriter {
             return writeLinestringWKT((S2Polyline) geometry);
         } else if (geometry instanceof S2Point) {
             return writePointWkt((S2Point) geometry);
+        } else if (geometry instanceof S2LatLng) {
+            return writePointWkt((S2LatLng) geometry);
         } else if (geometry instanceof S2Polygon) {
             return writePolygonWkt((S2Polygon) geometry);
         }
@@ -58,12 +60,17 @@ public class S2WKTWriter {
 
     @SuppressWarnings("StringBufferReplaceableByString")
     private static String writePointWkt(S2Point geometry) {
-        final StringBuilder builder = new StringBuilder();
         final S2LatLng s2LatLng = new S2LatLng(geometry);
+        return writePointWkt(s2LatLng);
+    }
+
+    @SuppressWarnings("StringBufferReplaceableByString")
+    private static String writePointWkt(S2LatLng geometry) {
+        final StringBuilder builder = new StringBuilder();
         builder.append("POINT(");
-        builder.append(s2LatLng.lngDegrees());
+        builder.append(geometry.lngDegrees());
         builder.append(",");
-        builder.append(s2LatLng.latDegrees());
+        builder.append(geometry.latDegrees());
         builder.append(")");
         return builder.toString();
     }
