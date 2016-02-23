@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class UseCaseConfigTest {
 
@@ -77,5 +76,37 @@ public class UseCaseConfigTest {
         final List<Sensor> sensors = useCaseConfig.getSensors();
         assertEquals(2, sensors.size());
         assertEquals("mhs-n18", sensors.get(1).getName());
+    }
+
+    @Test
+    public void testLoad__oneSensor_primary() {
+        final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
+                "  <sensors>" +
+                "    <sensor>" +
+                "      <name>amsub-n20</name>" +
+                "      <primary>true</primary>" +
+                "    </sensor>" +
+                "  </sensors>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertEquals("use-case 19", useCaseConfig.getName());
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        assertEquals(1, sensors.size());
+        assertEquals("amsub-n20", sensors.get(0).getName());
+        assertTrue(sensors.get(0).isPrimary());
+    }
+
+    @Test
+    public void testLoad__timeDelta() {
+        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
+                "  <time-delta>300</time-delta>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertEquals("use-case 20", useCaseConfig.getName());
+        assertEquals(300, useCaseConfig.getTimeDelta());
     }
 }

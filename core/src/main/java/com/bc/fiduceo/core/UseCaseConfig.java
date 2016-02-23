@@ -30,6 +30,7 @@ public class UseCaseConfig {
 
     private String name;
     private List<Sensor> sensors;
+    private int timeDelta;
 
     public static UseCaseConfig load(InputStream inputStream) {
         final XStream xStream = createXStream();
@@ -48,10 +49,15 @@ public class UseCaseConfig {
         return sensors;
     }
 
+    public int getTimeDelta() {
+        return timeDelta;
+    }
+
     private static XStream createXStream() {
         final XStream xStream = new XStream();
         xStream.alias("use-case-config", UseCaseConfig.class);
         xStream.useAttributeFor(UseCaseConfig.class, "name");
+        xStream.aliasField("time-delta", UseCaseConfig.class, "timeDelta");
         xStream.alias("sensor", Sensor.class);
         return xStream;
     }
