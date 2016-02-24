@@ -130,9 +130,10 @@ public class TimeUtils {
                 instance[1].set(Calendar.DAY_OF_YEAR, end);
                 instance[1].set(Calendar.YEAR, startYear);
             } else {
-                end = end - 365;
+                endYear = (endYear - startYear) == 1 ? endYear : ++startYear;
+                end = end - ((endYear % 400 == 0) || ((endYear % 100) != 0 && (endYear % 4 == 0)) ? 366 : 365);
                 instance[1].set(Calendar.DAY_OF_YEAR, end);
-                instance[1].set(Calendar.YEAR, endYear = (endYear - startYear) == 1 ? endYear : ++startYear);
+                instance[1].set(Calendar.YEAR, endYear);
                 startYear = endYear;
             }
             calendarList.add(instance);

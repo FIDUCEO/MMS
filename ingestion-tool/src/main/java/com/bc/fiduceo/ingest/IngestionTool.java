@@ -69,17 +69,20 @@ class IngestionTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
-        final Option startOption = new Option("start", "start_time", true, "Define the start time of the mission.");
+        final Option startOption = new Option("start", "start-time", true, "Define the starting time of products to inject.");
+        startOption.setArgName("Date");
         options.addOption(startOption);
 
-        final Option endOption = new Option("end", "end_time", true, "Define the end time of the mission.");
+        final Option endOption = new Option("end", "end-time", true, "Define the ending time of products to inject.");
+        endOption.setArgName("Date");
         options.addOption(endOption);
 
         final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
         options.addOption(versionOption);
 
-        final Option parallelOption = new Option("p", "parallel", true, "Define the number of concurrent execution.");
+        final Option parallelOption = new Option("concurrent", "concurrent-injection", true, "Define the number of concurrent execution.");
         parallelOption.setType(Number.class);
+        parallelOption.setArgName("Number");
         options.addOption(parallelOption);
 
         return options;
@@ -94,7 +97,7 @@ class IngestionTool {
         final String endTime = commandLine.getOptionValue("end");
 
         final String version = commandLine.getOptionValue("v");
-        final String concurrent = commandLine.getOptionValue("parallel");
+        final String concurrent = commandLine.getOptionValue("concurrent");
 
         if (!(startTime == null && endTime == null)) {
             Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);

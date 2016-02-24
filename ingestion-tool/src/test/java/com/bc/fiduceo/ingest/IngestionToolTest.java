@@ -33,7 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -57,13 +56,17 @@ public class IngestionToolTest {
 
         ingestionTool.printUsageTo(outputStream);
 
-        assertEquals("ingestion-tool version 1.0.0" + ls +
-                ls +
+        assertEquals("ingestion-tool version 1.0.0" +ls+
+                ls+
                 "usage: ingestion-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
-                "   -h,--help           Prints the tool usage." + ls +
-                "   -s,--sensor <arg>   Defines the sensor to be ingested." + ls, outputStream.toString());
+                "   -c,--config <arg>                             Defines the configuration directory. Defaults to './config'." + ls +
+                "   -concurrent,--concurrent-injection <Number>   Define the number of concurrent execution." + ls +
+                "   -end,--end-time <Date>                        Define the ending time of products to inject." + ls +
+                "   -h,--help                                     Prints the tool usage." + ls +
+                "   -s,--sensor <arg>                             Defines the sensor to be ingested." + ls +
+                "   -start,--start-time <Date>                    Define the starting time of products to inject." + ls +
+                "   -v,--version <arg>                            Define the sensor version." + ls, outputStream.toString());
     }
 
     @Test
@@ -92,19 +95,19 @@ public class IngestionToolTest {
         assertEquals("Defines the configuration directory. Defaults to './config'.", configOption.getDescription());
         assertTrue(configOption.hasArg());
 
-        final Option startTime = options.getOption("start_time");
+        final Option startTime = options.getOption("start-time");
         assertNotNull(startTime);
         assertEquals("start", startTime.getOpt());
-        assertEquals("start_time", startTime.getLongOpt());
-        assertEquals("Define the start time of the mission.", startTime.getDescription());
+        assertEquals("start-time", startTime.getLongOpt());
+        assertEquals("Define the starting time of products to inject.", startTime.getDescription());
         assertTrue(startTime.hasArg());
 
 
-        final Option endTime = options.getOption("end_time");
+        final Option endTime = options.getOption("end-time");
         assertNotNull(endTime);
         assertEquals("end", endTime.getOpt());
-        assertEquals("end_time", endTime.getLongOpt());
-        assertEquals("Define the end time of the mission.", endTime.getDescription());
+        assertEquals("end-time", endTime.getLongOpt());
+        assertEquals("Define the ending time of products to inject.", endTime.getDescription());
         assertTrue(endTime.hasArg());
 
 
@@ -116,17 +119,16 @@ public class IngestionToolTest {
         assertTrue(version.hasArg());
 
 
-        final Option concurrent = options.getOption("parallel");
+        final Option concurrent = options.getOption("concurrent");
         assertNotNull(concurrent);
-        assertEquals("p", concurrent.getOpt());
-        assertEquals("parallel", concurrent.getLongOpt());
+        assertEquals("concurrent", concurrent.getOpt());
+        assertEquals("concurrent-injection", concurrent.getLongOpt());
         assertEquals("Define the number of concurrent execution.", concurrent.getDescription());
         assertTrue(concurrent.hasArg());
     }
 
     @Test
-    public void testFileGlob() throws IOException {
-        File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
+    public void testFileGlob() throws IOException {File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
         assertTrue(files != null);
     }
 
