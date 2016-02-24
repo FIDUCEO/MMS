@@ -32,7 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
     }
 
-    public ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+    public static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
         int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
         int[] shape = coodinate.getShape();
         ArrayDouble arrayDouble = new ArrayDouble(shape);
@@ -61,6 +61,31 @@ public class AMSU_MHS_L1B_Reader implements Reader {
             arrayDouble.setDouble(i, ((coordinates[i] * scale)));
         }
         return (ArrayDouble.D2) arrayDouble.copy();
+    }
+
+    public static List<ArrayDouble.D2> getLat_Long(NetcdfFile netcdfFile) throws IOException {
+        Array latitude = null;
+        Array longitude = null;
+        float latScale = 1;
+        float longScale = 1;
+        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
+        for (Variable geo : geolocation) {
+            if (geo.getShortName().equals("Latitude")) {
+                latitude = geo.read();
+                latScale = (float) geo.findAttribute("Scale").getNumericValue();
+            } else if (geo.getShortName().equals("Longitude")) {
+                longitude = geo.read();
+                longScale = (float) geo.findAttribute("Scale").getNumericValue();
+            }
+        }
+        List<ArrayDouble.D2> d2List = new ArrayList<>();
+
+        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+
+        d2List.add(arrayLong);// Index 0 Longitude
+        d2List.add(arrayLat);// Index 0 Latitude
+        return d2List;
     }
 
     @Override
@@ -105,33 +130,15 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         return sensorListHashMap;
     }
 
-
     @Override
     public AcquisitionInfo read() throws IOException {
 
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
+        List<ArrayDouble.D2> lat_long = getLat_Long(netcdfFile);
+        ArrayDouble.D2 arrayDoubleLongitude = lat_long.get(0);
+        ArrayDouble.D2 arrayDoubleLatitude = lat_long.get(1);
 
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        if (latitude == null || longitude == null) {
-            throw new IOException("The H5 file is courupted");
-        }
-
-        ArrayDouble.D2 arrayDoubleLatitude = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
-        ArrayDouble.D2 arrayDoubleLongitude = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude, arrayDoubleLongitude);
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude,
+                arrayDoubleLongitude);
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");

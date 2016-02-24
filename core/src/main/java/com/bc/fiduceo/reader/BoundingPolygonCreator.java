@@ -99,6 +99,31 @@ public class BoundingPolygonCreator {
         return stringBuffer.toString();
     }
 
+
+    public static String plotPolygon(List<Point> points) {
+        final StringBuilder stringBuffer = new StringBuilder();
+        stringBuffer.append("POLYGON((");
+
+        for (int j = 0; j < points.size(); j++) {
+            stringBuffer.append(points.get(j).getLon());
+            stringBuffer.append(" ");
+            stringBuffer.append(points.get(j).getLat());
+            if (j < points.size() - 1) {
+                stringBuffer.append(",");
+            }
+
+            if (j == (points.size() - 1)) {
+                stringBuffer.append(",");
+                stringBuffer.append(points.get(0).getLon());
+                stringBuffer.append(" ");
+                stringBuffer.append(points.get(0).getLat());
+            }
+        }
+        stringBuffer.append("))");
+
+        return stringBuffer.toString();
+    }
+
     public List<Point> allBoundingPoint(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
                                         NodeType nodeType,
                                         int intervalX, int intervalY) {
@@ -176,7 +201,6 @@ public class BoundingPolygonCreator {
         int intervalX = 50;
         int intervalY = 50;
 
-        List<Point> coordinatesSecond = new ArrayList<>();
         List<Polygon> polygonList = new ArrayList<>();
 
         int[] timeAxisStart = new int[2];
@@ -270,7 +294,8 @@ public class BoundingPolygonCreator {
         return acquisitionInfo;
     }
 
-    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude, NodeType nodeType) {
+    public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
+                                                           NodeType nodeType) {
         int[] timeAxisStart = new int[2];
         int[] timeAxisEnd = new int[2];
 

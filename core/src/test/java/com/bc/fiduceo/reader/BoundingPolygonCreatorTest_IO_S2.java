@@ -30,11 +30,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayInt;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +47,7 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
 
     private NetcdfFile netcdfFile;
     private AMSU_MHS_L1B_Reader reader;
+
 
     @Before
     public void setUp() throws IOException {
@@ -84,36 +82,13 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         assertEquals(points[0].getLat(), 21.40989945914043, 1e-8);
     }
 
-    private ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
-        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
-        int[] shape = coodinate.getShape();
-        ArrayDouble arrayDouble = new ArrayDouble(shape);
-
-        for (int i = 0; i < coordinates.length; i++) {
-            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
-        }
-        return (ArrayDouble.D2) arrayDouble.copy();
-    }
-
     @Test
-    public void createValidMultiplePolygon() throws IOException {
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
+    public void createValidMultiplePolygon_AMSU_Reader() throws IOException {
         List<Polygon> polygonList = new ArrayList<>();
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        ArrayDouble.D2 arrayLong = rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        List<ArrayDouble.D2> long_lat = AMSU_MHS_L1B_Reader.getLat_Long(netcdfFile);
+
+        ArrayDouble.D2 arrayLong = long_lat.get(0);
+        ArrayDouble.D2 arrayLat = long_lat.get(1);
 
         final int[] shape = arrayLat.getShape();
         int width = shape[1] - 1;
@@ -123,13 +98,13 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
         for (int i = 1; i <= 4; i++) {
             polygonList = boundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, width, height, i);
-            if (TestUtil.isPointValidation(polygonList)) {
+            if (BoundingPolygonCreator.isPointValidation(polygonList)) {
                 break;
             }
         }
 
         assertEquals(polygonList.get(0).getCoordinates()[0].getLon(), -97.86539752771206, 1e-8);
         assertEquals(polygonList.get(0).getCoordinates()[0].getLat(), 21.40989945914043, 1e-8);
-        assertTrue(TestUtil.isPointValidation(polygonList));
+        assertTrue(BoundingPolygonCreator.isPointValidation(polygonList));
     }
 }

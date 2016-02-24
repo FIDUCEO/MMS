@@ -191,21 +191,6 @@ public class TestUtil {
         return coordinates;
     }
 
-    public static boolean isPointValidation(List<Polygon> polygonList) {
-        boolean valid = true;
-        for (Polygon polygon : polygonList) {
-
-            List<Point> points = Arrays.asList(polygon.getCoordinates());
-            List<S2Point> s2Points = S2GeometryFactory.extractS2Points(points);
-            S2Loop s2Loop = new S2Loop(s2Points);
-            valid = s2Loop.isValid();
-            if (!valid) {
-                return false;
-            }
-        }
-        return valid;
-    }
-
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {
         properties.setProperty("driverClassName", datasource.getDriverClassName());
         properties.setProperty("url", datasource.getUrl());

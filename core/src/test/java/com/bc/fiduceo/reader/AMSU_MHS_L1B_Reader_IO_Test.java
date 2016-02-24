@@ -21,7 +21,6 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SatelliteGeometry;
 import com.bc.fiduceo.geometry.Point;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +48,7 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
     public void setUp() throws IOException {
         reader = new AMSU_MHS_L1B_Reader();
         File testDataDirectory = TestUtil.getTestDataDirectory();
-        File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
+        File file = new File(testDataDirectory, "L8912163.NSS.AMBX.NK.D08001.S0000.E0155.B5008586.GC.gz.l1c.h5");
         reader.open(file);
     }
 
@@ -98,17 +97,17 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetSensorTypes_CheckSensorType(){
+    public void testGetSensorTypes_CheckSensorType() {
         HashMap<String, String> sensorTypes = reader.getSensorTypes();
-        assertEquals("NK",sensorTypes.get("amsub-n15"));
-        assertEquals("NN",sensorTypes.get("amsub-n18"));
+        assertEquals("NK", sensorTypes.get("amsub-n15"));
+        assertEquals("NN", sensorTypes.get("amsub-n18"));
 
-        assertEquals(null,sensorTypes.get(""));
-        assertEquals(null,sensorTypes.get("not exist"));
+        assertEquals(null, sensorTypes.get(""));
+        assertEquals(null, sensorTypes.get("not exist"));
 
 
         assertTrue(reader.checkSensorTypeName("amsub-n18"));
-        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5",reader.getRegEx());
+        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5", reader.getRegEx());
     }
 
     private ArrayDouble rescaleCoordinate(ArrayDouble coordinate) {
