@@ -36,7 +36,6 @@ public class SatelliteObservation {
     private File dataFile;
     private int timeAxisStartIndex;
     private int timeAxisEndIndex;
-    private String wkt;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
@@ -44,15 +43,7 @@ public class SatelliteObservation {
         timeAxisEndIndex = -1;
     }
 
-    public String getWellknowText() {
-        return wkt;
-    }
-
-    public void setWellknowText(String wkt) {
-        this.wkt = wkt;
-    }
-
-    public Geometry getGeoBounds() {
+   public Geometry getGeoBounds() {
         return geoBounds;
     }
 
