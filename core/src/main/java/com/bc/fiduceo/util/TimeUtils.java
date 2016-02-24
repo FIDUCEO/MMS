@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class TimeUtils {
@@ -72,33 +71,6 @@ public class TimeUtils {
         return parse(dateString, "yyyy-DDD");
     }
 
-    //todo:mba to get the product name then finilize on the seach (2016-02-23).
-    public static HashMap<Integer, Integer> getDaysInterval(Date startDate, Date endDate, int interval) {
-        if (startDate == null || endDate == null) {
-            throw new NullPointerException("The start date or end date is Null");
-        }
-        Calendar calendarStart = Calendar.getInstance();
-        calendarStart.setTime(startDate);
-        Calendar calendarEnd = Calendar.getInstance();
-        calendarEnd.setTime(endDate);
-        long diff = calendarStart.getTimeInMillis() - calendarEnd.getTimeInMillis();
-        diff = diff / (24 * 60 * 60 * 1000);
-        diff = diff < 0 ? -1 * diff : diff;
-        diff = diff / interval;
-
-        HashMap<Integer, Integer> integerHashMap = new HashMap<>();
-        int start = calendarStart.get(Calendar.DAY_OF_YEAR);
-
-        for (int i = 0; i < interval; i++) {
-            int end = (int) (start + diff);
-            integerHashMap.put(start, end);
-            start = end + 1;
-        }
-
-        return integerHashMap;
-    }
-
-
     //todo:mba to get the product name then finilize on the seach (2016-02-23) option.
     public static List<Calendar[]> getDaysIntervalYear(Date startDate, Date endDate, int interval) {
         if (startDate == null || endDate == null) {
@@ -106,6 +78,7 @@ public class TimeUtils {
         }
         Calendar calendarStart = Calendar.getInstance();
         calendarStart.setTime(startDate);
+
         Calendar calendarEnd = Calendar.getInstance();
         calendarEnd.setTime(endDate);
         long diff = calendarStart.getTimeInMillis() - calendarEnd.getTimeInMillis();
@@ -126,7 +99,7 @@ public class TimeUtils {
 
             int end = (int) (start + diff);
             instance[1] = Calendar.getInstance();
-            if (end < 365) {
+            if (end <= 365) {
                 instance[1].set(Calendar.DAY_OF_YEAR, end);
                 instance[1].set(Calendar.YEAR, startYear);
             } else {

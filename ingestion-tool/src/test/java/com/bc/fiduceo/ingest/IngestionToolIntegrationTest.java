@@ -56,7 +56,7 @@ public class IngestionToolIntegrationTest {
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
+            fail("unable to create testGroupInputProduct directory: " + configDir.getAbsolutePath());
         }
     }
 
@@ -111,8 +111,8 @@ public class IngestionToolIntegrationTest {
     @Ignore
     @Test
     public void testIngest_AIRS() throws ParseException, IOException, SQLException {
-        // @todo 1 tb/** this test relies on the results being returned in a specifi order - change this 2015-12-22
-        // @todo 2 tb/tb move geometry factory type to some other location, parametrize test 2015-12-16
+        // @todo 1 tb/** this testGroupInputProduct relies on the results being returned in a specifi order - change this 2015-12-22
+        // @todo 2 tb/tb move geometry factory type to some other location, parametrize testGroupInputProduct 2015-12-16
         final Storage storage = Storage.create(TestUtil.getDatasource_H2(), new GeometryFactory(GeometryFactory.Type.JTS));
         storage.initialize();
 
@@ -148,7 +148,7 @@ public class IngestionToolIntegrationTest {
     public void testIngest_AMSU_MHS() throws ParseException, IOException, SQLException {
         final Storage storage = Storage.create(TestUtil.getDatasourceMongo_DB(), new GeometryFactory(GeometryFactory.Type.S2));
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2012-03", "-end", "2013-05", "-v", "1.0", "-concurrent", "3"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2015-340", "-end", "2015-350", "-v", "1.0", "-concurrent", "2"};
         try {
             writeSystemProperties();
             TestUtil.writeDatabaseProperties_MongoDb(configDir);

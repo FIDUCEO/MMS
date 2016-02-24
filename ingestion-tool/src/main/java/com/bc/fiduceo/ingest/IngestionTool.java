@@ -49,13 +49,16 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
+    private List<Calendar[]> daysIntervalYear;
 
     static Options getOptions() {
         final Options options = new Options();
@@ -99,15 +102,15 @@ class IngestionTool {
         final String version = commandLine.getOptionValue("v");
         final String concurrent = commandLine.getOptionValue("concurrent");
 
+        //todo mba to implement start and end time for concurrent injection
         if (!(startTime == null && endTime == null)) {
             Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
             Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
-            HashMap<Integer, Integer> daysInterval = TimeUtils.getDaysInterval(startDate, endDate, Integer.parseInt(concurrent));
+            daysIntervalYear = TimeUtils.getDaysIntervalYear(startDate, endDate, Integer.parseInt(concurrent));
         }
 
 
         final File configDirectory = new File(configValue);
-
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.loadFrom(configDirectory);
 
@@ -136,6 +139,8 @@ class IngestionTool {
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
+
+        getSplitInputProduct(daysIntervalYear, searchFilesResult);
 
         for (final File file : searchFilesResult) {
             reader.open(file);
@@ -169,11 +174,50 @@ class IngestionTool {
         }
     }
 
-    List<File> searchReaderFiles(SystemConfig systemConfig, String regEx) throws IOException {
+    public List<File> searchReaderFiles(SystemConfig systemConfig, String regEx) throws IOException {
         Path start = new File(systemConfig.getArchiveRoot()).toPath();
         FileFinder fileFinder = new FileFinder(regEx);
         Files.walkFileTree(start, fileFinder);
         return fileFinder.getFileList();
+    }
+
+
+    public List<Object[]> getSplitInputProduct(List<Calendar[]> calendars, List<File> searchFilesResult) {
+        List<Object[]> fileList = new ArrayList<>();
+        for (Calendar[] calendar : calendars) {
+            Object[] files = searchFilesResult.stream().sequential().filter(p -> isFileContainBetween(p.getName(), calendar) == true).toArray();
+            fileList.add(files);
+        }
+        return fileList;
+    }
+
+    boolean isFileContainBetween(String fileName, Calendar calendar[]) {
+        boolean isInBetween = false;
+        Calendar startDate = calendar[0];
+        int sYearStart = startDate.get(Calendar.YEAR);
+        sYearStart = sYearStart > 2000 ? sYearStart - 2000 : sYearStart - 1900;
+        int sMonthEnd = startDate.get(Calendar.DAY_OF_YEAR);
+
+        Calendar endDate = calendar[1];
+        int eYearStart = endDate.get(Calendar.YEAR);
+        eYearStart = eYearStart > 2000 ? eYearStart - 2000 : eYearStart - 1900;
+
+        int eMonthEnd = endDate.get(Calendar.DAY_OF_YEAR);
+
+        Pattern compile = Pattern.compile("'*\\d{5}");
+        Matcher matcher = compile.matcher(fileName);
+        if (matcher.find()) {
+            String group = matcher.group();
+            int yr = Integer.parseInt(group.substring(0, 2));
+            int month = Integer.parseInt(group.substring(2, group.length()));
+
+            if (yr == sYearStart || yr == eYearStart) {
+                if (sMonthEnd <= month && month <= eMonthEnd) {
+                    isInBetween = true;
+                }
+            }
+        }
+        return isInBetween;
     }
 
     void printUsageTo(OutputStream outputStream) {

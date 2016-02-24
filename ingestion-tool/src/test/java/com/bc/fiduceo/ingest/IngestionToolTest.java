@@ -22,10 +22,13 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +36,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -56,8 +63,8 @@ public class IngestionToolTest {
 
         ingestionTool.printUsageTo(outputStream);
 
-        assertEquals("ingestion-tool version 1.0.0" +ls+
-                ls+
+        assertEquals("ingestion-tool version 1.0.0" + ls +
+                ls +
                 "usage: ingestion-tool <options>" + ls +
                 "Valid options are:" + ls +
                 "   -c,--config <arg>                             Defines the configuration directory. Defaults to './config'." + ls +
@@ -128,14 +135,39 @@ public class IngestionToolTest {
     }
 
     @Test
-    public void testFileGlob() throws IOException {File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
+    public void testFileGlob() throws IOException {
+        File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
         assertTrue(files != null);
     }
 
+
+    @Test
+    @Ignore //todo mba implement the file systems [archive-root]/[sensor-platform]/[version]/[year]/[month]/[day]
+    public void testGroupInputProduct() throws IOException {
+        SystemConfig systemConfig = new SystemConfig();
+        IngestionTool ingestionTool = new IngestionTool();
+        systemConfig.loadFrom(TestUtil.getTestDataDirectory());
+
+        List<File> files1 = ingestionTool.searchReaderFiles(systemConfig, "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5");
+        Date dateStart = TimeUtils.parseDOYBeginOfDay("2015-1");
+        Date dateEnd = TimeUtils.parseDOYBeginOfDay("2015-365");
+        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(dateStart, dateEnd, 20);
+
+        List<Object[]> splitInputProduct = ingestionTool.getSplitInputProduct(daysIntervalYear, files1);
+
+        for (Object[] files : splitInputProduct) {
+            System.out.println("#####################" + files.length);
+            for (Object file : files) {
+                System.out.println("file.getName() = " + file.toString());
+            }
+            System.out.println("----------------------------------------------------");
+        }
+    }
 
     private File[] setFileFilter(String location, String regEx) {
         File fileLocation = new File(location);
         FileFilter wildcardFileFilter = new WildcardFileFilter(regEx);
         return fileLocation.listFiles(wildcardFileFilter);
     }
+
 }
