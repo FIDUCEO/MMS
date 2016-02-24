@@ -28,6 +28,7 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
@@ -132,7 +133,7 @@ class IngestionTool {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
-        Geometry geometry;
+
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
         List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
@@ -140,25 +141,35 @@ class IngestionTool {
         for (final File file : searchFilesResult) {
             reader.open(file);
             try {
-                final AcquisitionInfo aquisitionInfo = reader.read();
+                final AcquisitionInfo acquisitionInfo = reader.read();
+                final Polygon polygon = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
+
+
+                // build polygon from list of points
+                // test if polygon is valid
+                // if not
+                // -- call reader.refineGeometry()
+                // else
+                // -- set up SatelliteObservation object and ingest
 
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
                 final Sensor sensor = new Sensor();
                 sensor.setName(sensorType);
                 satelliteObservation.setSensor(sensor);
 
-                satelliteObservation.setStartTime(aquisitionInfo.getSensingStart());
-                satelliteObservation.setStopTime(aquisitionInfo.getSensingStop());
+                satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
+                satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFile(file.getAbsoluteFile());
 
-                if (aquisitionInfo.getMultiPolygons() == null) {
+                Geometry geometry;
+                if (acquisitionInfo.getMultiPolygons() == null) {
                     //todo: mba to specify which Geometry library to use on each reader. 2016-19-02
-                    geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(aquisitionInfo.getCoordinates());
+                    geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(acquisitionInfo.getCoordinates());
                 } else {
-                    if (aquisitionInfo.getMultiPolygons().size() > 0) {
-                        geometry = geometryFactory.createMultiPolygon(aquisitionInfo.getMultiPolygons());
+                    if (acquisitionInfo.getMultiPolygons().size() > 0) {
+                        geometry = geometryFactory.createMultiPolygon(acquisitionInfo.getMultiPolygons());
                     } else {
-                        geometry = geometryFactory.createPolygon(aquisitionInfo.getCoordinates());
+                        geometry = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
                     }
                 }
                 satelliteObservation.setGeoBounds(geometry);

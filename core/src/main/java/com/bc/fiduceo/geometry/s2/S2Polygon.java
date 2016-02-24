@@ -54,6 +54,20 @@ class S2Polygon implements Polygon {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
+    public boolean isValid() {
+        final int numLoops = googlePolygon.numLoops();
+        final ArrayList<S2Loop> loops = new ArrayList<>();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = googlePolygon.loop(i);
+            if (!loop.isValid()) {
+                return false;
+            }
+            loops.add(loop);
+        }
+
+        return com.google.common.geometry.S2Polygon.isValid(loops);
+    }
 
     @Override
     public Point[] getCoordinates() {

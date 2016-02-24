@@ -1,51 +1,24 @@
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
 import com.bc.geometry.s2.S2WKTReader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import ucar.nc2.NetcdfFile;
+import org.junit.*;
 
-import java.io.File;
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author tom.bc
  */
-@RunWith(IOTestRunner.class)
 public class S2PolygonTest {
 
     private S2WKTReader s2WKTReader;
-    private NetcdfFile netcdfFile;
-    private AMSU_MHS_L1B_Reader reader;
-
 
     @Before
     public void setUp() throws IOException {
         s2WKTReader = new S2WKTReader();
-
-        File testDataDirectory = TestUtil.getTestDataDirectory();
-        File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
-        netcdfFile = NetcdfFile.open(file.getPath());
-        reader = new AMSU_MHS_L1B_Reader();
-        reader.open(file);
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        reader.close();
-        netcdfFile.close();
     }
 
     @Test
@@ -144,8 +117,34 @@ public class S2PolygonTest {
         assertEquals(0.0, coordinates[2].getLat(), 1e-8);
     }
 
+    @Test
+    public void testIsValid_valid() throws Exception {
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON((5 -1, 5 0, 4 0, 4 -1, 5 -1))");
+        assertEquals(true, s2Polygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_resolvesToInvalid_selfIntersectingPolygon() throws Exception {
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON((0 0, 4 0, 4 3, 1 3, 3 1, 2 1, 2 4, 0 4, 0 0))");
+        assertEquals(false, s2Polygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_resolvesToValid_polygonIsADonut() throws Exception {
+        // the donut polygon does not conform the ogc wkt-specification, the inner loop has to be in clockwise order.
+        // We suspect google S2 library spacific behavior.  tb 24.2.2016
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 2, 4 2, 2 4, 1 2))");
+        assertEquals(true, s2Polygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_resolvesToInvalid_polygonIsADamagedDonut() throws Exception {
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(4 2, 7 2, 5 4, 4 2))");
+        assertEquals(false, s2Polygon.isValid());
+    }
+
     private S2Polygon createS2Polygon(String wellKnownText) {
-        com.google.common.geometry.S2Polygon polygon_1 = (com.google.common.geometry.S2Polygon) s2WKTReader.read(wellKnownText);
-        return new S2Polygon(polygon_1);
+        com.google.common.geometry.S2Polygon polygon = (com.google.common.geometry.S2Polygon) s2WKTReader.read(wellKnownText);
+        return new S2Polygon(polygon);
     }
 }

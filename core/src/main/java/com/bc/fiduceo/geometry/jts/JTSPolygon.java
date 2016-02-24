@@ -70,4 +70,9 @@ class JTSPolygon implements Polygon {
     public Object getInner() {
         return jtsPolygon;
     }
+
+    @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
 }
