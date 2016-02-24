@@ -22,8 +22,6 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
@@ -82,9 +80,7 @@ class S2MultiPolygon implements MultiPolygon {
         for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
 
             com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
-
             intersection.initToIntersection(s2Polygon, (com.google.common.geometry.S2Polygon) other.getInner());
-
             if (intersection.numLoops() != 0) {
                 resultList.add(intersection);
             }
@@ -104,21 +100,13 @@ class S2MultiPolygon implements MultiPolygon {
 
     @Override
     public Point[] getCoordinates() {
-
-
         if (pointList.size() > 0) {
             return pointList.toArray(new Point[pointList.size()]);
         }
-        for (com.google.common.geometry.S2Polygon polygon : polygonList) {
-            int i = polygon.numLoops();
-            for (int j = 0; j < i; j++) {
-                S2Loop loop = polygon.loop(j);
-                int i1 = loop.numVertices();
-                for (int k = 0; k < i1; k++) {
-                    com.google.common.geometry.S2Point vertex = loop.vertex(k);
-                    pointList.add(new S2Point(new S2LatLng(vertex)));
-                }
-            }
+        for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
+            int i = s2Polygon.numLoops();
+            ArrayList<Point> s2Points = S2Polygon.createS2Points(i, s2Polygon);
+            pointList.addAll(s2Points);
         }
         return pointList.toArray(new Point[pointList.size()]);
     }

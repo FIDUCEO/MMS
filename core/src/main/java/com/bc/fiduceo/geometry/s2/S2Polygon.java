@@ -37,6 +37,19 @@ class S2Polygon implements Polygon {
         this.googlePolygon = (com.google.common.geometry.S2Polygon) geometry;
     }
 
+    public static ArrayList<Point> createS2Points(int numLoops, com.google.common.geometry.S2Polygon googlePolygon) {
+        final ArrayList<Point> coordinates = new ArrayList<>();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = googlePolygon.loop(i);
+            final int numVertices = loop.numVertices();
+            for (int k = 0; k < numVertices; k++) {
+                final com.google.common.geometry.S2Point googlePoint = loop.vertex(k);
+                coordinates.add(new S2Point(new S2LatLng(googlePoint)));
+            }
+        }
+        return coordinates;
+    }
+
     @Override
     public Geometry intersection(Geometry other) {
         final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
@@ -71,19 +84,11 @@ class S2Polygon implements Polygon {
 
     @Override
     public Point[] getCoordinates() {
-        final ArrayList<Point> coordinates = new ArrayList<>();
         final int numLoops = googlePolygon.numLoops();
-        for (int i = 0; i < numLoops; i++) {
-            final S2Loop loop = googlePolygon.loop(i);
-            final int numVertices = loop.numVertices();
-            for (int k = 0; k < numVertices; k++) {
-                final com.google.common.geometry.S2Point googlePoint = loop.vertex(k);
-                coordinates.add(new S2Point(new S2LatLng(googlePoint)));
-            }
-        }
+        ArrayList<Point> pointArrayList = createS2Points(numLoops,googlePolygon);
         // @todo 2 tb/** the S2 loops do not contain the closing point. Check if we need to add this point here.
         // check what happens when the polygon contains more than one loop tb 2016-01-27
-        return coordinates.toArray(new Point[coordinates.size()]);
+        return pointArrayList.toArray(new Point[pointArrayList.size()]);
     }
 
     @Override
