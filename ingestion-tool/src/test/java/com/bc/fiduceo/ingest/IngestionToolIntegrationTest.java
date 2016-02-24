@@ -227,13 +227,6 @@ public class IngestionToolIntegrationTest {
         }
     }
 
-
-    @Test
-    public void testRun() throws ParseException, SQLException, IOException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2012-03-06", "-end", "2013-05-06", "-v", "1.0", "-p", "3"};
-        IngestionToolMain.main(args);
-    }
-
     private void writeSystemProperties() throws IOException {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
