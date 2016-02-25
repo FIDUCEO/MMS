@@ -143,8 +143,10 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
-        netcdfFile.close();
-        netcdfFile = null;
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
     }
 
     @Override

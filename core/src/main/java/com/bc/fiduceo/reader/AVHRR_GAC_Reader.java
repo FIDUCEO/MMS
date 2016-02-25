@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 
 import org.esa.snap.core.datamodel.GeoCoding;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,16 +30,21 @@ import java.util.HashMap;
 
 public class AVHRR_GAC_Reader implements Reader {
 
+    private NetcdfFile netcdfFile;
+
     private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09","avhrr-n10","avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
 
     @Override
     public void open(File file) throws IOException {
-        throw new RuntimeException("not implemented");
+        netcdfFile = NetcdfFile.open(file.getPath());
     }
 
     @Override
     public void close() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
     }
 
     @Override
