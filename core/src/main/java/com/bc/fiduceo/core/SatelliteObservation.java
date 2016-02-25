@@ -33,6 +33,7 @@ public class SatelliteObservation {
     private Geometry geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
+    // @todo se/tb can this be replaced by Path from nio package 2016-02-25
     private File dataFile;
     private int timeAxisStartIndex;
     private int timeAxisEndIndex;

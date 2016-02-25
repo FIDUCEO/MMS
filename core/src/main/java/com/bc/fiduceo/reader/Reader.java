@@ -37,5 +37,4 @@ public interface Reader {
     AcquisitionInfo read() throws IOException;
 
     String getRegEx();
-
 }

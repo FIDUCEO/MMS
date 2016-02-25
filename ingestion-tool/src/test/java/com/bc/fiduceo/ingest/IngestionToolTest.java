@@ -140,26 +140,6 @@ public class IngestionToolTest {
     }
 
 
-    @Test//todo mba implement the file systems [archive-root]/[sensor-platform]/[version]/[year]/[month]/[day]
-    public void testGroupInputProduct() throws IOException {
-        IngestionTool ingestionTool = new IngestionTool();
-        Path path = TestUtil.getTestDataDirectory().toPath();
-
-        List<File> files1 = ingestionTool.searchReaderFiles(path, "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5");
-        Date dateStart = TimeUtils.parseDOYBeginOfDay("2015-1");
-        Date dateEnd = TimeUtils.parseDOYBeginOfDay("2015-365");
-        List<Calendar[]> intervalofDate = TimeUtils.getIntervalofDate(dateStart, dateEnd, 20);
-
-        List<Object[]> splitInputProduct = ingestionTool.getSplitInputProduct(intervalofDate, files1);
-        for (Object[] files : splitInputProduct) {
-            System.out.println("#####################" + files.length);
-            for (Object file : files) {
-                System.out.println("file.getName() = " + file.toString());
-            }
-            System.out.println("----------------------------------------------------");
-        }
-    }
-
     @Test
     public void testArchivePath() {
 

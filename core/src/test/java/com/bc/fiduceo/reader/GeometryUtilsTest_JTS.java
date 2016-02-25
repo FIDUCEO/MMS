@@ -46,6 +46,7 @@ public class GeometryUtilsTest_JTS {
         factory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 
+
     @Test
     public void testCreateTimeAxis() throws ParseException {
         final Polygon polygon = (Polygon) factory.parse("POLYGON((10 30, 10 20, 10 10, 20 10, 30 10, 30 20, 30 30, 20 30, 10 30))");
