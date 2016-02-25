@@ -26,12 +26,11 @@ import org.junit.Test;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class TimeUtilsTest {
 
@@ -123,23 +122,34 @@ public class TimeUtilsTest {
         TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
     }
 
+
     @Test
-    public void testGetDayBetween() {
-        HashMap<Integer, Integer> daysBetween = TimeUtils.getDaysInterval(TimeUtils.parseDOYBeginOfDay("2015-23"), TimeUtils.parseDOYBeginOfDay("2015-304"), 2);
-        assertFalse(daysBetween.isEmpty());
-        Object[] startDaysKey = daysBetween.keySet().toArray();
-        Object[] endDaysValue = daysBetween.values().toArray();
+    public void testGetDaysBetweenYrs_Less_High() {
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2016-04"), TimeUtils.parseDOYBeginOfDay("2015-15"), 3);
+        assertFalse(daysIntervalYear.isEmpty());
+        assertEquals(daysIntervalYear.size(), 3);
 
-        assertEquals(startDaysKey[1], 23);
-        assertEquals(endDaysValue[1], 163);
-
-        assertEquals(startDaysKey[0], 164);
-        assertEquals(endDaysValue[0], 304);
+        Calendar calendars[] = daysIntervalYear.get(0);
+        assertEquals(calendars.length, 2);
+        int dayStart = calendars[0].get(Calendar.DAY_OF_YEAR);
+        int yearStart = calendars[0].get(Calendar.YEAR);
+        assertEquals(dayStart, 15);
+        assertEquals(yearStart, 2015);
     }
 
     @Test
-    public void testGetDaysBetweenYrs() {
-        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
+    public void testGetDaysBetweenYrs_Same() {
+        try {
+            TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2016-04"), TimeUtils.parseDOYBeginOfDay("2016-04"), 3);
+            fail("The starting and ending date are the same.");
+        } catch (RuntimeException expected) {
+        }
+
+    }
+
+    @Test
+    public void testGetIntervalofDate() {
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
         assertFalse(daysIntervalYear.isEmpty());
 
         Calendar calendars[] = daysIntervalYear.get(0);
@@ -181,7 +191,7 @@ public class TimeUtilsTest {
 
     @Test
     public void testGetDaysBetweenYr() {
-        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2010-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 10);
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2010-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 10);
         assertFalse(daysIntervalYear.isEmpty());
         assertEquals(daysIntervalYear.size(), 10);
 
