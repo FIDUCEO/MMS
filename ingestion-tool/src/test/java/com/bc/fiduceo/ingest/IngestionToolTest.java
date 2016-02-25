@@ -151,7 +151,7 @@ public class IngestionToolTest {
         List<File> files1 = ingestionTool.searchReaderFiles(systemConfig, "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5");
         Date dateStart = TimeUtils.parseDOYBeginOfDay("2015-1");
         Date dateEnd = TimeUtils.parseDOYBeginOfDay("2015-365");
-        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(dateStart, dateEnd, 20);
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(dateStart, dateEnd, 20);
 
         List<Object[]> splitInputProduct = ingestionTool.getSplitInputProduct(daysIntervalYear, files1);
 

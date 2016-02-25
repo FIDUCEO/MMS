@@ -107,7 +107,7 @@ class IngestionTool {
         if (!(startTime == null && endTime == null)) {
             Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
             Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
-            daysIntervalYear = TimeUtils.getDaysIntervalYear(startDate, endDate, Integer.parseInt(concurrent));
+            daysIntervalYear = TimeUtils.getIntervalofDate(startDate, endDate, Integer.parseInt(concurrent));
         }
 
 

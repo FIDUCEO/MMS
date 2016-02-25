@@ -28,6 +28,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -123,23 +125,10 @@ public class TimeUtilsTest {
         TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
     }
 
-    @Test
-    public void testGetDayBetween() {
-        HashMap<Integer, Integer> daysBetween = TimeUtils.getDaysInterval(TimeUtils.parseDOYBeginOfDay("2015-23"), TimeUtils.parseDOYBeginOfDay("2015-304"), 2);
-        assertFalse(daysBetween.isEmpty());
-        Object[] startDaysKey = daysBetween.keySet().toArray();
-        Object[] endDaysValue = daysBetween.values().toArray();
-
-        assertEquals(startDaysKey[1], 23);
-        assertEquals(endDaysValue[1], 163);
-
-        assertEquals(startDaysKey[0], 164);
-        assertEquals(endDaysValue[0], 304);
-    }
 
     @Test
     public void testGetDaysBetweenYrs() {
-        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
         assertFalse(daysIntervalYear.isEmpty());
 
         Calendar calendars[] = daysIntervalYear.get(0);
@@ -181,7 +170,7 @@ public class TimeUtilsTest {
 
     @Test
     public void testGetDaysBetweenYr() {
-        List<Calendar[]> daysIntervalYear = TimeUtils.getDaysIntervalYear(TimeUtils.parseDOYBeginOfDay("2010-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 10);
+        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2010-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 10);
         assertFalse(daysIntervalYear.isEmpty());
         assertEquals(daysIntervalYear.size(), 10);
 
