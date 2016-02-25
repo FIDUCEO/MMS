@@ -91,8 +91,8 @@ class IngestionTool {
 
         final String processingVersion = commandLine.getOptionValue("v");
 
-        final Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
-        final Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
+        final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
+        final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
 
 
         final Path confDirPath = Paths.get(configDirPath);
