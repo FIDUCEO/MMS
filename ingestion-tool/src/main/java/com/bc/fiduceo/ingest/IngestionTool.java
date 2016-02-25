@@ -36,6 +36,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,11 +85,6 @@ class IngestionTool {
         final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
         options.addOption(versionOption);
 
-        final Option parallelOption = new Option("concurrent", "concurrent-injection", true, "Define the number of concurrent execution.");
-        parallelOption.setType(Number.class);
-        parallelOption.setArgName("Number");
-        options.addOption(parallelOption);
-
         return options;
     }
 
@@ -101,13 +97,11 @@ class IngestionTool {
         final String endTime = commandLine.getOptionValue("end");
 
         final String version = commandLine.getOptionValue("v");
-        final String concurrent = commandLine.getOptionValue("concurrent");
 
         //todo mba to implement start and end time for concurrent injection
         if (!(startTime == null && endTime == null)) {
             Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
             Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
-            daysIntervalYear = TimeUtils.getIntervalofDate(startDate, endDate, Integer.parseInt(concurrent));
         }
 
 
@@ -139,7 +133,8 @@ class IngestionTool {
 
         ServicesUtils servicesUtils = new ServicesUtils<>();
         Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
-        List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
+        Path archiveRootPath = new File(systemConfig.getArchiveRoot()).toPath();
+        List<File> searchFilesResult = searchReaderFiles(archiveRootPath, reader.getRegEx());
 
         getSplitInputProduct(daysIntervalYear, searchFilesResult);
 
@@ -185,11 +180,32 @@ class IngestionTool {
         }
     }
 
-    public List<File> searchReaderFiles(SystemConfig systemConfig, String regEx) throws IOException {
-        Path start = new File(systemConfig.getArchiveRoot()).toPath();
+    public List<File> searchReaderFiles(Path archiveRootPath, String regEx) throws IOException {
         FileFinder fileFinder = new FileFinder(regEx);
-        Files.walkFileTree(start, fileFinder);
+        Files.walkFileTree(archiveRootPath, fileFinder);
         return fileFinder.getFileList();
+    }
+
+
+    public Path getInputProductPath(CommandLine commandLine,SystemConfig systemConfig) {
+        final String configValue = commandLine.getOptionValue("config");
+        final String sensorType = commandLine.getOptionValue("s");
+
+        final String startDateCommmandLineInput = commandLine.getOptionValue("start");
+        final String endDateCommmandLineInput = commandLine.getOptionValue("end");
+
+        final String version = commandLine.getOptionValue("v");
+        final String concurrent = commandLine.getOptionValue("concurrent");
+
+        Date startDate = TimeUtils.parseDOYBeginOfDay(startDateCommmandLineInput);
+        Date endDate = TimeUtils.parseDOYBeginOfDay(endDateCommmandLineInput);
+
+        Calendar  instance =Calendar.getInstance();
+        instance.setTime(startDate);
+
+        String year = Integer.toString(instance.get(Calendar.YEAR));
+        String s = systemConfig.getArchiveRoot() + FileSystems.getDefault().getSeparator() + year;
+        return new File(s).toPath();
     }
 
 

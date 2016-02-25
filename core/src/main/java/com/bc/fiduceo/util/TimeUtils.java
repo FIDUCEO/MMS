@@ -92,10 +92,9 @@ public class TimeUtils {
         } else if (diff == 0) {
             throw new IllegalArgumentException("The starting aand ending date shall not me the same");
         }
-        diff = diff / interval;
-
         int start = calendarStart.get(Calendar.DAY_OF_YEAR);
         int startYear = calendarStart.get(Calendar.YEAR);
+
         int endYear = calendarEnd.get(Calendar.YEAR);
 
         List<Calendar[]> calendarList = new ArrayList<>();
