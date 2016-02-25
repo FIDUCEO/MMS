@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -20,25 +20,38 @@
 
 package com.bc.fiduceo.reader;
 
+
+import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import org.esa.snap.core.datamodel.GeoCoding;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
-public interface Reader {
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-    void open(File file) throws IOException;
+@RunWith(IOTestRunner.class)
+public class MHS_L1C_Reader_IO_Test {
 
-    void close() throws IOException;
+    @Test
+    public void testGetGeoCoding() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File file = new File(testDataDirectory, "L8912163.NSS.AMBX.NK.D08001.S0000.E0155.B5008586.GC.gz.l1c.h5");
+        assertTrue(file.isFile());
 
-    boolean checkSensorTypeName(String sensorType);
+        final AMSU_MHS_L1B_Reader reader = new AMSU_MHS_L1B_Reader();
+        reader.open(file);
 
-    HashMap<String, String> getSensorTypes();
+        GeoCoding geoCoding = reader.getGeoCoding();
+        assertNotNull(geoCoding);
 
-    AcquisitionInfo read() throws IOException;
+        try {
 
-    GeoCoding getGeoCoding() throws IOException;
-
-    String getRegEx();
+        } finally {
+            reader.close();
+        }
+    }
 }

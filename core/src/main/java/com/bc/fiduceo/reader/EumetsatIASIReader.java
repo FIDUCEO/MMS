@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.datamodel.GeoCoding;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
@@ -56,6 +57,11 @@ public class EumetsatIASIReader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+    }
+
+    @Override
+    public GeoCoding getGeoCoding() throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {

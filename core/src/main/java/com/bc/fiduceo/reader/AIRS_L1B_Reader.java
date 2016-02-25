@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -64,6 +65,11 @@ public class AIRS_L1B_Reader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+    }
+
+    @Override
+    public GeoCoding getGeoCoding() throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     static String getElementValue(Element element, String attribute) {

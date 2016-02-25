@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
@@ -50,6 +51,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     public AMSU_MHS_L1B_Reader() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
+    }
+
+    @Override
+    public GeoCoding getGeoCoding() throws IOException {
+        return new AAMSU_MHS_GeoCoding();
     }
 
     public static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
