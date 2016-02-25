@@ -65,7 +65,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     public GeoCoding getGeoCoding() throws IOException {
         // @todo 1 tb/tb continue here 2016-02-25
         final Array longitudes = getLongitudes(netcdfFile);
-        return new AAMSU_MHS_GeoCoding();
+        return new AMSU_MHS_GeoCoding();
     }
 
     static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
