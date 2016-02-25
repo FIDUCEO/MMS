@@ -68,6 +68,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         return new AMSU_MHS_GeoCoding();
     }
 
+    @Override
+    public String[] getSupportedSensorKeys() {
+        throw new RuntimeException("not implemented");
+    }
+
     static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
         final Group geolocationGroup = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME);
         if (geolocationGroup == null) {

@@ -28,7 +28,7 @@ import org.esa.snap.core.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-public class AMSU_MHS_GeoCoding implements GeoCoding{
+class AMSU_MHS_GeoCoding implements GeoCoding{
 
     @Override
     public boolean isCrossingMeridianAt180() {

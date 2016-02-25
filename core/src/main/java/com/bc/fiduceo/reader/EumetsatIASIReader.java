@@ -64,6 +64,11 @@ public class EumetsatIASIReader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
+    public String[] getSupportedSensorKeys() {
+        throw new RuntimeException("not implemented");
+    }
+
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
         final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
         if (globalAttribute == null) {

@@ -21,7 +21,45 @@
 package com.bc.fiduceo.reader;
 
 
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class AVHRR_GAC_ReaderTest {
 
+    private AVHRR_GAC_Reader reader;
 
+    @Before
+    public void setUp() {
+        reader = new AVHRR_GAC_Reader();
+    }
+
+    @Test
+    public void testGetSupportedSensorKeys() {
+        final String[] sensorKeys = reader.getSupportedSensorKeys();
+        assertNotNull(sensorKeys);
+        assertEquals(16, sensorKeys.length);
+        assertEquals("avhrr-n06", sensorKeys[0]);
+        assertEquals("avhrr-n14", sensorKeys[8]);
+        assertEquals("avhrr-m02", sensorKeys[15]);
+    }
+
+    @Test
+    public void testGetRegEx() {
+        final String regEx = reader.getRegEx();
+        assertEquals("[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc", regEx);
+
+        final Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher("20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
+        assertTrue(matcher.matches());
+    }
 }

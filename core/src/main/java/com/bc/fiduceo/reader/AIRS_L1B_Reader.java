@@ -72,6 +72,11 @@ public class AIRS_L1B_Reader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
+    @Override
+    public String[] getSupportedSensorKeys() {
+        throw new RuntimeException("not implemented");
+    }
+
     static String getElementValue(Element element, String attribute) {
         if (element.getName().equals(attribute)) {
             return element.getChild("VALUE").getValue();
