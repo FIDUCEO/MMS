@@ -84,7 +84,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         }
 
         final Array longitudes = longitudesVariable.read();
-        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset((Double) scaleAtribute.getNumericValue(), 0.0);
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleAtribute.getNumericValue().doubleValue(), 0.0);
         return MAMath.convert2Unpacked(longitudes, scaleOffset);
     }
 
