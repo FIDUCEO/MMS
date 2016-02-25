@@ -69,20 +69,7 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         netcdfFile.close();
     }
 
-    @Test
-    public void testCreateBoundingPolygon() throws IOException {
-        final AcquisitionInfo acquisitionInfo = reader.read();
-        assertNotNull(acquisitionInfo);
-
-        final List<Polygon> polygons = acquisitionInfo.getMultiPolygons();
-        assertTrue(polygons.size() > 0);
-        final Point[] points = polygons.get(0).getCoordinates();
-        assertTrue(points.length == 52);
-        assertEquals(points[0].getLon(), -97.86539752771206, 1e-8);
-        assertEquals(points[0].getLat(), 21.40989945914043, 1e-8);
-    }
-
-    @Test
+     @Test
     public void createValidMultiplePolygon_AMSU_Reader() throws IOException {
         List<Polygon> polygonList = new ArrayList<>();
         List<ArrayDouble.D2> long_lat = AMSU_MHS_L1B_Reader.getLat_Long(netcdfFile);

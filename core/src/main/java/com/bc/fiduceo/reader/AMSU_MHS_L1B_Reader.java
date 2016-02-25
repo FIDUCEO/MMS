@@ -27,7 +27,9 @@ import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -42,23 +44,51 @@ import java.util.List;
 
 public class AMSU_MHS_L1B_Reader implements Reader {
 
+    private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
+    private static final String LONGITUDE_VARIABLE_NAME = "Longitude";
     private final static int IntervalX = 50;
     private final static int IntervalY = 50;
+    public static final String SCALE_ATTRIBUTE_NAME = "Scale";
+
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
 
 
     public AMSU_MHS_L1B_Reader() {
+        // @todo 2 tb/tb inject geometry factory 2016-02-25
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
+        netcdfFile = null;
     }
 
     @Override
     public GeoCoding getGeoCoding() throws IOException {
+        // @todo 1 tb/tb continue here 2016-02-25
+        final Array longitudes = getLongitudes(netcdfFile);
         return new AAMSU_MHS_GeoCoding();
     }
 
-    public static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
+    static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
+        final Group geolocationGroup = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME);
+        if (geolocationGroup == null) {
+            throw new IOException("File does not contain the group '" + GEOLOCATION_GROUP_NAME + "' that is required");
+        }
+
+        final Variable longitudesVariable = geolocationGroup.findVariable(LONGITUDE_VARIABLE_NAME);
+        if (longitudesVariable == null) {
+            throw new IOException("File does not contain the variable '" + LONGITUDE_VARIABLE_NAME + "' that is required");
+        }
+        final Attribute scaleAtribute = longitudesVariable.findAttribute(SCALE_ATTRIBUTE_NAME);
+        if (scaleAtribute == null) {
+            throw new IOException("The variable '" + LONGITUDE_VARIABLE_NAME + "' does not contain the required attribute '" + SCALE_ATTRIBUTE_NAME +"'");
+        }
+
+        final Array longitudes = longitudesVariable.read();
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset((Double) scaleAtribute.getNumericValue(), 0.0);
+        return MAMath.convert2Unpacked(longitudes, scaleOffset);
+    }
+
+    static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
         int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
         int[] shape = coodinate.getShape();
         ArrayDouble arrayDouble = new ArrayDouble(shape);
@@ -74,12 +104,14 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         Array longitude = null;
         float latScale = 1;
         float longScale = 1;
-        List<Variable> geolocation = netcdfFile.findGroup("Geolocation").getVariables();
+        List<Variable> geolocation = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME).getVariables();
+
+
         for (Variable geo : geolocation) {
             if (geo.getShortName().equals("Latitude")) {
                 latitude = geo.read();
-                latScale = (float) geo.findAttribute("Scale").getNumericValue();
-            } else if (geo.getShortName().equals("Longitude")) {
+                latScale = (float) geo.findAttribute(SCALE_ATTRIBUTE_NAME).getNumericValue();
+            } else if (geo.getShortName().equals(LONGITUDE_VARIABLE_NAME)) {
                 longitude = geo.read();
                 longScale = (float) geo.findAttribute("Scale").getNumericValue();
             }
@@ -107,6 +139,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     @Override
     public void close() throws IOException {
         netcdfFile.close();
+        netcdfFile = null;
     }
 
     @Override
