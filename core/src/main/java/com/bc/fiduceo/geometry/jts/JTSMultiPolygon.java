@@ -69,4 +69,9 @@ class JTSMultiPolygon implements Polygon {
     public String toString() {
         return innerMultiPolygon.toString();
     }
+
+    @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
 }

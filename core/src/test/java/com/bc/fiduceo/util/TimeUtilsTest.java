@@ -21,7 +21,6 @@
 package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SystemConfig;
 import org.junit.Test;
 
 import java.sql.Timestamp;
@@ -29,16 +28,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class TimeUtilsTest {
-
-    private Matcher matcher1;
 
     @Test
     public void testCreate_fromMillisSinceEpoch() {
@@ -128,6 +123,19 @@ public class TimeUtilsTest {
         TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
     }
 
+    @Test
+    public void testGetDayBetween() {
+        HashMap<Integer, Integer> daysBetween = TimeUtils.getDaysInterval(TimeUtils.parseDOYBeginOfDay("2015-23"), TimeUtils.parseDOYBeginOfDay("2015-304"), 2);
+        assertFalse(daysBetween.isEmpty());
+        Object[] startDaysKey = daysBetween.keySet().toArray();
+        Object[] endDaysValue = daysBetween.values().toArray();
+
+        assertEquals(startDaysKey[1], 23);
+        assertEquals(endDaysValue[1], 163);
+
+        assertEquals(startDaysKey[0], 164);
+        assertEquals(endDaysValue[0], 304);
+    }
 
     @Test
     public void testGetDaysBetweenYrs() {

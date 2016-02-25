@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class TimeUtils {
@@ -72,18 +73,25 @@ public class TimeUtils {
     }
 
     //todo:mba to get the product name then finilize on the seach (2016-02-23) option.
-    public static List<Calendar[]> getDaysIntervalYear(Date startDate, Date endDate, int interval) {
+    public static List<Calendar[]> getIntervalofDate(Date startDate, Date endDate, int interval) {
         if (startDate == null || endDate == null) {
             throw new NullPointerException("The start date or end date is Null");
         }
         Calendar calendarStart = Calendar.getInstance();
         calendarStart.setTime(startDate);
-
         Calendar calendarEnd = Calendar.getInstance();
         calendarEnd.setTime(endDate);
-        long diff = calendarStart.getTimeInMillis() - calendarEnd.getTimeInMillis();
+        long diff = calendarEnd.getTimeInMillis() - calendarStart.getTimeInMillis();
         diff = diff / (24 * 60 * 60 * 1000);
-        diff = diff < 0 ? -1 * diff : diff;
+        if (diff < 0) {
+            diff = diff < 0 ? -1 * diff : diff;
+            Calendar temp;
+            temp = calendarStart;
+            calendarStart = calendarEnd;
+            calendarEnd = temp;
+        } else if (diff == 0) {
+            throw new IllegalArgumentException("The starting aand ending date shall not me the same");
+        }
         diff = diff / interval;
 
         int start = calendarStart.get(Calendar.DAY_OF_YEAR);
@@ -99,7 +107,7 @@ public class TimeUtils {
 
             int end = (int) (start + diff);
             instance[1] = Calendar.getInstance();
-            if (end <= 365) {
+            if (end < 366) {
                 instance[1].set(Calendar.DAY_OF_YEAR, end);
                 instance[1].set(Calendar.YEAR, startYear);
             } else {

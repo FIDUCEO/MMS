@@ -50,6 +50,9 @@ public class TestUtil {
 
     public static File getTestDataDirectory() throws IOException {
         final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
+        if (resourceStream == null) {
+            fail("missing resource: 'dataDirectory.properties'");
+        }
         final Properties properties = new Properties();
         properties.load(resourceStream);
         final String dataDirectoryProperty = properties.getProperty("dataDirectory");
