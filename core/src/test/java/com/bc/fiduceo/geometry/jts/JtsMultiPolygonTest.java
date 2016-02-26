@@ -119,7 +119,7 @@ public class JtsMultiPolygonTest {
         final Polygon innerIntersectPolygon = (Polygon) wktReader.read("POLYGON((11 1, 11 3, 14 3, 14 1, 11 1))");
         final JTSPolygon jtsIntersectPolygon = new JTSPolygon(innerIntersectPolygon);
 
-        final com.bc.fiduceo.geometry.Geometry intersection = jtsMultiPolygon.intersection(jtsIntersectPolygon);
+        final com.bc.fiduceo.geometry.Geometry intersection = jtsMultiPolygon.getIntersection(jtsIntersectPolygon);
         assertNotNull(intersection);
         assertTrue(intersection instanceof JTSPolygon);
 

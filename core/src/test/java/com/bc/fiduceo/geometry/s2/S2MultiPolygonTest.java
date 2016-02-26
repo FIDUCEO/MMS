@@ -5,7 +5,10 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.geometry.s2.S2WKTReader;
+import com.bc.geometry.s2.S2WKTWriter;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Polyline;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,77 +18,87 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author muhammad.bc
  */
 public class S2MultiPolygonTest {
 
-    @Test
-    public void testIntersectMultiPolygon_polygon_intersectAllPolygons() {
-        S2Polygon s2Polygon = createS2Polygon("POLYGON ((10 10, 80 10, 80 80, 10 80))");
-        S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+    private S2WKTReader s2WKTReader;
 
-        Geometry intersection = s2MultiPolygon.intersection(s2Polygon);
+    @Before
+    public void setUp() {
+        s2WKTReader = new S2WKTReader();
+    }
+
+    @Test
+    public void testGetIntersection_invalidInputGeometry() {
+        final S2Point s2Point = createS2Point("POINT(-18.3 25.4)");
+        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 30 0, 30 20, 20 10)),((20 70, 50 70, 50 80, 20 80)))");
+
+        try {
+            s2MultiPolygon.getIntersection(s2Point);
+            fail("RuntimeException expected");
+        } catch(RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetIntersection_polygon_intersectAllPolygons() {
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON ((30 30, 45 30, 45 75, 30 75, 30 30))");
+        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50, 20 0)),((20 70, 50 70, 50 80, 20 80, 20 70)))");
+
+        final Geometry intersection = s2MultiPolygon.getIntersection(s2Polygon);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
 
-        Point[] coordinates = intersection.getCoordinates();
-        assertEquals(15, coordinates.length);
-        assertEquals(19.999999999999993, coordinates[0].getLon(), 1e-8);
-        assertEquals(11.039051540001541, coordinates[0].getLat(), 1e-8);
+        assertTrue(intersection instanceof S2MultiPolygon);
 
-        assertEquals(49.99999999999999, coordinates[2].getLon(), 1e-8);
-        assertEquals(0.0, coordinates[2].getLat(), 1e-8);
-        assertEquals(49.99999999999999, coordinates[14].getLon(), 1e-8);
-        assertEquals(81.75015492348156, coordinates[14].getLat(), 1e-8);
+        Point[] coordinates = intersection.getCoordinates();
+        assertEquals(7, coordinates.length);
+        assertEquals(30.0, coordinates[0].getLon(), 1e-8);
+        assertEquals(30.0, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(30.0, coordinates[2].getLon(), 1e-8);
+        assertEquals(43.277555540062295, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(30.0, coordinates[6].getLon(), 1e-8);
+        assertEquals(75.0, coordinates[6].getLat(), 1e-8);
     }
 
     @Test
     public void testIntersectMultiPolygon_polygon_noIntersection() {
-        final S2Polygon s2Polygon = createS2Polygon("POLYGON ((100 -20, 105 -20, 105 -18, 105 -20))");
-        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON ((5 0, 15 0, 15 5, 5 5, 5 0))");
+        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
-        final Geometry intersection = s2MultiPolygon.intersection(s2Polygon);
+        final Geometry intersection = s2MultiPolygon.getIntersection(s2Polygon);
         assertNotNull(intersection);
         assertTrue(intersection.isEmpty());
     }
 
     @Test
     public void testIntersectMultiPolygon_polygon_intersectOnePolygon() {
-        final S2Polygon s2Polygon = createS2Polygon("POLYGON ((30 60, 30 75, 40 75, 40 60))");
-        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 75)))");
+        final S2Polygon s2Polygon = createS2Polygon("POLYGON ((5 15, 15 15, 15 20, 5 20, 5 15))");
+        final S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
-        final Geometry intersection = s2MultiPolygon.intersection(s2Polygon);
+        final Geometry intersection = s2MultiPolygon.getIntersection(s2Polygon);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
 
         assertTrue(intersection instanceof S2Polygon);
         final S2Polygon result = (S2Polygon) intersection;
-        assertEquals("Polygon: (1) loops:\n" +
-                             "loop <\n" +
-                             "(70.5614933349686, 29.999999999999996)\n" +
-                             "(59.99999999999999, 29.999999999999993)\n" +
-                             "(59.99999999999999, 39.99999999999999)\n" +
-                             "(70.56149333496859, 40.00000000000001)\n" +
-                             "(70.0, 49.99999999999999)\n" +
-                             "(90.0, 49.99999999999999)\n" +
-                             "(75.0, 20.0)\n" +
-                             "(70.0, 20.0)\n" +
-                             ">\n", result.toString());
-
-        // @todo 1 tb/tb there was a switch here in the result, changing suddenly the longitude of the result point on the north pole
-        // check if this is anumerical issue or we have something broken here 2016-02-12
+        assertEquals("POLYGON((9.999999999999996 15.054701128833466,14.999999999999996 14.999999999999996,14.999999999999998 20.0,9.999999999999998 20.07030897931526,9.999999999999996 15.054701128833466))", S2WKTWriter.write(result.getInner()));
     }
 
 
     @SuppressWarnings("unchecked")
     @Test
     public void testIntersectMultiPolygon_LineString_intersectAllPolygons() {
-        S2MultiLineString s2MultiLineString = createS2Polylline("MULTILINESTRING((10 18, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+        S2MultiLineString s2MultiLineString = createS2Polyline("MULTILINESTRING((10 18, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
         S2MultiPolygon s2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
 
-        Geometry intersection = s2MultiPolygon.intersection(s2MultiLineString);
+        Geometry intersection = s2MultiPolygon.getIntersection(s2MultiLineString);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
 
@@ -142,22 +155,24 @@ public class S2MultiPolygonTest {
 
     @SuppressWarnings("unchecked")
     private S2MultiPolygon createS2MultiPolygon(String wellKnownText) {
-        S2WKTReader s2WKTReader = new S2WKTReader();
         List<com.google.common.geometry.S2Polygon> read = (List<com.google.common.geometry.S2Polygon>) s2WKTReader.read(wellKnownText);
         return new S2MultiPolygon(read);
     }
 
     private S2Polygon createS2Polygon(String wellKnownText) {
-        S2WKTReader s2WKTReader = new S2WKTReader();
         com.google.common.geometry.S2Polygon polygon_1 = (com.google.common.geometry.S2Polygon) s2WKTReader.read(wellKnownText);
         return new S2Polygon(polygon_1);
     }
 
     @SuppressWarnings("unchecked")
-    private S2MultiLineString createS2Polylline(String wkt) {
-        S2WKTReader reader = new S2WKTReader();
-        List<S2Polyline> read = (List<S2Polyline>) reader.read(wkt);
+    private S2MultiLineString createS2Polyline(String wkt) {
+        List<S2Polyline> read = (List<S2Polyline>) s2WKTReader.read(wkt);
         return new S2MultiLineString(read);
+    }
+
+    private S2Point createS2Point(String wellKnownText) {
+        final com.google.common.geometry.S2Point point = (com.google.common.geometry.S2Point) s2WKTReader.read(wellKnownText);
+        return new S2Point(new S2LatLng(point));
     }
 
 }

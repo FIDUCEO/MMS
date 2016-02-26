@@ -111,7 +111,7 @@ public class JTSPolygonTest {
         final Polygon innerIntersectPolygon = (Polygon) wktReader.read("POLYGON((11 2, 11 3, 14 3, 14 2, 11 2))");
         final JTSPolygon jtsIntersectPolygon = new JTSPolygon(innerIntersectPolygon);
 
-        final com.bc.fiduceo.geometry.Geometry intersection = jtsPolygon.intersection(jtsIntersectPolygon);
+        final com.bc.fiduceo.geometry.Geometry intersection = jtsPolygon.getIntersection(jtsIntersectPolygon);
         assertNotNull(intersection);
         assertTrue(intersection instanceof JTSPolygon);
 

@@ -34,7 +34,7 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((5 0, 5 1, 4 1, 4 0, 5 0))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertTrue(intersection.isEmpty());
     }
@@ -44,17 +44,17 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-5.5 0, -5.5 1, -4.5 1, -4.5 0, -5.5 0))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
 
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(7, coordinates.length);
-        assertEquals(-4.0, coordinates[0].getLon(), 1e-8);
-        assertEquals(0.0, coordinates[0].getLat(), 1e-8);
+        assertEquals(5, coordinates.length);
+        assertEquals(-4.5, coordinates[0].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(-4.7499999999998925, coordinates[2].getLon(), 1e-8);
-        assertEquals(1.0000285529444368, coordinates[2].getLat(), 1e-8);
+        assertEquals(-5.0, coordinates[2].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[2].getLat(), 1e-8);
     }
 
     @Test
@@ -62,13 +62,13 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(-9.999999999999998, coordinates[0].getLon(), 1e-8);
-        assertEquals(10.0, coordinates[0].getLat(), 1e-8);
-        assertEquals(9.999999999999998, coordinates[2].getLon(), 1e-8);
+        assertEquals(9.0, coordinates[0].getLon(), 1e-8);
+        assertEquals(10.028657322246222, coordinates[0].getLat(), 1e-8);
+        assertEquals(-8.0, coordinates[2].getLon(), 1e-8);
         assertEquals(-10.0, coordinates[2].getLat(), 1e-8);
 
     }
@@ -78,7 +78,7 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-8 -12,-8 10,9 10,9 -12,-8 -12))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
     }
@@ -88,7 +88,7 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-10 -8,12 -8,12 9,-10 9,-10 -8))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
     }
@@ -98,7 +98,7 @@ public class S2PolygonTest {
         final S2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final S2Polygon s2Polygon_2 = createS2Polygon("POLYGON((10 10,-10 10,-10 -10,10 -10,10 10))");
 
-        Geometry intersection = s2Polygon_1.intersection(s2Polygon_2);
+        Geometry intersection = s2Polygon_1.getIntersection(s2Polygon_2);
         assertNotNull(intersection);
         assertEquals(intersection.toString(), "Polygon: (0) loops:\n");
     }

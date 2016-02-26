@@ -54,13 +54,38 @@ class S2MultiPolygon implements MultiPolygon {
 
 
     @Override
-    public Geometry intersection(Geometry other) {
+    public Geometry getIntersection(Geometry other) {
         if (other instanceof S2MultiLineString) {
             return intersectS2MultiLineString(other);
         } else if (other.getInner() instanceof com.google.common.geometry.S2Polygon) {
             return intersectS2MultiPolygon(other);
         }
-        throw new NullPointerException("Must not reach here !!!");
+        throw new RuntimeException("Intersection for geometry type not implemented: " + other.toString());
+    }
+
+
+    @Override
+    public boolean isEmpty() {
+        return polygonList.isEmpty();
+    }
+
+    @Override
+    public Point[] getCoordinates() {
+        if (pointList.size() > 0) {
+            return pointList.toArray(new Point[pointList.size()]);
+        }
+        for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
+            int i = s2Polygon.numLoops();
+            ArrayList<Point> s2Points = S2Polygon.createS2Points(i, s2Polygon);
+            pointList.addAll(s2Points);
+        }
+        return pointList.toArray(new Point[pointList.size()]);
+    }
+
+
+    @Override
+    public Object getInner() {
+        return polygonList;
     }
 
     @SuppressWarnings("unchecked")
@@ -90,30 +115,5 @@ class S2MultiPolygon implements MultiPolygon {
             return new S2Polygon(resultList.get(0));
         }
         return new S2MultiPolygon(resultList);
-    }
-
-
-    @Override
-    public boolean isEmpty() {
-        return polygonList.isEmpty();
-    }
-
-    @Override
-    public Point[] getCoordinates() {
-        if (pointList.size() > 0) {
-            return pointList.toArray(new Point[pointList.size()]);
-        }
-        for (com.google.common.geometry.S2Polygon s2Polygon : polygonList) {
-            int i = s2Polygon.numLoops();
-            ArrayList<Point> s2Points = S2Polygon.createS2Points(i, s2Polygon);
-            pointList.addAll(s2Points);
-        }
-        return pointList.toArray(new Point[pointList.size()]);
-    }
-
-
-    @Override
-    public Object getInner() {
-        return polygonList;
     }
 }
