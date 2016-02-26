@@ -26,18 +26,20 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
-class S2LineString implements LineString {
+class BcS2LineString implements LineString {
 
     private final S2Polyline googleLineString;
 
-    S2LineString(S2Polyline googleLineString) {
+    BcS2LineString(S2Polyline googleLineString) {
         this.googleLineString = googleLineString;
     }
 
     @Override
     public String toString() {
+        // @todo 3 tb/** make this class return WKT 2016-02-26
         return googleLineString.toString();
     }
 
@@ -56,8 +58,8 @@ class S2LineString implements LineString {
         final int numVertices = googleLineString.numVertices();
         final Point[] coordinates = new Point[numVertices];
         for (int i = 0; i < numVertices; i++) {
-            final com.google.common.geometry.S2Point googlePoint = googleLineString.vertex(i);
-            coordinates[i] = new S2Point(new S2LatLng(googlePoint));
+            final S2Point googlePoint = googleLineString.vertex(i);
+            coordinates[i] = new BcS2Point(new S2LatLng(googlePoint));
         }
         return coordinates;
     }

@@ -57,7 +57,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class S2TimeAxisTest {
+public class BcS2TimeAxisTest {
 
     private S2WKTReader wktReader;
     private GeometryFactory geometryFactory;
@@ -73,7 +73,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(0 -2,4 -2)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNull(timeInterval);
     }
@@ -83,7 +83,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-2 0,4 6)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000334421L, 100000666394L, timeInterval);
@@ -94,7 +94,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-1 1,5 7)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000167518L, 100000499493L, timeInterval);
@@ -105,7 +105,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(3 1,6 -2)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000000000L, 100000333299L, timeInterval);
@@ -116,7 +116,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 5,1 1)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         // @todo 2 tb/tb improve calculation of end-time when line ends inside of the polgon 2015-11-20
@@ -128,7 +128,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 1,4 1)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000000000L, 100001000000L, timeInterval);
@@ -139,7 +139,7 @@ public class S2TimeAxisTest {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((2 -2, 7 -2, 9 -5, 4 -5, 2 -2))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 -6, 2 -4, 4 -3, 6 -3,8 -2)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000384991L, 100000903592L, timeInterval);
@@ -150,7 +150,7 @@ public class S2TimeAxisTest {
     @Test
     public void testGetTime_PointOnLine() throws ParseException {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(0 0, 4 0)");
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(1000000000000L), new Date(1000001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) geometryFactory.parse("POINT(2 0)");
         final Date time = timeAxis.getTime(point);
@@ -160,7 +160,7 @@ public class S2TimeAxisTest {
     @Test
     public void testGetTime_threeSegments_PointOnLine() throws ParseException {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
-        final S2TimeAxis timeAxis = new S2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) geometryFactory.parse("POINT(-2 3)");
         final Date time = timeAxis.getTime(point);
@@ -170,7 +170,7 @@ public class S2TimeAxisTest {
     @Test
     public void testGetTime_threeSegments() throws ParseException {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(2 5, 1 3, -1 1, -3 0)");
-        final S2TimeAxis timeAxis = new S2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) geometryFactory.parse("POINT(3 2)");
         final Date time = timeAxis.getTime(point);
@@ -180,7 +180,7 @@ public class S2TimeAxisTest {
     @Test
     public void testGetTime_twoSegments_noProjection() throws ParseException {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
-        final S2TimeAxis timeAxis = new S2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) geometryFactory.parse("POINT(-7 2)");
         final Date time = timeAxis.getTime(point);
@@ -192,7 +192,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(5 3, 8 3)");
         final S2Point point = (S2Point) wktReader.read("POINT(6 3)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
@@ -204,7 +204,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(5 3, 8 3)");
         final S2Point point = (S2Point) wktReader.read("POINT(7 3)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
@@ -216,7 +216,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
         final S2Point point = (S2Point) wktReader.read("POINT(-0.66667 14)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
@@ -228,7 +228,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
         final S2Point point = (S2Point) wktReader.read("POINT(-0.3333 15)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEquals(3, subLineTo.numVertices());
@@ -241,7 +241,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
         final S2Point point = (S2Point) wktReader.read("POINT(-2.66667 11.3333)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEquals(2, subLineTo.numVertices());
@@ -254,7 +254,7 @@ public class S2TimeAxisTest {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-3 11, -1 13, 0 16)");
         final S2Point point = (S2Point) wktReader.read("POINT(-1.5 12.6667)");
 
-        final S2TimeAxis timeAxis = new S2TimeAxis(polyline, new Date(), new Date());
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(polyline, new Date(), new Date());
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEquals(2, subLineTo.numVertices());

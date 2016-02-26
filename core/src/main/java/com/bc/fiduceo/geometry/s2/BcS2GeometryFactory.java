@@ -31,22 +31,24 @@ import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class S2GeometryFactory implements AbstractGeometryFactory {
+public class BcS2GeometryFactory implements AbstractGeometryFactory {
 
     private final S2WKTReader s2WKTReader;
 
-    public S2GeometryFactory() {
+    public BcS2GeometryFactory() {
         s2WKTReader = new S2WKTReader();
     }
 
-    public static List<com.google.common.geometry.S2Point> extractS2Points(List<Point> points) {
-        final ArrayList<com.google.common.geometry.S2Point> loopPoints = new ArrayList<>();
+    public static List<S2Point> extractS2Points(List<Point> points) {
+        final ArrayList<S2Point> loopPoints = new ArrayList<>();
 
         for (final Point point : points) {
             final S2LatLng s2LatLng = (S2LatLng) point.getInner();
@@ -59,19 +61,19 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     @Override
     public Geometry parse(String wkt) {
         final Object geometry = s2WKTReader.read(wkt);
-        if (geometry instanceof com.google.common.geometry.S2Polygon) {
-            return new S2Polygon(geometry);
-        } else if (geometry instanceof com.google.common.geometry.S2Polyline) {
-            return new S2LineString((S2Polyline) geometry);
-        } else if (geometry instanceof com.google.common.geometry.S2Point) {
-            return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
+        if (geometry instanceof S2Polygon) {
+            return new BcS2Polygon(geometry);
+        } else if (geometry instanceof S2Polyline) {
+            return new BcS2LineString((S2Polyline) geometry);
+        } else if (geometry instanceof S2Point) {
+            return new BcS2Point(new S2LatLng((S2Point) geometry));
         } else if (geometry instanceof List) {
             final ArrayList<Polygon> polygonList = new ArrayList<>();
-            List<com.google.common.geometry.S2Polygon> googlePolygonList = (List<com.google.common.geometry.S2Polygon>) geometry;
-            for (com.google.common.geometry.S2Polygon googlePolygon : googlePolygonList) {
-                polygonList.add(new S2Polygon(googlePolygon));
+            List<S2Polygon> googlePolygonList = (List<S2Polygon>) geometry;
+            for (S2Polygon googlePolygon : googlePolygonList) {
+                polygonList.add(new BcS2Polygon(googlePolygon));
             }
-            return new S2MultiPolygon(polygonList);
+            return new BcS2MultiPolygon(polygonList);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
@@ -97,39 +99,39 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
     public Point createPoint(double lon, double lat) {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(lat, lon);
 
-        return new S2Point(s2LatLng);
+        return new BcS2Point(s2LatLng);
     }
 
     @Override
     public Polygon createPolygon(List<Point> points) {
-        final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
+        final List<S2Point> loopPoints = extractS2Points(points);
         final S2Loop s2Loop = new S2Loop(loopPoints);
 
-        final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon(s2Loop);
-        return new S2Polygon(googlePolygon);
+        final S2Polygon googlePolygon = new S2Polygon(s2Loop);
+        return new BcS2Polygon(googlePolygon);
     }
 
-    public Polygon createPolygon(com.google.common.geometry.S2Polygon s2Polygon){
-        return new S2Polygon(s2Polygon);
+    public Polygon createPolygon(S2Polygon s2Polygon){
+        return new BcS2Polygon(s2Polygon);
     }
 
     @Override
     public LineString createLineString(List<Point> points) {
-        final List<com.google.common.geometry.S2Point> loopPoints = extractS2Points(points);
+        final List<S2Point> loopPoints = extractS2Points(points);
 
         final S2Polyline s2Polyline = new S2Polyline(loopPoints);
-        return new S2LineString(s2Polyline);
+        return new BcS2LineString(s2Polyline);
     }
 
     @Override
     public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
-        return new S2MultiPolygon(polygonList);
+        return new BcS2MultiPolygon(polygonList);
     }
 
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         final S2Polyline inner = (S2Polyline) lineString.getInner();
-        return new S2TimeAxis(inner, startTime, endTime);
+        return new BcS2TimeAxis(inner, startTime, endTime);
     }
 }

@@ -25,7 +25,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import ucar.ma2.ArrayDouble;
@@ -63,7 +63,7 @@ public class BoundingPolygonCreator {
         for (Polygon polygon : polygonList) {
 
             List<Point> points = Arrays.asList(polygon.getCoordinates());
-            List<S2Point> s2Points = S2GeometryFactory.extractS2Points(points);
+            List<S2Point> s2Points = BcS2GeometryFactory.extractS2Points(points);
             S2Loop s2Loop = new S2Loop(s2Points);
             valid = s2Loop.isValid();
             if (!valid) {

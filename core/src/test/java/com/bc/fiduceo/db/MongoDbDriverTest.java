@@ -24,13 +24,12 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import com.mongodb.client.model.geojson.PolygonCoordinates;
-import com.mongodb.client.model.geojson.Position;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -234,9 +233,9 @@ public class MongoDbDriverTest {
         final S2WKTReader s2WKTReader = new S2WKTReader();
         List<S2Polygon> s2PolygonList = (List<S2Polygon>) s2WKTReader.read(wkt);
         List<Polygon> polygonList = new ArrayList<>();
-        S2GeometryFactory s2GeometryFactory = new S2GeometryFactory();
-        polygonList.add(s2GeometryFactory.createPolygon(s2PolygonList.get(0)));
-        polygonList.add(s2GeometryFactory.createPolygon(s2PolygonList.get(1)));
-        return s2GeometryFactory.createMultiPolygon(polygonList);
+        BcS2GeometryFactory bcS2GeometryFactory = new BcS2GeometryFactory();
+        polygonList.add(bcS2GeometryFactory.createPolygon(s2PolygonList.get(0)));
+        polygonList.add(bcS2GeometryFactory.createPolygon(s2PolygonList.get(1)));
+        return bcS2GeometryFactory.createMultiPolygon(polygonList);
     }
 }

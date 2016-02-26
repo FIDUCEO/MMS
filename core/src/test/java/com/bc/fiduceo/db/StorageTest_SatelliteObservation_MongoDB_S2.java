@@ -26,7 +26,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
+import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
 import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.util.TimeUtils;
@@ -126,7 +126,7 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         observation.setSensor(sensor);
 
         AcquisitionInfo acquisitionInfo = reader.read();
-        S2GeometryFactory geometryFactory = new S2GeometryFactory();
+        BcS2GeometryFactory geometryFactory = new BcS2GeometryFactory();
 
 
         if (acquisitionInfo.getMultiPolygons().size() > 0) {

@@ -31,20 +31,20 @@ import java.util.List;
 /**
  * @author muhammad.bc
  */
-class S2MultiLineString implements LineString {
+class BcS2MultiLineString implements LineString {
 
     private List<S2Polyline> s2PolylineList;
 
-    static S2MultiLineString createFrom(List<S2LineString> lineStringList) {
+    static BcS2MultiLineString createFrom(List<BcS2LineString> lineStringList) {
         final List<S2Polyline> googlePolyLineList = new ArrayList<>();
-        for (final S2LineString lineString : lineStringList) {
+        for (final BcS2LineString lineString : lineStringList) {
             googlePolyLineList.add((S2Polyline) lineString.getInner());
         }
 
-        return new S2MultiLineString(googlePolyLineList);
+        return new BcS2MultiLineString(googlePolyLineList);
     }
 
-    public S2MultiLineString(List<S2Polyline> s2Polylines) {
+    public BcS2MultiLineString(List<S2Polyline> s2Polylines) {
         this.s2PolylineList = s2Polylines;
     }
 
@@ -64,7 +64,7 @@ class S2MultiLineString implements LineString {
         for (S2Polyline s2Polyline : s2PolylineList) {
             int i = s2Polyline.numVertices();
             for (int j = 0; j < i; j++) {
-                pointList.add(new S2Point(new S2LatLng(s2Polyline.vertex(j))));
+                pointList.add(new BcS2Point(new S2LatLng(s2Polyline.vertex(j))));
             }
         }
         return pointList.toArray(new Point[pointList.size()]);

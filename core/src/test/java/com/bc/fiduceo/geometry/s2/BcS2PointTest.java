@@ -31,59 +31,59 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class S2PointTest {
+public class BcS2PointTest {
 
     @Test
     public void testGetInner() {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(11, 87);
-        final S2Point s2Point = new S2Point(s2LatLng);
+        final BcS2Point bcS2Point = new BcS2Point(s2LatLng);
 
-        final Object inner = s2Point.getInner();
+        final Object inner = bcS2Point.getInner();
         assertSame(s2LatLng, inner);
     }
 
     @Test
     public void testGetLon() {
-        final S2Point s2Point = createS2Point(12, 88);
+        final BcS2Point bcS2Point = createS2Point(12, 88);
 
-        assertEquals(88, s2Point.getLon(), 1e-8);
+        assertEquals(88, bcS2Point.getLon(), 1e-8);
     }
 
     @Test
     public void testSetGetLon() {
-        final S2Point s2Point = createS2Point(9.34, 11.665);
+        final BcS2Point bcS2Point = createS2Point(9.34, 11.665);
 
-        s2Point.setLon(-88.23);
-        assertEquals(-88.23, s2Point.getLon(), 1e-8);
+        bcS2Point.setLon(-88.23);
+        assertEquals(-88.23, bcS2Point.getLon(), 1e-8);
     }
 
     @Test
     public void testGetLat() {
-        final S2Point s2Point = createS2Point(13, 89);
+        final BcS2Point bcS2Point = createS2Point(13, 89);
 
-        assertEquals(13, s2Point.getLat(), 1e-8);
+        assertEquals(13, bcS2Point.getLat(), 1e-8);
     }
 
     @Test
     public void testSetGetLat() {
-        final S2Point s2Point = createS2Point(10.34, 10.665);
+        final BcS2Point bcS2Point = createS2Point(10.34, 10.665);
 
-        s2Point.setLat(22.667);
-        assertEquals(22.667, s2Point.getLat(), 1e-8);
+        bcS2Point.setLat(22.667);
+        assertEquals(22.667, bcS2Point.getLat(), 1e-8);
     }
 
     @Test
     public void testIsEmpty() {
-        final S2Point s2Point = createS2Point(13, 89);
+        final BcS2Point bcS2Point = createS2Point(13, 89);
 
-        assertFalse(s2Point.isEmpty());
+        assertFalse(bcS2Point.isEmpty());
     }
 
     @Test
     public void testGetCoordinates() {
-        final S2Point s2Point = createS2Point(14, 90);
+        final BcS2Point bcS2Point = createS2Point(14, 90);
 
-        final Point[] coordinates = s2Point.getCoordinates();
+        final Point[] coordinates = bcS2Point.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(1, coordinates.length);
         assertEquals(90, coordinates[0].getLon(), 1e-8);
@@ -92,28 +92,28 @@ public class S2PointTest {
 
     @Test
     public void testToString() {
-        final S2Point s2Point = createS2Point(16, 88);
+        final BcS2Point bcS2Point = createS2Point(16, 88);
 
-        assertEquals("POINT(88.0 16.0)", s2Point.toString());
+        assertEquals("POINT(88.0 16.0)", bcS2Point.toString());
     }
 
     @Test
     public void testEquals() {
-        final S2Point s2Point = createS2Point(18, 108);
+        final BcS2Point bcS2Point = createS2Point(18, 108);
 
-        assertTrue(s2Point.equals(s2Point));
+        assertTrue(bcS2Point.equals(bcS2Point));
 
-        final S2Point s2Point_equal = createS2Point(18, 108);
-        assertTrue(s2Point.equals(s2Point_equal));
-        assertTrue(s2Point_equal.equals(s2Point));
+        final BcS2Point bcS2Point_equal = createS2Point(18, 108);
+        assertTrue(bcS2Point.equals(bcS2Point_equal));
+        assertTrue(bcS2Point_equal.equals(bcS2Point));
 
-        final S2Point s2Point_notEqual = createS2Point(18.0000001, 107.9999999);
-        assertFalse(s2Point.equals(s2Point_notEqual));
-        assertFalse(s2Point_notEqual.equals(s2Point));
+        final BcS2Point bcS2Point_notEqual = createS2Point(18.0000001, 107.9999999);
+        assertFalse(bcS2Point.equals(bcS2Point_notEqual));
+        assertFalse(bcS2Point_notEqual.equals(bcS2Point));
     }
 
-    private S2Point createS2Point(double latDegrees, double lngDegrees) {
+    private BcS2Point createS2Point(double latDegrees, double lngDegrees) {
         final S2LatLng s2LatLng = S2LatLng.fromDegrees(latDegrees, lngDegrees);
-        return new S2Point(s2LatLng);
+        return new BcS2Point(s2LatLng);
     }
 }

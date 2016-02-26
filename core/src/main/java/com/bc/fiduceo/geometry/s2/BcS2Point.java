@@ -26,11 +26,11 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
 
-class S2Point implements Point{
+class BcS2Point implements Point{
 
     private S2LatLng s2LatLng;
 
-    S2Point(S2LatLng s2LatLng) {
+    BcS2Point(S2LatLng s2LatLng) {
         this.s2LatLng = s2LatLng;
     }
 

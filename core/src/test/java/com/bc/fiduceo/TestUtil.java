@@ -21,10 +21,6 @@
 package com.bc.fiduceo;
 
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.s2.S2GeometryFactory;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
@@ -34,7 +30,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;

@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class S2GeometryFactoryTest {
+public class BcS2GeometryFactoryTest {
 
     private GeometryFactory factory;
 
@@ -47,7 +47,7 @@ public class S2GeometryFactoryTest {
     public void testParsePolygon() {
         final Geometry geometry = factory.parse("POLYGON((2 6, 2 5, 2 4, 2 3, 3 3, 3 4, 3 5, 3 6, 2 6))");
         assertNotNull(geometry);
-        assertTrue(geometry instanceof S2Polygon);
+        assertTrue(geometry instanceof BcS2Polygon);
 
         assertEquals("Polygon: (1) loops:\n" +
                              "loop <\n" +
@@ -66,7 +66,7 @@ public class S2GeometryFactoryTest {
     public void testParseLineString() {
         final Geometry geometry = factory.parse("LINESTRING(2 1, 3 2, 4 3, 5 4)");
         assertNotNull(geometry);
-        assertTrue(geometry instanceof S2LineString);
+        assertTrue(geometry instanceof BcS2LineString);
 
         Point[] coordinates = geometry.getCoordinates();
         assertEquals(coordinates[0].getLon(), 1.9999999999999996, 1e-8);
@@ -78,10 +78,10 @@ public class S2GeometryFactoryTest {
 
     @Test
     public void testParseMultiPoylgon() {
-        S2MultiPolygon s2MultiPolygon = (S2MultiPolygon) factory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
-        assertNotNull(s2MultiPolygon);
+        BcS2MultiPolygon bcS2MultiPolygon = (BcS2MultiPolygon) factory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
+        assertNotNull(bcS2MultiPolygon);
 
-        Point[] coordinates = s2MultiPolygon.getCoordinates();
+        Point[] coordinates = bcS2MultiPolygon.getCoordinates();
         assertEquals(6, coordinates.length);
         assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
         assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");

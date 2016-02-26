@@ -34,14 +34,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class S2LineStringTest {
+public class BcS2LineStringTest {
 
     @Test
     public void testIsEmpty_empty() {
-        final S2Polyline innerLineString = new S2Polyline(new ArrayList<S2Point>());
-        final S2LineString s2LineString = new S2LineString(innerLineString);
+        final S2Polyline innerLineString = new S2Polyline(new ArrayList<>());
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        assertTrue(s2LineString.isEmpty());
+        assertTrue(bcS2LineString.isEmpty());
     }
 
     @Test
@@ -49,9 +49,9 @@ public class S2LineStringTest {
         final ArrayList<S2Point> vertices = new ArrayList<>();
         vertices.add(new S2Point());
         final S2Polyline innerLineString = new S2Polyline(vertices);
-        final S2LineString s2LineString = new S2LineString(innerLineString);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        assertFalse(s2LineString.isEmpty());
+        assertFalse(bcS2LineString.isEmpty());
     }
 
     @Test
@@ -59,9 +59,9 @@ public class S2LineStringTest {
         final ArrayList<S2Point> vertices = new ArrayList<>();
         vertices.add(new S2Point(0.1, 0.2, 0.5));
         final S2Polyline innerLineString = new S2Polyline(vertices);
-        final S2LineString s2LineString = new S2LineString(innerLineString);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        assertTrue(s2LineString.toString().contains("com.google.common.geometry.S2Polyline@"));
+        assertTrue(bcS2LineString.toString().contains("com.google.common.geometry.S2Polyline@"));
     }
 
     @Test
@@ -70,9 +70,9 @@ public class S2LineStringTest {
         vertices.add(S2LatLng.fromDegrees(-11.3, 22.6).toPoint());
         vertices.add(S2LatLng.fromDegrees(-11.6, 21.5).toPoint());
         final S2Polyline innerLineString = new S2Polyline(vertices);
-        final S2LineString s2LineString = new S2LineString(innerLineString);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        final Point[] coordinates = s2LineString.getCoordinates();
+        final Point[] coordinates = bcS2LineString.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(2, coordinates.length);
         assertEquals(-11.3, coordinates[0].getLat(), 1e-8);
@@ -86,9 +86,9 @@ public class S2LineStringTest {
         final ArrayList<S2Point> vertices = new ArrayList<>();
         vertices.add(new S2Point(0.1, 0.2, 0.5));
         final S2Polyline innerLineString = new S2Polyline(vertices);
-        final S2LineString s2LineString = new S2LineString(innerLineString);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        assertNotNull(s2LineString.getInner());
-        assertSame(innerLineString, s2LineString.getInner());
+        assertNotNull(bcS2LineString.getInner());
+        assertSame(innerLineString, bcS2LineString.getInner());
     }
 }

@@ -33,14 +33,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-class S2TimeAxis implements TimeAxis {
+class BcS2TimeAxis implements TimeAxis {
 
     private final S2Polyline polyline;
     private final double invLength;
     private final Date startTime;
     private final long timeInterval;
 
-    public S2TimeAxis(S2Polyline lineString, Date startTime, Date endTime) {
+    public BcS2TimeAxis(S2Polyline lineString, Date startTime, Date endTime) {
         this.polyline = lineString;
 
         final S1Angle arclengthAngle = polyline.getArclengthAngle();
@@ -52,7 +52,7 @@ class S2TimeAxis implements TimeAxis {
 
     @Override
     public TimeInterval getIntersectionTime(Polygon polygon) {
-        final com.google.common.geometry.S2Polygon inner = (com.google.common.geometry.S2Polygon) polygon.getInner();
+        final S2Polygon inner = (S2Polygon) polygon.getInner();
         List<S2Polyline> s2Polylines = inner.intersectWithPolyLine(polyline);
         if (s2Polylines.isEmpty()) {
             return null;
@@ -81,7 +81,7 @@ class S2TimeAxis implements TimeAxis {
 
     @Override
     public Date getTime(Point coordinate) {
-        final com.google.common.geometry.S2Point inner = ((S2LatLng) coordinate.getInner()).toPoint();
+        final S2Point inner = ((S2LatLng) coordinate.getInner()).toPoint();
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(inner);
         if (nearestEdgeIndex < 0) {
             return null;
@@ -98,7 +98,7 @@ class S2TimeAxis implements TimeAxis {
     }
 
     // package access for testing only tb 2015-11-20
-    S2Polyline createSubLineTo(com.google.common.geometry.S2Point intersectionStartPoint) {
+    S2Polyline createSubLineTo(S2Point intersectionStartPoint) {
         final List<S2Point> vertices = new ArrayList<>();
 
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(intersectionStartPoint);

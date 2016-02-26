@@ -26,27 +26,29 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class S2Polygon implements Polygon {
+class BcS2Polygon implements Polygon {
 
-    private final com.google.common.geometry.S2Polygon googlePolygon;
+    private final S2Polygon googlePolygon;
 
-    S2Polygon(Object geometry) {
-        this.googlePolygon = (com.google.common.geometry.S2Polygon) geometry;
+    BcS2Polygon(Object geometry) {
+        this.googlePolygon = (S2Polygon) geometry;
     }
 
-    public static ArrayList<Point> createS2Points(int numLoops, com.google.common.geometry.S2Polygon googlePolygon) {
+    public static ArrayList<Point> createS2Points(int numLoops, S2Polygon googlePolygon) {
         final ArrayList<Point> coordinates = new ArrayList<>();
         for (int i = 0; i < numLoops; i++) {
             final S2Loop loop = googlePolygon.loop(i);
             final int numVertices = loop.numVertices();
             for (int k = 0; k < numVertices; k++) {
-                final com.google.common.geometry.S2Point googlePoint = loop.vertex(k);
-                coordinates.add(new S2Point(new S2LatLng(googlePoint)));
+                final S2Point googlePoint = loop.vertex(k);
+                coordinates.add(new BcS2Point(new S2LatLng(googlePoint)));
             }
         }
         return coordinates;
@@ -54,18 +56,18 @@ class S2Polygon implements Polygon {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        if (other instanceof S2Polygon) {
-            final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
-            intersection.initToIntersection(googlePolygon, (com.google.common.geometry.S2Polygon) other.getInner());
-            return new S2Polygon(intersection);
-        } else if (other instanceof S2MultiLineString) {
+        if (other instanceof BcS2Polygon) {
+            final S2Polygon intersection = new S2Polygon();
+            intersection.initToIntersection(googlePolygon, (S2Polygon) other.getInner());
+            return new BcS2Polygon(intersection);
+        } else if (other instanceof BcS2MultiLineString) {
             List<S2Polyline> s2PolylineList = (List<S2Polyline>) other.getInner();
             List<S2Polyline> intersectionResult = new ArrayList<>();
             for (final S2Polyline s2Polyline : s2PolylineList) {
                 intersectionResult.addAll(googlePolygon.intersectWithPolyLine(s2Polyline));
 
             }
-            return new S2MultiLineString(intersectionResult);
+            return new BcS2MultiLineString(intersectionResult);
         }
 
         throw new RuntimeException("intersection type not implemented");
@@ -93,7 +95,7 @@ class S2Polygon implements Polygon {
             loops.add(loop);
         }
 
-        return com.google.common.geometry.S2Polygon.isValid(loops);
+        return S2Polygon.isValid(loops);
     }
 
     @Override
