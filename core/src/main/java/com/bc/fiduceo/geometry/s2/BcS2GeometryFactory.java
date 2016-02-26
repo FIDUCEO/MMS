@@ -111,10 +111,6 @@ public class BcS2GeometryFactory implements AbstractGeometryFactory {
         return new BcS2Polygon(googlePolygon);
     }
 
-    public Polygon createPolygon(S2Polygon s2Polygon){
-        return new BcS2Polygon(s2Polygon);
-    }
-
     @Override
     public LineString createLineString(List<Point> points) {
         final List<S2Point> loopPoints = extractS2Points(points);

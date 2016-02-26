@@ -23,16 +23,20 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.google.common.geometry.S2Polygon;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BcS2GeometryFactoryTest {
 
@@ -77,7 +81,7 @@ public class BcS2GeometryFactoryTest {
     }
 
     @Test
-    public void testParseMultiPoylgon() {
+    public void testParseMultiPolygon() {
         BcS2MultiPolygon bcS2MultiPolygon = (BcS2MultiPolygon) factory.parse("MULTIPOLYGON(((30 20, 100 10)),((100 10, 300 10)),((30 20,100 10)))");
         assertNotNull(bcS2MultiPolygon);
 
@@ -85,6 +89,15 @@ public class BcS2GeometryFactoryTest {
         assertEquals(6, coordinates.length);
         assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
         assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
+    }
+
+    @Test
+    public void testParse_Unsupported() {
+        try {
+            factory.parse("GEOMETRYCOLLECTION()");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     @Test
@@ -166,7 +179,31 @@ public class BcS2GeometryFactoryTest {
         final LineString lineString = factory.createLineString(points);
         assertNotNull(lineString);
 
-        // @todo 3 tb/tb invent some test here to verify the correctness of creation 2015-12-01
-        //assertEquals("bla", geometry.checkSensorTypeName());
+        final Point[] coordinates = lineString.getCoordinates();
+        assertEquals(3, coordinates.length);
+
+        assertEquals(-106.0, coordinates[0].getLon(), 1e-8);
+        assertEquals(8.0, coordinates[0].getLat(), 1e-8);
+        assertEquals(-109.3, coordinates[2].getLon(), 1e-8);
+        assertEquals(8.7, coordinates[2].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreateMultiPolygonFromPolygonList() {
+        final List<Polygon> polygonList = new ArrayList<>();
+        polygonList.add((Polygon) factory.parse("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))"));
+        polygonList.add((Polygon) factory.parse("POLYGON((2 0, 1 1, 3 1, 3 0, 2 0))"));
+
+        final MultiPolygon multiPolygon = factory.createMultiPolygon(polygonList);
+        assertNotNull(multiPolygon);
+
+        final Point[] coordinates = multiPolygon.getCoordinates();
+        assertEquals(8, coordinates.length);
+
+        assertEquals(0.0, coordinates[2].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(1.0, coordinates[6].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[6].getLat(), 1e-8);
     }
 }
