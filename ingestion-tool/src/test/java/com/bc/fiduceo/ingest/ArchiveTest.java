@@ -1,10 +1,12 @@
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.util.TimeUtils;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -15,6 +17,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@RunWith(IOTestRunner.class)
 public class ArchiveTest {
 
     private Archive archive;
