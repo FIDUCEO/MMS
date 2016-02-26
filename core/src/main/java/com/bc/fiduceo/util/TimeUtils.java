@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class TimeUtils {
@@ -66,6 +65,10 @@ public class TimeUtils {
         } catch (ParseException e) {
             throw new RuntimeException("Unparseable date: " + dateString);
         }
+    }
+
+    public static Calendar getUTCCalendar() {
+        return (Calendar) calendarThreadLocal.get().clone();
     }
 
     public static Date parseDOYBeginOfDay(String dateString) {

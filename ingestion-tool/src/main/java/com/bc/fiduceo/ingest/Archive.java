@@ -1,5 +1,7 @@
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.util.TimeUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +20,7 @@ public class Archive {
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
         final ArrayList<Path> pathArrayList = new ArrayList<>();
-        final Calendar instance = Calendar.getInstance();
+        final Calendar instance = TimeUtils.getUTCCalendar();
         instance.setTime(startDate);
 
         while (instance.getTime().compareTo(endDate) <= 0) {
@@ -39,9 +41,9 @@ public class Archive {
 
     Path createAValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
         return rootPath.resolve(sensorType)
-                    .resolve(processingVersion)
-                    .resolve("" + year)
-                    .resolve(String.format("%02d", month))
-                    .resolve(String.format("%02d", day));
+                .resolve(processingVersion)
+                .resolve("" + year)
+                .resolve(String.format("%02d", month))
+                .resolve(String.format("%02d", day));
     }
 }

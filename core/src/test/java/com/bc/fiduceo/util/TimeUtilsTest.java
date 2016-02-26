@@ -127,6 +127,14 @@ public class TimeUtilsTest {
 
 
     @Test
+    public void testGetUTCCalendar(){
+        Calendar utcCalendar = TimeUtils.getUTCCalendar();
+
+        assertNotNull(utcCalendar);
+        assertEquals("UTC",utcCalendar.getTimeZone().getID());
+    }
+
+    @Test
     public void testGetDaysBetweenYrs() {
         List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(TimeUtils.parseDOYBeginOfDay("2015-360"), TimeUtils.parseDOYBeginOfDay("2016-4"), 3);
         assertFalse(daysIntervalYear.isEmpty());
