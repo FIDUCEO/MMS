@@ -32,7 +32,18 @@ import java.util.List;
  * @author muhammad.bc
  */
 class S2MultiLineString implements LineString {
+
     private List<S2Polyline> s2PolylineList;
+
+    // @todo 1 tb/tb write test 2016-02-26
+    static S2MultiLineString createFrom(List<S2LineString> lineStringList) {
+        final List<S2Polyline> googlePolyLineList = new ArrayList<>();
+        for (final S2LineString lineString : lineStringList) {
+            googlePolyLineList.add((S2Polyline) lineString.getInner());
+        }
+
+        return new S2MultiLineString(googlePolyLineList);
+    }
 
     public S2MultiLineString(List<S2Polyline> s2Polylines) {
         this.s2PolylineList = s2Polylines;

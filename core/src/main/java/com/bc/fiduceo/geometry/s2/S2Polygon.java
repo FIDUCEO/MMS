@@ -26,8 +26,10 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class S2Polygon implements Polygon {
 
@@ -52,9 +54,21 @@ class S2Polygon implements Polygon {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
-        intersection.initToIntersection(googlePolygon, (com.google.common.geometry.S2Polygon) other.getInner());
-        return new S2Polygon(intersection);
+        if (other instanceof S2Polygon) {
+            final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
+            intersection.initToIntersection(googlePolygon, (com.google.common.geometry.S2Polygon) other.getInner());
+            return new S2Polygon(intersection);
+        } else if (other instanceof S2MultiLineString) {
+            List<S2Polyline> s2PolylineList = (List<S2Polyline>) other.getInner();
+            List<S2Polyline> intersectionResult = new ArrayList<>();
+            for (final S2Polyline s2Polyline : s2PolylineList) {
+                intersectionResult.addAll(googlePolygon.intersectWithPolyLine(s2Polyline));
+
+            }
+            return new S2MultiLineString(intersectionResult);
+        }
+
+        throw new RuntimeException("intersection type not implemented");
     }
 
     @Override
@@ -85,7 +99,7 @@ class S2Polygon implements Polygon {
     @Override
     public Point[] getCoordinates() {
         final int numLoops = googlePolygon.numLoops();
-        ArrayList<Point> pointArrayList = createS2Points(numLoops,googlePolygon);
+        ArrayList<Point> pointArrayList = createS2Points(numLoops, googlePolygon);
         // @todo 2 tb/** the S2 loops do not contain the closing point. Check if we need to add this point here.
         // check what happens when the polygon contains more than one loop tb 2016-01-27
         return pointArrayList.toArray(new Point[pointArrayList.size()]);

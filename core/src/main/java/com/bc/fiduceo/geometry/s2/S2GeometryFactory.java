@@ -66,7 +66,12 @@ public class S2GeometryFactory implements AbstractGeometryFactory {
         } else if (geometry instanceof com.google.common.geometry.S2Point) {
             return new S2Point(new S2LatLng((com.google.common.geometry.S2Point) geometry));
         } else if (geometry instanceof List) {
-            return new S2MultiPolygon(geometry);
+            final ArrayList<Polygon> polygonList = new ArrayList<>();
+            List<com.google.common.geometry.S2Polygon> googlePolygonList = (List<com.google.common.geometry.S2Polygon>) geometry;
+            for (com.google.common.geometry.S2Polygon googlePolygon : googlePolygonList) {
+                polygonList.add(new S2Polygon(googlePolygon));
+            }
+            return new S2MultiPolygon(polygonList);
         }
         throw new RuntimeException("Unsupported geometry type");
     }

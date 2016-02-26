@@ -3,7 +3,6 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
@@ -40,7 +39,7 @@ public class S2MultiPolygonTest {
         try {
             s2MultiPolygon.getIntersection(s2Point);
             fail("RuntimeException expected");
-        } catch(RuntimeException expected) {
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -111,7 +110,6 @@ public class S2MultiPolygonTest {
         assertEquals(intersectionInner.get(1).numVertices(), 4);
         assertEquals(intersectionInner.get(1).vertex(3).getX(), 0.8528685319524433, 1e-8);
         assertEquals(intersectionInner.get(1).vertex(3).getY(), 0.49240387650610395, 1e-8);
-
     }
 
     @Test
@@ -131,9 +129,33 @@ public class S2MultiPolygonTest {
         assertEquals(90.0, coordinates[7].getLat(), 1e-8);
     }
 
-    // @todo 1 tb/tb add test for isEmpty() - check for empty list and for polygons contains in the list 2016-02-12
+    @Test
+    public void testIsEmpty_noPolygons() {
+        final S2MultiPolygon emptyMultiPolygon = new S2MultiPolygon(new ArrayList<>());
+        assertTrue(emptyMultiPolygon.isEmpty());
+    }
 
+    @Test
+    public void testIsEmpty_containsEmptyPolygons() {
+        final ArrayList<Polygon> polygonList = createListWithEmptyPolygon();
+        final S2MultiPolygon emptyMultiPolygon = new S2MultiPolygon(polygonList);
 
+        assertTrue(polygonList.get(0).isEmpty());
+        assertTrue(emptyMultiPolygon.isEmpty());
+    }
+
+    @Test
+    public void testIsEmpty_notEmpty_mixedPolygons() {
+        final List<Polygon> polygonList = createListWithEmptyPolygon();
+        final S2Polygon emptyPolygon = new S2Polygon(polygonList.get(0).getInner());
+        final com.google.common.geometry.S2Polygon s2Polygon = (com.google.common.geometry.S2Polygon) s2WKTReader.read("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))");
+        polygonList.add(new S2Polygon(s2Polygon));
+
+        final S2MultiPolygon multiPolygon = new S2MultiPolygon(polygonList);
+
+        assertTrue(emptyPolygon.isEmpty());
+        assertFalse(multiPolygon.isEmpty());
+    }
 
     @Test
     public void testGetInner() {
@@ -147,8 +169,12 @@ public class S2MultiPolygonTest {
 
     @SuppressWarnings("unchecked")
     private S2MultiPolygon createS2MultiPolygon(String wellKnownText) {
-        List<com.google.common.geometry.S2Polygon> read = (List<com.google.common.geometry.S2Polygon>) s2WKTReader.read(wellKnownText);
-        return new S2MultiPolygon(read);
+        List<com.google.common.geometry.S2Polygon> googlePolygonList = (List<com.google.common.geometry.S2Polygon>) s2WKTReader.read(wellKnownText);
+        List<Polygon> polygonList = new ArrayList<>();
+        for (com.google.common.geometry.S2Polygon googlePolygon : googlePolygonList) {
+            polygonList.add(new S2Polygon(googlePolygon));
+        }
+        return new S2MultiPolygon(polygonList);
     }
 
     private S2Polygon createS2Polygon(String wellKnownText) {
@@ -167,4 +193,10 @@ public class S2MultiPolygonTest {
         return new S2Point(new S2LatLng(point));
     }
 
+    private ArrayList<Polygon> createListWithEmptyPolygon() {
+        final ArrayList<Polygon> polygonList = new ArrayList<>();
+        final com.google.common.geometry.S2Polygon googlePolygon = new com.google.common.geometry.S2Polygon();
+        polygonList.add(new S2Polygon(googlePolygon));
+        return polygonList;
+    }
 }

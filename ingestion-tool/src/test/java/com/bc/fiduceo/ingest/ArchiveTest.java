@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -24,6 +25,7 @@ public class ArchiveTest {
     private String processingVersion = "1.0";
     private String sensorType = "amsub";
     private Path root;
+    private String separator;
 
     @Before
     public void setUp() throws IOException {
@@ -31,6 +33,8 @@ public class ArchiveTest {
         root = fs.getPath("arciveRoot");
         Files.createDirectory(root);
         archive = new Archive(root);
+
+        separator = FileSystems.getDefault().getSeparator();
     }
 
     @After
@@ -102,9 +106,9 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(3, productPaths.length);
-        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\01\\productFile_01.nc", productPaths[0].toString());
-        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\04\\productFile_04.nc", productPaths[1].toString());
-        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\06\\productFile_06.nc", productPaths[2].toString());
+        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\01\\productFile_01.nc".replace("\\",separator), productPaths[0].toString());
+        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\04\\productFile_04.nc".replace("\\",separator), productPaths[1].toString());
+        assertEquals("arciveRoot\\amsub\\1.0\\2015\\01\\06\\productFile_06.nc".replace("\\",separator), productPaths[2].toString());
     }
 
     private Date getDate(String dateString) {
@@ -120,6 +124,6 @@ public class ArchiveTest {
         final Path productPath = archive.createAValidProductPath(processingVersion, sensorType, 2001, 4, 3);
 
         // validation
-        assertEquals("arciveRoot\\amsub\\1.0\\2001\\04\\03", productPath.toString());
+        assertEquals("arciveRoot\\amsub\\1.0\\2001\\04\\03".replace("\\",separator), productPath.toString());
     }
 }

@@ -200,5 +200,4 @@ public class TestUtil {
         properties.setProperty("username", datasource.getUsername());
         properties.setProperty("password", datasource.getPassword());
     }
-
 }
