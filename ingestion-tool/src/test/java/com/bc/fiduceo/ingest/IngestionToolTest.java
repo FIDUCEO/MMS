@@ -22,7 +22,6 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -34,10 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -66,13 +61,12 @@ public class IngestionToolTest {
                 ls +
                 "usage: ingestion-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -c,--config <arg>                             Defines the configuration directory. Defaults to './config'." + ls +
-                "   -concurrent,--concurrent-injection <Number>   Define the number of concurrent execution." + ls +
-                "   -end,--end-time <Date>                        Define the ending time of products to inject." + ls +
-                "   -h,--help                                     Prints the tool usage." + ls +
-                "   -s,--sensor <arg>                             Defines the sensor to be ingested." + ls +
-                "   -start,--start-time <Date>                    Define the starting time of products to inject." + ls +
-                "   -v,--version <arg>                            Define the sensor version." + ls, outputStream.toString());
+                "   -c,--config <arg>            Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-time <Date>       Define the ending time of products to inject." + ls +
+                "   -h,--help                    Prints the tool usage." + ls +
+                "   -s,--sensor <arg>            Defines the sensor to be ingested." + ls +
+                "   -start,--start-time <Date>   Define the starting time of products to inject." + ls +
+                "   -v,--version <arg>           Define the sensor version." + ls, outputStream.toString());
     }
 
     @Test
@@ -123,14 +117,6 @@ public class IngestionToolTest {
         assertEquals("version", version.getLongOpt());
         assertEquals("Define the sensor version.", version.getDescription());
         assertTrue(version.hasArg());
-
-
-        final Option concurrent = options.getOption("concurrent");
-        assertNotNull(concurrent);
-        assertEquals("concurrent", concurrent.getOpt());
-        assertEquals("concurrent-injection", concurrent.getLongOpt());
-        assertEquals("Define the number of concurrent execution.", concurrent.getDescription());
-        assertTrue(concurrent.hasArg());
     }
 
     @Test

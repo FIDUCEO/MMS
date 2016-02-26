@@ -28,14 +28,18 @@ public class Archive {
             final int month = instance.get(Calendar.MONTH) + 1;
             final int day = instance.get(Calendar.DAY_OF_MONTH);
             final Path productsDir = createAValidProductPath(processingVersion, sensorType, year, month, day);
-            final Iterator<Path> iterator = Files.list(productsDir).iterator();
 
-            while (iterator.hasNext()) {
-                pathArrayList.add(iterator.next());
+            if (Files.exists(productsDir)) {
+                //@todo 2 mba/** add to the logging.
+                final Iterator<Path> iterator = Files.list(productsDir).iterator();
+                while (iterator.hasNext()) {
+                    pathArrayList.add(iterator.next());
+                }
+            }else {
+                System.err.println("The directory doest not exist: " + productsDir.toString());
             }
             instance.add(Calendar.DAY_OF_MONTH, 1);
         }
-
         return pathArrayList.toArray(new Path[0]);
     }
 

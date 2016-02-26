@@ -24,10 +24,8 @@ import org.esa.snap.core.datamodel.ProductData;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class TimeUtils {
 
@@ -73,56 +71,6 @@ public class TimeUtils {
 
     public static Date parseDOYBeginOfDay(String dateString) {
         return parse(dateString, "yyyy-DDD");
-    }
-
-    //todo:mba to get the product name then finilize on the seach (2016-02-23) option.
-    public static List<Calendar[]> getIntervalofDate(Date startDate, Date endDate, int interval) {
-        if (startDate == null || endDate == null) {
-            throw new NullPointerException("The start date or end date is Null");
-        }
-        Calendar calendarStart = Calendar.getInstance();
-        calendarStart.setTime(startDate);
-        Calendar calendarEnd = Calendar.getInstance();
-        calendarEnd.setTime(endDate);
-        long diff = calendarEnd.getTimeInMillis() - calendarStart.getTimeInMillis();
-        diff = diff / (24 * 60 * 60 * 1000);
-        if (diff < 0) {
-            diff = diff < 0 ? -1 * diff : diff;
-            Calendar temp;
-            temp = calendarStart;
-            calendarStart = calendarEnd;
-            calendarEnd = temp;
-        } else if (diff == 0) {
-            throw new IllegalArgumentException("The starting aand ending date shall not me the same");
-        }
-        int start = calendarStart.get(Calendar.DAY_OF_YEAR);
-        int startYear = calendarStart.get(Calendar.YEAR);
-
-        int endYear = calendarEnd.get(Calendar.YEAR);
-
-        List<Calendar[]> calendarList = new ArrayList<>();
-        for (int i = 0; i < interval; i++) {
-            Calendar instance[] = new Calendar[2];
-            instance[0] = Calendar.getInstance();
-            instance[0].set(Calendar.DAY_OF_YEAR, start);
-            instance[0].set(Calendar.YEAR, startYear);
-
-            int end = (int) (start + diff);
-            instance[1] = Calendar.getInstance();
-            if (end < 366) {
-                instance[1].set(Calendar.DAY_OF_YEAR, end);
-                instance[1].set(Calendar.YEAR, startYear);
-            } else {
-                endYear = (endYear - startYear) == 1 ? endYear : ++startYear;
-                end = end - ((endYear % 400 == 0) || ((endYear % 100) != 0 && (endYear % 4 == 0)) ? 366 : 365);
-                instance[1].set(Calendar.DAY_OF_YEAR, end);
-                instance[1].set(Calendar.YEAR, endYear);
-                startYear = endYear;
-            }
-            calendarList.add(instance);
-            start = end + 1;
-        }
-        return calendarList;
     }
 
     public static Date parseDOYEndOfDay(String dateFormat) {
