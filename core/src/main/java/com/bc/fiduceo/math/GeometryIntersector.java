@@ -38,7 +38,7 @@ public class GeometryIntersector {
         final Geometry geometry_2 = satGeometry_2.getGeometry();
         final TimeInfo timeInfo = new TimeInfo();
 
-        final Geometry intersection = geometry_1.intersection(geometry_2);
+        final Geometry intersection = geometry_1.getIntersection(geometry_2);
         if (intersection.isEmpty()) {
             return timeInfo;
         }

@@ -51,7 +51,7 @@ class S2Polygon implements Polygon {
     }
 
     @Override
-    public Geometry intersection(Geometry other) {
+    public Geometry getIntersection(Geometry other) {
         final com.google.common.geometry.S2Polygon intersection = new com.google.common.geometry.S2Polygon();
         intersection.initToIntersection(googlePolygon, (com.google.common.geometry.S2Polygon) other.getInner());
         return new S2Polygon(intersection);

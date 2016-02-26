@@ -24,7 +24,7 @@ package com.bc.fiduceo.geometry;
 
 public interface Geometry {
 
-    Geometry intersection(Geometry other);
+    Geometry getIntersection(Geometry other);
 
     boolean isEmpty();
 

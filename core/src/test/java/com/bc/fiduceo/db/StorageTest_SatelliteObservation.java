@@ -88,7 +88,7 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
 
         // @todo 3 tb/tb intersection test is not the best here - invent something more cleve 2016-02-23
-        final Geometry intersection = observation.getGeoBounds().intersection(observationFromDb.getGeoBounds());
+        final Geometry intersection = observation.getGeoBounds().getIntersection(observationFromDb.getGeoBounds());
         assertFalse(intersection.isEmpty());
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());

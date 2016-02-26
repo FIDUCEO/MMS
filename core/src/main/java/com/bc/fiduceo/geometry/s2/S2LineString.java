@@ -42,7 +42,7 @@ class S2LineString implements LineString {
     }
 
     @Override
-    public Geometry intersection(Geometry other) {
+    public Geometry getIntersection(Geometry other) {
         throw new RuntimeException("not implemented");
     }
 

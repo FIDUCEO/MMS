@@ -36,7 +36,7 @@ class JTSPolygon implements Polygon {
     }
 
     @Override
-    public Geometry intersection(Geometry other) {
+    public Geometry getIntersection(Geometry other) {
         final com.vividsolutions.jts.geom.Polygon intersection = (com.vividsolutions.jts.geom.Polygon) jtsPolygon.intersection((com.vividsolutions.jts.geom.Geometry) other.getInner()).clone();
         return new JTSPolygon(intersection);
     }

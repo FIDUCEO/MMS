@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -32,12 +32,11 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-
-public class BoundingPolygonCreatorTest_JTS extends BoundingPolygonCreatorTest {
+public class BoundingPolygonCreatorTest_S2 extends BoundingPolygonCreatorTest {
 
     @Before
     public void setUp() throws IOException {
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Interval interval = new Interval(8, 8);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
@@ -49,7 +48,7 @@ public class BoundingPolygonCreatorTest_JTS extends BoundingPolygonCreatorTest {
         polygonList.add((Polygon) geometryFactory.parse("POLYGON ((10 10, 20 10, 20 20, 10 20, 10 10))"));
         polygonList.add((Polygon) geometryFactory.parse("POLYGON((-8 -10,-6 -10,-6 -8,-8 -8,-8 -10))"));
         String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(polygonList);
-        assertEquals("MULTIPOLYGON(((10.0 10.0,20.0 10.0,20.0 20.0,10.0 20.0,10.0 10.0)),((-8.0 -10.0,-6.0 -10.0,-6.0 -8.0,-8.0 -8.0,-8.0 -10.0)))", multiPolygon);
+        assertEquals("MULTIPOLYGON(((9.999999999999998 10.0,20.0 10.0,20.0 20.0,10.0 20.0)),((-7.999999999999998 -10.0,-6.000000000000001 -10.0,-6.0 -7.999999999999998,-7.999999999999998 -7.999999999999998)))", multiPolygon);
 
     }
 }
