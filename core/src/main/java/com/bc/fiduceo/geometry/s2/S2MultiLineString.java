@@ -35,7 +35,6 @@ class S2MultiLineString implements LineString {
 
     private List<S2Polyline> s2PolylineList;
 
-    // @todo 1 tb/tb write test 2016-02-26
     static S2MultiLineString createFrom(List<S2LineString> lineStringList) {
         final List<S2Polyline> googlePolyLineList = new ArrayList<>();
         for (final S2LineString lineString : lineStringList) {
