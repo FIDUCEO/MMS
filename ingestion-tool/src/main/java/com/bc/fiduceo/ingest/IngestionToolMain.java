@@ -28,6 +28,9 @@ import org.apache.commons.cli.PosixParser;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * @todo se/** add class description  2016-02-25
+ */
 public class IngestionToolMain {
 
     public static void main(String[] args) throws ParseException, IOException, SQLException {
@@ -41,7 +44,7 @@ public class IngestionToolMain {
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(ingestionTool.getOptions(), args);
         if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
-            ingestionTool.printUsageTo(System.err);
+            ingestionTool.printUsageTo(System.out);
             return;
         }
 

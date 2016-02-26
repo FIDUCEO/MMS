@@ -42,19 +42,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class IngestionTool {
 
@@ -84,39 +78,29 @@ class IngestionTool {
         final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
         options.addOption(versionOption);
 
-        final Option parallelOption = new Option("concurrent", "concurrent-injection", true, "Define the number of concurrent execution.");
-        parallelOption.setType(Number.class);
-        parallelOption.setArgName("Number");
-        options.addOption(parallelOption);
-
         return options;
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
 
-        final String configValue = commandLine.getOptionValue("config");
+        final String configDirPath = commandLine.getOptionValue("config");
         final String sensorType = commandLine.getOptionValue("s");
 
         final String startTime = commandLine.getOptionValue("start");
         final String endTime = commandLine.getOptionValue("end");
 
-        final String version = commandLine.getOptionValue("v");
-        final String concurrent = commandLine.getOptionValue("concurrent");
+        final String processingVersion = commandLine.getOptionValue("v");
 
-        //todo mba to implement start and end time for concurrent injection
-        if (!(startTime == null && endTime == null)) {
-            Date startDate = TimeUtils.parseDOYBeginOfDay(startTime);
-            Date endDate = TimeUtils.parseDOYEndOfDay(endTime);
-            daysIntervalYear = TimeUtils.getIntervalofDate(startDate, endDate, Integer.parseInt(concurrent));
-        }
+        final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
+        final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
 
 
-        final File configDirectory = new File(configValue);
+        final Path confDirPath = Paths.get(configDirPath);
         final DatabaseConfig databaseConfig = new DatabaseConfig();
-        databaseConfig.loadFrom(configDirectory);
+        databaseConfig.loadFrom(confDirPath.toFile());
 
         final SystemConfig systemConfig = new SystemConfig();
-        systemConfig.loadFrom(configDirectory);
+        systemConfig.loadFrom(confDirPath.toFile());
 
         // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
@@ -126,25 +110,29 @@ class IngestionTool {
         }
 
         try {
-            ingestMetadata(systemConfig, geometryFactory, storage, sensorType);
+            ingestMetadata(systemConfig, geometryFactory, storage, sensorType, processingVersion, startDate, endDate);
         } finally {
             storage.close();
         }
     }
 
-    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory, Storage storage, String sensorType) throws SQLException, IOException {
+    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory,
+                                Storage storage, String sensorType, String processingVersion,
+                                Date startDate, Date endDate) throws SQLException, IOException {
 
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
 
-        ServicesUtils servicesUtils = new ServicesUtils<>();
-        Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
-        List<File> searchFilesResult = searchReaderFiles(systemConfig, reader.getRegEx());
+        final ServicesUtils servicesUtils = new ServicesUtils<>();
+        final Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
+        final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
 
-        getSplitInputProduct(daysIntervalYear, searchFilesResult);
+        final Archive archive = new Archive(archiveRootPath);
+        final Path[] productPaths =  archive.get(startDate,endDate, processingVersion, sensorType);
 
-        for (final File file : searchFilesResult) {
-            reader.open(file);
+
+        for (final Path file : productPaths) {
+            reader.open(file.toFile());
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
                 final Polygon polygon = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
@@ -164,7 +152,7 @@ class IngestionTool {
 
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-                satelliteObservation.setDataFile(file.getAbsoluteFile());
+                satelliteObservation.setDataFile(file.toFile().getAbsoluteFile());
 
                 Geometry geometry;
                 if (acquisitionInfo.getMultiPolygons() == null) {
@@ -185,50 +173,27 @@ class IngestionTool {
         }
     }
 
-    public List<File> searchReaderFiles(SystemConfig systemConfig, String regEx) throws IOException {
-        Path start = new File(systemConfig.getArchiveRoot()).toPath();
-        FileFinder fileFinder = new FileFinder(regEx);
-        Files.walkFileTree(start, fileFinder);
-        return fileFinder.getFileList();
-    }
 
 
-    public List<Object[]> getSplitInputProduct(List<Calendar[]> calendars, List<File> searchFilesResult) {
-        List<Object[]> fileList = new ArrayList<>();
-        for (Calendar[] calendar : calendars) {
-            Object[] files = searchFilesResult.stream().sequential().filter(p -> isFileContainBetween(p.getName(), calendar) == true).toArray();
-            fileList.add(files);
-        }
-        return fileList;
-    }
+    public Path getInputProductPath(CommandLine commandLine, SystemConfig systemConfig) {
+        final String configValue = commandLine.getOptionValue("config");
+        final String sensorType = commandLine.getOptionValue("s");
 
-    boolean isFileContainBetween(String fileName, Calendar calendar[]) {
-        boolean isInBetween = false;
-        Calendar startDate = calendar[0];
-        int sYearStart = startDate.get(Calendar.YEAR);
-        sYearStart = sYearStart > 2000 ? sYearStart - 2000 : sYearStart - 1900;
-        int sMonthEnd = startDate.get(Calendar.DAY_OF_YEAR);
+        final String startDateCommmandLineInput = commandLine.getOptionValue("start");
+        final String endDateCommmandLineInput = commandLine.getOptionValue("end");
 
-        Calendar endDate = calendar[1];
-        int eYearStart = endDate.get(Calendar.YEAR);
-        eYearStart = eYearStart > 2000 ? eYearStart - 2000 : eYearStart - 1900;
+        final String version = commandLine.getOptionValue("v");
+        final String concurrent = commandLine.getOptionValue("concurrent");
 
-        int eMonthEnd = endDate.get(Calendar.DAY_OF_YEAR);
+        Date startDate = TimeUtils.parseDOYBeginOfDay(startDateCommmandLineInput);
+        Date endDate = TimeUtils.parseDOYBeginOfDay(endDateCommmandLineInput);
 
-        Pattern compile = Pattern.compile("'*\\d{5}");
-        Matcher matcher = compile.matcher(fileName);
-        if (matcher.find()) {
-            String group = matcher.group();
-            int yr = Integer.parseInt(group.substring(0, 2));
-            int month = Integer.parseInt(group.substring(2, group.length()));
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(startDate);
 
-            if (yr == sYearStart || yr == eYearStart) {
-                if (sMonthEnd <= month && month <= eMonthEnd) {
-                    isInBetween = true;
-                }
-            }
-        }
-        return isInBetween;
+        String year = Integer.toString(instance.get(Calendar.YEAR));
+        String s = systemConfig.getArchiveRoot() + FileSystems.getDefault().getSeparator() + year;
+        return new File(s).toPath();
     }
 
     void printUsageTo(OutputStream outputStream) {
@@ -243,35 +208,4 @@ class IngestionTool {
         writer.flush();
     }
 
-    private static class FileFinder extends SimpleFileVisitor<Path> {
-        private final PathMatcher matcher;
-        List<File> fileList = new ArrayList<>();
-
-        public FileFinder(String pattern) {
-            matcher = FileSystems.getDefault().getPathMatcher("regex:" + pattern);
-        }
-
-        void find(Path file) {
-            Path name = file.getFileName();
-            if (name != null && matcher.matches(name)) {
-                fileList.add(file.toFile());
-            }
-        }
-
-        public List<File> getFileList() {
-            return fileList;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            find(file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            System.err.println(exc);
-            return FileVisitResult.CONTINUE;
-        }
-    }
 }

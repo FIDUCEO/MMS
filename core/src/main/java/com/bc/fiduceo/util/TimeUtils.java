@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class TimeUtils {
@@ -68,6 +67,10 @@ public class TimeUtils {
         }
     }
 
+    public static Calendar getUTCCalendar() {
+        return (Calendar) calendarThreadLocal.get().clone();
+    }
+
     public static Date parseDOYBeginOfDay(String dateString) {
         return parse(dateString, "yyyy-DDD");
     }
@@ -92,10 +95,9 @@ public class TimeUtils {
         } else if (diff == 0) {
             throw new IllegalArgumentException("The starting aand ending date shall not me the same");
         }
-        diff = diff / interval;
-
         int start = calendarStart.get(Calendar.DAY_OF_YEAR);
         int startYear = calendarStart.get(Calendar.YEAR);
+
         int endYear = calendarEnd.get(Calendar.YEAR);
 
         List<Calendar[]> calendarList = new ArrayList<>();

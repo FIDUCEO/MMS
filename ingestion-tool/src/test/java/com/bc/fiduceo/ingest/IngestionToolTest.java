@@ -22,13 +22,11 @@ package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -142,26 +141,8 @@ public class IngestionToolTest {
 
 
     @Test
-    @Ignore //todo mba implement the file systems [archive-root]/[sensor-platform]/[version]/[year]/[month]/[day]
-    public void testGroupInputProduct() throws IOException {
-        SystemConfig systemConfig = new SystemConfig();
-        IngestionTool ingestionTool = new IngestionTool();
-        systemConfig.loadFrom(TestUtil.getTestDataDirectory());
+    public void testArchivePath() {
 
-        List<File> files1 = ingestionTool.searchReaderFiles(systemConfig, "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5");
-        Date dateStart = TimeUtils.parseDOYBeginOfDay("2015-1");
-        Date dateEnd = TimeUtils.parseDOYBeginOfDay("2015-365");
-        List<Calendar[]> daysIntervalYear = TimeUtils.getIntervalofDate(dateStart, dateEnd, 20);
-
-        List<Object[]> splitInputProduct = ingestionTool.getSplitInputProduct(daysIntervalYear, files1);
-
-        for (Object[] files : splitInputProduct) {
-            System.out.println("#####################" + files.length);
-            for (Object file : files) {
-                System.out.println("file.getName() = " + file.toString());
-            }
-            System.out.println("----------------------------------------------------");
-        }
     }
 
     private File[] setFileFilter(String location, String regEx) {
