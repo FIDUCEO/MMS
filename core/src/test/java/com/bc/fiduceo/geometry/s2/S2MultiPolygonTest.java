@@ -133,15 +133,7 @@ public class S2MultiPolygonTest {
 
     // @todo 1 tb/tb add test for isEmpty() - check for empty list and for polygons contains in the list 2016-02-12
 
-    @Test
-    public void testPlotMultiPolygon() {
-        List<Polygon> s2PolygonList = new ArrayList<>();
-        s2PolygonList.add(createS2Polygon("POLYGON ((10 10, 80 10, 80 80, 10 80))"));
-        s2PolygonList.add(createS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))"));
-        String multiPolygon = BoundingPolygonCreator.plotMultiPolygon(s2PolygonList);
-        assertEquals("MULTIPOLYGON(((9.999999999999998 10.0,80.0 10.0,80.0 80.0,10.0 80.0)),((9.0 -10.0,9.000000000000002 12.000000000000002,-7.999999999999998 12.000000000000002,-7.999999999999998 -10.0)))", multiPolygon);
 
-    }
 
     @Test
     public void testGetInner() {
