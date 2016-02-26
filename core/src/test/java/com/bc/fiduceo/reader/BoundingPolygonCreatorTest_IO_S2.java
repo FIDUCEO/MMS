@@ -24,7 +24,6 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import org.junit.After;
 import org.junit.Before;
@@ -85,13 +84,13 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
         for (int i = 1; i <= 4; i++) {
             polygonList = boundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, width, height, i);
-            if (BoundingPolygonCreator.isPointValidation(polygonList)) {
+            if (BoundingPolygonCreator.arePolygonsValid(polygonList)) {
                 break;
             }
         }
 
         assertEquals(polygonList.get(0).getCoordinates()[0].getLon(), -97.86539752771206, 1e-8);
         assertEquals(polygonList.get(0).getCoordinates()[0].getLat(), 21.40989945914043, 1e-8);
-        assertTrue(BoundingPolygonCreator.isPointValidation(polygonList));
+        assertTrue(BoundingPolygonCreator.arePolygonsValid(polygonList));
     }
 }
