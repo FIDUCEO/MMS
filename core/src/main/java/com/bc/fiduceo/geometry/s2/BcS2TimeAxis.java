@@ -58,8 +58,10 @@ class BcS2TimeAxis implements TimeAxis {
             return null;
         }
 
-        // @todo 2 tb/tb check under which circumstances we can have more than one intersection - and what we
-        // do then ??? 2015-11-18
+        if (s2Polylines.size() > 1) {
+            throw new RuntimeException("More than one intersection, not implemented yet!");
+        }
+
         final S2Polyline intersection = s2Polylines.get(0);
 
         final S2Point intersectionStartPoint = intersection.vertex(0);
@@ -81,13 +83,13 @@ class BcS2TimeAxis implements TimeAxis {
 
     @Override
     public Date getTime(Point coordinate) {
-        final S2Point inner = ((S2LatLng) coordinate.getInner()).toPoint();
-        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(inner);
+        final S2Point searchPoint = ((S2LatLng) coordinate.getInner()).toPoint();
+        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(searchPoint);
         if (nearestEdgeIndex < 0) {
             return null;
         }
 
-        final long offsetTime = calculateLineDuration(inner);
+        final long offsetTime = calculateLineDuration(searchPoint);
         final long startMillis = startTime.getTime() + offsetTime;
 
         if (offsetTime > timeInterval) {
@@ -102,14 +104,15 @@ class BcS2TimeAxis implements TimeAxis {
         final List<S2Point> vertices = new ArrayList<>();
 
         final int nearestEdgeIndex = polyline.getNearestEdgeIndex(intersectionStartPoint);
+        final S2Point projectedIntersection = polyline.projectToEdge(intersectionStartPoint, nearestEdgeIndex);
         if (nearestEdgeIndex == 0) {
             vertices.add(polyline.vertex(0));
-            vertices.add(intersectionStartPoint);
+            vertices.add(projectedIntersection);
         } else {
             for (int i = 0; i <= nearestEdgeIndex; i++) {
                 vertices.add(polyline.vertex(i));
             }
-            vertices.add(intersectionStartPoint);
+            vertices.add(projectedIntersection);
         }
 
         return new S2Polyline(vertices);

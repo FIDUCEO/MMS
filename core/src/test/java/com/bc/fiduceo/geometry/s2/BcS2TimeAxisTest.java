@@ -174,17 +174,31 @@ public class BcS2TimeAxisTest {
 
         final Point point = (Point) geometryFactory.parse("POINT(3 2)");
         final Date time = timeAxis.getTime(point);
-        assertEquals(1000000433196L, time.getTime());   // @todo 2 tb/tb check! this is more than I expected 2015-11-23
+        assertEquals(1000000306224L, time.getTime());
     }
 
     @Test
-    public void testGetTime_twoSegments_noProjection() throws ParseException {
+    public void testGetTime_threeSegments_noProjection_behindLineEnd() throws ParseException {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
 
         final Point point = (Point) geometryFactory.parse("POINT(-7 2)");
         final Date time = timeAxis.getTime(point);
-        assertNull(time);
+        assertEquals(1000001000000L, time.getTime());
+        // note: this is exactly the line end point time as the S2 library automatically projects points outside to
+        // the last/first vertex. We hope that these points are filtered during execution by the point-in-polygon tests tb 2016-02-29
+    }
+
+    @Test
+    public void testGetTime_threeSegments_noProjection_beforeLineStart() throws ParseException {
+        final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final Point point = (Point) geometryFactory.parse("POINT(4 6)");
+        final Date time = timeAxis.getTime(point);
+        assertEquals(1000000000000L, time.getTime());
+        // note: this is exactly the line start point time as the S2 library automatically projects points outside to
+        // the last/first vertex. We hope that these points are filtered during execution by the point-in-polygon tests tb 2016-02-29
     }
 
     @Test
@@ -220,7 +234,7 @@ public class BcS2TimeAxisTest {
         final S2Polyline subLineTo = timeAxis.createSubLineTo(point);
 
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
-        assertEquals(0.06717468411266216, subLineTo.getArclengthAngle().radians(), 1e-8);
+        assertEquals(0.06717461517369061, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
     @Test
@@ -233,7 +247,7 @@ public class BcS2TimeAxisTest {
 
         assertEquals(3, subLineTo.numVertices());
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
-        assertEquals(0.08551444403325324, subLineTo.getArclengthAngle().radians(), 1e-8);
+        assertEquals(0.08551440716241719, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
     @Test
@@ -246,7 +260,7 @@ public class BcS2TimeAxisTest {
 
         assertEquals(2, subLineTo.numVertices());
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
-        assertEquals(0.00814958946426777, subLineTo.getArclengthAngle().radians(), 1e-8);
+        assertEquals(0.008149505938956792, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
     @Test
@@ -259,7 +273,7 @@ public class BcS2TimeAxisTest {
 
         assertEquals(2, subLineTo.numVertices());
         assertEqualPoints(subLineTo.vertex(0), polyline.vertex(0));
-        assertEquals(0.03876475972081292, subLineTo.getArclengthAngle().radians(), 1e-8);
+        assertEquals(0.03871381307846636, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
     // @todo 1 tb/tb add tests for getProjectionTime 2015-12-04

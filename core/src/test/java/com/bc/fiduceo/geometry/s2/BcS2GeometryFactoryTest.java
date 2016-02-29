@@ -26,11 +26,13 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.google.common.geometry.S2Polygon;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -205,5 +207,15 @@ public class BcS2GeometryFactoryTest {
 
         assertEquals(1.0, coordinates[6].getLon(), 1e-8);
         assertEquals(1.0, coordinates[6].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreateTimeAxis() {
+        final LineString lineString = (LineString) factory.parse("LINESTRING(0 0, 0 1, 1 1, 2 1)");
+
+        final TimeAxis timeAxis = factory.createTimeAxis(lineString, new Date(100000000000L), new Date(101000000000L));
+        assertNotNull(timeAxis);
+        final Date time = timeAxis.getTime(factory.createPoint(0.5, 1.0));
+        assertEquals(100500025387L, time.getTime());
     }
 }
