@@ -56,6 +56,11 @@ class JTSMultiPolygon implements Polygon {
     }
 
     @Override
+    public boolean contains(Geometry geometry) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public boolean isEmpty() {
         return innerMultiPolygon.isEmpty();
     }

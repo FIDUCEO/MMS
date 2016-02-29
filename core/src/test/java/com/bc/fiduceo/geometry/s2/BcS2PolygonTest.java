@@ -5,6 +5,8 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import org.junit.Before;
 import org.junit.Test;
@@ -209,6 +211,36 @@ public class BcS2PolygonTest {
 //        assertEquals("POLYGON((1.9999999999999996 -0.3501761146482015,1.9999999999999996 -1.0,4.000000000000001 -1.0,4.000000000000001 1.0,1.9999999999999996 1.0,1.9999999999999996 0.500228561696982,-1.0 0.5,-1.0 -0.5,1.9999999999999996 -0.3501761146482015))",
 //                S2WKTWriter.write(union.getInner()));
 //    }
+
+    @Test
+    public void testContains_pointInside() {
+        final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+        final BcS2Point point = createS2Point("POINT(0.2 0.7)");
+
+        assertTrue(polygon.contains(point));
+    }
+
+    @Test
+    public void testContains_pointOutside() {
+        final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+        final BcS2Point point = createS2Point("POINT(1.1 0.8)");
+
+        assertFalse(polygon.contains(point));
+    }
+
+    // @todo 1 tb/tb reanimate. Think how we can tell the S2Lib that we want to have points on the dges to be contained 2016-02-29
+//    @Test
+//    public void testContains_pointOnCorner() {
+//        final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+//        final BcS2Point point = createS2Point("POINT(0 0)");
+//
+//        assertTrue(polygon.contains(point));
+//    }
+
+    private BcS2Point createS2Point(String wellKnownText) {
+        final S2Point s2Point = (S2Point) s2WKTReader.read(wellKnownText);
+        return new BcS2Point(new S2LatLng(s2Point));
+    }
 
     private BcS2Polygon createS2Polygon(String wellKnownText) {
         S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);

@@ -2,10 +2,12 @@ package com.bc.fiduceo.location;
 
 import static org.junit.Assert.assertEquals;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.ImageUtils;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.NetcdfFile;
@@ -18,6 +20,7 @@ import java.io.File;
 /**
  * Created by Sabine on 29.02.2016.
  */
+@RunWith(IOTestRunner.class)
 public class SwathPixelLocatorTest {
 
     private NetcdfFile netcdfFile;

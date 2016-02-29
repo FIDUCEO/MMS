@@ -89,6 +89,16 @@ class BcS2Polygon implements Polygon {
     }
 
     @Override
+    public boolean contains(Geometry geometry) {
+        final Object inner = geometry.getInner();
+        if (inner instanceof S2LatLng) {
+            final S2Point point = ((S2LatLng) inner).toPoint();
+            return googlePolygon.contains(point);
+        }
+        throw new RuntimeException("contains for geometry type not implemented");
+    }
+
+    @Override
     public boolean isEmpty() {
         return googlePolygon.numLoops() == 0;
     }

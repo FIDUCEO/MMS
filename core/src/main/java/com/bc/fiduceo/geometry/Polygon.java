@@ -28,6 +28,8 @@ public interface Polygon extends Geometry {
 
     boolean isValid();
 
+    boolean contains(Geometry geometry);
+
     Polygon getDifference(Polygon polygon);
 
     Polygon getUnion(Polygon polygon);
