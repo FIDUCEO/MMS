@@ -74,6 +74,13 @@ class BcS2Polygon implements Polygon {
     }
 
     @Override
+    public Polygon getDifference(Polygon polygon) {
+        final S2Polygon difference = new S2Polygon();
+        difference.initToDifference(googlePolygon, (S2Polygon) polygon.getInner());
+        return new BcS2Polygon(difference);
+    }
+
+    @Override
     public boolean isEmpty() {
         return googlePolygon.numLoops() == 0;
     }

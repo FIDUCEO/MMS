@@ -1,14 +1,20 @@
 package com.bc.fiduceo.geometry.s2;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.geometry.s2.S2WKTReader;
+import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2Polygon;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author tom.bc
@@ -31,25 +37,25 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testIntersect_noIntersection() {
+    public void testGetIntersection_noIntersection() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((5 0, 5 1, 4 1, 4 0, 5 0))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertTrue(intersection.isEmpty());
     }
 
     @Test
-    public void testIntersect_intersectionWest() {
+    public void testGetIntersection_intersectionWest() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((-5.5 0, -5.5 1, -4.5 1, -4.5 0, -5.5 0))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
 
-        Point[] coordinates = intersection.getCoordinates();
+        final Point[] coordinates = intersection.getCoordinates();
         assertEquals(5, coordinates.length);
         assertEquals(-4.5, coordinates[0].getLon(), 1e-8);
         assertEquals(1.0, coordinates[0].getLat(), 1e-8);
@@ -59,47 +65,46 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testIntersect_intersectionNorth() {
+    public void testGetIntersection_intersectionNorth() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
-        Point[] coordinates = intersection.getCoordinates();
+        final Point[] coordinates = intersection.getCoordinates();
         assertEquals(9.0, coordinates[0].getLon(), 1e-8);
         assertEquals(10.028657322246222, coordinates[0].getLat(), 1e-8);
         assertEquals(-8.0, coordinates[2].getLon(), 1e-8);
         assertEquals(-10.0, coordinates[2].getLat(), 1e-8);
-
     }
 
     @Test
-    public void testIntersect_intersectionSouth() {
+    public void testGetIntersection_intersectionSouth() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((-8 -12,-8 10,9 10,9 -12,-8 -12))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
     }
 
     @Test
-    public void testIntersect_intersectionEast() {
+    public void testGetIntersection_intersectionEast() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((-10 -8,12 -8,12 9,-10 9,-10 -8))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
     }
 
     @Test
-    public void testSamePolygon() {
+    public void testGetIntersection_samePolygon() {
         final BcS2Polygon bcS2Polygon_1 = createS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createS2Polygon("POLYGON((10 10,-10 10,-10 -10,10 -10,10 10))");
 
-        Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
         assertEquals(intersection.toString(), "Polygon: (0) loops:\n");
     }
@@ -133,7 +138,7 @@ public class BcS2PolygonTest {
     @Test
     public void testIsValid_resolvesToValid_polygonIsADonut() throws Exception {
         // the donut polygon does not conform the ogc wkt-specification, the inner loop has to be in clockwise order.
-        // We suspect google S2 library spacific behavior.  tb 24.2.2016
+        // We suspect google S2 library specific behavior.  tb 24.2.2016
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 2, 4 2, 2 4, 1 2))");
         assertEquals(true, bcS2Polygon.isValid());
     }
@@ -142,6 +147,42 @@ public class BcS2PolygonTest {
     public void testIsValid_resolvesToInvalid_polygonIsADamagedDonut() throws Exception {
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(4 2, 7 2, 5 4, 4 2))");
         assertEquals(false, bcS2Polygon.isValid());
+    }
+
+    @Test
+    public void testGetDifference_noIntersection() {
+        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((2 1, 6 1, 7 3, 4 3, 2 1))");
+        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((1 -2, 4 -2, 3 -1, 2 -1, 1 -2))");
+
+        final Polygon difference = s2Polygon_1.getDifference(s2Polygon_2);
+        assertFalse(difference.isEmpty());
+
+        assertEquals("POLYGON((4.0 3.0000000000000004,1.9999999999999996 1.0,6.0 1.0,7.0 3.0000000000000004,4.0 3.0000000000000004))",
+                S2WKTWriter.write(difference.getInner()));
+    }
+
+    @Test
+    public void testGetDifference_intersectionNorth() {
+        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((2 1, 6 1, 7 3, 4 3, 2 1))");
+        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((5 2, 6 2, 6 4, 5 4, 5 2))");
+
+        final Polygon difference = s2Polygon_1.getDifference(s2Polygon_2);
+        assertFalse(difference.isEmpty());
+
+        assertEquals("POLYGON((4.999999999999999 2.0,4.999999999999997 3.0009124369434743,4.0 3.0000000000000004,1.9999999999999996 1.0,6.0 1.0,7.0 3.0000000000000004,6.000000000000001 3.0009124369434748,6.0 2.0,4.999999999999999 2.0))",
+                S2WKTWriter.write(difference.getInner()));
+    }
+
+    @Test
+    public void testGetDifference_intersectionSouth() {
+        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-5 -3, -2 -3, -2 -1, -5 -1, -5 -3))");
+        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-4 -4, -3 -4, -3.5 -2, -4 -4))");
+
+        final Polygon difference = s2Polygon_1.getDifference(s2Polygon_2);
+        assertFalse(difference.isEmpty());
+
+        assertEquals("POLYGON((-3.5 -2.0,-3.249986353722413 -3.000997979465906,-1.9999999999999996 -3.0000000000000004,-1.9999999999999996 -1.0,-5.0 -0.9999999999999998,-4.999999999999999 -3.0000000000000004,-3.7500136462775866 -3.0009979794659065,-3.5 -2.0))",
+                S2WKTWriter.write(difference.getInner()));
     }
 
     private BcS2Polygon createS2Polygon(String wellKnownText) {

@@ -46,6 +46,11 @@ class JTSMultiPolygon implements Polygon {
     }
 
     @Override
+    public Polygon getDifference(Polygon polygon) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public boolean isEmpty() {
         return innerMultiPolygon.isEmpty();
     }

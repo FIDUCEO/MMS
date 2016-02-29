@@ -42,6 +42,11 @@ class JTSPolygon implements Polygon {
     }
 
     @Override
+    public Polygon getDifference(Polygon polygon) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public void shiftLon(double lon) {
         jtsPolygon.apply(new LonShifter(lon));
     }
