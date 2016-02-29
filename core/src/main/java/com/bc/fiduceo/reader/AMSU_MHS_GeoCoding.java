@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 
+import com.bc.fiduceo.location.PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -28,60 +29,17 @@ import org.esa.snap.core.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-class AMSU_MHS_GeoCoding implements GeoCoding{
+import java.awt.geom.Point2D;
+
+class AMSU_MHS_GeoCoding implements PixelLocator{
 
     @Override
-    public boolean isCrossingMeridianAt180() {
-        throw new RuntimeException("not Implemented");
+    public boolean getGeoLocation(double x, double y, Point2D g) {
+        throw new RuntimeException("not implemented");
     }
 
     @Override
-    public boolean canGetPixelPos() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public boolean canGetGeoPos() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public Datum getDatum() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public void dispose() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public CoordinateReferenceSystem getImageCRS() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public CoordinateReferenceSystem getMapCRS() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public CoordinateReferenceSystem getGeoCRS() {
-        throw new RuntimeException("not Implemented");
-    }
-
-    @Override
-    public MathTransform getImageToMapTransform() {
-        throw new RuntimeException("not Implemented");
+    public boolean getPixelLocation(double lon, double lat, Point2D p) {
+        throw new RuntimeException("not implemented");
     }
 }

@@ -23,8 +23,8 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -68,7 +68,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public GeoCoding getGeoCoding() throws IOException {
+    public PixelLocator getGeoCoding() throws IOException {
         throw new RuntimeException("not implemented");
     }
 

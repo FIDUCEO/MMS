@@ -22,8 +22,8 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.datamodel.GeoCoding;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
@@ -60,7 +60,7 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public GeoCoding getGeoCoding() throws IOException {
+    public PixelLocator getGeoCoding() throws IOException {
         throw new RuntimeException("not implemented");
     }
 

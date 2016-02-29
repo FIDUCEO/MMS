@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.location.PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public interface Reader {
 
     AcquisitionInfo read() throws IOException;
 
-    GeoCoding getGeoCoding() throws IOException;
+    PixelLocator getGeoCoding() throws IOException;
 
     String getRegEx();
 }

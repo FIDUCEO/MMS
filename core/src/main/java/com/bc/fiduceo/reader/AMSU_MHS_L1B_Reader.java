@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.location.PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -62,7 +63,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public GeoCoding getGeoCoding() throws IOException {
+    public PixelLocator getGeoCoding() throws IOException {
         // @todo 1 tb/tb continue here 2016-02-25
         final Array longitudes = getLongitudes(netcdfFile);
         return new AMSU_MHS_GeoCoding();
