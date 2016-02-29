@@ -29,4 +29,6 @@ public interface Polygon extends Geometry {
     boolean isValid();
 
     Polygon getDifference(Polygon polygon);
+
+    Polygon getUnion(Polygon polygon);
 }

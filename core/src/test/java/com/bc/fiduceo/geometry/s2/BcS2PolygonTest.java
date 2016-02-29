@@ -185,6 +185,31 @@ public class BcS2PolygonTest {
                 S2WKTWriter.write(difference.getInner()));
     }
 
+    @Test
+    public void testGetUnion_intersectingPolygons() {
+        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((2 -1, 4 -1, 4 1, 2 1, 2 -1))");
+        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((-1 -0.5, 3 -0.3, 3 0.5, -1 0.5, -1 -0.5))");
+
+        final Polygon union = s2Polygon_1.getUnion(s2Polygon_2);
+        assertFalse(union.isEmpty());
+
+        assertEquals("POLYGON((1.9999999999999996 -0.3501761146482015,1.9999999999999996 -1.0,4.000000000000001 -1.0,4.000000000000001 1.0,1.9999999999999996 1.0,1.9999999999999996 0.500228561696982,-1.0 0.5,-1.0 -0.5,1.9999999999999996 -0.3501761146482015))",
+                S2WKTWriter.write(union.getInner()));
+    }
+
+    // @todo 1 tb/tb reanimate, this one should be working 2016-02-29
+//    @Test
+//    public void testGetUnion_polygonsWithCommonVertices() {
+//        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-1 1, 2 1, 2 3, -1 3, -1 1))");
+//        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((2.0 1, 5 1, 2.0 3, 2.0 1))");
+//
+//        final Polygon union = s2Polygon_1.getUnion(s2Polygon_2);
+//        assertFalse(union.isEmpty());
+//
+//        assertEquals("POLYGON((1.9999999999999996 -0.3501761146482015,1.9999999999999996 -1.0,4.000000000000001 -1.0,4.000000000000001 1.0,1.9999999999999996 1.0,1.9999999999999996 0.500228561696982,-1.0 0.5,-1.0 -0.5,1.9999999999999996 -0.3501761146482015))",
+//                S2WKTWriter.write(union.getInner()));
+//    }
+
     private BcS2Polygon createS2Polygon(String wellKnownText) {
         S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);
         return new BcS2Polygon(polygon);

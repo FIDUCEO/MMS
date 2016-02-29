@@ -24,6 +24,7 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.google.common.geometry.S1Angle;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
@@ -78,6 +79,13 @@ class BcS2Polygon implements Polygon {
         final S2Polygon difference = new S2Polygon();
         difference.initToDifference(googlePolygon, (S2Polygon) polygon.getInner());
         return new BcS2Polygon(difference);
+    }
+
+    @Override
+    public Polygon getUnion(Polygon polygon) {
+        final S2Polygon union = new S2Polygon();
+        union.initToUnion(googlePolygon, (S2Polygon) polygon.getInner());
+        return new BcS2Polygon(union);
     }
 
     @Override

@@ -762,8 +762,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         initToIntersectionSloppy(a, b, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
     }
 
-    public void initToIntersectionSloppy(
-            final S2Polygon a, final S2Polygon b, S1Angle vertexMergeRadius) {
+    public void initToIntersectionSloppy(final S2Polygon a, final S2Polygon b, S1Angle vertexMergeRadius) {
         Preconditions.checkState(numLoops() == 0);
         if (!a.bound.intersects(b.bound)) {
             return;
@@ -803,6 +802,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         if (!builder.assemblePolygon(this, null)) {
             // TODO(andriy): do something more meaningful here.
             log.severe("Bad directed edges");
+            //throw new RuntimeException("Bad directed edges");
         }
     }
 
@@ -810,7 +810,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         initToDifferenceSloppy(a, b, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
     }
 
-    void initToDifferenceSloppy(final S2Polygon a, final S2Polygon b,
+    public void initToDifferenceSloppy(final S2Polygon a, final S2Polygon b,
                                 S1Angle vertexMergeRadius) {
         Preconditions.checkState(numLoops() == 0);
 
@@ -826,6 +826,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         clipBoundary(b, true, a, false, false, false, builder);
         if (!builder.assemblePolygon(this, null)) {
             log.severe("Bad directed edges in InitToDifference");
+            throw new RuntimeException("Bad directed edges");
         }
     }
 
