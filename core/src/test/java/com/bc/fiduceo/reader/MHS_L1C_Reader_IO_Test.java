@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.location.PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,8 +46,8 @@ public class MHS_L1C_Reader_IO_Test {
         final AMSU_MHS_L1B_Reader reader = new AMSU_MHS_L1B_Reader();
         reader.open(file);
 
-        GeoCoding geoCoding = reader.getGeoCoding();
-        assertNotNull(geoCoding);
+        PixelLocator pixelLocator = reader.getGeoCoding();
+        assertNotNull(pixelLocator);
 
         try {
 

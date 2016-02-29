@@ -20,19 +20,23 @@
 
 package com.bc.fiduceo.reader;
 
-
-import org.esa.snap.core.datamodel.GeoCoding;
+import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.SwathPixelLocator;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.Range;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class AVHRR_GAC_Reader implements Reader {
 
+    private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
     private NetcdfFile netcdfFile;
-
-    private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09","avhrr-n10","avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
 
     @Override
     public void open(File file) throws IOException {
@@ -72,8 +76,20 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public GeoCoding getGeoCoding() throws IOException {
-        throw new RuntimeException("not implemented");
+    public PixelLocator getGeoCoding() throws IOException {
+        final Variable lon = getVariable("lon");
+        final Variable lat = getVariable("lat");
+
+        final ArrayFloat lonStorage = (ArrayFloat) lon.read();
+        final ArrayFloat latStorage = (ArrayFloat) lat.read();
+        final int[] shape = lon.getShape();
+        final int width = shape[1];
+        final int height = shape[0];
+        return SwathPixelLocator.create(lonStorage, latStorage, width, height, 128);
+    }
+
+    private Variable getVariable(final String name) {
+        return netcdfFile.findVariable(name);
     }
 
     @Override

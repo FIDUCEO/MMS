@@ -119,6 +119,7 @@ public class BoundingPolygonCreator {
                                         NodeType nodeType,
                                         int intervalX, int intervalY) {
         final int[] shape = arrayLatitude.getShape();
+        //todo: mba test the reason why -1 29-02-2016
         int width = shape[1] - 1;
         int height = shape[0] - 1;
 
