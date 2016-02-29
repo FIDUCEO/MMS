@@ -184,7 +184,7 @@ public class JTSTimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_line() throws ParseException {
+    public void testGetProjectionTime_line() throws ParseException {
         final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, 0 3, -3 4, -5 4)");
         final com.bc.fiduceo.geometry.LineString polygonSide = (com.bc.fiduceo.geometry.LineString) geometryFactory.parse("LINESTRING(-2 0, -4 2)");
         final JTSTimeAxis timeAxis = new JTSTimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
@@ -195,7 +195,7 @@ public class JTSTimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_line_inverseDirection() throws ParseException {
+    public void testGetProjectionTime_line_inverseDirection() throws ParseException {
         final LineString lineString = (LineString) wktReader.read("LINESTRING(1 2, 0 3, -3 4, -5 4)");
         final com.bc.fiduceo.geometry.LineString polygonSide = (com.bc.fiduceo.geometry.LineString) geometryFactory.parse("LINESTRING(-4 2, -2 0)");
         final JTSTimeAxis timeAxis = new JTSTimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));

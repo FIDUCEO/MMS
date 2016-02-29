@@ -41,6 +41,7 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.math.TimeInterval;
@@ -276,7 +277,66 @@ public class BcS2TimeAxisTest {
         assertEquals(0.03871381307846636, subLineTo.getArclengthAngle().radians(), 1e-8);
     }
 
-    // @todo 1 tb/tb add tests for getProjectionTime 2015-12-04
+    @Test
+    public void testGetProjectionTime_sameLine() {
+        final String lineStringWkt = "LINESTRING(-1 -8, 0 -7.2, 1 -7.5)";
+        final LineString lineString = (LineString) geometryFactory.parse(lineStringWkt);
+        final S2Polyline axisLine = (S2Polyline) wktReader.read(lineStringWkt);
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(axisLine, new Date(1000000000000L), new Date(1001000000000L));
+
+        final TimeInterval projectionTime = timeAxis.getProjectionTime(lineString);
+        assertNotNull(projectionTime);
+        assertEquals(1000000000000L, projectionTime.getStartTime().getTime());
+        assertEquals(1001000000000L, projectionTime.getStopTime().getTime());
+    }
+
+    @Test
+    public void testGetProjectionTime_sameLine_inverseDirection() {
+        final LineString lineString = (LineString) geometryFactory.parse("LINESTRING(-1 -8, 0 -7.2, 1 -7.5)");
+        final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(1 -7.5, 0 -7.2, -1 -8)");
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(axisLine, new Date(1000000000000L), new Date(1001000000000L));
+
+        final TimeInterval projectionTime = timeAxis.getProjectionTime(lineString);
+        assertNotNull(projectionTime);
+        assertEquals(1000000000000L, projectionTime.getStartTime().getTime());
+        assertEquals(1000999999999L, projectionTime.getStopTime().getTime());
+    }
+
+    @Test
+    public void testGetProjectionTime__angle_projectedLineShorter() {
+        final LineString lineString = (LineString) geometryFactory.parse("LINESTRING(-3 2, -4 1, -5 -1)");
+        final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(-1 3, -3 0, -4 -3)");
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(axisLine, new Date(1000000000000L), new Date(1001000000000L));
+
+        final TimeInterval projectionTime = timeAxis.getProjectionTime(lineString);
+        assertNotNull(projectionTime);
+        assertEquals(1000286702111L, projectionTime.getStartTime().getTime());
+        assertEquals(1000766383826L, projectionTime.getStopTime().getTime());
+    }
+
+    @Test
+    public void testGetProjectionTime__angle_projectedLineLonger_andInverseDirection() {
+        final LineString lineString = (LineString) geometryFactory.parse("LINESTRING(-3 -5, -2 -2, -1 1, 1 4)");
+        final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(-1 3, -3 0, -4 -3)");
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(axisLine, new Date(1000000000000L), new Date(1001000000000L));
+
+        final TimeInterval projectionTime = timeAxis.getProjectionTime(lineString);
+        assertNotNull(projectionTime);
+        assertEquals(1000000000000L, projectionTime.getStartTime().getTime());
+        assertEquals(1000999999999L, projectionTime.getStopTime().getTime());
+    }
+
+    @Test
+    public void testGetProjectionTime__almostNormalAngle() {
+        final LineString lineString = (LineString) geometryFactory.parse("LINESTRING(4 -1, 5 1, 8 3)");
+        final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(5 3, 7 0, 8 -3)");
+        final BcS2TimeAxis timeAxis = new BcS2TimeAxis(axisLine, new Date(1000000000000L), new Date(1001000000000L));
+
+        final TimeInterval projectionTime = timeAxis.getProjectionTime(lineString);
+        assertNotNull(projectionTime);
+        assertEquals(1000245367407L, projectionTime.getStartTime().getTime());
+        assertEquals(1000409968732L, projectionTime.getStopTime().getTime());
+    }
 
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());

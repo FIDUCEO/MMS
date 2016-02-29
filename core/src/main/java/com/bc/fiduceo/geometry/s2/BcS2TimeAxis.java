@@ -78,7 +78,13 @@ class BcS2TimeAxis implements TimeAxis {
 
     @Override
     public TimeInterval getProjectionTime(LineString polygonSide) {
-        throw new RuntimeException("not implemented");
+        final Point[] coordinates = polygonSide.getCoordinates();
+        final Date projectionStartTime = getTime(coordinates[0]);
+        final Date projectionStopTime = getTime(coordinates[coordinates.length - 1]);
+        if (projectionStopTime.before(projectionStartTime))  {
+            return new TimeInterval(projectionStopTime, projectionStartTime);
+        }
+        return new TimeInterval(projectionStartTime, projectionStopTime);
     }
 
     @Override
