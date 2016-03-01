@@ -167,7 +167,7 @@ public class MatchupToolIntegrationTest {
         final Sensor sensor = new Sensor();
         sensor.setName(sensorName);
         observation.setSensor(sensor);
-        observation.setDataFile(new File("."));
+        observation.setDataFilePath(".");
         return observation;
     }
 }

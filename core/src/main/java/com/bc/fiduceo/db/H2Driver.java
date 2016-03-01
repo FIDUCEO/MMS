@@ -29,7 +29,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,7 +84,7 @@ public class H2Driver extends AbstractDriver {
         final String wkt = geometryFactory.format(geoBounds[0]);
         preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
-        preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
+        preparedStatement.setString(6, observation.getDataFilePath().toString());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
         preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
 
@@ -134,7 +133,7 @@ public class H2Driver extends AbstractDriver {
             observation.setSensor(sensor);
 
             final String dataFile = resultSet.getString("DataFile");
-            observation.setDataFile(new File(dataFile));
+            observation.setDataFilePath(dataFile);
 
             final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
             observation.setTimeAxisStartIndex(timeAxisStartIndex);

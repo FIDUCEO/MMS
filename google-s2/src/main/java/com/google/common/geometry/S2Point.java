@@ -162,10 +162,7 @@ public strictfp class S2Point implements Comparable<S2Point> {
     if (vb.y < y) {
       return false;
     }
-    if (z < vb.z) {
-      return true;
-    }
-    return false;
+    return z < vb.z;
   }
 
   // Required for Comparable
