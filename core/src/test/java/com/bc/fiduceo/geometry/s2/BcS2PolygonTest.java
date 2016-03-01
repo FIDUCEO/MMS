@@ -199,7 +199,7 @@ public class BcS2PolygonTest {
                 S2WKTWriter.write(union.getInner()));
     }
 
-    // @todo 1 tb/tb reanimate, this one should be working 2016-02-29
+    // does not work with S2 lbrary tb 2016-03-01
 //    @Test
 //    public void testGetUnion_polygonsWithCommonVertices() {
 //        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-1 1, 2 1, 2 3, -1 3, -1 1))");
@@ -228,14 +228,13 @@ public class BcS2PolygonTest {
         assertFalse(polygon.contains(point));
     }
 
-    // @todo 1 tb/tb reanimate. Think how we can tell the S2Lib that we want to have points on the dges to be contained 2016-02-29
-//    @Test
-//    public void testContains_pointOnCorner() {
-//        final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
-//        final BcS2Point point = createS2Point("POINT(0 0)");
-//
-//        assertTrue(polygon.contains(point));
-//    }
+    @Test
+    public void testContains_pointOnCorner_isOutside() {
+        final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+        final BcS2Point point = createS2Point("POINT(0 0)");
+
+        assertFalse(polygon.contains(point));
+    }
 
     private BcS2Point createS2Point(String wellKnownText) {
         final S2Point s2Point = (S2Point) s2WKTReader.read(wellKnownText);
