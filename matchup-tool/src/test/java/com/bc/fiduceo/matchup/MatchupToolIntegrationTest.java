@@ -163,7 +163,7 @@ public class MatchupToolIntegrationTest {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(TimeUtils.parse(startDate, "yyyy-MM-dd hh:mm:ss"));
         observation.setStopTime(TimeUtils.parse(stopDate, "yyyy-MM-dd hh:mm:ss"));
-        observation.setGeoBounds(geometry);
+        observation.setGeoBounds(new Geometry[]{geometry});
         final Sensor sensor = new Sensor();
         sensor.setName(sensorName);
         observation.setSensor(sensor);

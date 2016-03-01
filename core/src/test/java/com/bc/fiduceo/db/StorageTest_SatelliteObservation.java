@@ -49,6 +49,7 @@ public abstract class StorageTest_SatelliteObservation {
     protected BasicDataSource dataSource;
     protected Storage storage;
     protected GeometryFactory geometryFactory;
+    // @todo 2 tb/mb remove this sensor specific reader from a generic test base class 2016-03-01
     protected AMSU_MHS_L1B_Reader reader;
 
     @Before
@@ -88,7 +89,10 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
 
         // @todo 3 tb/tb intersection test is not the best here - invent something more cleve 2016-02-23
-        final Geometry intersection = observation.getGeoBounds().getIntersection(observationFromDb.getGeoBounds());
+        final Geometry[] geoBounds = observation.getGeoBounds();
+        final Geometry[] geoBoundsFromDb = observationFromDb.getGeoBounds();
+        assertEquals(1, geoBoundsFromDb.length);
+        final Geometry intersection = geoBounds[0].getIntersection(geoBoundsFromDb[0]);
         assertFalse(intersection.isEmpty());
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
@@ -410,7 +414,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
-        observation.setGeoBounds(geometry);
+        observation.setGeoBounds(new Geometry[] {geometry});
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);

@@ -154,14 +154,14 @@ public class IngestionToolIntegrationTest {
             TestUtil.writeDatabaseProperties_MongoDb(configDir);
             IngestionToolMain.main(args);
             List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(satelliteObservations.size(), 1);
+            assertEquals(1, satelliteObservations.size());
             SatelliteObservation observationFromDb = satelliteObservations.get(0);
 
 
             assertEquals(observationFromDb.getSensor().getName(), "amsub-n15");
-            assertEquals(observationFromDb.getGeoBounds().getCoordinates().length, 106);
+            assertEquals(observationFromDb.getGeoBounds()[0].getCoordinates().length, 106);
 
-            ArrayList<Polygon> polygonArrayList = (ArrayList<Polygon>) observationFromDb.getGeoBounds().getInner();
+            ArrayList<Polygon> polygonArrayList = (ArrayList<Polygon>) observationFromDb.getGeoBounds()[0].getInner();
             Polygon polygon = polygonArrayList.get(0);
             assertEquals("Polygon: (1) loops:\n" +
                     "loop <\n" +

@@ -25,6 +25,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.WKBReader;
@@ -70,7 +71,12 @@ public class MySQLDriver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
+        final Geometry[] geoBounds = observation.getGeoBounds();
+        // @todo 1 tb/tb implement support for multi geometries 2016-03-01
+        if (geoBounds.length != 1) {
+            throw new RuntimeException("support for multigeometries not implemented yet");
+        }
+        preparedStatement.setObject(4, geometryFactory.toStorageFormat(geoBounds[0]));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -101,7 +107,9 @@ public class MySQLDriver extends AbstractDriver {
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
             final byte[] geoBoundsBytes = resultSet.getBytes("AsWKB(GeoBounds)");
-            observation.setGeoBounds(geometryFactory.fromStorageFormat(geoBoundsBytes));
+            // @todo 1 tb/tb implement support for multi geometries 2016-03-01
+            final Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsBytes);
+            observation.setGeoBounds(new Geometry[]{geometry});
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

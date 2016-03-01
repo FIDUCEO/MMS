@@ -165,7 +165,7 @@ class IngestionTool {
                         geometry = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
                     }
                 }
-                satelliteObservation.setGeoBounds(geometry);
+                satelliteObservation.setGeoBounds(new Geometry[]{geometry});
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();

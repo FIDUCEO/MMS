@@ -59,15 +59,6 @@ public class MongoDbDriverTest {
     }
 
     @Test
-    public void testConvertToGeoJSON_noInput() {
-        try {
-            MongoDbDriver.convertToGeoJSON(null);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    @Test
     public void testConvertToGeoJSON_polygon() {
         final Geometry polygon = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
 

@@ -30,7 +30,7 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-    private Geometry geoBounds;
+    private Geometry[] geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
     // @todo se/tb can this be replaced by Path from nio package 2016-02-25
@@ -44,11 +44,11 @@ public class SatelliteObservation {
         timeAxisEndIndex = -1;
     }
 
-   public Geometry getGeoBounds() {
+   public Geometry[] getGeoBounds() {
         return geoBounds;
     }
 
-    public void setGeoBounds(Geometry geoBounds) {
+    public void setGeoBounds(Geometry[] geoBounds) {
         this.geoBounds = geoBounds;
     }
 

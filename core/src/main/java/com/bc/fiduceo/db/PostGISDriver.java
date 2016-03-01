@@ -24,6 +24,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.WKBReader;
@@ -96,7 +97,12 @@ public class PostGISDriver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
+        // @todo 3 tb/tb extend to support multiple geometries
+        final Geometry[] geoBounds = observation.getGeoBounds();
+        if (geoBounds.length != 1) {
+            throw new RuntimeException("Support for multiple geometries not implemented yet");
+        }
+        preparedStatement.setObject(4, geometryFactory.toStorageFormat(geoBounds[0]));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -128,7 +134,9 @@ public class PostGISDriver extends AbstractDriver {
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
             final byte[] geoBoundsBytes = resultSet.getBytes("ST_AsBinary");
-            observation.setGeoBounds(geometryFactory.fromStorageFormat(geoBoundsBytes));
+            final Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsBytes);
+            // @todo 3 tb/tb implement support for multiple geometries 2016-03-01
+            observation.setGeoBounds(new Geometry[]{geometry});
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

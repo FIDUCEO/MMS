@@ -46,6 +46,11 @@ public class Storage {
         driver.open(dataSource);
     }
 
+    //@todo 1 tb/tb remove this method when spike is done 2016-03-01
+    public Driver getDriver() {
+        return driver;
+    }
+
     public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         return new Storage(dataSource, geometryFactory);
     }
