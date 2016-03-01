@@ -65,10 +65,12 @@ public class SwathPixelLocator extends AbstractPixelLocator {
 
     @Override
     public boolean getPixelLocation(double lon, double lat, Point2D p) {
+//        return estimator.estimatePixelLocation(lon, lat, p);
+//        return searcher.searchPixelLocation(lon, lat, p);
         return estimator.estimatePixelLocation(lon, lat, p) && searcher.searchPixelLocation(lon, lat, p);
     }
 
-    private static final class PixelLocationEstimator {
+    public static final class PixelLocationEstimator {
 
         private final GeoApproximation[] approximations;
 
