@@ -26,7 +26,6 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -49,15 +48,12 @@ public abstract class StorageTest_SatelliteObservation {
     protected BasicDataSource dataSource;
     protected Storage storage;
     protected GeometryFactory geometryFactory;
-    // @todo 2 tb/mb remove this sensor specific reader from a generic test base class 2016-03-01
-    protected AMSU_MHS_L1B_Reader reader;
 
     @Before
     public void setUp() throws SQLException, IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
-
     }
 
     @After
@@ -414,7 +410,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
-        observation.setGeoBounds(new Geometry[] {geometry});
+        observation.setGeoBounds(new Geometry[]{geometry});
         observation.setDataFile(new File("the_data.file"));
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);
