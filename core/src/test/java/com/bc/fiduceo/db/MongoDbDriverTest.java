@@ -20,23 +20,22 @@
 
 package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
-import com.mongodb.client.model.geojson.*;
+import com.mongodb.client.model.geojson.PolygonCoordinates;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -170,6 +169,35 @@ public class MongoDbDriverTest {
                 "(0.2620026302293851, 0.2198463103929543)\n" +
                 "(4.6906693763513654E-17, 3.935938943670993E-17)\n" +
                 ">\n", polygonsList.get(1).toString());
+    }
+
+
+    @Test
+    public void testConvertToGeoJSON_GeomeryArray() {
+        Geometry polygonGeometry = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
+        MultiPolygon multiPolygon = getMultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
+
+        Geometry geometry[] = new Geometry[2];
+        geometry[0] = polygonGeometry;
+        geometry[1] = multiPolygon;
+
+        com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometry);
+        assertNotNull(mongoGeometry);
+
+        List<? extends com.mongodb.client.model.geojson.Geometry> geometries = ((com.mongodb.client.model.geojson.GeometryCollection) mongoGeometry).getGeometries();
+
+
+        assertEquals(2, geometries.size());
+        assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
+                geometries.get(0).toString());
+
+        assertEquals("MultiPolygon{coordinates=[PolygonCoordinates{exterior=[Position{values=[20.0, 0.0]}, " +
+                "Position{values=[49.99999999999999, 0.0]}, Position{values=[50.0, 20.0]}, " +
+                "Position{values=[20.0, 49.99999999999999]}, Position{values=[20.0, 0.0]}]}, " +
+                "PolygonCoordinates{exterior=[Position{values=[20.0, 70.0]}, " +
+                "Position{values=[49.99999999999999, 70.0]}, " +
+                "Position{values=[49.99999999999999, 90.0]}, " +
+                "Position{values=[20.0, 70.0]}]}]}", geometries.get(1).toString());
     }
 
     @Test
