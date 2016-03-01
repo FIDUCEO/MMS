@@ -20,8 +20,23 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(DatabaseTestRunner.class)
 public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_SatelliteObservation {
@@ -36,5 +51,127 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         dataSource.setUrl("mongodb://localhost:27017/test");
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
+    }
+
+    @Before
+    public void setUp() throws SQLException {
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        storage = Storage.create(dataSource, geometryFactory);
+        storage.initialize();
+    }
+
+    @Test
+    public void testMultiGeometries_searchByIntersection_noIntersection() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("LINESTRING(-8 5, -7 5, -6 4.7)");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(0, satelliteObservations.size());
+    }
+
+    @Test
+    public void testMultiGeometries_searchByIntersection_intersectsFirst() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("POLYGON((-1 0.5, 1 0.5, 1 0.7, -1 0.7, -1 0.5))");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(1, satelliteObservations.size());
+        // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    @Test
+    public void testMultiGeometries_searchByIntersection_intersectsSecond() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("POLYGON((2.5 0.5, 3.5 0.5, 3.5 0.7, 2.5 0.7, 2.5 0.5))");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(1, satelliteObservations.size());
+        // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    @Test
+    public void testMultiGeometries_searchByIntersection_intersectsBoth() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 2 0, 2 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("POLYGON((1 0, 4 0, 4 1, 1 1, 1 0))");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(1, satelliteObservations.size());
+        // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    @Test
+    public void testMultiGeometries_overlappingGeometries_searchByIntersection_intersectsFirst() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("POLYGON((-1 0.5, 1 0.5, 1 0.7, -1 0.7, -1 0.5))");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(1, satelliteObservations.size());
+        // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    @Test
+    public void testMultiGeometries_overlappingGeometries_searchByIntersection_intersectsSecond() throws ParseException, SQLException {
+        final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
+        final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+
+        final SatelliteObservation observation = createMultiGeometrySatelliteObservation(geometry_1, geometry_2);
+        storage.insert(observation);
+
+        final QueryParameter parameter = createGeoQueryParameter("POLYGON((4.5 0.5, 5.5 0.5, 5.5 0.7, 4.5 0.7, 4.5 0.5))");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
+        assertEquals(1, satelliteObservations.size());
+        // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    QueryParameter createGeoQueryParameter(String wkt) {
+        final QueryParameter parameter = new QueryParameter();
+        final Geometry geometry = geometryFactory.parse(wkt);
+        parameter.setGeometry(geometry);
+        return parameter;
+    }
+
+    private SatelliteObservation createMultiGeometrySatelliteObservation(Geometry geometry_1, Geometry geometry_2) throws ParseException {
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(new Date());
+        observation.setStopTime(new Date());
+        observation.setNodeType(NodeType.ASCENDING);
+
+        observation.setGeoBounds(new Geometry[]{geometry_1, geometry_2});
+        observation.setDataFile(new File("the_data.file"));
+        observation.setTimeAxisStartIndex(23);
+        observation.setTimeAxisEndIndex(27);
+
+        final Sensor sensor = new Sensor();
+
+        sensor.setName("a_sensor");
+        observation.setSensor(sensor);
+
+        return observation;
     }
 }

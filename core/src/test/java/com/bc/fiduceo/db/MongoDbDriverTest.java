@@ -20,15 +20,16 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
-import com.mongodb.client.model.geojson.PolygonCoordinates;
+import com.mongodb.client.model.geojson.*;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +39,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 public class MongoDbDriverTest {
 
     private MongoDbDriver driver;
     private GeometryFactory geometryFactory;
-
 
     @Before
     public void setUp() {
@@ -108,37 +108,9 @@ public class MongoDbDriverTest {
 
     @Test
     public void testConvertToGeometry_polygon() {
-        final Document jsonPolygon = new Document("type", "Polygon");
-        final ArrayList<ArrayList<ArrayList<Double>>> linearRings = new ArrayList<>();
-        final ArrayList<ArrayList<Double>> pointList = new ArrayList<>();
-
-        final ArrayList<Double> point_0 = new ArrayList<>();
-        point_0.add(-12.0);
-        point_0.add(8.0);
-        pointList.add(point_0);
-
-        final ArrayList<Double> point_1 = new ArrayList<>();
-        point_1.add(-12.0);
-        point_1.add(9.0);
-        pointList.add(point_1);
-
-        final ArrayList<Double> point_2 = new ArrayList<>();
-        point_2.add(-11.0);
-        point_2.add(9.0);
-        pointList.add(point_2);
-
-        final ArrayList<Double> point_3 = new ArrayList<>();
-        point_3.add(-11.0);
-        point_3.add(8.0);
-        pointList.add(point_3);
-
-        final ArrayList<Double> point_4 = new ArrayList<>();
-        point_4.add(-12.0);
-        point_4.add(8.0);
-        pointList.add(point_4);
-        linearRings.add(pointList);
-        jsonPolygon.append("coordinates", linearRings);
-
+        final double[] lons = {-12.0, -12.0, -11.0, -11.0, -12.0};
+        final double[] lats = {8.0, 9.0, 9.0, 8.0, 8.0};
+        final Document jsonPolygon = createGeoJsonPolygon(lons, lats);
 
         final Geometry geometry = driver.convertToGeometry(jsonPolygon);
         assertNotNull(geometry);
@@ -198,7 +170,33 @@ public class MongoDbDriverTest {
                 "(0.2620026302293851, 0.2198463103929543)\n" +
                 "(4.6906693763513654E-17, 3.935938943670993E-17)\n" +
                 ">\n", polygonsList.get(1).toString());
+    }
 
+    @Test
+    public void testConvertToGeometry_geometryCollection() {
+        final double[] lons_1 = {-12.0, -12.0, -11.0, -11.0, -12.0};
+        final double[] lats_1 = {8.0, 9.0, 9.0, 8.0, 8.0};
+        final Document jsonPolygon_1 = createGeoJsonPolygon(lons_1, lats_1);
+
+        final double[] lons_2 = {6.0, 7.0, 7.0, 6.0, 6.0};
+        final double[] lats_2 = {1.0, 1.0, 2.0, 2.0, 1.0};
+        final Document jsonPolygon_2 = createGeoJsonPolygon(lons_2, lats_2);
+
+        final Document jsonGeometryCollection = new Document("type", "GeometryCollection");
+        final List<Document> geometryList = new ArrayList<>();
+        geometryList.add(jsonPolygon_1);
+        geometryList.add(jsonPolygon_2);
+        jsonGeometryCollection.append("geometries", geometryList);
+
+        final Geometry geometry = driver.convertToGeometry(jsonGeometryCollection);
+        assertTrue(geometry instanceof GeometryCollection);
+        final GeometryCollection geometryCollection = (GeometryCollection) geometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(2, geometries.length);
+        assertEquals("POLYGON((-12.000000000000002 7.999999999999998,-12.0 9.0,-10.999999999999998 9.0,-10.999999999999998 7.999999999999998,-12.000000000000002 7.999999999999998,-12.000000000000002 7.999999999999998))",
+                geometryFactory.format(geometries[0]));
+        assertEquals("POLYGON((6.0 1.0,6.999999999999999 1.0,6.999999999999999 2.0,6.0 2.0,6.0 1.0,6.0 1.0))",
+                geometryFactory.format(geometries[1]));
     }
 
     @Test
@@ -221,5 +219,26 @@ public class MongoDbDriverTest {
 
     private MultiPolygon getMultiPolygon(String wkt) {
         return (MultiPolygon) geometryFactory.parse(wkt);
+    }
+
+    private Document createGeoJsonPolygon(double[] lons, double[] lats) {
+        final Document jsonPolygon = new Document("type", "Polygon");
+        final ArrayList<ArrayList<ArrayList<Double>>> linearRings = new ArrayList<>();
+        final ArrayList<ArrayList<Double>> pointList = new ArrayList<>();
+
+        for (int i = 0; i < lons.length; i++) {
+            pointList.add(createJsonPoint(lons[i], lats[i]));
+        }
+
+        linearRings.add(pointList);
+        jsonPolygon.append("coordinates", linearRings);
+        return jsonPolygon;
+    }
+
+    private ArrayList<Double> createJsonPoint(double lon, double lat) {
+        final ArrayList<Double> point_0 = new ArrayList<>();
+        point_0.add(lon);
+        point_0.add(lat);
+        return point_0;
     }
 }

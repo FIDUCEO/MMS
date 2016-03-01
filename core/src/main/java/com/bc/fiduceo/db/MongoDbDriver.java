@@ -37,6 +37,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.geojson.*;
+import com.mongodb.client.model.geojson.GeometryCollection;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
 import org.esa.snap.core.util.StringUtils;
@@ -196,33 +197,11 @@ public class MongoDbDriver extends AbstractDriver {
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
         if ("Polygon".equals(type)) {
-            final ArrayList<Point> polygonPoints = new ArrayList<>();
-            final ArrayList linearRings = (ArrayList) geoDocument.get("coordinates");
-            for (Object linearRing : linearRings) {
-                final ArrayList coordinates = (ArrayList) linearRing;
-                for (Object coordinate : coordinates) {
-                    final ArrayList<Double> point = (ArrayList<Double>) coordinate;
-                    final Point point1 = geometryFactory.createPoint(point.get(0), point.get(1));
-                    polygonPoints.add(point1);
-                }
-            }
-            return geometryFactory.createPolygon(polygonPoints);
+            return convertPolygon(geoDocument);
         } else if ("MultiPolygon".equals(type)) {
-            List<Polygon> polygonList = new ArrayList<>();
-            ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
-            for (Object polycoordinate : polycoordinates) {
-                final ArrayList coordinates = (ArrayList) polycoordinate;
-                for (Object coordinate : coordinates) {
-                    final ArrayList<Double> point = (ArrayList<Double>) coordinate;
-                    List<Point> pointList = new ArrayList<>();
-                    for (Object object : point) {
-                        ArrayList<Double> m = (ArrayList<Double>) object;
-                        pointList.add(geometryFactory.createPoint(m.get(0), m.get(1)));
-                    }
-                    polygonList.add(geometryFactory.createPolygon(pointList));
-                }
-            }
-            return geometryFactory.createMultiPolygon(polygonList);
+            return convertMultiPolygon(geoDocument);
+        } else if ("GeometryCollection".equals(type)) {
+            return convertGeometryCollection(geoDocument);
         }
         throw new RuntimeException("Geometry type support not implemented yet");
     }
@@ -319,5 +298,48 @@ public class MongoDbDriver extends AbstractDriver {
             polygonPoints.add(position);
         }
         return polygonPoints;
+    }
+
+    private Geometry convertGeometryCollection(Document geoDocument) {
+        final List<Document> geometryList = (List<Document>) geoDocument.get("geometries");
+        final List<Geometry> convertedGeometriesList = new ArrayList<>();
+        for (final Document geoListDocument : geometryList) {
+            convertedGeometriesList.add(convertToGeometry(geoListDocument));
+        }
+        final BcGeometryCollection resultGeometry = new BcGeometryCollection();
+        resultGeometry.setGeometries(convertedGeometriesList.toArray(new Geometry[convertedGeometriesList.size()]));
+        return resultGeometry;
+    }
+
+    private Geometry convertMultiPolygon(Document geoDocument) {
+        List<Polygon> polygonList = new ArrayList<>();
+        ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
+        for (Object polycoordinate : polycoordinates) {
+            final ArrayList coordinates = (ArrayList) polycoordinate;
+            for (Object coordinate : coordinates) {
+                final ArrayList<Double> point = (ArrayList<Double>) coordinate;
+                List<Point> pointList = new ArrayList<>();
+                for (Object object : point) {
+                    ArrayList<Double> m = (ArrayList<Double>) object;
+                    pointList.add(geometryFactory.createPoint(m.get(0), m.get(1)));
+                }
+                polygonList.add(geometryFactory.createPolygon(pointList));
+            }
+        }
+        return geometryFactory.createMultiPolygon(polygonList);
+    }
+
+    private Geometry convertPolygon(Document geoDocument) {
+        final ArrayList<Point> polygonPoints = new ArrayList<>();
+        final ArrayList linearRings = (ArrayList) geoDocument.get("coordinates");
+        for (Object linearRing : linearRings) {
+            final ArrayList coordinates = (ArrayList) linearRing;
+            for (Object coordinate : coordinates) {
+                final ArrayList<Double> point = (ArrayList<Double>) coordinate;
+                final Point point1 = geometryFactory.createPoint(point.get(0), point.get(1));
+                polygonPoints.add(point1);
+            }
+        }
+        return geometryFactory.createPolygon(polygonPoints);
     }
 }
