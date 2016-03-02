@@ -217,7 +217,6 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // static access for testing only tb 2016-02-09
-    // @todo 2 tb/tb write tests!! 2016-02-11
     static Document createQueryDocument(QueryParameter parameter) {
         if (parameter == null) {
             return new Document();

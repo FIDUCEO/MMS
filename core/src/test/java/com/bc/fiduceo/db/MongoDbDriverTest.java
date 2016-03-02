@@ -26,6 +26,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.util.TimeUtils;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
@@ -36,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -264,6 +266,50 @@ public class MongoDbDriverTest {
         assertEquals(polygonCoordinates.get(1).getExterior().get(0).toString(), "Position{values=[20.0, 70.0]}");
         assertEquals(polygonCoordinates.get(1).getExterior().get(1).toString(), "Position{values=[49.99999999999999, 70.0]}");
     }
+
+    @Test
+    public void testCreateQueryDocument_NullDoc() throws Exception {
+        Document queryDocument = MongoDbDriver.createQueryDocument(null);
+        assertNotNull(queryDocument);
+    }
+
+
+    @Test
+    public void testCreateQueryDocument() throws Exception {
+
+        QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setGeometry(geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))"));
+        queryParameter.setSensorName("amsub_n15");
+        queryParameter.setStartTime(TimeUtils.parseDOYBeginOfDay("2015-300"));
+        queryParameter.setStopTime(TimeUtils.parseDOYBeginOfDay("2015-302"));
+
+        Document queryDocument = MongoDbDriver.createQueryDocument(queryParameter);
+        assertNotNull(queryDocument);
+
+        Document startTimeDoc = (Document) queryDocument.get("startTime");
+        Date startTime = startTimeDoc.getDate("$lt");
+        assertEquals(queryParameter.getStopTime(), startTime);
+
+        Document stopTimeDoc = (Document) queryDocument.get("stopTime");
+        Date stopTime = stopTimeDoc.getDate("$gt");
+        assertEquals(queryParameter.getStartTime(), stopTime);
+
+
+        Document sensorDoc = (Document) queryDocument.get("sensor.name");
+        String sensorType = sensorDoc.getString("$eq");
+        assertEquals(queryParameter.getSensorName(), sensorType);
+
+
+        Document document = (Document) ((Document) queryDocument.get("geoBounds")).get("$geoIntersects");
+        assertNotNull(document);
+
+        com.mongodb.client.model.geojson.Polygon polygon = (com.mongodb.client.model.geojson.Polygon) document.get("$geometry");
+        assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, " +
+                        "Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
+                polygon.toString());
+
+    }
+
 
     private MultiPolygon getMultiPolygon(String wkt) {
         return (MultiPolygon) geometryFactory.parse(wkt);
