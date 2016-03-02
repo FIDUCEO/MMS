@@ -28,6 +28,8 @@ public interface Geometry {
 
     boolean isEmpty();
 
+    boolean isValid();
+
     Point[] getCoordinates();
 
     Object getInner();

@@ -54,6 +54,11 @@ class BcS2LineString implements LineString {
     }
 
     @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point[] getCoordinates() {
         final int numVertices = googleLineString.numVertices();
         final Point[] coordinates = new Point[numVertices];

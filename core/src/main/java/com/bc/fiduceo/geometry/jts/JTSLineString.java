@@ -46,6 +46,11 @@ class JTSLineString implements LineString {
     }
 
     @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point[] getCoordinates() {
         final Coordinate[] coordinates = jtsLineString.getCoordinates();
         final Point[] points = new Point[coordinates.length];

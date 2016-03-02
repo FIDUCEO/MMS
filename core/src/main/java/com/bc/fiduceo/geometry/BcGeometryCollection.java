@@ -50,6 +50,11 @@ public class BcGeometryCollection implements GeometryCollection {
     }
 
     @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point[] getCoordinates() {
         List<Point> pointsList = new ArrayList<>();
         for (Geometry geometry : geometries) {

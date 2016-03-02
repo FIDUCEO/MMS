@@ -65,6 +65,11 @@ class BcS2Point implements Point{
     }
 
     @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point[] getCoordinates() {
         return new Point[] {this};
     }

@@ -26,8 +26,6 @@ public interface Polygon extends Geometry {
 
     void shiftLon(double lon);
 
-    boolean isValid();
-
     boolean contains(Geometry geometry);
 
     Polygon getDifference(Polygon polygon);

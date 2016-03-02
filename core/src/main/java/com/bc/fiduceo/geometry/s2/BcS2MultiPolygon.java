@@ -69,6 +69,11 @@ class BcS2MultiPolygon implements MultiPolygon {
     }
 
     @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Point[] getCoordinates() {
         final List<Point> pointList = new ArrayList<>();
         for (Polygon polygon : polygonList) {

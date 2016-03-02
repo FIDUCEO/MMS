@@ -53,9 +53,15 @@ class BcS2MultiLineString implements LineString {
         throw new RuntimeException("not implemented");
     }
 
+    // @todo 2 tb/mb implement real test for emptiness and write tests for that 2016-03-02
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public boolean isValid() {
+        throw new RuntimeException("not implemented");
     }
 
     @Override
