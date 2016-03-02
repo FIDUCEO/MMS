@@ -42,7 +42,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,7 +121,7 @@ public class MongoDbDriver extends AbstractDriver {
     public void insert(SatelliteObservation satelliteObservation) throws SQLException {
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
 
-        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFile().getAbsolutePath());
+        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
         document.append(START_TIME_KEY, satelliteObservation.getStartTime());
         document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
         document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
@@ -165,7 +164,7 @@ public class MongoDbDriver extends AbstractDriver {
         final SatelliteObservation satelliteObservation = new SatelliteObservation();
 
         final String dataFile = document.getString(DATA_FILE_KEY);
-        satelliteObservation.setDataFile(new File(dataFile));
+        satelliteObservation.setDataFilePath(dataFile);
 
         final Date startTime = document.getDate(START_TIME_KEY);
         satelliteObservation.setStartTime(startTime);

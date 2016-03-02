@@ -88,10 +88,7 @@ public final strictfp class R2Vector {
         if (vb.x < x) {
             return false;
         }
-        if (y < vb.y) {
-            return true;
-        }
-        return false;
+        return y < vb.y;
     }
 
     @Override

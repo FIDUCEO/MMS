@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -92,7 +91,7 @@ public abstract class StorageTest_SatelliteObservation {
         assertFalse(intersection.isEmpty());
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
-        assertEquals(observation.getDataFile().getAbsolutePath(), observationFromDb.getDataFile().getAbsolutePath());
+        assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
         assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
         assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
     }
@@ -411,7 +410,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
         observation.setGeoBounds(new Geometry[]{geometry});
-        observation.setDataFile(new File("the_data.file"));
+        observation.setDataFilePath("the_data.file");
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);
 

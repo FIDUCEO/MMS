@@ -28,7 +28,6 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
@@ -37,23 +36,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 class IngestionTool {
 
     static String VERSION = "1.0.0";
-    private List<Calendar[]> daysIntervalYear;
 
     static Options getOptions() {
         final Options options = new Options();
@@ -131,12 +124,10 @@ class IngestionTool {
         final Path[] productPaths =  archive.get(startDate,endDate, processingVersion, sensorType);
 
 
-        for (final Path file : productPaths) {
-            reader.open(file.toFile());
+        for (final Path filePath : productPaths) {
+            reader.open(filePath.toFile());
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
-                final Polygon polygon = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
-
 
                 // build polygon from list of points
                 // test if polygon is valid
@@ -152,11 +143,10 @@ class IngestionTool {
 
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-                satelliteObservation.setDataFile(file.toFile().getAbsoluteFile());
+                satelliteObservation.setDataFilePath(filePath.toString());
 
                 Geometry geometry;
                 if (acquisitionInfo.getMultiPolygons() == null) {
-                    //todo: mba to specify which Geometry library to use on each reader. 2016-19-02
                     geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(acquisitionInfo.getCoordinates());
                 } else {
                     if (acquisitionInfo.getMultiPolygons().size() > 0) {
@@ -173,28 +163,6 @@ class IngestionTool {
         }
     }
 
-
-
-    public Path getInputProductPath(CommandLine commandLine, SystemConfig systemConfig) {
-        final String configValue = commandLine.getOptionValue("config");
-        final String sensorType = commandLine.getOptionValue("s");
-
-        final String startDateCommmandLineInput = commandLine.getOptionValue("start");
-        final String endDateCommmandLineInput = commandLine.getOptionValue("end");
-
-        final String version = commandLine.getOptionValue("v");
-        final String concurrent = commandLine.getOptionValue("concurrent");
-
-        Date startDate = TimeUtils.parseDOYBeginOfDay(startDateCommmandLineInput);
-        Date endDate = TimeUtils.parseDOYBeginOfDay(endDateCommmandLineInput);
-
-        Calendar instance = Calendar.getInstance();
-        instance.setTime(startDate);
-
-        String year = Integer.toString(instance.get(Calendar.YEAR));
-        String s = systemConfig.getArchiveRoot() + FileSystems.getDefault().getSeparator() + year;
-        return new File(s).toPath();
-    }
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();

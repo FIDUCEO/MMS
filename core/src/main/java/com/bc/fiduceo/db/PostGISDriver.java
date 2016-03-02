@@ -30,7 +30,6 @@ import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
-import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -104,7 +103,7 @@ public class PostGISDriver extends AbstractDriver {
         }
         preparedStatement.setObject(4, geometryFactory.toStorageFormat(geoBounds[0]));
         preparedStatement.setInt(5, sensorId);
-        preparedStatement.setString(6, observation.getDataFile().getAbsolutePath());
+        preparedStatement.setString(6, observation.getDataFilePath().toString());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
         preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
 
@@ -143,7 +142,7 @@ public class PostGISDriver extends AbstractDriver {
             observation.setSensor(sensor);
 
             final String dataFile = resultSet.getString("DataFile");
-            observation.setDataFile(new File(dataFile));
+            observation.setDataFilePath(dataFile);
 
             final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
             observation.setTimeAxisStartIndex(timeAxisStartIndex);

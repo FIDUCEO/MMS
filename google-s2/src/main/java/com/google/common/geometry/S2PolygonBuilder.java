@@ -119,7 +119,7 @@ public strictfp class S2PolygonBuilder {
     private boolean validate;
     private S1Angle mergeDistance;
 
-    private Options(boolean undirectedEdges, boolean xorEdges) {
+    Options(boolean undirectedEdges, boolean xorEdges) {
       this.undirectedEdges = undirectedEdges;
       this.xorEdges = xorEdges;
       this.validate = false;

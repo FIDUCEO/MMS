@@ -23,7 +23,8 @@ package com.bc.fiduceo.core;
 
 import com.bc.fiduceo.geometry.Geometry;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 
 public class SatelliteObservation {
@@ -33,8 +34,7 @@ public class SatelliteObservation {
     private Geometry[] geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
-    // @todo se/tb can this be replaced by Path from nio package 2016-02-25
-    private File dataFile;
+    private Path dataFilePath;
     private int timeAxisStartIndex;
     private int timeAxisEndIndex;
 
@@ -84,12 +84,12 @@ public class SatelliteObservation {
         this.nodeType = nodeType;
     }
 
-    public File getDataFile() {
-        return dataFile;
+    public Path getDataFilePath() {
+        return dataFilePath;
     }
 
-    public void setDataFile(File dataFile) {
-        this.dataFile = dataFile;
+    public void setDataFilePath(String path) {
+        this.dataFilePath = Paths.get(path);
     }
 
     public int getTimeAxisStartIndex() {
