@@ -91,33 +91,31 @@ public class AVHRR_GAC_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
+        final Geometry boundingGeometry = calculateBoundingGeometry();
+        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
+        return acquisitionInfo;
+    }
+
+    private Geometry calculateBoundingGeometry() throws IOException {
         // @todo 1 tb/tb inject geometry factory 2016-03-02
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
         // @todo 2 tb/tb move intervals to config 2016-03-02
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
-        // @todo 1 tb/tb refactor - extract method that retrieves the Arrays for geo-coordinates and test that 2016-03-02
-        final Variable lon = getVariable("lon");
-        final Array longitudes = lon.read();
-
-        final Variable lat = getVariable("lat");
-        final Array latitudes = lat.read();
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
-
-
-        return acquisitionInfo;
+        final Array longitudes = getLongitudes(netcdfFile);
+        final Array latitudes = getLatitudes(netcdfFile);
+        return boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
     }
 
     @Override
     public PixelLocator getGeoCoding() throws IOException {
-        final Variable lon = getVariable("lon");
-        final Variable lat = getVariable("lat");
+        // @todo 2 tb/tb discuss with Sabine how the interface should be in the end
+        final ArrayFloat lonStorage = (ArrayFloat) getLongitudes(netcdfFile);
+        final ArrayFloat latStorage = (ArrayFloat) getLatitudes(netcdfFile);
 
-        final ArrayFloat lonStorage = (ArrayFloat) lon.read();
-        final ArrayFloat latStorage = (ArrayFloat) lat.read();
-        final int[] shape = lon.getShape();
+        final int[] shape = lonStorage.getShape();
         final int width = shape[1];
         final int height = shape[0];
         return SwathPixelLocator.create(lonStorage, latStorage, width, height, 128);
@@ -140,7 +138,26 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
+    static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
+        return readVariableData(netcdfFile, "lon");
+    }
+
+    static Array getLatitudes(NetcdfFile netcdfFile) throws IOException {
+        return readVariableData(netcdfFile, "lat");
+    }
+
+    private static Array readVariableData(NetcdfFile netcdfFile, String fullNameEscaped) throws IOException {
+        final Variable variable = netcdfFile.findVariable(fullNameEscaped);
+        if (variable == null) {
+            throw new IOException("Required variable '" + fullNameEscaped + "' is missing");
+        }
+
+        return variable.read();
+    }
+
     private Variable getVariable(final String name) {
         return netcdfFile.findVariable(name);
     }
+
+
 }

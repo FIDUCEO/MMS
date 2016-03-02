@@ -24,7 +24,10 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.Array;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.Date;
@@ -117,5 +120,43 @@ public class AVHRR_GAC_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
         }
+    }
+
+    @Test
+    public void testGetLongitudes() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Variable variable = mock(Variable.class);
+        final Array array = mock(Array.class);
+
+        when(variable.read()).thenReturn(array);
+        when(netcdfFile.findVariable("lon")).thenReturn(variable);
+
+        final Array longitudes = AVHRR_GAC_Reader.getLongitudes(netcdfFile);
+        assertNotNull(longitudes);
+    }
+
+    @Test
+    public void testGetLongitudes_missingVariable() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        when(netcdfFile.findVariable("lon")).thenReturn(null);
+
+        try {
+            AVHRR_GAC_Reader.getLongitudes(netcdfFile);
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+    }
+
+    @Test
+    public void testGetLatitudes() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Variable variable = mock(Variable.class);
+        final Array array = mock(Array.class);
+
+        when(variable.read()).thenReturn(array);
+        when(netcdfFile.findVariable("lat")).thenReturn(variable);
+
+        final Array latitudes = AVHRR_GAC_Reader.getLatitudes(netcdfFile);
+        assertNotNull(latitudes);
     }
 }
