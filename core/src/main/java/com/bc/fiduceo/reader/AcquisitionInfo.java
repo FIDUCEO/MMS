@@ -38,10 +38,14 @@ public class AcquisitionInfo {
     private Date sensingStop;
     private NodeType nodeType;
 
+    // @todo tb/** remove this and use GeometryCollection instead 2016-03-02
+    @Deprecated
     public List<Polygon> getMultiPolygons() {
         return multiPolygons;
     }
 
+    // @todo tb/** remove this and use GeometryCollection instead 2016-03-02
+    @Deprecated
     public void setMultiPolygons(List<Polygon> multiPolygons) {
         this.multiPolygons = multiPolygons;
     }

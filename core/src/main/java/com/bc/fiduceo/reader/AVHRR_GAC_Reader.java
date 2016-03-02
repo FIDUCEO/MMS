@@ -22,20 +22,23 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
-import ucar.ma2.ArrayDouble;
+import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.ArrayFloat;
-import ucar.ma2.Range;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public class AVHRR_GAC_Reader implements Reader {
 
     private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
+    private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
+    private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
     private NetcdfFile netcdfFile;
 
     @Override
@@ -72,7 +75,15 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new RuntimeException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
+        acquisitionInfo.setSensingStart(startDate);
+
+        final Date stopDate = parseDateAttribute(netcdfFile.findGlobalAttribute(STOP_TIME_ATTRIBUTE_NAME));
+        acquisitionInfo.setSensingStop(stopDate);
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -88,12 +99,24 @@ public class AVHRR_GAC_Reader implements Reader {
         return SwathPixelLocator.create(lonStorage, latStorage, width, height, 128);
     }
 
-    private Variable getVariable(final String name) {
-        return netcdfFile.findVariable(name);
-    }
-
     @Override
     public String getRegEx() {
         return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
+    }
+
+    // package access for testing only tb 2016-03-02
+    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
+        if (timeAttribute == null) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
+        }
+        final String startTimeString = timeAttribute.getStringValue();
+        if (StringUtils.isNullOrEmpty(startTimeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
+        }
+        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
+
+    private Variable getVariable(final String name) {
+        return netcdfFile.findVariable(name);
     }
 }

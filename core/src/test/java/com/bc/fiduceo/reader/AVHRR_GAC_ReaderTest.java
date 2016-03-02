@@ -21,9 +21,13 @@
 package com.bc.fiduceo.reader;
 
 
+import com.bc.fiduceo.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.nc2.Attribute;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +35,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AVHRR_GAC_ReaderTest {
 
@@ -68,5 +75,47 @@ public class AVHRR_GAC_ReaderTest {
 
         matcher = pattern.matcher("L8912163.NSS.AMBX.NK.D08001.S0000.E0155.B5008586.GC.gz.l1c.h5");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testParseDateAttribute() throws Exception {
+        final Attribute timeAttribute = mock(Attribute.class);
+        when(timeAttribute.getStringValue()).thenReturn("20060526T054530Z");
+
+        final Date date = AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+        TestUtil.assertCorrectUTCDate(2006, 5, 26, 5, 45, 30, date);
+    }
+
+    @Test
+    public void testParseDateAttribute_NullAttribute() throws Exception {
+        try {
+            AVHRR_GAC_Reader.parseDateAttribute(null);
+            fail("IO Exception expected");
+        } catch (IOException e) {
+        }
+    }
+
+    @Test
+    public void testParseDateAttribute_Return_Null_Value() throws Exception {
+        final Attribute timeAttribute = mock(Attribute.class);
+        when(timeAttribute.getStringValue()).thenReturn("");
+
+        try {
+            AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+            fail("IO Exception expected");
+        } catch (IOException e) {
+        }
+    }
+
+    @Test
+    public void testParseDateAttribute_Unparseable_Attribute() throws Exception {
+        final Attribute timeAttribute = mock(Attribute.class);
+        when(timeAttribute.getStringValue()).thenReturn("234390123T77");
+
+        try {
+            AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+            fail("RuntimeException expected");
+        } catch (RuntimeException e) {
+        }
     }
 }
