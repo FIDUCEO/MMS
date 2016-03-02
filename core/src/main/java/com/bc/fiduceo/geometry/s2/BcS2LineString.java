@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -25,11 +24,12 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
+
+import java.util.ArrayList;
 
 class BcS2LineString implements LineString {
 
@@ -56,7 +56,12 @@ class BcS2LineString implements LineString {
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        int numVertices = googleLineString.numVertices();
+        ArrayList<S2Point> s2PointArrayList = new ArrayList<>();
+        for (int i = 0; i < numVertices; i++) {
+            s2PointArrayList.add(googleLineString.vertex(i));
+        }
+        return googleLineString.isValid(s2PointArrayList);
     }
 
     @Override

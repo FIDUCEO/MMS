@@ -21,12 +21,14 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
+import com.google.common.collect.Lists;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -66,6 +68,7 @@ public class BcS2LineStringTest {
                 bcS2LineString.toString());
     }
 
+
     @Test
     public void testGetCoordinates() {
         final ArrayList<S2Point> vertices = new ArrayList<>();
@@ -92,5 +95,16 @@ public class BcS2LineStringTest {
 
         assertNotNull(bcS2LineString.getInner());
         assertSame(innerLineString, bcS2LineString.getInner());
+    }
+
+    @Test
+    public void testIsValidLineString() throws Exception {
+        List<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2Point.normalize(new S2Point(1, -1.1, 0.8)));
+        S2Polyline s2Polyline = new S2Polyline(vertices);
+        BcS2LineString bcS2LineString = new BcS2LineString(s2Polyline);
+
+        assertNotNull(bcS2LineString);
+        assertTrue(bcS2LineString.isValid());
     }
 }
