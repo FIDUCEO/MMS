@@ -96,12 +96,7 @@ public class PostGISDriver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        // @todo 3 tb/tb extend to support multiple geometries
-        final Geometry[] geoBounds = observation.getGeoBounds();
-        if (geoBounds.length != 1) {
-            throw new RuntimeException("Support for multiple geometries not implemented yet");
-        }
-        preparedStatement.setObject(4, geometryFactory.toStorageFormat(geoBounds[0]));
+        preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFilePath().toString());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -134,8 +129,7 @@ public class PostGISDriver extends AbstractDriver {
 
             final byte[] geoBoundsBytes = resultSet.getBytes("ST_AsBinary");
             final Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsBytes);
-            // @todo 3 tb/tb implement support for multiple geometries 2016-03-01
-            observation.setGeoBounds(new Geometry[]{geometry});
+            observation.setGeoBounds(geometry);
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

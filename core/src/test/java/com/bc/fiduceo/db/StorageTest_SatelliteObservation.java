@@ -84,10 +84,9 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
 
         // @todo 3 tb/tb intersection test is not the best here - invent something more cleve 2016-02-23
-        final Geometry[] geoBounds = observation.getGeoBounds();
-        final Geometry[] geoBoundsFromDb = observationFromDb.getGeoBounds();
-        assertEquals(1, geoBoundsFromDb.length);
-        final Geometry intersection = geoBounds[0].getIntersection(geoBoundsFromDb[0]);
+        final Geometry geoBounds = observation.getGeoBounds();
+        final Geometry geoBoundsFromDb = observationFromDb.getGeoBounds();
+        final Geometry intersection = geoBounds.getIntersection(geoBoundsFromDb);
         assertFalse(intersection.isEmpty());
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
@@ -409,7 +408,7 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
-        observation.setGeoBounds(new Geometry[]{geometry});
+        observation.setGeoBounds(geometry);
         observation.setDataFilePath("the_data.file");
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);

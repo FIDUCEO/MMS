@@ -76,12 +76,7 @@ public class H2Driver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        final com.bc.fiduceo.geometry.Geometry[] geoBounds = observation.getGeoBounds();
-        // @todo 1 tb/tb implement support for multi geometries 2016-03-01
-        if (geoBounds.length != 1) {
-            throw new RuntimeException("support for multiple geometries not implemented yet");
-        }
-        final String wkt = geometryFactory.format(geoBounds[0]);
+        final String wkt = geometryFactory.format(observation.getGeoBounds());
         preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFilePath().toString());
@@ -124,9 +119,8 @@ public class H2Driver extends AbstractDriver {
             // @todo 2 tb/tb remove this when H2GIS is working properly 2015-12-22
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
             final byte[] geoBoundsWkb = wkbWriter.write(geoBounds);
-            // @todo 1 tb/tb implement support for multi geometries 2016-03-01
             final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkb);
-            observation.setGeoBounds(new com.bc.fiduceo.geometry.Geometry[] {geometry});
+            observation.setGeoBounds(geometry);
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

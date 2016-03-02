@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -36,6 +37,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -105,6 +107,9 @@ public class MongoDbDriverTest {
         assertEquals(polygonCoordinatesList.get(1).getExterior().get(1).toString(), "Position{values=[49.99999999999999, 70.0]}");
     }
 
+    // @todo 1 tb/tb convert GeometryColection with two entries
+    // @todo 1 tb/tb convert GeometryColection with one entry
+
     @Test
     public void testConvertToGeometry_polygon() {
         final double[] lons = {-12.0, -12.0, -11.0, -11.0, -12.0};
@@ -148,7 +153,7 @@ public class MongoDbDriverTest {
         }
         last.add(polygonList);
         jsonMultiPolygon.append("coordinates", last);
-        Geometry geometry = driver.convertToGeometry(jsonMultiPolygon);
+        final Geometry geometry = driver.convertToGeometry(jsonMultiPolygon);
         assertNotNull(geometry);
         assertEquals(geometry.getCoordinates().length, 7);
         MultiPolygon multiPolygon = (MultiPolygon) geometry;
@@ -173,23 +178,25 @@ public class MongoDbDriverTest {
 
 
     @Test
-    public void testConvertToGeoJSON_GeomeryArray() {
-        Geometry polygonGeometry = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
-        MultiPolygon multiPolygon = getMultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
+    public void testConvertToGeoJSON_GeometryCollection() {
+        final Geometry polygonGeometry = geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))");
+        final MultiPolygon multiPolygon = getMultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90)))");
 
-        Geometry geometry[] = new Geometry[2];
-        geometry[0] = polygonGeometry;
-        geometry[1] = multiPolygon;
+        final Geometry[] geometries = new Geometry[2];
+        geometries[0] = polygonGeometry;
+        geometries[1] = multiPolygon;
+        final GeometryCollection geometryCollection = new BcGeometryCollection();
+        geometryCollection.setGeometries(geometries);
 
-        com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometry);
+        com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometryCollection);
         assertNotNull(mongoGeometry);
 
-        List<? extends com.mongodb.client.model.geojson.Geometry> geometries = ((com.mongodb.client.model.geojson.GeometryCollection) mongoGeometry).getGeometries();
+        List<? extends com.mongodb.client.model.geojson.Geometry> convertedGeometries = ((com.mongodb.client.model.geojson.GeometryCollection) mongoGeometry).getGeometries();
 
 
-        assertEquals(2, geometries.size());
+        assertEquals(2, convertedGeometries.size());
         assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
-                geometries.get(0).toString());
+                convertedGeometries.get(0).toString());
 
         assertEquals("MultiPolygon{coordinates=[PolygonCoordinates{exterior=[Position{values=[20.0, 0.0]}, " +
                 "Position{values=[49.99999999999999, 0.0]}, Position{values=[50.0, 20.0]}, " +
@@ -197,7 +204,7 @@ public class MongoDbDriverTest {
                 "PolygonCoordinates{exterior=[Position{values=[20.0, 70.0]}, " +
                 "Position{values=[49.99999999999999, 70.0]}, " +
                 "Position{values=[49.99999999999999, 90.0]}, " +
-                "Position{values=[20.0, 70.0]}]}]}", geometries.get(1).toString());
+                "Position{values=[20.0, 70.0]}]}]}", convertedGeometries.get(1).toString());
     }
 
     @Test
@@ -217,6 +224,7 @@ public class MongoDbDriverTest {
         jsonGeometryCollection.append("geometries", geometryList);
 
         final Geometry geometry = driver.convertToGeometry(jsonGeometryCollection);
+
         assertTrue(geometry instanceof GeometryCollection);
         final GeometryCollection geometryCollection = (GeometryCollection) geometry;
         final Geometry[] geometries = geometryCollection.getGeometries();

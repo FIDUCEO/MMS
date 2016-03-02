@@ -31,7 +31,7 @@ public class SatelliteObservation {
 
     private Date startTime;
     private Date stopTime;
-    private Geometry[] geoBounds;
+    private Geometry geoBounds;
     private Sensor sensor;
     private NodeType nodeType;
     private Path dataFilePath;
@@ -44,11 +44,11 @@ public class SatelliteObservation {
         timeAxisEndIndex = -1;
     }
 
-   public Geometry[] getGeoBounds() {
+    public Geometry getGeoBounds() {
         return geoBounds;
     }
 
-    public void setGeoBounds(Geometry[] geoBounds) {
+    public void setGeoBounds(Geometry geoBounds) {
         this.geoBounds = geoBounds;
     }
 

@@ -199,19 +199,6 @@ public class BcS2PolygonTest {
                 S2WKTWriter.write(union.getInner()));
     }
 
-    // does not work with S2 lbrary tb 2016-03-01
-//    @Test
-//    public void testGetUnion_polygonsWithCommonVertices() {
-//        final BcS2Polygon s2Polygon_1 = createS2Polygon("POLYGON((-1 1, 2 1, 2 3, -1 3, -1 1))");
-//        final BcS2Polygon s2Polygon_2 = createS2Polygon("POLYGON((2.0 1, 5 1, 2.0 3, 2.0 1))");
-//
-//        final Polygon union = s2Polygon_1.getUnion(s2Polygon_2);
-//        assertFalse(union.isEmpty());
-//
-//        assertEquals("POLYGON((1.9999999999999996 -0.3501761146482015,1.9999999999999996 -1.0,4.000000000000001 -1.0,4.000000000000001 1.0,1.9999999999999996 1.0,1.9999999999999996 0.500228561696982,-1.0 0.5,-1.0 -0.5,1.9999999999999996 -0.3501761146482015))",
-//                S2WKTWriter.write(union.getInner()));
-//    }
-
     @Test
     public void testContains_pointInside() {
         final BcS2Polygon polygon = createS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");

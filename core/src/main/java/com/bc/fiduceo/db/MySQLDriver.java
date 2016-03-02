@@ -68,12 +68,7 @@ public class MySQLDriver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        final Geometry[] geoBounds = observation.getGeoBounds();
-        // @todo 1 tb/tb implement support for multi geometries 2016-03-01
-        if (geoBounds.length != 1) {
-            throw new RuntimeException("support for multigeometries not implemented yet");
-        }
-        preparedStatement.setObject(4, geometryFactory.toStorageFormat(geoBounds[0]));
+        preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFilePath().toString());
         preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
@@ -104,9 +99,8 @@ public class MySQLDriver extends AbstractDriver {
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
             final byte[] geoBoundsBytes = resultSet.getBytes("AsWKB(GeoBounds)");
-            // @todo 1 tb/tb implement support for multi geometries 2016-03-01
             final Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsBytes);
-            observation.setGeoBounds(new Geometry[]{geometry});
+            observation.setGeoBounds(geometry);
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);

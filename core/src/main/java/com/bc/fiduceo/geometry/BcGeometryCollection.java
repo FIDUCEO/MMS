@@ -21,9 +21,7 @@
 package com.bc.fiduceo.geometry;
 
 
-import com.mongodb.client.model.geojson.*;
-
-public class BcGeometryCollection implements GeometryCollection{
+public class BcGeometryCollection implements GeometryCollection {
 
     private Geometry[] geometries;
 

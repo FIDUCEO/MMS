@@ -106,8 +106,8 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
         assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
 
-        assertEquals(observation.getGeoBounds()[0].getCoordinates().length, 104);
-        assertEquals(observationFromDb.getGeoBounds()[0].getCoordinates().length, 106);
+        assertEquals(observation.getGeoBounds().getCoordinates().length, 104);
+        assertEquals(observationFromDb.getGeoBounds().getCoordinates().length, 106);
     }
 
 
@@ -136,7 +136,7 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         } else {
             geometry = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
         }
-        observation.setGeoBounds(new Geometry[]{geometry});
+        observation.setGeoBounds(geometry);
 
         return observation;
     }

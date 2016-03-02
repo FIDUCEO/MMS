@@ -121,7 +121,7 @@ class IngestionTool {
         final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
 
         final Archive archive = new Archive(archiveRootPath);
-        final Path[] productPaths =  archive.get(startDate,endDate, processingVersion, sensorType);
+        final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
 
 
         for (final Path filePath : productPaths) {
@@ -155,7 +155,7 @@ class IngestionTool {
                         geometry = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
                     }
                 }
-                satelliteObservation.setGeoBounds(new Geometry[]{geometry});
+                satelliteObservation.setGeoBounds(geometry);
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();

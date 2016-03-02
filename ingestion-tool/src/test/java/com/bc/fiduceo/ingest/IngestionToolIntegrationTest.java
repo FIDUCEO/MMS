@@ -159,9 +159,9 @@ public class IngestionToolIntegrationTest {
 
 
             assertEquals(observationFromDb.getSensor().getName(), "amsub-n15");
-            assertEquals(observationFromDb.getGeoBounds()[0].getCoordinates().length, 106);
+            assertEquals(observationFromDb.getGeoBounds().getCoordinates().length, 106);
 
-            ArrayList<Polygon> polygonArrayList = (ArrayList<Polygon>) observationFromDb.getGeoBounds()[0].getInner();
+            ArrayList<Polygon> polygonArrayList = (ArrayList<Polygon>) observationFromDb.getGeoBounds().getInner();
             Polygon polygon = polygonArrayList.get(0);
             assertEquals("Polygon: (1) loops:\n" +
                     "loop <\n" +

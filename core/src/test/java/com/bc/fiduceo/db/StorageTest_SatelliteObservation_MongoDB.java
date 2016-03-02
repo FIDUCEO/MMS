@@ -23,7 +23,9 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -162,7 +164,10 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         observation.setStopTime(new Date());
         observation.setNodeType(NodeType.ASCENDING);
 
-        observation.setGeoBounds(new Geometry[]{geometry_1, geometry_2});
+        final Geometry[] geometries = {geometry_1, geometry_2};
+        final GeometryCollection geometryCollection = new BcGeometryCollection();
+        geometryCollection.setGeometries(geometries);
+        observation.setGeoBounds(geometryCollection);
         observation.setDataFilePath("the_data.file");
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);

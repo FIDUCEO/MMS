@@ -23,8 +23,10 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
@@ -36,8 +38,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
-import com.mongodb.client.model.geojson.*;
-import com.mongodb.client.model.geojson.GeometryCollection;
+import com.mongodb.client.model.geojson.PolygonCoordinates;
+import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bson.Document;
 import org.esa.snap.core.util.StringUtils;
@@ -93,11 +95,6 @@ public class MongoDbDriver extends AbstractDriver {
         }
 
         return false;
-    }
-
-    // @todo 1 tb/tb remove this method when the spike is finished 2016-03-01
-    public MongoDatabase getDatabase() {
-        return database;
     }
 
     @Override
@@ -177,7 +174,7 @@ public class MongoDbDriver extends AbstractDriver {
 
         final Document geoBounds = (Document) document.get(GEO_BOUNDS_KEY);
         final Geometry geometry = convertToGeometry(geoBounds);
-        satelliteObservation.setGeoBounds(new Geometry[]{geometry});
+        satelliteObservation.setGeoBounds(geometry);
 
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         final Document jsonSensor = (Document) document.get(SENSOR_KEY);
@@ -190,7 +187,6 @@ public class MongoDbDriver extends AbstractDriver {
         return satelliteObservation;
     }
 
-    // @todo 1 tb/tb extend to support geometrycollections, add tests! 2016-03-01
     // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
@@ -252,23 +248,13 @@ public class MongoDbDriver extends AbstractDriver {
         return queryConstraints;
     }
 
-    // @todo 1 tb/tb write tests!! 2016-03-01
-    static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry[] geometries) {
-        if (geometries.length == 1) {
-            return convertToGeoJSON(geometries[0]);
-        }
-
-        final List<com.mongodb.client.model.geojson.Geometry> geometryList = new ArrayList<>();
-        for (final Geometry geometry : geometries) {
-            geometryList.add(convertToGeoJSON(geometry));
-        }
-        return new GeometryCollection(geometryList);
-    }
-
-    // @todo 1 tb/tb remove public when test spike is done
     // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
-    public static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
+    static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
+        if (geometry instanceof GeometryCollection) {
+            return convertGeometryCollectionToGeoJSON((GeometryCollection) geometry);
+        }
+
         final Point[] coordinates = geometry.getCoordinates();
         final ArrayList<Position> geometryPoints = extractPointsFromGeometry(coordinates);
         if (geometry instanceof Polygon) {
@@ -287,6 +273,19 @@ public class MongoDbDriver extends AbstractDriver {
         }
 
         throw new RuntimeException("Geometry type support not implemented");
+    }
+
+    private static com.mongodb.client.model.geojson.Geometry convertGeometryCollectionToGeoJSON(GeometryCollection geometryCollection) {
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        if (geometries.length == 1) {
+            return convertToGeoJSON(geometries[0]);
+        }
+
+        final List<com.mongodb.client.model.geojson.Geometry> geometryList = new ArrayList<>();
+        for (final Geometry geometry : geometries) {
+            geometryList.add(convertToGeoJSON(geometry));
+        }
+        return new com.mongodb.client.model.geojson.GeometryCollection(geometryList);
     }
 
     private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {
