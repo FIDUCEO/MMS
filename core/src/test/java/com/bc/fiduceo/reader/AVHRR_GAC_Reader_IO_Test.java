@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,6 +61,9 @@ public class AVHRR_GAC_Reader_IO_Test {
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+
         } finally {
             reader.close();
         }
@@ -86,6 +90,9 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
 
         } finally {
             reader.close();

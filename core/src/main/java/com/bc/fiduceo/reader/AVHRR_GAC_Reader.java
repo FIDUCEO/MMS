@@ -20,11 +20,15 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -40,6 +44,7 @@ public class AVHRR_GAC_Reader implements Reader {
     private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
+
     private NetcdfFile netcdfFile;
 
     @Override
@@ -85,6 +90,22 @@ public class AVHRR_GAC_Reader implements Reader {
         acquisitionInfo.setSensingStop(stopDate);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        // @todo 1 tb/tb inject geometry factory 2016-03-02
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+
+        // @todo 2 tb/tb move intervals to config 2016-03-02
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
+        // @todo 1 tb/tb refactor - extract method that retrieves the Arrays for geo-coordinates and test that 2016-03-02
+        final Variable lon = getVariable("lon");
+        final Array longitudes = lon.read();
+
+        final Variable lat = getVariable("lat");
+        final Array latitudes = lat.read();
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
+        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
 
         return acquisitionInfo;
     }
