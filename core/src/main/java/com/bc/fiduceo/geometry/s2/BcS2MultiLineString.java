@@ -23,6 +23,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
@@ -35,6 +36,11 @@ class BcS2MultiLineString implements LineString {
 
     private List<S2Polyline> s2PolylineList;
 
+
+    public BcS2MultiLineString(List<S2Polyline> s2Polylines) {
+        this.s2PolylineList = s2Polylines;
+    }
+
     static BcS2MultiLineString createFrom(List<BcS2LineString> lineStringList) {
         final List<S2Polyline> googlePolyLineList = new ArrayList<>();
         for (final BcS2LineString lineString : lineStringList) {
@@ -44,24 +50,37 @@ class BcS2MultiLineString implements LineString {
         return new BcS2MultiLineString(googlePolyLineList);
     }
 
-    public BcS2MultiLineString(List<S2Polyline> s2Polylines) {
-        this.s2PolylineList = s2Polylines;
-    }
-
     @Override
     public Geometry getIntersection(Geometry other) {
         throw new RuntimeException("not implemented");
     }
 
-    // @todo 2 tb/mb implement real test for emptiness and write tests for that 2016-03-02
     @Override
     public boolean isEmpty() {
+        if (s2PolylineList.isEmpty()) {
+            return true;
+        }
+
+        for (S2Polyline s2Polyline : s2PolylineList) {
+            if (s2Polyline == null) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        boolean valid = false;
+        for (S2Polyline s2Polyline : s2PolylineList) {
+            int numVertices = s2Polyline.numVertices();
+            ArrayList<S2Point> s2PointArrayList = new ArrayList<>();
+            for (int i = 0; i < numVertices; i++) {
+                s2PointArrayList.add(s2Polyline.vertex(i));
+            }
+            valid = s2Polyline.isValid(s2PointArrayList);
+        }
+        return valid;
     }
 
     @Override

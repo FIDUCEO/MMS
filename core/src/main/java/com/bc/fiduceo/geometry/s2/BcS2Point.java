@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -26,7 +25,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
 
-class BcS2Point implements Point{
+class BcS2Point implements Point {
 
     private S2LatLng s2LatLng;
 
@@ -40,13 +39,13 @@ class BcS2Point implements Point{
     }
 
     @Override
-    public double getLat() {
-        return s2LatLng.latDegrees();
+    public void setLon(double lon) {
+        s2LatLng = S2LatLng.fromDegrees(s2LatLng.latDegrees(), lon);
     }
 
     @Override
-    public void setLon(double lon) {
-        s2LatLng = S2LatLng.fromDegrees(s2LatLng.latDegrees(), lon);
+    public double getLat() {
+        return s2LatLng.latDegrees();
     }
 
     @Override
@@ -61,17 +60,17 @@ class BcS2Point implements Point{
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return s2LatLng != null;
     }
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        return s2LatLng.isValid();
     }
 
     @Override
     public Point[] getCoordinates() {
-        return new Point[] {this};
+        return new Point[]{this};
     }
 
     @Override
