@@ -21,6 +21,7 @@
 package com.bc.fiduceo;
 
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
@@ -187,6 +188,32 @@ public class TestUtil {
             coordinates[i] = new Coordinate(point.getLon(), point.getLat());
         }
         return coordinates;
+    }
+
+    public static String plotMultiPolygon(List<Polygon> polygonList) {
+        final StringBuilder stringBuffer = new StringBuilder();
+        stringBuffer.append("MULTIPOLYGON(");
+
+        for (int j = 0; j < polygonList.size(); j++) {
+            Polygon polygon = polygonList.get(j);
+            final Point[] points = polygon.getCoordinates();
+            stringBuffer.append("((");
+            for (int i = 0; i < points.length; i++) {
+                Point coordinate = points[i];
+                stringBuffer.append(coordinate.getLon());
+                stringBuffer.append(" ");
+                stringBuffer.append(coordinate.getLat());
+                if (i < points.length - 1) {
+                    stringBuffer.append(",");
+                }
+            }
+            stringBuffer.append("))");
+            if (j < polygonList.size() - 1) {
+                stringBuffer.append(",");
+            }
+        }
+        stringBuffer.append(")");
+        return stringBuffer.toString();
     }
 
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {

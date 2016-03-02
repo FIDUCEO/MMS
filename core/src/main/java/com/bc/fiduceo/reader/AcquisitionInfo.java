@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 
@@ -30,6 +31,7 @@ import java.util.List;
 
 public class AcquisitionInfo {
 
+    private Geometry boundingGeometry;
     private List<Point> coordinates;
     private List<Polygon> multiPolygons;
     private int[] timeAxisStartIndices;
@@ -56,6 +58,14 @@ public class AcquisitionInfo {
 
     public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public Geometry getBoundingGeometry() {
+        return boundingGeometry;
+    }
+
+    public void setBoundingGeometry(Geometry boundingGeometry) {
+        this.boundingGeometry = boundingGeometry;
     }
 
     public int[] getTimeAxisStartIndices() {

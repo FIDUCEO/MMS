@@ -46,13 +46,6 @@ public class BoundingPolygonCreator {
         this.intervalY = interval.getY();
 
         this.geometryFactory = geometryFactory;
-
-    }
-
-    static void closePolygon(List<Point> coordinates) {
-        if (coordinates.size() > 1) {
-            coordinates.add(coordinates.get(0));
-        }
     }
 
     public static boolean arePolygonsValid(List<Polygon> polygonList) {
@@ -63,33 +56,6 @@ public class BoundingPolygonCreator {
         }
         return true;
     }
-
-    public static String plotMultiPolygon(List<Polygon> polygonList) {
-        final StringBuilder stringBuffer = new StringBuilder();
-        stringBuffer.append("MULTIPOLYGON(");
-
-        for (int j = 0; j < polygonList.size(); j++) {
-            Polygon polygon = polygonList.get(j);
-            final Point[] points = polygon.getCoordinates();
-            stringBuffer.append("((");
-            for (int i = 0; i < points.length; i++) {
-                Point coordinate = points[i];
-                stringBuffer.append(coordinate.getLon());
-                stringBuffer.append(" ");
-                stringBuffer.append(coordinate.getLat());
-                if (i < points.length - 1) {
-                    stringBuffer.append(",");
-                }
-            }
-            stringBuffer.append("))");
-            if (j < polygonList.size() - 1) {
-                stringBuffer.append(",");
-            }
-        }
-        stringBuffer.append(")");
-        return stringBuffer.toString();
-    }
-
 
     public static String plotPolygon(List<Point> points) {
         final StringBuilder stringBuffer = new StringBuilder();
@@ -343,5 +309,11 @@ public class BoundingPolygonCreator {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setCoordinates(coordinates);
         return acquisitionInfo;
+    }
+
+    static void closePolygon(List<Point> coordinates) {
+        if (coordinates.size() > 1) {
+            coordinates.add(coordinates.get(0));
+        }
     }
 }
