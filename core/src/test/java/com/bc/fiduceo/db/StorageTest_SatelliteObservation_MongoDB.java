@@ -163,7 +163,7 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         observation.setNodeType(NodeType.ASCENDING);
 
         observation.setGeoBounds(new Geometry[]{geometry_1, geometry_2});
-        observation.setDataFile(new File("the_data.file"));
+        observation.setDataFilePath("the_data.file");
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);
 
