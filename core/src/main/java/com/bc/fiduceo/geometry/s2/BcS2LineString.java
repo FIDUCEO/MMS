@@ -25,6 +25,8 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.geometry.s2.S2WKTReader;
+import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -39,8 +41,7 @@ class BcS2LineString implements LineString {
 
     @Override
     public String toString() {
-        // @todo 3 tb/** make this class return WKT 2016-02-26
-        return googleLineString.toString();
+        return S2WKTWriter.write(googleLineString);
     }
 
     @Override

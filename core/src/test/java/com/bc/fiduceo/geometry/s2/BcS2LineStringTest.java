@@ -58,10 +58,12 @@ public class BcS2LineStringTest {
     public void testToString() {
         final ArrayList<S2Point> vertices = new ArrayList<>();
         vertices.add(new S2Point(0.1, 0.2, 0.5));
+        vertices.add(new S2Point(0.3, 0.9, 0.8));
         final S2Polyline innerLineString = new S2Polyline(vertices);
         final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        assertTrue(bcS2LineString.toString().contains("com.google.common.geometry.S2Polyline@"));
+        assertEquals("LINESTRING(63.43494882292201 65.90515744788931,71.56505117707799 40.14006614878386)",
+                bcS2LineString.toString());
     }
 
     @Test
