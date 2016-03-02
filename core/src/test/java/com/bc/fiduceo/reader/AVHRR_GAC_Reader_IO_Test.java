@@ -39,6 +39,33 @@ import static org.junit.Assert.assertTrue;
 public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
+    public void testReadAcquisitionInfo_NOAA17() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File file = new File(testDataDirectory, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
+        assertTrue(file.isFile());
+
+        final AVHRR_GAC_Reader reader = new AVHRR_GAC_Reader();
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 5, 28, 48, 0, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadAcquisitionInfo_NOAA18() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File file = new File(testDataDirectory, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
@@ -60,10 +87,8 @@ public class AVHRR_GAC_Reader_IO_Test {
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
-
         } finally {
             reader.close();
         }
-
     }
 }
