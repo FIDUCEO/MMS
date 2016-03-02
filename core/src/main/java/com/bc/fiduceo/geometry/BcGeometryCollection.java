@@ -21,6 +21,10 @@
 package com.bc.fiduceo.geometry;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class BcGeometryCollection implements GeometryCollection {
 
     private Geometry[] geometries;
@@ -47,11 +51,15 @@ public class BcGeometryCollection implements GeometryCollection {
 
     @Override
     public Point[] getCoordinates() {
-        throw new RuntimeException("not implemented");
+        List<Point> pointsList = new ArrayList<>();
+        for (Geometry geometry : geometries) {
+            pointsList.addAll(Arrays.asList(geometry.getCoordinates()));
+        }
+        return pointsList.toArray(new Point[pointsList.size()]);
     }
 
     @Override
     public Object getInner() {
-        throw new RuntimeException("not implemented");
+        return geometries;
     }
 }
