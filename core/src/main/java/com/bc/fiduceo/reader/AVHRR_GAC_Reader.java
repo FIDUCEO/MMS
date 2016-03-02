@@ -106,8 +106,11 @@ public class AVHRR_GAC_Reader implements Reader {
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
         final Array longitudes = getLongitudes(netcdfFile);
         final Array latitudes = getLatitudes(netcdfFile);
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
+        if (!boundingGeometry.isValid()) {
+            boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+        }
         return boundingGeometry;
     }
 
