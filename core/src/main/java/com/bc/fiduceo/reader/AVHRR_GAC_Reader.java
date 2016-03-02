@@ -20,11 +20,15 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -40,6 +44,7 @@ public class AVHRR_GAC_Reader implements Reader {
     private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
+
     private NetcdfFile netcdfFile;
 
     @Override
@@ -86,17 +91,31 @@ public class AVHRR_GAC_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
+        final Geometry boundingGeometry = calculateBoundingGeometry();
+        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
         return acquisitionInfo;
+    }
+
+    private Geometry calculateBoundingGeometry() throws IOException {
+        // @todo 1 tb/tb inject geometry factory 2016-03-02
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+
+        // @todo 2 tb/tb move intervals to config 2016-03-02
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
+        final Array longitudes = getLongitudes(netcdfFile);
+        final Array latitudes = getLatitudes(netcdfFile);
+        return boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
     }
 
     @Override
     public PixelLocator getGeoCoding() throws IOException {
-        final Variable lon = getVariable("lon");
-        final Variable lat = getVariable("lat");
+        // @todo 2 tb/tb discuss with Sabine how the interface should be in the end
+        final ArrayFloat lonStorage = (ArrayFloat) getLongitudes(netcdfFile);
+        final ArrayFloat latStorage = (ArrayFloat) getLatitudes(netcdfFile);
 
-        final ArrayFloat lonStorage = (ArrayFloat) lon.read();
-        final ArrayFloat latStorage = (ArrayFloat) lat.read();
-        final int[] shape = lon.getShape();
+        final int[] shape = lonStorage.getShape();
         final int width = shape[1];
         final int height = shape[0];
         return SwathPixelLocator.create(lonStorage, latStorage, width, height, 128);
@@ -119,7 +138,26 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
+    static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
+        return readVariableData(netcdfFile, "lon");
+    }
+
+    static Array getLatitudes(NetcdfFile netcdfFile) throws IOException {
+        return readVariableData(netcdfFile, "lat");
+    }
+
+    private static Array readVariableData(NetcdfFile netcdfFile, String fullNameEscaped) throws IOException {
+        final Variable variable = netcdfFile.findVariable(fullNameEscaped);
+        if (variable == null) {
+            throw new IOException("Required variable '" + fullNameEscaped + "' is missing");
+        }
+
+        return variable.read();
+    }
+
     private Variable getVariable(final String name) {
         return netcdfFile.findVariable(name);
     }
+
+
 }

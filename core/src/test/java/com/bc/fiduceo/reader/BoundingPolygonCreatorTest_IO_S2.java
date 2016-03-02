@@ -38,19 +38,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
-public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest {
+public class BoundingPolygonCreatorTest_IO_S2 {
 
     private NetcdfFile netcdfFile;
     private AMSU_MHS_L1B_Reader reader;
+    private BoundingPolygonCreator boundingPolygonCreator;
 
 
     @Before
     public void setUp() throws IOException {
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Interval interval = new Interval(8, 8);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
@@ -68,7 +68,7 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         netcdfFile.close();
     }
 
-     @Test
+    @Test
     public void createValidMultiplePolygon_AMSU_Reader() throws IOException {
         List<Polygon> polygonList = new ArrayList<>();
         List<ArrayDouble.D2> long_lat = AMSU_MHS_L1B_Reader.getLat_Long(netcdfFile);
@@ -80,8 +80,6 @@ public class BoundingPolygonCreatorTest_IO_S2 extends BoundingPolygonCreatorTest
         int width = shape[1] - 1;
         int height = (shape[0] - 1);
 
-        GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
         for (int i = 1; i <= 4; i++) {
             polygonList = boundingPolygonCreator.createPolygonsBounding(arrayLat, arrayLong, width, height, i);
             if (BoundingPolygonCreator.arePolygonsValid(polygonList)) {

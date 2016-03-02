@@ -22,11 +22,14 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
+import ucar.ma2.Index;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -314,5 +317,47 @@ public class BoundingPolygonCreator {
         if (coordinates.size() > 1) {
             coordinates.add(coordinates.get(0));
         }
+    }
+
+
+    public Geometry createBoundingGeometry(Array longitudes, Array latitudes) {
+        final int[] shape = longitudes.getShape();
+
+        int maxX = shape[1] - 1;
+        int maxY = shape[0] - 1;
+
+        final Index index = Index.factory(shape);
+        final List<Point> coordinates = new ArrayList<>();
+        for (int y = 0; y < maxY; y += intervalY) {
+            index.set(y, 0);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int x = 0; x < maxX; x += intervalX) {
+            index.set(maxY, x);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int y = maxY; y > 0; y -= intervalY) {
+            index.set(y, maxX);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int x = maxX; x >0; x -= intervalX) {
+            index.set(0, x);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        closePolygon(coordinates);
+
+        return geometryFactory.createPolygon(coordinates);
     }
 }
