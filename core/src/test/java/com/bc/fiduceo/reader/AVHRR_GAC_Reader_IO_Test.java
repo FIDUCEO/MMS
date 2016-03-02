@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.NodeType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -54,6 +56,9 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 9, 46, 11, 0, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
 
 
         } finally {

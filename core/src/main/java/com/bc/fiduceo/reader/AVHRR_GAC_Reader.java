@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
@@ -82,6 +83,8 @@ public class AVHRR_GAC_Reader implements Reader {
 
         final Date stopDate = parseDateAttribute(netcdfFile.findGlobalAttribute(STOP_TIME_ATTRIBUTE_NAME));
         acquisitionInfo.setSensingStop(stopDate);
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
         return acquisitionInfo;
     }
