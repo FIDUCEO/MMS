@@ -72,6 +72,9 @@ class BcS2MultiLineString implements LineString {
                 for (int i = 0; i < numVertices; i++) {
                     S2Point vertex = s2Polyline.vertex(i);
                     isInitialPointsZero = vertex.getX() == 0 && vertex.getY() == 0 && vertex.getZ() == 0;
+                    if (!isInitialPointsZero){
+                        return false;
+                    }
                 }
             }
         }

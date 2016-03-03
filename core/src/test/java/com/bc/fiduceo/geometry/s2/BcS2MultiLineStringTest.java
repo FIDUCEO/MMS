@@ -68,6 +68,21 @@ public class BcS2MultiLineStringTest {
         assertTrue(multiLineString.isEmpty());
     }
 
+
+    @Test
+    public void testIsEmpty_ZeroPointIntervals() {
+        S2Point[] s2PointList = {new S2Point(), new S2Point(30.0, 20.0, 1.0), new S2Point(), new S2Point(3.0, 7.0, 6.0)};
+        S2Polyline s2Polyline = new S2Polyline(Arrays.asList(s2PointList));
+
+        final BcS2LineString lineString_1 = new BcS2LineString(s2Polyline);
+        final List<BcS2LineString> lineStringList = new ArrayList<>();
+        lineStringList.add(lineString_1);
+
+        final BcS2MultiLineString multiLineString = BcS2MultiLineString.createFrom(lineStringList);
+        assertNotNull(multiLineString);
+        assertFalse(multiLineString.isEmpty());
+    }
+
     @Test
     public void testIsEmpty_Null_Polyline() {
         final BcS2LineString lineString_1 = new BcS2LineString(null);
