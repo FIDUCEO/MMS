@@ -46,7 +46,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(DatabaseTestRunner.class)
+@RunWith(DbAndIOTestRunner.class)
 public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_SatelliteObservation {
 
     // This test will use a local database implementation. Please make sure that you have a running MongoDb database server
