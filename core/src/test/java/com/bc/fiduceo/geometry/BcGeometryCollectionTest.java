@@ -18,7 +18,9 @@ public class BcGeometryCollectionTest {
 
         Point[] coordinates = geometryCollection.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(8,coordinates.length);
+        assertEquals(10,coordinates.length);
+
+        // todo 2 tb/mb please alos check for the data content, the number of points is not a sufficent assertion here 2016-03-03
     }
 
     private GeometryCollection getGeometryCollection() {

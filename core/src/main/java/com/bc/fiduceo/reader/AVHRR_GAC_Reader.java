@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
@@ -107,9 +108,9 @@ public class AVHRR_GAC_Reader implements Reader {
         final Array longitudes = getLongitudes(netcdfFile);
         final Array latitudes = getLatitudes(netcdfFile);
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
         if (!boundingGeometry.isValid()) {
-            boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+            checkForValidity((GeometryCollection) boundingGeometry);
         }
         return boundingGeometry;
     }
@@ -149,6 +150,16 @@ public class AVHRR_GAC_Reader implements Reader {
 
     static Array getLatitudes(NetcdfFile netcdfFile) throws IOException {
         return readVariableData(netcdfFile, "lat");
+    }
+
+    // @todo 2 tb/tb write test 2016-03-03
+    static void checkForValidity(GeometryCollection boundingGeometry) {
+        final Geometry[] geometries = boundingGeometry.getGeometries();
+        for (final Geometry geometry : geometries) {
+            if (!geometry.isValid()){
+                throw new RuntimeException("Invalid geometry detected");
+            }
+        }
     }
 
     private static Array readVariableData(NetcdfFile netcdfFile, String fullNameEscaped) throws IOException {

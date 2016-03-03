@@ -58,7 +58,7 @@ public class BcS2PolygonTest {
         assertFalse(intersection.isEmpty());
 
         final Point[] coordinates = intersection.getCoordinates();
-        assertEquals(5, coordinates.length);
+        assertEquals(6, coordinates.length);
         assertEquals(-4.5, coordinates[0].getLon(), 1e-8);
         assertEquals(1.0, coordinates[0].getLat(), 1e-8);
 
@@ -117,12 +117,15 @@ public class BcS2PolygonTest {
 
         final Point[] coordinates = bcS2Polygon.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(4, coordinates.length);
+        assertEquals(5, coordinates.length);
         assertEquals(5.0, coordinates[0].getLon(), 1e-8);
         assertEquals(-1.0, coordinates[0].getLat(), 1e-8);
 
         assertEquals(4.0, coordinates[2].getLon(), 1e-8);
         assertEquals(0.0, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(5.0, coordinates[4].getLon(), 1e-8);
+        assertEquals(-1.0, coordinates[4].getLat(), 1e-8);
     }
 
     @Test

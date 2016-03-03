@@ -25,6 +25,8 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,7 +65,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-
+            assertTrue(boundingGeometry instanceof GeometryCollection);
         } finally {
             reader.close();
         }
@@ -93,7 +95,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-
+            assertTrue(boundingGeometry instanceof GeometryCollection);
         } finally {
             reader.close();
         }

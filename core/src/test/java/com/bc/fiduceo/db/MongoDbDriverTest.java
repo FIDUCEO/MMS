@@ -169,7 +169,6 @@ public class MongoDbDriverTest {
                 "(9.0, -12.0)\n" +
                 "(9.0, -10.999999999999998)\n" +
                 "(7.999999999999998, -10.999999999999998)\n" +
-                "(7.999999999999998, -12.000000000000002)\n" +
                 ">\n", geometry.toString());
     }
 
@@ -200,7 +199,7 @@ public class MongoDbDriverTest {
         jsonMultiPolygon.append("coordinates", last);
         final Geometry geometry = driver.convertToGeometry(jsonMultiPolygon);
         assertNotNull(geometry);
-        assertEquals(geometry.getCoordinates().length, 7);
+        assertEquals(9, geometry.getCoordinates().length);
         MultiPolygon multiPolygon = (MultiPolygon) geometry;
         List<Polygon> polygonsList = (List<Polygon>) multiPolygon.getInner();
 
@@ -243,9 +242,9 @@ public class MongoDbDriverTest {
         final GeometryCollection geometryCollection = (GeometryCollection) geometry;
         final Geometry[] geometries = geometryCollection.getGeometries();
         assertEquals(2, geometries.length);
-        assertEquals("POLYGON((-12.000000000000002 7.999999999999998,-12.0 9.0,-10.999999999999998 9.0,-10.999999999999998 7.999999999999998,-12.000000000000002 7.999999999999998,-12.000000000000002 7.999999999999998))",
+        assertEquals("POLYGON((-12.000000000000002 7.999999999999998,-12.0 9.0,-10.999999999999998 9.0,-10.999999999999998 7.999999999999998,-12.000000000000002 7.999999999999998))",
                 geometryFactory.format(geometries[0]));
-        assertEquals("POLYGON((6.0 1.0,6.999999999999999 1.0,6.999999999999999 2.0,6.0 2.0,6.0 1.0,6.0 1.0))",
+        assertEquals("POLYGON((6.0 1.0,6.999999999999999 1.0,6.999999999999999 2.0,6.0 2.0,6.0 1.0))",
                 geometryFactory.format(geometries[1]));
     }
 

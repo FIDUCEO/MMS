@@ -63,7 +63,7 @@ public class AMSU_MHS_L1B_Reader_IO_Test {
 
         final List<Point> coordinates = acquisitionInfo.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(118, coordinates.size());
+        assertEquals(121, coordinates.size());
         assertCoordinate(-108.08909726943968, -72.57329816664424, coordinates.get(0));
         assertCoordinate(-96.7779975551821, -7.57889980854088, coordinates.get(10));
 

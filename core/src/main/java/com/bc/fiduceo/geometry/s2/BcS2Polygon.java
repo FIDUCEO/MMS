@@ -51,6 +51,10 @@ class BcS2Polygon implements Polygon {
                 final S2Point googlePoint = loop.vertex(k);
                 coordinates.add(new BcS2Point(new S2LatLng(googlePoint)));
             }
+
+            // close loop - outside world expects this tb 2016-03-03
+            final S2Point googlePoint = loop.vertex(0);
+            coordinates.add(new BcS2Point(new S2LatLng(googlePoint)));
         }
         return coordinates;
     }

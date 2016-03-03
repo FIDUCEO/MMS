@@ -57,14 +57,14 @@ public class BcS2MultiPolygonTest {
         assertTrue(intersection instanceof BcS2MultiPolygon);
 
         Point[] coordinates = intersection.getCoordinates();
-        assertEquals(7, coordinates.length);
+        assertEquals(9, coordinates.length);
         assertEquals(30.0, coordinates[0].getLon(), 1e-8);
         assertEquals(30.0, coordinates[0].getLat(), 1e-8);
 
         assertEquals(30.0, coordinates[2].getLon(), 1e-8);
         assertEquals(43.277555540062295, coordinates[2].getLat(), 1e-8);
 
-        assertEquals(30.0, coordinates[6].getLon(), 1e-8);
+        assertEquals(45.0, coordinates[6].getLon(), 1e-8);
         assertEquals(75.0, coordinates[6].getLat(), 1e-8);
     }
 
@@ -116,18 +116,18 @@ public class BcS2MultiPolygonTest {
 
     @Test
     public void testGetCoordinates() {
-        BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+        BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50, 20 0)),((20 70, 50 70, 50 90, 20 90, 20 70)))");
 
         final Point[] coordinates = bcS2MultiPolygon.getCoordinates();
         assertNotNull(coordinates);
-        assertEquals(8, coordinates.length);
+        assertEquals(10, coordinates.length);
         assertEquals(20.0, coordinates[0].getLon(), 1e-8);
         assertEquals(-0.0, coordinates[0].getLat(), 1e-8);
 
         assertEquals(20.0, coordinates[3].getLon(), 1e-8);
         assertEquals(49.99999999999999, coordinates[3].getLat(), 1e-8);
 
-        assertEquals(20.0, coordinates[7].getLon(), 1e-8);
+        assertEquals(50.0, coordinates[7].getLon(), 1e-8);
         assertEquals(90.0, coordinates[7].getLat(), 1e-8);
     }
 

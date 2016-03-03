@@ -20,14 +20,7 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
-import com.google.common.geometry.S2Polygon;
+import com.bc.fiduceo.geometry.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,10 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class BcS2GeometryFactoryTest {
 
@@ -56,16 +46,16 @@ public class BcS2GeometryFactoryTest {
         assertTrue(geometry instanceof BcS2Polygon);
 
         assertEquals("Polygon: (1) loops:\n" +
-                             "loop <\n" +
-                             "(6.0, 1.9999999999999996)\n" +
-                             "(4.999999999999999, 1.9999999999999996)\n" +
-                             "(4.0, 2.0)\n" +
-                             "(3.0000000000000004, 1.9999999999999996)\n" +
-                             "(3.000000000000001, 3.0000000000000004)\n" +
-                             "(4.0, 3.0000000000000004)\n" +
-                             "(4.999999999999999, 3.0000000000000004)\n" +
-                             "(6.000000000000001, 3.0000000000000004)\n" +
-                             ">\n", geometry.toString());
+                "loop <\n" +
+                "(6.0, 1.9999999999999996)\n" +
+                "(4.999999999999999, 1.9999999999999996)\n" +
+                "(4.0, 2.0)\n" +
+                "(3.0000000000000004, 1.9999999999999996)\n" +
+                "(3.000000000000001, 3.0000000000000004)\n" +
+                "(4.0, 3.0000000000000004)\n" +
+                "(4.999999999999999, 3.0000000000000004)\n" +
+                "(6.000000000000001, 3.0000000000000004)\n" +
+                ">\n", geometry.toString());
     }
 
     @Test
@@ -88,7 +78,7 @@ public class BcS2GeometryFactoryTest {
         assertNotNull(bcS2MultiPolygon);
 
         Point[] coordinates = bcS2MultiPolygon.getCoordinates();
-        assertEquals(6, coordinates.length);
+        assertEquals(9, coordinates.length);
         assertEquals(coordinates[0].toString(), "POINT(29.999999999999993 20.0)");
         assertEquals(coordinates[1].toString(), "POINT(100.0 10.0)");
     }
@@ -128,11 +118,10 @@ public class BcS2GeometryFactoryTest {
         points.add(factory.createPoint(3, 1));
         points.add(factory.createPoint(4, 2));
         points.add(factory.createPoint(5, 1));
-        points.add(factory.createPoint(3, 1));
         final Polygon polygon = factory.createPolygon(points);
 
         final String wkt = factory.format(polygon);
-        assertEquals("POLYGON((3.0000000000000004 1.0,4.0 2.0,5.0 0.9999999999999998,3.0000000000000004 1.0,3.0000000000000004 1.0))", wkt);
+        assertEquals("POLYGON((3.0000000000000004 1.0,4.0 2.0,5.0 0.9999999999999998,3.0000000000000004 1.0))", wkt);
     }
 
     @Test
@@ -149,7 +138,7 @@ public class BcS2GeometryFactoryTest {
     }
 
     @Test
-    public void testCreatePolygonFromPoints() {
+    public void testCreatePolygonFromPoints_wktClosed() {
         final ArrayList<Point> points = new ArrayList<>();
 
         points.add(factory.createPoint(2, 2));
@@ -159,15 +148,36 @@ public class BcS2GeometryFactoryTest {
         points.add(factory.createPoint(2, 2));
 
         final Polygon polygon = factory.createPolygon(points);
+        assertTrue(polygon.isValid());
         assertNotNull(polygon);
         assertEquals("Polygon: (1) loops:\n" +
-                             "loop <\n" +
-                             "(1.9999999999999996, 2.0)\n" +
-                             "(2.0, 4.0)\n" +
-                             "(4.0, 4.0)\n" +
-                             "(4.0, 2.0)\n" +
-                             "(1.9999999999999996, 2.0)\n" +
-                             ">\n", polygon.toString());
+                "loop <\n" +
+                "(1.9999999999999996, 2.0)\n" +
+                "(2.0, 4.0)\n" +
+                "(4.0, 4.0)\n" +
+                "(4.0, 2.0)\n" +
+                ">\n", polygon.toString());
+    }
+
+    @Test
+    public void testCreatePolygonFromPoints_wktNotClosed() {
+        final ArrayList<Point> points = new ArrayList<>();
+
+        points.add(factory.createPoint(2, 2));
+        points.add(factory.createPoint(4, 2));
+        points.add(factory.createPoint(4, 4));
+        points.add(factory.createPoint(2, 4));
+
+        final Polygon polygon = factory.createPolygon(points);
+        assertNotNull(polygon);
+        assertTrue(polygon.isValid());
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(1.9999999999999996, 2.0)\n" +
+                "(2.0, 4.0)\n" +
+                "(4.0, 4.0)\n" +
+                "(4.0, 2.0)\n" +
+                ">\n", polygon.toString());
     }
 
     @Test
@@ -200,12 +210,12 @@ public class BcS2GeometryFactoryTest {
         assertNotNull(multiPolygon);
 
         final Point[] coordinates = multiPolygon.getCoordinates();
-        assertEquals(8, coordinates.length);
+        assertEquals(10, coordinates.length);
 
         assertEquals(0.0, coordinates[2].getLon(), 1e-8);
         assertEquals(1.0, coordinates[2].getLat(), 1e-8);
 
-        assertEquals(1.0, coordinates[6].getLon(), 1e-8);
+        assertEquals(3.0, coordinates[6].getLon(), 1e-8);
         assertEquals(1.0, coordinates[6].getLat(), 1e-8);
     }
 

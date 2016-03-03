@@ -20,12 +20,7 @@
 
 package com.bc.geometry.s2;
 
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
-import com.google.common.geometry.S2Region;
+import com.google.common.geometry.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -97,8 +92,8 @@ public class S2WKTReader {
      * @return the next array of <code>Coordinate</code>s in the
      * stream, or an empty array if EMPTY is the next element returned by
      * the stream.
-     * @throws IOException    if an I/O error occurs
-     * @throws ParseException if an unexpected token was encountered
+     * @throws IOException              if an I/O error occurs
+     * @throws IllegalArgumentException if an unexpected token was encountered
      */
     private List<S2Point> getPoints() throws IOException, IllegalArgumentException {
         String nextToken = getNextEmptyOrOpener();
@@ -374,6 +369,12 @@ public class S2WKTReader {
         while (COMMA.equals(nextToken)) {
             points.add(getPreciseCoordinate());
             nextToken = getNextCloserOrComma();
+        }
+        final S2Point first = points.get(0);
+        final int lastIndex = points.size() - 1;
+        final S2Point last = points.get(lastIndex);
+        if (first.equals(last)) {
+            points.remove(lastIndex);
         }
         return points;
     }
