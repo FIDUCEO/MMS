@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,10 +43,18 @@ import static org.junit.Assert.assertTrue;
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_IO_Test {
 
+    private File testDataDirectory;
+    private String sep;
+
+    @Before
+    public void setUp() throws IOException {
+        testDataDirectory = TestUtil.getTestDataDirectory();
+        sep = File.separator;
+    }
+
     @Test
     public void testReadAcquisitionInfo_NOAA17() throws IOException {
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File file = new File(testDataDirectory, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
+        final File file = new File(testDataDirectory, "avhrr-n17" + sep + "1.01" + sep + "2007" + sep + "04" + sep + "01" + sep + "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
         assertTrue(file.isFile());
 
         final AVHRR_GAC_Reader reader = new AVHRR_GAC_Reader();
@@ -93,8 +102,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_NOAA18() throws IOException {
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File file = new File(testDataDirectory, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
+        final File file = new File(testDataDirectory, "avhrr-n18" + sep + "1.02" + sep + "2007" + sep + "04" + sep + "01" + sep + "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
         assertTrue(file.isFile());
 
         final AVHRR_GAC_Reader reader = new AVHRR_GAC_Reader();

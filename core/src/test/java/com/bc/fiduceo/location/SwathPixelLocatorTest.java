@@ -1,17 +1,20 @@
 package com.bc.fiduceo.location;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by Sabine on 29.02.2016.
@@ -27,7 +30,8 @@ public class SwathPixelLocatorTest {
     @Before
     public void setUp() throws Exception {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
-        netcdfFile = NetcdfFile.open(new File(testDataDirectory, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc").getAbsolutePath());
+        final String sep = File.separator;
+        netcdfFile = NetcdfFile.open(new File(testDataDirectory, "avhrr-n17" + sep + "1.01" + sep + "2007" + sep + "04" + sep + "01" + sep + "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc").getAbsolutePath());
 
         final Variable lonVar = netcdfFile.findVariable("lon");
         final Variable latVar = netcdfFile.findVariable("lat");
@@ -53,7 +57,7 @@ public class SwathPixelLocatorTest {
         final int border = 15;
         final double delta = 0.49999;
         for (int h = 0; h < height; h++) {
-            for (int w = border; w < width -border; w++) {
+            for (int w = border; w < width - border; w++) {
                 final double y = h + 0.5;
                 final double x = w + 0.5;
                 boolean worksFine;

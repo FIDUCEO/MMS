@@ -26,7 +26,6 @@ import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
@@ -46,7 +45,7 @@ import java.util.Date;
 
 class IngestionTool {
 
-    static String VERSION = "1.0.0";
+    private static final String VERSION = "1.0.0";
 
     static Options getOptions() {
         final Options options = new Options();
@@ -75,7 +74,6 @@ class IngestionTool {
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
-
         final String configDirPath = commandLine.getOptionValue("config");
         final String sensorType = commandLine.getOptionValue("s");
 
@@ -95,21 +93,20 @@ class IngestionTool {
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(confDirPath.toFile());
 
-        // @todo 2 tb/tb parametrize geometry factory type 2015-12-16
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
         }
 
         try {
-            ingestMetadata(systemConfig, geometryFactory, storage, sensorType, processingVersion, startDate, endDate);
+            ingestMetadata(systemConfig, storage, sensorType, processingVersion, startDate, endDate);
         } finally {
             storage.close();
         }
     }
 
-    private void ingestMetadata(SystemConfig systemConfig, GeometryFactory geometryFactory,
+    private void ingestMetadata(SystemConfig systemConfig,
                                 Storage storage, String sensorType, String processingVersion,
                                 Date startDate, Date endDate) throws SQLException, IOException {
 
@@ -129,40 +126,21 @@ class IngestionTool {
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
 
-                // build polygon from list of points
-                // test if polygon is valid
-                // if not
-                // -- call reader.refineGeometry()
-                // else
-                // -- set up SatelliteObservation object and ingest
-
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
                 final Sensor sensor = new Sensor();
                 sensor.setName(sensorType);
                 satelliteObservation.setSensor(sensor);
-
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFilePath(filePath.toString());
+                satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
 
-                Geometry geometry;
-                if (acquisitionInfo.getMultiPolygons() == null) {
-                    geometry = new GeometryFactory(GeometryFactory.Type.JTS).createPolygon(acquisitionInfo.getCoordinates());
-                } else {
-                    if (acquisitionInfo.getMultiPolygons().size() > 0) {
-                        geometry = geometryFactory.createMultiPolygon(acquisitionInfo.getMultiPolygons());
-                    } else {
-                        geometry = geometryFactory.createPolygon(acquisitionInfo.getCoordinates());
-                    }
-                }
-                satelliteObservation.setGeoBounds(geometry);
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();
             }
         }
     }
-
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -175,5 +153,4 @@ class IngestionTool {
 
         writer.flush();
     }
-
 }
