@@ -33,7 +33,6 @@ public interface PixelLocator {
      * @param y The pixel y location.
      * @param g The geo-location. On return contains the geo-location position found. Is
      *          not modified, when the geo-location was not found.
-     *
      * @return {@code true} if the geo-location was found, {@code false} otherwise.
      */
     public boolean getGeoLocation(double x, double y, Point2D g);
@@ -45,8 +44,7 @@ public interface PixelLocator {
      * @param lat The pixel latitude [-90.0, 90.0].
      * @param p   The (x, y) pixel location. On return contains the pixel location found. Is
      *            not modified, when the pixel location was not found.
-     *
-     * @return {@code true} if the pixel location was found, {@code false} otherwise.
+     * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
      */
-    boolean getPixelLocation(double lon, double lat, Point2D p);
+    Point2D[] getPixelLocation(double lon, double lat, Point2D p);
 }

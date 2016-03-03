@@ -117,14 +117,19 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public PixelLocator getGeoCoding() throws IOException {
-        // @todo 2 tb/tb discuss with Sabine how the interface should be in the end
-        final ArrayFloat lonStorage = (ArrayFloat) getLongitudes(netcdfFile);
-        final ArrayFloat latStorage = (ArrayFloat) getLatitudes(netcdfFile);
+        final Variable lon = getVariable("lon");
+        final Variable lat = getVariable("lat");
 
-        final int[] shape = lonStorage.getShape();
+        final ArrayFloat lonStorage = (ArrayFloat) lon.read();
+        final ArrayFloat latStorage = (ArrayFloat) lat.read();
+        final int[] shape = lon.getShape();
         final int width = shape[1];
         final int height = shape[0];
-        return SwathPixelLocator.create(lonStorage, latStorage, width, height, 128);
+        return new SwathPixelLocator(lonStorage, latStorage, width, height);
+    }
+
+    private Variable getVariable(final String name) {
+        return netcdfFile.findVariable(name);
     }
 
     @Override

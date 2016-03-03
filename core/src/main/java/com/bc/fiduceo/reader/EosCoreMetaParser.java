@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
 
 class EosCoreMetaParser {
 
-     Element parseFromString(String text) throws IOException {
+    Element parseFromString(String text) throws IOException {
 
         Element rootElem = new Element("odl");
         Element current = rootElem;
@@ -61,7 +61,7 @@ class EosCoreMetaParser {
         return rootElem;
     }
 
-    private Element startGroup(Element parent, String line) throws IOException {
+    private Element startGroup(Element parent, String line) {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("GROUP");
@@ -71,7 +71,7 @@ class EosCoreMetaParser {
         return group;
     }
 
-    private void endGroup(Element current, String line) throws IOException {
+    private void endGroup(Element current, String line) {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("END_GROUP");
@@ -79,7 +79,7 @@ class EosCoreMetaParser {
         assert name.equals(current.getName());
     }
 
-    private Element startObject(Element parent, String line) throws IOException {
+    private Element startObject(Element parent, String line) {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("OBJECT");
@@ -89,7 +89,7 @@ class EosCoreMetaParser {
         return obj;
     }
 
-    private void endObject(Element current, String line) throws IOException {
+    private void endObject(Element current, String line) {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String toke = stoke.nextToken();
         assert toke.equals("END_OBJECT");
@@ -97,7 +97,7 @@ class EosCoreMetaParser {
         assert name.equals(current.getName()) : name + " !+ " + current.getName();
     }
 
-    private void addField(Element parent, String line) throws IOException {
+    private void addField(Element parent, String line) {
         StringTokenizer stoke = new StringTokenizer(line, "=");
         String name = stoke.nextToken();
         if (stoke.hasMoreTokens()) {
@@ -111,7 +111,6 @@ class EosCoreMetaParser {
             value = this.stripQuotes(value);
             field.addContent(value);
         }
-
     }
 
     private void parseValueCollection(Element field, String value) {

@@ -22,12 +22,6 @@ package com.bc.fiduceo.reader;
 
 
 import com.bc.fiduceo.location.PixelLocator;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.dataop.maptransf.Datum;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.Point2D;
 
@@ -39,7 +33,7 @@ class AMSU_MHS_GeoCoding implements PixelLocator{
     }
 
     @Override
-    public boolean getPixelLocation(double lon, double lat, Point2D p) {
+    public Point2D[] getPixelLocation(double lon, double lat, Point2D p) {
         throw new RuntimeException("not implemented");
     }
 }

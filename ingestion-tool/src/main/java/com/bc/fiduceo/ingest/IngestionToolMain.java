@@ -42,7 +42,7 @@ public class IngestionToolMain {
         }
 
         final CommandLineParser parser = new PosixParser();
-        final CommandLine commandLine = parser.parse(ingestionTool.getOptions(), args);
+        final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
         if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
             ingestionTool.printUsageTo(System.out);
             return;
