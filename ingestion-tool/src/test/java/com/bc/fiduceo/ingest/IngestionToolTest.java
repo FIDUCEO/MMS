@@ -39,7 +39,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(IOTestRunner.class)
 public class IngestionToolTest {
 
     private String ls;
@@ -118,23 +117,4 @@ public class IngestionToolTest {
         assertEquals("Define the sensor version.", version.getDescription());
         assertTrue(version.hasArg());
     }
-
-    @Test
-    public void testFileGlob() throws IOException {
-        File[] files = setFileFilter(TestUtil.getTestDataDirectory().getPath(), "*.h5");
-        assertTrue(files != null);
-    }
-
-
-    @Test
-    public void testArchivePath() {
-
-    }
-
-    private File[] setFileFilter(String location, String regEx) {
-        File fileLocation = new File(location);
-        FileFilter wildcardFileFilter = new WildcardFileFilter(regEx);
-        return fileLocation.listFiles(wildcardFileFilter);
-    }
-
 }
