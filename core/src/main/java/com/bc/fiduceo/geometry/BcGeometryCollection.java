@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BcGeometryCollection implements GeometryCollection {
+class BcGeometryCollection implements GeometryCollection {
 
     private Geometry[] geometries;
 

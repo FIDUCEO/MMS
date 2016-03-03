@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -117,9 +116,8 @@ public class MongoDbDriverTest {
         final Geometry[] geometries = new Geometry[2];
         geometries[0] = polygonGeometry;
         geometries[1] = multiPolygon;
-        final GeometryCollection geometryCollection = new BcGeometryCollection();
-        geometryCollection.setGeometries(geometries);
 
+        GeometryCollection geometryCollection = geometryFactory.createGeometryCollection(geometries);
         com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometryCollection);
         assertNotNull(mongoGeometry);
 
@@ -145,9 +143,7 @@ public class MongoDbDriverTest {
         final Geometry[] geometries = new Geometry[1];
         geometries[0] = polygonGeometry;
 
-        final GeometryCollection geometryCollection = new BcGeometryCollection();
-        geometryCollection.setGeometries(geometries);
-
+        GeometryCollection geometryCollection = geometryFactory.createGeometryCollection(geometries);
         com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometryCollection);
         assertNotNull(mongoGeometry);
         assertTrue(mongoGeometry instanceof com.mongodb.client.model.geojson.Polygon);

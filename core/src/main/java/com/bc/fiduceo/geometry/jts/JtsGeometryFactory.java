@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -21,7 +20,12 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.AbstractGeometryFactory;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -34,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class JtsGeometryFactory implements AbstractGeometryFactory {
+public class JtsGeometryFactory extends AbstractGeometryFactory {
 
     private final com.vividsolutions.jts.geom.Polygon westShiftedGlobe;
     private final com.vividsolutions.jts.geom.Polygon eastShiftedGlobe;
@@ -54,6 +58,38 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         centralGlobe = createCentralGlobe();
         eastShiftedGlobe = createEastShiftedGlobe();
         westShiftedGlobe = createWestShiftedGlobe();
+    }
+
+    static void ensureClosedPolygon(List<Point> points) {
+        final Point first = points.get(0);
+        final int lastIndex = points.size() - 1;
+        final Point last = points.get(lastIndex);
+        if (!first.equals(last)) {
+            points.add(points.get(0));
+        }
+    }
+
+    static Coordinate[] extractCoordinates(List<Point> points) {
+        final Coordinate[] coordinates = new Coordinate[points.size()];
+
+        for (int i = 0; i < points.size(); i++) {
+            Point point = points.get(i);
+            coordinates[i] = (Coordinate) point.getInner();
+        }
+        return coordinates;
+    }
+
+    private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
+        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
+            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiPolygon) {
+            return new JTSMultiPolygon((com.vividsolutions.jts.geom.MultiPolygon) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
+            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
+        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
+            return new JTSPoint(geometry.getCoordinate());
+        }
+        throw new RuntimeException("Unsupported geometry type");
     }
 
     @Override
@@ -121,15 +157,6 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
     }
 
-    static void ensureClosedPolygon(List<Point> points) {
-        final Point first = points.get(0);
-        final int lastIndex = points.size() - 1;
-        final Point last = points.get(lastIndex);
-        if (!first.equals(last)) {
-            points.add(points.get(0));
-        }
-    }
-
     @Override
     public LineString createLineString(List<Point> points) {
         final Coordinate[] coordinates = extractCoordinates(points);
@@ -147,16 +174,6 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         final com.vividsolutions.jts.geom.LineString jtsLineString = (com.vividsolutions.jts.geom.LineString) lineString.getInner();
         return new JTSTimeAxis(jtsLineString, startTime, endTime);
-    }
-
-    static Coordinate[] extractCoordinates(List<Point> points) {
-        final Coordinate[] coordinates = new Coordinate[points.size()];
-
-        for (int i = 0; i < points.size(); i++) {
-            Point point = points.get(i);
-            coordinates[i] = (Coordinate) point.getInner();
-        }
-        return coordinates;
     }
 
     com.vividsolutions.jts.geom.Polygon[] mapToGlobe(com.vividsolutions.jts.geom.Polygon polygon) {
@@ -179,19 +196,6 @@ public class JtsGeometryFactory implements AbstractGeometryFactory {
         }
 
         return geometries.toArray(new com.vividsolutions.jts.geom.Polygon[geometries.size()]);
-    }
-
-    private static Geometry convertGeometry(com.vividsolutions.jts.geom.Geometry geometry) {
-        if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            return new JTSPolygon((com.vividsolutions.jts.geom.Polygon) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiPolygon) {
-            return new JTSMultiPolygon((com.vividsolutions.jts.geom.MultiPolygon) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
-        } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-            return new JTSPoint(geometry.getCoordinate());
-        }
-        throw new RuntimeException("Unsupported geometry type");
     }
 
     private com.vividsolutions.jts.geom.Polygon createCentralGlobe() {

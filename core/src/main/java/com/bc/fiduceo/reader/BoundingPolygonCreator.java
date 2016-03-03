@@ -22,7 +22,6 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
@@ -385,10 +384,7 @@ public class BoundingPolygonCreator {
                 subsetHeight = height - yOffset;
             }
         }
-
-        final BcGeometryCollection geometryCollection = new BcGeometryCollection();
-        geometryCollection.setGeometries(geometries);
-        return geometryCollection;
+        return geometryFactory.createGeometryCollection(geometries);
     }
 
     static void closePolygon(List<Point> coordinates) {

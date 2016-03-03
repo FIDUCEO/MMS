@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BcS2GeometryFactory implements AbstractGeometryFactory {
+public class BcS2GeometryFactory extends AbstractGeometryFactory {
 
     private final S2WKTReader s2WKTReader;
 

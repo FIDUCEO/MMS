@@ -23,7 +23,6 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -64,142 +63,6 @@ public class MongoDbDriver extends AbstractDriver {
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
     private MongoDatabase database;
-
-    @Override
-    public String getUrlPattern() {
-        return "mongodb";
-    }
-
-    @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
-        final MongoClientURI clientURI = new MongoClientURI(dataSource.getUrl());
-        mongoClient = new MongoClient(clientURI);
-        database = mongoClient.getDatabase("FIDUCEO");
-    }
-
-    @Override
-    public void close() throws SQLException {
-        if (mongoClient != null) {
-            mongoClient.close();
-            mongoClient = null;
-        }
-    }
-
-    @Override
-    public boolean isInitialized() {
-        final MongoIterable<String> collectionNames = database.listCollectionNames();
-        for (String collectionName : collectionNames) {
-            if (SATELLITE_DATA_COLLECTION.equals(collectionName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void initialize() throws SQLException {
-        final MongoCollection<Document> satelliteObservations = database.getCollection(SATELLITE_DATA_COLLECTION);
-        satelliteObservations.createIndex(new BasicDBObject(GEO_BOUNDS_KEY, "2dsphere"));
-    }
-
-    @Override
-    public void clear() throws SQLException {
-        final MongoCollection<Document> satelliteObservation = database.getCollection(SATELLITE_DATA_COLLECTION);
-        satelliteObservation.drop();
-    }
-
-    @Override
-    public void setGeometryFactory(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
-    }
-
-    @Override
-    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
-        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
-
-        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
-        document.append(START_TIME_KEY, satelliteObservation.getStartTime());
-        document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
-        document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
-        document.append(GEO_BOUNDS_KEY, convertToGeoJSON(satelliteObservation.getGeoBounds()));
-        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
-        document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
-        document.append(TIME_AXIS_START_KEY, satelliteObservation.getTimeAxisStartIndex());
-        document.append(TIME_AXIS_END_KEY, satelliteObservation.getTimeAxisEndIndex());
-
-        observationCollection.insertOne(document);
-    }
-
-    @Override
-    public int insert(Sensor sensor) throws SQLException {
-        // we use embedded storage at the moment, no need to separately ingest the sensor tb 2016-02-09
-        return -1;
-    }
-
-    @Override
-    public List<SatelliteObservation> get() throws SQLException {
-        return get(null);
-    }
-
-    @Override
-    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
-        final List<SatelliteObservation> resultList = new ArrayList<>();
-
-        final Document queryDocument = createQueryDocument(parameter);
-        final FindIterable<Document> documents = observationCollection.find(queryDocument);
-        for (Document document : documents) {
-            final SatelliteObservation satelliteObservation = getSatelliteObservation(document);
-            resultList.add(satelliteObservation);
-        }
-        return resultList;
-    }
-
-
-    private SatelliteObservation getSatelliteObservation(Document document) {
-        final SatelliteObservation satelliteObservation = new SatelliteObservation();
-
-        final String dataFile = document.getString(DATA_FILE_KEY);
-        satelliteObservation.setDataFilePath(dataFile);
-
-        final Date startTime = document.getDate(START_TIME_KEY);
-        satelliteObservation.setStartTime(startTime);
-
-        final Date stopTime = document.getDate(STOP_TIME_KEY);
-        satelliteObservation.setStopTime(stopTime);
-
-        final Integer nodeTypeId = document.getInteger(NODE_TYPE_KEY);
-        satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
-
-        final Document geoBounds = (Document) document.get(GEO_BOUNDS_KEY);
-        final Geometry geometry = convertToGeometry(geoBounds);
-        satelliteObservation.setGeoBounds(geometry);
-
-        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
-        final Document jsonSensor = (Document) document.get(SENSOR_KEY);
-        final Sensor sensor = new Sensor();
-        sensor.setName(jsonSensor.getString("name"));
-        satelliteObservation.setSensor(sensor);
-
-        satelliteObservation.setTimeAxisStartIndex(document.getInteger(TIME_AXIS_START_KEY));
-        satelliteObservation.setTimeAxisEndIndex(document.getInteger(TIME_AXIS_END_KEY));
-        return satelliteObservation;
-    }
-
-    // static access for testing only tb 2016-02-09
-    @SuppressWarnings("unchecked")
-    Geometry convertToGeometry(Document geoDocument) {
-        final String type = geoDocument.getString("type");
-        if ("Polygon".equals(type)) {
-            return convertPolygon(geoDocument);
-        } else if ("MultiPolygon".equals(type)) {
-            return convertMultiPolygon(geoDocument);
-        } else if ("GeometryCollection".equals(type)) {
-            return convertGeometryCollection(geoDocument);
-        }
-        throw new RuntimeException("Geometry type support not implemented yet");
-    }
 
     @SuppressWarnings("unchecked")
     public static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
@@ -297,15 +160,148 @@ public class MongoDbDriver extends AbstractDriver {
         return polygonPoints;
     }
 
+    @Override
+    public String getUrlPattern() {
+        return "mongodb";
+    }
+
+    @Override
+    public void open(BasicDataSource dataSource) throws SQLException {
+        final MongoClientURI clientURI = new MongoClientURI(dataSource.getUrl());
+        mongoClient = new MongoClient(clientURI);
+        database = mongoClient.getDatabase("FIDUCEO");
+    }
+
+    @Override
+    public void close() throws SQLException {
+        if (mongoClient != null) {
+            mongoClient.close();
+            mongoClient = null;
+        }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        final MongoIterable<String> collectionNames = database.listCollectionNames();
+        for (String collectionName : collectionNames) {
+            if (SATELLITE_DATA_COLLECTION.equals(collectionName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void initialize() throws SQLException {
+        final MongoCollection<Document> satelliteObservations = database.getCollection(SATELLITE_DATA_COLLECTION);
+        satelliteObservations.createIndex(new BasicDBObject(GEO_BOUNDS_KEY, "2dsphere"));
+    }
+
+    @Override
+    public void clear() throws SQLException {
+        final MongoCollection<Document> satelliteObservation = database.getCollection(SATELLITE_DATA_COLLECTION);
+        satelliteObservation.drop();
+    }
+
+    @Override
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
+
+    @Override
+    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+
+        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
+        document.append(START_TIME_KEY, satelliteObservation.getStartTime());
+        document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
+        document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
+        document.append(GEO_BOUNDS_KEY, convertToGeoJSON(satelliteObservation.getGeoBounds()));
+        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+        document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
+        document.append(TIME_AXIS_START_KEY, satelliteObservation.getTimeAxisStartIndex());
+        document.append(TIME_AXIS_END_KEY, satelliteObservation.getTimeAxisEndIndex());
+
+        observationCollection.insertOne(document);
+    }
+
+    @Override
+    public int insert(Sensor sensor) throws SQLException {
+        // we use embedded storage at the moment, no need to separately ingest the sensor tb 2016-02-09
+        return -1;
+    }
+
+    @Override
+    public List<SatelliteObservation> get() throws SQLException {
+        return get(null);
+    }
+
+    @Override
+    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+        final List<SatelliteObservation> resultList = new ArrayList<>();
+
+        final Document queryDocument = createQueryDocument(parameter);
+        final FindIterable<Document> documents = observationCollection.find(queryDocument);
+        for (Document document : documents) {
+            final SatelliteObservation satelliteObservation = getSatelliteObservation(document);
+            resultList.add(satelliteObservation);
+        }
+        return resultList;
+    }
+
+    private SatelliteObservation getSatelliteObservation(Document document) {
+        final SatelliteObservation satelliteObservation = new SatelliteObservation();
+
+        final String dataFile = document.getString(DATA_FILE_KEY);
+        satelliteObservation.setDataFilePath(dataFile);
+
+        final Date startTime = document.getDate(START_TIME_KEY);
+        satelliteObservation.setStartTime(startTime);
+
+        final Date stopTime = document.getDate(STOP_TIME_KEY);
+        satelliteObservation.setStopTime(stopTime);
+
+        final Integer nodeTypeId = document.getInteger(NODE_TYPE_KEY);
+        satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
+
+        final Document geoBounds = (Document) document.get(GEO_BOUNDS_KEY);
+        final Geometry geometry = convertToGeometry(geoBounds);
+        satelliteObservation.setGeoBounds(geometry);
+
+        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+        final Document jsonSensor = (Document) document.get(SENSOR_KEY);
+        final Sensor sensor = new Sensor();
+        sensor.setName(jsonSensor.getString("name"));
+        satelliteObservation.setSensor(sensor);
+
+        satelliteObservation.setTimeAxisStartIndex(document.getInteger(TIME_AXIS_START_KEY));
+        satelliteObservation.setTimeAxisEndIndex(document.getInteger(TIME_AXIS_END_KEY));
+        return satelliteObservation;
+    }
+
+    // static access for testing only tb 2016-02-09
+    @SuppressWarnings("unchecked")
+    Geometry convertToGeometry(Document geoDocument) {
+        final String type = geoDocument.getString("type");
+        if ("Polygon".equals(type)) {
+            return convertPolygon(geoDocument);
+        } else if ("MultiPolygon".equals(type)) {
+            return convertMultiPolygon(geoDocument);
+        } else if ("GeometryCollection".equals(type)) {
+            return convertGeometryCollection(geoDocument);
+        }
+        throw new RuntimeException("Geometry type support not implemented yet");
+    }
+
     private Geometry convertGeometryCollection(Document geoDocument) {
         final List<Document> geometryList = (List<Document>) geoDocument.get("geometries");
         final List<Geometry> convertedGeometriesList = new ArrayList<>();
         for (final Document geoListDocument : geometryList) {
             convertedGeometriesList.add(convertToGeometry(geoListDocument));
         }
-        final BcGeometryCollection resultGeometry = new BcGeometryCollection();
-        resultGeometry.setGeometries(convertedGeometriesList.toArray(new Geometry[convertedGeometriesList.size()]));
-        return resultGeometry;
+        return geometryFactory.createGeometryCollection(convertedGeometriesList.toArray(new Geometry[convertedGeometriesList.size()]));
     }
 
     private Geometry convertMultiPolygon(Document geoDocument) {

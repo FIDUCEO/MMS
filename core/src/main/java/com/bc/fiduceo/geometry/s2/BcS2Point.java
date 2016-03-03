@@ -60,7 +60,7 @@ class BcS2Point implements Point {
 
     @Override
     public boolean isEmpty() {
-        return s2LatLng != null;
+        return s2LatLng == null;
     }
 
     @Override

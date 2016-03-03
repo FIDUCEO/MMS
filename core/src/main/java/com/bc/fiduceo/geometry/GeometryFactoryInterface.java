@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Brockmann Consult GmbH
+ * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -20,14 +20,26 @@
 
 package com.bc.fiduceo.geometry;
 
-/**
- * @@author muhammad.bc
- */
-public abstract class AbstractGeometryFactory implements GeometryFactoryInterface {
+import java.util.Date;
+import java.util.List;
 
-    public GeometryCollection createGeometryCollection(Geometry[] geometryList) {
-        final GeometryCollection geometryCollection = new BcGeometryCollection();
-        geometryCollection.setGeometries(geometryList);
-        return geometryCollection;
-    }
+public interface GeometryFactoryInterface {
+
+    Geometry parse(String wkt);
+
+    String format(Geometry geometry);
+
+    byte[] toStorageFormat(Geometry geometry);
+
+    Geometry fromStorageFormat(byte[] rawData);
+
+    Point createPoint(double lon, double lat);
+
+    Polygon createPolygon(List<Point> points);
+
+    LineString createLineString(List<Point> points);
+
+    MultiPolygon createMultiPolygon(List<Polygon> polygonList);
+
+    TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime);
 }

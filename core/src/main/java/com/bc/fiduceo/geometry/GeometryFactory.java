@@ -26,9 +26,9 @@ import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
 import java.util.Date;
 import java.util.List;
 
-public class GeometryFactory implements AbstractGeometryFactory {
+public class GeometryFactory extends AbstractGeometryFactory {
 
-    private final AbstractGeometryFactory factoryImpl;
+    private final GeometryFactoryInterface factoryImpl;
 
     public GeometryFactory(Type type) {
         if (type == Type.JTS) {
