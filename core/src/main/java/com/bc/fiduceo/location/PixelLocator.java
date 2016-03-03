@@ -1,6 +1,6 @@
 package com.bc.fiduceo.location;
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2016 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,30 +21,29 @@ import java.awt.geom.Point2D;
  * An algorithm for finding the pixel position that corresponds to a given geo-location
  * and vice versa.
  *
- * @author Ralf Quast
+ * @author Sabine Embacher
  */
 public interface PixelLocator {
 
     /**
      * Returns the (lon, lat) geo-location that corresponds to a given (x, y) pixel
-     * location.
+     * location. The lon value as X and the lat value as Y.
      *
      * @param x The pixel x location.
      * @param y The pixel y location.
-     * @param g The geo-location. On return contains the geo-location position found. Is
-     *          not modified, when the geo-location was not found.
-     * @return {@code true} if the geo-location was found, {@code false} otherwise.
+     * @param g The geo-location object. It will be used to return the geo-location. If {@code null} a new instance will be created.
+     *
+     * @return Point2D if a geo-location was found, {@code null} otherwise.
      */
-    public boolean getGeoLocation(double x, double y, Point2D g);
+    public Point2D getGeoLocation(double x, double y, Point2D g);
 
     /**
-     * Returns the (x, y) pixel location that corresponds to a given (lon, lat) geo-location.
+     * Returns an array of (x, y) pixel location that corresponds to a given (lon, lat) geo-location.
      *
      * @param lon The pixel longitude [-180.0, 180.0].
      * @param lat The pixel latitude [-90.0, 90.0].
-     * @param p   The (x, y) pixel location. On return contains the pixel location found. Is
-     *            not modified, when the pixel location was not found.
+     *
      * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
      */
-    Point2D[] getPixelLocation(double lon, double lat, Point2D p);
+    Point2D[] getPixelLocation(double lon, double lat);
 }

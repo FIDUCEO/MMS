@@ -60,14 +60,12 @@ public class SwathPixelLocatorTest {
             for (int w = border; w < width - border; w++) {
                 final double y = h + 0.5;
                 final double x = w + 0.5;
-                boolean worksFine;
-                final Point2D pos = new Point2D.Double();
-                worksFine = pixelLocator.getGeoLocation(x, y, pos);
-                assertEquals("Unable to fetch a geoposition for x=" + x + " y=" + y, true, worksFine);
+                final Point2D geoPos = pixelLocator.getGeoLocation(x, y, null);
+                assertNotNull("Unable to fetch a geoposition for x=" + x + " y=" + y, geoPos);
 
-                final double lon = pos.getX();
-                final double lat = pos.getY();
-                final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat, pos);
+                final double lon = geoPos.getX();
+                final double lat = geoPos.getY();
+                final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat);
 
                 assertNotNull("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
                 if (locations.length == 1) {

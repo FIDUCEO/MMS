@@ -16,12 +16,13 @@ import java.util.ArrayList;
 
 public class SwathPixelLocator implements PixelLocator {
 
-    private final GeoPos geoPos;
+    private final GeoPos internalUseGeoPos;
     private final GeoCoding gc;
     private final int width;
     private final int height;
+    private final Point2D.Double internalUsePoint;
     private BestApproximations bestApproximations;
-    private PixelPos pixelPos;
+    private PixelPos internalUsePixelPos;
 
 
     public SwathPixelLocator(Array lonArray, Array latArray, int width, int height) {
@@ -36,8 +37,9 @@ public class SwathPixelLocator implements PixelLocator {
         final TiePointGrid latGrid = new TiePointGrid("lat", width, height, 0.5, 0.5, 1.0, 1.0, lats);
         final TiePointGrid lonGrid = new TiePointGrid("lon", width, height, 0.5, 0.5, 1.0, 1.0, lons);
         gc = new TiePointGeoCoding(latGrid, lonGrid);
-        pixelPos = new PixelPos();
-        geoPos = new GeoPos();
+        internalUseGeoPos = new GeoPos();
+        internalUsePixelPos = new PixelPos();
+        internalUsePoint = new Point2D.Double();
     }
 
     private static PlanarImage getPlanarImage(Array data, int width, int height) {
@@ -48,36 +50,33 @@ public class SwathPixelLocator implements PixelLocator {
     }
 
     @Override
-    public boolean getGeoLocation(double x, double y, Point2D g) {
-        pixelPos.setLocation(x, y);
-        geoPos.setInvalid();
-        gc.getGeoPos(pixelPos, geoPos);
-        if (geoPos.isValid()) {
+    public Point2D getGeoLocation(double x, double y, Point2D g) {
+        internalUsePixelPos.setLocation(x, y);
+        internalUseGeoPos.setInvalid();
+        gc.getGeoPos(internalUsePixelPos, internalUseGeoPos);
+        if (internalUseGeoPos.isValid()) {
             if (g == null) {
                 g = new Point2D.Double();
             }
-            g.setLocation(geoPos.getLon(), geoPos.getLat());
-            return true;
+            g.setLocation(internalUseGeoPos.getLon(), internalUseGeoPos.getLat());
+            return g;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public Point2D[] getPixelLocation(double lon, double lat, Point2D p) {
+    public Point2D[] getPixelLocation(double lon, double lat) {
         bestApproximations.findFor(lon, lat);
         if (!bestApproximations.hasApproximations()) {
             return null;
         }
-        if (p == null) {
-            p = new Point2D.Double();
-        }
         final ArrayList<Point2D> pipos = new ArrayList<>();
         final ArrayList<GeoApproximation> theBest = bestApproximations.getTheBest();
         for (GeoApproximation a : theBest) {
-            p.setLocation(lon, lat);
-            a.g2p(p);
-            if (isValid(p)) {
-                pipos.add(new Point2D.Double(p.getX(), p.getY()));
+            internalUsePoint.setLocation(lon, lat);
+            a.g2p(internalUsePoint);
+            if (isValid(internalUsePoint)) {
+                pipos.add(new Point2D.Double(internalUsePoint.getX(), internalUsePoint.getY()));
             }
         }
         return pipos.toArray(new Point2D[0]);
