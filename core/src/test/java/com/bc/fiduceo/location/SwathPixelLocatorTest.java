@@ -7,14 +7,11 @@ import com.bc.fiduceo.TestUtil;
 import org.junit.*;
 import org.junit.runner.*;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.util.Arrays;
 
 /**
  * Created by Sabine on 29.02.2016.
