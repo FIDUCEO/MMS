@@ -2,10 +2,12 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTReader;
+import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -51,8 +53,23 @@ public class BcS2MultiLineStringTest {
         assertTrue(multiLineString.isValid());
     }
 
+
     @Test
-    public void testIsEmpty() {
+    public void testIsEmpty_NoPoint() {
+        S2Point[] s2PointList = {new S2Point()};
+        S2Polyline s2Polyline = new S2Polyline(Arrays.asList(s2PointList));
+
+        final BcS2LineString lineString_1 = new BcS2LineString(s2Polyline);
+        final List<BcS2LineString> lineStringList = new ArrayList<>();
+        lineStringList.add(lineString_1);
+
+        final BcS2MultiLineString multiLineString = BcS2MultiLineString.createFrom(lineStringList);
+        assertNotNull(multiLineString);
+        assertTrue(multiLineString.isEmpty());
+    }
+
+    @Test
+    public void testIsEmpty_Null_Polyline() {
         final BcS2LineString lineString_1 = new BcS2LineString(null);
         final List<BcS2LineString> lineStringList = new ArrayList<>();
         lineStringList.add(lineString_1);

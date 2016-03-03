@@ -57,6 +57,8 @@ class BcS2MultiLineString implements LineString {
 
     @Override
     public boolean isEmpty() {
+        boolean isInitialPointsZero = false;
+
         if (s2PolylineList.isEmpty()) {
             return true;
         }
@@ -65,8 +67,15 @@ class BcS2MultiLineString implements LineString {
             if (s2Polyline == null) {
                 return true;
             }
+            int numVertices = s2Polyline.numVertices();
+            if (numVertices > 0) {
+                for (int i = 0; i < numVertices; i++) {
+                    S2Point vertex = s2Polyline.vertex(i);
+                    isInitialPointsZero = vertex.getX() == 0 && vertex.getY() == 0 && vertex.getZ() == 0;
+                }
+            }
         }
-        return false;
+        return isInitialPointsZero;
     }
 
     @Override
