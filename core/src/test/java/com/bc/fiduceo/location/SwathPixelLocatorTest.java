@@ -50,37 +50,30 @@ public class SwathPixelLocatorTest {
     @Test
     public void testBothWaysOfPixelLocator() throws Exception {
 
-        final int border = 0;
+        final int border = 15;
         final double delta = 0.49999;
         for (int h = 0; h < height; h++) {
-            final boolean borderTouched = h < border
-                                          || h >= height - border
-                                          || h % width < border
-                                          || h % width >= width - border;
-            if (borderTouched) {
-                continue;
-            }
-            final double y = h + 0.5;
-            final double x = h % width + 0.5;
+            for (int w = border; w < width -border; w++) {
+                final double y = h + 0.5;
+                final double x = w + 0.5;
+                boolean worksFine;
+                final Point2D pos = new Point2D.Double();
+                worksFine = pixelLocator.getGeoLocation(x, y, pos);
+                assertEquals("Unable to fetch a geoposition for x=" + x + " y=" + y, true, worksFine);
 
-            System.out.println("x/y = " + x + " / " + y);
-            boolean worksFine;
-            final Point2D pos = new Point2D.Double();
-            worksFine = pixelLocator.getGeoLocation(x, y, pos);
-            assertEquals("Unable to fetch a geoposition for x=" + x + " y=" + y, true, worksFine);
+                final double lon = pos.getX();
+                final double lat = pos.getY();
+                final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat, pos);
 
-            final double lon = pos.getX();
-            final double lat = pos.getY();
-            final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat, pos);
-
-            assertNotNull("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
-            if (locations.length == 1) {
-                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[0].getX(), delta);
-                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[0].getY(), delta);
-            } else {
-                final int idx = getCloserIndex(y, locations);
-                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[idx].getX(), delta);
-                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[idx].getY(), delta);
+                assertNotNull("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
+                if (locations.length == 1) {
+                    assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[0].getX(), delta);
+                    assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[0].getY(), delta);
+                } else {
+                    final int idx = getCloserIndex(y, locations);
+                    assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[idx].getX(), delta);
+                    assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[idx].getY(), delta);
+                }
             }
         }
     }
