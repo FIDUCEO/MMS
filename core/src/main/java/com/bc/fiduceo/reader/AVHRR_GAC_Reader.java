@@ -152,7 +152,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return readVariableData(netcdfFile, "lat");
     }
 
-    // @todo 2 tb/tb write test 2016-03-03
+    // package access for testing only tb 2016-03-03
     static void checkForValidity(GeometryCollection boundingGeometry) {
         final Geometry[] geometries = boundingGeometry.getGeometries();
         for (final Geometry geometry : geometries) {
@@ -170,10 +170,4 @@ public class AVHRR_GAC_Reader implements Reader {
 
         return variable.read();
     }
-
-    private Variable getVariable(final String name) {
-        return netcdfFile.findVariable(name);
-    }
-
-
 }
