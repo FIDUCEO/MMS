@@ -1,4 +1,4 @@
-package com.bc.fiduceo.math;
+package com.bc.fiduceo.location;
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)

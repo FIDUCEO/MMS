@@ -46,7 +46,7 @@ public interface PixelLocator {
      * @param p   The (x, y) pixel location. On return contains the pixel location found. Is
      *            not modified, when the pixel location was not found.
      *
-     * @return {@code true} if the pixel location was found, {@code false} otherwise.
+     * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
      */
-    boolean getPixelLocation(double lon, double lat, Point2D p);
+    Point2D[] getPixelLocation(double lon, double lat, Point2D p);
 }

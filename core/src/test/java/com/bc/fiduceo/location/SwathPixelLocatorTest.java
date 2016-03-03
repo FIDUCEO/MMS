@@ -4,7 +4,11 @@ import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.math.GeoApproximation;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.ImageUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -13,9 +17,9 @@ import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.Rectangle;
+import javax.media.jai.PlanarImage;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.Arrays;
 
@@ -36,14 +40,17 @@ public class SwathPixelLocatorTest {
         netcdfFile = NetcdfFile.open(new File(testDataDirectory, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc").getAbsolutePath());
 
         final Variable lonVar = netcdfFile.findVariable("lon");
+        final Variable latVar = netcdfFile.findVariable("lat");
+
         final int[] shape = lonVar.getShape();
         height = shape[0];
         width = shape[1];
 
-        final ArrayFloat lon = (ArrayFloat) lonVar.read();
-        final ArrayFloat lat = (ArrayFloat) netcdfFile.findVariable("lat").read();
+        final Array lonArray = lonVar.read();
+        final Array latArray = latVar.read();
 
-        pixelLocator = SwathPixelLocator.create(lon, lat, width, height, 0);
+        pixelLocator = new SwathPixelLocator(lonArray, latArray, width, height);
+//        pixelLocator = new SwathPixelLocator(lonPi, latPi);
     }
 
     @After
@@ -54,28 +61,43 @@ public class SwathPixelLocatorTest {
     @Test
     public void testBothWaysOfPixelLocator() throws Exception {
 
+        final int border = 0;
+        final double delta = 0.49999;
         for (int h = 0; h < height; h++) {
-            final boolean borderTouched = h == 0 || h == height - 1 || h % width == 0 || h % width == width - 1;
+            final boolean borderTouched = h < border
+                                          || h >= height - border
+                                          || h % width < border
+                                          || h % width >= width - border;
             if (borderTouched) {
                 continue;
             }
             final double y = h + 0.5;
             final double x = h % width + 0.5;
+
+            System.out.println("x/y = " + x + " / " + y);
             boolean worksFine;
-            Point2D pos = new Point2D.Double();
+            final Point2D pos = new Point2D.Double();
             worksFine = pixelLocator.getGeoLocation(x, y, pos);
             assertEquals("Unable to fetch a geoposition for x=" + x + " y=" + y, true, worksFine);
 
             final double lon = pos.getX();
             final double lat = pos.getY();
-            worksFine = pixelLocator.getPixelLocation(lon, lat, pos);
+            final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat, pos);
 
-            // @todo se/se unremark the three lines
-//            assertEquals("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, true, worksFine);
-//            assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, pos.getX(), 0.45);
-//            assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, pos.getY(), 0.45);
-
+            assertNotNull("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
+            if (locations.length == 1) {
+                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[0].getX(), delta);
+                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[0].getY(), delta);
+            } else {
+                final int idx = getCloserIndex(y, locations);
+                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[idx].getX(), delta);
+                assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[idx].getY(), delta);
+            }
         }
+    }
+
+    private int getCloserIndex(double y, Point2D[] locations) {
+        return Math.abs(y - locations[0].getY()) < Math.abs(y - locations[1].getY()) ? 0 : 1;
     }
 
     @Test
@@ -116,8 +138,8 @@ public class SwathPixelLocatorTest {
         final double[][] latValues = getReorganizedDoubleValues(targetWidth, targetHeight, latFloats);
         final double[][] lonValues = getReorganizedDoubleValues(targetWidth, targetHeight, lonFloats);
 
-        final GeoApproximation latApproximation = GeoApproximation.create(latValues, 0.3, new Rectangle(0, 0, 41, 9));
-        final GeoApproximation lonApproximation = GeoApproximation.create(lonValues, 0.3, new Rectangle(0, 0, 41, 9));
+//        final GeoApproximation latApproximation = GeoApproximation.create(latValues, 0.3, new Rectangle(0, 0, 41, 9));
+//        final GeoApproximation lonApproximation = GeoApproximation.create(lonValues, 0.3, new Rectangle(0, 0, 41, 9));
 //        new SwathPixelLocator.PixelLocationEstimator(new org.esa.snap.core.datamodel.GeoApproximation[]{})
     }
 

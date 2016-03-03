@@ -1,277 +1,160 @@
 package com.bc.fiduceo.location;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-import org.esa.snap.core.datamodel.GeoApproximation;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.ImageUtils;
-import org.esa.snap.core.util.math.CosineDistance;
-import org.esa.snap.core.util.math.DistanceMeasure;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
+import ucar.ma2.Array;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.Point2D;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
 
-/**
- * @author Ralf Quast
- */
-public class SwathPixelLocator extends AbstractPixelLocator {
+public class SwathPixelLocator implements PixelLocator {
 
-    private final PixelLocationEstimator estimator;
-    private final PixelLocationSearcher searcher;
+    private final GeoPos geoPos;
+    private final GeoCoding gc;
+    private final int width;
+    private final int height;
+    private BestApproximations bestApproximations;
+    private PixelPos pixelPos;
 
-    private SwathPixelLocator(PlanarImage lonSource, PlanarImage latSource,
-                              PixelLocationEstimator estimator, PixelLocationSearcher searcher) {
-        super(lonSource, latSource);
-        this.estimator = estimator;
-        this.searcher = searcher;
+
+    public SwathPixelLocator(Array lonArray, Array latArray, int width, int height) {
+        this.width = width;
+        this.height = height;
+        PlanarImage lonImg = getPlanarImage(lonArray, width, height);
+        PlanarImage latImg = getPlanarImage(latArray, width, height);
+        GeoApproximation[] approximations = GeoApproximation.createApproximations(lonImg, latImg, null, 0.1);
+        bestApproximations = new BestApproximations(approximations);
+        final float[] lats = (float[]) latArray.getStorage();
+        final float[] lons = (float[]) lonArray.getStorage();
+        final TiePointGrid latGrid = new TiePointGrid("lat", width, height, 0.5, 0.5, 1.0, 1.0, lats);
+        final TiePointGrid lonGrid = new TiePointGrid("lon", width, height, 0.5, 0.5, 1.0, 1.0, lons);
+        gc = new TiePointGeoCoding(latGrid, lonGrid);
+        pixelPos = new PixelPos();
+        geoPos = new GeoPos();
     }
 
-    public static PixelLocator create(ArrayFloat lonSource,
-                                      ArrayFloat latSource,
-                                      int width,
-                                      int height,
-                                      int wobbly) {
-
-        final ProductData.Float lonData = new ProductData.Float((float[]) lonSource.getStorage());
-        final ProductData.Float latData = new ProductData.Float((float[]) latSource.getStorage());
-
-
-        final RenderedImage lonImage = ImageUtils.createRenderedImage(width, height, lonData);
-        final RenderedImage latImage = ImageUtils.createRenderedImage(width, height, latData);
-        PlanarImage lonPi = PlanarImage.wrapRenderedImage(lonImage);
-        PlanarImage latPi = PlanarImage.wrapRenderedImage(latImage);
-
-        final GeoApproximation[] approximations = createApproximations(lonPi, latPi, null);
-        final PixelLocationEstimator estimator = new PixelLocationEstimator(approximations);
-
-        final PixelLocationSearcher searcher = new PixelLocationSearcher(lonPi,
-                                                                         latPi,
-                                                                         null,
-                                                                         wobbly);
-
-        return new SwathPixelLocator(lonPi, latPi, estimator, searcher);
-    }
-
-    private static GeoApproximation[] createApproximations(PlanarImage lonImage,
-                                                           PlanarImage latImage,
-                                                           PlanarImage maskImage) {
-        return GeoApproximation.createApproximations(lonImage, latImage, maskImage, 0.5);
+    private static PlanarImage getPlanarImage(Array data, int width, int height) {
+        final float[] floats = (float[]) data.getStorage();
+        final ProductData productData = ProductData.createInstance(floats);
+        final RenderedImage lonImage = ImageUtils.createRenderedImage(width, height, productData);
+        return PlanarImage.wrapRenderedImage(lonImage);
     }
 
     @Override
-    public boolean getPixelLocation(double lon, double lat, Point2D p) {
-//        return estimator.estimatePixelLocation(lon, lat, p);
-//        return searcher.searchPixelLocation(lon, lat, p);
-        return estimator.estimatePixelLocation(lon, lat, p) && searcher.searchPixelLocation(lon, lat, p);
-    }
-
-    public static final class PixelLocationEstimator {
-
-        private final GeoApproximation[] approximations;
-
-        public PixelLocationEstimator(GeoApproximation[] approximations) {
-            this.approximations = approximations;
-        }
-
-        private static GeoApproximation findMostSuitable(GeoApproximation[] approximations, double lat, double lon) {
-            GeoApproximation bestApproximation = null;
-            if (approximations.length == 1) {
-                GeoApproximation a = approximations[0];
-                final double distance = a.getDistance(lat, lon);
-                if (distance < a.getMaxDistance()) {
-                    bestApproximation = a;
-                }
-            } else {
-                double minDistance = Double.MAX_VALUE;
-                for (final GeoApproximation a : approximations) {
-                    final double distance = a.getDistance(lat, lon);
-                    if (distance < minDistance && distance < a.getMaxDistance()) {
-                        minDistance = distance;
-                        bestApproximation = a;
-                    }
-                }
+    public boolean getGeoLocation(double x, double y, Point2D g) {
+        pixelPos.setLocation(x, y);
+        geoPos.setInvalid();
+        gc.getGeoPos(pixelPos, geoPos);
+        if (geoPos.isValid()) {
+            if (g == null) {
+                g = new Point2D.Double();
             }
-            return bestApproximation;
-        }
-
-        private static void g2p(GeoApproximation geoApproximation, Point2D g) {
-            geoApproximation.getRotator().transform(g);
-            final double lon = g.getX();
-            final double lat = g.getY();
-            final double x = geoApproximation.getFX().getValue(lat, lon);
-            final double y = geoApproximation.getFY().getValue(lat, lon);
-            g.setLocation(x, y);
-        }
-
-        public boolean estimatePixelLocation(double lon, double lat, Point2D p) {
-            GeoApproximation approximation;
-            if (approximations != null) {
-                approximation = findMostSuitable(approximations, lat, lon);
-                if (approximation != null) {
-                    p.setLocation(lon, lat);
-                    g2p(approximation, p);
-                } else {
-                    return false;
-                }
-            }
+            g.setLocation(geoPos.getLon(), geoPos.getLat());
             return true;
         }
+        return false;
     }
 
-    private static final class PixelLocationSearcher {
+    @Override
+    public Point2D[] getPixelLocation(double lon, double lat, Point2D p) {
+        bestApproximations.findFor(lon, lat);
+        if (!bestApproximations.hasApproximations()) {
+            return null;
+        }
+        if (p == null) {
+            p = new Point2D.Double();
+        }
+        final ArrayList<Point2D> pipos = new ArrayList<>();
+        final ArrayList<GeoApproximation> theBest = bestApproximations.getTheBest();
+        for (GeoApproximation a : theBest) {
+            p.setLocation(lon, lat);
+            a.g2p(p);
+            if (isValid(p)) {
+                pipos.add(new Point2D.Double(p.getX(), p.getY()));
+            }
+        }
+        return pipos.toArray(new Point2D[0]);
+    }
 
-        private static final int R = 128;
+    private boolean isValid(Point2D p) {
+        final int iX = (int) Math.floor(p.getX());
+        final int iY = (int) Math.floor(p.getY());
+        return iX >= 0 && iX < width && iY >= 0 && iY < height;
+    }
 
-        private final SampleSource maskSource;
-        private final int wobbly;
-        private final int sourceW;
-        private final int sourceH;
-        private final Raster lonData;
-        private final Raster latData;
+    private static class BestApproximations {
 
-        public PixelLocationSearcher(PlanarImage lonSource, PlanarImage latSource, SampleSource maskSource,
-                                     int wobbly) {
-            lonData = lonSource.getData();
-            latData = latSource.getData();
-            this.maskSource = maskSource;
-            this.wobbly = wobbly;
+        private final GeoApproximation[] approximations;
+        private final ArrayList<GeoApproximation> best;
+        private final ArrayList<Integer> bestIdx;
+        private final ArrayList<Double> distances;
 
-
-            sourceW = lonSource.getWidth();
-            sourceH = lonSource.getHeight();
+        public BestApproximations(GeoApproximation[] approximations) {
+            this.approximations = approximations;
+            best = new ArrayList<>();
+            bestIdx = new ArrayList<>();
+            distances = new ArrayList<>();
         }
 
-        public boolean searchPixelLocation(double lon, double lat, Point2D p) {
-            int x = (int) Math.floor(p.getX());
-            int y = (int) Math.floor(p.getY());
-
-            if (x < 0) {
-                x = 0;
-            } else if (x >= sourceW) {
-                x = sourceW - 1;
-            }
-            if (y < 0) {
-                y = 0;
-            } else if (y >= sourceH) {
-                y = sourceH - 1;
-            }
-
-            final int minX = max(x - R, 0);
-            final int minY = max(y - R, 0);
-            final int maxX = min(x + R, sourceW - 1);
-            final int maxY = min(y + R, sourceH - 1);
-
-            final DistanceMeasure d = new CosineDistance(lon, lat);
-            final Result result = new Result(d, x, y, 2.0).invoke(x, y);
-
-            for (int r = R; r > wobbly; r >>= 1) {
-                final int midX = result.getX();
-                final int midY = result.getY();
-
-                final int outerMinX = max(minX, midX - r);
-                final int outerMaxX = min(maxX, midX + r);
-                final int outerMinY = max(minY, midY - r);
-                final int outerMaxY = min(maxY, midY + r);
-
-                // consider outer points in the N, S, E, and W
-                result.invoke(outerMinX, midY);
-                result.invoke(outerMaxX, midY);
-                result.invoke(midX, outerMaxY);
-                result.invoke(midX, outerMinY);
-                // consider outer points in the NW, SW, SE, and NE
-                result.invoke(outerMinX, outerMinY);
-                result.invoke(outerMinX, outerMaxY);
-                result.invoke(outerMaxX, outerMaxY);
-                result.invoke(outerMaxX, outerMinY);
-
-                if (r >> 1 > wobbly) {
-                    final int innerMinX = max(minX, midX - (r >> 1));
-                    final int innerMaxX = min(maxX, midX + (r >> 1));
-                    final int innerMinY = max(minY, midY - (r >> 1));
-                    final int innerMaxY = min(maxY, midY + (r >> 1));
-
-                    // consider inner points in the NW, SW, SE, and NE
-                    result.invoke(innerMinX, innerMinY);
-                    result.invoke(innerMinX, innerMaxY);
-                    result.invoke(innerMaxX, innerMaxY);
-                    result.invoke(innerMaxX, innerMinY);
-
-                    if (wobbly > 0) {
-                        // consider inner points in the N, S, E, and W
-                        result.invoke(innerMinX, midY);
-                        result.invoke(innerMaxX, midY);
-                        result.invoke(midX, innerMaxY);
-                        result.invoke(midX, innerMinY);
-                    }
-                }
-                if (wobbly > 0) {
-                    final int minX1 = max(outerMinX, midX - wobbly);
-                    final int maxX1 = min(outerMaxX, midX + wobbly);
-                    final int minY1 = max(outerMinY, midY - wobbly);
-                    final int maxY1 = min(outerMaxY, midY + wobbly);
-
-                    for (int y1 = minY1; y1 <= maxY1; y1++) {
-                        for (int x1 = minX1; x1 <= maxX1; x1++) {
-                            if (x1 != midX || y1 != midY) {
-                                result.invoke(x1, y1);
-                            }
-                        }
-                    }
+        public void findFor(double lon, double lat) {
+            emptyFields();
+            for (int i = 0; i < approximations.length; i++) {
+                GeoApproximation a = approximations[i];
+                final double distance = a.getDistance(lat, lon);
+                if (distance <= a.getMaxDistance()) {
+                    best.add(a);
+                    bestIdx.add(i);
+                    distances.add(distance);
                 }
             }
-
-            final boolean found = result.getX() > minX && result.getX() < maxX && result.getY() > minY && result.getY() < maxY;
-            if (found) {
-                p.setLocation(result.getX() + 0.5, result.getY() + 0.5);
-            }
-
-            return found;
+            findCouplesAndKeepTheBest();
         }
 
-        private final class Result {
-
-            private final DistanceMeasure distanceMeasure;
-
-            private int x;
-            private int y;
-            private double distance;
-
-            public Result(DistanceMeasure distanceMeasure, int x, int y, double distance) {
-                this.distanceMeasure = distanceMeasure;
-                this.x = x;
-                this.y = y;
-                this.distance = distance;
-            }
-
-            public int getX() {
-                return x;
-            }
-
-            public int getY() {
-                return y;
-            }
-
-            public Result invoke(int otherX, int otherY) {
-                if (maskSource == null || maskSource.getSample(otherX, otherY) != 0.0) {
-                    final double lon = lonData.getSampleDouble(otherX, otherY, 0);
-                    final double lat = latData.getSampleDouble(otherX, otherY, 0);
-                    final double d = distanceMeasure.distance(lon, lat);
-
-                    if (d < distance) {
-                        x = otherX;
-                        y = otherY;
-                        distance = d;
+        private void findCouplesAndKeepTheBest() {
+            for (int i = 1; i < best.size(); i++) {
+                final int first = i - 1;
+                final Integer i1 = bestIdx.get(first);
+                final Integer i2 = bestIdx.get(i);
+                final boolean isNeighbor = i2 - i1 == 1;
+                if (isNeighbor) {
+                    final double d1 = distances.get(first);
+                    final double d2 = distances.get(i);
+                    if (d1 < d2) {
+                        remove(i);
+                    } else {
+                        remove(first);
                     }
+                    i--;
                 }
-                return this;
             }
         }
 
+        private void remove(int i) {
+            best.remove(i);
+            bestIdx.remove(i);
+            distances.remove(i);
+        }
+
+        private void emptyFields() {
+            best.clear();
+            bestIdx.clear();
+            distances.clear();
+        }
+
+        public boolean hasApproximations() {
+            return best.size() > 0;
+        }
+
+        public ArrayList<GeoApproximation> getTheBest() {
+            return best;
+        }
     }
 
 }
