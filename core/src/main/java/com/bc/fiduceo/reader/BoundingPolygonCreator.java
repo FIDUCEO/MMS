@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
@@ -30,6 +31,7 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -313,20 +315,12 @@ public class BoundingPolygonCreator {
         return acquisitionInfo;
     }
 
-    static void closePolygon(List<Point> coordinates) {
-        if (coordinates.size() > 1) {
-            coordinates.add(coordinates.get(0));
-        }
-    }
-
-
     public Geometry createBoundingGeometry(Array longitudes, Array latitudes) {
         final int[] shape = longitudes.getShape();
-
         int maxX = shape[1] - 1;
         int maxY = shape[0] - 1;
 
-        final Index index = Index.factory(shape);
+        final Index index = longitudes.getIndex();
         final List<Point> coordinates = new ArrayList<>();
         for (int y = 0; y < maxY; y += intervalY) {
             index.set(y, 0);
@@ -349,7 +343,7 @@ public class BoundingPolygonCreator {
             coordinates.add(geometryFactory.createPoint(lon, lat));
         }
 
-        for (int x = maxX; x >0; x -= intervalX) {
+        for (int x = maxX; x > 0; x -= intervalX) {
             index.set(0, x);
             final double lon = longitudes.getDouble(index);
             final double lat = latitudes.getDouble(index);
@@ -359,5 +353,47 @@ public class BoundingPolygonCreator {
         closePolygon(coordinates);
 
         return geometryFactory.createPolygon(coordinates);
+    }
+
+    public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits) {
+        final Geometry[] geometries = new Geometry[numSplits];
+
+        final int[] shape = longitudes.getShape();
+        int height = shape[0];
+
+        final int[] offsets = new int[]{0, 0};
+
+        int yOffset = 0;
+        int subsetHeight = height / numSplits + 1;
+        for (int i = 0; i < numSplits; i++) {
+            shape[0] = subsetHeight;
+            offsets[0] = yOffset;
+
+            Array longitudesSubset;
+            Array latitudesSubset;
+            try {
+                longitudesSubset = longitudes.section(offsets, shape);
+                latitudesSubset = latitudes.section(offsets, shape);
+            } catch (InvalidRangeException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+
+            geometries[i] = createBoundingGeometry(longitudesSubset, latitudesSubset);
+
+            yOffset += subsetHeight -1;
+            if (yOffset + subsetHeight > height) {
+                subsetHeight = height - yOffset;
+            }
+        }
+
+        final BcGeometryCollection geometryCollection = new BcGeometryCollection();
+        geometryCollection.setGeometries(geometries);
+        return geometryCollection;
+    }
+
+    static void closePolygon(List<Point> coordinates) {
+        if (coordinates.size() > 1) {
+            coordinates.add(coordinates.get(0));
+        }
     }
 }

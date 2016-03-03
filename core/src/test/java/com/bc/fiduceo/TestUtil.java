@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo;
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -214,6 +215,25 @@ public class TestUtil {
         }
         stringBuffer.append(")");
         return stringBuffer.toString();
+    }
+
+    public static String formatToMultipoint(Geometry geometry) {
+        final Point[] coordinates = geometry.getCoordinates();
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("MULTIPOINT(");
+        for (int i = 0; i < coordinates.length; i++) {
+            final Point coordinate = coordinates[i];
+            builder.append(coordinate.getLon());
+            builder.append(" ");
+            builder.append(coordinate.getLat());
+            if (i < coordinates.length - 1) {
+                builder.append(",");
+            }
+        }
+        builder.append(")");
+
+        return builder.toString();
     }
 
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {

@@ -106,8 +106,8 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
         assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
 
-        assertEquals(observation.getGeoBounds().getCoordinates().length, 104);
-        assertEquals(observationFromDb.getGeoBounds().getCoordinates().length, 106);
+        assertEquals(106, observation.getGeoBounds().getCoordinates().length);
+        assertEquals(106, observationFromDb.getGeoBounds().getCoordinates().length);
     }
 
 

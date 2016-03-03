@@ -25,6 +25,9 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,7 +66,26 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
 
+            Point[] coordinates = geometries[0].getCoordinates();
+            assertEquals(161, coordinates.length);
+            assertEquals(-66.97299194335938, coordinates[0].getLon(), 1e-8);
+            assertEquals(-5.238999843597412, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-74.2349853515625, coordinates[23].getLon(), 1e-8);
+            assertEquals(61.316001892089844, coordinates[23].getLat(), 1e-8);
+
+            coordinates = geometries[1].getCoordinates();
+            assertEquals(161, coordinates.length);
+            assertEquals(69.81500244140625, coordinates[0].getLon(), 1e-8);
+            assertEquals(-12.913000106811522, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(7.164999961853029, coordinates[23].getLon(), 1e-8);
+            assertEquals(-67.44300079345703, coordinates[23].getLat(), 1e-8);
         } finally {
             reader.close();
         }
@@ -93,7 +115,26 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
 
+            Point[] coordinates = geometries[0].getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(-110.22799682617189, coordinates[17].getLon(), 1e-8);
+            assertEquals(38.00899887084961, coordinates[17].getLat(), 1e-8);
+
+            assertEquals(177.14199829101562, coordinates[58].getLon(), 1e-8);
+            assertEquals(-66.05000305175781, coordinates[58].getLat(), 1e-8);
+
+            coordinates = geometries[1].getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(153.96200561523438, coordinates[0].getLon(), 1e-8);
+            assertEquals(-66.73899841308594, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(83.5780029296875, coordinates[23].getLon(), 1e-8);
+            assertEquals(-16.940000534057617, coordinates[23].getLat(), 1e-8);
         } finally {
             reader.close();
         }

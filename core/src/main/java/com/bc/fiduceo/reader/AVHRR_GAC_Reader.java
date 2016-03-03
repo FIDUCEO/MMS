@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
@@ -106,8 +107,11 @@ public class AVHRR_GAC_Reader implements Reader {
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
         final Array longitudes = getLongitudes(netcdfFile);
         final Array latitudes = getLatitudes(netcdfFile);
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        // @todo 1 tb/tb check if geometry is valid, if not -> splice in two
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
+        if (!boundingGeometry.isValid()) {
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+            checkForValidity((GeometryCollection) boundingGeometry);
+        }
         return boundingGeometry;
     }
 
@@ -148,6 +152,16 @@ public class AVHRR_GAC_Reader implements Reader {
         return readVariableData(netcdfFile, "lat");
     }
 
+    // package access for testing only tb 2016-03-03
+    static void checkForValidity(GeometryCollection boundingGeometry) {
+        final Geometry[] geometries = boundingGeometry.getGeometries();
+        for (final Geometry geometry : geometries) {
+            if (!geometry.isValid()){
+                throw new RuntimeException("Invalid geometry detected");
+            }
+        }
+    }
+
     private static Array readVariableData(NetcdfFile netcdfFile, String fullNameEscaped) throws IOException {
         final Variable variable = netcdfFile.findVariable(fullNameEscaped);
         if (variable == null) {
@@ -156,10 +170,4 @@ public class AVHRR_GAC_Reader implements Reader {
 
         return variable.read();
     }
-
-    private Variable getVariable(final String name) {
-        return netcdfFile.findVariable(name);
-    }
-
-
 }

@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
@@ -181,6 +182,105 @@ public class BoundingPolygonCreatorTest {
 
         assertEquals(-114.421005, coordinates[4].getLon(), 1e-8);
         assertEquals(6.178, coordinates[4].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreateBoundingGeometrySplitted_splitInTwo() {
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof GeometryCollection);
+
+        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(2, geometries.length);
+
+        // check upper part
+        Point[] coordinates = geometries[0].getCoordinates();
+        assertEquals(9, coordinates.length);
+
+        assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.43, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-114.996994, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.373, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-115.003006, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.344, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(-114.77901, coordinates[7].getLon(), 1e-8);
+        assertEquals(6.402, coordinates[7].getLat(), 1e-8);
+
+        // check lower part
+        coordinates = geometries[1].getCoordinates();
+        assertEquals(9, coordinates.length);
+
+        assertEquals(-115.003006, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.344, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-115.015, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.287, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-115.020996, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.258, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(-114.797, coordinates[7].getLon(), 1e-8);
+        assertEquals(6.317, coordinates[7].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreateBoundingGeometrySplitted_splitInThree() {
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 3);
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof GeometryCollection);
+
+        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(3, geometries.length);
+
+        // check upper part
+        Point[] coordinates = geometries[0].getCoordinates();
+        assertEquals(7, coordinates.length);
+
+        assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.43, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-114.996994, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.373, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-114.591, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.318, coordinates[2].getLat(), 1e-8);
+
+        // check middle part
+        coordinates = geometries[1].getCoordinates();
+        assertEquals(7, coordinates.length);
+
+        assertEquals(-114.996994, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.373, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-115.009, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.315, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-114.604004, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.261, coordinates[2].getLat(), 1e-8);
+
+        // check lower part
+        coordinates = geometries[2].getCoordinates();
+        assertEquals(7, coordinates.length);
+
+        assertEquals(-115.009, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.315, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-115.020996, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.258, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-114.616, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.204, coordinates[2].getLat(), 1e-8);
     }
 
     private static final double[][] AIRS_LONGITUDES = new double[][]{

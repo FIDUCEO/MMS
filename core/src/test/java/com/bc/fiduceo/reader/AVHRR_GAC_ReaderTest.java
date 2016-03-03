@@ -22,6 +22,8 @@ package com.bc.fiduceo.reader;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.geometry.BcGeometryCollection;
+import com.bc.fiduceo.geometry.Geometry;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -34,11 +36,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -158,5 +156,46 @@ public class AVHRR_GAC_ReaderTest {
 
         final Array latitudes = AVHRR_GAC_Reader.getLatitudes(netcdfFile);
         assertNotNull(latitudes);
+    }
+
+    @Test
+    public void testCheckForValidity_valid() {
+        final Geometry geometry_1 = mock(Geometry.class);
+        when(geometry_1.isValid()).thenReturn(true);
+
+        final Geometry geometry_2 = mock(Geometry.class);
+        when(geometry_2.isValid()).thenReturn(true);
+
+        final BcGeometryCollection geometryCollection = createGeometryCollection(geometry_1, geometry_2);
+
+        try {
+            AVHRR_GAC_Reader.checkForValidity(geometryCollection);
+        } catch (Exception e) {
+            fail("No exception expected");
+        }
+    }
+
+    @Test
+    public void testCheckForValidity_invalid() {
+        final Geometry geometry_1 = mock(Geometry.class);
+        when(geometry_1.isValid()).thenReturn(true);
+
+        final Geometry geometry_2 = mock(Geometry.class);
+        when(geometry_2.isValid()).thenReturn(false);
+
+        final BcGeometryCollection geometryCollection = createGeometryCollection(geometry_1, geometry_2);
+
+        try {
+            AVHRR_GAC_Reader.checkForValidity(geometryCollection);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    BcGeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {
+        final Geometry[] geometries = new Geometry[]{geometry_1, geometry_2};
+        final BcGeometryCollection geometryCollection = new BcGeometryCollection();
+        geometryCollection.setGeometries(geometries);
+        return geometryCollection;
     }
 }

@@ -105,6 +105,13 @@ public class BcS2GeometryFactory implements AbstractGeometryFactory {
     @Override
     public Polygon createPolygon(List<Point> points) {
         final List<S2Point> loopPoints = extractS2Points(points);
+        final S2Point first = loopPoints.get(0);
+        final int lastIndex = loopPoints.size() - 1;
+        final S2Point last = loopPoints.get(lastIndex);
+        if (first.equals(last)) {
+            loopPoints.remove(lastIndex);
+        }
+
         final S2Loop s2Loop = new S2Loop(loopPoints);
 
         final S2Polygon googlePolygon = new S2Polygon(s2Loop);
