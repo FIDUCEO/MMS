@@ -30,8 +30,8 @@ public class SwathPixelLocatorTest {
     @Before
     public void setUp() throws Exception {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final String sep = File.separator;
-        netcdfFile = NetcdfFile.open(new File(testDataDirectory, "avhrr-n17" + sep + "1.01" + sep + "2007" + sep + "04" + sep + "01" + sep + "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc").getAbsolutePath());
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
+        netcdfFile = NetcdfFile.open(new File(testDataDirectory, testFilePath).getAbsolutePath());
 
         final Variable lonVar = netcdfFile.findVariable("lon");
         final Variable latVar = netcdfFile.findVariable("lat");

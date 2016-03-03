@@ -177,9 +177,20 @@ public class TestUtil {
         return databaseConfigFile;
     }
 
-    private static File getTestDir() {
-        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
-        return new File(tempDirPath, TEST_DIRECTORY);
+    public static String assembleFileSystemPath(String[] pathSegments, boolean relative){
+        final StringBuilder builder = new StringBuilder();
+        final String sep = File.separator;
+        if (relative) {
+            builder.append(sep);
+        }
+        for (int i = 0; i < pathSegments.length; i++){
+            builder.append(pathSegments[i]);
+            if (i < pathSegments.length - 1){
+                builder.append(sep);
+            }
+        }
+
+        return builder.toString();
     }
 
     public static Coordinate[] getCoordinates(List<Point> points) {
@@ -241,5 +252,10 @@ public class TestUtil {
         properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", datasource.getUsername());
         properties.setProperty("password", datasource.getPassword());
+    }
+
+    private static File getTestDir() {
+        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
+        return new File(tempDirPath, TEST_DIRECTORY);
     }
 }
