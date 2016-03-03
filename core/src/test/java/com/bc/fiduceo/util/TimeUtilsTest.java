@@ -26,13 +26,8 @@ import org.junit.Test;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class TimeUtilsTest {
@@ -127,31 +122,10 @@ public class TimeUtilsTest {
 
 
     @Test
-    public void testGetUTCCalendar(){
+    public void testGetUTCCalendar() {
         Calendar utcCalendar = TimeUtils.getUTCCalendar();
 
         assertNotNull(utcCalendar);
-        assertEquals("UTC",utcCalendar.getTimeZone().getID());
-    }
-
-
-    @Test
-    public void getGetName() {
-        String fileName = "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5";
-
-        Pattern compile = Pattern.compile("'*\\d{5}");
-        Matcher matcher = compile.matcher(fileName);
-        if (matcher.find()) {
-            String group = matcher.group();
-            System.out.println("group = " + group);
-
-            String yr = group.substring(0, 2);
-            String month = group.substring(2, group.length());
-
-            System.out.println("yr = " + yr);
-            System.out.println("month = " + month);
-
-
-        }
+        assertEquals("UTC", utcCalendar.getTimeZone().getID());
     }
 }
