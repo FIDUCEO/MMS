@@ -36,12 +36,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class AIRS_L1B_Reader implements Reader {
 
@@ -158,15 +153,11 @@ public class AIRS_L1B_Reader implements Reader {
         final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
         acquisitionInfo.setNodeType(nodeType);
 
-        try {
-            final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
-            final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
+        final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
+        final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
 
-            acquisitionInfo.setSensingStart(sensingStart);
-            acquisitionInfo.setSensingStop(sensingStop);
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
+        acquisitionInfo.setSensingStart(sensingStart);
+        acquisitionInfo.setSensingStop(sensingStop);
 
         return acquisitionInfo;
     }
@@ -177,7 +168,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     // package access for testing only tb 2016-01-08
-    Date parseDate(String dateString, String timeString) throws ParseException {
+    Date parseDate(String dateString, String timeString) {
         final String timeStringWithMillis = stripMicrosecs(timeString);
         final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
         return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
