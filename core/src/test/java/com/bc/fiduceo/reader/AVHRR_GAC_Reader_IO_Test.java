@@ -100,8 +100,13 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-//            final Date time = timeAxis.getTime(geometryFactory.createPoint(-66.97299194335938, -5.238999843597412));
-//            TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, time);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 4, 32, 4, 754, time);
 
         } finally {
             reader.close();
@@ -155,10 +160,13 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-           // coordinates = geometries[0].getCoordinates();
-            // @todo 1 tb/tb continue here 2016-03-04
-//            final Date time = timeAxis.getTime(coordinates[2]);
-//            TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 4, 12, 0, time);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 4, 13, 616, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 55, 11, 500, time);
         } finally {
             reader.close();
         }
