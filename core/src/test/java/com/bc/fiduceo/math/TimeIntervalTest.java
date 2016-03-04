@@ -110,6 +110,39 @@ public class TimeIntervalTest {
         assertTimeInterval(1000, 1500, intersection);
     }
 
+    @Test
+    public void testSplit_half() {
+        final TimeInterval interval = createInterval(1000, 2000);
+
+        final TimeInterval[] splits = interval.split(2);
+        assertEquals(2, splits.length);
+        assertTimeInterval(1000, 1500, splits[0]);
+        assertTimeInterval(1500, 2000, splits[1]);
+    }
+
+    @Test
+    public void testSplit_third() {
+        final TimeInterval interval = createInterval(1000, 2000);
+
+        final TimeInterval[] splits = interval.split(3);
+        assertEquals(3, splits.length);
+        assertTimeInterval(1000, 1333, splits[0]);
+        assertTimeInterval(1333, 1666, splits[1]);
+        assertTimeInterval(1666, 2000, splits[2]);
+    }
+
+    @Test
+    public void testSplit_quarter() {
+        final TimeInterval interval = createInterval(1000, 2000);
+
+        final TimeInterval[] splits = interval.split(4);
+        assertEquals(4, splits.length);
+        assertTimeInterval(1000, 1250, splits[0]);
+        assertTimeInterval(1250, 1500, splits[1]);
+        assertTimeInterval(1500, 1750, splits[2]);
+        assertTimeInterval(1750, 2000, splits[3]);
+    }
+
     private void assertTimeInterval(int expectedStart, int expectedEnd, TimeInterval intersection) {
         assertEquals(expectedStart, intersection.getStartTime().getTime());
         assertEquals(expectedEnd, intersection.getStopTime().getTime());

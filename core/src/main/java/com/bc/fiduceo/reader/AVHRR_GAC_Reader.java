@@ -29,13 +29,13 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
+import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,10 +106,12 @@ public class AVHRR_GAC_Reader implements Reader {
             final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
             final Geometry[] axesGeometries = axesCollection.getGeometries();
             final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+            final TimeInterval timeInterval = new TimeInterval(startDate, stopDate);
+            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
             for (int i = 0; i < axesGeometries.length; i++) {
                 final LineString axisGeometry = (LineString) axesGeometries[i];
-                // // @todo 1 tb/tb calculate axes durations here 2016-03-04
-                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, startDate, stopDate);
+                final TimeInterval currentTimeInterval = timeSplits[i];
+                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
             }
             acquisitionInfo.setTimeAxes(timeAxes);
         } else {
@@ -197,15 +199,6 @@ public class AVHRR_GAC_Reader implements Reader {
                 throw new RuntimeException("Invalid geometry detected");
             }
         }
-    }
-
-    private static Array readVariableData(NetcdfFile netcdfFile, String fullNameEscaped) throws IOException {
-        final Variable variable = netcdfFile.findVariable(fullNameEscaped);
-        if (variable == null) {
-            throw new IOException("Required variable '" + fullNameEscaped + "' is missing");
-        }
-
-        return variable.read();
     }
 
     private class Geometries {

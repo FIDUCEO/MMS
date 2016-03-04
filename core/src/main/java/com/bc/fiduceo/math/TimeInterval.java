@@ -83,4 +83,27 @@ public class TimeInterval {
 
         return new TimeInterval(intersectStart, intersectStop);
     }
+
+    public TimeInterval[] split(int numSegments) {
+        final TimeInterval[] segments = new TimeInterval[numSegments];
+        final long stopMillis = stopTime.getTime();
+        final long startMillis = startTime.getTime();
+        final long duration = stopMillis - startMillis;
+        final long step = duration / numSegments;
+
+        long offset = 0;
+        for (int i = 0; i < numSegments; i++) {
+            long startOffset = startMillis + offset;
+            final Date segmentStart = TimeUtils.create(startOffset);
+            Date segmentEnd;
+            if (i == numSegments -1) {
+                segmentEnd = TimeUtils.create(stopMillis);
+            } else {
+                segmentEnd = TimeUtils.create(startOffset + step);
+            }
+            segments[i] = new TimeInterval(segmentStart, segmentEnd);
+            offset += step;
+        }
+        return segments;
+    }
 }
