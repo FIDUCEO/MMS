@@ -415,9 +415,44 @@ public class BoundingPolygonCreator {
         return geometryFactory.createLineString(coordinates);
     }
 
+    public Geometry createTimeAxisGeometrySplitted(Array longitudes, Array latitudes, int numSplits) {
+        final Geometry[] geometries = new Geometry[numSplits];
+
+        final int[] shape = longitudes.getShape();
+        int height = shape[0];
+
+        final int[] offsets = new int[]{0, 0};
+
+        int yOffset = 0;
+        int subsetHeight = height / numSplits + 1;
+        for (int i = 0; i < numSplits; i++) {
+            shape[0] = subsetHeight;
+            offsets[0] = yOffset;
+
+            Array longitudesSubset;
+            Array latitudesSubset;
+            try {
+                longitudesSubset = longitudes.section(offsets, shape);
+                latitudesSubset = latitudes.section(offsets, shape);
+            } catch (InvalidRangeException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+
+            geometries[i] = createTimeAxisGeometry(longitudesSubset, latitudesSubset);
+
+            yOffset += subsetHeight - 1;
+            if (yOffset + subsetHeight > height) {
+                subsetHeight = height - yOffset;
+            }
+        }
+        return geometryFactory.createGeometryCollection(geometries);
+    }
+
     static void closePolygon(List<Point> coordinates) {
         if (coordinates.size() > 1) {
             coordinates.add(coordinates.get(0));
         }
     }
+
+
 }

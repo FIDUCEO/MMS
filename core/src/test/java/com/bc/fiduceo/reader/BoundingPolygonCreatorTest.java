@@ -306,6 +306,37 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
+    public void testCreateTimeAxisGeometrySplitted_twoSegments() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+
+        final Geometry geometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 2);
+        assertTrue(geometry instanceof GeometryCollection);
+        final GeometryCollection geometryCollection = (GeometryCollection) geometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(2, geometries.length);
+
+        assertEquals("LINESTRING(-114.578995 6.376000000000001,-114.591 6.318,-114.597 6.290000000000001)", geometryFactory.format(geometries[0]));
+        assertEquals("LINESTRING(-114.597 6.290000000000001,-114.61 6.2330000000000005,-114.616 6.204)", geometryFactory.format(geometries[1]));
+    }
+
+    @Test
+    public void testCreateTimeAxisGeometrySplitted_threeSegments() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+
+        final Geometry geometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 3);
+        assertTrue(geometry instanceof GeometryCollection);
+        final GeometryCollection geometryCollection = (GeometryCollection) geometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(3, geometries.length);
+
+        assertEquals("LINESTRING(-114.578995 6.376000000000001,-114.591 6.318)", geometryFactory.format(geometries[0]));
+        assertEquals("LINESTRING(-114.591 6.318,-114.604004 6.261)", geometryFactory.format(geometries[1]));
+        assertEquals("LINESTRING(-114.604004 6.261,-114.616 6.204)", geometryFactory.format(geometries[2]));
+    }
+
+    @Test
     public void testCreateTimeAxisGeometry_AIRS() {
         final Array longitudes = Array.factory(AIRS_LONGITUDES);
         final Array latitudes = Array.factory(AIRS_LATITUDES);

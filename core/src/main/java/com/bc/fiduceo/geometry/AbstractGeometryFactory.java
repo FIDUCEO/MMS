@@ -25,9 +25,9 @@ package com.bc.fiduceo.geometry;
  */
 public abstract class AbstractGeometryFactory implements GeometryFactoryInterface {
 
-    public GeometryCollection createGeometryCollection(Geometry[] geometryList) {
+    public GeometryCollection createGeometryCollection(Geometry[] geometries) {
         final GeometryCollection geometryCollection = new BcGeometryCollection();
-        geometryCollection.setGeometries(geometryList);
+        geometryCollection.setGeometries(geometries);
         return geometryCollection;
     }
 }

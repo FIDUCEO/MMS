@@ -45,10 +45,12 @@ import static org.junit.Assert.assertTrue;
 public class AVHRR_GAC_Reader_IO_Test {
 
     private File testDataDirectory;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
     }
 
     @Test
@@ -96,8 +98,11 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(7.164999961853029, coordinates[23].getLon(), 1e-8);
             assertEquals(-67.44300079345703, coordinates[23].getLat(), 1e-8);
 
-//            final TimeAxis timeAxis = acquisitionInfo.getTimeAxis();
-//            assertNotNull(timeAxis);
+            final TimeAxis timeAxis = acquisitionInfo.getTimeAxis();
+            assertNotNull(timeAxis);
+            final Date time = timeAxis.getTime(geometryFactory.createPoint(-66.97299194335938, -5.238999843597412));
+            TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, time);
+
         } finally {
             reader.close();
         }
@@ -147,6 +152,13 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             assertEquals(83.5780029296875, coordinates[23].getLon(), 1e-8);
             assertEquals(-16.940000534057617, coordinates[23].getLat(), 1e-8);
+
+            final TimeAxis timeAxis = acquisitionInfo.getTimeAxis();
+            assertNotNull(timeAxis);
+            coordinates = geometries[0].getCoordinates();
+            // @todo 1 tb/tb continue here 2016-03-04
+//            final Date time = timeAxis.getTime(coordinates[2]);
+//            TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 4, 12, 0, time);
         } finally {
             reader.close();
         }

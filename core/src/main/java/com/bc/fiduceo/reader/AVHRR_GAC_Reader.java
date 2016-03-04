@@ -25,6 +25,8 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
@@ -47,6 +49,8 @@ public class AVHRR_GAC_Reader implements Reader {
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
 
     private NetcdfFile netcdfFile;
+    private BoundingPolygonCreator boundingPolygonCreator;
+    private GeometryFactory geometryFactory;
 
     @Override
     public void open(File file) throws IOException {
@@ -93,18 +97,23 @@ public class AVHRR_GAC_Reader implements Reader {
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
         final Geometry boundingGeometry = calculateBoundingGeometry();
-
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        final Array longitudes = getLongitudes(netcdfFile);
+        final Array latitudes = getLatitudes(netcdfFile);
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        final GeometryFactory geometryFactory = getGeometryFactory();
+        final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startDate, stopDate);
+        acquisitionInfo.setTimeAxis(timeAxis);
+
 
         return acquisitionInfo;
     }
 
     private Geometry calculateBoundingGeometry() throws IOException {
-        // @todo 1 tb/tb inject geometry factory 2016-03-02
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
 
-        // @todo 2 tb/tb move intervals to config 2016-03-02
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
         final Array longitudes = getLongitudes(netcdfFile);
         final Array latitudes = getLatitudes(netcdfFile);
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
@@ -113,6 +122,26 @@ public class AVHRR_GAC_Reader implements Reader {
             checkForValidity((GeometryCollection) boundingGeometry);
         }
         return boundingGeometry;
+    }
+
+    private BoundingPolygonCreator getBoundingPolygonCreator() {
+        if (boundingPolygonCreator == null) {
+            final GeometryFactory geometryFactory = getGeometryFactory();
+
+            // @todo 2 tb/tb move intervals to config 2016-03-02
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
+        }
+
+        return boundingPolygonCreator;
+    }
+
+    private GeometryFactory getGeometryFactory() {
+        if (geometryFactory == null) {
+        // @todo 1 tb/tb inject geometry factory 2016-03-02
+            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        }
+
+        return geometryFactory;
     }
 
     @Override
