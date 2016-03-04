@@ -128,44 +128,6 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testGetLongitudes() throws IOException {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Variable variable = mock(Variable.class);
-        final Array array = mock(Array.class);
-
-        when(variable.read()).thenReturn(array);
-        when(netcdfFile.findVariable("lon")).thenReturn(variable);
-
-        final Array longitudes = AVHRR_GAC_Reader.getLongitudes(netcdfFile);
-        assertNotNull(longitudes);
-    }
-
-    @Test
-    public void testGetLongitudes_missingVariable() throws IOException {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        when(netcdfFile.findVariable("lon")).thenReturn(null);
-
-        try {
-            AVHRR_GAC_Reader.getLongitudes(netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
-        }
-    }
-
-    @Test
-    public void testGetLatitudes() throws IOException {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Variable variable = mock(Variable.class);
-        final Array array = mock(Array.class);
-
-        when(variable.read()).thenReturn(array);
-        when(netcdfFile.findVariable("lat")).thenReturn(variable);
-
-        final Array latitudes = AVHRR_GAC_Reader.getLatitudes(netcdfFile);
-        assertNotNull(latitudes);
-    }
-
-    @Test
     public void testCheckForValidity_valid() {
         final Geometry geometry_1 = mock(Geometry.class);
         when(geometry_1.isValid()).thenReturn(true);

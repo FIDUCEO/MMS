@@ -51,10 +51,12 @@ public class AVHRR_GAC_Reader implements Reader {
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
     private GeometryFactory geometryFactory;
+    private ArrayCache arrayCache;
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
     }
 
     @Override
@@ -100,8 +102,8 @@ public class AVHRR_GAC_Reader implements Reader {
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
 
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        final Array longitudes = getLongitudes(netcdfFile);
-        final Array latitudes = getLatitudes(netcdfFile);
+        final Array longitudes = arrayCache.get("lon");
+        final Array latitudes = arrayCache.get("lat");
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         final GeometryFactory geometryFactory = getGeometryFactory();
         final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startDate, stopDate);
@@ -114,8 +116,8 @@ public class AVHRR_GAC_Reader implements Reader {
     private Geometry calculateBoundingGeometry() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
 
-        final Array longitudes = getLongitudes(netcdfFile);
-        final Array latitudes = getLatitudes(netcdfFile);
+        final Array longitudes = arrayCache.get("lon");
+        final Array latitudes = arrayCache.get("lat");
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
@@ -146,19 +148,12 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public PixelLocator getGeoCoding() throws IOException {
-        final Variable lon = getVariable("lon");
-        final Variable lat = getVariable("lat");
-
-        final ArrayFloat lonStorage = (ArrayFloat) lon.read();
-        final ArrayFloat latStorage = (ArrayFloat) lat.read();
-        final int[] shape = lon.getShape();
+        final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
+        final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
+        final int[] shape = lonStorage.getShape();
         final int width = shape[1];
         final int height = shape[0];
         return new SwathPixelLocator(lonStorage, latStorage, width, height);
-    }
-
-    private Variable getVariable(final String name) {
-        return netcdfFile.findVariable(name);
     }
 
     @Override
