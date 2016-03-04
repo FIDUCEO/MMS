@@ -119,7 +119,10 @@ public class MongoDbDriver extends AbstractDriver {
 
         final Point[] coordinates = geometry.getCoordinates();
         final ArrayList<Position> geometryPoints = extractPointsFromGeometry(coordinates);
-        if (geometry instanceof Polygon) {
+        if (geometry instanceof MultiPolygon) {
+            List<PolygonCoordinates> polygonCoordinates = gePolygonCoordinates((MultiPolygon) geometry);
+            return new com.mongodb.client.model.geojson.MultiPolygon(polygonCoordinates);
+        } else if (geometry instanceof Polygon) {
             if (!coordinates[0].equals(coordinates[coordinates.length - 1])) {
                 final Position position = new Position(coordinates[0].getLon(), coordinates[0].getLat());
                 geometryPoints.add(position);
@@ -129,9 +132,6 @@ public class MongoDbDriver extends AbstractDriver {
             return new com.mongodb.client.model.geojson.LineString(geometryPoints);
         } else if (geometry instanceof Point) {
             return new com.mongodb.client.model.geojson.Point(geometryPoints.get(0));
-        } else if (geometry instanceof MultiPolygon) {
-            List<PolygonCoordinates> polygonCoordinates = gePolygonCoordinates((MultiPolygon) geometry);
-            return new com.mongodb.client.model.geojson.MultiPolygon(polygonCoordinates);
         }
 
         throw new RuntimeException("Geometry type support not implemented");

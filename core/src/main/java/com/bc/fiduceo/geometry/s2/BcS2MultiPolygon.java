@@ -120,4 +120,24 @@ class BcS2MultiPolygon implements MultiPolygon {
         }
         return new BcS2MultiPolygon(resultList);
     }
+
+    @Override
+    public void shiftLon(double lon) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public boolean contains(Geometry geometry) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Polygon getDifference(Polygon polygon) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Polygon getUnion(Polygon polygon) {
+        throw new RuntimeException("not implemented");
+    }
 }

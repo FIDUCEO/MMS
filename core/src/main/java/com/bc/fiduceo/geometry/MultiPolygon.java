@@ -1,4 +1,4 @@
 package com.bc.fiduceo.geometry;
 
-public interface MultiPolygon extends Geometry {
+public interface MultiPolygon extends Polygon {
 }
