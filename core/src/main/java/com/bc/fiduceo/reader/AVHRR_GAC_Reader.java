@@ -98,32 +98,48 @@ public class AVHRR_GAC_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final Geometry boundingGeometry = calculateBoundingGeometry();
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+        final Geometries geometries = calculateGeometries();
+        acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
 
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        final Array longitudes = arrayCache.get("lon");
-        final Array latitudes = arrayCache.get("lat");
-        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
-        final GeometryFactory geometryFactory = getGeometryFactory();
-        final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startDate, stopDate);
-        acquisitionInfo.setTimeAxis(timeAxis);
+        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
+        if (timeAxesGeometry instanceof GeometryCollection) {
+            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+            final Geometry[] axesGeometries = axesCollection.getGeometries();
+            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+            for (int i = 0; i < axesGeometries.length; i++) {
+                final LineString axisGeometry = (LineString) axesGeometries[i];
+                // // @todo 1 tb/tb calculate axes durations here 2016-03-04
+                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, startDate, stopDate);
+            }
+            acquisitionInfo.setTimeAxes(timeAxes);
+        } else {
+            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, startDate, stopDate);
+            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
+        }
 
 
         return acquisitionInfo;
     }
 
-    private Geometry calculateBoundingGeometry() throws IOException {
+    private Geometries calculateGeometries() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        final Geometries geometries = new Geometries();
 
         final Array longitudes = arrayCache.get("lon");
         final Array latitudes = arrayCache.get("lat");
+        Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
             checkForValidity((GeometryCollection) boundingGeometry);
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 2);
+        } else {
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         }
-        return boundingGeometry;
+
+        geometries.setBoundingGeometry(boundingGeometry);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        return geometries;
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
@@ -139,7 +155,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
     private GeometryFactory getGeometryFactory() {
         if (geometryFactory == null) {
-        // @todo 1 tb/tb inject geometry factory 2016-03-02
+            // @todo 1 tb/tb inject geometry factory 2016-03-02
             geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         }
 
@@ -173,19 +189,11 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
-    static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
-        return readVariableData(netcdfFile, "lon");
-    }
-
-    static Array getLatitudes(NetcdfFile netcdfFile) throws IOException {
-        return readVariableData(netcdfFile, "lat");
-    }
-
     // package access for testing only tb 2016-03-03
     static void checkForValidity(GeometryCollection boundingGeometry) {
         final Geometry[] geometries = boundingGeometry.getGeometries();
         for (final Geometry geometry : geometries) {
-            if (!geometry.isValid()){
+            if (!geometry.isValid()) {
                 throw new RuntimeException("Invalid geometry detected");
             }
         }
@@ -198,5 +206,26 @@ public class AVHRR_GAC_Reader implements Reader {
         }
 
         return variable.read();
+    }
+
+    private class Geometries {
+        private Geometry boundingGeometry;
+        private Geometry timeAxesGeometry;
+
+        public Geometry getBoundingGeometry() {
+            return boundingGeometry;
+        }
+
+        public void setBoundingGeometry(Geometry boundingGeometry) {
+            this.boundingGeometry = boundingGeometry;
+        }
+
+        public Geometry getTimeAxesGeometry() {
+            return timeAxesGeometry;
+        }
+
+        public void setTimeAxesGeometry(Geometry timeAxesGeometry) {
+            this.timeAxesGeometry = timeAxesGeometry;
+        }
     }
 }

@@ -33,7 +33,7 @@ import java.util.List;
 public class AcquisitionInfo {
 
     private Geometry boundingGeometry;
-    private TimeAxis timeAxis;
+    private TimeAxis[] timeAxes;
     private List<Point> coordinates;
     private List<Polygon> multiPolygons;
     private int[] timeAxisStartIndices;
@@ -74,12 +74,12 @@ public class AcquisitionInfo {
         this.boundingGeometry = boundingGeometry;
     }
 
-    public TimeAxis getTimeAxis() {
-        return timeAxis;
+    public TimeAxis[] getTimeAxes() {
+        return timeAxes;
     }
 
-    public void setTimeAxis(TimeAxis timeAxis) {
-        this.timeAxis = timeAxis;
+    public void setTimeAxes(TimeAxis[] timeAxes) {
+        this.timeAxes = timeAxes;
     }
 
     // @todo tb/** remove this and use TimeAxis instead 2016-03-04
