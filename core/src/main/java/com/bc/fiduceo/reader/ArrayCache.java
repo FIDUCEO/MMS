@@ -43,9 +43,10 @@ class ArrayCache {
         if (array == null) {
             synchronized (netcdfFile) {
                 final Variable variable = netcdfFile.findVariable(null, variableName);
-                if (variable != null) {
-                    array = variable.read();
+                if (variable == null) {
+                    throw new IOException("requested variable '" + variableName + "' not present in file");
                 }
+                array = variable.read();
             }
             cache.put(variableName, array);
         }

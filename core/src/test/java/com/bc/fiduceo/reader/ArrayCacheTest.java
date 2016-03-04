@@ -32,6 +32,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,9 +82,12 @@ public class ArrayCacheTest {
     }
 
     @Test
-    public void testArrayIsNullWhenVariableIsNotPresent() throws IOException {
-        final Array resultArray =  arrayCache.get("not_present_variable");
-        assertNull(resultArray);
+    public void testArrayThrowsWhenVariableIsNotPresent() throws IOException {
+        try {
+            arrayCache.get("not_present_variable");
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
 
         verify(netcdfFile, times(1)).findVariable(null, "not_present_variable");
         verifyNoMoreInteractions(netcdfFile, variable);
