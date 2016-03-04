@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
@@ -42,35 +43,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.logging.Logger;
 
 class IngestionTool {
 
     private static final String VERSION = "1.0.0";
+    private final Logger logger;
 
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
-        options.addOption(sensorOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        final Option startOption = new Option("start", "start-time", true, "Define the starting time of products to inject.");
-        startOption.setArgName("Date");
-        options.addOption(startOption);
-
-        final Option endOption = new Option("end", "end-time", true, "Define the ending time of products to inject.");
-        endOption.setArgName("Date");
-        options.addOption(endOption);
-
-        final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
-        options.addOption(versionOption);
-
-        return options;
+    IngestionTool() {
+        this.logger = FiduceoLogger.getLogger();
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
@@ -152,5 +133,31 @@ class IngestionTool {
         helpFormatter.printHelp(writer, 120, "ingestion-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
+    }
+
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option sensorOption = new Option("s", "sensor", true, "Defines the sensor to be ingested.");
+        options.addOption(sensorOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        final Option startOption = new Option("start", "start-time", true, "Define the starting time of products to inject.");
+        startOption.setArgName("Date");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("end", "end-time", true, "Define the ending time of products to inject.");
+        endOption.setArgName("Date");
+        options.addOption(endOption);
+
+        final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
+        options.addOption(versionOption);
+
+        return options;
     }
 }

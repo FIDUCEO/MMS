@@ -28,6 +28,7 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -43,10 +44,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 class MatchupTool {
 
     static String VERSION = "1.0.0";
+    final Logger logger;
+
+    MatchupTool() {
+        logger = FiduceoLogger.getLogger();
+    }
 
     public void run(CommandLine commandLine) throws IOException, SQLException {
         final MatchupToolContext context = initialize(commandLine);
