@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.geometry.jts;
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
@@ -118,6 +119,26 @@ class JTSTimeAxis implements TimeAxis {
         final long startMillis = startTime.getTime() + offsetTime;
 
         return TimeUtils.create(startMillis);
+    }
+
+    @Override
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Date getEndTime() {
+        return TimeUtils.create(startTime.getTime() + timeInterval);
+    }
+
+    @Override
+    public long getDurationInMillis() {
+        return timeInterval;
+    }
+
+    @Override
+    public Geometry getGeometry() {
+        throw new RuntimeException("not implemented");
     }
 
     private Coordinate findProjection(Coordinate coordinate) {

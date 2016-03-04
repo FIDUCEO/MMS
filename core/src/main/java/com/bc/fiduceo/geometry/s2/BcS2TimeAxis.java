@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
@@ -36,12 +37,14 @@ import java.util.List;
 class BcS2TimeAxis implements TimeAxis {
 
     private final S2Polyline polyline;
+    private LineString originalGeometry;
     private final double invLength;
     private final Date startTime;
     private final long timeInterval;
 
-    public BcS2TimeAxis(S2Polyline lineString, Date startTime, Date endTime) {
-        this.polyline = lineString;
+    public BcS2TimeAxis(LineString lineString, Date startTime, Date endTime) {
+        originalGeometry = lineString;
+        this.polyline = (S2Polyline) lineString.getInner();
 
         final S1Angle arclengthAngle = polyline.getArclengthAngle();
         this.invLength = 1.0 / arclengthAngle.radians();
@@ -103,6 +106,26 @@ class BcS2TimeAxis implements TimeAxis {
         }
 
         return TimeUtils.create(startMillis);
+    }
+
+    @Override
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Date getEndTime() {
+        return TimeUtils.create(startTime.getTime() + timeInterval);
+    }
+
+    @Override
+    public long getDurationInMillis() {
+        return timeInterval;
+    }
+
+    @Override
+    public Geometry getGeometry() {
+        return originalGeometry;
     }
 
     // package access for testing only tb 2015-11-20

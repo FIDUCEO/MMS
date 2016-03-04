@@ -26,6 +26,8 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Before;
@@ -44,6 +46,8 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
     // This test will use a local database implementation. Please make sure that you have a running MongoDb database server
     // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
     // in the datasource description below. tb 2016-02-08
+
+    // @todo 3 tb/** all these tests should not be database specific. Move them to the StorageTest_SatelliteObservation class 2016-03-04
 
     public StorageTest_SatelliteObservation_MongoDB() {
         dataSource = new BasicDataSource();
@@ -149,7 +153,7 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         // @todo 1 tb/tb check geometry entry 2016-03-01
     }
 
-    QueryParameter createGeoQueryParameter(String wkt) {
+    private QueryParameter createGeoQueryParameter(String wkt) {
         final QueryParameter parameter = new QueryParameter();
         final Geometry geometry = geometryFactory.parse(wkt);
         parameter.setGeometry(geometry);
@@ -169,10 +173,16 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         observation.setTimeAxisStartIndex(23);
         observation.setTimeAxisEndIndex(27);
 
-        final Sensor sensor = new Sensor();
+        final LineString timeAxisGeometry_1 = (LineString) geometryFactory.parse("LINESTRING(1 5, 1 6, 1 7)");
+        final TimeAxis timeAxis_1 = geometryFactory.createTimeAxis(timeAxisGeometry_1, new Date(10000000L), new Date(11000000L));
 
-        sensor.setName("a_sensor");
-        observation.setSensor(sensor);
+        final LineString timeAxisGeometry_2 = (LineString) geometryFactory.parse("LINESTRING(2 5, 2 6, 2 7)");
+        final TimeAxis timeAxis_2 = geometryFactory.createTimeAxis(timeAxisGeometry_2, new Date(20000000L), new Date(22000000L));
+
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+
+        observation.setSensor(new Sensor("a_sensor"));
 
         return observation;
     }

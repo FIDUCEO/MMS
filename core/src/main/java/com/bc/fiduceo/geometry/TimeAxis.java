@@ -32,4 +32,12 @@ public interface TimeAxis {
     TimeInterval getProjectionTime(LineString polygonSide);
 
     Date getTime(Point coordinate);
+
+    Date getStartTime();
+
+    Date getEndTime();
+
+    Geometry getGeometry();
+
+    long getDurationInMillis();
 }

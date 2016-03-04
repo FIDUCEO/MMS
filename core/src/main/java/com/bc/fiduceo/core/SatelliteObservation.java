@@ -22,6 +22,7 @@ package com.bc.fiduceo.core;
 
 
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +33,7 @@ public class SatelliteObservation {
     private Date startTime;
     private Date stopTime;
     private Geometry geoBounds;
+    private TimeAxis[] timeAxes;
     private Sensor sensor;
     private NodeType nodeType;
     private Path dataFilePath;
@@ -92,18 +94,34 @@ public class SatelliteObservation {
         this.dataFilePath = Paths.get(path);
     }
 
+    public TimeAxis[] getTimeAxes() {
+        return timeAxes;
+    }
+
+    public void setTimeAxes(TimeAxis[] timeAxes) {
+        this.timeAxes = timeAxes;
+    }
+
+    // use time axis array instead tb 2016-03-04
+    @Deprecated
     public int getTimeAxisStartIndex() {
         return timeAxisStartIndex;
     }
 
+    // use time axis array instead tb 2016-03-04
+    @Deprecated
     public void setTimeAxisStartIndex(int timeAxisStartIndex) {
         this.timeAxisStartIndex = timeAxisStartIndex;
     }
 
+    // use time axis array instead tb 2016-03-04
+    @Deprecated
     public int getTimeAxisEndIndex() {
         return timeAxisEndIndex;
     }
 
+    // use time axis array instead tb 2016-03-04
+    @Deprecated
     public void setTimeAxisEndIndex(int timeAxisEndIndex) {
         this.timeAxisEndIndex = timeAxisEndIndex;
     }

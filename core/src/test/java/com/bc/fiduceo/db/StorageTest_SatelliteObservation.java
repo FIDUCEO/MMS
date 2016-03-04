@@ -26,6 +26,8 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -50,7 +52,7 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Before
     public void setUp() throws SQLException, IOException {
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
     }
@@ -83,16 +85,16 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
 
-        // @todo 3 tb/tb intersection test is not the best here - invent something more cleve 2016-02-23
-        final Geometry geoBounds = observation.getGeoBounds();
         final Geometry geoBoundsFromDb = observationFromDb.getGeoBounds();
-        final Geometry intersection = geoBounds.getIntersection(geoBoundsFromDb);
-        assertFalse(intersection.isEmpty());
+        final String geoBoundsWkt = geometryFactory.format(geoBoundsFromDb);
+        assertEquals("POLYGON((12.0 4.999999999999998,12.000000000000004 7.000000000000001,9.999999999999998 7.0,9.999999999999998 4.999999999999998,12.0 4.999999999999998))", geoBoundsWkt);
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
         assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
-        assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
-        assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
+
+        final TimeAxis[] timeAxes = observationFromDb.getTimeAxes();
+        // @todo 1 tb/tb continue here 2016-03-04
+        //assertEquals(1, timeAxes.length);
     }
 
     @Test
@@ -409,14 +411,14 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setNodeType(NodeType.ASCENDING);
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
         observation.setGeoBounds(geometry);
+
         observation.setDataFilePath("the_data.file");
-        observation.setTimeAxisStartIndex(23);
-        observation.setTimeAxisEndIndex(27);
 
-        final Sensor sensor = new Sensor();
+        final LineString timeAxisGeometry = (LineString) geometryFactory.parse("LINESTRING(1 5, 1 6, 1 7)");
+        final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);
+        observation.setTimeAxes(new TimeAxis[]{timeAxis});
 
-        sensor.setName(SENSOR_NAME);
-        observation.setSensor(sensor);
+        observation.setSensor(new Sensor(SENSOR_NAME));
 
         return observation;
     }
@@ -426,6 +428,4 @@ public abstract class StorageTest_SatelliteObservation {
         final Date stopTime = TimeUtils.create(1430001000000L);
         return createSatelliteObservation(startTime, stopTime);
     }
-
-
 }

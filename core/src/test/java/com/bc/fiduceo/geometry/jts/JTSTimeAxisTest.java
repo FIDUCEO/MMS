@@ -205,6 +205,32 @@ public class JTSTimeAxisTest {
         assertTimeIntervalEquals(1000000107520L, 1000000847943L, timeInterval);
     }
 
+    @Test
+    public void testGetStartTime() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(0 2, -1 3, -4 4, -6 4)");
+        final JTSTimeAxis timeAxis = new JTSTimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final Date startTime = timeAxis.getStartTime();
+        assertEquals(1000000000000L, startTime.getTime());
+    }
+
+    @Test
+    public void testGetEndTime() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(0 2, -1 3, -4 4, -6 4)");
+        final JTSTimeAxis timeAxis = new JTSTimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        final Date endTime = timeAxis.getEndTime();
+        assertEquals(1000001000000L, endTime.getTime());
+    }
+
+    @Test
+    public void testGetDurationInMillis() throws ParseException {
+        final LineString lineString = (LineString) wktReader.read("LINESTRING(0 2, -1 3, -4 4, -6 4)");
+        final JTSTimeAxis timeAxis = new JTSTimeAxis(lineString, new Date(1000000000000L), new Date(1000001000000L));
+
+        assertEquals(1000000L, timeAxis.getDurationInMillis());
+    }
+
     private void assertTimeIntervalEquals(long expectedStart, long expectedStop, TimeInterval timeInterval) {
         assertEquals(expectedStart, timeInterval.getStartTime().getTime());
         assertEquals(expectedStop, timeInterval.getStopTime().getTime());

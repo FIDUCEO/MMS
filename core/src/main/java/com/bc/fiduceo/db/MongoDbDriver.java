@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -45,6 +46,7 @@ import org.esa.snap.core.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -137,6 +139,19 @@ public class MongoDbDriver extends AbstractDriver {
         throw new RuntimeException("Geometry type support not implemented");
     }
 
+    // @todo 2 tb/tb write tests
+    // package access for testing only tb 2016-03-04
+    static Document convertToDocument(TimeAxis[] timeAxes) {
+        final List<Document> timeAxesList = new ArrayList<>();
+        for (final TimeAxis axis : timeAxes) {
+            final Document axisDocument = new Document("startTime", axis.getStartTime());
+            axisDocument.append("endTime", axis.getEndTime());
+            axisDocument.append("geometry", convertToGeoJSON(axis.getGeometry()));
+            timeAxesList.add(axisDocument);
+        }
+        return new Document("timeAxes", timeAxesList);
+    }
+
     private static com.mongodb.client.model.geojson.Geometry convertGeometryCollectionToGeoJSON(GeometryCollection geometryCollection) {
         final Geometry[] geometries = geometryCollection.getGeometries();
         if (geometries.length == 1) {
@@ -220,11 +235,14 @@ public class MongoDbDriver extends AbstractDriver {
         document.append(GEO_BOUNDS_KEY, convertToGeoJSON(satelliteObservation.getGeoBounds()));
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
+        document.append("timeAxes", convertToDocument(satelliteObservation.getTimeAxes()));
         document.append(TIME_AXIS_START_KEY, satelliteObservation.getTimeAxisStartIndex());
         document.append(TIME_AXIS_END_KEY, satelliteObservation.getTimeAxisEndIndex());
 
         observationCollection.insertOne(document);
     }
+
+
 
     @Override
     public int insert(Sensor sensor) throws SQLException {

@@ -134,7 +134,6 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
-        final S2Polyline inner = (S2Polyline) lineString.getInner();
-        return new BcS2TimeAxis(inner, startTime, endTime);
+        return new BcS2TimeAxis(lineString, startTime, endTime);
     }
 }
