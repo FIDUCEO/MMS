@@ -1,5 +1,6 @@
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
 
 import java.io.IOException;
@@ -9,13 +10,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 public class Archive {
 
     private Path rootPath;
+    private final Logger log;
 
     public Archive(Path rootPath) {
         this.rootPath = rootPath;
+        log = FiduceoLogger.getLogger();
     }
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
@@ -30,12 +34,13 @@ public class Archive {
             final Path productsDir = createAValidProductPath(processingVersion, sensorType, year, month, day);
 
             if (Files.exists(productsDir)) {
-                //@todo 2 mba/** add to the logging.
+
+                log.info("The product directory :" + productsDir.toString());
                 final Iterator<Path> iterator = Files.list(productsDir).iterator();
                 while (iterator.hasNext()) {
                     pathArrayList.add(iterator.next());
                 }
-            }else {
+            } else {
                 System.err.println("The directory doest not exist: " + productsDir.toString());
             }
             instance.add(Calendar.DAY_OF_MONTH, 1);

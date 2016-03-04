@@ -53,9 +53,6 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
     // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
     // in the datasource description below. tb 2016-02-08
 
-    // @todo 1 tb/mb this test also relies on the test data being present. Invent a DatabaseAndIoTestRunner or remove the dependency to the file system. tb 2016-02-24
-
-
     private AMSU_MHS_L1B_Reader reader;
 
     @Before

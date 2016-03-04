@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
@@ -37,6 +38,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class AIRS_L1B_Reader implements Reader {
 
@@ -53,6 +55,7 @@ public class AIRS_L1B_Reader implements Reader {
 
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
+    private final Logger logger;
 
     public AIRS_L1B_Reader() {
         final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
@@ -60,6 +63,7 @@ public class AIRS_L1B_Reader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+        logger = FiduceoLogger.getLogger();
     }
 
     @Override
@@ -193,7 +197,7 @@ public class AIRS_L1B_Reader implements Reader {
             }
         }
         if (nodeType == null) {
-            // @todo 2 tb/tb add logging here 2015-09-07
+            logger.info("NodeType is not DEFINED.");
             return NodeType.UNDEFINED;
         }
 
