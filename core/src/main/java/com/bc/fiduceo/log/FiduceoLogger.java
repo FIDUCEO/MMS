@@ -16,21 +16,16 @@
 
 package com.bc.fiduceo.log;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Formatter;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class FiduceoLogger {
-    private static final LogLevel DEFAULT_LOG_LEVEL = LogLevel.INFO;
+    private static final Level DEFAULT_LOG_LEVEL = Level.INFO;
 
-    private static Logger logger;
-    private static String logMessagesForTestOnly ;
+    private static Logger logger = null;
 
-    public static LogLevel getDefaultLevel() {
+    public static Level getDefaultLevel() {
         return DEFAULT_LOG_LEVEL;
     }
 
@@ -38,60 +33,17 @@ public class FiduceoLogger {
         return getLogger(DEFAULT_LOG_LEVEL);
     }
 
-    public static Logger getLogger(LogLevel logLevel) {
+    public static Logger getLogger(Level logLevel) {
+        FiduceoLoggerFormatter fiduceoLoggerFormatter = new FiduceoLoggerFormatter();
         if (logger == null) {
-            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            final StringBuilder logMessage = new StringBuilder();
-            final Formatter formatter = new Formatter() {
-                @Override
-                public String format(LogRecord record) {
-
-                    logMessage.append(dateFormat.format(new Date(record.getMillis())));
-                    logMessage.append(" - ");
-
-                    logMessage.append(record.getLevel().getName());
-                    logMessage.append(": ");
-
-                    logMessage.append(record.getSourceClassName());
-                    logMessage.append(" - ");
-
-                    logMessage.append(record.getSourceMethodName());
-                    logMessage.append(" - ");
-                    if (logger.getLevel() == Level.SEVERE) {
-                        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-                        for (StackTraceElement stackTraceElement : stackTrace) {
-                            if (stackTraceElement.getClassName() == record.getSourceClassName()) {
-                                logMessage.append(stackTraceElement.getLineNumber());
-                                break;
-                            }
-                        }
-                        logMessage.append(" - ");
-                    }
-                    logMessage.append(record.getMessage());
-                    logMessage.append("\n");
-
-                    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-                    final Throwable thrown = record.getThrown();
-                    if (thrown != null) {
-                        logMessage.append(thrown.toString());
-                        logMessage.append("\n");
-                    }
-                    logMessagesForTestOnly = logMessage.toString();
-                    return logMessage.toString();
-                }
-            };
-
             final ConsoleHandler handler = new ConsoleHandler();
-            handler.setFormatter(formatter);
+            handler.setFormatter(fiduceoLoggerFormatter);
             handler.setLevel(Level.ALL);
-
             logger = Logger.getLogger("com.bc.fiduceo.log");
-
             logger.setUseParentHandlers(false);
             logger.addHandler(handler);
         }
-        logger.setLevel(logLevel.getValue());
-
+        logger.setLevel(logLevel);
         return logger;
     }
 
@@ -106,10 +58,4 @@ public class FiduceoLogger {
             logger.setLevel(Level.WARNING);
         }
     }
-
-    //Only for testing purpose
-    final static String getLogMessage() {
-        return logMessagesForTestOnly.toString();
-    }
-
 }
