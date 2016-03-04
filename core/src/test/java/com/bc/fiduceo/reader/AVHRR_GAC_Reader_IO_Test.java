@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,6 +95,9 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             assertEquals(7.164999961853029, coordinates[23].getLon(), 1e-8);
             assertEquals(-67.44300079345703, coordinates[23].getLat(), 1e-8);
+
+//            final TimeAxis timeAxis = acquisitionInfo.getTimeAxis();
+//            assertNotNull(timeAxis);
         } finally {
             reader.close();
         }

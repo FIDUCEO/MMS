@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import ucar.ma2.Array;
@@ -270,7 +271,6 @@ public class BoundingPolygonCreator {
         return acquisitionInfo;
     }
 
-    // @todo 1 tb/tb add time axis tracking
     public AcquisitionInfo createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
         final int geoXTrack = arrayLatitude.getShape()[1] - 1;
         final int geoTrack = arrayLatitude.getShape()[0] - 1;
@@ -379,12 +379,40 @@ public class BoundingPolygonCreator {
 
             geometries[i] = createBoundingGeometry(longitudesSubset, latitudesSubset);
 
-            yOffset += subsetHeight -1;
+            yOffset += subsetHeight - 1;
             if (yOffset + subsetHeight > height) {
                 subsetHeight = height - yOffset;
             }
         }
         return geometryFactory.createGeometryCollection(geometries);
+    }
+
+    public LineString createTimeAxisGeometry(Array longitudes, Array latitudes) {
+        final int[] shape = longitudes.getShape();
+        final int xIndex = shape[1] / 2;
+        final int maxY = shape[0] - 1;
+
+        int maxYLoop = 0;
+        final Index index = longitudes.getIndex();
+        final List<Point> coordinates = new ArrayList<>();
+        for (int y = 0; y <= maxY; y += intervalY) {
+            index.set(y, xIndex);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+
+            maxYLoop = y;
+        }
+
+        // ensure that we always have one point from the last scanline tb 2016-03-04
+        if (maxYLoop < maxY) {
+            index.set(maxY, xIndex);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        return geometryFactory.createLineString(coordinates);
     }
 
     static void closePolygon(List<Point> coordinates) {

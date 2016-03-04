@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.List;
 public class AcquisitionInfo {
 
     private Geometry boundingGeometry;
+    private TimeAxis timeAxis;
     private List<Point> coordinates;
     private List<Polygon> multiPolygons;
     private int[] timeAxisStartIndices;
@@ -52,10 +54,14 @@ public class AcquisitionInfo {
         this.multiPolygons = multiPolygons;
     }
 
+    // @todo tb/** remove this and use Geometry instead 2016-03-04
+    @Deprecated
     public List<Point> getCoordinates() {
         return coordinates;
     }
 
+    // @todo tb/** remove this and use Geometry instead 2016-03-04
+    @Deprecated
     public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
     }
@@ -68,18 +74,34 @@ public class AcquisitionInfo {
         this.boundingGeometry = boundingGeometry;
     }
 
+    public TimeAxis getTimeAxis() {
+        return timeAxis;
+    }
+
+    public void setTimeAxis(TimeAxis timeAxis) {
+        this.timeAxis = timeAxis;
+    }
+
+    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
+    @Deprecated
     public int[] getTimeAxisStartIndices() {
         return timeAxisStartIndices;
     }
 
+    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
+    @Deprecated
     public void setTimeAxisStartIndices(int[] timeAxisStartIndices) {
         this.timeAxisStartIndices = timeAxisStartIndices;
     }
 
+    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
+    @Deprecated
     public int[] getTimeAxisEndIndices() {
         return timeAxisEndIndices;
     }
 
+    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
+    @Deprecated
     public void setTimeAxisEndIndices(int[] timeAxisEndIndices) {
         this.timeAxisEndIndices = timeAxisEndIndices;
     }

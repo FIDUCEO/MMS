@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import org.junit.Before;
@@ -283,11 +284,54 @@ public class BoundingPolygonCreatorTest {
         assertEquals(6.204, coordinates[2].getLat(), 1e-8);
     }
 
+    @Test
+    public void testCreateTimeAxisGeometry_AVHRR() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+
+        final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        assertEquals("LINESTRING(-114.578995 6.376000000000001,-114.591 6.318,-114.604004 6.261,-114.616 6.204)", geometryFactory.format(lineString));
+    }
+
+    @Test
+    public void testCreateTimeAxisGeometry_AVHRR_intervalVaried() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+
+        final Interval interval = new Interval(2, 4);
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+
+        final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        assertEquals("LINESTRING(-114.578995 6.376000000000001,-114.604004 6.261,-114.616 6.204)", geometryFactory.format(lineString));
+    }
+
+    @Test
+    public void testCreateTimeAxisGeometry_AIRS() {
+        final Array longitudes = Array.factory(AIRS_LONGITUDES);
+        final Array latitudes = Array.factory(AIRS_LATITUDES);
+
+        final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        assertEquals("LINESTRING(139.3232587268979 71.69661607793569,138.4586123358709 71.87850964766172,138.01571817610454 71.96597011172345)", geometryFactory.format(lineString));
+    }
+
+    @Test
+    public void testCreateTimeAxisGeometry_AIRS_intervalVaried() {
+        final Array longitudes = Array.factory(AIRS_LONGITUDES);
+        final Array latitudes = Array.factory(AIRS_LATITUDES);
+
+        final Interval interval = new Interval(2, 3);
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+
+        final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        assertEquals("LINESTRING(139.3232587268979 71.69661607793569,138.01571817610454 71.96597011172345)", geometryFactory.format(lineString));
+    }
+
     private static final double[][] AIRS_LONGITUDES = new double[][]{
             {138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
             {137.7680766938059, 138.34196788102574, 138.888842745419, 139.43625059118625},
             {137.32780413935305, 137.90682957068157, 138.4586123358709, 138.9939729311918},
             {136.90199908664985, 137.46778019306842, 138.01571817610454, 138.53923435004424}};
+
     private static final double[][] AIRS_LATITUDES = new double[][]{
             {71.15288152754994, 71.4359164390965, 71.69661607793569, 71.9452820772289},
             {71.23974580787146, 71.52412094894252, 71.78608894421787, 72.03976926305718},
