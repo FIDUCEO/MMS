@@ -24,50 +24,76 @@ package com.bc.fiduceo.math;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class IntersectionEngine {
 
-    // @todo 1 tb/tb extend to support multiple time axes and Multi-Polygon geometries
-    public static Intersection[] getIntersectingIntervals(SatelliteObservation observation_1, SatelliteObservation observation_2) {
-        final Geometry geometry_1 = observation_1.getGeoBounds();
-        final Geometry geometry_2 = observation_2.getGeoBounds();
-        final TimeInfo timeInfo = new TimeInfo();
+    public static Intersection[] getIntersectingIntervals(SatelliteObservation primaryObservation, SatelliteObservation secondaryObservation) {
+        final Geometry[] primaryGeometries = getGeometryArray(primaryObservation);
+        final Geometry[] secondaryGeometries = getGeometryArray(secondaryObservation);
 
-        final Geometry intersectionGeometry = geometry_1.getIntersection(geometry_2);
-        if (intersectionGeometry.isEmpty()) {
-            return new Intersection[0];
+        final TimeAxis[] primaryTimeAxes = primaryObservation.getTimeAxes();
+        final TimeAxis[] secondaryTimeAxes = secondaryObservation.getTimeAxes();
+
+        final List<Intersection> intersectionList = new ArrayList<>();
+        for (int primaryIndex = 0; primaryIndex < primaryGeometries.length; primaryIndex++) {
+            for (int secondaryIndex = 0; secondaryIndex < secondaryGeometries.length; secondaryIndex++) {
+                final Intersection intersection = getIntersection(primaryGeometries[primaryIndex], secondaryGeometries[secondaryIndex], primaryTimeAxes[primaryIndex], secondaryTimeAxes[secondaryIndex]);
+                if (intersection != null) {
+                    intersectionList.add(intersection);
+                }
+            }
         }
+        return intersectionList.toArray(new Intersection[intersectionList.size()]);
+    }
 
-        final TimeAxis[] timeAxes_1 = observation_1.getTimeAxes();
-        final TimeAxis[] timeAxes_2 = observation_2.getTimeAxes();
+    private static Geometry[] getGeometryArray(SatelliteObservation observation) {
+        Geometry[] geometries;
+        final Geometry primaryGeometry = observation.getGeoBounds();
+        if (primaryGeometry instanceof GeometryCollection) {
+            final GeometryCollection primaryCollection = (GeometryCollection) primaryGeometry;
+            geometries = primaryCollection.getGeometries();
+        } else {
+            geometries = new Geometry[]{primaryGeometry};
+        }
+        return geometries;
+    }
+
+    private static Intersection getIntersection(Geometry primaryGeometry, Geometry secondaryGeometry, TimeAxis primaryTimeAxis, TimeAxis secondaryTimeAxis) {
+        final TimeInfo timeInfo = new TimeInfo();
+        final Geometry intersectionGeometry = primaryGeometry.getIntersection(secondaryGeometry);
+        if (intersectionGeometry.isEmpty()) {
+            return null;
+        }
 
         final Point[] coordinates = intersectionGeometry.getCoordinates();
-        final ArrayList<Date> sensor_1_dates = new ArrayList<>(coordinates.length);
-        final ArrayList<Date> sensor_2_dates = new ArrayList<>(coordinates.length);
+        final ArrayList<Date> primarySensorTimes = new ArrayList<>(coordinates.length);
+        final ArrayList<Date> secondarySensorTimes = new ArrayList<>(coordinates.length);
         for (int i = 0; i < coordinates.length - 1; i++) {
             final Point coordinate = coordinates[i];
-            Date time = timeAxes_1[0].getTime(coordinate);
+            Date time = primaryTimeAxis.getTime(coordinate);
             if (time != null) {
-                sensor_1_dates.add(time);
+                primarySensorTimes.add(time);
             }
 
-            time = timeAxes_2[0].getTime(coordinate);
+            time = secondaryTimeAxis.getTime(coordinate);
             if (time != null) {
-                sensor_2_dates.add(time);
+                secondarySensorTimes.add(time);
             }
         }
 
-        final TimeInterval interval_1 = TimeInterval.create(sensor_1_dates);
-        final TimeInterval interval_2 = TimeInterval.create(sensor_2_dates);
+        final TimeInterval primaryCommonInterval = TimeInterval.create(primarySensorTimes);
+        final TimeInterval secondaryCommonInterval = TimeInterval.create(secondarySensorTimes);
 
-        final TimeInterval overlapInterval = interval_1.intersect(interval_2);
+        final TimeInterval overlapInterval = primaryCommonInterval.intersect(secondaryCommonInterval);
         if (overlapInterval == null) {
-            final int timeDelta = calculateTimeDelta(interval_1, interval_2);
+            final int timeDelta = calculateTimeDelta(primaryCommonInterval, secondaryCommonInterval);
             timeInfo.setMinimalTimeDelta(timeDelta);
         } else {
             timeInfo.setMinimalTimeDelta(0);
@@ -77,7 +103,7 @@ public class IntersectionEngine {
         final Intersection intersection = new Intersection();
         intersection.setGeometry(intersectionGeometry);
         intersection.setTimeInfo(timeInfo);
-        return new Intersection[]{intersection};
+        return intersection;
     }
 
     // package access for testing only tb 2015-09-04
