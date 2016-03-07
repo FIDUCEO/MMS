@@ -32,10 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 
 public class EumetsatIASIReader implements Reader {
@@ -45,11 +42,10 @@ public class EumetsatIASIReader implements Reader {
     private static final int GEO_INTERVAL_Y = 6;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final String[] SENSOR_KEYS = {"iasi_ma","iasi_mb"};
-    private List<String> sensorList = Arrays.asList("Eumetsat");
+    private static final String[] SENSOR_KEYS = {"iasi_ma", "iasi_mb"};
 
 
-    private NetcdfFile netcdfFile;
+    private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
 
     public EumetsatIASIReader() {
@@ -58,26 +54,6 @@ public class EumetsatIASIReader implements Reader {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
-    }
-
-    @Override
-    public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
-    }
-
-    static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
-        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
-        if (globalAttribute == null) {
-            throw new IOException("Requested attribute '" + timeCoverage + "' not found");
-        }
-
-        final String attributeValue = globalAttribute.getStringValue();
-        return TimeUtils.parse(attributeValue, DATE_FORMAT);
     }
 
     @Override
@@ -90,6 +66,10 @@ public class EumetsatIASIReader implements Reader {
         netcdfFile.close();
     }
 
+    @Override
+    public String[] getSupportedSensorKeys() {
+        return SENSOR_KEYS;
+    }
 
     @Override
     public AcquisitionInfo read() throws IOException {
@@ -108,7 +88,22 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
+    public PixelLocator getPixelLocator() throws IOException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public String getRegEx() {
         return "";
+    }
+
+    static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
+        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
+        if (globalAttribute == null) {
+            throw new IOException("Requested attribute '" + timeCoverage + "' not found");
+        }
+
+        final String attributeValue = globalAttribute.getStringValue();
+        return TimeUtils.parse(attributeValue, DATE_FORMAT);
     }
 }

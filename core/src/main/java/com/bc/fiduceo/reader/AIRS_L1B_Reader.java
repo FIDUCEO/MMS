@@ -52,9 +52,8 @@ public class AIRS_L1B_Reader implements Reader {
     private static final int GEO_INTERVAL_Y = 12;
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
     private static final String[] SENSOR_KEYS = {"airs_aq"};
-    private List<String> sensorList = Arrays.asList("AIRS");
 
-    private NetcdfFile netcdfFile;
+    private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
     private final Logger logger;
 
@@ -65,16 +64,6 @@ public class AIRS_L1B_Reader implements Reader {
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
         logger = FiduceoLogger.getLogger();
-    }
-
-    @Override
-    public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
     }
 
     static String getElementValue(Element element, String attribute) {
@@ -120,15 +109,28 @@ public class AIRS_L1B_Reader implements Reader {
         return metadataArray.toString();
     }
 
+    @Override
+    public PixelLocator getPixelLocator() throws IOException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public String[] getSupportedSensorKeys() {
+        return SENSOR_KEYS;
+    }
+
+    @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
     }
 
+    @Override
     public void close() throws IOException {
         netcdfFile.close();
     }
 
 
+    @Override
     public AcquisitionInfo read() throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);

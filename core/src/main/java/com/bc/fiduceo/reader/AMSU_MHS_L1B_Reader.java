@@ -23,7 +23,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
-import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -65,12 +63,80 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
+    public void open(File file) throws IOException {
+        netcdfFile = NetcdfFile.open(file.getPath());
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
+    }
+
+    @Override
+    public String[] getSupportedSensorKeys() {
+        return SENSOR_KEY;
+    }
+
+    @Override
+    public AcquisitionInfo read() throws IOException {
+
+        List<ArrayDouble.D2> lat_long = getLat_Long(netcdfFile);
+        ArrayDouble.D2 arrayDoubleLongitude = lat_long.get(0);
+        ArrayDouble.D2 arrayDoubleLatitude = lat_long.get(1);
+
+        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude,
+                arrayDoubleLongitude);
+
+        final int startYear = getGlobalAttributeAsInteger("startdatayr");
+        final int startDay = getGlobalAttributeAsInteger("startdatady");
+        final int startTime = getGlobalAttributeAsInteger("startdatatime_ms");
+
+        final int endYear = getGlobalAttributeAsInteger("enddatayr");
+        final int endDay = getGlobalAttributeAsInteger("enddatady");
+        final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
+
+        acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
+        acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
+
+        return acquisitionInfo;
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         // @todo 1 tb/tb continue here 2016-02-25
         final Array longitudes = getLongitudes(netcdfFile);
         return new AMSU_MHS_GeoCoding();
     }
 
+    @Override
+    public String getRegEx() {
+        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    }
+
+    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
+        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (attribute == null) {
+            throw new IOException("Global attribute '" + attributeName + "' not found.");
+        }
+        return attribute.getNumericValue().intValue();
+    }
+
+    private Date getDate(int year, int day_of_yr, int time) {
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.MILLISECOND, time);
+        return calendar.getTime();
+    }
 
     static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
         final Group geolocationGroup = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME);
@@ -84,7 +150,7 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         }
         final Attribute scaleAtribute = longitudesVariable.findAttribute(SCALE_ATTRIBUTE_NAME);
         if (scaleAtribute == null) {
-            throw new IOException("The variable '" + LONGITUDE_VARIABLE_NAME + "' does not contain the required attribute '" + SCALE_ATTRIBUTE_NAME +"'");
+            throw new IOException("The variable '" + LONGITUDE_VARIABLE_NAME + "' does not contain the required attribute '" + SCALE_ATTRIBUTE_NAME + "'");
         }
 
         final Array longitudes = longitudesVariable.read();
@@ -128,76 +194,5 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         d2List.add(arrayLong);// Index 0 Longitude
         d2List.add(arrayLat);// Index 0 Latitude
         return d2List;
-    }
-
-    @Override
-    public String getRegEx() {
-        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
-    }
-
-    @Override
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEY;
-    }
-
-
-
-    @Override
-    public AcquisitionInfo read() throws IOException {
-
-        List<ArrayDouble.D2> lat_long = getLat_Long(netcdfFile);
-        ArrayDouble.D2 arrayDoubleLongitude = lat_long.get(0);
-        ArrayDouble.D2 arrayDoubleLatitude = lat_long.get(1);
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude,
-                arrayDoubleLongitude);
-
-        final int startYear = getGlobalAttributeAsInteger("startdatayr");
-        final int startDay = getGlobalAttributeAsInteger("startdatady");
-        final int startTime = getGlobalAttributeAsInteger("startdatatime_ms");
-
-        final int endYear = getGlobalAttributeAsInteger("enddatayr");
-        final int endDay = getGlobalAttributeAsInteger("enddatady");
-        final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
-
-        acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
-        acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
-
-        return acquisitionInfo;
-    }
-
-    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
-        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (attribute == null) {
-            throw new IOException("Global attribute '" + attributeName + "' not found.");
-        }
-        return attribute.getNumericValue().intValue();
-    }
-
-    private Date getDate(int year, int day_of_yr, int time) {
-        final Calendar calendar = ProductData.UTC.createCalendar();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
-
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        calendar.add(Calendar.MILLISECOND, time);
-        return calendar.getTime();
     }
 }
