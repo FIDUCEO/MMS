@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
@@ -28,6 +29,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Before;
@@ -90,6 +92,19 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
 
         final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
         assertEquals(1, satelliteObservations.size());
+
+        final SatelliteObservation observationFromDb = satelliteObservations.get(0);
+        final TimeAxis[] timeAxes = observationFromDb.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+        final TimeAxis firstAxis = timeAxes[0];
+        TestUtil.assertCorrectUTCDate(1970, 1, 1, 2, 46, 40, firstAxis.getStartTime());
+        TestUtil.assertCorrectUTCDate(1970, 1, 1, 3, 3, 20, firstAxis.getEndTime());
+        assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(firstAxis.getGeometry()));
+
+        final TimeAxis secondAxis = timeAxes[1];
+        TestUtil.assertCorrectUTCDate(1970, 1, 1, 5, 33, 20, secondAxis.getStartTime());
+        TestUtil.assertCorrectUTCDate(1970, 1, 1, 6, 6, 40, secondAxis.getEndTime());
+        assertEquals("LINESTRING(1.9999999999999993 4.999999999999998,1.9999999999999993 6.0,1.9999999999999993 6.999999999999999)", geometryFactory.format(secondAxis.getGeometry()));
         // @todo 1 tb/tb check geometry entry 2016-03-01
     }
 
