@@ -67,7 +67,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getGeoCoding() throws IOException {
+    public PixelLocator getPixelLocator() throws IOException {
         throw new RuntimeException("not implemented");
     }
 

@@ -43,7 +43,7 @@ public interface Reader {
 
     AcquisitionInfo read() throws IOException;
 
-    PixelLocator getGeoCoding() throws IOException;
+    PixelLocator getPixelLocator() throws IOException;
 
     String getRegEx();
 }

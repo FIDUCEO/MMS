@@ -60,7 +60,7 @@ public class EumetsatIASIReader implements Reader {
     }
 
     @Override
-    public PixelLocator getGeoCoding() throws IOException {
+    public PixelLocator getPixelLocator() throws IOException {
         throw new RuntimeException("not implemented");
     }
 

@@ -165,7 +165,7 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getGeoCoding() throws IOException {
+    public PixelLocator getPixelLocator() throws IOException {
         final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
         final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
         final int[] shape = lonStorage.getShape();
