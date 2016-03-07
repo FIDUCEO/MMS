@@ -30,23 +30,23 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class GeometryIntersector {
+public class IntersectionEngine {
 
     // @todo 1 tb/tb extend to support multiple time axes and Multi-Polygon geometries
-    public static TimeInfo getIntersectingInterval(SatelliteObservation observation_1, SatelliteObservation observation_2) {
+    public static Intersection[] getIntersectingIntervals(SatelliteObservation observation_1, SatelliteObservation observation_2) {
         final Geometry geometry_1 = observation_1.getGeoBounds();
         final Geometry geometry_2 = observation_2.getGeoBounds();
         final TimeInfo timeInfo = new TimeInfo();
 
-        final Geometry intersection = geometry_1.getIntersection(geometry_2);
-        if (intersection.isEmpty()) {
-            return timeInfo;
+        final Geometry intersectionGeometry = geometry_1.getIntersection(geometry_2);
+        if (intersectionGeometry.isEmpty()) {
+            return new Intersection[0];
         }
 
         final TimeAxis[] timeAxes_1 = observation_1.getTimeAxes();
         final TimeAxis[] timeAxes_2 = observation_2.getTimeAxes();
 
-        final Point[] coordinates = intersection.getCoordinates();
+        final Point[] coordinates = intersectionGeometry.getCoordinates();
         final ArrayList<Date> sensor_1_dates = new ArrayList<>(coordinates.length);
         final ArrayList<Date> sensor_2_dates = new ArrayList<>(coordinates.length);
         for (int i = 0; i < coordinates.length - 1; i++) {
@@ -65,17 +65,19 @@ public class GeometryIntersector {
         final TimeInterval interval_1 = TimeInterval.create(sensor_1_dates);
         final TimeInterval interval_2 = TimeInterval.create(sensor_2_dates);
 
-
         final TimeInterval overlapInterval = interval_1.intersect(interval_2);
-        timeInfo.setOverlapInterval(overlapInterval);
-
         if (overlapInterval == null) {
             final int timeDelta = calculateTimeDelta(interval_1, interval_2);
             timeInfo.setMinimalTimeDelta(timeDelta);
         } else {
             timeInfo.setMinimalTimeDelta(0);
+            timeInfo.setOverlapInterval(overlapInterval);
         }
-        return timeInfo;
+
+        final Intersection intersection = new Intersection();
+        intersection.setGeometry(intersectionGeometry);
+        intersection.setTimeInfo(timeInfo);
+        return new Intersection[]{intersection};
     }
 
     // package access for testing only tb 2015-09-04
