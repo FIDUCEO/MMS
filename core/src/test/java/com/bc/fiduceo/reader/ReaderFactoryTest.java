@@ -39,6 +39,35 @@ public class ReaderFactoryTest {
         assertTrue(reader.toString().contains("AVHRR_GAC_Reader"));
     }
 
+    @Test
+    public void testGetAMSUReaderKey() throws Exception {
+        ReaderFactory readerFactory = new ReaderFactory();
+        Reader reader = readerFactory.getReader("amsub-n11");
+
+        assertNotNull(reader);
+        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5", reader.getRegEx());
+        assertTrue(reader.toString().contains("AMSU_MHS_L1B"));
+    }
+
+
+    @Test
+    public void testGetAIRSReaderKey() throws Exception {
+        ReaderFactory readerFactory = new ReaderFactory();
+        Reader reader = readerFactory.getReader("airs_aq");
+
+        assertNotNull(reader);
+        assertEquals("AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf", reader.getRegEx());
+        assertTrue(reader.toString().contains("AIRS"));
+    }
+
+    @Test
+    public void testGetEumetsatIASIReaderKey() throws Exception {
+        ReaderFactory readerFactory = new ReaderFactory();
+        Reader reader = readerFactory.getReader("iasi_mb");
+
+        assertNotNull(reader);
+        assertTrue(reader.toString().contains("EumetsatIASI"));
+    }
 
     @Test
     public void testGetReaderNullKey() throws Exception {
