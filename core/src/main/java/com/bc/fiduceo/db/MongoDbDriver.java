@@ -57,10 +57,8 @@ public class MongoDbDriver extends AbstractDriver {
     private static final String NODE_TYPE_KEY = "nodeType";
     private static final String GEO_BOUNDS_KEY = "geoBounds";
     private static final String SENSOR_KEY = "sensor";
-    private static final String TIME_AXIS_START_KEY = "timeAxisStartIndex";
-    private static final String TIME_AXIS_END_KEY = "timeAxisEndIndex";
     private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
-    public static final String TIME_AXES_KEY = "timeAxes";
+    private static final String TIME_AXES_KEY = "timeAxes";
 
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
@@ -236,8 +234,6 @@ public class MongoDbDriver extends AbstractDriver {
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
         document.append(TIME_AXES_KEY, convertToDocument(satelliteObservation.getTimeAxes()));
-        document.append(TIME_AXIS_START_KEY, satelliteObservation.getTimeAxisStartIndex());
-        document.append(TIME_AXIS_END_KEY, satelliteObservation.getTimeAxisEndIndex());
 
         observationCollection.insertOne(document);
     }
@@ -296,12 +292,9 @@ public class MongoDbDriver extends AbstractDriver {
         final TimeAxis[] timeAxes = convertToTimeAxes(jsonTimeAxes);
         satelliteObservation.setTimeAxes(timeAxes);
 
-        satelliteObservation.setTimeAxisStartIndex(document.getInteger(TIME_AXIS_START_KEY));
-        satelliteObservation.setTimeAxisEndIndex(document.getInteger(TIME_AXIS_END_KEY));
         return satelliteObservation;
     }
 
-    // @todo 1 tb/tb write test for linestring conversion 2016.03.06
     // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
@@ -315,7 +308,7 @@ public class MongoDbDriver extends AbstractDriver {
         } else if ("LineString".equals(type)) {
             return convertLineString(geoDocument);
         }
-        throw new RuntimeException("Geometry type support not implemented yet");
+        throw new RuntimeException("Geometry type support not implemented yet: " + type);
     }
 
     private Geometry convertGeometryCollection(Document geoDocument) {
@@ -374,7 +367,7 @@ public class MongoDbDriver extends AbstractDriver {
         final List<Document> timeAxesDocuments = (List<Document>) jsonTimeAxes.get("timeAxes");
         final TimeAxis[] timeAxes = new TimeAxis[timeAxesDocuments.size()];
         for (int i = 0; i < timeAxesDocuments.size(); i++) {
-            final Document timeAxisDocument = timeAxesDocuments.get(0);
+            final Document timeAxisDocument = timeAxesDocuments.get(i);
             final Date startTime = timeAxisDocument.getDate("startTime");
             final Date endTime = timeAxisDocument.getDate("endTime");
             final LineString geometry = (LineString) convertToGeometry((Document) timeAxisDocument.get("geometry"));

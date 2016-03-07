@@ -23,8 +23,10 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
@@ -168,8 +170,9 @@ public class MongoDbDriverTest {
                 ">\n", geometry.toString());
     }
 
+    // @todo 3 tb/** make this test method operate on Fiduceo geometries 2016-03-06
     @Test
-    public void testConvertToGeometry_multipolygon() {
+    public void testConvertToGeometry_multiPolygon() {
         final S2WKTReader s2WKTReader = new S2WKTReader();
 
         Document jsonMultiPolygon = new Document("type", "MultiPolygon");
@@ -207,7 +210,6 @@ public class MongoDbDriverTest {
                 "(0.21984631039295416, 0.6040227735550537)\n" +
                 ">\n", polygonsList.get(0).toString());
 
-
         assertEquals("Polygon: (1) loops:\n" +
                 "loop <\n" +
                 "(0.11697777844051101, 0.32139380484326974)\n" +
@@ -233,7 +235,6 @@ public class MongoDbDriverTest {
         jsonGeometryCollection.append("geometries", geometryList);
 
         final Geometry geometry = driver.convertToGeometry(jsonGeometryCollection);
-
         assertTrue(geometry instanceof GeometryCollection);
         final GeometryCollection geometryCollection = (GeometryCollection) geometry;
         final Geometry[] geometries = geometryCollection.getGeometries();
@@ -242,6 +243,18 @@ public class MongoDbDriverTest {
                 geometryFactory.format(geometries[0]));
         assertEquals("POLYGON((6.0 1.0,6.999999999999999 1.0,6.999999999999999 2.0,6.0 2.0,6.0 1.0))",
                 geometryFactory.format(geometries[1]));
+    }
+
+    @Test
+    public void testConvertToGeometry_lineString(){
+        final double[] lons = {-12.0, -11.0, -10.0};
+        final double[] lats = {8.0, 9.0, 10.0};
+
+        final Document jsonLineString = createGeoJsonLineString(lons, lats);
+
+        final Geometry geometry = driver.convertToGeometry(jsonLineString);
+        assertTrue(geometry instanceof LineString);
+        assertEquals("LINESTRING(-12.000000000000002 7.999999999999998,-10.999999999999998 9.0,-9.999999999999998 10.0)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -268,10 +281,8 @@ public class MongoDbDriverTest {
         assertNotNull(queryDocument);
     }
 
-
     @Test
     public void testCreateQueryDocument() throws Exception {
-
         QueryParameter queryParameter = new QueryParameter();
         queryParameter.setGeometry(geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))"));
         queryParameter.setSensorName("amsub_n15");
@@ -294,7 +305,6 @@ public class MongoDbDriverTest {
         String sensorType = sensorDoc.getString("$eq");
         assertEquals(queryParameter.getSensorName(), sensorType);
 
-
         Document document = (Document) ((Document) queryDocument.get("geoBounds")).get("$geoIntersects");
         assertNotNull(document);
 
@@ -304,7 +314,6 @@ public class MongoDbDriverTest {
                 polygon.toString());
 
     }
-
 
     private MultiPolygon getMultiPolygon(String wkt) {
         return (MultiPolygon) geometryFactory.parse(wkt);
@@ -324,10 +333,22 @@ public class MongoDbDriverTest {
         return jsonPolygon;
     }
 
+    private Document createGeoJsonLineString(double[] lons, double[] lats) {
+        final Document jsonLineString = new Document("type", "LineString");
+        final ArrayList<ArrayList<Double>> pointList = new ArrayList<>();
+
+        for (int i = 0; i < lons.length; i++) {
+            pointList.add(createJsonPoint(lons[i], lats[i]));
+        }
+
+        jsonLineString.append("coordinates", pointList);
+        return jsonLineString;
+    }
+
     private ArrayList<Double> createJsonPoint(double lon, double lat) {
-        final ArrayList<Double> point_0 = new ArrayList<>();
-        point_0.add(lon);
-        point_0.add(lat);
-        return point_0;
+        final ArrayList<Double> jsonPoint = new ArrayList<>();
+        jsonPoint.add(lon);
+        jsonPoint.add(lat);
+        return jsonPoint;
     }
 }

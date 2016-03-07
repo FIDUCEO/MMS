@@ -22,7 +22,7 @@
 package com.bc.fiduceo.math;
 
 
-import com.bc.fiduceo.core.SatelliteGeometry;
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
@@ -33,9 +33,9 @@ import java.util.Date;
 public class GeometryIntersector {
 
     // @todo 1 tb/tb extend to support multiple time axes and Multi-Polygon geometries
-    public static TimeInfo getIntersectingInterval(SatelliteGeometry satGeometry_1, SatelliteGeometry satGeometry_2) {
-        final Geometry geometry_1 = satGeometry_1.getGeometry();
-        final Geometry geometry_2 = satGeometry_2.getGeometry();
+    public static TimeInfo getIntersectingInterval(SatelliteObservation observation_1, SatelliteObservation observation_2) {
+        final Geometry geometry_1 = observation_1.getGeoBounds();
+        final Geometry geometry_2 = observation_2.getGeoBounds();
         final TimeInfo timeInfo = new TimeInfo();
 
         final Geometry intersection = geometry_1.getIntersection(geometry_2);
@@ -43,8 +43,8 @@ public class GeometryIntersector {
             return timeInfo;
         }
 
-        final TimeAxis[] timeAxes_1 = satGeometry_1.getTimeAxes();
-        final TimeAxis[] timeAxes_2 = satGeometry_2.getTimeAxes();
+        final TimeAxis[] timeAxes_1 = observation_1.getTimeAxes();
+        final TimeAxis[] timeAxes_2 = observation_2.getTimeAxes();
 
         final Point[] coordinates = intersection.getCoordinates();
         final ArrayList<Date> sensor_1_dates = new ArrayList<>(coordinates.length);
