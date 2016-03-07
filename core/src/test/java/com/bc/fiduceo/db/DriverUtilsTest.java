@@ -17,10 +17,8 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
-package com.bc.fiduceo.core;
+package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.db.Driver;
-import com.bc.fiduceo.reader.Reader;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
@@ -28,21 +26,21 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * @author muhammad.bc
  */
-public class ServicesUtilsTest {
+public class DriverUtilsTest {
     @Test
     public void getReaderTest() {
         Driver driver;
-        ServicesUtils servicesUtils = new ServicesUtils<>();
+        DriverUtils driverUtils = new DriverUtils();
 
-        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:h2:mem:fiduceo");
+        driver = driverUtils.getDriver("jdbc:h2:mem:fiduceo");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:h2"));
 
 
-        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:mysql://localhost:3306/test");
+        driver = driverUtils.getDriver("jdbc:mysql://localhost:3306/test");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:mysql"));
 
 
-        driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:postgresql://localhost:5432/test");
+        driver = driverUtils.getDriver("jdbc:postgresql://localhost:5432/test");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:postgresql"));
     }
 

@@ -23,7 +23,6 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.ServicesUtils;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.dbcp.BasicDataSource;
 
@@ -93,7 +92,7 @@ public class Storage {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         final String dbUrl = dataSource.getUrl().toLowerCase();
-        final ServicesUtils syServicesUtils = new ServicesUtils<>();
-        return (Driver) syServicesUtils.getServices(Driver.class, dbUrl);
+        final DriverUtils syDriverUtils = new DriverUtils();
+        return syDriverUtils.getDriver(dbUrl);
     }
 }

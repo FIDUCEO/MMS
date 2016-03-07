@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_ReaderTest {
 
-    private AMSU_MHS_L1B_Reader reader;
+    private AMSU_MHS_L1B_Reader reader = null;
 
     @Before
     public void setUp() throws Exception {

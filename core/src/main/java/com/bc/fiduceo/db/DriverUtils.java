@@ -17,11 +17,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
-package com.bc.fiduceo.core;
+package com.bc.fiduceo.db;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import com.bc.fiduceo.db.Driver;
 import org.esa.snap.SnapCoreActivator;
 
 import java.util.Set;
@@ -29,19 +28,22 @@ import java.util.Set;
 /**
  * @author muhammad.bc
  */
-public class ServicesUtils<T> {
+public class DriverUtils {
 
-    public T getServices(Class<T> pass, String searchTerm) {
+    public Driver getDriver(String searchTerm) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        ServiceRegistry<T> readerRegistry = serviceRegistryManager.getServiceRegistry(pass);
+        ServiceRegistry<Driver> readerRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
         SnapCoreActivator.loadServices(readerRegistry);
-        final Set<T> services = readerRegistry.getServices();
-        for (T service : services) {
-            final String content = ((Driver) service).getUrlPattern().toLowerCase();
+        final Set<Driver> driverSet = readerRegistry.getServices();
+        if (driverSet.isEmpty()) {
+            throw new RuntimeException("No database drivers");
+        }
+        for (Driver driver : driverSet) {
+            final String content = driver.getUrlPattern().toLowerCase();
             if (searchTerm.contains(content)) {
-                return service;
+                return driver;
             }
         }
-        return null;
+        throw new IllegalArgumentException("No database drive with the drivers name :" + searchTerm);
     }
 }
