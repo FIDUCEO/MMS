@@ -56,7 +56,7 @@ public class FiduceoLoggerTest {
     public void testLoggerMessageWithLineNumber() throws Exception {
         Logger logger = FiduceoLogger.getLogger(Level.SEVERE);
         logger.severe("With Error message Line");
-        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()).toString() + " - SEVERE: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageWithLineNumber - 58 - With Error message Line\n";
+        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()) + " - SEVERE: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageWithLineNumber - 58 - With Error message Line\n";
 
         assertEquals(dateTimeNow, FiduceoLoggerFormatter.getLogMessage());
     }
@@ -65,8 +65,7 @@ public class FiduceoLoggerTest {
     public void testLoggerMessageINFO() throws Exception {
         Logger logger = FiduceoLogger.getLogger(Level.INFO);
         logger.info("Info about Fiduceo");
-        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()).toString() + " - INFO: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageINFO - Info about Fiduceo\n";
-
+        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()) + " - INFO: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageINFO - Info about Fiduceo\n";
         assertEquals(dateTimeNow, FiduceoLoggerFormatter.getLogMessage());
     }
 }
