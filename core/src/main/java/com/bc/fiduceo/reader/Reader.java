@@ -33,13 +33,7 @@ public interface Reader {
 
     void close() throws IOException;
 
-    @Deprecated
-    boolean checkSensorTypeName(String sensorType);
-
     String[] getSupportedSensorKeys();
-
-    @Deprecated
-    HashMap<String, String> getSensorTypes();
 
     AcquisitionInfo read() throws IOException;
 

@@ -73,20 +73,6 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public boolean checkSensorTypeName(String sensorType) {
-        // @todo 1 tb/tb refactor this whole pattern 2016-02-25
-        // the reader shall return an array of "sensor-platform"
-        // the factory shall NOT call into the reader at this pouínt, instead the factory shall contain a hashmap with
-        // all "sensor-platform" as keys and the readers as values
-        return sensorType.contains("avhrr");
-    }
-
-    @Override
-    public HashMap<String, String> getSensorTypes() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 

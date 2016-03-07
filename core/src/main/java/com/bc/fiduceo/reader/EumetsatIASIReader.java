@@ -90,15 +90,6 @@ public class EumetsatIASIReader implements Reader {
         netcdfFile.close();
     }
 
-    @Override
-    public boolean checkSensorTypeName(String sensorType) {
-        return sensorList.contains(sensorType);
-    }
-
-    @Override
-    public HashMap<String, String> getSensorTypes() {
-        return null;
-    }
 
     @Override
     public AcquisitionInfo read() throws IOException {

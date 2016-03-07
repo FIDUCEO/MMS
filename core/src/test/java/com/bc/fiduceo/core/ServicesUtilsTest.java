@@ -32,18 +32,7 @@ public class ServicesUtilsTest {
     @Test
     public void getReaderTest() {
         Driver driver;
-        Reader reader;
         ServicesUtils servicesUtils = new ServicesUtils<>();
-
-        reader = (Reader) servicesUtils.getServices(Reader.class, "amsub-n15");
-        assertTrue(reader.toString().contains("AMSU_MHS_L1B"));
-
-
-        reader = (Reader) servicesUtils.getServices(Reader.class, "AIRS");
-        assertTrue(reader.toString().contains("AIRS"));
-
-        reader = (Reader) servicesUtils.getServices(Reader.class, "Eumetsat");
-        assertTrue(reader.toString().contains("Eumetsat"));
 
         driver = (Driver) servicesUtils.getServices(Driver.class, "jdbc:h2:mem:fiduceo");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:h2"));

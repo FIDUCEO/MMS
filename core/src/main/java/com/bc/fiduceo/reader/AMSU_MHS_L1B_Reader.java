@@ -149,36 +149,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public boolean checkSensorTypeName(String sensorType) {
-        return getSensorTypes().containsKey(sensorType);
-    }
-
-    @Override
     public String[] getSupportedSensorKeys() {
         return SENSOR_KEY;
     }
 
-    @Override
-    public HashMap<String, String> getSensorTypes() {
-        HashMap<String, String> sensorListHashMap = new HashMap<>();
 
-        sensorListHashMap.put("amsub-nn	", "TN");
-        sensorListHashMap.put("amsub-n06", "NA");
-        sensorListHashMap.put("amsub-n07", "NC");
-        sensorListHashMap.put("amsub-n08", "NE");
-        sensorListHashMap.put("amsub-n09", "NF");
-        sensorListHashMap.put("amsub-n10", "NG");
-        sensorListHashMap.put("amsub-n11", "NH");
-        sensorListHashMap.put("amsub-n12", "ND");
-        sensorListHashMap.put("amsub-n14", "NJ");
-        sensorListHashMap.put("amsub-n15", "NK");
-        sensorListHashMap.put("amsub-n16", "NL");
-        sensorListHashMap.put("amsub-n17", "NM");
-        sensorListHashMap.put("amsub-n18", "NN");
-        sensorListHashMap.put("amsub-n19", "NPrime");
-
-        return sensorListHashMap;
-    }
 
     @Override
     public AcquisitionInfo read() throws IOException {

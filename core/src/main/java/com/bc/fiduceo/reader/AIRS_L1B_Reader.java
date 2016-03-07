@@ -128,15 +128,6 @@ public class AIRS_L1B_Reader implements Reader {
         netcdfFile.close();
     }
 
-    @Override
-    public boolean checkSensorTypeName(String sensor) {
-        return sensorList.contains(sensor);
-    }
-
-    @Override
-    public HashMap<String, String> getSensorTypes() {
-        return null;
-    }
 
     public AcquisitionInfo read() throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();

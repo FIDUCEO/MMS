@@ -22,7 +22,6 @@ package com.bc.fiduceo.core;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.db.Driver;
-import com.bc.fiduceo.reader.Reader;
 import org.esa.snap.SnapCoreActivator;
 
 import java.util.Set;
@@ -32,26 +31,14 @@ import java.util.Set;
  */
 public class ServicesUtils<T> {
 
-
     public T getServices(Class<T> pass, String searchTerm) {
-        boolean isReaderSensorType = false;
-        String content = " ";
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         ServiceRegistry<T> readerRegistry = serviceRegistryManager.getServiceRegistry(pass);
         SnapCoreActivator.loadServices(readerRegistry);
         final Set<T> services = readerRegistry.getServices();
         for (T service : services) {
-            if (pass.getName().contains("Driver")) {
-                content = ((Driver) service).getUrlPattern().toLowerCase();
-            } else {
-                isReaderSensorType = ((Reader) service).checkSensorTypeName(searchTerm);
-            }
-
+            final String content = ((Driver) service).getUrlPattern().toLowerCase();
             if (searchTerm.contains(content)) {
-                return service;
-            }
-
-            if (isReaderSensorType) {
                 return service;
             }
         }

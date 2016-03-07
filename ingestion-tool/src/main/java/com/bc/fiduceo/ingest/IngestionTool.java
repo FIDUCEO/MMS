@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -94,8 +95,8 @@ class IngestionTool {
         // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
         // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
 
-        final ServicesUtils servicesUtils = new ServicesUtils<>();
-        final Reader reader = (Reader) servicesUtils.getServices(Reader.class, sensorType);
+        ReaderFactory readerFactory = new ReaderFactory();
+        final Reader reader = readerFactory.getReader(sensorType);
         final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
 
         final Archive archive = new Archive(archiveRootPath);
