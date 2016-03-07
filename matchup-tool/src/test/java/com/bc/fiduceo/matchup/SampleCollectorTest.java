@@ -19,7 +19,7 @@ public class SampleCollectorTest {
 
     @Before
     public void setUp() throws Exception {
-        final PixelLocator pixelLocator = new IdenticalPixelLocator();
+        final PixelLocator pixelLocator = new OffsetPixelLocator(11, 13);
 
         collector = new SampleCollector(pixelLocator, 30, 50);
         final GeometryFactory factory = new GeometryFactory(GeometryFactory.Type.S2);
@@ -36,15 +36,21 @@ public class SampleCollectorTest {
     @Test
     public void testSomething() {
         final Sample[] samples = collector.getSamplesFor(polygon);
+
         assertNotNull(samples);
         // todo 1 se/se continue 2016-03-03
 //        assertEquals(4, samples.length);
     }
 
-    private static class IdenticalPixelLocator implements PixelLocator {
+    private static class OffsetPixelLocator implements PixelLocator {
 
-        private int offsetX = 11;
-        private int offsetY = 13;
+        private final int offsetX;
+        private final int offsetY;
+
+        public OffsetPixelLocator(int offsetX, int offsetY) {
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+        }
 
         @Override
         public Point2D getGeoLocation(double x, double y, Point2D g) {
