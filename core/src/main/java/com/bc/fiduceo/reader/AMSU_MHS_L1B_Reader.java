@@ -45,11 +45,13 @@ import java.util.List;
 
 public class AMSU_MHS_L1B_Reader implements Reader {
 
+    public static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
     private static final String LONGITUDE_VARIABLE_NAME = "Longitude";
     private final static int IntervalX = 50;
     private final static int IntervalY = 50;
-    public static final String SCALE_ATTRIBUTE_NAME = "Scale";
+    private static final String[] SENSOR_KEY = {"amsub-nn", "amsub-n06", "amsub-n07", "amsub-n08", "amsub-n09",
+            "amsub-n10", "amsub-n11", "amsub-n12", "amsub-n14", "amsub-n15", "amsub-n16", "amsub-n17", "amsub-n18", "amsub-n19"};
 
     private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
@@ -69,10 +71,6 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         return new AMSU_MHS_GeoCoding();
     }
 
-    @Override
-    public String[] getSupportedSensorKeys() {
-        throw new RuntimeException("not implemented");
-    }
 
     static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
         final Group geolocationGroup = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME);
@@ -153,6 +151,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     @Override
     public boolean checkSensorTypeName(String sensorType) {
         return getSensorTypes().containsKey(sensorType);
+    }
+
+    @Override
+    public String[] getSupportedSensorKeys() {
+        return SENSOR_KEY;
     }
 
     @Override

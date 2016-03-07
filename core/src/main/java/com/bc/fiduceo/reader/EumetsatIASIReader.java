@@ -45,6 +45,7 @@ public class EumetsatIASIReader implements Reader {
     private static final int GEO_INTERVAL_Y = 6;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String[] SENSOR_KEYS = {"iasi_ma","iasi_mb"};
     private List<String> sensorList = Arrays.asList("Eumetsat");
 
 
@@ -66,7 +67,7 @@ public class EumetsatIASIReader implements Reader {
 
     @Override
     public String[] getSupportedSensorKeys() {
-        throw new RuntimeException("not implemented");
+        return SENSOR_KEYS;
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {

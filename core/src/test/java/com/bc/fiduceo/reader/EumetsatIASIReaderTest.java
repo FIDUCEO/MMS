@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.TestUtil;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -28,12 +29,20 @@ import ucar.nc2.NetcdfFile;
 import java.io.IOException;
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EumetsatIASIReaderTest {
+
+    private EumetsatIASIReader reader;
+
+    @Before
+    public void setUp() throws Exception {
+        reader = new EumetsatIASIReader();
+    }
 
     @Test
     public void testGetGlobalAttributeAsDate() throws IOException {
@@ -77,5 +86,14 @@ public class EumetsatIASIReaderTest {
             fail("IOException expected");
         } catch (IOException expected) {
         }
+    }
+
+    @Test
+    public void testGetSupportedSensorKeys() {
+        final String[] sensorKeys = reader.getSupportedSensorKeys();
+        assertNotNull(sensorKeys);
+        assertEquals(2, sensorKeys.length);
+        assertEquals("iasi_ma", sensorKeys[0]);
+        assertEquals("iasi_mb", sensorKeys[1]);
     }
 }

@@ -51,6 +51,7 @@ public class AIRS_L1B_Reader implements Reader {
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+    private static final String[] SENSOR_KEYS = {"airs_aq"};
     private List<String> sensorList = Arrays.asList("AIRS");
 
     private NetcdfFile netcdfFile;
@@ -73,7 +74,7 @@ public class AIRS_L1B_Reader implements Reader {
 
     @Override
     public String[] getSupportedSensorKeys() {
-        throw new RuntimeException("not implemented");
+        return SENSOR_KEYS;
     }
 
     static String getElementValue(Element element, String attribute) {

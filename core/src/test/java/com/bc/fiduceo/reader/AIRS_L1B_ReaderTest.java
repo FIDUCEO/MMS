@@ -1283,4 +1283,13 @@ public class AIRS_L1B_ReaderTest {
         final Date date = reader.parseDate("2012-07-11", "14:33:54.876543Z");
         TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
     }
+
+    @Test
+    public void testGetSupportedSensorKeys() {
+        AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
+        final String[] sensorKeys = reader.getSupportedSensorKeys();
+        assertNotNull(sensorKeys);
+        assertEquals(1, sensorKeys.length);
+        assertEquals("airs_aq", sensorKeys[0]);
+    }
 }

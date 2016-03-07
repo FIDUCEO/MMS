@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 
+import org.junit.Before;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -38,6 +39,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_ReaderTest {
+
+    private AMSU_MHS_L1B_Reader reader;
+
+    @Before
+    public void setUp() throws Exception {
+        reader = new AMSU_MHS_L1B_Reader();
+    }
 
     @Test
     public void testGetLongitudes_missingGroup() {
@@ -97,5 +105,15 @@ public class AMSUB_MHS_ReaderTest {
         assertEquals(2.0, longitudes.getDouble(1), 1e-8);
         assertEquals(2.5, longitudes.getDouble(2), 1e-8);
         assertEquals(3.0, longitudes.getDouble(3), 1e-8);
+    }
+
+    @Test
+    public void testGetSupportedSensorKeys() {
+        final String[] sensorKeys = reader.getSupportedSensorKeys();
+        assertNotNull(sensorKeys);
+        assertEquals(14, sensorKeys.length);
+        assertEquals("amsub-nn", sensorKeys[0]);
+        assertEquals("amsub-n07", sensorKeys[2]);
+        assertEquals("amsub-n19", sensorKeys[13]);
     }
 }
