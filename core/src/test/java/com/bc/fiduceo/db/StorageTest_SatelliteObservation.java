@@ -21,6 +21,7 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
@@ -93,8 +94,11 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
 
         final TimeAxis[] timeAxes = observationFromDb.getTimeAxes();
-        // @todo 1 tb/tb continue here 2016-03-04
-        //assertEquals(1, timeAxes.length);
+        assertEquals(1, timeAxes.length);
+        TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 13, 20, 0, timeAxes[0].getStartTime());
+        TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 30, 0, 0, timeAxes[0].getEndTime());
+        final Geometry geometry = timeAxes[0].getGeometry();
+        assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -124,6 +128,15 @@ public abstract class StorageTest_SatelliteObservation {
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(1, result.size());
+
+        // @todo 2 tb/** add more assertions here 2016-03-06
+        final SatelliteObservation observationFromDb = result.get(0);
+        final TimeAxis[] timeAxes = observationFromDb.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        TestUtil.assertCorrectUTCDate(1970, 1, 12, 13, 46, 40, 0, timeAxes[0].getStartTime());
+        TestUtil.assertCorrectUTCDate(1970, 1, 12, 14, 3, 20, 0, timeAxes[0].getEndTime());
+        final Geometry geometry = timeAxes[0].getGeometry();
+        assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -153,6 +166,15 @@ public abstract class StorageTest_SatelliteObservation {
 
         final List<SatelliteObservation> result = storage.get(parameter);
         assertEquals(1, result.size());
+
+        // @todo 2 tb/** add more assertions here 2016-03-06
+        final SatelliteObservation observationFromDb = result.get(0);
+        final TimeAxis[] timeAxes = observationFromDb.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        TestUtil.assertCorrectUTCDate(1970, 1, 12, 13, 46, 40, 0, timeAxes[0].getStartTime());
+        TestUtil.assertCorrectUTCDate(1970, 1, 12, 14, 3, 20, 0, timeAxes[0].getEndTime());
+        final Geometry geometry = timeAxes[0].getGeometry();
+        assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
     }
 
     @Test
