@@ -22,7 +22,9 @@ package com.bc.fiduceo.core;
 
 import com.thoughtworks.xstream.XStream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +39,21 @@ public class UseCaseConfig {
         return (UseCaseConfig) xStream.fromXML(inputStream);
     }
 
+    public void store(OutputStream outputStream) {
+        final XStream xStream = createXStream();
+        xStream.toXML(this, outputStream);
+    }
+
     public UseCaseConfig() {
         sensors = new ArrayList<>();
     }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<Sensor> getSensors() {
@@ -64,6 +75,10 @@ public class UseCaseConfig {
 
     public int getTimeDelta() {
         return timeDelta;
+    }
+
+    public void setTimeDelta(int timeDelta) {
+        this.timeDelta = timeDelta;
     }
 
     private static XStream createXStream() {

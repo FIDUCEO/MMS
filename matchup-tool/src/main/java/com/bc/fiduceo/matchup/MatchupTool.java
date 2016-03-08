@@ -185,6 +185,9 @@ class MatchupTool {
         final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
         options.addOption(endOption);
 
+        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
+        options.addOption(useCaseOption);
+
         return options;
     }
 
