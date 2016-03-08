@@ -29,6 +29,8 @@ import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.GeometryUtil;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
@@ -81,6 +83,7 @@ class MatchupTool {
         context.setUseCaseConfig(useCaseConfig);
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
+        context.setGeometryFactory(geometryFactory);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
         return context;

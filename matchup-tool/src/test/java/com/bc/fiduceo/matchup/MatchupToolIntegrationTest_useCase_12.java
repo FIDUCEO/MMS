@@ -27,7 +27,7 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.*;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -90,6 +90,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
         MatchupToolMain.main(args);
 
         // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
+        // assert here: empty MMD file
     }
 
     @Test
@@ -97,7 +98,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
-        useCaseConfig.setTimeDelta(10800);  // 3 hours
+        useCaseConfig.setTimeDelta(10800);  // 3 hours - we have one intersecting time interval
         final File useCaseConfigFile = storeUseCaseConfig();
 
         insert_AVHRR_GAC_NOAA17();
@@ -108,6 +109,27 @@ public class MatchupToolIntegrationTest_useCase_12 {
         MatchupToolMain.main(args);
 
         // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
+        // assert here: MMD file generated at the desired location
+        // open MMD file and check content
+    }
+
+    @Test
+    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+
+        useCaseConfig.setTimeDelta(10000);  // 2 hours something, just too small to have an overllipng time interval
+        final File useCaseConfigFile = storeUseCaseConfig();
+
+        insert_AVHRR_GAC_NOAA17();
+        insert_AVHRR_GAC_NOAA18();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
+
+        MatchupToolMain.main(args);
+
+        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
+        // assert here: empty MMD file
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
