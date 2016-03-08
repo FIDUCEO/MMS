@@ -30,6 +30,9 @@ import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.math.Intersection;
+import com.bc.fiduceo.math.IntersectionEngine;
+import com.bc.fiduceo.math.TimeInfo;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -101,13 +104,14 @@ class MatchupTool {
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
-                // @todo 1 tb/tb perform the intersection 2016-02-19
+                final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondary);
+                for(final Intersection intersection: intersectingIntervals) {
+                    final TimeInfo timeInfo = intersection.getTimeInfo();
+                    if (timeInfo.getMinimalTimeDelta() < timeDelta * 1000) {
+                        System.out.println("we have an intersection here");
+                    }
+                }
 
-                // - calculate intersecting area (in lon/lat) - polygon.
-                // -- if no polygon or empty -> continue
-                //
-                // - detect overlapping time interval from time axes
-                // -- if not withing required time delta -> continue
                 //
                 // - detect all pixels (x/y) in primary observation that are contained in intersecting area
                 // -- for each pixel:

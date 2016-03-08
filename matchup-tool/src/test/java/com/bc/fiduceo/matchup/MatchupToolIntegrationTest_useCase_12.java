@@ -75,11 +75,29 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_noMatchups_smallTimeDelta() throws IOException, ParseException, SQLException {
+    public void testMatchup_noMatchups_timeDeltaTooSmall() throws IOException, ParseException, SQLException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
         useCaseConfig.setTimeDelta(22);
+        final File useCaseConfigFile = storeUseCaseConfig();
+
+        insert_AVHRR_GAC_NOAA17();
+        insert_AVHRR_GAC_NOAA18();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
+
+        MatchupToolMain.main(args);
+
+        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
+    }
+
+    @Test
+    public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+
+        useCaseConfig.setTimeDelta(10800);  // 3 hours
         final File useCaseConfigFile = storeUseCaseConfig();
 
         insert_AVHRR_GAC_NOAA17();
