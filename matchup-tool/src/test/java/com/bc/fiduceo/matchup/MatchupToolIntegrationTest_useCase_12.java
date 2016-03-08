@@ -82,8 +82,6 @@ public class MatchupToolIntegrationTest_useCase_12 {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
 
         MatchupToolMain.main(args);
-
-
     }
 
     File storeUseCaseConfig() throws IOException {

@@ -102,7 +102,7 @@ class MatchupTool {
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
                 // @todo 1 tb/tb perform the intersection 2016-02-19
-                
+
                 // - calculate intersecting area (in lon/lat) - polygon.
                 // -- if no polygon or empty -> continue
                 //
