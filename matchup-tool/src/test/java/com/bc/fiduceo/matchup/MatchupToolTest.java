@@ -169,4 +169,22 @@ public class MatchupToolTest {
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 0, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 23, 59, 59, 999, parameter.getStopTime());
     }
+
+    @Test
+    public void testGetPrimarySensorParameter_missingPrimarySensor() {
+        final MatchupToolContext context = new MatchupToolContext();
+
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensorList.add(sensor);
+        useCaseConfig.setSensors(sensorList);
+        context.setUseCaseConfig(useCaseConfig);
+
+        try {
+            MatchupTool.getPrimarySensorParameter(context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }

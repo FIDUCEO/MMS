@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
@@ -83,25 +84,25 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
-        final QueryParameter parameter = getPrimarySensorParameter(context);
+        QueryParameter parameter = getPrimarySensorParameter(context);
 
         final Storage storage = context.getStorage();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
 
-        // @todo 2 tb/tb time delta shall be read from use-case configuration 2016-02-19
-        final int timeDelta = 300;
-        for (final SatelliteObservation observation : primaryObservations) {
-            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, observation.getStartTime());
-            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, observation.getStopTime());
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final int timeDelta = useCaseConfig.getTimeDelta();
 
-            // @todo 2 tb/tb sensor/platform from use-case configuration 2016-02-19
-            parameter.setSensorName("mhs-noaa15");
-            parameter.setStartTime(searchTimeStart);
-            parameter.setStopTime(searchTimeEnd);
+        for (final SatelliteObservation primaryObservation : primaryObservations) {
+            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
+            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
+
+            final Geometry geoBounds = primaryObservation.getGeoBounds();
+            parameter = getSecondarySensorParameter(useCaseConfig, geoBounds, searchTimeStart, searchTimeEnd);
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
                 // @todo 1 tb/tb perform the intersection 2016-02-19
+                
                 // - calculate intersecting area (in lon/lat) - polygon.
                 // -- if no polygon or empty -> continue
                 //
@@ -127,11 +128,41 @@ class MatchupTool {
         }
     }
 
+    // @todo 1 tb/tb write tests 2016-03-07
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        parameter.setSensorName(secondarySensor.getName());
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        parameter.setGeometry(geoBounds);
+        return parameter;
+    }
+
+    // @todo 1 tb/tb write tests 2016-03-07
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        // @todo 2 tb/tb this is not the optimal way to retriev the secondary sensor. Works for now but needs refactoring when we have insitu matchups 2016-03-07
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        Sensor secondarySensor = null;
+        for (final Sensor sensor : sensors) {
+            if (!sensor.isPrimary()) {
+                secondarySensor = sensor;
+                break;
+            }
+        }
+        if (secondarySensor == null) {
+            throw new RuntimeException("Secondary sensor not configured");
+        }
+        return secondarySensor;
+    }
+
     // package access for testing only tb 2016-02-23
     static QueryParameter getPrimarySensorParameter(MatchupToolContext context) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        // @todo 1 tb/tb add checks for null here and throw 2016-02-23
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
         parameter.setSensorName(primarySensor.getName());
         parameter.setStartTime(context.getStartDate());
         parameter.setStopTime(context.getEndDate());
