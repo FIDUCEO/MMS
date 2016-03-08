@@ -185,8 +185,6 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         GeometryCollection geometryCollection = geometryFactory.createGeometryCollection(geometries);
         observation.setGeoBounds(geometryCollection);
         observation.setDataFilePath("the_data.file");
-        observation.setTimeAxisStartIndex(23);
-        observation.setTimeAxisEndIndex(27);
 
         final LineString timeAxisGeometry_1 = (LineString) geometryFactory.parse("LINESTRING(1 5, 1 6, 1 7)");
         final TimeAxis timeAxis_1 = geometryFactory.createTimeAxis(timeAxisGeometry_1, new Date(10000000L), new Date(11000000L));

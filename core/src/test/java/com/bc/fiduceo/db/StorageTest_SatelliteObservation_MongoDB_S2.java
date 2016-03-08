@@ -103,8 +103,6 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
         assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
-        assertEquals(observation.getTimeAxisStartIndex(), observationFromDb.getTimeAxisStartIndex());
-        assertEquals(observation.getTimeAxisEndIndex(), observationFromDb.getTimeAxisEndIndex());
 
         assertEquals(106, observation.getGeoBounds().getCoordinates().length);
         assertEquals(106, observationFromDb.getGeoBounds().getCoordinates().length);
@@ -118,8 +116,6 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
         observation.setDataFilePath("the_data.file");
-        observation.setTimeAxisStartIndex(23);
-        observation.setTimeAxisEndIndex(27);
 
         final Sensor sensor = new Sensor();
 
