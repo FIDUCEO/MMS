@@ -20,7 +20,9 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
@@ -47,6 +49,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
     private File configDir;
     private Storage storage;
     private UseCaseConfig useCaseConfig;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws SQLException {
@@ -56,7 +59,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
             fail("unable to create test directory: " + configDir.getAbsolutePath());
         }
 
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
         storage.initialize();
 
@@ -79,12 +82,31 @@ public class MatchupToolIntegrationTest_useCase_12 {
         useCaseConfig.setTimeDelta(22);
         final File useCaseConfigFile = storeUseCaseConfig();
 
+        insert_AVHRR_GAC_NOAA17();
+        insert_AVHRR_GAC_NOAA18();
+
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
 
         MatchupToolMain.main(args);
+
+        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
     }
 
-    File storeUseCaseConfig() throws IOException {
+    private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
+        final SatelliteObservation noaa18 = TestData.createObservation_AVHRR_GAC_NOAA_18(absolutePath, geometryFactory);
+        storage.insert(noaa18);
+    }
+
+    private void insert_AVHRR_GAC_NOAA17() throws IOException, SQLException {
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
+        final SatelliteObservation noaa17 = TestData.createObservation_AVHRR_GAC_NOAA_17(absolutePath, geometryFactory);
+        storage.insert(noaa17);
+    }
+
+    private File storeUseCaseConfig() throws IOException {
         final File useCaseConfigFile = new File(configDir, "usecase-12.xml");
         final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
         useCaseConfig.store(outputStream);
