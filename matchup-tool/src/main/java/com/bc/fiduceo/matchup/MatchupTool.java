@@ -36,12 +36,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -59,13 +55,6 @@ class MatchupTool {
         final MatchupToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
-
-        // input required:
-        // - primary sensor
-        // - secondary sensor (optional)
-        // - insitu type (optional)
-        // - start time (year/doy) (yyyy-DDD)
-        // - end time (year/doy)
     }
 
     private MatchupToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -84,15 +73,8 @@ class MatchupTool {
         context.setStartDate(getStartDate(commandLine));
         context.setEndDate(getEndDate(commandLine));
 
-        // @todo 1 tb/tb read this from the configuration file
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor sensor = new Sensor("amsub-n15");
-        sensor.setPrimary(true);
-        sensorList.add(sensor);
-        useCaseConfig.setSensors(sensorList);
+        final UseCaseConfig useCaseConfig = loadUseCaseConfig(commandLine, configDirectory);
         context.setUseCaseConfig(useCaseConfig);
-        // -----------------------------------------------------
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
@@ -207,5 +189,24 @@ class MatchupTool {
             throw new RuntimeException("cmd-line parameter `start` missing");
         }
         return TimeUtils.parseDOYBeginOfDay(startDateString);
+    }
+
+    private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {
+        final String usecaseConfigFileName = commandLine.getOptionValue("usecase");
+        if (StringUtils.isNullOrEmpty(usecaseConfigFileName)) {
+            throw new RuntimeException("Use case configuration file not supplied");
+        }
+
+        final File useCaseConfigFile = new File(configDirectory, usecaseConfigFileName);
+        if (!useCaseConfigFile.isFile()) {
+            throw new RuntimeException("Use case config file does not exist: '" + usecaseConfigFileName + "'");
+        }
+
+        final UseCaseConfig useCaseConfig;
+        try (FileInputStream inputStream = new FileInputStream(useCaseConfigFile)) {
+            useCaseConfig = UseCaseConfig.load(inputStream);
+        }
+
+        return useCaseConfig;
     }
 }

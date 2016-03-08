@@ -24,6 +24,7 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -35,8 +36,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.fail;
 
@@ -79,9 +83,11 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
+        final String configFileName = "use-case-config.xml";
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176", "-u", configFileName};
 
         TestUtil.writeDatabaseProperties_H2(configDir);
+        writeUseCaseConfig(configFileName);
 
         try {
             MatchupToolMain.main(args);
@@ -92,9 +98,25 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_missingDatabaseProperties() throws ParseException, IOException, SQLException {
+        final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
+        writeUseCaseConfig(configFileName);
+
+        try {
+            MatchupToolMain.main(args);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testRunMatchup_missingUseCaseConfig() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
+
+        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeDatabaseProperties_H2(configDir);
 
         try {
             MatchupToolMain.main(args);
@@ -105,10 +127,12 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_missingStartDate() throws ParseException, IOException, SQLException {
+        final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-e", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
         TestUtil.writeDatabaseProperties_H2(configDir);
+        writeUseCaseConfig(configFileName);
 
         try {
             MatchupToolMain.main(args);
@@ -119,10 +143,12 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_missingEndDate() throws ParseException, IOException, SQLException {
+        final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124"};
 
         TestUtil.writeSystemProperties(configDir);
         TestUtil.writeDatabaseProperties_H2(configDir);
+        writeUseCaseConfig(configFileName);
 
         try {
             MatchupToolMain.main(args);
@@ -133,6 +159,7 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException, IOException, ParseException {
+        final String configFileName = "use-case-config.xml";
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(TestUtil.getDatasource_H2(), geometryFactory);
         storage.initialize();
@@ -145,10 +172,12 @@ public class MatchupToolIntegrationTest {
             final SatelliteObservation mhsObservation = createSatelliteObservation(geometry, "mhs-n18", "2010-08-21 16:34:19", "2010-08-21 16:55:07");
             storage.insert(mhsObservation);
 
-            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "2007-100", "--end", "2007-200"};
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "2007-100", "--end", "2007-200", "-u", configFileName};
 
             TestUtil.writeSystemProperties(configDir);
             TestUtil.writeDatabaseProperties_H2(configDir);
+            writeUseCaseConfig(configFileName);
+
             MatchupToolMain.main(args);
 
             // @todo 1 tb/tb assert that no output file is generated 2016-02-19
@@ -170,4 +199,20 @@ public class MatchupToolIntegrationTest {
         observation.setDataFilePath(".");
         return observation;
     }
+
+    private void writeUseCaseConfig(String configFileName) throws IOException {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor primary = new Sensor("avhrr-n17");
+        primary.setPrimary(true);
+        sensorList.add(primary);
+        sensorList.add(new Sensor("avhrr-n18"));
+        useCaseConfig.setSensors(sensorList);
+        useCaseConfig.setTimeDelta(2);
+        final File file = new File(configDir, configFileName);
+        final FileOutputStream fileOutputStream = new FileOutputStream(file);
+        useCaseConfig.store(fileOutputStream);
+        fileOutputStream.close();
+    }
+
 }
