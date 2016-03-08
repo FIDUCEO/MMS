@@ -31,7 +31,5 @@ public class SatelliteObservationTest {
         final SatelliteObservation observation = new SatelliteObservation();
 
         assertEquals(NodeType.UNDEFINED, observation.getNodeType());
-        assertEquals(-1, observation.getTimeAxisStartIndex());
-        assertEquals(-1, observation.getTimeAxisEndIndex());
     }
 }

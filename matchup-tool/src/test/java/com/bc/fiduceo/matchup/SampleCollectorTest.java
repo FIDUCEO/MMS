@@ -9,37 +9,80 @@ import com.bc.fiduceo.location.PixelLocator;
 import org.junit.*;
 
 import java.awt.geom.Point2D;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SampleCollectorTest {
 
     private SampleCollector collector;
-    private Polygon polygon;
+    private GeometryFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        final PixelLocator pixelLocator = new OffsetPixelLocator(11, 13);
+        factory = new GeometryFactory(GeometryFactory.Type.S2);
+        final MatchupToolContext context = new MatchupToolContext();
+        context.setGeometryFactory(factory);
 
-        collector = new SampleCollector(pixelLocator, 30, 50);
-        final GeometryFactory factory = new GeometryFactory(GeometryFactory.Type.S2);
-        final List<Point> points = Arrays.asList(
-                    factory.createPoint(3, 10),
-                    factory.createPoint(9, 12),
-                    factory.createPoint(10, 2),
-                    factory.createPoint(1, 4),
-                    factory.createPoint(3, 10)
-        );
-        polygon = factory.createPolygon(points);
+        final PixelLocator pixelLocator = new OffsetPixelLocator(11, 13);
+        collector = new SampleCollector(context, pixelLocator);
     }
 
     @Test
     public void testSomething() {
-        final Sample[] samples = collector.getSamplesFor(polygon);
+        // preparation
+        final Sample[] expecteds = {
+                    new Sample(12, 14, 1.5, 1.5, null),
+                    new Sample(13, 14, 2.5, 1.5, null),
+                    new Sample(12, 15, 1.5, 2.5, null),
+                    new Sample(13, 15, 2.5, 2.5, null)
 
+        };
+        final List<Point> points = createPoints(new double[]{
+                    1, 1,
+                    3, 1,
+                    3, 3,
+                    1, 3,
+                    1, 1
+        });
+        final Polygon polygon = factory.createPolygon(points);
+
+        // execution
+        final LinkedList<Sample> samples = collector.getSamplesFor(polygon);
+
+        // verification
         assertNotNull(samples);
-        // todo 1 se/se continue 2016-03-03
-//        assertEquals(4, samples.length);
+        assertEquals(expecteds.length, samples.size());
+        for (int i = 0; i < expecteds.length; i++) {
+            final Sample expected = expecteds[i];
+            final Sample actual = samples.get(i);
+            assertEquals("Index = " + i, expected.x, actual.x);
+            assertEquals("Index = " + i, expected.y, actual.y);
+            assertEquals("Index = " + i, expected.lon, actual.lon, 0.000001);
+            assertEquals("Index = " + i, expected.lat, actual.lat, 0.000001);
+        }
+    }
+
+    @Test
+    public void testPointInPolygonTest_GeometriesCreatedByFactory() throws Exception {
+        final Polygon polygon = factory.createPolygon(createPoints(new double[]{
+                    2, 2,
+                    6, 2,
+                    6, 6,
+                    2, 6,
+                    2, 2
+        }));
+        assertTrue(polygon.contains(factory.createPoint(4, 4)));
+    }
+
+    private List<Point> createPoints(final double[] lonsLats) {
+        final ArrayList<Point> points = new ArrayList<>();
+        for (int i = 0; i < lonsLats.length; i++) {
+            double lon = lonsLats[i];
+            double lat = lonsLats[++i];
+            points.add(factory.createPoint(lon, lat));
+        }
+        return points;
     }
 
     private static class OffsetPixelLocator implements PixelLocator {

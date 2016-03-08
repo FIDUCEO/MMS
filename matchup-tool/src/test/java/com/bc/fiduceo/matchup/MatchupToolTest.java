@@ -26,7 +26,6 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.util.TimeUtils;
-import com.google.common.geometry.S2;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -58,13 +57,15 @@ public class MatchupToolTest {
 
         matchupTool.printUsageTo(outputStream);
 
-        assertEquals("matchup-tool version 1.0.0" + ls + ls+
+        assertEquals("matchup-tool version 1.0.0" + ls + ls +
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -c,--config <arg>   Defines the configuration directory. Defaults to './config'." + ls +
-                "   -e,--end <arg>      Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                "   -h,--help           Prints the tool usage." + ls +
-                "   -s,--start <arg>    Defines the processing start-date, format 'yyyy-DDD'" + ls, outputStream.toString());
+                "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help            Prints the tool usage." + ls +
+                "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
+                "                        directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -99,6 +100,13 @@ public class MatchupToolTest {
         assertEquals("end", endOption.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'", endOption.getDescription());
         assertTrue(endOption.hasArg());
+
+        final Option useCaseOption = options.getOption("usecase");
+        assertNotNull(useCaseOption);
+        assertEquals("u", useCaseOption.getOpt());
+        assertEquals("usecase", useCaseOption.getLongOpt());
+        assertEquals("Defines the path to the use-case configuration file. Path is relative to the configuration directory.", useCaseOption.getDescription());
+        assertTrue(useCaseOption.hasArg());
     }
 
     @Test
@@ -117,7 +125,7 @@ public class MatchupToolTest {
         try {
             MatchupTool.getEndDate(commandLine);
             fail("RuntimeException expected");
-        } catch(RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -137,7 +145,7 @@ public class MatchupToolTest {
         try {
             MatchupTool.getStartDate(commandLine);
             fail("RuntimeException expected");
-        } catch(RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -160,6 +168,23 @@ public class MatchupToolTest {
         assertEquals("amsub-n16", parameter.getSensorName());
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 0, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 23, 59, 59, 999, parameter.getStopTime());
+    }
 
+    @Test
+    public void testGetPrimarySensorParameter_missingPrimarySensor() {
+        final MatchupToolContext context = new MatchupToolContext();
+
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensorList.add(sensor);
+        useCaseConfig.setSensors(sensorList);
+        context.setUseCaseConfig(useCaseConfig);
+
+        try {
+            MatchupTool.getPrimarySensorParameter(context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

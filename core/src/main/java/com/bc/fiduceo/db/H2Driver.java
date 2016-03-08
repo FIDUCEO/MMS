@@ -72,7 +72,7 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?, ?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?,?)");
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
@@ -80,8 +80,7 @@ public class H2Driver extends AbstractDriver {
         preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFilePath().toString());
-        preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
-        preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
+        // @todo 2 tb/tb insert TimeAxes here 2013-03-07
 
         preparedStatement.executeUpdate();
     }
@@ -129,12 +128,7 @@ public class H2Driver extends AbstractDriver {
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFilePath(dataFile);
 
-            final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
-            observation.setTimeAxisStartIndex(timeAxisStartIndex);
-
-            final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
-            observation.setTimeAxisEndIndex(timeAxisEndIndex);
-
+            // @todo 2 tb/tb fetch TimeAxes here 2013-03-07
             resultList.add(observation);
         }
 

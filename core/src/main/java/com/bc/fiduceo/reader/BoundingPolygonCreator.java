@@ -363,7 +363,7 @@ public class BoundingPolygonCreator {
         final int[] offsets = new int[]{0, 0};
 
         int yOffset = 0;
-        int subsetHeight = height / numSplits + 1;
+        int subsetHeight = getSubsetHeight(height, numSplits);
         for (int i = 0; i < numSplits; i++) {
             shape[0] = subsetHeight;
             offsets[0] = yOffset;
@@ -424,7 +424,7 @@ public class BoundingPolygonCreator {
         final int[] offsets = new int[]{0, 0};
 
         int yOffset = 0;
-        int subsetHeight = height / numSplits + 1;
+        int subsetHeight = getSubsetHeight(height, numSplits);
         for (int i = 0; i < numSplits; i++) {
             shape[0] = subsetHeight;
             offsets[0] = yOffset;
@@ -446,6 +446,10 @@ public class BoundingPolygonCreator {
             }
         }
         return geometryFactory.createGeometryCollection(geometries);
+    }
+
+    public int getSubsetHeight(int height, int numSplits) {
+        return height / numSplits + 1;
     }
 
     static void closePolygon(List<Point> coordinates) {

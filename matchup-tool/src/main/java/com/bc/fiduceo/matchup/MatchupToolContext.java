@@ -24,6 +24,7 @@ package com.bc.fiduceo.matchup;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
 
 import java.util.Date;
 
@@ -33,6 +34,7 @@ class MatchupToolContext {
     private Storage storage;
     private SystemConfig systemConfig;
     private UseCaseConfig useCaseConfig;
+    private GeometryFactory geometryFactory;
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
@@ -72,5 +74,13 @@ class MatchupToolContext {
 
     public UseCaseConfig getUseCaseConfig() {
         return useCaseConfig;
+    }
+
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
+
+    public GeometryFactory getGeometryFactory() {
+        return geometryFactory;
     }
 }

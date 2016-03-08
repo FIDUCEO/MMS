@@ -59,6 +59,7 @@ public class MongoDbDriver extends AbstractDriver {
     private static final String SENSOR_KEY = "sensor";
     private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
     private static final String TIME_AXES_KEY = "timeAxes";
+    private static final String SUBSET_HEIGHT_KEY = "subsetHeight";
 
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
@@ -234,6 +235,10 @@ public class MongoDbDriver extends AbstractDriver {
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
         document.append(TIME_AXES_KEY, convertToDocument(satelliteObservation.getTimeAxes()));
+        final Integer subsetHeight = satelliteObservation.getSubsetHeight();
+        if (subsetHeight != null) {
+            document.append(SUBSET_HEIGHT_KEY, subsetHeight);
+        }
 
         observationCollection.insertOne(document);
     }
@@ -291,6 +296,11 @@ public class MongoDbDriver extends AbstractDriver {
         final Document jsonTimeAxes = (Document) document.get(TIME_AXES_KEY);
         final TimeAxis[] timeAxes = convertToTimeAxes(jsonTimeAxes);
         satelliteObservation.setTimeAxes(timeAxes);
+
+        final Integer subsetHeight = document.getInteger(SUBSET_HEIGHT_KEY);
+        if (subsetHeight != null) {
+            satelliteObservation.setSubsetHeight(subsetHeight);
+        }
 
         return satelliteObservation;
     }

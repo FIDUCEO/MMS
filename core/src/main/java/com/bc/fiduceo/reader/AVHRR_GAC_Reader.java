@@ -86,6 +86,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+        acquisitionInfo.setSubsetHeight(geometries.getSubsetHeight());
 
         final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
         if (timeAxesGeometry instanceof GeometryCollection) {
@@ -118,9 +119,12 @@ public class AVHRR_GAC_Reader implements Reader {
         Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
-            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+            final int numSplits = 2;
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, numSplits);
+            final int height = longitudes.getShape()[0];
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, numSplits));
             checkForValidity((GeometryCollection) boundingGeometry);
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 2);
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, numSplits);
         } else {
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         }
@@ -188,8 +192,10 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     private class Geometries {
+
         private Geometry boundingGeometry;
         private Geometry timeAxesGeometry;
+        private Integer subsetHeight;
 
         public Geometry getBoundingGeometry() {
             return boundingGeometry;
@@ -205,6 +211,14 @@ public class AVHRR_GAC_Reader implements Reader {
 
         public void setTimeAxesGeometry(Geometry timeAxesGeometry) {
             this.timeAxesGeometry = timeAxesGeometry;
+        }
+
+        public Integer getSubsetHeight() {
+            return subsetHeight;
+        }
+
+        public void setSubsetHeight(Integer subsetHeight) {
+            this.subsetHeight = subsetHeight;
         }
     }
 }

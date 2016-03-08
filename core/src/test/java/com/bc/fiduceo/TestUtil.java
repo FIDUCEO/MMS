@@ -82,7 +82,7 @@ public class TestUtil {
 
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
         final Properties properties = new Properties();
-        final BasicDataSource datasource = TestUtil.getDatasourceMongo_DB();
+        final BasicDataSource datasource = TestUtil.getdatasourceMongoDb();
         convertToProperties(properties, datasource);
 
         TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
@@ -107,7 +107,7 @@ public class TestUtil {
         return dataSource;
     }
 
-    public static BasicDataSource getDatasourceMongo_DB() {
+    public static BasicDataSource getdatasourceMongoDb() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("mongodb");
         dataSource.setUrl("mongodb://localhost:27017/test");

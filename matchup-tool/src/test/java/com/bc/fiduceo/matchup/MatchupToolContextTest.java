@@ -23,6 +23,8 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.GeometryFactoryInterface;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,5 +71,13 @@ public class MatchupToolContextTest {
 
         context.setUseCaseConfig(useCaseConfig);
         assertSame(useCaseConfig, context.getUseCaseConfig());
+    }
+
+    @Test
+    public void testSetGetGeometryFactory() throws Exception {
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+
+        context.setGeometryFactory(geometryFactory);
+        assertSame(geometryFactory, context.getGeometryFactory());
     }
 }

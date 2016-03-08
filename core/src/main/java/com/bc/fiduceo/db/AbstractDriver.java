@@ -58,9 +58,7 @@ public abstract class AbstractDriver implements Driver {
                 "NodeType TINYINT," +
                 "GeoBounds GEOMETRY, " +
                 "SensorId INT," +
-                "DataFile VARCHAR(256), " +
-                "TimeAxisStartIndex INT, " +
-                "TimeAxisEndIndex INT)");
+                "DataFile VARCHAR(256))");
 
         statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE SENSOR (ID INT AUTO_INCREMENT PRIMARY KEY, " +

@@ -20,15 +20,24 @@
 
 package com.bc.fiduceo.core;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class UseCaseConfigTest {
+
+    private UseCaseConfig useCaseConfig;
+
+    @Before
+    public void setUp(){
+        useCaseConfig = new UseCaseConfig();
+    }
 
     @Test
     public void testLoad__useCaseName() {
@@ -112,9 +121,35 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testGetPrimarySensor_emptySensorList() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+    public void testStore() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+        sensorList.add(new Sensor("second"));
 
+        useCaseConfig.setSensors(sensorList);
+        useCaseConfig.setName("test_use_case");
+        useCaseConfig.setTimeDelta(12345);
+
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        useCaseConfig.store(outputStream);
+        assertEquals("<use-case-config name=\"test_use_case\">\n" +
+                "  <sensors>\n" +
+                "    <sensor>\n" +
+                "      <name>first</name>\n" +
+                "      <primary>false</primary>\n" +
+                "    </sensor>\n" +
+                "    <sensor>\n" +
+                "      <name>second</name>\n" +
+                "      <primary>false</primary>\n" +
+                "    </sensor>\n" +
+                "  </sensors>\n" +
+                "  <time-delta>12345</time-delta>\n" +
+                "</use-case-config>", outputStream.toString());
+    }
+
+    @Test
+    public void testGetPrimarySensor_emptySensorList() {
         final Sensor sensor = useCaseConfig.getPrimarySensor();
         assertNull(sensor);
     }
@@ -124,7 +159,6 @@ public class UseCaseConfigTest {
         final List<Sensor> sensorList = new ArrayList<>();
         sensorList.add(new Sensor("first"));
         sensorList.add(new Sensor("second"));
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setSensors(sensorList);
 
         final Sensor sensor = useCaseConfig.getPrimarySensor();
@@ -140,11 +174,22 @@ public class UseCaseConfigTest {
         second.setName("second");
         second.setPrimary(true);
         sensorList.add(second);
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setSensors(sensorList);
 
         final Sensor sensor = useCaseConfig.getPrimarySensor();
         assertNotNull(sensor);
         assertEquals("second", sensor.getName());
+    }
+
+    @Test
+    public void testSetGetName(){
+        useCaseConfig.setName("well-done");
+        assertEquals("well-done", useCaseConfig.getName());
+    }
+
+    @Test
+    public void testSetGetTimeDelta(){
+        useCaseConfig.setTimeDelta(4067);
+        assertEquals(4067, useCaseConfig.getTimeDelta());
     }
 }

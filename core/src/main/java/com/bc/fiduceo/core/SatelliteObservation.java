@@ -37,13 +37,10 @@ public class SatelliteObservation {
     private Sensor sensor;
     private NodeType nodeType;
     private Path dataFilePath;
-    private int timeAxisStartIndex;
-    private int timeAxisEndIndex;
+    private Integer subsetHeight;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
-        timeAxisStartIndex = -1;
-        timeAxisEndIndex = -1;
     }
 
     public Geometry getGeoBounds() {
@@ -102,27 +99,11 @@ public class SatelliteObservation {
         this.timeAxes = timeAxes;
     }
 
-    // use time axis array instead tb 2016-03-04
-    @Deprecated
-    public int getTimeAxisStartIndex() {
-        return timeAxisStartIndex;
+    public Integer getSubsetHeight() {
+        return subsetHeight;
     }
 
-    // use time axis array instead tb 2016-03-04
-    @Deprecated
-    public void setTimeAxisStartIndex(int timeAxisStartIndex) {
-        this.timeAxisStartIndex = timeAxisStartIndex;
-    }
-
-    // use time axis array instead tb 2016-03-04
-    @Deprecated
-    public int getTimeAxisEndIndex() {
-        return timeAxisEndIndex;
-    }
-
-    // use time axis array instead tb 2016-03-04
-    @Deprecated
-    public void setTimeAxisEndIndex(int timeAxisEndIndex) {
-        this.timeAxisEndIndex = timeAxisEndIndex;
+    public void setSubsetHeight(Integer subsetHeight) {
+        this.subsetHeight = subsetHeight;
     }
 }

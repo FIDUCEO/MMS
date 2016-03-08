@@ -27,8 +27,12 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.math.Intersection;
+import com.bc.fiduceo.math.IntersectionEngine;
+import com.bc.fiduceo.math.TimeInfo;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -36,12 +40,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -59,13 +59,6 @@ class MatchupTool {
         final MatchupToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
-
-        // input required:
-        // - primary sensor
-        // - secondary sensor (optional)
-        // - insitu type (optional)
-        // - start time (year/doy) (yyyy-DDD)
-        // - end time (year/doy)
     }
 
     private MatchupToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -84,15 +77,8 @@ class MatchupTool {
         context.setStartDate(getStartDate(commandLine));
         context.setEndDate(getEndDate(commandLine));
 
-        // @todo 1 tb/tb read this from the configuration file
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor sensor = new Sensor("amsub-n15");
-        sensor.setPrimary(true);
-        sensorList.add(sensor);
-        useCaseConfig.setSensors(sensorList);
+        final UseCaseConfig useCaseConfig = loadUseCaseConfig(commandLine, configDirectory);
         context.setUseCaseConfig(useCaseConfig);
-        // -----------------------------------------------------
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
@@ -101,30 +87,31 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
-        final QueryParameter parameter = getPrimarySensorParameter(context);
+        QueryParameter parameter = getPrimarySensorParameter(context);
 
         final Storage storage = context.getStorage();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
 
-        // @todo 2 tb/tb time delta shall be read from use-case configuration 2016-02-19
-        final int timeDelta = 300;
-        for (final SatelliteObservation observation : primaryObservations) {
-            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, observation.getStartTime());
-            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, observation.getStopTime());
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final int timeDelta = useCaseConfig.getTimeDelta();
 
-            // @todo 2 tb/tb sensor/platform from use-case configuration 2016-02-19
-            parameter.setSensorName("mhs-noaa15");
-            parameter.setStartTime(searchTimeStart);
-            parameter.setStopTime(searchTimeEnd);
+        for (final SatelliteObservation primaryObservation : primaryObservations) {
+            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
+            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
+
+            final Geometry geoBounds = primaryObservation.getGeoBounds();
+            parameter = getSecondarySensorParameter(useCaseConfig, geoBounds, searchTimeStart, searchTimeEnd);
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
-                // @todo 1 tb/tb perform the intersection 2016-02-19
-                // - calculate intersecting area (in lon/lat) - polygon.
-                // -- if no polygon or empty -> continue
-                //
-                // - detect overlapping time interval from time axes
-                // -- if not withing required time delta -> continue
+                final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondary);
+                for(final Intersection intersection: intersectingIntervals) {
+                    final TimeInfo timeInfo = intersection.getTimeInfo();
+                    if (timeInfo.getMinimalTimeDelta() < timeDelta * 1000) {
+                        System.out.println("we have an intersection here");
+                    }
+                }
+
                 //
                 // - detect all pixels (x/y) in primary observation that are contained in intersecting area
                 // -- for each pixel:
@@ -145,11 +132,41 @@ class MatchupTool {
         }
     }
 
+    // @todo 1 tb/tb write tests 2016-03-07
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        parameter.setSensorName(secondarySensor.getName());
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        parameter.setGeometry(geoBounds);
+        return parameter;
+    }
+
+    // @todo 1 tb/tb write tests 2016-03-07
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        // @todo 2 tb/tb this is not the optimal way to retriev the secondary sensor. Works for now but needs refactoring when we have insitu matchups 2016-03-07
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        Sensor secondarySensor = null;
+        for (final Sensor sensor : sensors) {
+            if (!sensor.isPrimary()) {
+                secondarySensor = sensor;
+                break;
+            }
+        }
+        if (secondarySensor == null) {
+            throw new RuntimeException("Secondary sensor not configured");
+        }
+        return secondarySensor;
+    }
+
     // package access for testing only tb 2016-02-23
     static QueryParameter getPrimarySensorParameter(MatchupToolContext context) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        // @todo 1 tb/tb add checks for null here and throw 2016-02-23
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
         parameter.setSensorName(primarySensor.getName());
         parameter.setStartTime(context.getStartDate());
         parameter.setStopTime(context.getEndDate());
@@ -185,6 +202,9 @@ class MatchupTool {
         final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
         options.addOption(endOption);
 
+        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
+        options.addOption(useCaseOption);
+
         return options;
     }
 
@@ -204,5 +224,24 @@ class MatchupTool {
             throw new RuntimeException("cmd-line parameter `start` missing");
         }
         return TimeUtils.parseDOYBeginOfDay(startDateString);
+    }
+
+    private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {
+        final String usecaseConfigFileName = commandLine.getOptionValue("usecase");
+        if (StringUtils.isNullOrEmpty(usecaseConfigFileName)) {
+            throw new RuntimeException("Use case configuration file not supplied");
+        }
+
+        final File useCaseConfigFile = new File(configDirectory, usecaseConfigFileName);
+        if (!useCaseConfigFile.isFile()) {
+            throw new RuntimeException("Use case config file does not exist: '" + usecaseConfigFileName + "'");
+        }
+
+        final UseCaseConfig useCaseConfig;
+        try (FileInputStream inputStream = new FileInputStream(useCaseConfigFile)) {
+            useCaseConfig = UseCaseConfig.load(inputStream);
+        }
+
+        return useCaseConfig;
     }
 }

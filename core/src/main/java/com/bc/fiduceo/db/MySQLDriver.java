@@ -71,8 +71,7 @@ public class MySQLDriver extends AbstractDriver {
         preparedStatement.setObject(4, geometryFactory.toStorageFormat(observation.getGeoBounds()));
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getDataFilePath().toString());
-        preparedStatement.setInt(7, observation.getTimeAxisStartIndex());
-        preparedStatement.setInt(8, observation.getTimeAxisEndIndex());
+        // @todo 2 tb/tb insert TimeAxes here 2013-03-07
 
         preparedStatement.executeUpdate();
     }
@@ -109,11 +108,7 @@ public class MySQLDriver extends AbstractDriver {
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFilePath(dataFile);
 
-            final int timeAxisStartIndex = resultSet.getInt("TimeAxisStartIndex");
-            observation.setTimeAxisStartIndex(timeAxisStartIndex);
-
-            final int timeAxisEndIndex = resultSet.getInt("TimeAxisEndIndex");
-            observation.setTimeAxisEndIndex(timeAxisEndIndex);
+            // @todo 2 tb/tb insert TimeAxes here 2013-03-07
 
             resultList.add(observation);
         }
