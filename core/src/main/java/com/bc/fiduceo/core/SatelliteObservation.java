@@ -37,6 +37,7 @@ public class SatelliteObservation {
     private Sensor sensor;
     private NodeType nodeType;
     private Path dataFilePath;
+    private Integer subsetHeight;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
@@ -96,5 +97,13 @@ public class SatelliteObservation {
 
     public void setTimeAxes(TimeAxis[] timeAxes) {
         this.timeAxes = timeAxes;
+    }
+
+    public Integer getSubsetHeight() {
+        return subsetHeight;
+    }
+
+    public void setSubsetHeight(Integer subsetHeight) {
+        this.subsetHeight = subsetHeight;
     }
 }

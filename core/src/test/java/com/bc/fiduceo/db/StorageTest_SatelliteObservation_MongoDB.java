@@ -29,9 +29,9 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 @RunWith(DatabaseTestRunner.class)
 public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_SatelliteObservation {
@@ -151,6 +152,27 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
         final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
         assertEquals(1, satelliteObservations.size());
         // @todo 1 tb/tb check geometry entry 2016-03-01
+        final SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+        final Geometry geoBounds = satelliteObservation.getGeoBounds();
+        assertThat(geoBounds, IsInstanceOf.instanceOf(GeometryCollection.class));
+        final GeometryCollection collection = (GeometryCollection) geoBounds;
+        final Geometry[] geometries = collection.getGeometries();
+        assertEquals("POLYGON((0.0 0.0,4.0 0.0,4.000000000000002 1.0,0.0 1.0,0.0 0.0))",
+                     geometryFactory.format(geometries[0]));
+        assertEquals("POLYGON((3.000000000000001 0.0,4.999999999999998 0.0,5.0 0.9999999999999997,3.000000000000001 1.0,3.000000000000001 0.0))",
+                     geometryFactory.format(geometries[1]));
+    }
+
+    @Test
+    public void testSubsetHeight() throws Exception {
+        final Geometry g1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
+        final Geometry g2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
+        final SatelliteObservation obs = createMultiGeometrySatelliteObservation(g1, g2);
+        obs.setSubsetHeight(4);
+        storage.insert(obs);
+        final List<SatelliteObservation> satelliteObservations = storage.get();
+        assertEquals(1, satelliteObservations.size());
+        assertEquals(4, satelliteObservations.get(0).getSubsetHeight().intValue());
     }
 
     @Test
@@ -196,6 +218,7 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
 
 
         observation.setSensor(new Sensor("a_sensor"));
+
 
         return observation;
     }

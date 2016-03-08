@@ -117,7 +117,7 @@ class IngestionTool {
                 satelliteObservation.setDataFilePath(filePath.toString());
                 satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
                 satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
-
+                satelliteObservation.setSubsetHeight(acquisitionInfo.getSubsetHeight());
                 storage.insert(satelliteObservation);
             } finally {
                 reader.close();

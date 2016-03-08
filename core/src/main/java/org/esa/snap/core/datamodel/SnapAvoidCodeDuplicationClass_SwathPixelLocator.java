@@ -13,7 +13,7 @@ import java.util.ArrayList;
 // are changed to public and are usable in package com.bc.fiduceo.location. Move all the functionality to
 // SwathPixelLocator and remove this class and this snap package.
 /**
- * To avoid cody duplication this class is placed in this snap style package.
+ * To avoid code duplication this class is placed in this snap style package.
  * The reason is, that some needed snap classes unfortunately are package local. :(
  * If the visibility of the needed snap classes are changed to public, this class should be
  * entirely integrated in SwathPixelLocator, and the inheritance should be removed.
