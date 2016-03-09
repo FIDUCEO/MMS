@@ -140,4 +140,9 @@ class BcS2MultiPolygon implements MultiPolygon {
     public Polygon getUnion(Polygon polygon) {
         throw new RuntimeException("not implemented");
     }
+
+    @Override
+    public Point getCentroid() {
+        throw new RuntimeException("not implemented");
+    }
 }

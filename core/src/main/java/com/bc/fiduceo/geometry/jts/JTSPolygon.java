@@ -52,6 +52,11 @@ class JTSPolygon implements Polygon {
     }
 
     @Override
+    public Point getCentroid() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public boolean contains(Geometry geometry) {
         throw new RuntimeException("not implemented");
     }

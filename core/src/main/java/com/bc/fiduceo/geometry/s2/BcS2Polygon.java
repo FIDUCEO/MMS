@@ -49,12 +49,12 @@ class BcS2Polygon implements Polygon {
             final int numVertices = loop.numVertices();
             for (int k = 0; k < numVertices; k++) {
                 final S2Point googlePoint = loop.vertex(k);
-                coordinates.add(new BcS2Point(new S2LatLng(googlePoint)));
+                coordinates.add(BcS2Point.createFrom(googlePoint));
             }
 
             // close loop - outside world expects this tb 2016-03-03
             final S2Point googlePoint = loop.vertex(0);
-            coordinates.add(new BcS2Point(new S2LatLng(googlePoint)));
+            coordinates.add(BcS2Point.createFrom(googlePoint));
         }
         return coordinates;
     }
@@ -90,6 +90,11 @@ class BcS2Polygon implements Polygon {
         final S2Polygon union = new S2Polygon();
         union.initToUnion(googlePolygon, (S2Polygon) polygon.getInner());
         return new BcS2Polygon(union);
+    }
+
+    @Override
+    public Point getCentroid() {
+        return BcS2Point.createFrom(googlePolygon.getCentroid());
     }
 
     @Override

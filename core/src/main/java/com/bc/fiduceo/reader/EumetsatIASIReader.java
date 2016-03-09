@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -95,6 +96,11 @@ public class EumetsatIASIReader implements Reader {
     @Override
     public String getRegEx() {
         return "";
+    }
+
+    @Override
+    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {

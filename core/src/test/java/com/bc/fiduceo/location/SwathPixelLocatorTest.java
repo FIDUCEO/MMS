@@ -15,6 +15,7 @@ import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Sabine on 29.02.2016.
@@ -67,7 +68,8 @@ public class SwathPixelLocatorTest {
                 final double lat = geoPos.getY();
                 final Point2D[] locations = pixelLocator.getPixelLocation(lon, lat);
 
-                assertNotNull("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
+                assertNotNull("x=" + x + " y=" + y + " | <null> Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations);
+                assertTrue("x=" + x + " y=" + y + " |  Unable to fetch a pixel position for lon=" + lon + " lat=" + lat, locations.length > 0);
                 if (locations.length == 1) {
                     assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, x, locations[0].getX(), delta);
                     assertEquals("x=" + x + " y=" + y + " |  Unable to fetch the correct pixel position for lon=" + lon + " lat=" + lat, y, locations[0].getY(), delta);

@@ -70,7 +70,7 @@ class BcS2LineString implements LineString {
         final Point[] coordinates = new Point[numVertices];
         for (int i = 0; i < numVertices; i++) {
             final S2Point googlePoint = googleLineString.vertex(i);
-            coordinates[i] = new BcS2Point(new S2LatLng(googlePoint));
+            coordinates[i] = BcS2Point.createFrom(googlePoint);
         }
         return coordinates;
     }

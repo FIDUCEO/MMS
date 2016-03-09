@@ -66,7 +66,7 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
         } else if (geometry instanceof S2Polyline) {
             return new BcS2LineString((S2Polyline) geometry);
         } else if (geometry instanceof S2Point) {
-            return new BcS2Point(new S2LatLng((S2Point) geometry));
+            return BcS2Point.createFrom((S2Point) geometry);
         } else if (geometry instanceof List) {
             final ArrayList<Polygon> polygonList = new ArrayList<>();
             List<S2Polygon> googlePolygonList = (List<S2Polygon>) geometry;

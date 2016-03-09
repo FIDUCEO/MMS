@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
@@ -163,6 +164,11 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public String getRegEx() {
         return "AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf";
+    }
+
+    @Override
+    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     // package access for testing only tb 2016-01-08

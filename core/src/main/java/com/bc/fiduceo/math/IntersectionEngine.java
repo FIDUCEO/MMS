@@ -44,8 +44,12 @@ public class IntersectionEngine {
         final List<Intersection> intersectionList = new ArrayList<>();
         for (int primaryIndex = 0; primaryIndex < primaryGeometries.length; primaryIndex++) {
             for (int secondaryIndex = 0; secondaryIndex < secondaryGeometries.length; secondaryIndex++) {
-                final Intersection intersection = getIntersection(primaryGeometries[primaryIndex], secondaryGeometries[secondaryIndex], primaryTimeAxes[primaryIndex], secondaryTimeAxes[secondaryIndex]);
+                final Geometry primaryGeometry = primaryGeometries[primaryIndex];
+                final Geometry secondaryGeometry = secondaryGeometries[secondaryIndex];
+                final Intersection intersection = getIntersection(primaryGeometry, secondaryGeometry, primaryTimeAxes[primaryIndex], secondaryTimeAxes[secondaryIndex]);
                 if (intersection != null) {
+                    intersection.setPrimaryGeometry(primaryGeometry);
+                    intersection.setSecundaryGeometry(secondaryGeometry);
                     intersectionList.add(intersection);
                 }
             }

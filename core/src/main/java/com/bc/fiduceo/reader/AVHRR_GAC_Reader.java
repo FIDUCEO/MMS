@@ -26,32 +26,60 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.math.CosineDistance;
+import org.esa.snap.core.util.math.Range;
+import org.geotools.geometry.jts.Geometries;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 
 public class AVHRR_GAC_Reader implements Reader {
 
+    public static final int NUM_SPLITS = 2;
     private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
-
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
+    private SwathPixelLocator pixelLocator;
+
+    // package access for testing only tb 2016-03-02
+    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
+        if (timeAttribute == null) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
+        }
+        final String startTimeString = timeAttribute.getStringValue();
+        if (StringUtils.isNullOrEmpty(startTimeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
+        }
+        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
+
+    // package access for testing only tb 2016-03-03
+    static void checkForValidity(GeometryCollection boundingGeometry) {
+        final Geometry[] geometries = boundingGeometry.getGeometries();
+        for (final Geometry geometry : geometries) {
+            if (!geometry.isValid()) {
+                throw new RuntimeException("Invalid geometry detected");
+            }
+        }
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -119,12 +147,11 @@ public class AVHRR_GAC_Reader implements Reader {
         Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
-            final int numSplits = 2;
-            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, numSplits);
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
             final int height = longitudes.getShape()[0];
-            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, numSplits));
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
             checkForValidity((GeometryCollection) boundingGeometry);
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, numSplits);
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
         } else {
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         }
@@ -156,39 +183,75 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
-        final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
-        final int[] shape = lonStorage.getShape();
-        final int width = shape[1];
+        if (pixelLocator == null) {
+            final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
+            final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
+            final int[] shape = lonStorage.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = new SwathPixelLocator(lonStorage, latStorage, width, height);
+        }
+        return pixelLocator;
+    }
+
+    @Override
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+        final ArrayFloat longitudes = (ArrayFloat) arrayCache.get("lon");
+        final int[] shape = longitudes.getShape();
+
         final int height = shape[0];
-        return new SwathPixelLocator(lonStorage, latStorage, width, height);
+        final int sh = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
+        final int sh2 = sh / 2;
+
+        final int width = shape[1];
+        final double centerX = width / 2 + 0.5;
+
+        final Point centroid = sceneGeometry.getCentroid();
+        final PixelLocator pixelLocator = getPixelLocator();
+        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
+        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + sh + 0.5, null);
+        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
+        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
+        final double d1 = cd1.distance(cLon, cLat);
+        final double d2 = cd2.distance(cLon, cLat);
+        final int minY;
+        final int maxY;
+        if (d1 < d2) {
+            minY = 0;
+            maxY = sh - 1;
+        } else {
+            minY = sh - 1;
+            maxY = height - 1;
+        }
+        return new PixelLocator() {
+            @Override
+            public Point2D getGeoLocation(double x, double y, Point2D g) {
+                return pixelLocator.getGeoLocation(x, y, g);
+            }
+
+            @Override
+            public Point2D[] getPixelLocation(double lon, double lat) {
+                final Point2D[] pixelLocation = pixelLocator.getPixelLocation(lon, lat);
+                if (pixelLocation.length > 1) {
+                    final Point2D p0 = pixelLocation[0];
+                    final int y = (int) Math.round(p0.getY());
+                    if (y >= minY && y <= maxY) {
+                        return new Point2D[]{p0};
+                    } else {
+                        return new Point2D[]{pixelLocation[1]};
+                    }
+                } else {
+                    return pixelLocation;
+                }
+            }
+        };
     }
 
     @Override
     public String getRegEx() {
         return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
-    }
-
-    // package access for testing only tb 2016-03-02
-    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
-        if (timeAttribute == null) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
-        }
-        final String startTimeString = timeAttribute.getStringValue();
-        if (StringUtils.isNullOrEmpty(startTimeString)) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
-        }
-        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
-
-    // package access for testing only tb 2016-03-03
-    static void checkForValidity(GeometryCollection boundingGeometry) {
-        final Geometry[] geometries = boundingGeometry.getGeometries();
-        for (final Geometry geometry : geometries) {
-            if (!geometry.isValid()) {
-                throw new RuntimeException("Invalid geometry detected");
-            }
-        }
     }
 
     private class Geometries {

@@ -24,6 +24,7 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Point;
 
 class BcS2Point implements Point {
 
@@ -86,5 +87,9 @@ class BcS2Point implements Point {
     @Override
     public boolean equals(Point other) {
         return other == this || other.getLon() == getLon() && other.getLat() == getLat();
+    }
+
+    static BcS2Point createFrom(S2Point s2Point) {
+        return new BcS2Point(new S2LatLng(s2Point));
     }
 }

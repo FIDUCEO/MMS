@@ -20,12 +20,11 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import org.esa.snap.core.datamodel.GeoCoding;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public interface Reader {
 
@@ -40,4 +39,6 @@ public interface Reader {
     PixelLocator getPixelLocator() throws IOException;
 
     String getRegEx();
+
+    PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
 }

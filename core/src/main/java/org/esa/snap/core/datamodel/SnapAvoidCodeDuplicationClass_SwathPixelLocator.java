@@ -71,7 +71,7 @@ public class SnapAvoidCodeDuplicationClass_SwathPixelLocator implements PixelLoc
     public Point2D[] getPixelLocation(double lon, double lat) {
         bestApproximations.findFor(lon, lat);
         if (!bestApproximations.hasApproximations()) {
-            return null;
+            return new Point2D[0];
         }
         final ArrayList<Point2D> pipos = new ArrayList<>();
         final ArrayList<GeoApproximation> theBest = bestApproximations.getTheBest();

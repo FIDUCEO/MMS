@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -114,6 +115,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     @Override
     public String getRegEx() {
         return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    }
+
+    @Override
+    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {

@@ -21,7 +21,6 @@
 
 package com.bc.fiduceo.geometry;
 
-
 public interface Polygon extends Geometry {
 
     void shiftLon(double lon);
@@ -31,4 +30,10 @@ public interface Polygon extends Geometry {
     Polygon getDifference(Polygon polygon);
 
     Polygon getUnion(Polygon polygon);
+
+    /**
+     * Return the true centroid of the polygon multiplied by the area of the
+     * polygon. Note that the centroid may not be contained by the polygon.
+     */
+    public Point getCentroid();
 }

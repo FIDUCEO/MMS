@@ -28,11 +28,16 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
@@ -41,9 +46,15 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -51,6 +62,7 @@ class MatchupTool {
 
     static String VERSION = "1.0.0";
     final Logger logger;
+    private final ReaderFactory readerFactory = new ReaderFactory();
 
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
@@ -88,7 +100,7 @@ class MatchupTool {
         return context;
     }
 
-    private void runMatchupGeneration(ToolContext context) throws SQLException {
+    private void runMatchupGeneration(ToolContext context) throws SQLException, IOException {
         QueryParameter parameter = getPrimarySensorParameter(context);
 
         final Storage storage = context.getStorage();
@@ -98,11 +110,14 @@ class MatchupTool {
         final int timeDelta = useCaseConfig.getTimeDelta();
 
         for (final SatelliteObservation primaryObservation : primaryObservations) {
+            final Reader reader = readerFactory.getReader(primaryObservation.getSensor().getName());
             final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
             final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
 
             final Geometry geoBounds = primaryObservation.getGeoBounds();
             parameter = getSecondarySensorParameter(useCaseConfig, geoBounds, searchTimeStart, searchTimeEnd);
+
+            final boolean subScenes = geoBounds instanceof GeometryCollection && ((GeometryCollection) geoBounds).getGeometries().length > 1;
 
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             for (final SatelliteObservation secondary : secondaryObservations) {
@@ -111,8 +126,18 @@ class MatchupTool {
                     final TimeInfo timeInfo = intersection.getTimeInfo();
                     if (timeInfo.getMinimalTimeDelta() < timeDelta * 1000) {
                         System.out.println("we have an intersection here");
+                        reader.open(primaryObservation.getDataFilePath().toFile());
+                        final PixelLocator pixelLocator;
+                        if (subScenes) {
+                            pixelLocator = reader.getSubScenePixelLocator((Polygon) intersection.getPrimaryGeometry());
+                        } else {
+                            pixelLocator = reader.getPixelLocator();
+                        }
+                        final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
+                        final LinkedList<Sample> samples = sampleCollector.getSamplesFor((Polygon) intersection.getGeometry());
                     }
                 }
+
 
                 //
                 // - detect all pixels (x/y) in primary observation that are contained in intersecting area

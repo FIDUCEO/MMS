@@ -101,7 +101,7 @@ class BcS2MultiLineString implements LineString {
         for (S2Polyline s2Polyline : s2PolylineList) {
             int i = s2Polyline.numVertices();
             for (int j = 0; j < i; j++) {
-                pointList.add(new BcS2Point(new S2LatLng(s2Polyline.vertex(j))));
+                pointList.add(BcS2Point.createFrom(s2Polyline.vertex(j)));
             }
         }
         return pointList.toArray(new Point[pointList.size()]);

@@ -26,6 +26,8 @@ public class Intersection {
 
     private Geometry geometry;
     private TimeInfo timeInfo;
+    private Geometry primaryGeometry;
+    private Geometry secundaryGeometry;
 
     public Geometry getGeometry() {
         return geometry;
@@ -41,5 +43,21 @@ public class Intersection {
 
     public void setTimeInfo(TimeInfo timeInfo) {
         this.timeInfo = timeInfo;
+    }
+
+    public void setPrimaryGeometry(Geometry geometry) {
+        this.primaryGeometry = geometry;
+    }
+
+    public Geometry getPrimaryGeometry() {
+        return primaryGeometry;
+    }
+
+    public void setSecundaryGeometry(Geometry geometry) {
+        this.secundaryGeometry = geometry;
+    }
+
+    public Geometry getSecundaryGeometry() {
+        return secundaryGeometry;
     }
 }
