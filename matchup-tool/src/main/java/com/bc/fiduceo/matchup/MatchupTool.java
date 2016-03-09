@@ -29,12 +29,11 @@ import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
-import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
+import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -58,13 +57,13 @@ class MatchupTool {
     }
 
     public void run(CommandLine commandLine) throws IOException, SQLException {
-        final MatchupToolContext context = initialize(commandLine);
+        final ToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
     }
 
-    private MatchupToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
-        final MatchupToolContext context = new MatchupToolContext();
+    private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
+        final ToolContext context = new ToolContext();
 
         final String configValue = commandLine.getOptionValue("config");
         final File configDirectory = new File(configValue);
@@ -89,7 +88,7 @@ class MatchupTool {
         return context;
     }
 
-    private void runMatchupGeneration(MatchupToolContext context) throws SQLException {
+    private void runMatchupGeneration(ToolContext context) throws SQLException {
         QueryParameter parameter = getPrimarySensorParameter(context);
 
         final Storage storage = context.getStorage();
@@ -164,7 +163,7 @@ class MatchupTool {
     }
 
     // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(MatchupToolContext context) {
+    static QueryParameter getPrimarySensorParameter(ToolContext context) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
         if (primarySensor == null) {

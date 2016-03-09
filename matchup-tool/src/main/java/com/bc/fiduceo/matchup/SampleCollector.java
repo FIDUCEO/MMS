@@ -4,6 +4,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
@@ -13,9 +14,9 @@ public class SampleCollector {
     private final PixelLocator pixelLocator;
     private final Range xRange;
     private final Range yRange;
-    private final MatchupToolContext context;
+    private final ToolContext context;
 
-    public SampleCollector(MatchupToolContext context, PixelLocator pixelLocator) {
+    public SampleCollector(ToolContext context, PixelLocator pixelLocator) {
         this.context = context;
         this.pixelLocator = pixelLocator;
         xRange = new Range();

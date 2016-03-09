@@ -6,6 +6,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.tool.ToolContext;
 import org.junit.*;
 
 import java.awt.geom.Point2D;
@@ -21,7 +22,7 @@ public class SampleCollectorTest {
     @Before
     public void setUp() throws Exception {
         factory = new GeometryFactory(GeometryFactory.Type.S2);
-        final MatchupToolContext context = new MatchupToolContext();
+        final ToolContext context = new ToolContext();
         context.setGeometryFactory(factory);
 
         final PixelLocator pixelLocator = new OffsetPixelLocator(11, 13);

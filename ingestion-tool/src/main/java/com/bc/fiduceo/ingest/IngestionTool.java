@@ -30,6 +30,7 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -55,52 +56,39 @@ class IngestionTool {
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
+        logger.info("Start ingestion, Ingestion Tool version '" + VERSION + "'");
+
         final String configDirPath = commandLine.getOptionValue("config");
+        final Path confDirPath = Paths.get(configDirPath);
+
         final String sensorType = commandLine.getOptionValue("s");
-
-        final String startTime = commandLine.getOptionValue("start");
-        final String endTime = commandLine.getOptionValue("end");
-
         final String processingVersion = commandLine.getOptionValue("v");
 
-        final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
-        final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
-
-
-        final Path confDirPath = Paths.get(configDirPath);
-        final DatabaseConfig databaseConfig = new DatabaseConfig();
-        databaseConfig.loadFrom(confDirPath.toFile());
-
-        final SystemConfig systemConfig = new SystemConfig();
-        systemConfig.loadFrom(confDirPath.toFile());
-
-        final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
-        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
-        if (!storage.isInitialized()) {
-            storage.initialize();
-        }
+        final ToolContext context = initializeContext(commandLine, confDirPath);
+        logger.info("Successfully initialized tool");
 
         try {
-            ingestMetadata(systemConfig, storage, sensorType, processingVersion, startDate, endDate);
+            ingestMetadata(context, sensorType, processingVersion);
         } finally {
-            storage.close();
+            context.getStorage().close();
         }
     }
 
-    private void ingestMetadata(SystemConfig systemConfig,
-                                Storage storage, String sensorType, String processingVersion,
-                                Date startDate, Date endDate) throws SQLException, IOException {
 
-        // @todo 2 tb/** the wildcard pattern should be supplied by the reader 2015-12-22
-        // @todo 2 tb/** extend expression to run recursively through a file tree, write tests for this 2015-12-22
 
-        ReaderFactory readerFactory = new ReaderFactory();
+    private void ingestMetadata(ToolContext context, String sensorType, String processingVersion) throws SQLException, IOException {
+        final ReaderFactory readerFactory = new ReaderFactory();
         final Reader reader = readerFactory.getReader(sensorType);
+
+        final Storage storage = context.getStorage();
+
+        final SystemConfig systemConfig = context.getSystemConfig();
         final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
 
         final Archive archive = new Archive(archiveRootPath);
+        final Date startDate = context.getStartDate();
+        final Date endDate = context.getEndDate();
         final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
-
 
         for (final Path filePath : productPaths) {
             reader.open(filePath.toFile());
@@ -108,9 +96,7 @@ class IngestionTool {
                 final AcquisitionInfo acquisitionInfo = reader.read();
 
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
-                final Sensor sensor = new Sensor();
-                sensor.setName(sensorType);
-                satelliteObservation.setSensor(sensor);
+                satelliteObservation.setSensor(new Sensor(sensorType));
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
                 satelliteObservation.setDataFilePath(filePath.toString());
@@ -160,5 +146,34 @@ class IngestionTool {
         options.addOption(versionOption);
 
         return options;
+    }
+
+    private ToolContext initializeContext(CommandLine commandLine, Path confDirPath) throws IOException, SQLException {
+        final ToolContext context = new ToolContext();
+
+        final String startTime = commandLine.getOptionValue("start");
+        final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
+        context.setStartDate(startDate);
+
+        final String endTime = commandLine.getOptionValue("end");
+        final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
+        context.setEndDate(endDate);
+
+        final SystemConfig systemConfig = new SystemConfig();
+        systemConfig.loadFrom(confDirPath.toFile());
+        context.setSystemConfig(systemConfig);
+
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(confDirPath.toFile());
+
+        final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
+        context.setGeometryFactory(geometryFactory);
+
+        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        if (!storage.isInitialized()) {
+            storage.initialize();
+        }
+        context.setStorage(storage);
+        return context;
     }
 }
