@@ -25,10 +25,22 @@ public class GeometryUtil {
 
     public static String toKml(Polygon polygon) {
         final StringBuilder builder = new StringBuilder();
+
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         builder.append("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n");
+        builder.append("<Document>\n");
+        builder.append("  <Style id=\"polygonStyle\">\n");
+        builder.append("    <LineStyle>\n");
+        builder.append("      <color>7f00ffff</color>\n");
+        builder.append("      <width>1</width>\n");
+        builder.append("    </LineStyle>\n");
+        builder.append("    <PolyStyle>\n");
+        builder.append("      <color>7f00ff00</color>\n");
+        builder.append("    </PolyStyle>\n");
+        builder.append("  </Style>\n");
         builder.append("  <Placemark>\n");
         builder.append("  <name>default_name</name>\n");
+        builder.append("  <styleUrl>#polygonStyle</styleUrl>\n");
         builder.append("  <Polygon>\n");
         builder.append("    <altitudeMode>clampToGround</altitudeMode>\n");
         builder.append("    <outerBoundaryIs>\n");
@@ -47,6 +59,7 @@ public class GeometryUtil {
         builder.append("    </outerBoundaryIs>\n");
         builder.append("  </Polygon>\n");
         builder.append("  </Placemark>\n");
+        builder.append("</Document>\n");
         builder.append("</kml>");
 
         return builder.toString();

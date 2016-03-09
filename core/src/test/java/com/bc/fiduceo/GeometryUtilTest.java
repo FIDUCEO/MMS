@@ -37,8 +37,19 @@ public class GeometryUtilTest {
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n" +
+                "<Document>\n" +
+                "  <Style id=\"polygonStyle\">\n" +
+                "    <LineStyle>\n" +
+                "      <color>7f00ffff</color>\n" +
+                "      <width>1</width>\n" +
+                "    </LineStyle>\n" +
+                "    <PolyStyle>\n" +
+                "      <color>7f00ff00</color>\n" +
+                "    </PolyStyle>\n" +
+                "  </Style>\n" +
                 "  <Placemark>\n" +
                 "  <name>default_name</name>\n" +
+                "  <styleUrl>#polygonStyle</styleUrl>\n" +
                 "  <Polygon>\n" +
                 "    <altitudeMode>clampToGround</altitudeMode>\n" +
                 "    <outerBoundaryIs>\n" +
@@ -54,6 +65,7 @@ public class GeometryUtilTest {
                 "    </outerBoundaryIs>\n" +
                 "  </Polygon>\n" +
                 "  </Placemark>\n" +
+                "</Document>\n" +
                 "</kml>", GeometryUtil.toKml(polygon));
 
 
