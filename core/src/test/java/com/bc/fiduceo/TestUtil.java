@@ -157,6 +157,11 @@ public class TestUtil {
         return testDir;
     }
 
+    public static File getTestDir() {
+        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
+        return new File(tempDirPath, TEST_DIRECTORY);
+    }
+
     public static void deleteTestDirectory() {
         final File testDir = getTestDir();
         if (testDir.isDirectory()) {
@@ -202,60 +207,10 @@ public class TestUtil {
         return coordinates;
     }
 
-    public static String plotMultiPolygon(List<Polygon> polygonList) {
-        final StringBuilder stringBuffer = new StringBuilder();
-        stringBuffer.append("MULTIPOLYGON(");
-
-        for (int j = 0; j < polygonList.size(); j++) {
-            Polygon polygon = polygonList.get(j);
-            final Point[] points = polygon.getCoordinates();
-            stringBuffer.append("((");
-            for (int i = 0; i < points.length; i++) {
-                Point coordinate = points[i];
-                stringBuffer.append(coordinate.getLon());
-                stringBuffer.append(" ");
-                stringBuffer.append(coordinate.getLat());
-                if (i < points.length - 1) {
-                    stringBuffer.append(",");
-                }
-            }
-            stringBuffer.append("))");
-            if (j < polygonList.size() - 1) {
-                stringBuffer.append(",");
-            }
-        }
-        stringBuffer.append(")");
-        return stringBuffer.toString();
-    }
-
-    public static String formatToMultipoint(Geometry geometry) {
-        final Point[] coordinates = geometry.getCoordinates();
-
-        final StringBuilder builder = new StringBuilder();
-        builder.append("MULTIPOINT(");
-        for (int i = 0; i < coordinates.length; i++) {
-            final Point coordinate = coordinates[i];
-            builder.append(coordinate.getLon());
-            builder.append(" ");
-            builder.append(coordinate.getLat());
-            if (i < coordinates.length - 1) {
-                builder.append(",");
-            }
-        }
-        builder.append(")");
-
-        return builder.toString();
-    }
-
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {
         properties.setProperty("driverClassName", datasource.getDriverClassName());
         properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", datasource.getUsername());
         properties.setProperty("password", datasource.getPassword());
-    }
-
-    private static File getTestDir() {
-        final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
-        return new File(tempDirPath, TEST_DIRECTORY);
     }
 }

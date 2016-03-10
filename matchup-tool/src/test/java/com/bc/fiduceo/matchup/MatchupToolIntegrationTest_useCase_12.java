@@ -48,7 +48,6 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
     private File configDir;
     private Storage storage;
-    private UseCaseConfig useCaseConfig;
     private GeometryFactory geometryFactory;
 
     @Before
@@ -62,8 +61,6 @@ public class MatchupToolIntegrationTest_useCase_12 {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
         storage.initialize();
-
-        createUseCaseConfig();
     }
 
     @After
@@ -75,12 +72,13 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_noMatchups_timeDeltaTooSmall() throws IOException, ParseException, SQLException {
+    public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
+        final UseCaseConfig useCaseConfig = createUseCaseConfig();
         useCaseConfig.setTimeDelta(22);
-        final File useCaseConfigFile = storeUseCaseConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -98,8 +96,9 @@ public class MatchupToolIntegrationTest_useCase_12 {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
+        final UseCaseConfig useCaseConfig = createUseCaseConfig();
         useCaseConfig.setTimeDelta(10800);  // 3 hours - we have one intersecting time interval
-        final File useCaseConfigFile = storeUseCaseConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -114,12 +113,13 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta() throws IOException, ParseException, SQLException {
+    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
+        final UseCaseConfig useCaseConfig = createUseCaseConfig();
         useCaseConfig.setTimeDelta(10000);  // 2 hours something, just too small to have an overllipng time interval
-        final File useCaseConfigFile = storeUseCaseConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -146,7 +146,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
         storage.insert(noaa17);
     }
 
-    private File storeUseCaseConfig() throws IOException {
+    private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
         final File useCaseConfigFile = new File(configDir, "usecase-12.xml");
         final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
         useCaseConfig.store(outputStream);
@@ -155,13 +155,15 @@ public class MatchupToolIntegrationTest_useCase_12 {
         return useCaseConfigFile;
     }
 
-    private void createUseCaseConfig() {
-        useCaseConfig = new UseCaseConfig();
+    private UseCaseConfig createUseCaseConfig() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
         useCaseConfig.setSensors(sensorList);
+        useCaseConfig.setOutputPath("usecase-12");
+        return useCaseConfig;
     }
 }

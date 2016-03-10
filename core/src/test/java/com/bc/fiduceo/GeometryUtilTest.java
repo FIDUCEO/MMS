@@ -67,7 +67,5 @@ public class GeometryUtilTest {
                 "  </Placemark>\n" +
                 "</Document>\n" +
                 "</kml>", GeometryUtil.toKml(polygon));
-
-
     }
 }

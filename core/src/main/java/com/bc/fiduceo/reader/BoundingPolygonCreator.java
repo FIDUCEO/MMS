@@ -62,6 +62,7 @@ public class BoundingPolygonCreator {
         return true;
     }
 
+    // @todo 2 tb/mb remove this method, use GeometryFactory instead to create a polygon from the point list and format it 2016-03-10
     public static String plotPolygon(List<Point> points) {
         final StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("POLYGON((");
