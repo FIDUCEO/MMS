@@ -37,22 +37,18 @@ public class MmdWriter {
         nameBuilder.append(useCaseConfig.getName());
         nameBuilder.append("_");
 
-        // @todo 1 tb/tb make this more elegant :-) 2016-03-10
-        final List<Sensor> sensors = useCaseConfig.getSensors();
-        final Sensor[] sensorArray = new Sensor[sensors.size()];
-        final Sensor firt = sensors.get(0);
-        if (firt.isPrimary()) {
-            sensorArray[0]= firt;
-            sensorArray[1] = sensors.get(1);
-        }else{
-            sensorArray[1]= firt;
-            sensorArray[0] = sensors.get(1);
-        }
+        nameBuilder.append(useCaseConfig.getPrimarySensor().getName());
+        nameBuilder.append("_");
 
-        nameBuilder.append(sensorArray[0].getName());
-        nameBuilder.append("_");
-        nameBuilder.append(sensorArray[1].getName());
-        nameBuilder.append("_");
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() > 0) {
+            for (final Sensor additionalSensor : additionalSensors) {
+                nameBuilder.append(additionalSensor.getName());
+                nameBuilder.append("_");
+            }
+        } else {
+            nameBuilder.append("_");
+        }
 
         nameBuilder.append(TimeUtils.formatToDOY(startDate));
         nameBuilder.append("_");

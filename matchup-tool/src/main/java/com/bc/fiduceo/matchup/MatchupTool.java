@@ -172,15 +172,12 @@ class MatchupTool {
 
     // @todo 1 tb/tb write tests 2016-03-07
     static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        // @todo 2 tb/tb this is not the optimal way to retriev the secondary sensor. Works for now but needs refactoring when we have insitu matchups 2016-03-07
-        final List<Sensor> sensors = useCaseConfig.getSensors();
-        Sensor secondarySensor = null;
-        for (final Sensor sensor : sensors) {
-            if (!sensor.isPrimary()) {
-                secondarySensor = sensor;
-                break;
-            }
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() != 1) {
+            throw new RuntimeException("Unable to run matchup with given sensor number");
         }
+
+        final Sensor secondarySensor = additionalSensors.get(0);
         if (secondarySensor == null) {
             throw new RuntimeException("Secondary sensor not configured");
         }

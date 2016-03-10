@@ -64,6 +64,11 @@ public class UseCaseConfig {
         this.sensors = sensors;
     }
 
+    /**
+     * Retrieves the primary Sensor for this use-case.
+     *
+     * @return the primary Sensor or null if none has been configured
+     */
     public Sensor getPrimarySensor() {
         for (final Sensor sensor : sensors) {
             if (sensor.isPrimary()) {
@@ -71,6 +76,16 @@ public class UseCaseConfig {
             }
         }
         return null;
+    }
+
+    public List<Sensor> getAdditionalSensors() {
+        final ArrayList<Sensor> additionalSensorList = new ArrayList<>();
+        for (final Sensor sensor : sensors) {
+            if (!sensor.isPrimary()) {
+               additionalSensorList.add(sensor);
+            }
+        }
+        return additionalSensorList;
     }
 
     public int getTimeDelta() {
@@ -81,6 +96,14 @@ public class UseCaseConfig {
         this.timeDelta = timeDelta;
     }
 
+    public void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
+    }
+
+    public String getOutputPath() {
+        return outputPath;
+    }
+
     private static XStream createXStream() {
         final XStream xStream = new XStream();
         xStream.alias("use-case-config", UseCaseConfig.class);
@@ -89,13 +112,5 @@ public class UseCaseConfig {
         xStream.aliasField("output-path", UseCaseConfig.class, "outputPath");
         xStream.alias("sensor", Sensor.class);
         return xStream;
-    }
-
-    public void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
-    }
-
-    public String getOutputPath() {
-        return outputPath;
     }
 }
