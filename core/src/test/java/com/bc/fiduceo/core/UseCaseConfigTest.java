@@ -121,6 +121,17 @@ public class UseCaseConfigTest {
     }
 
     @Test
+    public void testLoad__outputPath() {
+        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
+                "  <output-path>file/system/path</output-path>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertEquals("file/system/path", useCaseConfig.getOutputPath());
+    }
+
+    @Test
     public void testStore() {
         final List<Sensor> sensorList = new ArrayList<>();
         sensorList.add(new Sensor("first"));
@@ -129,6 +140,7 @@ public class UseCaseConfigTest {
         useCaseConfig.setSensors(sensorList);
         useCaseConfig.setName("test_use_case");
         useCaseConfig.setTimeDelta(12345);
+        useCaseConfig.setOutputPath("wherever/you/want/it");
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -145,6 +157,7 @@ public class UseCaseConfigTest {
                 "    </sensor>\n" +
                 "  </sensors>\n" +
                 "  <time-delta>12345</time-delta>\n" +
+                "  <output-path>wherever/you/want/it</output-path>\n" +
                 "</use-case-config>", outputStream.toString());
     }
 
@@ -191,5 +204,13 @@ public class UseCaseConfigTest {
     public void testSetGetTimeDelta(){
         useCaseConfig.setTimeDelta(4067);
         assertEquals(4067, useCaseConfig.getTimeDelta());
+    }
+
+    @Test
+    public void testSetGetOutputPath() {
+        final String path = "/some/where/on/disk";
+
+        useCaseConfig.setOutputPath(path);
+        assertEquals(path, useCaseConfig.getOutputPath());
     }
 }
