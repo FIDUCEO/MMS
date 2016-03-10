@@ -29,6 +29,8 @@ import java.util.Date;
 
 public class TimeUtils {
 
+    private static final String YEAR_DOY_PATTERN = "yyyy-DDD";
+
     private static ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
 
     public static Date create(long millisSinceEpoch) {
@@ -70,7 +72,7 @@ public class TimeUtils {
     }
 
     public static Date parseDOYBeginOfDay(String dateString) {
-        return parse(dateString, "yyyy-DDD");
+        return parse(dateString, YEAR_DOY_PATTERN);
     }
 
     public static Date parseDOYEndOfDay(String dateFormat) {
@@ -82,6 +84,10 @@ public class TimeUtils {
         calendar.add(Calendar.SECOND, 59);
         calendar.add(Calendar.MILLISECOND, 999);
         return calendar.getTime();
+    }
+
+    public static String formatToDOY(Date date) {
+        return format(date, YEAR_DOY_PATTERN);
     }
 
     public static Date addSeconds(int seconds, Date date) {

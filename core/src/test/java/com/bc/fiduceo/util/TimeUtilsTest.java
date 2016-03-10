@@ -92,6 +92,14 @@ public class TimeUtilsTest {
     }
 
     @Test
+    public void testFormatToDOY(){
+        final Date date = TimeUtils.parseDOYBeginOfDay("2007-127");
+
+        final String doyFormatted = TimeUtils.formatToDOY(date);
+        assertEquals("2007-127", doyFormatted);
+    }
+
+    @Test
     public void testTimeStampToDate() {
         final Timestamp timestamp = new Timestamp(1435000000234L);
 
