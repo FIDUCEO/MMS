@@ -60,6 +60,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
+        storage.clear();
         storage.initialize();
     }
 

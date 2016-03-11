@@ -51,11 +51,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 class MatchupTool {
@@ -109,33 +109,79 @@ class MatchupTool {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final int timeDelta = useCaseConfig.getTimeDelta();
 
+        final Map<SatelliteObservation, List<Sample>> primarySamplesMap = new HashMap<>();
+        final Map<SatelliteObservation, List<Sample>> secondarySamplesMap = new HashMap<>();
+
         for (final SatelliteObservation primaryObservation : primaryObservations) {
-            final Reader reader = readerFactory.getReader(primaryObservation.getSensor().getName());
+            final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
+            primaryReader.open(primaryObservation.getDataFilePath().toFile());
             final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
             final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
 
-            final Geometry geoBounds = primaryObservation.getGeoBounds();
-            parameter = getSecondarySensorParameter(useCaseConfig, geoBounds, searchTimeStart, searchTimeEnd);
+            final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
+            parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
 
-            final boolean subScenes = geoBounds instanceof GeometryCollection && ((GeometryCollection) geoBounds).getGeometries().length > 1;
+            final boolean primarySubScenes = primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
 
+            List<Sample> primarySamples = null;
+            List<Sample> secondarySamples = null;
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
-            for (final SatelliteObservation secondary : secondaryObservations) {
-                final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondary);
+
+            for (final SatelliteObservation secondaryObservation : secondaryObservations) {
+                final Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName());
+                secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
+                final boolean secondarySubScenes = secondaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) secondaryGeoBounds).getGeometries().length > 1;
+
+                final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                 for(final Intersection intersection: intersectingIntervals) {
                     final TimeInfo timeInfo = intersection.getTimeInfo();
                     if (timeInfo.getMinimalTimeDelta() < timeDelta * 1000) {
                         System.out.println("we have an intersection here");
-                        reader.open(primaryObservation.getDataFilePath().toFile());
-                        final PixelLocator pixelLocator;
-                        if (subScenes) {
-                            pixelLocator = reader.getSubScenePixelLocator((Polygon) intersection.getPrimaryGeometry());
+                        final PixelLocator primaryPixelLocator;
+                        if (primarySubScenes) {
+                            primaryPixelLocator = primaryReader.getSubScenePixelLocator((Polygon) intersection.getPrimaryGeometry());
                         } else {
-                            pixelLocator = reader.getPixelLocator();
+                            primaryPixelLocator = primaryReader.getPixelLocator();
                         }
-                        final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
-                        final LinkedList<Sample> samples = sampleCollector.getSamplesFor((Polygon) intersection.getGeometry());
+                        SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
+                        primarySamples = sampleCollector.getSamplesFor((Polygon) intersection.getGeometry(), primarySamples);
+
+                        final PixelLocator secondaryPixelLocator;
+                        if (secondarySubScenes) {
+                            secondaryPixelLocator = secondaryReader.getSubScenePixelLocator((Polygon) intersection.getSecundaryGeometry());
+                        } else {
+                            secondaryPixelLocator = secondaryReader.getPixelLocator();
+                        }
+                        sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+                        secondarySamples = sampleCollector.getSamplesFor(primarySamples, secondarySamples);
                     }
+                }
+
+//                int[] counts = new int[400];
+//                for (int i = 0; i < 1000000; i++) {
+//                    final Sample p = primarySamples.get(i);
+//                    final Sample s = secondarySamples.get(i);
+//                    final double lo1 = p.lon;
+//                    final double la1 = p.lat;
+//                    final double lo2 = s.lon;
+//                    final double la2 = s.lat;
+//                    final double distance = new SphericalDistance(lo1, la1).distance(lo2, la2);
+//                    final double distKm = 40000 / (Math.PI * 2) * distance;
+//                    final int idx = (int) Math.floor(distKm);
+//                    counts[idx]++;
+//                }
+//                for (int i = 0; i < counts.length; i++) {
+//                    int count = counts[i];
+//                    System.out.println("count["+i+"] = " + count);
+//                }
+
+
+                if (primarySamples != null) {
+                    primarySamplesMap.put(primaryObservation, primarySamples);
+                }
+                if (secondarySamples != null) {
+                    secondarySamplesMap.put(secondaryObservation, secondarySamples);
                 }
 
 
