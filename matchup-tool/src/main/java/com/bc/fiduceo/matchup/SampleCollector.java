@@ -24,6 +24,7 @@ public class SampleCollector {
         yRange = new Range();
     }
 
+    // @todo 1 se/** write test
     public List<Sample> getSamplesFor(List<Sample> sourceSamples, List<Sample> resultList) {
         Point2D geopos = new Point2D.Double();
         for (Sample sourceSample : sourceSamples) {
