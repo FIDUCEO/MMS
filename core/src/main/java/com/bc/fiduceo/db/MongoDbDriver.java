@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class MongoDbDriver extends AbstractDriver {
 
     private static final String DATA_FILE_KEY = "dataFile";
@@ -138,8 +139,8 @@ public class MongoDbDriver extends AbstractDriver {
         throw new RuntimeException("Geometry type support not implemented");
     }
 
-    // @todo 2 tb/tb write tests
     // package access for testing only tb 2016-03-04
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     static Document convertToDocument(TimeAxis[] timeAxes) {
         final List<Document> timeAxesList = new ArrayList<>();
         for (final TimeAxis axis : timeAxes) {

@@ -38,7 +38,6 @@ import static org.junit.Assert.assertNull;
 @SuppressWarnings("ConstantConditions")
 public class IntersectionEngineTest {
 
-    // @todo 1 tb/tb extend tests for multipolygon geometries and multiple time axes
     private GeometryFactory geometryFactory;
 
     @Before

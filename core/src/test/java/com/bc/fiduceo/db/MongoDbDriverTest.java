@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -33,6 +34,7 @@ import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
 import com.mongodb.client.model.geojson.PolygonCoordinates;
+import com.mongodb.client.model.geojson.Position;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +47,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("unchecked")
 public class MongoDbDriverTest {
 
     private MongoDbDriver driver;
@@ -279,6 +282,46 @@ public class MongoDbDriverTest {
     public void testCreateQueryDocument_NullDoc() throws Exception {
         Document queryDocument = MongoDbDriver.createQueryDocument(null);
         assertNotNull(queryDocument);
+    }
+
+    @Test
+    public void testConvertToDocument_noTimeAxes() {
+        final TimeAxis[] timeAxes = new TimeAxis[0];
+
+        final Document document = MongoDbDriver.convertToDocument(timeAxes);
+        assertNotNull(document);
+
+        final ArrayList<Document> timeAxesDocument = (ArrayList<Document>) document.get("timeAxes");
+        assertEquals(0, timeAxesDocument.size());
+    }
+
+    @Test
+    public void testConvertToDocument_oneTimeAxis() {
+        final LineString lineString = (LineString) geometryFactory.parse("LINESTRING(0 1, 1 2, 2 3)");
+        final Date startDate = TimeUtils.parseDOYBeginOfDay("2015-012");
+        final Date endDate = TimeUtils.parseDOYEndOfDay("2015-013");
+        final TimeAxis timeAxis = geometryFactory.createTimeAxis(lineString, startDate, endDate);
+
+        final Document document = MongoDbDriver.convertToDocument(new TimeAxis[] {timeAxis});
+        assertNotNull(document);
+
+        final ArrayList<Document> timeAxesDocument = (ArrayList<Document>) document.get("timeAxes");
+        assertEquals(1, timeAxesDocument.size());
+
+        final Document axis_one = timeAxesDocument.get(0);
+        final Date startTime = axis_one.getDate("startTime");
+        TestUtil.assertCorrectUTCDate(2015, 1, 12, 0, 0, 0, 0, startTime);
+
+        final Date endTime = axis_one.getDate("endTime");
+        TestUtil.assertCorrectUTCDate(2015, 1, 13, 23, 59, 59, 999, endTime);
+
+        final com.mongodb.client.model.geojson.LineString geometry = (com.mongodb.client.model.geojson.LineString) axis_one.get("geometry");
+        assertNotNull(geometry);
+        final List<Position> coordinates = geometry.getCoordinates();
+        assertEquals(3, coordinates.size());
+        final List<Double> coordinateValues = coordinates.get(1).getValues();
+        assertEquals(1, coordinateValues.get(0), 1e-8);
+        assertEquals(2, coordinateValues.get(1), 1e-8);
     }
 
     @Test
