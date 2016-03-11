@@ -24,14 +24,39 @@ package com.bc.fiduceo.matchup.writer;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFileWriter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 public class MmdWriter {
 
-    // package access for testing only tb 2016-03-10
-    static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
+    private NetcdfFileWriter netcdfFileWriter;
+
+    public void create(File mmdFile) throws IOException {
+        netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
+
+        addGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)");
+        addGlobalAttribute("institution", "Brockmann Consult GmbH");
+        addGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)");
+        addGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
+        addGlobalAttribute("creation_date", TimeUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+
+        netcdfFileWriter.create();
+    }
+
+
+    public void close() throws IOException {
+        if (netcdfFileWriter != null) {
+            netcdfFileWriter.close();
+            netcdfFileWriter = null;
+        }
+    }
+
+    public static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
         final StringBuilder nameBuilder = new StringBuilder();
 
         nameBuilder.append(useCaseConfig.getName());
@@ -57,5 +82,9 @@ public class MmdWriter {
         nameBuilder.append(".nc");
 
         return nameBuilder.toString();
+    }
+
+    private void addGlobalAttribute(String name, String val) {
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(name, val));
     }
 }
