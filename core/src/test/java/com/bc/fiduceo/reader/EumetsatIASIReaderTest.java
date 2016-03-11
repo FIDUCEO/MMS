@@ -87,13 +87,4 @@ public class EumetsatIASIReaderTest {
         } catch (IOException expected) {
         }
     }
-
-    @Test
-    public void testGetSupportedSensorKeys() {
-        final String[] sensorKeys = reader.getSupportedSensorKeys();
-        assertNotNull(sensorKeys);
-        assertEquals(2, sensorKeys.length);
-        assertEquals("iasi_ma", sensorKeys[0]);
-        assertEquals("iasi_mb", sensorKeys[1]);
-    }
 }

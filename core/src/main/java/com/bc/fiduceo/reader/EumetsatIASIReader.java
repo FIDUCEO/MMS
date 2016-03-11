@@ -43,8 +43,6 @@ public class EumetsatIASIReader implements Reader {
     private static final int GEO_INTERVAL_Y = 6;
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final String[] SENSOR_KEYS = {"iasi_ma", "iasi_mb"};
-
 
     private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
@@ -65,11 +63,6 @@ public class EumetsatIASIReader implements Reader {
     @Override
     public void close() throws IOException {
         netcdfFile.close();
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
     }
 
     @Override

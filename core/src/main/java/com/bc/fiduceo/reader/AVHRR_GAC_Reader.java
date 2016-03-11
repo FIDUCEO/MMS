@@ -35,8 +35,6 @@ import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
-import org.esa.snap.core.util.math.Range;
-import org.geotools.geometry.jts.Geometries;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
@@ -49,10 +47,10 @@ import java.util.Date;
 
 public class AVHRR_GAC_Reader implements Reader {
 
-    public static final int NUM_SPLITS = 2;
-    private static final String[] SENSOR_KEYS = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
+    private static final int NUM_SPLITS = 2;
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
+
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
     private GeometryFactory geometryFactory;
@@ -93,11 +91,6 @@ public class AVHRR_GAC_Reader implements Reader {
             netcdfFile.close();
             netcdfFile = null;
         }
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
     }
 
     @Override

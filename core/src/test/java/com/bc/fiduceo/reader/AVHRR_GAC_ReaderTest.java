@@ -57,16 +57,6 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testGetSupportedSensorKeys() {
-        final String[] sensorKeys = reader.getSupportedSensorKeys();
-        assertNotNull(sensorKeys);
-        assertEquals(16, sensorKeys.length);
-        assertEquals("avhrr-n06", sensorKeys[0]);
-        assertEquals("avhrr-n14", sensorKeys[8]);
-        assertEquals("avhrr-m02", sensorKeys[15]);
-    }
-
-    @Test
     public void testGetRegEx() {
         final String regEx = reader.getRegEx();
         assertEquals("[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc", regEx);

@@ -32,8 +32,6 @@ public interface Reader {
 
     void close() throws IOException;
 
-    String[] getSupportedSensorKeys();
-
     AcquisitionInfo read() throws IOException;
 
     PixelLocator getPixelLocator() throws IOException;

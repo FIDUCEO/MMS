@@ -106,14 +106,4 @@ public class AMSUB_MHS_ReaderTest {
         assertEquals(2.5, longitudes.getDouble(2), 1e-8);
         assertEquals(3.0, longitudes.getDouble(3), 1e-8);
     }
-
-    @Test
-    public void testGetSupportedSensorKeys() {
-        final String[] sensorKeys = reader.getSupportedSensorKeys();
-        assertNotNull(sensorKeys);
-        assertEquals(14, sensorKeys.length);
-        assertEquals("amsub-tn", sensorKeys[0]);
-        assertEquals("amsub-n07", sensorKeys[2]);
-        assertEquals("amsub-n19", sensorKeys[13]);
-    }
 }
