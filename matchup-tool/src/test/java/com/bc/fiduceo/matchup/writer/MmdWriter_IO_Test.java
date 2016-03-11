@@ -74,7 +74,6 @@ public class MmdWriter_IO_Test {
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
             assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
-
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
         } finally {
             if (mmd != null) {

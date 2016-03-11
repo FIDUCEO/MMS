@@ -132,6 +132,38 @@ public class UseCaseConfigTest {
     }
 
     @Test
+    public void testLoad__dimensionList() {
+        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
+                "  <dimensions>" +
+                "    <dimension name=\"avhrr-n08\">" +
+                "      <nx>7</nx>" +
+                "      <ny>8</ny>" +
+                "    </dimension>" +
+                "    <dimension name=\"avhrr-n09\">" +
+                "      <nx>9</nx>" +
+                "      <ny>10</ny>" +
+                "    </dimension>" +
+                "  </dimensions>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        assertNotNull(dimensions);
+        assertEquals(2, dimensions.size());
+
+        Dimension dimension = dimensions.get(0);
+        assertEquals("avhrr-n08", dimension.getName());
+        assertEquals(7, dimension.getNx());
+        assertEquals(8, dimension.getNy());
+
+        dimension = dimensions.get(1);
+        assertEquals("avhrr-n09", dimension.getName());
+        assertEquals(9, dimension.getNx());
+        assertEquals(10, dimension.getNy());
+    }
+
+    @Test
     public void testStore() {
         final List<Sensor> sensorList = new ArrayList<>();
         sensorList.add(new Sensor("first"));
@@ -141,6 +173,11 @@ public class UseCaseConfigTest {
         useCaseConfig.setName("test_use_case");
         useCaseConfig.setTimeDelta(12345);
         useCaseConfig.setOutputPath("wherever/you/want/it");
+
+        final List<Dimension> dimensionList = new ArrayList<>();
+        dimensionList.add(new Dimension("first", 11, 15));
+        dimensionList.add(new Dimension("second", 3, 5));
+        useCaseConfig.setDimensions(dimensionList);
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -156,6 +193,16 @@ public class UseCaseConfigTest {
                 "      <primary>false</primary>\n" +
                 "    </sensor>\n" +
                 "  </sensors>\n" +
+                "  <dimensions>\n" +
+                "    <dimension name=\"first\">\n" +
+                "      <nx>11</nx>\n" +
+                "      <ny>15</ny>\n" +
+                "    </dimension>\n" +
+                "    <dimension name=\"second\">\n" +
+                "      <nx>3</nx>\n" +
+                "      <ny>5</ny>\n" +
+                "    </dimension>\n" +
+                "  </dimensions>\n" +
                 "  <time-delta>12345</time-delta>\n" +
                 "  <output-path>wherever/you/want/it</output-path>\n" +
                 "</use-case-config>", outputStream.toString());
