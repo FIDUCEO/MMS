@@ -45,7 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-public class AVHRR_GAC_Reader implements Reader {
+class AVHRR_GAC_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";

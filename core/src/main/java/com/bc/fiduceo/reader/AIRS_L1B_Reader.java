@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class AIRS_L1B_Reader implements Reader {
+class AIRS_L1B_Reader implements Reader {
 
     private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
     private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";

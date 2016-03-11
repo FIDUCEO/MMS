@@ -42,7 +42,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class AMSU_MHS_L1B_Reader implements Reader {
+class AMSU_MHS_L1B_Reader implements Reader {
 
     private static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";

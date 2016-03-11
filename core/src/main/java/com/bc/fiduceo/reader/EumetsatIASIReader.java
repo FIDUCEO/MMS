@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.Date;
 
 
-public class EumetsatIASIReader implements Reader {
+class EumetsatIASIReader implements Reader {
 
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 6;

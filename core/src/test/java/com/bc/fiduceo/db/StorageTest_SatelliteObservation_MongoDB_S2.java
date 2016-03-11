@@ -27,8 +27,9 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
-import com.bc.fiduceo.reader.AMSU_MHS_L1B_Reader;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -54,7 +55,7 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
     // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
     // in the datasource description below. tb 2016-02-08
 
-    private AMSU_MHS_L1B_Reader reader;
+    private Reader reader;
 
     @Before
     public void setUp() throws SQLException, IOException {
@@ -69,7 +70,8 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
 
-        reader = new AMSU_MHS_L1B_Reader();
+        final ReaderFactory readerFactory = new ReaderFactory();
+        reader = readerFactory.getReader("amsub-n17");
         File testDataDirectory = TestUtil.getTestDataDirectory();
         File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         reader.open(file);
