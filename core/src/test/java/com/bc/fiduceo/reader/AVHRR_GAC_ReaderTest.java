@@ -21,32 +21,24 @@
 package com.bc.fiduceo.reader;
 
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.junit.Before;
-import org.junit.Test;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.ClippingPixelLocator;
+import com.bc.fiduceo.location.PixelLocator;
+import org.junit.*;
 import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class AVHRR_GAC_ReaderTest {
 
@@ -154,6 +146,53 @@ public class AVHRR_GAC_ReaderTest {
         }
     }
 
+    @Test
+    public void testGetSubScenePixelLocator_firstScene() throws Exception {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(26, 40));
+        final PixelLocator locator = mock(PixelLocator.class);
+        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(new Point2D.Double(30, 45));
+        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(new Point2D.Double(15, -45));
+
+        final PixelLocator pixelLocator = AVHRR_GAC_Reader.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
+
+        verify(locator, times(1)).getGeoLocation(100.5, 2500.5, null);
+        verify(locator, times(1)).getGeoLocation(100.5, 7500.5, null);
+        verifyNoMoreInteractions(locator);
+        verify(polygon, times(1)).getCentroid();
+        verifyNoMoreInteractions(polygon);
+
+        assertNotNull(pixelLocator);
+        assertEquals(true, pixelLocator instanceof ClippingPixelLocator);
+        final ClippingPixelLocator clipping = (ClippingPixelLocator) pixelLocator;
+        assertEquals(0, clipping.minY);
+        assertEquals(4999, clipping.maxY);
+        assertSame(locator, clipping.pixelLocator);
+    }
+
+    @Test
+    public void testGetSubScenePixelLocator_secondScene() throws Exception {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(17, -40));
+        final PixelLocator locator = mock(PixelLocator.class);
+        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(new Point2D.Double(30, 45));
+        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(new Point2D.Double(15, -45));
+
+        final PixelLocator pixelLocator = AVHRR_GAC_Reader.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
+
+        verify(locator, times(1)).getGeoLocation(100.5, 2500.5, null);
+        verify(locator, times(1)).getGeoLocation(100.5, 7500.5, null);
+        verifyNoMoreInteractions(locator);
+        verify(polygon, times(1)).getCentroid();
+        verifyNoMoreInteractions(polygon);
+
+        assertNotNull(pixelLocator);
+        assertEquals(true, pixelLocator instanceof ClippingPixelLocator);
+        final ClippingPixelLocator clipping = (ClippingPixelLocator) pixelLocator;
+        assertEquals(4999, clipping.minY);
+        assertEquals(8999, clipping.maxY);
+        assertSame(locator, clipping.pixelLocator);
+    }
 
     GeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {
         final Geometry[] geometries = new Geometry[]{geometry_1, geometry_2};

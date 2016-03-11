@@ -83,7 +83,6 @@ class AVHRR_GAC_Reader implements Reader {
         }
     }
 
-    // @todo 1 se/se write Test
     // package access for testing only se 2016-03-11
     static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
         final int sh2 = subsetHeight / 2;
