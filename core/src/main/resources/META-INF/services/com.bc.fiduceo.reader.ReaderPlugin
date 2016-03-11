@@ -1,0 +1,4 @@
+com.bc.fiduceo.reader.AMSU_MHS_L1B_ReaderPlugin
+com.bc.fiduceo.reader.AIRS_L1B_ReaderPlugin
+com.bc.fiduceo.reader.EumetsatIASIReaderPlugin
+com.bc.fiduceo.reader.AVHRR_GAC_ReaderPlugin

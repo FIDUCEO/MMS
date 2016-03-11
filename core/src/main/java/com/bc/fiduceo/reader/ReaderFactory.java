@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.StringUtils;
 
 import java.util.HashMap;
 
@@ -31,32 +32,30 @@ import java.util.HashMap;
  */
 public class ReaderFactory {
 
-    final HashMap<String, Reader> readerHashMap = new HashMap<>();
+    final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
 
     public ReaderFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        ServiceRegistry<Reader> readerRegistry = serviceRegistryManager.getServiceRegistry(Reader.class);
+        final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);
         SnapCoreActivator.loadServices(readerRegistry);
 
-        for (Reader reader : readerRegistry.getServices()) {
-            String[] supportedSensorKeys = reader.getSupportedSensorKeys();
+        for (ReaderPlugin plugin : readerRegistry.getServices()) {
+            String[] supportedSensorKeys = plugin.getSupportedSensorKeys();
             for (String key : supportedSensorKeys) {
-                readerHashMap.put(key, reader);
+                readerPluginHashMap.put(key, plugin);
             }
-        }
-        if (readerHashMap == null) {
-            throw new NullPointerException("No exist reader");
         }
     }
 
-    public Reader getReader(String key) {
-        if (key.isEmpty() || key.length() <= 0) {
+    public Reader getReader(String sensorPlatformKey) {
+        if (StringUtils.isNullOrEmpty(sensorPlatformKey)) {
             throw new IllegalArgumentException("The reader support sensor key most be well define");
         }
-        Reader reader = readerHashMap.get(key);
-        if (reader == null) {
-            throw new NullPointerException("No support sensor with such :" + key + " key");
+
+        final ReaderPlugin readerPlugin = readerPluginHashMap.get(sensorPlatformKey);
+        if (readerPlugin == null) {
+            throw new NullPointerException("No support sensor with such :" + sensorPlatformKey + " key");
         }
-        return reader;
+        return readerPlugin.createReader();
     }
 }

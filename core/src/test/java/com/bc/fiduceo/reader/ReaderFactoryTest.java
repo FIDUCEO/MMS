@@ -19,7 +19,7 @@
  */
 package com.bc.fiduceo.reader;
 
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,59 +29,57 @@ import static org.junit.Assert.fail;
 
 public class ReaderFactoryTest {
 
+    private ReaderFactory readerFactory;
+
+    @Before
+    public void setUp() throws Exception {
+        readerFactory = new ReaderFactory();
+    }
+
     @Test
     public void testGetAVHHRReaderKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
         Reader reader = readerFactory.getReader("avhrr-n06");
 
         assertNotNull(reader);
-        assertEquals("[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc", reader.getRegEx());
-        assertTrue(reader.toString().contains("AVHRR_GAC_Reader"));
+        assertTrue(reader instanceof AVHRR_GAC_Reader);
     }
 
     @Test
     public void testGetAMSUReaderKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
         Reader reader = readerFactory.getReader("amsub-n11");
 
         assertNotNull(reader);
-        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5", reader.getRegEx());
-        assertTrue(reader.toString().contains("AMSU_MHS_L1B"));
+        assertTrue(reader instanceof AMSU_MHS_L1B_Reader);
     }
 
 
     @Test
     public void testGetAIRSReaderKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
-        Reader reader = readerFactory.getReader("airs_aq");
+        Reader reader = readerFactory.getReader("airs-aq");
 
         assertNotNull(reader);
-        assertEquals("AIRS.\\d{4}.\\d{2}.\\d{2}.\\d{3}.L1B.*.hdf", reader.getRegEx());
-        assertTrue(reader.toString().contains("AIRS"));
+        assertTrue(reader instanceof AIRS_L1B_Reader);
     }
 
     @Test
     public void testGetEumetsatIASIReaderKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
-        Reader reader = readerFactory.getReader("iasi_mb");
+        Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
-        assertTrue(reader.toString().contains("EumetsatIASI"));
+        assertTrue(reader instanceof EumetsatIASIReader);
     }
 
     @Test
     public void testGetReaderNullKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
         try {
             readerFactory.getReader(null);
             fail("The key is null");
-        } catch (NullPointerException expect) {
+        } catch (IllegalArgumentException expect) {
         }
     }
 
     @Test
     public void testGetReaderEmptyKey() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
         try {
             readerFactory.getReader("");
             fail("The key is empty");
@@ -91,7 +89,6 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetReaderKeyNonExist() throws Exception {
-        ReaderFactory readerFactory = new ReaderFactory();
         try {
             readerFactory.getReader("uztierter");
             fail("The key doest not exist");
