@@ -87,7 +87,7 @@ public class MmdWriter_IO_Test {
         final Attribute creation_date = mmd.findGlobalAttribute(name);
         assertNotNull(creation_date);
         final String dateStringValue = creation_date.getStringValue();
-        final Date actual = TimeUtils.parse(dateStringValue, "yyyy-MM-dd hh:mm:ss");
+        final Date actual = TimeUtils.parse(dateStringValue, "yyyy-MM-dd HH:mm:ss");
         TestUtil.assertWithinLastMinute(expected, actual);
     }
 
