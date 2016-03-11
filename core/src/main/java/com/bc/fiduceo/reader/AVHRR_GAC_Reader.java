@@ -251,6 +251,11 @@ class AVHRR_GAC_Reader implements Reader {
         Number fillValue = getFillValue("_FillValue", variableName);
 
 
+        return getArray(x, y, interval, rawArray, (float) fillValue);
+
+    }
+
+    private Array getArray(int x, int y, Interval interval, ArrayFloat.D2 rawArray, float fillValue) throws InvalidRangeException {
         int windowWidth = interval.getX();
         int windowHeight = interval.getY();
 
@@ -279,12 +284,11 @@ class AVHRR_GAC_Reader implements Reader {
                 if (iYRaw >= 0 && iYRaw < rawHeight && iXRaw >= 0 && iXRaw < rawWidth) {
                     windowArray.set(iy, ix, rawArray.get(iYRaw, iXRaw));
                 } else {
-                    windowArray.set(iy, ix, (float) fillValue);
+                    windowArray.set(iy, ix, fillValue);
                 }
             }
         }
         return windowArray;
-
     }
 
     private Number getFillValue(String attrName, String variableName) {
