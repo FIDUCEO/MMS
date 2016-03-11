@@ -1,18 +1,20 @@
 package com.bc.fiduceo.matchup;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.tool.ToolContext;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class SampleCollectorTest {
 
@@ -33,24 +35,24 @@ public class SampleCollectorTest {
     public void testSomething() {
         // preparation
         final List<Point> polygonPoints = createPoints(new double[]{
-                    1, 1,
-                    3, 1,
-                    3, 3,
-                    1, 3,
-                    1, 1
+                1, 1,
+                3, 1,
+                3, 3,
+                1, 3,
+                1, 1
         });
         final Polygon polygon = factory.createPolygon(polygonPoints);
 
         // execution
-        final List<Sample> samples = collector.getSamplesFor(polygon, null);
+        final List<Sample> samples = collector.getSamplesFor(polygon, new ArrayList<>());
 
         // verification
         assertNotNull(samples);
         final Sample[] expecteds = {
-                    new Sample(12, 14, 1.5, 1.5, null),
-                    new Sample(13, 14, 2.5, 1.5, null),
-                    new Sample(12, 15, 1.5, 2.5, null),
-                    new Sample(13, 15, 2.5, 2.5, null)
+                new Sample(12, 14, 1.5, 1.5, null),
+                new Sample(13, 14, 2.5, 1.5, null),
+                new Sample(12, 15, 1.5, 2.5, null),
+                new Sample(13, 15, 2.5, 2.5, null)
 
         };
         assertEquals(expecteds.length, samples.size());
@@ -67,11 +69,11 @@ public class SampleCollectorTest {
     @Test
     public void testPointInPolygonTest_GeometriesCreatedByFactory() throws Exception {
         final Polygon polygon = factory.createPolygon(createPoints(new double[]{
-                    2, 2,
-                    6, 2,
-                    6, 6,
-                    2, 6,
-                    2, 2
+                2, 2,
+                6, 2,
+                6, 6,
+                2, 6,
+                2, 2
         }));
         assertTrue(polygon.contains(factory.createPoint(4, 4)));
     }

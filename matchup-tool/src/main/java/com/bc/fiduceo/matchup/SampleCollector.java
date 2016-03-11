@@ -24,27 +24,20 @@ public class SampleCollector {
         yRange = new Range();
     }
 
-    public List<Sample> getSamplesFor(List<Sample> sourceSamples, List<Sample> samples) {
-        if (samples == null) {
-            samples = new ArrayList<>();
-        }
+    public List<Sample> getSamplesFor(List<Sample> sourceSamples, List<Sample> resultList) {
         Point2D geopos = new Point2D.Double();
-        for (int i = 0; i < sourceSamples.size(); i++) {
-            Sample sourceSample = sourceSamples.get(i);
+        for (Sample sourceSample : sourceSamples) {
             final double lon = sourceSample.lon;
             final double lat = sourceSample.lat;
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(lon, lat);
-            if (i % 10000 == 0) {
-                System.out.println("i = " + i + " / lon = " + lon + "  lat = " + lat);
-            }
             for (Point2D pixelLocation : pixelLocations) {
                 final int x = (int) pixelLocation.getX();
                 final int y = (int) pixelLocation.getY();
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                samples.add(new Sample(x, y, geopos.getX(), geopos.getY(), null));
+                resultList.add(new Sample(x, y, geopos.getX(), geopos.getY(), null));
             }
         }
-        return samples;
+        return resultList;
     }
 
     public List<Sample> getSamplesFor(Polygon polygon, List<Sample> samples) {
@@ -59,10 +52,6 @@ public class SampleCollector {
 
         final Point2D.Double geoPos = new Point2D.Double();
         final GeometryFactory factory = context.getGeometryFactory();
-
-        if (samples == null) {
-            samples = new ArrayList<>();
-        }
 
         final int startY = (int) yRange.getMin();
         final int endY = (int) yRange.getMax();

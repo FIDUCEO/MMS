@@ -57,7 +57,7 @@ public class Intersection {
         this.secundaryGeometry = geometry;
     }
 
-    public Geometry getSecundaryGeometry() {
+    public Geometry getSecondaryGeometry() {
         return secundaryGeometry;
     }
 }

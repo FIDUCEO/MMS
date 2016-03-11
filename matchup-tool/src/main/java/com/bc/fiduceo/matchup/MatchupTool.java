@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -108,51 +109,46 @@ class MatchupTool {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final int timeDelta = useCaseConfig.getTimeDelta();
+        final int timeDeltaInMillis = timeDelta * 1000;
 
+        // @todo 2 tb/** move these Maps to an aggregating object 2016-03-11
         final Map<SatelliteObservation, List<Sample>> primarySamplesMap = new HashMap<>();
         final Map<SatelliteObservation, List<Sample>> secondarySamplesMap = new HashMap<>();
 
         for (final SatelliteObservation primaryObservation : primaryObservations) {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
             primaryReader.open(primaryObservation.getDataFilePath().toFile());
+
             final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
             final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
 
             final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
+            final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
+
+            List<Sample> primarySamples = new ArrayList<>();
+            List<Sample> secondarySamples = new ArrayList<>();
+
             parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
-
-            final boolean primarySubScenes = primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-
-            List<Sample> primarySamples = null;
-            List<Sample> secondarySamples = null;
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
 
             for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                 final Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName());
                 secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+
                 final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
-                final boolean secondarySubScenes = secondaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) secondaryGeoBounds).getGeometries().length > 1;
+                final boolean isSecondarySegmented = isSegmented(secondaryGeoBounds);
 
                 final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
-                for(final Intersection intersection: intersectingIntervals) {
+                for (final Intersection intersection : intersectingIntervals) {
                     final TimeInfo timeInfo = intersection.getTimeInfo();
-                    if (timeInfo.getMinimalTimeDelta() < timeDelta * 1000) {
-                        System.out.println("we have an intersection here");
-                        final PixelLocator primaryPixelLocator;
-                        if (primarySubScenes) {
-                            primaryPixelLocator = primaryReader.getSubScenePixelLocator((Polygon) intersection.getPrimaryGeometry());
-                        } else {
-                            primaryPixelLocator = primaryReader.getPixelLocator();
-                        }
+                    if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
+                        final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
+
                         SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
                         primarySamples = sampleCollector.getSamplesFor((Polygon) intersection.getGeometry(), primarySamples);
 
-                        final PixelLocator secondaryPixelLocator;
-                        if (secondarySubScenes) {
-                            secondaryPixelLocator = secondaryReader.getSubScenePixelLocator((Polygon) intersection.getSecundaryGeometry());
-                        } else {
-                            secondaryPixelLocator = secondaryReader.getPixelLocator();
-                        }
+                        final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
+
                         sampleCollector = new SampleCollector(context, secondaryPixelLocator);
                         secondarySamples = sampleCollector.getSamplesFor(primarySamples, secondarySamples);
                     }
@@ -177,10 +173,10 @@ class MatchupTool {
 //                }
 
 
-                if (primarySamples != null) {
+                if (!primarySamples.isEmpty()) {
                     primarySamplesMap.put(primaryObservation, primarySamples);
                 }
-                if (secondarySamples != null) {
+                if (!secondarySamples.isEmpty()) {
                     secondarySamplesMap.put(secondaryObservation, secondarySamples);
                 }
 
@@ -203,6 +199,22 @@ class MatchupTool {
 
             }
         }
+    }
+
+    // @todo 2 tb/** make static and package local, add tests 2016-03-11
+    private PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+        final PixelLocator pixelLocator;
+        if (isSegmented) {
+            pixelLocator = reader.getSubScenePixelLocator(polygon);
+        } else {
+            pixelLocator = reader.getPixelLocator();
+        }
+        return pixelLocator;
+    }
+
+    // @todo 2 tb/** make static and package local, add tests 2016-03-11
+    private boolean isSegmented(Geometry primaryGeoBounds) {
+        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
     }
 
     // @todo 1 tb/tb write tests 2016-03-07

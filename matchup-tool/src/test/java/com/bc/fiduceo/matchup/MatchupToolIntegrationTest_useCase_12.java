@@ -66,8 +66,10 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
     @After
     public void tearDown() throws SQLException {
-        storage.clear();
-        storage.close();
+        if (storage != null) {
+            storage.clear();
+            storage.close();
+        }
 
         TestUtil.deleteTestDirectory();
     }
