@@ -31,6 +31,7 @@ import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -164,6 +165,11 @@ class AIRS_L1B_Reader implements Reader {
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
     }
 
     // package access for testing only tb 2016-01-08

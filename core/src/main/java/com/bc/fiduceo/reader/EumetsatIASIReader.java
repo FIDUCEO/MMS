@@ -27,6 +27,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -94,6 +95,11 @@ class EumetsatIASIReader implements Reader {
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {

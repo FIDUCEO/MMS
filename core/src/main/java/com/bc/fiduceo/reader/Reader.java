@@ -20,8 +20,11 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,4 +42,6 @@ public interface Reader {
     String getRegEx();
 
     PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
+
+    Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException;
 }

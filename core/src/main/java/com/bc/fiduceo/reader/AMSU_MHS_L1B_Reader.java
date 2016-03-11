@@ -28,6 +28,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
@@ -114,6 +115,11 @@ class AMSU_MHS_L1B_Reader implements Reader {
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
     }
 
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
