@@ -42,7 +42,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +58,7 @@ class AVHRR_GAC_Reader implements Reader {
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
     private SwathPixelLocator pixelLocator;
+    private Array array;
 
     // package access for testing only tb 2016-03-02
     static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
@@ -246,50 +246,20 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        ArrayFloat.D2 rawArray = (ArrayFloat.D2) arrayCache.get(variableName);
-        Number fillValue = getFillValue("_FillValue", variableName);
+    public Array readRaw(int x, int y, Interval interval, String variableName)  {
+        try {
+            final Array rawArray = arrayCache.get(variableName);
+            final Number fillValue = getFillValue("_FillValue", variableName);
 
+            WindowArrayFactory windowArrayFactory = new WindowArrayFactory(rawArray);
+            return windowArrayFactory.get(x,y,interval,fillValue);
 
-        return getArray(x, y, interval, rawArray, (float) fillValue);
-
+        } catch (IOException | InvalidRangeException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private Array getArray(int x, int y, Interval interval, ArrayFloat.D2 rawArray, float fillValue) throws InvalidRangeException {
-        int windowWidth = interval.getX();
-        int windowHeight = interval.getY();
-
-        if (windowWidth % 2 == 0 || windowHeight % 2 == 0) {
-            throw new IllegalArgumentException("The windowSize X, Y must me odd numbers");
-        }
-
-        int windowX = x - windowWidth / 2;
-        int windowY = y - windowHeight / 2;
-
-        final int[] shape = rawArray.getShape();
-        final int rawHeight = shape[0];
-        final int rawWidth = shape[1];
-
-        final Rectangle arrayRectangle = new Rectangle(0, 0, rawWidth, rawHeight);
-        final Rectangle windowRec = new Rectangle(windowX, windowY, windowWidth, windowHeight);
-
-        if (arrayRectangle.contains(windowRec)) {
-            return rawArray.section(new int[]{windowY, windowX}, new int[]{windowHeight, windowWidth});
-        }
-        ArrayFloat.D2 windowArray = new ArrayFloat.D2(windowHeight, windowWidth);
-        for (int iy = 0; iy < windowHeight; iy++) {
-            for (int ix = 0; ix < windowWidth; ix++) {
-                int iYRaw = iy + windowY;
-                int iXRaw = ix + windowX;
-                if (iYRaw >= 0 && iYRaw < rawHeight && iXRaw >= 0 && iXRaw < rawWidth) {
-                    windowArray.set(iy, ix, rawArray.get(iYRaw, iXRaw));
-                } else {
-                    windowArray.set(iy, ix, fillValue);
-                }
-            }
-        }
-        return windowArray;
-    }
 
     private Number getFillValue(String attrName, String variableName) {
         Variable variable = netcdfFile.findVariable(variableName);
@@ -303,6 +273,8 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     private class Geometries {
+
+
 
         private Geometry boundingGeometry;
         private Geometry timeAxesGeometry;
