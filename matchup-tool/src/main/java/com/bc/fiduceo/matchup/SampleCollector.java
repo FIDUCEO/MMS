@@ -7,7 +7,8 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SampleCollector {
 
@@ -23,12 +24,34 @@ public class SampleCollector {
         yRange = new Range();
     }
 
-    public LinkedList<Sample> getSamplesFor(Polygon polygon) {
+    public List<Sample> getSamplesFor(List<Sample> sourceSamples, List<Sample> samples) {
+        if (samples == null) {
+            samples = new ArrayList<>();
+        }
+        Point2D geopos = new Point2D.Double();
+        for (int i = 0; i < sourceSamples.size(); i++) {
+            Sample sourceSample = sourceSamples.get(i);
+            final double lon = sourceSample.lon;
+            final double lat = sourceSample.lat;
+            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(lon, lat);
+            if (i % 10000 == 0) {
+                System.out.println("i = " + i + " / lon = " + lon + "  lat = " + lat);
+            }
+            for (Point2D pixelLocation : pixelLocations) {
+                final int x = (int) pixelLocation.getX();
+                final int y = (int) pixelLocation.getY();
+                geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
+                samples.add(new Sample(x, y, geopos.getX(), geopos.getY(), null));
+            }
+        }
+        return samples;
+    }
+
+    public List<Sample> getSamplesFor(Polygon polygon, List<Sample> samples) {
         final Point[] coordinates = polygon.getCoordinates();
         for (Point coordinate : coordinates) {
             final Point2D[] pixelLocation = pixelLocator.getPixelLocation(coordinate.getLon(), coordinate.getLat());
-            for (int i = 0; i < pixelLocation.length; i++) {
-                Point2D point2D = pixelLocation[i];
+            for (Point2D point2D : pixelLocation) {
                 xRange.aggregate(point2D.getX());
                 yRange.aggregate(point2D.getY());
             }
@@ -37,7 +60,9 @@ public class SampleCollector {
         final Point2D.Double geoPos = new Point2D.Double();
         final GeometryFactory factory = context.getGeometryFactory();
 
-        final LinkedList<Sample> samples = new LinkedList<>();
+        if (samples == null) {
+            samples = new ArrayList<>();
+        }
 
         final int startY = (int) yRange.getMin();
         final int endY = (int) yRange.getMax();

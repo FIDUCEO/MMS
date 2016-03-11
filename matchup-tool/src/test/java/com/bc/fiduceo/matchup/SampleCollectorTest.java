@@ -32,6 +32,20 @@ public class SampleCollectorTest {
     @Test
     public void testSomething() {
         // preparation
+        final List<Point> polygonPoints = createPoints(new double[]{
+                    1, 1,
+                    3, 1,
+                    3, 3,
+                    1, 3,
+                    1, 1
+        });
+        final Polygon polygon = factory.createPolygon(polygonPoints);
+
+        // execution
+        final List<Sample> samples = collector.getSamplesFor(polygon, null);
+
+        // verification
+        assertNotNull(samples);
         final Sample[] expecteds = {
                     new Sample(12, 14, 1.5, 1.5, null),
                     new Sample(13, 14, 2.5, 1.5, null),
@@ -39,20 +53,6 @@ public class SampleCollectorTest {
                     new Sample(13, 15, 2.5, 2.5, null)
 
         };
-        final List<Point> points = createPoints(new double[]{
-                    1, 1,
-                    3, 1,
-                    3, 3,
-                    1, 3,
-                    1, 1
-        });
-        final Polygon polygon = factory.createPolygon(points);
-
-        // execution
-        final LinkedList<Sample> samples = collector.getSamplesFor(polygon);
-
-        // verification
-        assertNotNull(samples);
         assertEquals(expecteds.length, samples.size());
         for (int i = 0; i < expecteds.length; i++) {
             final Sample expected = expecteds[i];
