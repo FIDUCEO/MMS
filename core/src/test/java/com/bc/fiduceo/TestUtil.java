@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class TestUtil {
@@ -147,6 +148,11 @@ public class TestUtil {
         assertEquals(minute, calendar.get(Calendar.MINUTE));
         assertEquals(second, calendar.get(Calendar.SECOND));
         assertEquals(millisecond, calendar.get(Calendar.MILLISECOND));
+    }
+
+    public static void assertWithinLastMinute(Date expected, Date actual) {
+        final long timeDeltaInMillis = Math.abs(expected.getTime() - actual.getTime());
+        assertTrue(timeDeltaInMillis < 60000);
     }
 
     public static File createTestDirectory() {

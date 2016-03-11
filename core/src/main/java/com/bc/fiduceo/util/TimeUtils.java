@@ -39,6 +39,12 @@ public class TimeUtils {
         return calendar.getTime();
     }
 
+    public static Date createNow() {
+        final Calendar calendar = calendarThreadLocal.get();
+        calendar.setTime(new Date());
+        return calendar.getTime();
+    }
+
     public static String format(Date date) {
         return ProductData.UTC.createDateFormat().format(date);
     }

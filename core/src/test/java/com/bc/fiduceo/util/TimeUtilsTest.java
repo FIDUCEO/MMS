@@ -44,6 +44,14 @@ public class TimeUtilsTest {
     }
 
     @Test
+    public void testCreateNow(){
+        final Date now = TimeUtils.createNow();
+        assertNotNull(now);
+
+        // @todo 3 tb/tb add more assertions 2016-03-10
+    }
+
+    @Test
     public void testFormat() {
         final Date date = TimeUtils.create(1435000000000L);
 
