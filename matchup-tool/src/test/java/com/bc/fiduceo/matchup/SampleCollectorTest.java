@@ -33,7 +33,7 @@ public class SampleCollectorTest {
     }
 
     @Test
-    public void testSomething() {
+    public void testAddPrimarySamples() {
         // preparation
         final List<Point> polygonPoints = createPoints(new double[]{
                 1, 1,
@@ -46,7 +46,7 @@ public class SampleCollectorTest {
 
         // execution
         final MatchupSet matchupSet = new MatchupSet();
-        collector.getSamplesFor(polygon, matchupSet);
+        collector.addPrimarySamples(polygon, matchupSet);
 
         // verification
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
@@ -70,6 +70,30 @@ public class SampleCollectorTest {
 
             assertNull(actual.getSecondary());
         }
+    }
+
+    @Test
+    public void testAddSecondarySamples() {
+        final MatchupSet matchupSet = new MatchupSet();
+        matchupSet.addPrimary(new Sample(2, 3, 4.5, 5.5, null));
+        matchupSet.addPrimary(new Sample(6, 7, 8.5, 9.5, null));
+
+        collector.addSecondarySamples(matchupSet.getSampleSets());
+
+        final List<SampleSet> resultSampleSets = matchupSet.getSampleSets();
+        assertEquals(2, resultSampleSets.size());
+
+        SampleSet sampleSet = resultSampleSets.get(0);
+        Sample primary = sampleSet.getPrimary();
+        assertEquals(2, primary.x);
+        Sample secondary = sampleSet.getSecondary();
+        assertEquals(18, secondary.y);
+
+        sampleSet = resultSampleSets.get(1);
+        primary = sampleSet.getPrimary();
+        assertEquals(6, primary.x);
+        secondary = sampleSet.getSecondary();
+        assertEquals(22, secondary.y);
     }
 
     @Test

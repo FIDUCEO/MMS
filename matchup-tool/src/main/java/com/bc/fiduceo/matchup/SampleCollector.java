@@ -23,8 +23,7 @@ public class SampleCollector {
         yRange = new Range();
     }
 
-    // @todo 1 se/** write test
-    public void getSamplesFor(List<SampleSet> sampleSets) {
+    public void addSecondarySamples(List<SampleSet> sampleSets) {
         Point2D geopos = new Point2D.Double();
         for (final SampleSet sourceSample : sampleSets) {
             final Sample primary = sourceSample.getPrimary();
@@ -39,7 +38,7 @@ public class SampleCollector {
         }
     }
 
-    public void getSamplesFor(Polygon polygon, MatchupSet matchupSet) {
+    public void addPrimarySamples(Polygon polygon, MatchupSet matchupSet) {
         final Point[] coordinates = polygon.getCoordinates();
         for (Point coordinate : coordinates) {
             final Point2D[] pixelLocation = pixelLocator.getPixelLocation(coordinate.getLon(), coordinate.getLat());

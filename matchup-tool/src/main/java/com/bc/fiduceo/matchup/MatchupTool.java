@@ -54,9 +54,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 class MatchupTool {
@@ -148,12 +146,12 @@ class MatchupTool {
                         final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
 
                         SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
-                        sampleCollector.getSamplesFor((Polygon) intersection.getGeometry(), matchupSet);
+                        sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet);
 
                         final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 
                         sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                        sampleCollector.getSamplesFor(matchupSet.getSampleSets());
+                        sampleCollector.addSecondarySamples(matchupSet.getSampleSets());
                     }
                 }
 
