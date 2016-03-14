@@ -25,8 +25,10 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,19 +39,18 @@ public class MmdWriter {
 
     private NetcdfFileWriter netcdfFileWriter;
 
-    public void create(File mmdFile, List<Dimension> dimensions, int numMatchups) throws IOException {
+    public void create(File mmdFile, List<Dimension> dimensions, List<VariableConfig> variableConfigs, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
         createGlobalAttributes();
+        createDimensions(dimensions, numMatchups);
 
-        for (final Dimension dimension : dimensions) {
-            String dimensionName = dimension.getName() + ".nx";
-            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNx());
-
-            dimensionName = dimension.getName() + ".ny";
-            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNy());
+        for(final VariableConfig variableConfig : variableConfigs) {
+            final Variable variable = netcdfFileWriter.addVariable(null,
+                    variableConfig.getName(),
+                    DataType.getType(variableConfig.getDataType()),
+                    variableConfig.getDimensionNames());
         }
-        netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
 
         netcdfFileWriter.create();
     }
@@ -99,5 +100,16 @@ public class MmdWriter {
 
     private void addGlobalAttribute(String name, String val) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(name, val));
+    }
+
+    private void createDimensions(List<Dimension> dimensions, int numMatchups) {
+        for (final Dimension dimension : dimensions) {
+            String dimensionName = dimension.getName() + "_nx";
+            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNx());
+
+            dimensionName = dimension.getName() + "_ny";
+            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNy());
+        }
+        netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
     }
 }

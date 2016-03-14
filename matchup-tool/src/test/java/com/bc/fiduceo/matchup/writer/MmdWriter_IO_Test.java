@@ -28,8 +28,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
+import ucar.nc2.stream.NcStreamProto;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,8 +68,21 @@ public class MmdWriter_IO_Test {
         dimemsions.add(new Dimension("avhrr-n11", 5, 7));
         dimemsions.add(new Dimension("avhrr-n12", 3, 5));
 
+        final List<VariableConfig> variableConfigs = new ArrayList<>();
+        VariableConfig variableConfig = new VariableConfig();
+        variableConfig.setName("avhrr-n11_ch3b");
+        variableConfig.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
+        variableConfig.setDataType("short");
+        variableConfigs.add(variableConfig);
+
+        variableConfig = new VariableConfig();
+        variableConfig.setName("avhrr-n12_ch4");
+        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variableConfig.setDataType("int");
+        variableConfigs.add(variableConfig);
+
         try {
-            mmdWriter.create(mmdFile, dimemsions, 2346);
+            mmdWriter.create(mmdFile, dimemsions, variableConfigs, 2346);
         } finally {
             mmdWriter.close();
         }
@@ -83,17 +99,33 @@ public class MmdWriter_IO_Test {
             assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
 
-            assertDimension("avhrr-n11.nx", 5, mmd);
-            assertDimension("avhrr-n11.ny", 7, mmd);
-            assertDimension("avhrr-n12.nx", 3, mmd);
-            assertDimension("avhrr-n12.ny", 5, mmd);
+            assertDimension("avhrr-n11_nx", 5, mmd);
+            assertDimension("avhrr-n11_ny", 7, mmd);
+            assertDimension("avhrr-n12_nx", 3, mmd);
+            assertDimension("avhrr-n12_ny", 5, mmd);
             assertDimension("matchup_count", 2346, mmd);
+
+            Variable variable = mmd.findVariable("avhrr-n11_ch3b");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 7, 5);
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = mmd.findVariable("avhrr-n12_ch4");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 5, 3);
+            assertEquals(DataType.INT, variable.getDataType());
 
         } finally {
             if (mmd != null) {
                 mmd.close();
             }
         }
+    }
+
+    private void assertCorrectDimensions(Variable variable, int z, int y, int x) {
+        assertEquals(z, variable.getDimension(0).getLength());
+        assertEquals(y, variable.getDimension(1).getLength());
+        assertEquals(x, variable.getDimension(2).getLength());
     }
 
     private void assertDimension(String name, int expected, NetcdfFile mmd) {
