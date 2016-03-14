@@ -32,30 +32,40 @@ import java.awt.Rectangle;
 /**
  * @author muhammad.bc
  */
-public class WindowArrayFactory {
+public class WindowArrayFactory2D {
 
     private final Array rawArray;
 
-    public WindowArrayFactory(Array array) {
+    public WindowArrayFactory2D(Array array) {
         this.rawArray = array;
     }
 
-    private Array getArray(int x, int y, Interval interval, float fillValue, Array rawArray) throws InvalidRangeException {
+    public Array get(int centerX, int centerY, Interval interval, Number fillValue) throws InvalidRangeException {
+        try {
+            if (rawArray.getElementType() == float.class) {
+                return getArray(centerX, centerY, interval, (float) fillValue, rawArray);
+            } else if (rawArray.getElementType() == double.class) {
+                return getArray(centerX, centerY, interval, (double) fillValue, rawArray);
+            } else if (rawArray.getElementType() == byte.class) {
+                return getArray(centerX, centerY, interval, (byte) fillValue, rawArray);
+            } else if (rawArray.getElementType() == int.class) {
+                return getArray(centerX, centerY, interval, (int) fillValue, rawArray);
+            }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Array getArray(int centerX, int centerY, Interval interval, float fillValue, Array rawArray) throws InvalidRangeException {
         final int[] shape = rawArray.getShape();
         final int rawHeight = shape[0];
         final int rawWidth = shape[1];
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
 
-        if (windowWidth % 2 == 0 || windowHeight % 2 == 0) {
-            throw new IllegalArgumentException("The windowSize X, Y must me odd numbers");
-        }
-        final int windowX = x - windowWidth / 2;
-        final int windowY = y - windowHeight / 2;
-
-        if (rawArray.getRank() > 2) {
-            throw new RuntimeException("Can not create window with more then 2 dimension.");
-        }
+        final int windowX = centerX - windowWidth / 2;
+        final int windowY = centerY - windowHeight / 2;
 
         boolean windowInside = isWindowInside(windowX, windowY, windowWidth, windowHeight, rawWidth, rawHeight);
         if (windowInside) {
@@ -78,23 +88,16 @@ public class WindowArrayFactory {
         return windowArray;
     }
 
-    private Array getArray(int x, int y, Interval interval, double fillValue, Array rawArray) throws InvalidRangeException {
-
-        if (rawArray.getRank() > 2) {
-            throw new RuntimeException("Can not create window with more then 2 dimension.");
-        }
+    private Array getArray(int centerX, int centerY, Interval interval, double fillValue, Array rawArray) throws InvalidRangeException {
 
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
-        if (windowWidth % 2 == 0 || windowHeight % 2 == 0) {
-            throw new IllegalArgumentException("The windowSize X, Y must me odd numbers");
-        }
 
         final int[] shape = rawArray.getShape();
         final int rawHeight = shape[0];
         final int rawWidth = shape[1];
-        final int windowX = x - windowWidth / 2;
-        final int windowY = y - windowHeight / 2;
+        final int windowX = centerX - windowWidth / 2;
+        final int windowY = centerY - windowHeight / 2;
 
         boolean windowInside = isWindowInside(windowX, windowY, windowWidth, windowHeight, rawWidth, rawHeight);
         if (windowInside) {
@@ -116,18 +119,16 @@ public class WindowArrayFactory {
         return windowArray;
     }
 
-    private Array getArray(int x, int y, Interval interval, int fillValue, Array rawArray) throws InvalidRangeException {
+    private Array getArray(int centerX, int centerY, Interval interval, int fillValue, Array rawArray) throws InvalidRangeException {
 
         final int[] shape = rawArray.getShape();
         final int rawHeight = shape[0];
         final int rawWidth = shape[1];
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
-        if (windowWidth % 2 == 0 || windowHeight % 2 == 0) {
-            throw new IllegalArgumentException("The windowSize X, Y must me odd numbers");
-        }
-        final int windowX = x - windowWidth / 2;
-        final int windowY = y - windowHeight / 2;
+
+        final int windowX = centerX - windowWidth / 2;
+        final int windowY = centerY - windowHeight / 2;
 
         boolean windowInside = isWindowInside(windowX, windowY, windowWidth, windowHeight, rawWidth, rawHeight);
         if (windowInside) {
@@ -149,22 +150,15 @@ public class WindowArrayFactory {
         return windowArray;
     }
 
-    private Array getArray(int x, int y, Interval interval, byte fillValue, Array rawArray) throws InvalidRangeException {
+    private Array getArray(int centerX, int centerY, Interval interval, byte fillValue, Array rawArray) throws InvalidRangeException {
         final int[] shape = rawArray.getShape();
         final int rawHeight = shape[0];
         final int rawWidth = shape[1];
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
-        if (windowWidth % 2 == 0 || windowHeight % 2 == 0) {
-            throw new IllegalArgumentException("The windowSize X, Y must me odd numbers");
-        }
 
-        if (rawArray.getRank() > 2) {
-            throw new RuntimeException("Can not create window with Array having more then 2 dimension.");
-        }
-
-        final int windowX = x - windowWidth / 2;
-        final int windowY = y - windowHeight / 2;
+        final int windowX = centerX - windowWidth / 2;
+        final int windowY = centerY - windowHeight / 2;
 
         boolean windowInside = isWindowInside(windowX, windowY, windowWidth, windowHeight, rawWidth, rawHeight);
         if (windowInside) {
@@ -186,30 +180,10 @@ public class WindowArrayFactory {
         return windowArray;
     }
 
-    boolean isWindowInside(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
+    private boolean isWindowInside(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
         final Rectangle windowRec = new Rectangle(winOffSetX, winOffSetY, windowWidth, windowHeight);
         final Rectangle arrayRectangle = new Rectangle(0, 0, rawWidth, rawHeight);
         return arrayRectangle.contains(windowRec);
     }
-
-    public Array get(int x, int y, Interval interval, Number fillValue) throws InvalidRangeException {
-        try {
-
-            if (rawArray.getElementType() == float.class) {
-                return getArray(x, y, interval, (float) fillValue, rawArray);
-            } else if (rawArray.getElementType()== double.class) {
-                return getArray(x, y, interval, (double) fillValue, rawArray);
-            } else if (rawArray.getElementType()==byte.class) {
-                return getArray(x, y, interval, (byte) fillValue, rawArray);
-            } else if (rawArray.getElementType()==int.class) {
-                return getArray(x, y, interval, (int) fillValue, rawArray);
-            }
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
 }
 
