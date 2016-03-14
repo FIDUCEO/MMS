@@ -39,6 +39,11 @@ public class TimeUtils {
         return calendar.getTime();
     }
 
+    /**
+     * Creates a date that represents "now" as UTC
+     *
+     * @return utc-now
+     */
     public static Date createNow() {
         final Calendar calendar = calendarThreadLocal.get();
         calendar.setTime(new Date());

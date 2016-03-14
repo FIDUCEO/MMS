@@ -29,6 +29,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
@@ -80,6 +81,33 @@ class AVHRR_GAC_Reader implements Reader {
                 throw new RuntimeException("Invalid geometry detected");
             }
         }
+    }
+
+    // package access for testing only se 2016-03-11
+    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
+        final int sh2 = subsetHeight / 2;
+
+        final double centerX = width / 2 + 0.5;
+
+        final Point centroid = subSceneGeometry.getCentroid();
+        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
+        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
+        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
+        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
+        final double d1 = cd1.distance(cLon, cLat);
+        final double d2 = cd2.distance(cLon, cLat);
+        final int minY;
+        final int maxY;
+        if (d1 < d2) {
+            minY = 0;
+            maxY = subsetHeight - 1;
+        } else {
+            minY = subsetHeight - 1;
+            maxY = height - 1;
+        }
+        return new ClippingPixelLocator(pixelLocator, minY, maxY);
     }
 
     @Override
@@ -156,55 +184,12 @@ class AVHRR_GAC_Reader implements Reader {
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         final ArrayFloat longitudes = (ArrayFloat) arrayCache.get("lon");
         final int[] shape = longitudes.getShape();
-
         final int height = shape[0];
-        final int sh = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
-        final int sh2 = sh / 2;
-
         final int width = shape[1];
-        final double centerX = width / 2 + 0.5;
-
-        final Point centroid = sceneGeometry.getCentroid();
+        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
         final PixelLocator pixelLocator = getPixelLocator();
-        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
-        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + sh + 0.5, null);
-        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
-        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
-        final double d1 = cd1.distance(cLon, cLat);
-        final double d2 = cd2.distance(cLon, cLat);
-        final int minY;
-        final int maxY;
-        if (d1 < d2) {
-            minY = 0;
-            maxY = sh - 1;
-        } else {
-            minY = sh - 1;
-            maxY = height - 1;
-        }
-        return new PixelLocator() {
-            @Override
-            public Point2D getGeoLocation(double x, double y, Point2D g) {
-                return pixelLocator.getGeoLocation(x, y, g);
-            }
 
-            @Override
-            public Point2D[] getPixelLocation(double lon, double lat) {
-                final Point2D[] pixelLocation = pixelLocator.getPixelLocation(lon, lat);
-                if (pixelLocation.length > 1) {
-                    final Point2D p0 = pixelLocation[0];
-                    final int y = (int) Math.round(p0.getY());
-                    if (y >= minY && y <= maxY) {
-                        return new Point2D[]{p0};
-                    } else {
-                        return new Point2D[]{pixelLocation[1]};
-                    }
-                } else {
-                    return pixelLocation;
-                }
-            }
-        };
+        return getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override

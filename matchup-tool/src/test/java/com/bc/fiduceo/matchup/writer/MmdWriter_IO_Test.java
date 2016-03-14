@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +33,9 @@ import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -56,10 +59,14 @@ public class MmdWriter_IO_Test {
     @Test
     public void testCreate() throws IOException {
         final MmdWriter mmdWriter = new MmdWriter();
+
         final File mmdFile = new File(testDir, "test_mmd.nc");
+        final List<Dimension> dimemsions = new ArrayList<>();
+        dimemsions.add(new Dimension("avhrr-n11", 5, 7));
+        dimemsions.add(new Dimension("avhrr-n12", 3, 5));
 
         try {
-            mmdWriter.create(mmdFile);
+            mmdWriter.create(mmdFile, dimemsions, 2346);
         } finally {
             mmdWriter.close();
         }
@@ -74,13 +81,25 @@ public class MmdWriter_IO_Test {
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
             assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
-
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
+
+            assertDimension("avhrr-n11.nx", 5, mmd);
+            assertDimension("avhrr-n11.ny", 7, mmd);
+            assertDimension("avhrr-n12.nx", 3, mmd);
+            assertDimension("avhrr-n12.ny", 5, mmd);
+            assertDimension("matchup_count", 2346, mmd);
+
         } finally {
             if (mmd != null) {
                 mmd.close();
             }
         }
+    }
+
+    private void assertDimension(String name, int expected, NetcdfFile mmd) {
+        final ucar.nc2.Dimension ncDimension = mmd.findDimension(name);
+        assertNotNull(ncDimension);
+        assertEquals(expected, ncDimension.getLength());
     }
 
     private void assertGlobalDateAttribute(String name, Date expected, NetcdfFile mmd) {

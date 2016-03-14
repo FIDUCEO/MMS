@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
@@ -36,18 +37,22 @@ public class MmdWriter {
 
     private NetcdfFileWriter netcdfFileWriter;
 
-    public void create(File mmdFile) throws IOException {
+    public void create(File mmdFile, List<Dimension> dimensions, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
-        addGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)");
-        addGlobalAttribute("institution", "Brockmann Consult GmbH");
-        addGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)");
-        addGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
-        addGlobalAttribute("creation_date", TimeUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+        createGlobalAttributes();
+
+        for (final Dimension dimension : dimensions) {
+            String dimensionName = dimension.getName() + ".nx";
+            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNx());
+
+            dimensionName = dimension.getName() + ".ny";
+            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNy());
+        }
+        netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
 
         netcdfFileWriter.create();
     }
-
 
     public void close() throws IOException {
         if (netcdfFileWriter != null) {
@@ -82,6 +87,14 @@ public class MmdWriter {
         nameBuilder.append(".nc");
 
         return nameBuilder.toString();
+    }
+
+    private void createGlobalAttributes() {
+        addGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)");
+        addGlobalAttribute("institution", "Brockmann Consult GmbH");
+        addGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)");
+        addGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
+        addGlobalAttribute("creation_date", TimeUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
     }
 
     private void addGlobalAttribute(String name, String val) {

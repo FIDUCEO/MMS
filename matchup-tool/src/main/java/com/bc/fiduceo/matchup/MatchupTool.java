@@ -201,8 +201,7 @@ class MatchupTool {
         }
     }
 
-    // @todo 2 tb/** make static and package local, add tests 2016-03-11
-    private PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
         final PixelLocator pixelLocator;
         if (isSegmented) {
             pixelLocator = reader.getSubScenePixelLocator(polygon);
@@ -212,8 +211,7 @@ class MatchupTool {
         return pixelLocator;
     }
 
-    // @todo 2 tb/** make static and package local, add tests 2016-03-11
-    private boolean isSegmented(Geometry primaryGeoBounds) {
+    static boolean isSegmented(Geometry primaryGeoBounds) {
         return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
     }
 

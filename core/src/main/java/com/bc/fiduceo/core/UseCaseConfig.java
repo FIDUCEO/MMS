@@ -31,6 +31,7 @@ public class UseCaseConfig {
 
     private String name;
     private List<Sensor> sensors;
+    private List<Dimension> dimensions;
     private int timeDelta;
     private String outputPath;
 
@@ -104,6 +105,14 @@ public class UseCaseConfig {
         return outputPath;
     }
 
+    public List<Dimension> getDimensions() {
+        return dimensions;
+    }
+
+    public void setDimensions(List<Dimension> dimensions) {
+        this.dimensions = dimensions;
+    }
+
     private static XStream createXStream() {
         final XStream xStream = new XStream();
         xStream.alias("use-case-config", UseCaseConfig.class);
@@ -111,6 +120,10 @@ public class UseCaseConfig {
         xStream.aliasField("time-delta", UseCaseConfig.class, "timeDelta");
         xStream.aliasField("output-path", UseCaseConfig.class, "outputPath");
         xStream.alias("sensor", Sensor.class);
+
+        xStream.alias("dimension", Dimension.class);
+        xStream.useAttributeFor(Dimension.class, "name");
+
         return xStream;
     }
 }
