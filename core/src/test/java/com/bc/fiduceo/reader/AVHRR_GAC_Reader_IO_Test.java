@@ -313,9 +313,7 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(81, array.getSize());
 
             final Index index = array.getIndex();
-
-
-
+            System.out.println("array = " + array);
 
             index.set(0, 0);
             assertEquals(-32768.0, array.getDouble(index), 1e-8);
@@ -577,5 +575,10 @@ public class AVHRR_GAC_Reader_IO_Test {
         } finally {
             reader.close();
         }
+    }
+
+    private void assertSameIndex(int i,int j,Array array){
+        Index index = array.getIndex();
+        
     }
 }

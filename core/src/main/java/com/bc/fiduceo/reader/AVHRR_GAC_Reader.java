@@ -134,49 +134,6 @@ class AVHRR_GAC_Reader implements Reader {
         return acquisitionInfo;
     }
 
-    private Geometries calculateGeometries() throws IOException {
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        final Geometries geometries = new Geometries();
-
-        final Array longitudes = arrayCache.get("lon");
-        final Array latitudes = arrayCache.get("lat");
-        Geometry timeAxisGeometry;
-        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        if (!boundingGeometry.isValid()) {
-            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
-            final int height = longitudes.getShape()[0];
-            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
-            checkForValidity((GeometryCollection) boundingGeometry);
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
-        } else {
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
-        }
-
-        geometries.setBoundingGeometry(boundingGeometry);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-        return geometries;
-    }
-
-    private BoundingPolygonCreator getBoundingPolygonCreator() {
-        if (boundingPolygonCreator == null) {
-            final GeometryFactory geometryFactory = getGeometryFactory();
-
-            // @todo 2 tb/tb move intervals to config 2016-03-02
-            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
-        }
-
-        return boundingPolygonCreator;
-    }
-
-    private GeometryFactory getGeometryFactory() {
-        if (geometryFactory == null) {
-            // @todo 1 tb/tb inject geometry factory 2016-03-02
-            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        }
-
-        return geometryFactory;
-    }
-
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
@@ -188,6 +145,11 @@ class AVHRR_GAC_Reader implements Reader {
             pixelLocator = new SwathPixelLocator(lonStorage, latStorage, width, height);
         }
         return pixelLocator;
+    }
+
+    @Override
+    public String getRegEx() {
+        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
     }
 
     @Override
@@ -246,20 +208,56 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int x, int y, Interval interval, String variableName)  {
-        try {
-            final Array rawArray = arrayCache.get(variableName);
-            final Number fillValue = getFillValue("_FillValue", variableName);
+    public Array readRaw(int x, int y, Interval interval, String variableName) throws InvalidRangeException, IOException {
+        final Array rawArray = arrayCache.get(variableName);
+        final Number fillValue = getFillValue("_FillValue", variableName);
 
-            WindowArrayFactory windowArrayFactory = new WindowArrayFactory(rawArray);
-            return windowArrayFactory.get(x,y,interval,fillValue);
-
-        } catch (IOException | InvalidRangeException e) {
-            e.printStackTrace();
-        }
-        return null;
+        WindowArrayFactory windowArrayFactory = new WindowArrayFactory(rawArray);
+        return windowArrayFactory.get(x, y, interval, fillValue);
     }
 
+    private Geometries calculateGeometries() throws IOException {
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        final Geometries geometries = new Geometries();
+
+        final Array longitudes = arrayCache.get("lon");
+        final Array latitudes = arrayCache.get("lat");
+        Geometry timeAxisGeometry;
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
+        if (!boundingGeometry.isValid()) {
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
+            final int height = longitudes.getShape()[0];
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
+            checkForValidity((GeometryCollection) boundingGeometry);
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
+        } else {
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        }
+
+        geometries.setBoundingGeometry(boundingGeometry);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        return geometries;
+    }
+
+    private BoundingPolygonCreator getBoundingPolygonCreator() {
+        if (boundingPolygonCreator == null) {
+            final GeometryFactory geometryFactory = getGeometryFactory();
+
+            // @todo 2 tb/tb move intervals to config 2016-03-02
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
+        }
+
+        return boundingPolygonCreator;
+    }
+
+    private GeometryFactory getGeometryFactory() {
+        if (geometryFactory == null) {
+            // @todo 1 tb/tb inject geometry factory 2016-03-02
+            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        }
+
+        return geometryFactory;
+    }
 
     private Number getFillValue(String attrName, String variableName) {
         Variable variable = netcdfFile.findVariable(variableName);
@@ -267,13 +265,7 @@ class AVHRR_GAC_Reader implements Reader {
         return attribute.getNumericValue();
     }
 
-    @Override
-    public String getRegEx() {
-        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
-    }
-
     private class Geometries {
-
 
 
         private Geometry boundingGeometry;

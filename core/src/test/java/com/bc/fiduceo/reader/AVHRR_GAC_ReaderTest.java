@@ -31,10 +31,12 @@ import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
+import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -155,8 +157,10 @@ public class AVHRR_GAC_ReaderTest {
     }
 
 
+
     GeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {
         final Geometry[] geometries = new Geometry[]{geometry_1, geometry_2};
         return geometryFactory.createGeometryCollection(geometries);
     }
+
 }
