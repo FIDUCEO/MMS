@@ -7,7 +7,6 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SampleCollector {
@@ -25,23 +24,22 @@ public class SampleCollector {
     }
 
     // @todo 1 se/** write test
-    public List<Sample> getSamplesFor(List<Sample> sourceSamples, List<Sample> resultList) {
+    public void getSamplesFor(List<SampleSet> sampleSets) {
         Point2D geopos = new Point2D.Double();
-        for (Sample sourceSample : sourceSamples) {
-            final double lon = sourceSample.lon;
-            final double lat = sourceSample.lat;
-            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(lon, lat);
+        for (final SampleSet sourceSample : sampleSets) {
+            final Sample primary = sourceSample.getPrimary();
+            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
             for (Point2D pixelLocation : pixelLocations) {
                 final int x = (int) pixelLocation.getX();
                 final int y = (int) pixelLocation.getY();
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                resultList.add(new Sample(x, y, geopos.getX(), geopos.getY(), null));
+                final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), null);
+                sourceSample.setSecondary(sample);
             }
         }
-        return resultList;
     }
 
-    public List<Sample> getSamplesFor(Polygon polygon, List<Sample> samples) {
+    public void getSamplesFor(Polygon polygon, MatchupSet matchupSet) {
         final Point[] coordinates = polygon.getCoordinates();
         for (Point coordinate : coordinates) {
             final Point2D[] pixelLocation = pixelLocator.getPixelLocation(coordinate.getLon(), coordinate.getLat());
@@ -65,10 +63,10 @@ public class SampleCollector {
                 final double lat = geoLocation.getY();
                 final Point geoPoint = factory.createPoint(lon, lat);
                 if (polygon.contains(geoPoint)) {
-                    samples.add(new Sample(x, y, lon, lat, null));
+                    final Sample sample = new Sample(x, y, lon, lat, null);
+                    matchupSet.addPrimary(sample);
                 }
             }
         }
-        return samples;
     }
 }

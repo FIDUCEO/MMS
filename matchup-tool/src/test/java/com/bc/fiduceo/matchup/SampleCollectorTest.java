@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class SampleCollectorTest {
@@ -44,10 +45,12 @@ public class SampleCollectorTest {
         final Polygon polygon = factory.createPolygon(polygonPoints);
 
         // execution
-        final List<Sample> samples = collector.getSamplesFor(polygon, new ArrayList<>());
+        final MatchupSet matchupSet = new MatchupSet();
+        collector.getSamplesFor(polygon, matchupSet);
 
         // verification
-        assertNotNull(samples);
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        assertNotNull(sampleSets);
         final Sample[] expecteds = {
                 new Sample(12, 14, 1.5, 1.5, null),
                 new Sample(13, 14, 2.5, 1.5, null),
@@ -55,14 +58,17 @@ public class SampleCollectorTest {
                 new Sample(13, 15, 2.5, 2.5, null)
 
         };
-        assertEquals(expecteds.length, samples.size());
+        assertEquals(expecteds.length, sampleSets.size());
         for (int i = 0; i < expecteds.length; i++) {
             final Sample expected = expecteds[i];
-            final Sample actual = samples.get(i);
-            assertEquals("Index = " + i, expected.x, actual.x);
-            assertEquals("Index = " + i, expected.y, actual.y);
-            assertEquals("Index = " + i, expected.lon, actual.lon, 0.000001);
-            assertEquals("Index = " + i, expected.lat, actual.lat, 0.000001);
+            final SampleSet actual = sampleSets.get(i);
+            final Sample primary = actual.getPrimary();
+            assertEquals("Index = " + i, expected.x, primary.x);
+            assertEquals("Index = " + i, expected.y, primary.y);
+            assertEquals("Index = " + i, expected.lon, primary.lon, 0.000001);
+            assertEquals("Index = " + i, expected.lat, primary.lat, 0.000001);
+
+            assertNull(actual.getSecondary());
         }
     }
 

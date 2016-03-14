@@ -111,11 +111,9 @@ class MatchupTool {
         final int timeDelta = useCaseConfig.getTimeDelta();
         final int timeDeltaInMillis = timeDelta * 1000;
 
-        // @todo 2 tb/** move these Maps to an aggregating object 2016-03-11
-        final Map<SatelliteObservation, List<Sample>> primarySamplesMap = new HashMap<>();
-        final Map<SatelliteObservation, List<Sample>> secondarySamplesMap = new HashMap<>();
+        final List<MatchupSet> matchupSets = new ArrayList<>();
 
-        for (final SatelliteObservation primaryObservation : primaryObservations) {
+         for (final SatelliteObservation primaryObservation : primaryObservations) {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
             primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
@@ -124,9 +122,6 @@ class MatchupTool {
 
             final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
             final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
-
-            List<Sample> primarySamples = new ArrayList<>();
-            List<Sample> secondarySamples = new ArrayList<>();
 
             parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
@@ -139,48 +134,32 @@ class MatchupTool {
                 final boolean isSecondarySegmented = isSegmented(secondaryGeoBounds);
 
                 final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
+                if (intersectingIntervals.length == 0) {
+                    continue;
+                }
+
+                final MatchupSet matchupSet = new MatchupSet();
+                matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
+                matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
+
                 for (final Intersection intersection : intersectingIntervals) {
                     final TimeInfo timeInfo = intersection.getTimeInfo();
                     if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
                         final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
 
                         SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
-                        primarySamples = sampleCollector.getSamplesFor((Polygon) intersection.getGeometry(), primarySamples);
+                        sampleCollector.getSamplesFor((Polygon) intersection.getGeometry(), matchupSet);
 
                         final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 
                         sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                        secondarySamples = sampleCollector.getSamplesFor(primarySamples, secondarySamples);
+                        sampleCollector.getSamplesFor(matchupSet.getSampleSets());
                     }
                 }
 
-//                int[] counts = new int[400];
-//                for (int i = 0; i < 1000000; i++) {
-//                    final Sample p = primarySamples.get(i);
-//                    final Sample s = secondarySamples.get(i);
-//                    final double lo1 = p.lon;
-//                    final double la1 = p.lat;
-//                    final double lo2 = s.lon;
-//                    final double la2 = s.lat;
-//                    final double distance = new SphericalDistance(lo1, la1).distance(lo2, la2);
-//                    final double distKm = 40000 / (Math.PI * 2) * distance;
-//                    final int idx = (int) Math.floor(distKm);
-//                    counts[idx]++;
-//                }
-//                for (int i = 0; i < counts.length; i++) {
-//                    int count = counts[i];
-//                    System.out.println("count["+i+"] = " + count);
-//                }
-
-
-                if (!primarySamples.isEmpty()) {
-                    primarySamplesMap.put(primaryObservation, primarySamples);
+                if (matchupSet.getNumObservations() > 0) {
+                    matchupSets.add(matchupSet);
                 }
-                if (!secondarySamples.isEmpty()) {
-                    secondarySamplesMap.put(secondaryObservation, secondarySamples);
-                }
-
-
                 //
                 // - detect all pixels (x/y) in primary observation that are contained in intersecting area
                 // -- for each pixel:
