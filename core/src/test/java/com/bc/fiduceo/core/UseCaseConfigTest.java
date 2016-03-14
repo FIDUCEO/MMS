@@ -288,4 +288,11 @@ public class UseCaseConfigTest {
         useCaseConfig.setOutputPath(path);
         assertEquals(path, useCaseConfig.getOutputPath());
     }
+
+    @Test
+    public void testConstruction(){
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        assertNotNull(additionalSensors);
+        assertEquals(0, additionalSensors.size());
+    }
 }

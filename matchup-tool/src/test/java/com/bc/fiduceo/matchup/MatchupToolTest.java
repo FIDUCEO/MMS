@@ -240,4 +240,51 @@ public class MatchupToolTest {
         verify(collection, times(2)).getGeometries();
         verifyNoMoreInteractions(collection);
     }
+
+    @Test
+    public void testGetSecondarySensor() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("nasenmann"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Sensor secondarySensor = MatchupTool.getSecondarySensor(config);
+        assertNotNull(secondarySensor);
+        assertEquals("nasenmann", secondarySensor.getName());
+    }
+
+    @Test
+    public void testGetSecondarySensor_emptyList() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        try {
+            MatchupTool.getSecondarySensor(config);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetSecondarySensorParameter() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("the sensor"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Geometry geometry = mock(Geometry.class);
+        final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
+        final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
+
+        final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, geometry, startDate, endDate);
+        assertNotNull(parameter);
+        assertEquals("the sensor", parameter.getSensorName());
+        assertSame(geometry, parameter.getGeometry());
+        TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
+    }
 }

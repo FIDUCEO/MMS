@@ -215,7 +215,7 @@ class MatchupTool {
         return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
     }
 
-    // @todo 1 tb/tb write tests 2016-03-07
+    // package access for testing only tb 2016-03-14
     static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
@@ -226,18 +226,14 @@ class MatchupTool {
         return parameter;
     }
 
-    // @todo 1 tb/tb write tests 2016-03-07
+    // package access for testing only tb 2016-03-14
     static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         if (additionalSensors.size() != 1) {
             throw new RuntimeException("Unable to run matchup with given sensor number");
         }
 
-        final Sensor secondarySensor = additionalSensors.get(0);
-        if (secondarySensor == null) {
-            throw new RuntimeException("Secondary sensor not configured");
-        }
-        return secondarySensor;
+        return additionalSensors.get(0);
     }
 
     // package access for testing only tb 2016-02-23
