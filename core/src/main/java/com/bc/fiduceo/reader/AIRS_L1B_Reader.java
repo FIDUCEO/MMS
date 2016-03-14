@@ -168,7 +168,7 @@ class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int x, int y, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
     }
 

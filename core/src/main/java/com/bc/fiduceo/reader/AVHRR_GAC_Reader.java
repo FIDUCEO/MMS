@@ -193,12 +193,12 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int x, int y, Interval interval, String variableName) throws InvalidRangeException, IOException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue("_FillValue", variableName);
 
-        WindowArrayFactory windowArrayFactory = new WindowArrayFactory(rawArray);
-        return windowArrayFactory.get(x, y, interval, fillValue);
+        WindowArrayFactory2D windowArrayFactory = new WindowArrayFactory2D(rawArray);
+        return windowArrayFactory.get(centerX, centerY, interval, fillValue);
     }
 
     private Geometries calculateGeometries() throws IOException {
