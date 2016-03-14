@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-public class Archive {
+class Archive {
 
     private Path rootPath;
     private final Logger log;
