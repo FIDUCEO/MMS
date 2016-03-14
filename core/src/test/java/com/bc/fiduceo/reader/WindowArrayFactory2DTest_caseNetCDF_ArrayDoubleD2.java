@@ -11,24 +11,23 @@ import ucar.ma2.InvalidRangeException;
 @SuppressWarnings("Duplicates")
 public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
 
-    private WindowArrayFactory2D windowArrayFactory;
     private Interval windowSize;
     private double fillValue;
     private double fv;
+    private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
         fv = fillValue;
-        final Array rawArray = getDoubleRawArray();
-        windowArrayFactory = new WindowArrayFactory2D(rawArray);
+        rawArray = getDoubleRawArray();
     }
 
     @Test
     public void testWindowCenter() throws Exception {
 
-        final Array array = windowArrayFactory.get(3, 3, windowSize, fillValue);
+        final Array array = RawDataReader.get(3, 3, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
         assertEquals(9, array.getSize());
@@ -40,7 +39,7 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
     @Test
     public void testTopRightWindowOut() throws Exception {
 
-        final Array array = windowArrayFactory.get(9, 0, windowSize, fillValue);
+        final Array array = RawDataReader.get(9, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
         assertEquals(9, array.getSize());
@@ -52,7 +51,7 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
     @Test
     public void testTopLeftWindowOut() throws Exception {
 
-        final Array array = windowArrayFactory.get(0, 0, windowSize, fillValue);
+        final Array array = RawDataReader.get(0, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
         assertEquals(9, array.getSize());
@@ -63,7 +62,7 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
 
     @Test
     public void testBottomLeftWindowOut() throws Exception {
-        final Array array = windowArrayFactory.get(0, 9, windowSize, fillValue);
+        final Array array = RawDataReader.get(0, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
         assertEquals(9, array.getSize());
@@ -74,7 +73,7 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
 
     @Test
     public void testBottomRightWindowOut() throws Exception {
-        final Array array = windowArrayFactory.get(9, 9, windowSize, fillValue);
+        final Array array = RawDataReader.get(9, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
         assertEquals(9, array.getSize());
@@ -90,10 +89,9 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
                     {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                     {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
         });
-        final WindowArrayFactory2D factory = new WindowArrayFactory2D(rawArray);
 
         try {
-            factory.get(1, 1, new Interval(3, 3), -4d);
+            RawDataReader.get(1, 1, new Interval(3, 3), -4d, rawArray);
             fail("InvalidRangeException expected");
         } catch (InvalidRangeException expected) {
         }
@@ -103,10 +101,9 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
     @Test
     public void testRawArrayHasLessThanTwoDimensions() throws InvalidRangeException {
         final Array rawArray = Array.factory(new double[]{11, 12, 13});
-        final WindowArrayFactory2D factory = new WindowArrayFactory2D(rawArray);
 
         try {
-            factory.get(1, 1, new Interval(3, 3), -4d);
+            RawDataReader.get(1, 1, new Interval(3, 3), -4d, rawArray);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch (ArrayIndexOutOfBoundsException expected) {
         }
@@ -125,5 +122,6 @@ public class WindowArrayFactory2DTest_caseNetCDF_ArrayDoubleD2 {
                     {8, 18, 28, 38, 48, 58, 68, 78, 88, 98},
                     {9, 19, 29, 39, 49, 59, 69, 79, 89, 99}
         });
+
     }
 }
