@@ -121,7 +121,7 @@ public class ArchiveTest {
         // preparation
 
         // action
-        final Path productPath = archive.createAValidProductPath(processingVersion, sensorType, 2001, 4, 3);
+        final Path productPath = archive.createValidProductPath(processingVersion, sensorType, 2001, 4, 3);
 
         // validation
         assertEquals("arciveRoot\\amsub\\1.0\\2001\\04\\03".replace("\\",separator), productPath.toString());

@@ -45,6 +45,8 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class IngestionTool {
 
@@ -74,11 +76,11 @@ class IngestionTool {
         }
     }
 
-
-
     private void ingestMetadata(ToolContext context, String sensorType, String processingVersion) throws SQLException, IOException {
         final ReaderFactory readerFactory = new ReaderFactory();
         final Reader reader = readerFactory.getReader(sensorType);
+
+        final Pattern pattern = getPattern(reader);
 
         final Storage storage = context.getStorage();
 
@@ -91,6 +93,12 @@ class IngestionTool {
         final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
 
         for (final Path filePath : productPaths) {
+            final Matcher matcher = getMatcher(filePath, pattern);
+            if (!matcher.matches()) {
+                logger.warning("The file '" + filePath.toString() + "' des not follow the file naming pattern. Skipping");
+                continue;
+            }
+
             reader.open(filePath.toFile());
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
@@ -110,6 +118,8 @@ class IngestionTool {
         }
     }
 
+
+
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
@@ -122,6 +132,7 @@ class IngestionTool {
         writer.flush();
     }
 
+    // package access for testing only tb 2016-03-14
     static Options getOptions() {
         final Options options = new Options();
 
@@ -146,6 +157,18 @@ class IngestionTool {
         options.addOption(versionOption);
 
         return options;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static Pattern getPattern(Reader reader) {
+        final String regEx = reader.getRegEx();
+        return Pattern.compile(regEx);
+    }
+
+    // package access for testing only tb 2016-03-14
+    static  Matcher getMatcher(Path filePath, Pattern pattern) {
+        final String fileName = filePath.getFileName().toString();
+        return pattern.matcher(fileName);
     }
 
     private ToolContext initializeContext(CommandLine commandLine, Path confDirPath) throws IOException, SQLException {

@@ -78,6 +78,7 @@
                 <version>3.2.1</version>
             </dependency>
 
+            <!-- test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -89,6 +90,13 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>1.10.19</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.jimfs</groupId>
+                <artifactId>jimfs</artifactId>
+                <version>1.0</version>
                 <scope>test</scope>
             </dependency>
 

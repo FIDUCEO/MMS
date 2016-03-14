@@ -20,24 +20,23 @@
 
 package com.bc.fiduceo.ingest;
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.Reader;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
+import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IngestionToolTest {
 
@@ -116,5 +115,30 @@ public class IngestionToolTest {
         assertEquals("version", version.getLongOpt());
         assertEquals("Define the sensor version.", version.getDescription());
         assertTrue(version.hasArg());
+    }
+
+    @Test
+    public void testGetPattern() {
+        final Reader reader = mock(Reader.class);
+        when(reader.getRegEx()).thenReturn("p*q");
+
+        final Pattern pattern = IngestionTool.getPattern(reader);
+        assertEquals("p*q", pattern.toString());
+    }
+
+    @Test
+    public void testGetMatcher() {
+        final Path path = mock(Path.class);
+        final Path fileName = mock(Path.class);
+        when(fileName.toString()).thenReturn("2345.nc");
+        when(path.getFileName()).thenReturn(fileName);
+
+        Pattern pattern = Pattern.compile("[0-9]{4}.nc");
+        Matcher matcher = IngestionTool.getMatcher(path, pattern);
+        assertTrue(matcher.matches());
+
+        pattern = Pattern.compile("\\d.nc");
+        matcher = IngestionTool.getMatcher(path, pattern);
+        assertFalse(matcher.matches());
     }
 }

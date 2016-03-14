@@ -31,10 +31,9 @@ public class Archive {
             final int year = instance.get(Calendar.YEAR);
             final int month = instance.get(Calendar.MONTH) + 1;
             final int day = instance.get(Calendar.DAY_OF_MONTH);
-            final Path productsDir = createAValidProductPath(processingVersion, sensorType, year, month, day);
+            final Path productsDir = createValidProductPath(processingVersion, sensorType, year, month, day);
 
             if (Files.exists(productsDir)) {
-
                 log.info("The product directory :" + productsDir.toString());
                 final Iterator<Path> iterator = Files.list(productsDir).iterator();
                 while (iterator.hasNext()) {
@@ -48,7 +47,7 @@ public class Archive {
         return pathArrayList.toArray(new Path[0]);
     }
 
-    Path createAValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
+    Path createValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
         return rootPath.resolve(sensorType)
                 .resolve(processingVersion)
                 .resolve("" + year)
