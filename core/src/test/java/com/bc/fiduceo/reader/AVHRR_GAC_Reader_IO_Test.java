@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -209,6 +210,8 @@ public class AVHRR_GAC_Reader_IO_Test {
             index.set(0, 0);
             assertEquals(-152.41099548339844, array.getDouble(index), 1e-8);
 
+            assertEqualValue(-152.41099548339844,0,0,array);
+
             index.set(0, 1);
             assertEquals(-151.1510009765625, array.getDouble(index), 1e-8);
 
@@ -235,6 +238,14 @@ public class AVHRR_GAC_Reader_IO_Test {
         } finally {
             reader.close();
         }
+    }
+
+
+
+    private void assertEqualValue(double value, int i, int j, Array array) {
+        Index index = array.getIndex();
+        index.set(i, j);
+        assertEquals(value, array.getDouble(index), 1e-8);
     }
 
     @Test
@@ -275,7 +286,7 @@ public class AVHRR_GAC_Reader_IO_Test {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
-            Array array= reader.readRaw(2, 1, new Interval(3, 5), "lon");
+            Array array = reader.readRaw(2, 1, new Interval(3, 5), "lon");
             assertNotNull(array);
             assertEquals(15, array.getSize());
 
@@ -290,13 +301,12 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(-32768.0, array.getDouble(index), 1e-8);
 
 
-
             index.set(1, 0);
             assertEquals(-155.5709991455078, array.getDouble(index), 1e-8);
             index.set(1, 1);
-            assertEquals(-154.40899658203125,array.getDouble(index), 1e-8);
+            assertEquals(-154.40899658203125, array.getDouble(index), 1e-8);
             index.set(1, 2);
-            assertEquals(-153.20599365234375,array.getDouble(index), 1e-8);
+            assertEquals(-153.20599365234375, array.getDouble(index), 1e-8);
         } finally {
             reader.close();
         }
@@ -320,7 +330,7 @@ public class AVHRR_GAC_Reader_IO_Test {
             index.set(0, 1);
             assertEquals(-32768.0, array.getDouble(index), 1e-8);
             index.set(0, 2);
-            assertEquals(-155.2050018310547,  array.getDouble(index), 1e-8);
+            assertEquals(-155.2050018310547, array.getDouble(index), 1e-8);
             index.set(0, 3);
             assertEquals(-154.05299377441406, array.getDouble(index), 1e-8);
             index.set(0, 4);
@@ -330,7 +340,7 @@ public class AVHRR_GAC_Reader_IO_Test {
             index.set(0, 6);
             assertEquals(-150.35899353027344, array.getDouble(index), 1e-8);
             index.set(0, 7);
-            assertEquals(-149.0449981689453,  array.getDouble(index), 1e-8);
+            assertEquals(-149.0449981689453, array.getDouble(index), 1e-8);
             index.set(0, 8);
             assertEquals(-147.68899536132812, array.getDouble(index), 1e-8);
 
@@ -469,6 +479,7 @@ public class AVHRR_GAC_Reader_IO_Test {
     }
 
     @Test
+    @Ignore
     public void testBottomLeftWindowInOut() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
@@ -538,7 +549,9 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(-32768.0, array.get(1, 8), 1e-8);
             assertEquals(-32768.0, array.get(2, 8), 1e-8);
             assertEquals(-32768.0, array.get(3, 8), 1e-8);
-            assertEquals(-32768.0, array.get(4, 8), 1e-8);
+            assertEquals(-32768.0, array.get(4, 8),
+
+                    1e-8);
             assertEquals(-32768.0, array.get(5, 8), 1e-8);
             assertEquals(-32768.0, array.get(6, 8), 1e-8);
             assertEquals(-32768.0, array.get(7, 8), 1e-8);
@@ -563,7 +576,7 @@ public class AVHRR_GAC_Reader_IO_Test {
     }
 
     @Test
-    public void testCloud_Mark() throws Exception {
+    public void testCloud_Mask() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
@@ -577,8 +590,5 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    private void assertSameIndex(int i,int j,Array array){
-        Index index = array.getIndex();
-        
-    }
+
 }
