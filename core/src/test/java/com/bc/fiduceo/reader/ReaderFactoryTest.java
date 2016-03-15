@@ -21,10 +21,7 @@ package com.bc.fiduceo.reader;
 
 import org.junit.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 public class ReaderFactoryTest {
@@ -33,7 +30,7 @@ public class ReaderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        readerFactory = new ReaderFactory();
+        readerFactory = ReaderFactory.get();
     }
 
     @Test
@@ -94,5 +91,16 @@ public class ReaderFactoryTest {
             fail("The key doest not exist");
         } catch (NullPointerException expect) {
         }
+    }
+
+    @Test
+    public void testSingletonBehaviour(){
+        final ReaderFactory factory = ReaderFactory.get();
+        assertNotNull(factory);
+
+        final ReaderFactory secondCallFactory = ReaderFactory.get();
+        assertNotNull(secondCallFactory);
+
+        assertSame(factory, secondCallFactory);
     }
 }

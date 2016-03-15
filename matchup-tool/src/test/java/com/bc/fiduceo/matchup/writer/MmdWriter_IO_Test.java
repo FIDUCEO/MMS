@@ -65,33 +65,33 @@ public class MmdWriter_IO_Test {
         dimemsions.add(new Dimension("avhrr-n11", 5, 7));
         dimemsions.add(new Dimension("avhrr-n12", 3, 5));
 
-        final List<VariableConfig> variableConfigs = new ArrayList<>();
-        VariableConfig variableConfig = new VariableConfig();
-        variableConfig.setName("avhrr-n11_ch3b");
-        variableConfig.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
-        variableConfig.setDataType("short");
-        variableConfigs.add(variableConfig);
+        final List<VariablePrototype> variablePrototypes = new ArrayList<>();
+        VariablePrototype variablePrototype = new VariablePrototype();
+        variablePrototype.setName("avhrr-n11_ch3b");
+        variablePrototype.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
+        variablePrototype.setDataType("short");
+        variablePrototypes.add(variablePrototype);
 
-        variableConfig = new VariableConfig();
-        variableConfig.setName("avhrr-n12_ch4");
-        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variableConfig.setDataType("int");
-        variableConfigs.add(variableConfig);
+        variablePrototype = new VariablePrototype();
+        variablePrototype.setName("avhrr-n12_ch4");
+        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variablePrototype.setDataType("int");
+        variablePrototypes.add(variablePrototype);
 
-        variableConfig = new VariableConfig();
-        variableConfig.setName("avhrr-n12_cloud_mask");
-        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variableConfig.setDataType("byte");
-        variableConfigs.add(variableConfig);
+        variablePrototype = new VariablePrototype();
+        variablePrototype.setName("avhrr-n12_cloud_mask");
+        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variablePrototype.setDataType("byte");
+        variablePrototypes.add(variablePrototype);
 
-        variableConfig = new VariableConfig();
-        variableConfig.setName("avhrr-n12_dtime");
-        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variableConfig.setDataType("float");
-        variableConfigs.add(variableConfig);
+        variablePrototype = new VariablePrototype();
+        variablePrototype.setName("avhrr-n12_dtime");
+        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variablePrototype.setDataType("float");
+        variablePrototypes.add(variablePrototype);
 
         try {
-            mmdWriter.create(mmdFile, dimemsions, variableConfigs, 2346);
+            mmdWriter.create(mmdFile, dimemsions, variablePrototypes, 2346);
         } finally {
             mmdWriter.close();
         }

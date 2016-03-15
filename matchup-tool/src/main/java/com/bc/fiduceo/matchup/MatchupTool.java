@@ -55,12 +55,13 @@ import java.util.logging.Logger;
 
 class MatchupTool {
 
-    static String VERSION = "1.0.0";
-    final Logger logger;
-    private final ReaderFactory readerFactory = new ReaderFactory();
+    private static String VERSION = "1.0.0";
+    private final Logger logger;
+    private final ReaderFactory readerFactory;
 
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
+        readerFactory = ReaderFactory.get();
     }
 
     public void run(CommandLine commandLine) throws IOException, SQLException {
@@ -107,12 +108,20 @@ class MatchupTool {
         // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
         // --- perform cloud processing (optional) -> remove pixels or add flags
         //
+
+        writeMMD(matchupSets, context);
+    }
+
+    private void writeMMD(List<MatchupSet> matchupSets, ToolContext context) {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+
         // - if pixels are left: create output file
         // - for all remaining pixels:
         // -- extract pixel window for all bands and write to output (primary and secondary observation)
         // -- store metadata of each sensor-acquisition as described in use-case
-        //
-        //
+
     }
 
     private List<MatchupSet> createMatchupSets(ToolContext context) throws IOException, SQLException {

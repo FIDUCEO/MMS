@@ -39,17 +39,17 @@ public class MmdWriter {
 
     private NetcdfFileWriter netcdfFileWriter;
 
-    public void create(File mmdFile, List<Dimension> dimensions, List<VariableConfig> variableConfigs, int numMatchups) throws IOException {
+    public void create(File mmdFile, List<Dimension> dimensions, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
         createGlobalAttributes();
         createDimensions(dimensions, numMatchups);
 
-        for(final VariableConfig variableConfig : variableConfigs) {
+        for(final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                    variableConfig.getName(),
-                    DataType.getType(variableConfig.getDataType()),
-                    variableConfig.getDimensionNames());
+                    variablePrototype.getName(),
+                    DataType.getType(variablePrototype.getDataType()),
+                    variablePrototype.getDimensionNames());
         }
 
         netcdfFileWriter.create();

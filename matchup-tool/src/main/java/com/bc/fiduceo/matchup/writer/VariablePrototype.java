@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-public class VariableConfig {
+public class VariablePrototype {
     private String name;
     private String dimensionNames;
     private String dataType;

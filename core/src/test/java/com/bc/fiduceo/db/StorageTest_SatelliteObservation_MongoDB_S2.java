@@ -70,7 +70,7 @@ public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_Sat
         storage = Storage.create(dataSource, geometryFactory);
         storage.initialize();
 
-        final ReaderFactory readerFactory = new ReaderFactory();
+        final ReaderFactory readerFactory = ReaderFactory.get();
         reader = readerFactory.getReader("amsub-n17");
         File testDataDirectory = TestUtil.getTestDataDirectory();
         File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");

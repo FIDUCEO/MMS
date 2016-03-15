@@ -20,41 +20,16 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import org.junit.Before;
+
+import com.bc.fiduceo.IOTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-
-public class VariableConfigTest {
-
-    private VariableConfig config;
-
-    @Before
-    public void setUp() throws Exception {
-        config = new VariableConfig();
-    }
+@RunWith(IOTestRunner.class)
+public class VariablesConfigurationTest {
 
     @Test
-    public void testSetGetName() {
-        final String name = "the_variable_name";
+    public void testPrepare_AVHRR_NOAA_17() {
 
-        config.setName(name);
-        assertEquals(name, config.getName());
-    }
-
-    @Test
-    public void testSetGetDimensionNames() {
-        final String dimensionNames = "matchup ny ny";
-
-        config.setDimensionNames(dimensionNames);
-        assertEquals(dimensionNames, config.getDimensionNames());
-    }
-
-    @Test
-    public void testSetGetDataType() {
-         final String dataType = "float";
-
-        config.setDataType(dataType);
-        assertEquals(dataType, config.getDataType());
     }
 }
