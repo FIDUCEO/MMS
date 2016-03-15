@@ -30,23 +30,19 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.Index;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_IO_Test {
@@ -117,27 +113,18 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    @Test
-    public void testGetVariables_NOAA17() throws IOException {
-        final File file = createAvhrrNOAA17Path();
+    private File createAvhrrNOAA17Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
 
-        try {
-            reader.open(file);
-
-            final List<Variable> variables = reader.getVariables();
-            assertEquals(17, variables.size());
-
-            Variable variable = variables.get(0);
-            assertEquals("lat", variable.getShortName());
-
-            variable = variables.get(7);
-            assertEquals("ch4", variable.getShortName());
-
-            variable = variables.get(16);
-            assertEquals("l1b_line_number", variable.getShortName());
-        } finally {
-            reader.close();
-        }
+    private File createAvhrrNOAA18Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
     }
 
     @Test
@@ -197,75 +184,31 @@ public class AVHRR_GAC_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_NOAA18() throws IOException {
-        final File file = createAvhrrNOAA18Path();
-
-        try {
-            reader.open(file);
-
-            final List<Variable> variables = reader.getVariables();
-            assertEquals(17, variables.size());
-
-            Variable variable = variables.get(1);
-            assertEquals("lon", variable.getShortName());
-
-            variable = variables.get(8);
-            assertEquals("ch5", variable.getShortName());
-
-            variable = variables.get(15);
-            assertEquals("cloud_probability", variable.getShortName());
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
     public void testWindowCenter() throws Exception {
         final File file = createAvhrrNOAA18Path();
-
         reader.open(file);
         try {
             Array array = reader.readRaw(4, 4, new Interval(3, 3), "lon");
             assertNotNull(array);
             assertEquals(9, array.getSize());
 
-            final Index index = array.getIndex();
-            index.set(0, 0);
-            assertEquals(-152.41099548339844, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(-152.41099548339844, 0, 0,array);
+            assertEqualDoubleValueFromArray(-151.1510009765625, 0, 1, array);
+            assertEqualDoubleValueFromArray(-149.8489990234375, 0, 2, array);
 
-            assertEqualValue(-152.41099548339844,0,0,array);
-
-            index.set(0, 1);
-            assertEquals(-151.1510009765625, array.getDouble(index), 1e-8);
-
-            index.set(0, 2);
-            assertEquals(-149.8489990234375, array.getDouble(index), 1e-8);
-
-            index.set(1, 0);
-            assertEquals(-152.1490020751953, array.getDouble(index), 1e-8);
-
-            index.set(1, 1);
-            assertEquals(-150.88499450683594, array.getDouble(index), 1e-8);
-
-            index.set(1, 2);
-            assertEquals(-149.57899475097656, array.getDouble(index), 1e-8);
-
-            index.set(2, 0);
-            assertEquals(-151.88999938964844, array.getDouble(index), 1e-8);
-
-            index.set(2, 1);
-            assertEquals(-150.62100219726562, array.getDouble(index), 1e-8);
-
-            index.set(2, 2);
-            assertEquals(-149.31100463867188, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(-150.88499450683594, 1, 1, array);
+            assertEqualDoubleValueFromArray(-149.57899475097656, 1, 2, array);
+            assertEqualDoubleValueFromArray(-149.57899475097656, 1, 2, array);
+            assertEqualDoubleValueFromArray(-151.88999938964844, 2, 0, array);
+            assertEqualDoubleValueFromArray(-150.62100219726562, 2, 1, array);
+            assertEqualDoubleValueFromArray(-149.31100463867188, 2, 2, array);
         } finally {
             reader.close();
         }
     }
 
 
-
-    private void assertEqualValue(double value, int i, int j, Array array) {
+    private void assertEqualDoubleValueFromArray(double value, int i, int j, Array array) {
         Index index = array.getIndex();
         index.set(i, j);
         assertEquals(value, array.getDouble(index), 1e-8);
@@ -280,24 +223,11 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(39, array.getSize());
 
-            final Index index = array.getIndex();
-            index.set(0, 0);
-            assertEquals(174.82699584960938, array.getDouble(index), 1e-8);
-
-            index.set(0, 1);
-            assertEquals(175.9340057373047, array.getDouble(index), 1e-8);
-
-            index.set(0, 2);
-            assertEquals(177.09300231933594, array.getDouble(index), 1e-8);
-
-            index.set(12, 0);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-
-            index.set(12, 1);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-
-            index.set(12, 1);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(174.82699584960938, 0, 0, array);
+            assertEqualDoubleValueFromArray(175.9340057373047, 0, 1, array);
+            assertEqualDoubleValueFromArray(177.09300231933594, 0, 2, array);
+            assertEqualDoubleValueFromArray(177.09300231933594, 0, 2, array);
+            assertEqualDoubleValueFromArray(-32768.0, 12, 1, array);
         } finally {
             reader.close();
         }
@@ -313,23 +243,13 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(15, array.getSize());
 
-            final Index index = array.getIndex();
-            index.set(0, 0);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
 
-            index.set(0, 1);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-
-            index.set(0, 2);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-
-
-            index.set(1, 0);
-            assertEquals(-155.5709991455078, array.getDouble(index), 1e-8);
-            index.set(1, 1);
-            assertEquals(-154.40899658203125, array.getDouble(index), 1e-8);
-            index.set(1, 2);
-            assertEquals(-153.20599365234375, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(-155.5709991455078, 1, 0, array);
+            assertEqualDoubleValueFromArray(-154.40899658203125, 1, 1, array);
+            assertEqualDoubleValueFromArray(-153.20599365234375, 1, 2, array);
         } finally {
             reader.close();
         }
@@ -345,35 +265,23 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
-            final Index index = array.getIndex();
-            System.out.println("array = " + array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
 
-            index.set(0, 0);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-            index.set(0, 1);
-            assertEquals(-32768.0, array.getDouble(index), 1e-8);
-            index.set(0, 2);
-            assertEquals(-155.2050018310547, array.getDouble(index), 1e-8);
-            index.set(0, 3);
-            assertEquals(-154.05299377441406, array.getDouble(index), 1e-8);
-            index.set(0, 4);
-            assertEquals(-152.86199951171875, array.getDouble(index), 1e-8);
-            index.set(0, 5);
-            assertEquals(-151.63099670410156, array.getDouble(index), 1e-8);
-            index.set(0, 6);
-            assertEquals(-150.35899353027344, array.getDouble(index), 1e-8);
-            index.set(0, 7);
-            assertEquals(-149.0449981689453, array.getDouble(index), 1e-8);
-            index.set(0, 8);
-            assertEquals(-147.68899536132812, array.getDouble(index), 1e-8);
+            assertEqualDoubleValueFromArray(-155.2050018310547, 0, 2, array);
+            assertEqualDoubleValueFromArray(-154.05299377441406, 0, 3, array);
+            assertEqualDoubleValueFromArray(-152.86199951171875, 0, 4, array);
+            assertEqualDoubleValueFromArray(-151.63099670410156, 0, 5, array);
+            assertEqualDoubleValueFromArray(-150.35899353027344, 0, 6, array);
+            assertEqualDoubleValueFromArray(-149.0449981689453, 0, 7, array);
+            assertEqualDoubleValueFromArray(-147.68899536132812, 0, 8, array);
 
-
-            assertEquals(-32768.0, array.get(1, 0), 1e-8);
-            assertEquals(-32768.0, array.get(2, 0), 1e-8);
-            assertEquals(-32768.0, array.get(3, 0), 1e-8);
-            assertEquals(-32768.0, array.get(4, 0), 1e-8);
-            assertEquals(-32768.0, array.get(5, 0), 1e-8);
-            assertEquals(-32768.0, array.get(6, 0), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
         } finally {
             reader.close();
 
@@ -389,21 +297,21 @@ public class AVHRR_GAC_Reader_IO_Test {
             ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(407, 10, new Interval(9, 9), "lon");
             assertNotNull(array);
             assertEquals(81, array.getSize());
-            assertEquals(-14.597991943359375, array.get(0, 0), 1e-8);
-            assertEquals(-14.52899169921875, array.get(0, 1), 1e-8);
-            assertEquals(-14.386993408203125, array.get(0, 3), 1e-8);
-            assertEquals(-14.31500244140625, array.get(0, 4), 1e-8);
-            assertEquals(-14.24200439453125, array.get(0, 5), 1e-8);
+            assertEqualDoubleValueFromArray(-14.597991943359375, 0, 0, array);
+            assertEqualDoubleValueFromArray(-14.52899169921875, 0, 1, array);
+            assertEqualDoubleValueFromArray(-14.386993408203125, 0, 3, array);
+            assertEqualDoubleValueFromArray(-14.31500244140625, 0, 4, array);
+            assertEqualDoubleValueFromArray(-14.24200439453125, 0, 5, array);
 
-            assertEquals(-32768.0, array.get(0, 8), 1e-8);
-            assertEquals(-32768.0, array.get(1, 8), 1e-8);
-            assertEquals(-32768.0, array.get(2, 8), 1e-8);
-            assertEquals(-32768.0, array.get(3, 8), 1e-8);
-            assertEquals(-32768.0, array.get(4, 8), 1e-8);
-            assertEquals(-32768.0, array.get(5, 8), 1e-8);
-            assertEquals(-32768.0, array.get(6, 8), 1e-8);
-            assertEquals(-32768.0, array.get(7, 8), 1e-8);
-            assertEquals(-32768.0, array.get(8, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
         } finally {
 
             reader.close();
@@ -412,7 +320,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
 
     @Test
-    public void testTopLeftWindowInOut() throws Exception {
+    public void testTopLeftWindowOut() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
@@ -421,40 +329,38 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 3, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 4, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 5, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 6, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 7, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
 
-            assertEquals(-32768.0, array.get(0, 0), 1e-8);
-            assertEquals(-32768.0, array.get(0, 1), 1e-8);
-            assertEquals(-32768.0, array.get(0, 2), 1e-8);
-            assertEquals(-32768.0, array.get(0, 3), 1e-8);
-            assertEquals(-32768.0, array.get(0, 4), 1e-8);
-            assertEquals(-32768.0, array.get(0, 5), 1e-8);
-            assertEquals(-32768.0, array.get(0, 6), 1e-8);
-            assertEquals(-32768.0, array.get(0, 7), 1e-8);
-            assertEquals(-32768.0, array.get(0, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-155.5709991455078, 1, 3, array);
+            assertEqualDoubleValueFromArray(-154.40899658203125, 1, 4, array);
+            assertEqualDoubleValueFromArray(-153.20599365234375, 1, 5, array);
 
-            assertEquals(-155.5709991455078, array.get(1, 3), 1e-8);
-            assertEquals(-154.40899658203125, array.get(1, 4), 1e-8);
-            assertEquals(-153.20599365234375, array.get(1, 5), 1e-8);
-
-            assertEquals(-32768.0, array.get(0, 0), 1e-8);
-            assertEquals(-32768.0, array.get(1, 0), 1e-8);
-            assertEquals(-32768.0, array.get(2, 0), 1e-8);
-            assertEquals(-32768.0, array.get(3, 0), 1e-8);
-            assertEquals(-32768.0, array.get(4, 0), 1e-8);
-            assertEquals(-32768.0, array.get(5, 0), 1e-8);
-            assertEquals(-32768.0, array.get(6, 0), 1e-8);
-            assertEquals(-32768.0, array.get(7, 0), 1e-8);
-            assertEquals(-32768.0, array.get(8, 0), 1e-8);
-
-            assertEquals(-32768.0, array.get(0, 1), 1e-8);
-            assertEquals(-32768.0, array.get(1, 1), 1e-8);
-            assertEquals(-32768.0, array.get(2, 1), 1e-8);
-            assertEquals(-32768.0, array.get(3, 1), 1e-8);
-            assertEquals(-32768.0, array.get(4, 1), 1e-8);
-            assertEquals(-32768.0, array.get(5, 1), 1e-8);
-            assertEquals(-32768.0, array.get(6, 1), 1e-8);
-            assertEquals(-32768.0, array.get(7, 1), 1e-8);
-            assertEquals(-32768.0, array.get(8, 1), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
         } finally {
 
             reader.close();
@@ -463,7 +369,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
 
     @Test
-    public void testBottomRightWindowInOut() throws Exception {
+    public void testBottomRightWindowOut() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
@@ -473,37 +379,36 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(81, array.getSize());
 
 
-            assertEquals(-32768.0, array.get(8, 0), 1e-8);
-            assertEquals(-32768.0, array.get(8, 1), 1e-8);
-            assertEquals(-32768.0, array.get(8, 2), 1e-8);
-            assertEquals(-32768.0, array.get(8, 3), 1e-8);
-            assertEquals(-32768.0, array.get(8, 4), 1e-8);
-            assertEquals(-32768.0, array.get(8, 5), 1e-8);
-            assertEquals(-32768.0, array.get(8, 6), 1e-8);
-            assertEquals(-32768.0, array.get(8, 7), 1e-8);
-            assertEquals(-32768.0, array.get(8, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 2, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 3, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 4, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 5, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 6, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 7, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
 
-            assertEquals(-37.912994384765625, array.get(1, 3), 1e-8);
-            assertEquals(-37.860992431640625, array.get(1, 4), 1e-8);
-            assertEquals(-37.808013916015625, array.get(1, 5), 1e-8);
+            assertEqualDoubleValueFromArray(-37.912994384765625, 1, 3, array);
+            assertEqualDoubleValueFromArray(-37.860992431640625, 1, 4, array);
+            assertEqualDoubleValueFromArray(-37.808013916015625, 1, 5, array);
 
-            assertEquals(-32768.0, array.get(0, 8), 1e-8);
-            assertEquals(-32768.0, array.get(1, 8), 1e-8);
-            assertEquals(-32768.0, array.get(2, 8), 1e-8);
-            assertEquals(-32768.0, array.get(3, 8), 1e-8);
-            assertEquals(-32768.0, array.get(4, 8), 1e-8);
-            assertEquals(-32768.0, array.get(5, 8), 1e-8);
-            assertEquals(-32768.0, array.get(6, 8), 1e-8);
-            assertEquals(-32768.0, array.get(7, 8), 1e-8);
-            assertEquals(-32768.0, array.get(8, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
         } finally {
             reader.close();
         }
     }
 
     @Test
-    @Ignore
-    public void testBottomLeftWindowInOut() throws Exception {
+    public void testBottomLeftWindowOut() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
@@ -513,29 +418,29 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(81, array.getSize());
 
 
-            assertEquals(-32768.0, array.get(8, 0), 1e-8);
-            assertEquals(-32768.0, array.get(8, 1), 1e-8);
-            assertEquals(-32768.0, array.get(8, 2), 1e-8);
-            assertEquals(-32768.0, array.get(8, 3), 1e-8);
-            assertEquals(-32768.0, array.get(8, 4), 1e-8);
-            assertEquals(-32768.0, array.get(8, 5), 1e-8);
-            assertEquals(-32768.0, array.get(8, 6), 1e-8);
-            assertEquals(-32768.0, array.get(8, 7), 1e-8);
-            assertEquals(-32768.0, array.get(8, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 2, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 3, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 4, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 5, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 6, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 7, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
 
-            assertEquals(172.6439971923828, array.get(1, 3), 1e-8);
-            assertEquals(173.63999938964844, array.get(1, 4), 1e-8);
-            assertEquals(174.6790008544922, array.get(1, 5), 1e-8);
+            assertEqualDoubleValueFromArray(172.6439971923828, 1, 3, array);
+            assertEqualDoubleValueFromArray(173.63999938964844, 1, 4, array);
+            assertEqualDoubleValueFromArray(174.6790008544922, 1, 5, array);
 
-            assertEquals(-32768.0, array.get(0, 0), 1e-8);
-            assertEquals(-32768.0, array.get(1, 0), 1e-8);
-            assertEquals(-32768.0, array.get(2, 0), 1e-8);
-            assertEquals(-32768.0, array.get(3, 0), 1e-8);
-            assertEquals(-32768.0, array.get(4, 0), 1e-8);
-            assertEquals(-32768.0, array.get(5, 0), 1e-8);
-            assertEquals(-32768.0, array.get(6, 0), 1e-8);
-            assertEquals(-32768.0, array.get(7, 0), 1e-8);
-            assertEquals(-32768.0, array.get(8, 0), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
         } finally {
             reader.close();
         }
@@ -551,41 +456,38 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
+            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 3, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 4, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 5, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 6, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 7, array);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
 
-            assertEquals(-32768.0, array.get(0, 0), 1e-8);
-            assertEquals(-32768.0, array.get(0, 1), 1e-8);
-            assertEquals(-32768.0, array.get(0, 2), 1e-8);
-            assertEquals(-32768.0, array.get(0, 3), 1e-8);
-            assertEquals(-32768.0, array.get(0, 4), 1e-8);
-            assertEquals(-32768.0, array.get(0, 5), 1e-8);
-            assertEquals(-32768.0, array.get(0, 6), 1e-8);
-            assertEquals(-32768.0, array.get(0, 7), 1e-8);
-            assertEquals(-32768.0, array.get(0, 8), 1e-8);
+            assertEqualDoubleValueFromArray(68.71700286865234, 1, 0, array);
+            assertEqualDoubleValueFromArray(68.54100036621094, 1, 1, array);
+            assertEqualDoubleValueFromArray(68.1729965209961, 1, 3, array);
+            assertEqualDoubleValueFromArray(67.98200225830078, 1, 4, array);
+            assertEqualDoubleValueFromArray(67.78500366210938, 1, 5, array);
 
-            assertEquals(68.71700286865234, array.get(1, 0), 1e-8);
-            assertEquals(68.54100036621094, array.get(1, 1), 1e-8);
-            assertEquals(68.1729965209961, array.get(1, 3), 1e-8);
-            assertEquals(67.98200225830078, array.get(1, 4), 1e-8);
-            assertEquals(67.78500366210938, array.get(1, 5), 1e-8);
-
-            assertEquals(-32768.0, array.get(0, 8), 1e-8);
-            assertEquals(-32768.0, array.get(1, 8), 1e-8);
-            assertEquals(-32768.0, array.get(2, 8), 1e-8);
-            assertEquals(-32768.0, array.get(3, 8), 1e-8);
-            assertEquals(-32768.0, array.get(4, 8),
-
-                    1e-8);
-            assertEquals(-32768.0, array.get(5, 8), 1e-8);
-            assertEquals(-32768.0, array.get(6, 8), 1e-8);
-            assertEquals(-32768.0, array.get(7, 8), 1e-8);
-            assertEquals(-32768.0, array.get(8, 8), 1e-8);
+            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
         } finally {
             reader.close();
         }
     }
 
     @Test
-    public void testWindowWindowInside() throws Exception {
+    public void testWindowInside() throws Exception {
         try {
             File avhrrNOAA18Path = createAvhrrNOAA18Path();
             reader.open(avhrrNOAA18Path);
@@ -596,34 +498,5 @@ public class AVHRR_GAC_Reader_IO_Test {
         } finally {
             reader.close();
         }
-    }
-
-    @Test
-    public void testCloud_Mask() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-            Array array = reader.readRaw(3, 0, new Interval(5, 3), "cloud_mask");
-            System.out.println("array = " + array);
-            fail();
-        } catch (RuntimeException expeated) {
-
-        } finally {
-            reader.close();
-        }
-    }
-
-    private File createAvhrrNOAA17Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
-    }
-
-    private File createAvhrrNOAA18Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
     }
 }
