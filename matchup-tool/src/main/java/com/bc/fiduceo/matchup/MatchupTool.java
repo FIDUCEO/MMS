@@ -46,11 +46,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,18 +96,36 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException {
-        QueryParameter parameter = getPrimarySensorParameter(context);
+        final List<MatchupSet> matchupSets = createMatchupSets(context);
 
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+        //
+        // - detect all pixels (x/y) in primary observation that are contained in intersecting area
+        // -- for each pixel:
+        // --- find closest pixel in secondary observation
+        // --- perform check on pixel spatial delta -> remove pixels that are further away
+        // --- perform check on pixel time delta -> remove pixels that do not fulfil
+        // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
+        // --- perform cloud processing (optional) -> remove pixels or add flags
+        //
+        // - if pixels are left: create output file
+        // - for all remaining pixels:
+        // -- extract pixel window for all bands and write to output (primary and secondary observation)
+        // -- store metadata of each sensor-acquisition as described in use-case
+        //
+        //
+    }
 
+    private List<MatchupSet> createMatchupSets(ToolContext context) throws IOException, SQLException {
+        final List<MatchupSet> matchupSets = new ArrayList<>();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final int timeDelta = useCaseConfig.getTimeDelta();
         final int timeDeltaInMillis = timeDelta * 1000;
 
-        final List<MatchupSet> matchupSets = new ArrayList<>();
+        QueryParameter parameter = getPrimarySensorParameter(context);
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
 
-         for (final SatelliteObservation primaryObservation : primaryObservations) {
+        for (final SatelliteObservation primaryObservation : primaryObservations) {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
             primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
@@ -158,24 +172,10 @@ class MatchupTool {
                 if (matchupSet.getNumObservations() > 0) {
                     matchupSets.add(matchupSet);
                 }
-                //
-                // - detect all pixels (x/y) in primary observation that are contained in intersecting area
-                // -- for each pixel:
-                // --- find closest pixel in secondary observation
-                // --- perform check on pixel spatial delta -> remove pixels that are further away
-                // --- perform check on pixel time delta -> remove pixels that do not fulfil
-                // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
-                // --- perform cloud processing (optional) -> remove pixels or add flags
-                //
-                // - if pixels are left: create output file
-                // - for all remaining pixels:
-                // -- extract pixel window for all bands and write to output (primary and secondary observation)
-                // -- store metadata of each sensor-acquisition as described in use-case
-                //
-                //
-
             }
         }
+
+        return matchupSets;
     }
 
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {

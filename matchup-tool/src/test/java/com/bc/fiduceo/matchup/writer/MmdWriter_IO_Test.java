@@ -32,7 +32,6 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
-import ucar.nc2.stream.NcStreamProto;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -81,6 +78,18 @@ public class MmdWriter_IO_Test {
         variableConfig.setDataType("int");
         variableConfigs.add(variableConfig);
 
+        variableConfig = new VariableConfig();
+        variableConfig.setName("avhrr-n12_cloud_mask");
+        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variableConfig.setDataType("byte");
+        variableConfigs.add(variableConfig);
+
+        variableConfig = new VariableConfig();
+        variableConfig.setName("avhrr-n12_dtime");
+        variableConfig.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        variableConfig.setDataType("float");
+        variableConfigs.add(variableConfig);
+
         try {
             mmdWriter.create(mmdFile, dimemsions, variableConfigs, 2346);
         } finally {
@@ -114,6 +123,16 @@ public class MmdWriter_IO_Test {
             assertNotNull(variable);
             assertCorrectDimensions(variable, 2346, 5, 3);
             assertEquals(DataType.INT, variable.getDataType());
+
+            variable = mmd.findVariable("avhrr-n12_cloud_mask");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 5, 3);
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = mmd.findVariable("avhrr-n12_dtime");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 5, 3);
+            assertEquals(DataType.FLOAT, variable.getDataType());
 
         } finally {
             if (mmd != null) {
