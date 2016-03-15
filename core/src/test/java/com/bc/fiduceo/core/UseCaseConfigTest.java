@@ -294,5 +294,9 @@ public class UseCaseConfigTest {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         assertNotNull(additionalSensors);
         assertEquals(0, additionalSensors.size());
+
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        assertNotNull(dimensions);
+        assertEquals(0, dimensions.size());
     }
 }

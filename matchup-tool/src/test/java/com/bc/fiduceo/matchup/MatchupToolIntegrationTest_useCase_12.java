@@ -161,13 +161,14 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
     private UseCaseConfig createUseCaseConfig() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setName("usecase-12");
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
         useCaseConfig.setSensors(sensorList);
-        useCaseConfig.setOutputPath("usecase-12");
+        useCaseConfig.setOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-12").getPath());
 
         final List<Dimension> dimensions = new ArrayList<>();
         dimensions.add(new Dimension("avhrr-n17", 5, 5));

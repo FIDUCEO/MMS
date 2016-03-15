@@ -47,6 +47,7 @@ public class UseCaseConfig {
 
     public UseCaseConfig() {
         sensors = new ArrayList<>();
+        dimensions = new ArrayList<>();
     }
 
     public String getName() {

@@ -20,10 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -33,6 +30,8 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
@@ -47,6 +46,8 @@ import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +72,7 @@ class MatchupTool {
     }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
+        logger.info("Loading configuration ...");
         final ToolContext context = new ToolContext();
 
         final String configValue = commandLine.getOptionValue("config");
@@ -93,6 +95,8 @@ class MatchupTool {
         context.setGeometryFactory(geometryFactory);
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
+
+        logger.info("Sucess loading configuration.");
         return context;
     }
 
@@ -112,10 +116,34 @@ class MatchupTool {
         writeMMD(matchupSets, context);
     }
 
-    private void writeMMD(List<MatchupSet> matchupSets, ToolContext context) {
+    private void writeMMD(List<MatchupSet> matchupSets, ToolContext context) throws IOException {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        if (matchupSets.size() > 0) {
+            final MatchupSet matchupSet = matchupSets.get(0);
+
+            final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+            final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+
+            final List<Dimension> dimensions = context.getUseCaseConfig().getDimensions();
+            variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+            variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+        }
+
+        final MmdWriter mmdWriter = new MmdWriter();
+        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
+        final String archiveRoot = context.getSystemConfig().getArchiveRoot();
+        final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
+        final File file = mmdFile.toFile();
+        final File targetDir = file.getParentFile();
+        if (!targetDir.isDirectory()) {
+            targetDir.mkdirs();
+        }
+        file.createNewFile();
+        mmdWriter.create(file, useCaseConfig.getDimensions(), variablesConfiguration.get(), 100);
+
+        mmdWriter.close();
+
 
         // - if pixels are left: create output file
         // - for all remaining pixels:

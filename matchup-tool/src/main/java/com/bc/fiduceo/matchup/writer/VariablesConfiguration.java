@@ -28,6 +28,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,12 +40,12 @@ public class VariablesConfiguration {
         prototypes = new ArrayList<>();
     }
 
-    public void extractPrototypes(Sensor sensor, String filePath, Dimension dimension) throws IOException {
+    public void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.get();
         final Reader reader = readerFactory.getReader(sensor.getName());
 
         try {
-            reader.open(new File(filePath));
+            reader.open(filePath.toFile());
 
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
@@ -71,7 +72,7 @@ public class VariablesConfiguration {
     // @todo 2 tb/tb make static and add tests
     String createDimensionNames(Dimension dimension) {
         final StringBuilder dimensionNames = new StringBuilder();
-        dimensionNames.append("matchup ");
+        dimensionNames.append("matchup_count ");
         dimensionNames.append(dimension.getName());
         dimensionNames.append("_ny ");
         dimensionNames.append(dimension.getName());
