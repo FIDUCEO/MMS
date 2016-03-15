@@ -34,7 +34,7 @@ public class WindowArrayFactory {
     public static ArrayLong.D2 createLongArray(int width, int height) {
         return new ArrayLong.D2(height, width);
     }
-    public static ArrayInt.D2 createIntegerArray(int width, int height) {
+    public static ArrayInt.D2 createIntArray(int width, int height) {
         return new ArrayInt.D2(height, width);
     }
     public static ArrayShort.D2 createShortArray(int width, int height) {
