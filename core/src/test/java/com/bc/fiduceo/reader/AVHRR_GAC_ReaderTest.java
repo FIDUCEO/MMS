@@ -32,7 +32,9 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
 import org.junit.*;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -192,6 +194,107 @@ public class AVHRR_GAC_ReaderTest {
         assertEquals(4999, clipping.minY);
         assertEquals(8999, clipping.maxY);
         assertSame(locator, clipping.pixelLocator);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeDouble() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.DOUBLE);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Double.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeFloat() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.FLOAT);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Float.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeLong() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.LONG);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Long.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeInt() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.INT);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Integer.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeShort() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.SHORT);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Short.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forDataTypeByte() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.BYTE);
+
+        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
+
+        assertEquals(Byte.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testFetchingTheDefaultFillValue_forUnknownType() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.STRUCTURE);
+
+        try {
+            AVHRR_GAC_Reader.getDefaultFillValue(mock);
+            fail("RuntimeException expected");
+        } catch (NullPointerException notExpected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testExtractFillValue_throwsRuntimeExceptionIfThereIsNoFillValueAndTheVariableHasAnUndefinedDataType() {
+        final Variable mock = mock(Variable.class);
+        when(mock.findAttribute("_FillValue")).thenReturn(null);
+        when(mock.getDataType()).thenReturn(DataType.STRUCTURE);
+
+        try {
+            AVHRR_GAC_Reader.extractFillValue(mock);
+            fail("RuntimeException expected");
+        } catch (NullPointerException notExpected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testExtractFillValue_FromVariable() throws Exception {
+        final Variable mock = mock(Variable.class);
+        final Attribute attributeMock = mock(Attribute.class);
+        when(attributeMock.getNumericValue()).thenReturn(39.90);
+        when(mock.findAttribute("_FillValue")).thenReturn(attributeMock);
+
+        final Number number = AVHRR_GAC_Reader.extractFillValue(mock);
+
+        assertEquals(39.90, number);
     }
 
     GeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {

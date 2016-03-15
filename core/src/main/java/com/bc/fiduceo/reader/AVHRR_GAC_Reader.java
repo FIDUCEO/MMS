@@ -110,6 +110,10 @@ class AVHRR_GAC_Reader implements Reader {
         return new ClippingPixelLocator(pixelLocator, minY, maxY);
     }
 
+    private static Attribute getAttribute(Variable variable, String attributeName) {
+        return variable.findAttribute(attributeName);
+    }
+
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -195,7 +199,7 @@ class AVHRR_GAC_Reader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
-        final Number fillValue = getFillValue("_FillValue", variableName);
+        final Number fillValue = getFillValue(variableName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray);
     }
 
@@ -242,10 +246,36 @@ class AVHRR_GAC_Reader implements Reader {
         return geometryFactory;
     }
 
-    private Number getFillValue(String attrName, String variableName) {
-        Variable variable = netcdfFile.findVariable(variableName);
-        Attribute attribute = variable.findAttribute(attrName);
-        return attribute.getNumericValue();
+    private Number getFillValue(String variableName) {
+        final Variable variable = netcdfFile.findVariable(variableName);
+        return extractFillValue(variable);
+    }
+
+    static Number extractFillValue(Variable variable) {
+        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
+        if (fillAttrib != null) {
+            return fillAttrib.getNumericValue();
+        }
+        return getDefaultFillValue(variable);
+    }
+
+    static Number getDefaultFillValue(Variable variable) {
+        final Class type = variable.getDataType().getPrimitiveClassType();
+        if (double.class == type) {
+            return Double.MIN_VALUE;
+        } else if (float.class == type) {
+            return Float.MIN_VALUE;
+        } else if (long.class == type) {
+            return Long.MIN_VALUE;
+        } else if (int.class == type) {
+            return Integer.MIN_VALUE;
+        } else if (short.class == type) {
+            return Short.MIN_VALUE;
+        } else if (byte.class == type) {
+            return Byte.MIN_VALUE;
+        } else {
+            throw new RuntimeException("not implemented for type " + type.getTypeName());
+        }
     }
 
     private class Geometries {
