@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
@@ -38,17 +39,22 @@ public class VariablesConfiguration {
         prototypes = new ArrayList<>();
     }
 
-    public void extractPrototypes(Sensor sensor, String filePath) throws IOException {
+    public void extractPrototypes(Sensor sensor, String filePath, Dimension dimension) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.get();
         final Reader reader = readerFactory.getReader(sensor.getName());
 
         try {
             reader.open(new File(filePath));
+
+            final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
                 final VariablePrototype prototype = new VariablePrototype();
                 final String shortName = variable.getShortName();
                 prototype.setName(sensor.getName() + "_" + shortName);
+                prototype.setDataType(variable.getDataType().toString());
+
+                prototype.setDimensionNames(dimensionNames);
                 prototypes.add(prototype);
             }
         } finally {
@@ -60,5 +66,16 @@ public class VariablesConfiguration {
 
     public List<VariablePrototype> get() {
         return prototypes;
+    }
+
+    // @todo 2 tb/tb make static and add tests
+    String createDimensionNames(Dimension dimension) {
+        final StringBuilder dimensionNames = new StringBuilder();
+        dimensionNames.append("matchup ");
+        dimensionNames.append(dimension.getName());
+        dimensionNames.append("_ny ");
+        dimensionNames.append(dimension.getName());
+        dimensionNames.append("_nx");
+        return dimensionNames.toString();
     }
 }

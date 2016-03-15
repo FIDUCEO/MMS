@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -167,6 +168,12 @@ public class MatchupToolIntegrationTest_useCase_12 {
         sensorList.add(new Sensor("avhrr-n18"));
         useCaseConfig.setSensors(sensorList);
         useCaseConfig.setOutputPath("usecase-12");
+
+        final List<Dimension> dimensions = new ArrayList<>();
+        dimensions.add(new Dimension("avhrr-n17", 5, 5));
+        dimensions.add(new Dimension("avhrr-n18", 5, 5));
+        useCaseConfig.setDimensions(dimensions);
+
         return useCaseConfig;
     }
 }
