@@ -47,6 +47,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 class AVHRR_GAC_Reader implements Reader {
 
@@ -59,56 +60,8 @@ class AVHRR_GAC_Reader implements Reader {
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
     private SwathPixelLocator pixelLocator;
-    private Array array;
 
-    // package access for testing only tb 2016-03-02
-    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
-        if (timeAttribute == null) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
-        }
-        final String startTimeString = timeAttribute.getStringValue();
-        if (StringUtils.isNullOrEmpty(startTimeString)) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
-        }
-        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
 
-    // package access for testing only tb 2016-03-03
-    static void checkForValidity(GeometryCollection boundingGeometry) {
-        final Geometry[] geometries = boundingGeometry.getGeometries();
-        for (final Geometry geometry : geometries) {
-            if (!geometry.isValid()) {
-                throw new RuntimeException("Invalid geometry detected");
-            }
-        }
-    }
-
-    // package access for testing only se 2016-03-11
-    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
-        final int sh2 = subsetHeight / 2;
-
-        final double centerX = width / 2 + 0.5;
-
-        final Point centroid = subSceneGeometry.getCentroid();
-        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
-        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
-        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
-        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
-        final double d1 = cd1.distance(cLon, cLat);
-        final double d2 = cd2.distance(cLon, cLat);
-        final int minY;
-        final int maxY;
-        if (d1 < d2) {
-            minY = 0;
-            maxY = subsetHeight - 1;
-        } else {
-            minY = subsetHeight - 1;
-            maxY = height - 1;
-        }
-        return new ClippingPixelLocator(pixelLocator, minY, maxY);
-    }
 
     private static Attribute getAttribute(Variable variable, String attributeName) {
         return variable.findAttribute(attributeName);
@@ -201,6 +154,65 @@ class AVHRR_GAC_Reader implements Reader {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray);
+    }
+
+    @Override
+    public List<Variable> getVariables() {
+        final List<Variable> variables = netcdfFile.getVariables();
+
+        final Variable timeVariable = netcdfFile.findVariable("time");
+        variables.remove(timeVariable);
+
+        return variables;
+    }
+
+    // package access for testing only tb 2016-03-02
+    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
+        if (timeAttribute == null) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
+        }
+        final String startTimeString = timeAttribute.getStringValue();
+        if (StringUtils.isNullOrEmpty(startTimeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
+        }
+        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
+
+    // package access for testing only tb 2016-03-03
+    static void checkForValidity(GeometryCollection boundingGeometry) {
+        final Geometry[] geometries = boundingGeometry.getGeometries();
+        for (final Geometry geometry : geometries) {
+            if (!geometry.isValid()) {
+                throw new RuntimeException("Invalid geometry detected");
+            }
+        }
+    }
+
+    // package access for testing only se 2016-03-11
+    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
+        final int sh2 = subsetHeight / 2;
+
+        final double centerX = width / 2 + 0.5;
+
+        final Point centroid = subSceneGeometry.getCentroid();
+        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
+        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
+        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
+        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
+        final double d1 = cd1.distance(cLon, cLat);
+        final double d2 = cd2.distance(cLon, cLat);
+        final int minY;
+        final int maxY;
+        if (d1 < d2) {
+            minY = 0;
+            maxY = subsetHeight - 1;
+        } else {
+            minY = subsetHeight - 1;
+            maxY = height - 1;
+        }
+        return new ClippingPixelLocator(pixelLocator, minY, maxY);
     }
 
     private Geometries calculateGeometries() throws IOException {

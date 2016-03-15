@@ -172,6 +172,11 @@ class AIRS_L1B_Reader implements Reader {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
+    public List<Variable> getVariables() {
+        throw new RuntimeException("not implemented");
+    }
+
     // package access for testing only tb 2016-01-08
     Date parseDate(String dateString, String timeString) {
         final String timeStringWithMillis = stripMicrosecs(timeString);

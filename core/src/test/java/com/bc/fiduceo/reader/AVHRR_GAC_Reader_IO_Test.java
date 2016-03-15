@@ -36,10 +36,12 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.Index;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -115,18 +117,27 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA17Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
-    }
+    @Test
+    public void testGetVariables_NOAA17() throws IOException {
+        final File file = createAvhrrNOAA17Path();
 
-    private File createAvhrrNOAA18Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(17, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("lat", variable.getShortName());
+
+            variable = variables.get(7);
+            assertEquals("ch4", variable.getShortName());
+
+            variable = variables.get(16);
+            assertEquals("l1b_line_number", variable.getShortName());
+        } finally {
+            reader.close();
+        }
     }
 
     @Test
@@ -185,16 +196,28 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    // @todo 1 tb/mb remove check for even window size - design by contract 2016-03-11
-//    @Test
-//    public void testReadRawODDInterval() throws Exception {
-//        try {
-//            ArrayDouble.D1 array = (ArrayDouble.D1) reader.readRaw(4, 4, new Interval(2, 2), "lon");
-//            fail();
-//        } catch (IllegalArgumentException expect) {
-//        }
-//
-//    }
+    @Test
+    public void testGetVariables_NOAA18() throws IOException {
+        final File file = createAvhrrNOAA18Path();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(17, variables.size());
+
+            Variable variable = variables.get(1);
+            assertEquals("lon", variable.getShortName());
+
+            variable = variables.get(8);
+            assertEquals("ch5", variable.getShortName());
+
+            variable = variables.get(15);
+            assertEquals("cloud_probability", variable.getShortName());
+        } finally {
+            reader.close();
+        }
+    }
 
     @Test
     public void testWindowCenter() throws Exception {
@@ -590,5 +613,17 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
+    private File createAvhrrNOAA17Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
 
+    private File createAvhrrNOAA18Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
 }

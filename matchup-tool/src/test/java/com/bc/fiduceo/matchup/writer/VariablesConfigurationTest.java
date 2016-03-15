@@ -22,14 +22,32 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Sensor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(IOTestRunner.class)
 public class VariablesConfigurationTest {
 
     @Test
-    public void testPrepare_AVHRR_NOAA_17() {
+    public void testExtractPrototypes_AVHRR_NOAA_17() throws IOException {
+        final Sensor sensor = new Sensor("avhrr-n17");
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        variablesConfiguration.extractPrototypes(sensor, absolutePath);
+
+//        final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
+//        assertEquals(18, variablePrototypes.size());
+//
+//        final VariablePrototype prototype = variablePrototypes.get(0);
+//        assertEquals("avhrr-n17_ch1", prototype.getName());
     }
 }

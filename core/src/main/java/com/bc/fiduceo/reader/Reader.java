@@ -25,9 +25,11 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public interface Reader {
 
@@ -37,13 +39,12 @@ public interface Reader {
 
     AcquisitionInfo read() throws IOException;
 
-    PixelLocator getPixelLocator() throws IOException;
-
     String getRegEx();
+
+    PixelLocator getPixelLocator() throws IOException;
 
     PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
 
-    // @todo se/tb check if the documentation is written in a good english  2016-03-14
     /**
      * Reads raw data of a window defined by a center pixel position an a defined window size.
      * According to this constraints the window dimensions must always be odd. If not
@@ -60,4 +61,6 @@ public interface Reader {
      * @throws InvalidRangeException
      */
     Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
+
+    List<Variable> getVariables();
 }

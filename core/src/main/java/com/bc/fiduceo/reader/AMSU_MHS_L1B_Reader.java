@@ -122,6 +122,11 @@ class AMSU_MHS_L1B_Reader implements Reader {
         throw new RuntimeException("Not yet implemented");
     }
 
+    @Override
+    public List<Variable> getVariables() {
+        throw new RuntimeException("not implemented");
+    }
+
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
         final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
         if (attribute == null) {

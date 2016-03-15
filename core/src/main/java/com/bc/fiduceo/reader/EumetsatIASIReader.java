@@ -35,6 +35,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 
 class EumetsatIASIReader implements Reader {
@@ -100,6 +101,11 @@ class EumetsatIASIReader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
+    }
+
+    @Override
+    public List<Variable> getVariables() {
+        throw new RuntimeException("not implemented");
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
