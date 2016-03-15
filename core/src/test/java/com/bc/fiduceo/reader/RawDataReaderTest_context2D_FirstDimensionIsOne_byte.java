@@ -7,7 +7,7 @@ import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
-public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
+public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
 
     private Interval windowSize;
     private Number fillValue;
@@ -30,7 +30,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         assertNotNull(array);
         assertEquals(byte.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final byte[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
+        final byte[] expecteds = {2, 2, 2, 3, 3, 3, 4, 4, 4};
         final byte[] actuals = (byte[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -43,7 +43,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         assertNotNull(array);
         assertEquals(byte.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final byte[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
+        final byte[] expecteds = {fv, fv, fv, 0, 0, fv, 1, 1, fv};
         final byte[] actuals = (byte[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -56,7 +56,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         assertNotNull(array);
         assertEquals(byte.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final byte[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
+        final byte[] expecteds = {fv, fv, fv, fv, 0, 0, fv, 1, 1};
         final byte[] actuals = (byte[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -68,7 +68,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         assertNotNull(array);
         assertEquals(byte.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final byte[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
+        final byte[] expecteds = {fv, 8, 8, fv, 9, 9, fv, fv, fv};
         final byte[] actuals = (byte[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -80,7 +80,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         assertNotNull(array);
         assertEquals(byte.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final byte[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
+        final byte[] expecteds = {8, 8, fv, 9, 9, fv, fv, fv, fv};
         final byte[] actuals = (byte[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -113,20 +113,8 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
     }
 
     private Array getByteRawArray() {
-        final byte[][] array2D = {
-                    {0, 10, 20, 30, 40, 50, 60, 70, 80, 90},
-                    {1, 11, 21, 31, 41, 51, 61, 71, 81, 91},
-                    {2, 12, 22, 32, 42, 52, 62, 72, 82, 92},
-                    {3, 13, 23, 33, 43, 53, 63, 73, 83, 93},
-                    {4, 14, 24, 34, 44, 54, 64, 74, 84, 94},
-                    {5, 15, 25, 35, 45, 55, 65, 75, 85, 95},
-                    {6, 16, 26, 36, 46, 56, 66, 76, 86, 96},
-                    {7, 17, 27, 37, 47, 57, 67, 77, 87, 97},
-                    {8, 18, 28, 38, 48, 58, 68, 78, 88, 98},
-                    {9, 19, 29, 39, 49, 59, 69, 79, 89, 99}
-        };
-        final byte[][][] bytes = new byte[1][][];
-        bytes[0] = array2D;
+        final byte[][] bytes = new byte[1][];
+        bytes[0] = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         return Array.factory(bytes);
     }
 }

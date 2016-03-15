@@ -28,7 +28,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
     @Test
     public void testWindowCenter() throws Exception {
 
-        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -41,7 +41,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
     @Test
     public void testTopRightWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -54,7 +54,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
     @Test
     public void testTopLeftWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -67,7 +67,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
     @Test
 
     public void testBottomLeftWindowOut() throws Exception {
-        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -79,7 +79,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
 
     @Test
     public void testBottomRightWindowOut() throws Exception {
-        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -98,9 +98,9 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
         });
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
+            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray, 10);
+            fail("InvalidRangeException expected");
+        } catch (InvalidRangeException expected) {
         }
     }
 
@@ -110,7 +110,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_float {
         final Array rawArray = Array.factory(new float[]{11, 12, 13});
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray);
+            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray, 10);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

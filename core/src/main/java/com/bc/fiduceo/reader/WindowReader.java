@@ -34,11 +34,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, double fillValue, ArrayDouble.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, double fillValue, ArrayDouble.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayDouble.D2 windowArray = WindowArrayFactory.createDoubleArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y, x, yRaw, xRaw) -> windowArray.set(y, x, rawArray.get(0, yRaw, xRaw)));
+                  (y, x, yRaw, xRaw) -> windowArray.set(y, x, rawArray.get(yRaw)));
         return windowArray;
     }
 
@@ -50,11 +50,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, float fillValue, ArrayFloat.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, float fillValue, ArrayFloat.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayFloat.D2 windowArray = WindowArrayFactory.createFloatArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(0, yRaw, xRaw)));
+                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(yRaw)));
         return windowArray;
     }
 
@@ -66,11 +66,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, long fillValue, ArrayLong.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, long fillValue, ArrayLong.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayLong.D2 windowArray = WindowArrayFactory.createLongArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(0, yRaw, xRaw)));
+                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(yRaw)));
         return windowArray;
     }
 
@@ -82,11 +82,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, int fillValue, ArrayInt.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, int fillValue, ArrayInt.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayInt.D2 windowArray = WindowArrayFactory.createIntArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(0, yRaw, xRaw)));
+                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(yRaw)));
         return windowArray;
     }
 
@@ -98,11 +98,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, short fillValue, ArrayShort.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, short fillValue, ArrayShort.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayShort.D2 windowArray = WindowArrayFactory.createShortArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(0, yRaw, xRaw)));
+                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(yRaw)));
         return windowArray;
     }
 
@@ -114,11 +114,11 @@ public class WindowReader {
         return windowArray;
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, byte fillValue, ArrayByte.D3 rawArray, int rawWidth, int rawHeight) {
+    static Array readWindow(int offsetX, int offsetY, int width, int height, byte fillValue, ArrayByte.D1 rawArray, int rawWidth, int rawHeight) {
         final ArrayByte.D2 windowArray = WindowArrayFactory.createByteArray(width, height);
         fillArray(offsetX, offsetY, width, height, rawWidth, rawHeight,
                   (y, x) -> windowArray.set(y, x, fillValue),
-                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(0, yRaw, xRaw)));
+                  (y1, x1, yRaw, xRaw) -> windowArray.set(y1, x1, rawArray.get(yRaw)));
         return windowArray;
     }
 

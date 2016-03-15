@@ -25,7 +25,7 @@ public class RawDataReaderTest_context2D_short {
     @Test
     public void testWindowCenter() throws Exception {
 
-        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
@@ -38,7 +38,7 @@ public class RawDataReaderTest_context2D_short {
     @Test
     public void testTopRightWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
@@ -51,7 +51,7 @@ public class RawDataReaderTest_context2D_short {
     @Test
     public void testTopLeftWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
@@ -63,7 +63,7 @@ public class RawDataReaderTest_context2D_short {
 
     @Test
     public void testBottomLeftWindowOut() throws Exception {
-        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
@@ -75,7 +75,7 @@ public class RawDataReaderTest_context2D_short {
 
     @Test
     public void testBottomRightWindowOut() throws Exception {
-        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray);
+        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, 10);
 
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
@@ -94,9 +94,9 @@ public class RawDataReaderTest_context2D_short {
         });
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
+            fail("InvalidRangeException expected");
+        } catch (InvalidRangeException expected) {
         }
     }
 
@@ -106,7 +106,7 @@ public class RawDataReaderTest_context2D_short {
         final Array rawArray = Array.factory(new short[]{11, 12, 13});
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

@@ -37,45 +37,43 @@ import java.awt.Rectangle;
  */
 public class RawDataReader {
 
-    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray) throws InvalidRangeException {
+    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, final int defaultWidth) throws InvalidRangeException {
+
+        int[] shape = rawArray.getShape();
+        int rank = rawArray.getRank();
+        final boolean caseOneDimensionalArray = rank == 2 && shape[0] == 1;
+        if (rank == 3 && shape[0] == 1) {
+            rawArray = rawArray.section(new int[]{0, 0, 0}, shape);
+            rank = rawArray.getRank();
+            shape = rawArray.getShape();
+        } else if (caseOneDimensionalArray) {
+            shape[0] = shape[1];
+            shape[1] = defaultWidth;
+            rawArray = rawArray.reduce();
+        }
+
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
 
-        final int[] shape = rawArray.getShape();
-        final int rank = rawArray.getRank();
         final int rawHeight;
         final int rawWidth;
-        if (rank == 3 && shape[0] == 1) {
-            rawHeight = shape[1];
-            rawWidth = shape[2];
-        } else if(rank == 2){
-            rawHeight = shape[0];
-            rawWidth = shape[1];
-        } else {
-            throw new RuntimeException("not supported case");
-        }
+        rawHeight = shape[0];
+        rawWidth = shape[1];
         final int offsetX = centerX - windowWidth / 2;
         final int offsetY = centerY - windowHeight / 2;
 
-        boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
-        if (windowInside) {
-            if (rank == 3) {
-                return rawArray.section(new int[]{0, offsetY, offsetX}, new int[]{1, windowHeight, windowWidth});
-            } else {
+        if (!caseOneDimensionalArray) {
+            boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
+            if (windowInside) {
                 return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
             }
-        }
-
-        if (rank == 2) {
             return readFrom2DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
-        } else if (rank == 3) {
-            return readFrom3DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         } else {
-            throw new RuntimeException("not implemented");
+            return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         }
     }
 
-    static Array readFrom2DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
+    private static Array readFrom2DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
         final Class elementType = rawArray.getElementType();
         if (elementType == double.class) {
             return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D2) rawArray, rawWidth, rawHeight);
@@ -94,20 +92,20 @@ public class RawDataReader {
         }
     }
 
-    static Array readFrom3DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
+    private static Array readFrom1DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
         final Class elementType = rawArray.getElementType();
         if (elementType == double.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D1) rawArray, rawWidth, rawHeight);
         } else if (elementType == float.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D1) rawArray, rawWidth, rawHeight);
         } else if (elementType == long.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D1) rawArray, rawWidth, rawHeight);
         } else if (elementType == int.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D1) rawArray, rawWidth, rawHeight);
         } else if (elementType == short.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D1) rawArray, rawWidth, rawHeight);
         } else if (elementType == byte.class) {
-            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D1) rawArray, rawWidth, rawHeight);
         } else {
             throw new RuntimeException("Datatype not implemented");
         }

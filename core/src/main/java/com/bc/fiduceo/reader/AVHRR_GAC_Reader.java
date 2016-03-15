@@ -153,7 +153,9 @@ class AVHRR_GAC_Reader implements Reader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray);
+        // @todo 1 se/se fetch the product width from the product
+        final int defaultWidth = 409;
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, defaultWidth);
     }
 
     @Override
