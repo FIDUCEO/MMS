@@ -21,9 +21,11 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Sensor;
-import ucar.nc2.NetcdfFile;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +39,22 @@ public class VariablesConfiguration {
     }
 
     public void extractPrototypes(Sensor sensor, String filePath) throws IOException {
-        final NetcdfFile netcdfFile = NetcdfFile.open(filePath);
+        final ReaderFactory readerFactory = ReaderFactory.get();
+        final Reader reader = readerFactory.getReader(sensor.getName());
 
         try {
-            final List<Variable> variables = netcdfFile.getVariables();
+            reader.open(new File(filePath));
+            final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
-                final VariablePrototype variablePrototype = new VariablePrototype();
+                final VariablePrototype prototype = new VariablePrototype();
                 final String shortName = variable.getShortName();
-                System.out.println("shortName = " + shortName);
-                prototypes.add(variablePrototype);
+                prototype.setName(sensor.getName() + "_" + shortName);
+                prototypes.add(prototype);
             }
         } finally {
-            netcdfFile.close();
+            if (reader != null) {
+                reader.close();
+            }
         }
     }
 

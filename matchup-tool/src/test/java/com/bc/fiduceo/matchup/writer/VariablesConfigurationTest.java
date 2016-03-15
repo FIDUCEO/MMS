@@ -44,10 +44,43 @@ public class VariablesConfigurationTest {
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         variablesConfiguration.extractPrototypes(sensor, absolutePath);
 
-//        final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
-//        assertEquals(18, variablePrototypes.size());
-//
-//        final VariablePrototype prototype = variablePrototypes.get(0);
-//        assertEquals("avhrr-n17_ch1", prototype.getName());
+        final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
+        assertEquals(17, variablePrototypes.size());
+
+        VariablePrototype prototype = variablePrototypes.get(0);
+        assertEquals("avhrr-n17_lat", prototype.getName());
+
+        prototype = variablePrototypes.get(1);
+        assertEquals("avhrr-n17_lon", prototype.getName());
+
+        prototype = variablePrototypes.get(2);
+        assertEquals("avhrr-n17_dtime", prototype.getName());
+
+        prototype = variablePrototypes.get(3);
+        assertEquals("avhrr-n17_ch1", prototype.getName());
+
+        prototype = variablePrototypes.get(9);
+        assertEquals("avhrr-n17_satellite_zenith_angle", prototype.getName());
+
+        prototype = variablePrototypes.get(10);
+        assertEquals("avhrr-n17_solar_zenith_angle", prototype.getName());
+
+        prototype = variablePrototypes.get(11);
+        assertEquals("avhrr-n17_relative_azimuth_angle", prototype.getName());
+
+        prototype = variablePrototypes.get(12);
+        assertEquals("avhrr-n17_ict_temp", prototype.getName());
+
+        prototype = variablePrototypes.get(13);
+        assertEquals("avhrr-n17_qual_flags", prototype.getName());
+
+        prototype = variablePrototypes.get(14);
+        assertEquals("avhrr-n17_cloud_mask", prototype.getName());
+
+        prototype = variablePrototypes.get(15);
+        assertEquals("avhrr-n17_cloud_probability", prototype.getName());
+
+        prototype = variablePrototypes.get(16);
+        assertEquals("avhrr-n17_l1b_line_number", prototype.getName());
     }
 }
