@@ -78,17 +78,17 @@ public class RawDataReader {
     static Array readFrom2DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
         final Class elementType = rawArray.getElementType();
         if (elementType == double.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == float.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == long.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == int.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == short.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == byte.class) {
-            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D2) rawArray, rawWidth, rawHeight);
         } else {
             throw new RuntimeException("Datatype not implemented");
         }
@@ -97,17 +97,17 @@ public class RawDataReader {
     static Array readFrom3DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
         final Class elementType = rawArray.getElementType();
         if (elementType == double.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D3) rawArray, rawWidth, rawHeight);
         } else if (elementType == float.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D3) rawArray, rawWidth, rawHeight);
         } else if (elementType == long.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D3) rawArray, rawWidth, rawHeight);
         } else if (elementType == int.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D3) rawArray, rawWidth, rawHeight);
         } else if (elementType == short.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D3) rawArray, rawWidth, rawHeight);
         } else if (elementType == byte.class) {
-            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D3) rawArray, rawWidth, rawHeight);
+            return WindowReader.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D3) rawArray, rawWidth, rawHeight);
         } else {
             throw new RuntimeException("Datatype not implemented");
         }
