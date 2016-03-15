@@ -7,22 +7,19 @@ import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
+public class RawDataReaderTest_context2D_short {
 
-@SuppressWarnings("Duplicates")
-public class RawDataReaderTest_context_float {
-
-    private RawDataReader windowArrayFactory;
     private Interval windowSize;
     private Number fillValue;
-    private float fv;
+    private short fv;
     private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
-        fv = fillValue.floatValue();
-        rawArray = getFloatRawArray();
+        fv = fillValue.shortValue();
+        rawArray = getShortRawArray();
     }
 
     @Test
@@ -31,11 +28,11 @@ public class RawDataReaderTest_context_float {
         final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(float.class, array.getElementType());
+        assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
-        final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8f);
+        final short[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
+        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -44,11 +41,11 @@ public class RawDataReaderTest_context_float {
         final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(float.class, array.getElementType());
+        assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
-        final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8f);
+        final short[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
+        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -57,24 +54,23 @@ public class RawDataReaderTest_context_float {
         final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(float.class, array.getElementType());
+        assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
-        final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8f);
+        final short[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
+        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
-
     public void testBottomLeftWindowOut() throws Exception {
         final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(float.class, array.getElementType());
+        assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
-        final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8f);
+        final short[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
+        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -82,42 +78,42 @@ public class RawDataReaderTest_context_float {
         final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(float.class, array.getElementType());
+        assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
-        final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8f);
+        final short[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
+        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
-    public void testRawArrayHasMoreThanTwoDimensions() {
-        final Array rawArray = Array.factory(new float[][][]{
+    public void testRawArrayHasMoreThanTwoDimensions() throws InvalidRangeException {
+        final Array rawArray = Array.factory(new short[][][]{
                     {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
                     {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                     {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
         });
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray);
-            fail("InvalidRangeException expected");
-        } catch (InvalidRangeException expected) {
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
 
     @Test
     public void testRawArrayHasLessThanTwoDimensions() throws InvalidRangeException {
-        final Array rawArray = Array.factory(new float[]{11, 12, 13});
+        final Array rawArray = Array.factory(new short[]{11, 12, 13});
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4f, rawArray);
-            fail("ArrayIndexOutOfBoundsException expected");
-        } catch (ArrayIndexOutOfBoundsException expected) {
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
-    private Array getFloatRawArray() {
-        return Array.factory(new float[][]{
+    private Array getShortRawArray() {
+        return Array.factory(new short[][]{
                     {0, 10, 20, 30, 40, 50, 60, 70, 80, 90},
                     {1, 11, 21, 31, 41, 51, 61, 71, 81, 91},
                     {2, 12, 22, 32, 42, 52, 62, 72, 82, 92},
@@ -129,5 +125,6 @@ public class RawDataReaderTest_context_float {
                     {8, 18, 28, 38, 48, 58, 68, 78, 88, 98},
                     {9, 19, 29, 39, 49, 59, 69, 79, 89, 99}
         });
+
     }
 }

@@ -7,19 +7,19 @@ import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
-public class RawDataReaderTest_context_double {
+public class RawDataReaderTest_context2D_int {
 
     private Interval windowSize;
     private Number fillValue;
-    private double fv;
+    private int fv;
     private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
-        fv = fillValue.doubleValue();
-        rawArray = getDoubleRawArray();
+        fv = fillValue.intValue();
+        rawArray = getIntegerRawArray();
     }
 
     @Test
@@ -28,11 +28,11 @@ public class RawDataReaderTest_context_double {
         final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(double.class, array.getElementType());
+        assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final double[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
-        final double[] actuals = (double[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8);
+        final int[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
+        final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -41,11 +41,11 @@ public class RawDataReaderTest_context_double {
         final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(double.class, array.getElementType());
+        assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final double[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
-        final double[] actuals = (double[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8);
+        final int[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
+        final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -54,11 +54,11 @@ public class RawDataReaderTest_context_double {
         final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(double.class, array.getElementType());
+        assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final double[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
-        final double[] actuals = (double[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8);
+        final int[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
+        final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -66,11 +66,11 @@ public class RawDataReaderTest_context_double {
         final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(double.class, array.getElementType());
+        assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final double[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
-        final double[] actuals = (double[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8);
+        final int[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
+        final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
@@ -78,16 +78,16 @@ public class RawDataReaderTest_context_double {
         final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(double.class, array.getElementType());
+        assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final double[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
-        final double[] actuals = (double[]) array.get1DJavaArray(array.getElementType());
-        assertArrayEquals(expecteds, actuals, 1e-8);
+        final int[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
+        final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
-    public void testRawArrayHasMoreThanTwoDimensions() {
-        final Array rawArray = Array.factory(new double[][][]{
+    public void testRawArrayHasMoreThanTwoDimensions() throws InvalidRangeException {
+        final Array rawArray = Array.factory(new int[][][]{
                     {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
                     {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                     {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
@@ -95,25 +95,25 @@ public class RawDataReaderTest_context_double {
 
         try {
             RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
-            fail("InvalidRangeException expected");
-        } catch (InvalidRangeException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
 
     @Test
     public void testRawArrayHasLessThanTwoDimensions() throws InvalidRangeException {
-        final Array rawArray = Array.factory(new double[]{11, 12, 13});
+        final Array rawArray = Array.factory(new int[]{11, 12, 13});
 
         try {
             RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
-            fail("ArrayIndexOutOfBoundsException expected");
-        } catch (ArrayIndexOutOfBoundsException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
-    private Array getDoubleRawArray() {
-        return Array.factory(new double[][]{
+    private Array getIntegerRawArray() {
+        return Array.factory(new int[][]{
                     {0, 10, 20, 30, 40, 50, 60, 70, 80, 90},
                     {1, 11, 21, 31, 41, 51, 61, 71, 81, 91},
                     {2, 12, 22, 32, 42, 52, 62, 72, 82, 92},

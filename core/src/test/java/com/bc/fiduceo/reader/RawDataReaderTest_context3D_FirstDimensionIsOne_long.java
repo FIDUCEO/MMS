@@ -7,19 +7,19 @@ import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
-public class RawDataReaderTest_context_short {
+public class RawDataReaderTest_context3D_FirstDimensionIsOne_long {
 
     private Interval windowSize;
     private Number fillValue;
-    private short fv;
+    private long fv;
     private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
-        fv = fillValue.shortValue();
-        rawArray = getShortRawArray();
+        fv = fillValue.longValue();
+        rawArray = getLongRawArray();
     }
 
     @Test
@@ -28,10 +28,10 @@ public class RawDataReaderTest_context_short {
         final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(short.class, array.getElementType());
+        assertEquals(long.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
-        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        final long[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
+        final long[] actuals = (long[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
 
@@ -41,10 +41,10 @@ public class RawDataReaderTest_context_short {
         final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(short.class, array.getElementType());
+        assertEquals(long.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
-        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        final long[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
+        final long[] actuals = (long[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
 
@@ -54,10 +54,10 @@ public class RawDataReaderTest_context_short {
         final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(short.class, array.getElementType());
+        assertEquals(long.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
-        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        final long[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
+        final long[] actuals = (long[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
 
@@ -66,10 +66,10 @@ public class RawDataReaderTest_context_short {
         final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(short.class, array.getElementType());
+        assertEquals(long.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
-        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        final long[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
+        final long[] actuals = (long[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
 
@@ -78,16 +78,16 @@ public class RawDataReaderTest_context_short {
         final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray);
 
         assertNotNull(array);
-        assertEquals(short.class, array.getElementType());
+        assertEquals(long.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
-        final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
+        final long[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
+        final long[] actuals = (long[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
 
     @Test
-    public void testRawArrayHasMoreThanTwoDimensions() {
-        final Array rawArray = Array.factory(new short[][][]{
+    public void testRawArrayHasMoreThanTwoDimensions() throws InvalidRangeException {
+        final Array rawArray = Array.factory(new long[][][]{
                     {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
                     {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                     {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
@@ -95,25 +95,25 @@ public class RawDataReaderTest_context_short {
 
         try {
             RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
-            fail("InvalidRangeException expected");
-        } catch (InvalidRangeException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
 
     @Test
     public void testRawArrayHasLessThanTwoDimensions() throws InvalidRangeException {
-        final Array rawArray = Array.factory(new short[]{11, 12, 13});
+        final Array rawArray = Array.factory(new long[]{11, 12, 13});
 
         try {
             RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray);
-            fail("ArrayIndexOutOfBoundsException expected");
-        } catch (ArrayIndexOutOfBoundsException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
-    private Array getShortRawArray() {
-        return Array.factory(new short[][]{
+    private Array getLongRawArray() {
+        final long[][] array2D = {
                     {0, 10, 20, 30, 40, 50, 60, 70, 80, 90},
                     {1, 11, 21, 31, 41, 51, 61, 71, 81, 91},
                     {2, 12, 22, 32, 42, 52, 62, 72, 82, 92},
@@ -124,7 +124,10 @@ public class RawDataReaderTest_context_short {
                     {7, 17, 27, 37, 47, 57, 67, 77, 87, 97},
                     {8, 18, 28, 38, 48, 58, 68, 78, 88, 98},
                     {9, 19, 29, 39, 49, 59, 69, 79, 89, 99}
-        });
+        };
+        final long[][][] longs = new long[1][][];
+        longs[0] = array2D;
+        return Array.factory(longs);
 
     }
 }

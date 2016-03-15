@@ -42,128 +42,75 @@ public class RawDataReader {
         final int windowHeight = interval.getY();
 
         final int[] shape = rawArray.getShape();
-        final int rawHeight = shape[0];
-        final int rawWidth = shape[1];
+        final int rank = rawArray.getRank();
+        final int rawHeight;
+        final int rawWidth;
+        if (rank == 3 && shape[0] == 1) {
+            rawHeight = shape[1];
+            rawWidth = shape[2];
+        } else if(rank == 2){
+            rawHeight = shape[0];
+            rawWidth = shape[1];
+        } else {
+            throw new RuntimeException("not supported case");
+        }
         final int offsetX = centerX - windowWidth / 2;
         final int offsetY = centerY - windowHeight / 2;
 
         boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
         if (windowInside) {
-            return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
+            if (rank == 3) {
+                return rawArray.section(new int[]{0, offsetY, offsetX}, new int[]{1, windowHeight, windowWidth});
+            } else {
+                return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
+            }
         }
 
+        if (rank == 2) {
+            return readFrom2DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
+        } else if (rank == 3) {
+            return readFrom3DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
+        } else {
+            throw new RuntimeException("not implemented");
+        }
+    }
+
+    static Array readFrom2DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
         final Class elementType = rawArray.getElementType();
         if (elementType == double.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == float.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == long.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == int.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == short.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D2) rawArray, rawWidth, rawHeight);
         } else if (elementType == byte.class) {
-            return readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D2) rawArray, rawWidth, rawHeight);
+            return WindowReader2dFrom2d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D2) rawArray, rawWidth, rawHeight);
         } else {
             throw new RuntimeException("Datatype not implemented");
         }
     }
 
-    static Array readWindow(int offsetX, int offsetY, int width, int height, double fillValue, ArrayDouble.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayDouble.D2 windowArray = WindowArrayFactory.createDoubleArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
+    static Array readFrom3DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
+        final Class elementType = rawArray.getElementType();
+        if (elementType == double.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.doubleValue(), (ArrayDouble.D3) rawArray, rawWidth, rawHeight);
+        } else if (elementType == float.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.floatValue(), (ArrayFloat.D3) rawArray, rawWidth, rawHeight);
+        } else if (elementType == long.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.longValue(), (ArrayLong.D3) rawArray, rawWidth, rawHeight);
+        } else if (elementType == int.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.intValue(), (ArrayInt.D3) rawArray, rawWidth, rawHeight);
+        } else if (elementType == short.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.shortValue(), (ArrayShort.D3) rawArray, rawWidth, rawHeight);
+        } else if (elementType == byte.class) {
+            return WindowReader2dFrom3d.readWindow(offsetX, offsetY, windowWidth, windowHeight, fillValue.byteValue(), (ArrayByte.D3) rawArray, rawWidth, rawHeight);
+        } else {
+            throw new RuntimeException("Datatype not implemented");
         }
-        return windowArray;
-    }
-
-    static Array readWindow(int offsetX, int offsetY, int width, int height, float fillValue, ArrayFloat.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayFloat.D2 windowArray = WindowArrayFactory.createFloatArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
-        }
-        return windowArray;
-    }
-
-    static Array readWindow(int offsetX, int offsetY, int width, int height, long fillValue, ArrayLong.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayLong.D2 windowArray = WindowArrayFactory.createLongArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
-        }
-        return windowArray;
-    }
-
-    static Array readWindow(int offsetX, int offsetY, int width, int height, int fillValue, ArrayInt.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayInt.D2 windowArray = WindowArrayFactory.createIntArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
-        }
-        return windowArray;
-    }
-
-    static Array readWindow(int offsetX, int offsetY, int width, int height, short fillValue, ArrayShort.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayShort.D2 windowArray = WindowArrayFactory.createShortArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
-        }
-        return windowArray;
-    }
-
-    static Array readWindow(int offsetX, int offsetY, int width, int height, byte fillValue, ArrayByte.D2 rawArray, int rawWidth, int rawHeight) {
-        final ArrayByte.D2 windowArray = WindowArrayFactory.createByteArray(width, height);
-        for (int y = 0; y < height; y++) {
-            int yRaw = y + offsetY;
-            for (int x = 0; x < width; x++) {
-                int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
-                    windowArray.set(y, x, rawArray.get(yRaw, xRaw));
-                } else {
-                    windowArray.set(y, x, fillValue);
-                }
-            }
-        }
-        return windowArray;
     }
 
     private static boolean isWindowInside(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
