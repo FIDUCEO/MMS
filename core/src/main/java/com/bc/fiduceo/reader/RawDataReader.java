@@ -37,7 +37,7 @@ import java.awt.Rectangle;
  */
 public class RawDataReader {
 
-    public static Array get(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray) throws InvalidRangeException {
+    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray) throws InvalidRangeException {
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
 
