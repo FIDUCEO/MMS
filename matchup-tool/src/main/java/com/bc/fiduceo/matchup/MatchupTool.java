@@ -132,16 +132,8 @@ class MatchupTool {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context, useCaseConfig);
 
-
+        final File file = createMmdFile(context, useCaseConfig);
         final MmdWriter mmdWriter = new MmdWriter();
-        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
-        final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
-        final File file = mmdFile.toFile();
-        final File targetDir = file.getParentFile();
-        if (!targetDir.isDirectory()) {
-            targetDir.mkdirs();
-        }
-        file.createNewFile();
         mmdWriter.create(file,
                 useCaseConfig.getDimensions(),
                 variablesConfiguration.get(),
@@ -157,6 +149,24 @@ class MatchupTool {
         // -- extract pixel window for all bands and write to output (primary and secondary observation)
         // -- store metadata of each sensor-acquisition as described in use-case
 
+    }
+
+    private File createMmdFile(ToolContext context, UseCaseConfig useCaseConfig) throws IOException {
+        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
+        final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
+        final File file = mmdFile.toFile();
+        final File targetDir = file.getParentFile();
+        if (!targetDir.isDirectory()) {
+            if (!targetDir.mkdirs()){
+                throw new IOException("unable to create mmd output directory '" + targetDir.getAbsolutePath() + "'");
+            }
+        }
+
+        // @todo 3 tb/tb we might set an overwrite property to the system config later, if requested 2016-03-16
+        if (!file.createNewFile()) {
+            throw new IOException("unable to create mmd output file '" + file.getAbsolutePath() + "'");
+        }
+        return file;
     }
 
     // @todo 2 tb/tb write tests, make static and package local 2016-03-16

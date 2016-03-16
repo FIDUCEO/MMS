@@ -29,6 +29,8 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +44,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(DbAndIOTestRunner.class)
@@ -91,8 +95,8 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
         MatchupToolMain.main(args);
 
-        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
-        // assert here: empty MMD file
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertFalse(mmdFile.isFile());
     }
 
     @Test
@@ -111,9 +115,9 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
         MatchupToolMain.main(args);
 
-        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
-        // assert here: MMD file generated at the desired location
-        // open MMD file and check content
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertTrue(mmdFile.isFile());
+        // @todo 1 tb/** open MMD file and check content
     }
 
     @Test
@@ -132,8 +136,13 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
         MatchupToolMain.main(args);
 
-        // @todo 1 tb/tb add assertions when we are able to write an MMD file. 2016-03-07
-        // assert here: empty MMD file
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertFalse(mmdFile.isFile());
+    }
+
+    private File getMmdFilePath(UseCaseConfig useCaseConfig) {
+        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
+        return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
