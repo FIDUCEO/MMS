@@ -292,9 +292,11 @@ public class MatchupToolTest {
     public void testGetFirstMatchupSet_emptyList() {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
-        final MatchupSet set = MatchupTool.getFirstMatchupSet(matchupCollection);
-
-        assertNull(set);
+        try {
+            MatchupTool.getFirstMatchupSet(matchupCollection);
+            fail("IllegalStateException expected");
+        } catch(IllegalStateException expected) {
+        }
     }
 
     @Test

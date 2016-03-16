@@ -102,7 +102,7 @@ class MatchupTool {
         if (sets.size() > 0) {
             return sets.get(0);
         }
-        return null;
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
     }
 
     // package access for testing only tb 2016-03-14

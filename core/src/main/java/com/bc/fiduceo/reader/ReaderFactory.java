@@ -32,8 +32,6 @@ import java.util.HashMap;
  */
 public class ReaderFactory {
 
-    // @todo 3 tb/** make this class a singleton so that we do not have to scan the services each time some component needs a factory 2016-03-14
-
     private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
     private static ReaderFactory readerFactory;
 
