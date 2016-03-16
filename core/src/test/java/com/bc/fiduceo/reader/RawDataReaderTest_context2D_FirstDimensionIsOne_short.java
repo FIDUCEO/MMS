@@ -15,14 +15,14 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
 
     private Interval windowSize;
     private Number fillValue;
-    private short fv;
+    private short f;
     private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
-        fv = fillValue.byteValue();
+        f = fillValue.byteValue();
         rawArray = getShortRawArray();
     }
 
@@ -34,7 +34,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {2, 2, 2, 3, 3, 3, 4, 4, 4};
+        final short[] expecteds = {
+                2, 2, 2,
+                3, 3, 3,
+                4, 4, 4};
         final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -47,7 +50,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, fv, fv, 0, 0, fv, 1, 1, fv};
+        final short[] expecteds = {
+                f, f, f,
+                0, 0, f,
+                1, 1, f};
         final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -60,7 +66,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, fv, fv, fv, 0, 0, fv, 1, 1};
+        final short[] expecteds = {
+                f, f, f,
+                f, 0, 0,
+                f, 1, 1};
         final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -72,7 +81,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {fv, 8, 8, fv, 9, 9, fv, fv, fv};
+        final short[] expecteds = {
+                f, 8, 8,
+                f, 9, 9,
+                f, f, f};
         final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -84,7 +96,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_short {
         assertNotNull(array);
         assertEquals(short.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final short[] expecteds = {8, 8, fv, 9, 9, fv, fv, fv, fv};
+        final short[] expecteds = {
+                8, 8, f,
+                9, 9, f,
+                f, f, f};
         final short[] actuals = (short[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }

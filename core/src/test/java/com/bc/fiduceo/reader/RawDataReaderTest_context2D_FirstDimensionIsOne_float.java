@@ -15,14 +15,14 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
 
     private Interval windowSize;
     private Number fillValue;
-    private float fv;
+    private float f;
     private Array rawArray;
 
     @Before
     public void setUp() throws Exception {
         windowSize = new Interval(3, 3);
         fillValue = -2;
-        fv = fillValue.byteValue();
+        f = fillValue.byteValue();
         rawArray = getFloatRawArray();
     }
 
@@ -34,7 +34,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {2, 2, 2, 3, 3, 3, 4, 4, 4};
+        final float[] expecteds = {
+                2, 2, 2,
+                3, 3, 3,
+                4, 4, 4};
         final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals, 1e-8f);
     }
@@ -47,7 +50,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, fv, fv, 0, 0, fv, 1, 1, fv};
+        final float[] expecteds = {
+                f, f, f,
+                0, 0, f,
+                1, 1, f};
         final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals, 1e-8f);
     }
@@ -60,7 +66,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, fv, fv, fv, 0, 0, fv, 1, 1};
+        final float[] expecteds = {
+                f, f, f,
+                f, 0, 0,
+                f, 1, 1};
         final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals, 1e-8f);
     }
@@ -72,7 +81,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {fv, 8, 8, fv, 9, 9, fv, fv, fv};
+        final float[] expecteds = {
+                f, 8, 8,
+                f, 9, 9,
+                f, f, f};
         final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals, 1e-8f);
     }
@@ -84,7 +96,10 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final float[] expecteds = {8, 8, fv, 9, 9, fv, fv, fv, fv};
+        final float[] expecteds = {
+                8, 8, f,
+                9, 9, f,
+                f, f, f};
         final float[] actuals = (float[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals, 1e-8f);
     }

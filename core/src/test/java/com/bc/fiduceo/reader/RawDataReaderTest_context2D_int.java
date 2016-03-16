@@ -30,7 +30,10 @@ public class RawDataReaderTest_context2D_int {
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final int[] expecteds = {22, 32, 42, 23, 33, 43, 24, 34, 44};
+        final int[] expecteds = {
+                22, 32, 42,
+                23, 33, 43,
+                24, 34, 44};
         final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -43,7 +46,10 @@ public class RawDataReaderTest_context2D_int {
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final int[] expecteds = {fv, fv, fv, 80, 90, fv, 81, 91, fv};
+        final int[] expecteds = {
+                fv, fv, fv,
+                80, 90, fv,
+                81, 91, fv};
         final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -56,7 +62,10 @@ public class RawDataReaderTest_context2D_int {
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final int[] expecteds = {fv, fv, fv, fv, 0, 10, fv, 1, 11};
+        final int[] expecteds = {
+                fv, fv, fv,
+                fv, 0, 10,
+                fv, 1, 11};
         final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -68,7 +77,10 @@ public class RawDataReaderTest_context2D_int {
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final int[] expecteds = {fv, 8, 18, fv, 9, 19, fv, fv, fv};
+        final int[] expecteds = {
+                fv, 8, 18,
+                fv, 9, 19,
+                fv, fv, fv};
         final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
@@ -80,7 +92,10 @@ public class RawDataReaderTest_context2D_int {
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());
-        final int[] expecteds = {88, 98, fv, 89, 99, fv, fv, fv, fv};
+        final int[] expecteds = {
+                88, 98, fv,
+                89, 99, fv,
+                fv, fv, fv};
         final int[] actuals = (int[]) array.get1DJavaArray(array.getElementType());
         assertArrayEquals(expecteds, actuals);
     }
