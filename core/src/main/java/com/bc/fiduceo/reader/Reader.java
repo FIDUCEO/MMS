@@ -45,7 +45,7 @@ public interface Reader {
 
     PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
 
-    TimeLocator getTimeLocator();
+    TimeLocator getTimeLocator() throws IOException;
 
     /**
      * Reads raw data of a window defined by a center pixel position an a defined window size.

@@ -156,8 +156,11 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public TimeLocator getTimeLocator() {
-        throw new RuntimeException("not implemented");
+    public TimeLocator getTimeLocator() throws IOException {
+        final Array dTime = arrayCache.get("dtime");
+        final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
+
+        return new AVHRR_GAC_TimeLocator(dTime, startDate);
     }
 
     @Override

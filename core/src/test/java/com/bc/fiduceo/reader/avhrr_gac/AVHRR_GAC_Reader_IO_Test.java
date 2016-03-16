@@ -18,26 +18,6 @@
  *
  */
 
-/*
- * Copyright (C) 2016 Brockmann Consult GmbH
- * This code was developed for the EC project "Fidelity and Uncertainty in
- * Climate Data Records from Earth Observations (FIDUCEO)".
- * Grant Agreement: 638822
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * A copy of the GNU General Public License should have been supplied along
- * with this program; if not, see http://www.gnu.org/licenses/
- *
- */
-
 package com.bc.fiduceo.reader.avhrr_gac;
 
 
@@ -50,6 +30,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,20 +115,6 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA17Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
-    }
-
-    private File createAvhrrNOAA18Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
-    }
-
     @Test
     public void testReadAcquisitionInfo_NOAA18() throws IOException {
         final File file = createAvhrrNOAA18Path();
@@ -199,6 +166,48 @@ public class AVHRR_GAC_Reader_IO_Test {
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 55, 11, 500, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_NOAA17() throws IOException {
+        final File file = createAvhrrNOAA17Path();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final long referenceTime = 1175398494000L;
+            assertEquals(referenceTime, timeLocator.getTimeFor(167, 0));
+            assertEquals(referenceTime + 6500, timeLocator.getTimeFor(168, 13));
+            assertEquals(referenceTime + 507000, timeLocator.getTimeFor(169, 1014));
+            assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(170, 2015));
+            assertEquals(referenceTime + 6834501, timeLocator.getTimeFor(171, 13669));
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_NOAA18() throws IOException {
+        final File file = createAvhrrNOAA18Path();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final long referenceTime = 1175414652000L;
+            assertEquals(referenceTime, timeLocator.getTimeFor(301, 0));
+            assertEquals(referenceTime + 7000, timeLocator.getTimeFor(303, 14));
+            assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(303, 2015));
+            assertEquals(referenceTime + 2007999, timeLocator.getTimeFor(304, 4016));
+            assertEquals(referenceTime + 6118997, timeLocator.getTimeFor(171, 12238));
+
         } finally {
             reader.close();
         }
@@ -519,5 +528,19 @@ public class AVHRR_GAC_Reader_IO_Test {
         } finally {
             reader.close();
         }
+    }
+
+    private File createAvhrrNOAA17Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private File createAvhrrNOAA18Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
     }
 }
