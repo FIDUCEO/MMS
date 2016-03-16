@@ -48,6 +48,7 @@ public class UseCaseConfig {
     public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
+        timeDelta = -1;
     }
 
     public String getName() {
@@ -108,6 +109,15 @@ public class UseCaseConfig {
 
     public List<Dimension> getDimensions() {
         return dimensions;
+    }
+
+    public Dimension getDimensionFor(String sensorName) {
+        for (Dimension dimension : dimensions) {
+            if (dimension.getName().equals(sensorName)) {
+                return dimension;
+            }
+        }
+        throw new IllegalStateException("Dimensions for Sensor '" +sensorName + "' not available");
     }
 
     public void setDimensions(List<Dimension> dimensions) {

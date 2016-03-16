@@ -262,9 +262,9 @@ class MatchupTool {
         final MmdWriter mmdWriter = new MmdWriter();
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         mmdWriter.create(file,
-                         dimensions,
-                         variablesConfiguration.get(),
-                         matchupCollection.getNumMatchups());
+                dimensions,
+                variablesConfiguration.get(),
+                matchupCollection.getNumMatchups());
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
@@ -272,8 +272,8 @@ class MatchupTool {
         final String secondarySensorName = secondarySensor.getName();
         final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
         final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
-        final Dimension primaryDimension = getDimension(dimensions, primarySensorName);
-        final Dimension secondaryDimension = getDimension(dimensions, primarySensorName);
+        final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
+        final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
         final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
         final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
 
@@ -324,15 +324,6 @@ class MatchupTool {
             final Array primaryWindow = reader.readRaw(x, y, interval, sourceVariableName);
             mmdWriter.write(primaryWindow, targetVariableName, stackIndex);
         }
-    }
-
-    private Dimension getDimension(List<Dimension> dimensions, String sensorName) {
-        for (Dimension dimension : dimensions) {
-            if (dimension.getName().equals(sensorName)) {
-                return dimension;
-            }
-        }
-        return null;
     }
 
     private File createMmdFile(ToolContext context, UseCaseConfig useCaseConfig) throws IOException {

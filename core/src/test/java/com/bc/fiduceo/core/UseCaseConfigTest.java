@@ -28,14 +28,17 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class UseCaseConfigTest {
 
     private UseCaseConfig useCaseConfig;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         useCaseConfig = new UseCaseConfig();
     }
 
@@ -270,13 +273,13 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testSetGetName(){
+    public void testSetGetName() {
         useCaseConfig.setName("well-done");
         assertEquals("well-done", useCaseConfig.getName());
     }
 
     @Test
-    public void testSetGetTimeDelta(){
+    public void testSetGetTimeDelta() {
         useCaseConfig.setTimeDelta(4067);
         assertEquals(4067, useCaseConfig.getTimeDelta());
     }
@@ -290,7 +293,7 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testConstruction(){
+    public void testConstruction() {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         assertNotNull(additionalSensors);
         assertEquals(0, additionalSensors.size());
@@ -298,5 +301,14 @@ public class UseCaseConfigTest {
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         assertNotNull(dimensions);
         assertEquals(0, dimensions.size());
+
+        assertEquals(-1, useCaseConfig.getTimeDelta());
+    }
+
+    @Test
+    public void testIsValid_valid() {
+        useCaseConfig.setName("bla");
+        useCaseConfig.setTimeDelta(14);
+
     }
 }
