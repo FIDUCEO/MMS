@@ -26,7 +26,7 @@ import java.util.List;
 
 public class MatchupSet {
 
-    private final List<SampleSet> sampleSets;
+    private List<SampleSet> sampleSets;
 
     private Path primaryObservationPath;
     private Path secondaryObservationPath;
@@ -64,5 +64,9 @@ public class MatchupSet {
 
     public List<SampleSet> getSampleSets() {
         return sampleSets;
+    }
+
+    public void setSampleSets(List<SampleSet> sampleSets) {
+        this.sampleSets = sampleSets;
     }
 }
