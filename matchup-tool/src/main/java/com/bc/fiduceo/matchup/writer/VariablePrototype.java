@@ -20,17 +20,27 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import ucar.nc2.Attribute;
+
+import java.util.List;
+
 public class VariablePrototype {
+
     private String targetVariableName;
     private String dimensionNames;
     private String dataType;
+    private List<Attribute> attributes;
+
+    public String getTargetVariableName() {
+        return targetVariableName;
+    }
 
     public void setTargetVariableName(String name) {
         this.targetVariableName = name;
     }
 
-    public String getTargetVariableName() {
-        return targetVariableName;
+    public String getDimensionNames() {
+        return dimensionNames;
     }
 
     /**
@@ -43,15 +53,19 @@ public class VariablePrototype {
         this.dimensionNames = dimensionNames;
     }
 
-    public String getDimensionNames() {
-        return dimensionNames;
+    public String getDataType() {
+        return dataType;
     }
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
     }
 
-    public String getDataType() {
-        return dataType;
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

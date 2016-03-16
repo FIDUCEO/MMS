@@ -24,6 +24,8 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import ucar.ma2.Array;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -53,8 +55,9 @@ public class VariablesConfiguration {
                 final String shortName = variable.getShortName();
                 prototype.setTargetVariableName(sensor.getName() + "_" + shortName);
                 prototype.setDataType(variable.getDataType().toString());
-
                 prototype.setDimensionNames(dimensionNames);
+                final List<Attribute> newAttributes = getAttributeClones(variable);
+                prototype.setAttributes(newAttributes);
                 prototypes.add(prototype);
             }
         } finally {
@@ -62,6 +65,18 @@ public class VariablesConfiguration {
                 reader.close();
             }
         }
+    }
+
+    static List<Attribute> getAttributeClones(Variable variable) {
+        final List<Attribute> attributes = variable.getAttributes();
+        final ArrayList<Attribute> newAttributes = new ArrayList<>();
+        for (Attribute attribute : attributes) {
+            final String attName = attribute.getShortName();
+            final Array attVals = attribute.getValues().copy();
+            final Attribute newAttribute = new Attribute(attName, attVals);
+            newAttributes.add(newAttribute);
+        }
+        return newAttributes;
     }
 
     public List<VariablePrototype> get() {

@@ -21,95 +21,81 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sensor;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.junit.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayByte;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayLong;
+import ucar.ma2.ArrayObject;
+import ucar.ma2.ArrayShort;
+import ucar.ma2.ArrayString;
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
+import ucar.nc2.Variable;
+
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
-@RunWith(IOTestRunner.class)
 public class VariablesConfigurationTest {
 
     @Test
-    public void testExtractPrototypes_AVHRR_NOAA_17() throws IOException {
-        final Sensor sensor = new Sensor("avhrr-n17");
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
+    public void testCloneAllTheAttributesFromAVariable() throws Exception {
+        //preparation
+        final Variable mock = mock(Variable.class);
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+        final ArrayDouble.D1 expectedDouble = (ArrayDouble.D1) Array.factory(new double[]{1});
+        final ArrayFloat.D1 expectedFloat = (ArrayFloat.D1) Array.factory(new float[]{2});
+        final ArrayLong.D1 expectedLong = (ArrayLong.D1) Array.factory(new long[]{3});
+        final ArrayInt.D1 expectedInt = (ArrayInt.D1) Array.factory(new int[]{4});
+        final ArrayShort.D1 expectedShort = (ArrayShort.D1) Array.factory(new short[]{5});
+        final ArrayByte.D1 expectedByte = (ArrayByte.D1) Array.factory(new byte[]{6});
+        final ArrayObject.D1 expectedString = (ArrayObject.D1) Array.factory(DataType.STRING, new int[]{1});
+        expectedString.set(0, "7");
+        final ArrayFloat.D1 expectedFloats = (ArrayFloat.D1) Array.factory(new float[]{8, 9, 10});
 
-        final Path noaa17Path = Paths.get(absolutePath);
+        attributes.add(new Attribute("name1", expectedDouble));
+        attributes.add(new Attribute("name2", expectedFloat));
+        attributes.add(new Attribute("name3", expectedLong));
+        attributes.add(new Attribute("name4", expectedInt));
+        attributes.add(new Attribute("name5", expectedShort));
+        attributes.add(new Attribute("name6", expectedByte));
+        attributes.add(new Attribute("name7", expectedString));
+        attributes.add(new Attribute("name8", expectedFloats));
+        when(mock.getAttributes()).thenReturn(attributes);
 
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        variablesConfiguration.extractPrototypes(sensor, noaa17Path, new Dimension("avhrr-n17", 5, 5));
+        //test
+        final List<Attribute> attributeClones = VariablesConfiguration.getAttributeClones(mock);
 
-        final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
-        assertEquals(17, variablePrototypes.size());
+        //validation
+        assertNotNull(attributeClones);
+        assertEquals(8, attributeClones.size());
 
-        VariablePrototype prototype = variablePrototypes.get(0);
-        assertEquals("avhrr-n17_lat", prototype.getTargetVariableName());
-        assertEquals("float", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
+        Attribute expectedAttrib;
+        Attribute actualAttrib;
+        Array expectedAttribValues;
+        Array actualAttribValues;
+        int attribIndex;
 
-        prototype = variablePrototypes.get(1);
-        assertEquals("avhrr-n17_lon", prototype.getTargetVariableName());
-        assertEquals("float", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
+        // template
+        attribIndex = 0;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        // muhammad  please  take care of the data type  !!!!
+        assertEquals(expectedAttribValues.getDouble(0), actualAttribValues.getDouble(0), 1e-8);
 
-        prototype = variablePrototypes.get(2);
-        assertEquals("avhrr-n17_dtime", prototype.getTargetVariableName());
-        assertEquals("float", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(3);
-        assertEquals("avhrr-n17_ch1", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(9);
-        assertEquals("avhrr-n17_satellite_zenith_angle", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(10);
-        assertEquals("avhrr-n17_solar_zenith_angle", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(11);
-        assertEquals("avhrr-n17_relative_azimuth_angle", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(12);
-        assertEquals("avhrr-n17_ict_temp", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(13);
-        assertEquals("avhrr-n17_qual_flags", prototype.getTargetVariableName());
-        assertEquals("byte", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(14);
-        assertEquals("avhrr-n17_cloud_mask", prototype.getTargetVariableName());
-        assertEquals("byte", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(15);
-        assertEquals("avhrr-n17_cloud_probability", prototype.getTargetVariableName());
-        assertEquals("byte", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
-
-        prototype = variablePrototypes.get(16);
-        assertEquals("avhrr-n17_l1b_line_number", prototype.getTargetVariableName());
-        assertEquals("short", prototype.getDataType());
-        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
+        // continue
     }
 }
