@@ -99,6 +99,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getDouble(0), actualAttribValues.getDouble(0), 1e-8);
 
 
@@ -116,6 +117,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getFloat(0), actualAttribValues.getFloat(0), 1e-8f);
 
 
@@ -133,6 +135,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getLong(0), actualAttribValues.getLong(0));
 
 
@@ -150,6 +153,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getInt(0), actualAttribValues.getInt(0));
 
 
@@ -167,6 +171,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getShort(0), actualAttribValues.getShort(0));
 
 
@@ -184,6 +189,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getByte(0), actualAttribValues.getByte(0));
 
 
@@ -201,6 +207,7 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(1, actualAttribValues.getSize());
         assertEquals(expectedAttribValues.getObject(0), actualAttribValues.getObject(0));
 
 
@@ -218,6 +225,9 @@ public class VariablesConfigurationTest {
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(3, actualAttribValues.getSize());
+        assertEquals(expectedAttribValues.getFloat(0), actualAttribValues.getFloat(0), 1e-8f);
         assertEquals(expectedAttribValues.getFloat(1), actualAttribValues.getFloat(1), 1e-8f);
+        assertEquals(expectedAttribValues.getFloat(2), actualAttribValues.getFloat(2), 1e-8f);
     }
 }
