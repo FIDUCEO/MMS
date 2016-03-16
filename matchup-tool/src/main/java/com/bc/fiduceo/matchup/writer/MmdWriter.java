@@ -97,8 +97,10 @@ public class MmdWriter {
     }
 
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
-//        final Variable variable = netcdfFileWriter.findVariable(variableName);
-//        netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, data);
+        final Variable variable = netcdfFileWriter.findVariable(variableName);
+        final int[] shape = data.getShape();
+        final Array dataD3 = data.reshape(new int[]{1, shape[0], shape[1]});
+        netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, dataD3);
     }
 
     private void createGlobalAttributes() {
