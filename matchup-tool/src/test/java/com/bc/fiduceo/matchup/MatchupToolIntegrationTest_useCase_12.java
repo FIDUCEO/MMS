@@ -36,6 +36,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,7 +81,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException {
+    public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
@@ -100,7 +101,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException {
+    public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
@@ -121,7 +122,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     @Test
-    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException {
+    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 

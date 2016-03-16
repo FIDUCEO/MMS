@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
@@ -50,6 +51,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -170,7 +173,7 @@ class MatchupTool {
         return TimeUtils.parseDOYBeginOfDay(startDateString);
     }
 
-    public void run(CommandLine commandLine) throws IOException, SQLException {
+    public void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
@@ -218,7 +221,7 @@ class MatchupTool {
         return context;
     }
 
-    private void runMatchupGeneration(ToolContext context) throws SQLException, IOException {
+    private void runMatchupGeneration(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         MatchupCollection matchupCollection = createMatchupCollection(context);
 
         //
@@ -246,7 +249,7 @@ class MatchupTool {
         return new TimeScreening(timeDeltaInMillis);
     }
 
-    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException {
+    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
             return;
@@ -257,11 +260,51 @@ class MatchupTool {
 
         final File file = createMmdFile(context, useCaseConfig);
         final MmdWriter mmdWriter = new MmdWriter();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
         mmdWriter.create(file,
-                         useCaseConfig.getDimensions(),
+                         dimensions,
                          variablesConfiguration.get(),
                          matchupCollection.getNumMatchups());
 
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        final String primarySensorName = primarySensor.getName();
+        final String secondarySensorName = secondarySensor.getName();
+        final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
+        final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
+        final Dimension primaryDimension = getDimension(dimensions, primarySensorName);
+        final Dimension secondaryDimension = getDimension(dimensions, primarySensorName);
+        final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
+        final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
+
+        final ReaderFactory readerFactory = ReaderFactory.get();
+
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        int stackIndex = 0;
+        for (MatchupSet set : sets) {
+            final Path primaryObservationPath = set.getPrimaryObservationPath();
+            final Path secondaryObservationPath = set.getSecondaryObservationPath();
+            try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
+                 final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
+                primaryReader.open(primaryObservationPath.toFile());
+                secondaryReader.open(secondaryObservationPath.toFile());
+
+                final List<SampleSet> sampleSets = set.getSampleSets();
+                for (SampleSet sampleSet : sampleSets) {
+                    final Sample primarySample = sampleSet.getPrimary();
+                    final int px = primarySample.x;
+                    final int py = primarySample.y;
+
+                    final Sample secondarySample = sampleSet.getSecondary();
+                    final int sx = secondarySample.x;
+                    final int sy = secondarySample.y;
+
+                    writeMmdWindows(primaryVariables, primaryReader, px, py, primaryInterval, mmdWriter, stackIndex);
+                    writeMmdWindows(secondaryVariables, secondaryReader, sx, sy, secondaryInterval, mmdWriter, stackIndex);
+                    stackIndex++;
+                }
+            }
+        }
         // HERE!!!!
 
         mmdWriter.close();
@@ -272,6 +315,24 @@ class MatchupTool {
         // -- extract pixel window for all bands and write to output (primary and secondary observation)
         // -- store metadata of each sensor-acquisition as described in use-case
 
+    }
+
+    private void writeMmdWindows(List<VariablePrototype> variables, Reader reader, int x, int y, Interval interval, MmdWriter mmdWriter, int stackIndex) throws IOException, InvalidRangeException {
+        for (VariablePrototype primaryVariable : variables) {
+            final String sourceVariableName = primaryVariable.getSourceVariableName();
+            final String targetVariableName = primaryVariable.getTargetVariableName();
+            final Array primaryWindow = reader.readRaw(x, y, interval, sourceVariableName);
+            mmdWriter.write(primaryWindow, targetVariableName, stackIndex);
+        }
+    }
+
+    private Dimension getDimension(List<Dimension> dimensions, String sensorName) {
+        for (Dimension dimension : dimensions) {
+            if (dimension.getName().equals(sensorName)) {
+                return dimension;
+            }
+        }
+        return null;
     }
 
     private File createMmdFile(ToolContext context, UseCaseConfig useCaseConfig) throws IOException {

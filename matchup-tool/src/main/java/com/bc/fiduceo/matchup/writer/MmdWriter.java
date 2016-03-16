@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
@@ -92,6 +93,10 @@ public class MmdWriter {
         nameBuilder.append(".nc");
 
         return nameBuilder.toString();
+    }
+
+    public void write(Array data, String variableName, int stackIndex) {
+//        throw new RuntimeException("not implemented");
     }
 
     private void createGlobalAttributes() {

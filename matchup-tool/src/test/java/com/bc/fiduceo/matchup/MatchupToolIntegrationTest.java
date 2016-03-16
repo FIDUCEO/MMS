@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -65,14 +66,14 @@ public class MatchupToolIntegrationTest {
 
 
     @Test
-    public void testRunMatchup_notInputParameter() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_notInputParameter() throws ParseException, IOException, SQLException, InvalidRangeException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2016-02-15
         final String[] args = new String[0];
         MatchupToolMain.main(args);
     }
 
     @Test
-    public void testRunMatchup_help() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_help() throws ParseException, IOException, SQLException, InvalidRangeException {
         // @todo 4 tb/tb find a way to steal system.err to implement assertions 2016-02-16
         String[] args = new String[]{"-h"};
         MatchupToolMain.main(args);
@@ -82,7 +83,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176", "-u", configFileName};
 
@@ -97,7 +98,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_missingDatabaseProperties() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_missingDatabaseProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
 
@@ -112,7 +113,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_missingUseCaseConfig() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_missingUseCaseConfig() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
@@ -126,7 +127,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_missingStartDate() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_missingStartDate() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-e", "1999-176"};
 
@@ -142,7 +143,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_missingEndDate() throws ParseException, IOException, SQLException {
+    public void testRunMatchup_missingEndDate() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124"};
 
@@ -158,7 +159,7 @@ public class MatchupToolIntegrationTest {
     }
 
     @Test
-    public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException, IOException, ParseException {
+    public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException, IOException, ParseException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Storage storage = Storage.create(TestUtil.getDatasource_H2(), geometryFactory);
