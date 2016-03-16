@@ -21,10 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
+import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayDouble;
@@ -33,13 +30,18 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.ArrayLong;
 import ucar.ma2.ArrayObject;
 import ucar.ma2.ArrayShort;
-import ucar.ma2.ArrayString;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class VariablesConfigurationTest {
 
@@ -83,19 +85,139 @@ public class VariablesConfigurationTest {
 
         // template
         attribIndex = 0;
+
         expectedAttrib = attributes.get(attribIndex);
         actualAttrib = attributeClones.get(attribIndex);
+
         assertEquals(expectedAttrib, actualAttrib);
         assertNotSame(expectedAttrib, actualAttrib);
         assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
         expectedAttribValues = expectedAttrib.getValues();
         actualAttribValues = actualAttrib.getValues();
+
         assertNotSame(expectedAttribValues, actualAttribValues);
         assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
         assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
-        // muhammad  please  take care of the data type  !!!!
         assertEquals(expectedAttribValues.getDouble(0), actualAttribValues.getDouble(0), 1e-8);
 
-        // continue
+
+        attribIndex = 1;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getFloat(0), actualAttribValues.getFloat(0), 1e-8f);
+
+
+        attribIndex = 2;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getLong(0), actualAttribValues.getLong(0));
+
+
+        attribIndex = 3;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getInt(0), actualAttribValues.getInt(0));
+
+
+        attribIndex = 4;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getShort(0), actualAttribValues.getShort(0));
+
+
+        attribIndex = 5;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getByte(0), actualAttribValues.getByte(0));
+
+
+        attribIndex = 6;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getObject(0), actualAttribValues.getObject(0));
+
+
+        attribIndex = 7;
+        expectedAttrib = attributes.get(attribIndex);
+        actualAttrib = attributeClones.get(attribIndex);
+
+        assertEquals(expectedAttrib, actualAttrib);
+        assertNotSame(expectedAttrib, actualAttrib);
+        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+
+        expectedAttribValues = expectedAttrib.getValues();
+        actualAttribValues = actualAttrib.getValues();
+
+        assertNotSame(expectedAttribValues, actualAttribValues);
+        assertEquals(expectedAttribValues.getRank(), actualAttribValues.getRank());
+        assertEquals(expectedAttribValues.getElementType(), actualAttribValues.getElementType());
+        assertEquals(expectedAttribValues.getFloat(1), actualAttribValues.getFloat(1), 1e-8f);
     }
 }
