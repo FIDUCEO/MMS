@@ -5,6 +5,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.reader.amsu_mhs.AMSU_MHS_L1B_Reader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

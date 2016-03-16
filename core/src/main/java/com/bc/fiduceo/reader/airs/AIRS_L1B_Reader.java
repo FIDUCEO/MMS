@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2016 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.airs;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -26,6 +26,10 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
@@ -42,7 +46,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-class AIRS_L1B_Reader implements Reader {
+public class AIRS_L1B_Reader implements Reader {
 
     private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
     private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
@@ -66,49 +70,6 @@ class AIRS_L1B_Reader implements Reader {
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
         logger = FiduceoLogger.getLogger();
-    }
-
-    static String getElementValue(Element element, String attribute) {
-        if (element.getName().equals(attribute)) {
-            return element.getChild("VALUE").getValue();
-        }
-        for (Element subElement : element.getChildren()) {
-            if (subElement.getName().equals(attribute)) {
-                return subElement.getChild("VALUE").getValue();
-            } else {
-                final String elementValue = getElementValue(subElement, attribute);
-                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
-                    return elementValue;
-                }
-            }
-        }
-        return null;
-    }
-
-    // package access for testing only tb 2015-08-05
-    static Element getEosElement(String satelliteMeta) throws IOException {
-        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
-        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
-
-        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
-        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
-        while (lineFinder.hasMoreTokens()) {
-            final String line = lineFinder.nextToken().trim();
-            sb.append(line);
-            sb.append("\n");
-        }
-        final EosCoreMetaParser parser = new EosCoreMetaParser();
-        return parser.parseFromString(sb.toString());
-    }
-
-    // package access for testing only tb 2015-08-05
-    static String getEosMetadata(String name, Group eosGroup) throws IOException {
-        final Variable structMetadataVar = eosGroup.findVariable(name);
-        if (structMetadataVar == null) {
-            return null;
-        }
-        final Array metadataArray = structMetadataVar.read();
-        return metadataArray.toString();
     }
 
     @Override
@@ -168,6 +129,11 @@ class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
+    public TimeLocator getTimeLocator() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
     }
@@ -184,6 +150,51 @@ class AIRS_L1B_Reader implements Reader {
         return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
     }
 
+    static String getElementValue(Element element, String attribute) {
+        if (element.getName().equals(attribute)) {
+            return element.getChild("VALUE").getValue();
+        }
+        for (Element subElement : element.getChildren()) {
+            if (subElement.getName().equals(attribute)) {
+                return subElement.getChild("VALUE").getValue();
+            } else {
+                final String elementValue = getElementValue(subElement, attribute);
+                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
+                    return elementValue;
+                }
+            }
+        }
+        return null;
+    }
+
+    // package access for testing only tb 2015-08-05
+    static Element getEosElement(String satelliteMeta) throws IOException {
+        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
+        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
+
+        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
+        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
+        while (lineFinder.hasMoreTokens()) {
+            final String line = lineFinder.nextToken().trim();
+            sb.append(line);
+            sb.append("\n");
+        }
+        final EosCoreMetaParser parser = new EosCoreMetaParser();
+        return parser.parseFromString(sb.toString());
+    }
+
+    // package access for testing only tb 2015-08-05
+    static String getEosMetadata(String name, Group eosGroup) throws IOException {
+        final Variable structMetadataVar = eosGroup.findVariable(name);
+        if (structMetadataVar == null) {
+            return null;
+        }
+        final Array metadataArray = structMetadataVar.read();
+        return metadataArray.toString();
+    }
+
+
+    // @todo 3 tb/** make static, packagelocal and write tests for this method 2016-03-16
     private String stripMicrosecs(String timeString) {
         final int lastDotIndex = timeString.lastIndexOf('.');
         return timeString.substring(0, lastDotIndex + 4);

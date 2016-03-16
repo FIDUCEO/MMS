@@ -45,6 +45,8 @@ public interface Reader {
 
     PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
 
+    TimeLocator getTimeLocator();
+
     /**
      * Reads raw data of a window defined by a center pixel position an a defined window size.
      * According to this constraints the window dimensions must always be odd. If not

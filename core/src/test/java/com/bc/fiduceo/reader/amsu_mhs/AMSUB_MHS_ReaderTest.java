@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.amsu_mhs;
 
 
 import org.junit.Before;
@@ -39,13 +39,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_ReaderTest {
-
-    private AMSU_MHS_L1B_Reader reader = null;
-
-    @Before
-    public void setUp() throws Exception {
-        reader = new AMSU_MHS_L1B_Reader();
-    }
 
     @Test
     public void testGetLongitudes_missingGroup() {

@@ -21,19 +21,7 @@
 package com.bc.fiduceo.reader;
 
 
-import com.bc.fiduceo.location.PixelLocator;
+public interface TimeLocator {
 
-import java.awt.geom.Point2D;
-
-class AMSU_MHS_GeoCoding implements PixelLocator{
-
-    @Override
-    public Point2D getGeoLocation(double x, double y, Point2D g) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Point2D[] getPixelLocation(double lon, double lat) {
-        throw new RuntimeException("not implemented");
-    }
+    long getTimeFor(int x, int y);
 }

@@ -51,7 +51,7 @@ public class ReaderFactory {
 
         final ReaderPlugin readerPlugin = readerPluginHashMap.get(sensorPlatformKey);
         if (readerPlugin == null) {
-            throw new NullPointerException("No support sensor with such :" + sensorPlatformKey + " key");
+            throw new IllegalArgumentException("No reader available for data of type: '" + sensorPlatformKey + "'");
         }
         return readerPlugin.createReader();
     }

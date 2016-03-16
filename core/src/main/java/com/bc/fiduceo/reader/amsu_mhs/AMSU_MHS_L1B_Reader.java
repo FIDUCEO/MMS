@@ -18,12 +18,36 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
+package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
@@ -43,7 +67,7 @@ import java.util.Date;
 import java.util.List;
 
 
-class AMSU_MHS_L1B_Reader implements Reader {
+public class AMSU_MHS_L1B_Reader implements Reader {
 
     private static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
@@ -101,6 +125,11 @@ class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
+    public String getRegEx() {
+        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         // @todo 1 tb/tb continue here 2016-02-25
         final Array longitudes = getLongitudes(netcdfFile);
@@ -108,12 +137,12 @@ class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
-    public String getRegEx() {
-        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5";
+    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+        throw new RuntimeException("not implemented");
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+    public TimeLocator getTimeLocator() {
         throw new RuntimeException("not implemented");
     }
 

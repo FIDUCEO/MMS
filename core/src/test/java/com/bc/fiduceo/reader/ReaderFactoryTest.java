@@ -19,6 +19,10 @@
  */
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
+import com.bc.fiduceo.reader.amsu_mhs.AMSU_MHS_L1B_Reader;
+import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
+import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -48,7 +52,6 @@ public class ReaderFactoryTest {
         assertNotNull(reader);
         assertTrue(reader instanceof AMSU_MHS_L1B_Reader);
     }
-
 
     @Test
     public void testGetAIRSReaderKey() throws Exception {
@@ -88,8 +91,8 @@ public class ReaderFactoryTest {
     public void testGetReaderKeyNonExist() throws Exception {
         try {
             readerFactory.getReader("uztierter");
-            fail("The key doest not exist");
-        } catch (NullPointerException expect) {
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
         }
     }
 

@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -33,6 +33,12 @@ import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
@@ -49,7 +55,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-class AVHRR_GAC_Reader implements Reader {
+public class AVHRR_GAC_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
@@ -120,6 +126,11 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
+    public String getRegEx() {
+        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
@@ -133,11 +144,6 @@ class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
-    public String getRegEx() {
-        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
-    }
-
-    @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         final ArrayFloat longitudes = (ArrayFloat) arrayCache.get("lon");
         final int[] shape = longitudes.getShape();
@@ -147,6 +153,11 @@ class AVHRR_GAC_Reader implements Reader {
         final PixelLocator pixelLocator = getPixelLocator();
 
         return getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
+    }
+
+    @Override
+    public TimeLocator getTimeLocator() {
+        throw new RuntimeException("not implemented");
     }
 
     @Override

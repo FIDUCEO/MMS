@@ -27,18 +27,18 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.HashMap;
 
-class ArrayCache {
+public class ArrayCache {
 
     private final NetcdfFile netcdfFile;
     private final HashMap<String, Array> cache;
 
-    ArrayCache(NetcdfFile netcdfFile) {
+    public ArrayCache(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
 
         cache = new HashMap<>();
     }
 
-    Array get(String variableName) throws IOException {
+    public Array get(String variableName) throws IOException {
         Array array = cache.get(variableName);
         if (array == null) {
             synchronized (netcdfFile) {
