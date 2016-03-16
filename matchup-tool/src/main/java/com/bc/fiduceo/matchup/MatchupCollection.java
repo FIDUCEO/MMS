@@ -46,11 +46,4 @@ public class MatchupCollection {
         }
         return numMatchups;
     }
-
-    public MatchupSet getFirst() {
-        if (matchupSets.size() > 0) {
-            return matchupSets.get(0);
-        }
-        return null;
-    }
 }

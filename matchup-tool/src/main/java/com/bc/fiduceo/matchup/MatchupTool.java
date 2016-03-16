@@ -72,10 +72,119 @@ class MatchupTool {
         readerFactory = ReaderFactory.get();
     }
 
+    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+        final PixelLocator pixelLocator;
+        if (isSegmented) {
+            pixelLocator = reader.getSubScenePixelLocator(polygon);
+        } else {
+            pixelLocator = reader.getPixelLocator();
+        }
+        return pixelLocator;
+    }
+
+    static boolean isSegmented(Geometry primaryGeoBounds) {
+        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        parameter.setSensorName(secondarySensor.getName());
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        parameter.setGeometry(geoBounds);
+        return parameter;
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
+        }
+        return null;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() != 1) {
+            throw new RuntimeException("Unable to run matchup with given sensor number");
+        }
+
+        return additionalSensors.get(0);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static QueryParameter getPrimarySensorParameter(ToolContext context) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
+        parameter.setSensorName(primarySensor.getName());
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-02-18
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        options.addOption(endOption);
+
+        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
+        options.addOption(useCaseOption);
+
+        return options;
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getEndDate(CommandLine commandLine) {
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
+        return TimeUtils.parseDOYEndOfDay(endDateString);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getStartDate(CommandLine commandLine) {
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+        return TimeUtils.parseDOYBeginOfDay(startDateString);
+    }
+
     public void run(CommandLine commandLine) throws IOException, SQLException {
         final ToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
     }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -135,9 +244,9 @@ class MatchupTool {
         final File file = createMmdFile(context, useCaseConfig);
         final MmdWriter mmdWriter = new MmdWriter();
         mmdWriter.create(file,
-                useCaseConfig.getDimensions(),
-                variablesConfiguration.get(),
-                matchupCollection.getNumMatchups());
+                         useCaseConfig.getDimensions(),
+                         variablesConfiguration.get(),
+                         matchupCollection.getNumMatchups());
 
         // HERE!!!!
 
@@ -157,7 +266,7 @@ class MatchupTool {
         final File file = mmdFile.toFile();
         final File targetDir = file.getParentFile();
         if (!targetDir.isDirectory()) {
-            if (!targetDir.mkdirs()){
+            if (!targetDir.mkdirs()) {
                 throw new IOException("unable to create mmd output directory '" + targetDir.getAbsolutePath() + "'");
             }
         }
@@ -173,7 +282,7 @@ class MatchupTool {
     private VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context, UseCaseConfig useCaseConfig) throws IOException {
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
 
-        final MatchupSet matchupSet = matchupCollection.getFirst();
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
 
@@ -244,107 +353,6 @@ class MatchupTool {
         }
 
         return matchupCollection;
-    }
-
-    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
-        final PixelLocator pixelLocator;
-        if (isSegmented) {
-            pixelLocator = reader.getSubScenePixelLocator(polygon);
-        } else {
-            pixelLocator = reader.getPixelLocator();
-        }
-        return pixelLocator;
-    }
-
-    static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        parameter.setSensorName(secondarySensor.getName());
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        parameter.setGeometry(geoBounds);
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
-        }
-
-        return additionalSensors.get(0);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(ToolContext context) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        if (primarySensor == null) {
-            throw new RuntimeException("primary sensor not present in configuration file");
-        }
-        parameter.setSensorName(primarySensor.getName());
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
-    }
-
-    // package access for testing only tb 2016-02-18
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
-        options.addOption(startOption);
-
-        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
-        options.addOption(endOption);
-
-        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
-        options.addOption(useCaseOption);
-
-        return options;
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getEndDate(CommandLine commandLine) {
-        final String endDateString = commandLine.getOptionValue("end");
-        if (StringUtils.isNullOrEmpty(endDateString)) {
-            throw new RuntimeException("cmd-line parameter `end` missing");
-        }
-        return TimeUtils.parseDOYEndOfDay(endDateString);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getStartDate(CommandLine commandLine) {
-        final String startDateString = commandLine.getOptionValue("start");
-        if (StringUtils.isNullOrEmpty(startDateString)) {
-            throw new RuntimeException("cmd-line parameter `start` missing");
-        }
-        return TimeUtils.parseDOYBeginOfDay(startDateString);
     }
 
     private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {

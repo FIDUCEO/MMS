@@ -287,4 +287,27 @@ public class MatchupToolTest {
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
     }
+
+    @Test
+    public void testGetFirstMatchupSet_emptyList() {
+        final MatchupCollection matchupCollection = new MatchupCollection();
+
+        final MatchupSet set = MatchupTool.getFirstMatchupSet(matchupCollection);
+
+        assertNull(set);
+    }
+
+    @Test
+    public void testGetFirstMatchupSet() {
+        final MatchupCollection collection = new MatchupCollection();
+        final MatchupSet first = new MatchupSet();
+        final MatchupSet second = new MatchupSet();
+        collection.add(first);
+        collection.add(second);
+
+        final MatchupSet set = MatchupTool.getFirstMatchupSet(collection);
+
+        assertSame(first, set);
+    }
+
 }

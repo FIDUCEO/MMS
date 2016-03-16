@@ -90,22 +90,4 @@ public class MatchupCollectionTest {
 
         assertEquals(57 + 109, collection.getNumMatchups());
     }
-
-    @Test
-    public void testGetFirst_emptyList() {
-        final MatchupSet set = collection.getFirst();
-        assertNull(set);
-    }
-
-    @Test
-    public void testGetFirst() {
-        final MatchupSet first = new MatchupSet();
-        collection.add(first);
-
-        final MatchupSet second = new MatchupSet();
-        collection.add(second);
-
-        final MatchupSet set = collection.getFirst();
-        assertSame(first, set);
-    }
 }
