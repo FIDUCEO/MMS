@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class UseCaseConfigTest {
 
@@ -290,6 +291,42 @@ public class UseCaseConfigTest {
 
         useCaseConfig.setOutputPath(path);
         assertEquals(path, useCaseConfig.getOutputPath());
+    }
+
+    @Test
+    public void testGetDimensionFor() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+        sensorList.add(new Sensor("second"));
+        useCaseConfig.setSensors(sensorList);
+
+        final List<Dimension> dimensionsList = new ArrayList<>();
+        dimensionsList.add(new Dimension("first", 1, 2));
+        dimensionsList.add(new Dimension("second", 3, 4));
+        useCaseConfig.setDimensions(dimensionsList);
+
+        final Dimension second = useCaseConfig.getDimensionFor("second");
+        assertNotNull(second);
+        assertEquals(3, second.getNx());
+        assertEquals(4, second.getNy());
+    }
+
+    @Test
+    public void testGetDimensionFor_notAvailableSensorDimension() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+        sensorList.add(new Sensor("second"));
+        useCaseConfig.setSensors(sensorList);
+
+        final List<Dimension> dimensionsList = new ArrayList<>();
+        dimensionsList.add(new Dimension("second", 3, 4));
+        useCaseConfig.setDimensions(dimensionsList);
+
+        try {
+            useCaseConfig.getDimensionFor("first");
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException expected){
+        }
     }
 
     @Test
