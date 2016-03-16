@@ -20,7 +20,11 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -45,11 +49,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -101,7 +108,7 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException {
-        final List<MatchupSet> matchupSets = createMatchupSets(context);
+        final MatchupCollection matchupCollection = createMatchupCollection(context);
 
         //
         // - detect all pixels (x/y) in primary observation that are contained in intersecting area
@@ -113,26 +120,21 @@ class MatchupTool {
         // --- perform cloud processing (optional) -> remove pixels or add flags
         //
 
-        writeMMD(matchupSets, context);
+        writeMMD(matchupCollection, context);
     }
 
-    private void writeMMD(List<MatchupSet> matchupSets, ToolContext context) throws IOException {
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        if (matchupSets.size() > 0) {
-            final MatchupSet matchupSet = matchupSets.get(0);
-
-            final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-            final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-
-            final List<Dimension> dimensions = context.getUseCaseConfig().getDimensions();
-            variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-            variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        if (matchupCollection.getNumMatchups() == 0) {
+            logger.warning("No matchups in time interval, creation of MMD file skipped.");
+            return;
         }
+
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context, useCaseConfig);
+
 
         final MmdWriter mmdWriter = new MmdWriter();
         final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
-        final String archiveRoot = context.getSystemConfig().getArchiveRoot();
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
         final File file = mmdFile.toFile();
         final File targetDir = file.getParentFile();
@@ -140,7 +142,10 @@ class MatchupTool {
             targetDir.mkdirs();
         }
         file.createNewFile();
-        mmdWriter.create(file, useCaseConfig.getDimensions(), variablesConfiguration.get(), 100);
+        mmdWriter.create(file,
+                useCaseConfig.getDimensions(),
+                variablesConfiguration.get(),
+                matchupCollection.getNumMatchups());
 
         // HERE!!!!
 
@@ -154,8 +159,22 @@ class MatchupTool {
 
     }
 
-    private List<MatchupSet> createMatchupSets(ToolContext context) throws IOException, SQLException {
-        final List<MatchupSet> matchupSets = new ArrayList<>();
+    // @todo 2 tb/tb write tests, make static and package local 2016-03-16
+    private VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context, UseCaseConfig useCaseConfig) throws IOException {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+
+        final MatchupSet matchupSet = matchupCollection.getFirst();
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+
+        final List<Dimension> dimensions = context.getUseCaseConfig().getDimensions();
+        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+        return variablesConfiguration;
+    }
+
+    private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException {
+        final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final int timeDelta = useCaseConfig.getTimeDelta();
         final int timeDeltaInMillis = timeDelta * 1000;
@@ -209,12 +228,12 @@ class MatchupTool {
                 }
 
                 if (matchupSet.getNumObservations() > 0) {
-                    matchupSets.add(matchupSet);
+                    matchupCollection.add(matchupSet);
                 }
             }
         }
 
-        return matchupSets;
+        return matchupCollection;
     }
 
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
