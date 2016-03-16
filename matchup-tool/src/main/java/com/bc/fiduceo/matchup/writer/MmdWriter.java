@@ -50,6 +50,10 @@ public class MmdWriter {
                     variablePrototype.getTargetVariableName(),
                     DataType.getType(variablePrototype.getDataType()),
                     variablePrototype.getDimensionNames());
+            final List<Attribute> attributes = variablePrototype.getAttributes();
+            for (Attribute attribute : attributes) {
+                variable.addAttribute(attribute);
+            }
         }
 
         netcdfFileWriter.create();

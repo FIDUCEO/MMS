@@ -70,24 +70,28 @@ public class MmdWriter_IO_Test {
         variablePrototype.setTargetVariableName("avhrr-n11_ch3b");
         variablePrototype.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
         variablePrototype.setDataType("short");
+        variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
         variablePrototype.setTargetVariableName("avhrr-n12_ch4");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("int");
+        variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
         variablePrototype.setTargetVariableName("avhrr-n12_cloud_mask");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("byte");
+        variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
         variablePrototype.setTargetVariableName("avhrr-n12_dtime");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("float");
+        variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
         try {

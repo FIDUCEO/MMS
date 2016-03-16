@@ -35,6 +35,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.matchup.writer.VariablePrototype;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
