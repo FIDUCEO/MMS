@@ -4,12 +4,13 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;
 import java.util.List;
 
-public class SampleCollector {
+class SampleCollector {
 
     private final PixelLocator pixelLocator;
     private final Range xRange;
@@ -23,7 +24,7 @@ public class SampleCollector {
         yRange = new Range();
     }
 
-    public void addSecondarySamples(List<SampleSet> sampleSets) {
+    public void addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
         Point2D geopos = new Point2D.Double();
         for (final SampleSet sourceSample : sampleSets) {
             final Sample primary = sourceSample.getPrimary();
@@ -32,13 +33,14 @@ public class SampleCollector {
                 final int x = (int) pixelLocation.getX();
                 final int y = (int) pixelLocation.getY();
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), null);
+                final long time = timeLocator.getTimeFor(x, y);
+                final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
                 sourceSample.setSecondary(sample);
             }
         }
     }
 
-    public void addPrimarySamples(Polygon polygon, MatchupSet matchupSet) {
+    public void addPrimarySamples(Polygon polygon, MatchupSet matchupSet, TimeLocator timeLocator) {
         final Point[] coordinates = polygon.getCoordinates();
         for (Point coordinate : coordinates) {
             final Point2D[] pixelLocation = pixelLocator.getPixelLocation(coordinate.getLon(), coordinate.getLat());
@@ -62,7 +64,8 @@ public class SampleCollector {
                 final double lat = geoLocation.getY();
                 final Point geoPoint = factory.createPoint(lon, lat);
                 if (polygon.contains(geoPoint)) {
-                    final Sample sample = new Sample(x, y, lon, lat, null);
+                    final long time = timeLocator.getTimeFor(x, y);
+                    final Sample sample = new Sample(x, y, lon, lat, time);
                     matchupSet.addPrimary(sample);
                 }
             }
