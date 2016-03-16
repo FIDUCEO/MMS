@@ -31,21 +31,28 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class VariablesConfiguration {
 
-    private final List<VariablePrototype> prototypes;
+    private final HashMap<String, List<VariablePrototype>> prototypesMap;
 
     public VariablesConfiguration() {
-        prototypes = new ArrayList<>();
+        prototypesMap = new HashMap<>();
     }
 
     public void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.get();
-        final Reader reader = readerFactory.getReader(sensor.getName());
+        final String sensorName = sensor.getName();
 
-        try {
+        final List<VariablePrototype> prototypes;
+        if (!prototypesMap.containsKey(sensorName)) {
+            prototypesMap.put(sensorName, new ArrayList<>());
+        }
+        prototypes = prototypesMap.get(sensorName);
+
+        try (final Reader reader = readerFactory.getReader(sensorName)) {
             reader.open(filePath.toFile());
 
             final String dimensionNames = createDimensionNames(dimension);
@@ -53,16 +60,13 @@ public class VariablesConfiguration {
             for (final Variable variable : variables) {
                 final VariablePrototype prototype = new VariablePrototype();
                 final String shortName = variable.getShortName();
-                prototype.setTargetVariableName(sensor.getName() + "_" + shortName);
+                prototype.setSourceVariableName(shortName);
+                prototype.setTargetVariableName(sensorName + "_" + shortName);
                 prototype.setDataType(variable.getDataType().toString());
                 prototype.setDimensionNames(dimensionNames);
                 final List<Attribute> newAttributes = getAttributeClones(variable);
                 prototype.setAttributes(newAttributes);
                 prototypes.add(prototype);
-            }
-        } finally {
-            if (reader != null) {
-                reader.close();
             }
         }
     }
@@ -80,8 +84,26 @@ public class VariablesConfiguration {
     }
 
     public List<VariablePrototype> get() {
-        return prototypes;
+        final ArrayList<VariablePrototype> allPrototypes = new ArrayList<>();
+        for (List<VariablePrototype> prototypes : prototypesMap.values()) {
+            allPrototypes.addAll(prototypes);
+        }
+        return allPrototypes;
     }
+
+    /**
+     * Returns a list of {@link VariablePrototype} associated with the given sensor name.
+     * If there are no associated {@link VariablePrototype}s, an empty list will be returned.
+     * @param sensorName
+     * @return a list of {@link VariablePrototype}
+     */
+    public List<VariablePrototype> getPrototypesFor(String sensorName) {
+        if (prototypesMap.containsKey(sensorName)) {
+            return prototypesMap.get(sensorName);
+        }
+        return new ArrayList<>();
+    }
+
 
     // @todo 2 tb/tb make static and add tests
     String createDimensionNames(Dimension dimension) {

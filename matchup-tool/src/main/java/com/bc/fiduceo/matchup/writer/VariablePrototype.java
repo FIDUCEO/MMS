@@ -27,6 +27,7 @@ import java.util.List;
 public class VariablePrototype {
 
     private String targetVariableName;
+    private String sourceVariableName;
     private String dimensionNames;
     private String dataType;
     private List<Attribute> attributes;
@@ -67,5 +68,13 @@ public class VariablePrototype {
 
     public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public String getSourceVariableName() {
+        return sourceVariableName;
+    }
+
+    public void setSourceVariableName(String sourceVariableName) {
+        this.sourceVariableName = sourceVariableName;
     }
 }

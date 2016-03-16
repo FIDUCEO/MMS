@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public interface Reader {
+public interface Reader extends AutoCloseable {
 
     void open(File file) throws IOException;
 

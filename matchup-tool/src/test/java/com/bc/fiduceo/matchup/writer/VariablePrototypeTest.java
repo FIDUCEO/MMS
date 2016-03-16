@@ -22,8 +22,11 @@ package com.bc.fiduceo.matchup.writer;
 
 import org.junit.Before;
 import org.junit.Test;
+import ucar.nc2.Attribute;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
 
 public class VariablePrototypeTest {
 
@@ -52,9 +55,18 @@ public class VariablePrototypeTest {
 
     @Test
     public void testSetGetDataType() {
-         final String dataType = "float";
+        final String dataType = "float";
 
         config.setDataType(dataType);
         assertEquals(dataType, config.getDataType());
+    }
+
+    @Test
+    public void testSetGetAttributes() throws Exception {
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+
+        config.setAttributes(attributes);
+
+        assertEquals(attributes, config.getAttributes());
     }
 }
