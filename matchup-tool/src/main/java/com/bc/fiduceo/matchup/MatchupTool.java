@@ -142,6 +142,8 @@ class MatchupTool {
         file.createNewFile();
         mmdWriter.create(file, useCaseConfig.getDimensions(), variablesConfiguration.get(), 100);
 
+        // HERE!!!!
+
         mmdWriter.close();
 
 

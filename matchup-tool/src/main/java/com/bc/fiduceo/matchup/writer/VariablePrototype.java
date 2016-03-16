@@ -21,16 +21,16 @@
 package com.bc.fiduceo.matchup.writer;
 
 public class VariablePrototype {
-    private String name;
+    private String targetVariableName;
     private String dimensionNames;
     private String dataType;
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTargetVariableName(String name) {
+        this.targetVariableName = name;
     }
 
-    public String getName() {
-        return name;
+    public String getTargetVariableName() {
+        return targetVariableName;
     }
 
     /**

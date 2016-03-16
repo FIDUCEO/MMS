@@ -53,62 +53,62 @@ public class VariablesConfigurationTest {
         assertEquals(17, variablePrototypes.size());
 
         VariablePrototype prototype = variablePrototypes.get(0);
-        assertEquals("avhrr-n17_lat", prototype.getName());
+        assertEquals("avhrr-n17_lat", prototype.getTargetVariableName());
         assertEquals("float", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(1);
-        assertEquals("avhrr-n17_lon", prototype.getName());
+        assertEquals("avhrr-n17_lon", prototype.getTargetVariableName());
         assertEquals("float", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(2);
-        assertEquals("avhrr-n17_dtime", prototype.getName());
+        assertEquals("avhrr-n17_dtime", prototype.getTargetVariableName());
         assertEquals("float", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(3);
-        assertEquals("avhrr-n17_ch1", prototype.getName());
+        assertEquals("avhrr-n17_ch1", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(9);
-        assertEquals("avhrr-n17_satellite_zenith_angle", prototype.getName());
+        assertEquals("avhrr-n17_satellite_zenith_angle", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(10);
-        assertEquals("avhrr-n17_solar_zenith_angle", prototype.getName());
+        assertEquals("avhrr-n17_solar_zenith_angle", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(11);
-        assertEquals("avhrr-n17_relative_azimuth_angle", prototype.getName());
+        assertEquals("avhrr-n17_relative_azimuth_angle", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(12);
-        assertEquals("avhrr-n17_ict_temp", prototype.getName());
+        assertEquals("avhrr-n17_ict_temp", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(13);
-        assertEquals("avhrr-n17_qual_flags", prototype.getName());
+        assertEquals("avhrr-n17_qual_flags", prototype.getTargetVariableName());
         assertEquals("byte", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(14);
-        assertEquals("avhrr-n17_cloud_mask", prototype.getName());
+        assertEquals("avhrr-n17_cloud_mask", prototype.getTargetVariableName());
         assertEquals("byte", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(15);
-        assertEquals("avhrr-n17_cloud_probability", prototype.getName());
+        assertEquals("avhrr-n17_cloud_probability", prototype.getTargetVariableName());
         assertEquals("byte", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
 
         prototype = variablePrototypes.get(16);
-        assertEquals("avhrr-n17_l1b_line_number", prototype.getName());
+        assertEquals("avhrr-n17_l1b_line_number", prototype.getTargetVariableName());
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
     }

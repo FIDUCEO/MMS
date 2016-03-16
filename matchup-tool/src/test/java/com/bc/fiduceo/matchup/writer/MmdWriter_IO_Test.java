@@ -67,25 +67,25 @@ public class MmdWriter_IO_Test {
 
         final List<VariablePrototype> variablePrototypes = new ArrayList<>();
         VariablePrototype variablePrototype = new VariablePrototype();
-        variablePrototype.setName("avhrr-n11_ch3b");
+        variablePrototype.setTargetVariableName("avhrr-n11_ch3b");
         variablePrototype.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
         variablePrototype.setDataType("short");
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
-        variablePrototype.setName("avhrr-n12_ch4");
+        variablePrototype.setTargetVariableName("avhrr-n12_ch4");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("int");
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
-        variablePrototype.setName("avhrr-n12_cloud_mask");
+        variablePrototype.setTargetVariableName("avhrr-n12_cloud_mask");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("byte");
         variablePrototypes.add(variablePrototype);
 
         variablePrototype = new VariablePrototype();
-        variablePrototype.setName("avhrr-n12_dtime");
+        variablePrototype.setTargetVariableName("avhrr-n12_dtime");
         variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         variablePrototype.setDataType("float");
         variablePrototypes.add(variablePrototype);

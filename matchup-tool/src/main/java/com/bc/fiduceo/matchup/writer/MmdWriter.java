@@ -47,7 +47,7 @@ public class MmdWriter {
 
         for(final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                    variablePrototype.getName(),
+                    variablePrototype.getTargetVariableName(),
                     DataType.getType(variablePrototype.getDataType()),
                     variablePrototype.getDimensionNames());
         }

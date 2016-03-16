@@ -26,7 +26,6 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class VariablesConfiguration {
             for (final Variable variable : variables) {
                 final VariablePrototype prototype = new VariablePrototype();
                 final String shortName = variable.getShortName();
-                prototype.setName(sensor.getName() + "_" + shortName);
+                prototype.setTargetVariableName(sensor.getName() + "_" + shortName);
                 prototype.setDataType(variable.getDataType().toString());
 
                 prototype.setDimensionNames(dimensionNames);

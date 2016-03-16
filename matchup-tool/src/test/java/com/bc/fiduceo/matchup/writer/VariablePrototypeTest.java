@@ -38,8 +38,8 @@ public class VariablePrototypeTest {
     public void testSetGetName() {
         final String name = "the_variable_name";
 
-        config.setName(name);
-        assertEquals(name, config.getName());
+        config.setTargetVariableName(name);
+        assertEquals(name, config.getTargetVariableName());
     }
 
     @Test
