@@ -34,6 +34,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.matchup.screening.TimeScreening;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.VariablePrototype;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
@@ -218,19 +219,31 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException {
-        final MatchupCollection matchupCollection = createMatchupCollection(context);
+        MatchupCollection matchupCollection = createMatchupCollection(context);
 
         //
         // - detect all pixels (x/y) in primary observation that are contained in intersecting area
         // -- for each pixel:
         // --- perform check on pixel spatial delta -> remove pixels that are further away
-        // --- perform check on pixel time delta -> remove pixels that do not fulfil
         // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
         // --- perform cloud processing (optional) -> remove pixels or add flags
         //
 
+        System.out.println("rawCount = " + matchupCollection.getNumMatchups());
+
+        final TimeScreening timeScreening = createTimeScreening(context);
+        matchupCollection = timeScreening.execute(matchupCollection);
+
+        System.out.println("after TimeScreening = " + matchupCollection.getNumMatchups());
 
         writeMMD(matchupCollection, context);
+    }
+
+    private TimeScreening createTimeScreening(ToolContext context) {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final int timeDelta = useCaseConfig.getTimeDelta();
+        final int timeDeltaInMillis = timeDelta * 1000;
+        return new TimeScreening(timeDeltaInMillis);
     }
 
     private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException {
