@@ -262,9 +262,9 @@ class MatchupTool {
         final MmdWriter mmdWriter = new MmdWriter();
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         mmdWriter.create(file,
-                dimensions,
-                variablesConfiguration.get(),
-                matchupCollection.getNumMatchups());
+                         dimensions,
+                         variablesConfiguration.get(),
+                         matchupCollection.getNumMatchups());
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);

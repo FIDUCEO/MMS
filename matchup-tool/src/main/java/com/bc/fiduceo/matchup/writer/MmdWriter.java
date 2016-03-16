@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -39,33 +40,6 @@ import java.util.List;
 public class MmdWriter {
 
     private NetcdfFileWriter netcdfFileWriter;
-
-    public void create(File mmdFile, List<Dimension> dimensions, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
-        netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
-
-        createGlobalAttributes();
-        createDimensions(dimensions, numMatchups);
-
-        for(final VariablePrototype variablePrototype : variablePrototypes) {
-            final Variable variable = netcdfFileWriter.addVariable(null,
-                    variablePrototype.getTargetVariableName(),
-                    DataType.getType(variablePrototype.getDataType()),
-                    variablePrototype.getDimensionNames());
-            final List<Attribute> attributes = variablePrototype.getAttributes();
-            for (Attribute attribute : attributes) {
-                variable.addAttribute(attribute);
-            }
-        }
-
-        netcdfFileWriter.create();
-    }
-
-    public void close() throws IOException {
-        if (netcdfFileWriter != null) {
-            netcdfFileWriter.close();
-            netcdfFileWriter = null;
-        }
-    }
 
     public static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
         final StringBuilder nameBuilder = new StringBuilder();
@@ -95,8 +69,36 @@ public class MmdWriter {
         return nameBuilder.toString();
     }
 
-    public void write(Array data, String variableName, int stackIndex) {
-//        throw new RuntimeException("not implemented");
+    public void create(File mmdFile, List<Dimension> dimensions, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+        netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
+
+        createGlobalAttributes();
+        createDimensions(dimensions, numMatchups);
+
+        for (final VariablePrototype variablePrototype : variablePrototypes) {
+            final Variable variable = netcdfFileWriter.addVariable(null,
+                                                                   variablePrototype.getTargetVariableName(),
+                                                                   DataType.getType(variablePrototype.getDataType()),
+                                                                   variablePrototype.getDimensionNames());
+            final List<Attribute> attributes = variablePrototype.getAttributes();
+            for (Attribute attribute : attributes) {
+                variable.addAttribute(attribute);
+            }
+        }
+
+        netcdfFileWriter.create();
+    }
+
+    public void close() throws IOException {
+        if (netcdfFileWriter != null) {
+            netcdfFileWriter.close();
+            netcdfFileWriter = null;
+        }
+    }
+
+    public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
+//        final Variable variable = netcdfFileWriter.findVariable(variableName);
+//        netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, data);
     }
 
     private void createGlobalAttributes() {
