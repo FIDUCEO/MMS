@@ -47,6 +47,7 @@ public class ClippingPixelLocator implements PixelLocator {
                 return new Point2D[]{pixelLocation[1]};
             }
         } else {
+            // @todo 1 se/se wrong implementation ... write tests and ensure that only valid (clipped!) pixel positions are returned.
             return pixelLocation;
         }
     }

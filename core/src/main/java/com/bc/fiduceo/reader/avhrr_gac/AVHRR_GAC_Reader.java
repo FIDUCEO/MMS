@@ -206,19 +206,21 @@ public class AVHRR_GAC_Reader implements Reader {
 
     // package access for testing only se 2016-03-11
     static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
+        final Point centroid = subSceneGeometry.getCentroid();
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
+
         final int sh2 = subsetHeight / 2;
 
         final double centerX = width / 2 + 0.5;
 
-        final Point centroid = subSceneGeometry.getCentroid();
         final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
         final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
         final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
         final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
         final double d1 = cd1.distance(cLon, cLat);
         final double d2 = cd2.distance(cLon, cLat);
+
         final int minY;
         final int maxY;
         if (d1 < d2) {

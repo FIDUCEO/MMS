@@ -22,6 +22,9 @@ package com.bc.fiduceo.matchup;
 
 public class SampleSet {
 
+    private static final int PRIMARY_INDEX = 0;
+    private static final int SECONDARY_INDEX = 1;
+
     final private Sample[] samples;
 
     public SampleSet() {
@@ -29,18 +32,18 @@ public class SampleSet {
     }
 
     public void setPrimary(Sample primary) {
-        samples[0] = primary;
+        samples[PRIMARY_INDEX] = primary;
     }
 
     public Sample getPrimary() {
-        return samples[0];
+        return samples[PRIMARY_INDEX];
     }
 
     public void setSecondary(Sample secondary) {
-        samples[1] = secondary;
+        samples[SECONDARY_INDEX] = secondary;
     }
 
     public Sample getSecondary() {
-        return samples[1];
+        return samples[SECONDARY_INDEX];
     }
 }
