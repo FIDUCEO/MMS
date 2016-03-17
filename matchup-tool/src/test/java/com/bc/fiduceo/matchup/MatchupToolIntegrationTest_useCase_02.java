@@ -50,7 +50,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_useCase_12 {
+public class MatchupToolIntegrationTest_useCase_02 {
 
     private File configDir;
     private Storage storage;
@@ -161,7 +161,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
     }
 
     private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
-        final File useCaseConfigFile = new File(configDir, "usecase-12.xml");
+        final File useCaseConfigFile = new File(configDir, "usecase-02.xml");
         final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
         useCaseConfig.store(outputStream);
         outputStream.close();
@@ -178,7 +178,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
         useCaseConfig.setSensors(sensorList);
-        useCaseConfig.setOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-12").getPath());
+        useCaseConfig.setOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath());
 
         final List<Dimension> dimensions = new ArrayList<>();
         dimensions.add(new Dimension("avhrr-n17", 5, 5));

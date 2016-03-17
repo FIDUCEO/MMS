@@ -299,13 +299,16 @@ class MatchupTool {
                     final int sx = secondarySample.x;
                     final int sy = secondarySample.y;
 
-                    writeMmdWindows(primaryVariables, primaryReader, px, py, primaryInterval, mmdWriter, stackIndex);
-                    writeMmdWindows(secondaryVariables, secondaryReader, sx, sy, secondaryInterval, mmdWriter, stackIndex);
+                    writeMmdValues(primaryVariables, primaryReader, px, py, primaryInterval, mmdWriter, stackIndex);
+                    writeMmdValues(secondaryVariables, secondaryReader, sx, sy, secondaryInterval, mmdWriter, stackIndex);
+                    mmdWriter.write(px, primarySensorName+"_x", stackIndex);
+                    mmdWriter.write(py, primarySensorName+"_y", stackIndex);
+                    mmdWriter.write(sx, secondarySensorName+"_x", stackIndex);
+                    mmdWriter.write(sy, secondarySensorName+"_y", stackIndex);
                     stackIndex++;
                 }
             }
         }
-        // HERE!!!!
 
         mmdWriter.close();
 
@@ -317,10 +320,10 @@ class MatchupTool {
 
     }
 
-    private void writeMmdWindows(List<VariablePrototype> variables, Reader reader, int x, int y, Interval interval, MmdWriter mmdWriter, int stackIndex) throws IOException, InvalidRangeException {
-        for (VariablePrototype primaryVariable : variables) {
-            final String sourceVariableName = primaryVariable.getSourceVariableName();
-            final String targetVariableName = primaryVariable.getTargetVariableName();
+    private void writeMmdValues(List<VariablePrototype> variables, Reader reader, int x, int y, Interval interval, MmdWriter mmdWriter, int stackIndex) throws IOException, InvalidRangeException {
+        for (VariablePrototype variable : variables) {
+            final String sourceVariableName = variable.getSourceVariableName();
+            final String targetVariableName = variable.getTargetVariableName();
             final Array primaryWindow = reader.readRaw(x, y, interval, sourceVariableName);
             mmdWriter.write(primaryWindow, targetVariableName, stackIndex);
         }

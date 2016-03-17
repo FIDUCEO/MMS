@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -74,6 +73,7 @@ public class MmdWriter {
 
         createGlobalAttributes();
         createDimensions(dimensions, numMatchups);
+        createXYVariablesPerSensor(dimensions);
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
@@ -85,7 +85,6 @@ public class MmdWriter {
                 variable.addAttribute(attribute);
             }
         }
-
         netcdfFileWriter.create();
     }
 
@@ -96,11 +95,27 @@ public class MmdWriter {
         }
     }
 
+    public void write(int v, String variableName, int stackIndex) throws IOException, InvalidRangeException {
+        final Variable variable = netcdfFileWriter.findVariable(variableName);
+        final int[] origin = {stackIndex};
+        final Array a = variable.read(origin, new int[]{1});
+        a.setInt(0, v);
+        netcdfFileWriter.write(variable, origin, a);
+    }
+
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
         final Variable variable = netcdfFileWriter.findVariable(variableName);
         final int[] shape = data.getShape();
         final Array dataD3 = data.reshape(new int[]{1, shape[0], shape[1]});
         netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, dataD3);
+    }
+
+    void createXYVariablesPerSensor(List<Dimension> dimensions) {
+        for (Dimension dimension : dimensions) {
+            final String dimensionName = dimension.getName();
+            netcdfFileWriter.addVariable(null, dimensionName + "_x", DataType.INT, "matchup_count");
+            netcdfFileWriter.addVariable(null, dimensionName + "_y", DataType.INT, "matchup_count");
+        }
     }
 
     private void createGlobalAttributes() {
