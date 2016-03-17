@@ -168,6 +168,17 @@ public class UseCaseConfigTest {
     }
 
     @Test
+    public void testLoad__maxPixelDistance() {
+        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
+                " <maxPixelDistance>19.2</maxPixelDistance>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+
+        assertEquals(19.2f, useCaseConfig.getMaxPixelDistance(), 1e-8);
+    }
+
+    @Test
     public void testStore() {
         final List<Sensor> sensorList = new ArrayList<>();
         sensorList.add(new Sensor("first"));
@@ -177,6 +188,7 @@ public class UseCaseConfigTest {
         useCaseConfig.setName("test_use_case");
         useCaseConfig.setTimeDelta(12345);
         useCaseConfig.setOutputPath("wherever/you/want/it");
+        useCaseConfig.setMaxPixelDistance(14.8f);
 
         final List<Dimension> dimensionList = new ArrayList<>();
         dimensionList.add(new Dimension("first", 11, 15));
@@ -209,6 +221,7 @@ public class UseCaseConfigTest {
                 "  </dimensions>\n" +
                 "  <time-delta>12345</time-delta>\n" +
                 "  <output-path>wherever/you/want/it</output-path>\n" +
+                "  <maxPixelDistance>14.8</maxPixelDistance>\n" +
                 "</use-case-config>", outputStream.toString());
     }
 
@@ -330,6 +343,14 @@ public class UseCaseConfigTest {
     }
 
     @Test
+    public void testSetGetMaxPixelDistance() {
+        float maxDistace = 12.8f;
+
+        useCaseConfig.setMaxPixelDistance(maxDistace);
+        assertEquals(maxDistace, useCaseConfig.getMaxPixelDistance(), 1e-8);
+    }
+
+    @Test
     public void testConstruction() {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         assertNotNull(additionalSensors);
@@ -340,12 +361,5 @@ public class UseCaseConfigTest {
         assertEquals(0, dimensions.size());
 
         assertEquals(-1, useCaseConfig.getTimeDelta());
-    }
-
-    @Test
-    public void testIsValid_valid() {
-        useCaseConfig.setName("bla");
-        useCaseConfig.setTimeDelta(14);
-
     }
 }

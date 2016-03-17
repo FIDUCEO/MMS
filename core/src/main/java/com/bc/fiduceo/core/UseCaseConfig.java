@@ -21,6 +21,7 @@
 package com.bc.fiduceo.core;
 
 import com.thoughtworks.xstream.XStream;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +35,7 @@ public class UseCaseConfig {
     private List<Dimension> dimensions;
     private int timeDelta;
     private String outputPath;
+    private float maxPixelDistance;
 
     public static UseCaseConfig load(InputStream inputStream) {
         final XStream xStream = createXStream();
@@ -122,6 +124,27 @@ public class UseCaseConfig {
 
     public void setDimensions(List<Dimension> dimensions) {
         this.dimensions = dimensions;
+    }
+
+    public void setMaxPixelDistance(float maxPixelDistance) {
+        this.maxPixelDistance = maxPixelDistance;
+    }
+
+    public float getMaxPixelDistance() {
+        return maxPixelDistance;
+    }
+
+    public ValidationResult checkValid() {
+        final ValidationResult validationResult = new ValidationResult();
+        if (StringUtils.isNullOrEmpty(name)) {
+            validationResult.setValid(false);
+            validationResult.addMessage("Use case name not configured.");
+        }
+        if (timeDelta < 0) {
+            validationResult.setValid(false);
+            validationResult.addMessage("Matchup time delta not configured.");
+        }
+        return validationResult;
     }
 
     private static XStream createXStream() {
