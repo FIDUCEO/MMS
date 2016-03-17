@@ -171,7 +171,7 @@ public class MatchupToolIntegrationTest_useCase_12 {
 
     private UseCaseConfig createUseCaseConfig() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("usecase-12");
+        useCaseConfig.setName("mmd12");
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
