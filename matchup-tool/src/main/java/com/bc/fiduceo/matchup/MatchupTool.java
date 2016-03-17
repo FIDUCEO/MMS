@@ -30,6 +30,8 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.matchup.screening.DistanceScreening;
+import com.bc.fiduceo.matchup.screening.Screening;
 import com.bc.fiduceo.matchup.screening.TimeScreening;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.VariablePrototype;
@@ -240,12 +242,23 @@ class MatchupTool {
 
         System.out.println("rawCount = " + matchupCollection.getNumMatchups());
 
-        final TimeScreening timeScreening = createTimeScreening(context);
-        matchupCollection = timeScreening.execute(matchupCollection);
+        Screening screening = createTimeScreening(context);
+        matchupCollection = screening.execute(matchupCollection);
 
         System.out.println("after TimeScreening = " + matchupCollection.getNumMatchups());
 
+        screening = createDistanceScreening(context);
+        matchupCollection = screening.execute(matchupCollection);
+
+        System.out.println("after DistanceScreening = " + matchupCollection.getNumMatchups());
+
         writeMMD(matchupCollection, context);
+    }
+
+    private DistanceScreening createDistanceScreening(ToolContext context) {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final float maxPixelDistance = useCaseConfig.getMaxPixelDistance();
+        return new DistanceScreening(maxPixelDistance);
     }
 
     private TimeScreening createTimeScreening(ToolContext context) {

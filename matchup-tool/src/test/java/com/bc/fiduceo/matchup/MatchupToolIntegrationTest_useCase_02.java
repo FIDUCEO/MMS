@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -107,6 +108,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
         useCaseConfig.setTimeDelta(10800);  // 3 hours - we have one intersecting time interval
+        useCaseConfig.setMaxPixelDistance(1);  // value in km
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -114,7 +116,11 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
 
+        final Date startTime = new Date();
         MatchupToolMain.main(args);
+        final Date stopTime = new Date();
+        System.out.println("Start matchup ... " + startTime);
+        System.out.println("Stop matchup ... " + stopTime);
 
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertTrue(mmdFile.isFile());

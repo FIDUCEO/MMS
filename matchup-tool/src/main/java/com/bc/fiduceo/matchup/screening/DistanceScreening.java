@@ -22,27 +22,35 @@ package com.bc.fiduceo.matchup.screening;
 
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import org.esa.snap.core.util.math.RsMathUtils;
+import org.esa.snap.core.util.math.SphericalDistance;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimeScreening implements Screening {
+public class DistanceScreening implements Screening {
 
-    private final int maxDeltaInMillis;
+    private final float maxDeltaInKm;
 
-    public TimeScreening(int maxDeltaInMillis) {
-        this.maxDeltaInMillis = maxDeltaInMillis;
+    public DistanceScreening(float maxDeltaInKm) {
+        this.maxDeltaInKm = maxDeltaInKm;
     }
 
+    @Override
     public MatchupCollection execute(MatchupCollection matchupCollection) {
         final List<MatchupSet> matchupSets = matchupCollection.getSets();
         for (final MatchupSet matchupSet : matchupSets) {
             final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
             final List<SampleSet> targetSamples = new ArrayList<>();
             for (final SampleSet sampleSet : sourceSamples) {
-                final long actualTimeDelta = Math.abs(sampleSet.getPrimary().time - sampleSet.getSecondary().time);
-                if (actualTimeDelta <= maxDeltaInMillis) {
+                final Sample primary = sampleSet.getPrimary();
+                final Sample secondary = sampleSet.getSecondary();
+                final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
+                final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
+                final double kmDistance = radDistance * RsMathUtils.MEAN_EARTH_RADIUS / 1000d;
+                if (kmDistance <= maxDeltaInKm) {
                     targetSamples.add(sampleSet);
                 }
             }
