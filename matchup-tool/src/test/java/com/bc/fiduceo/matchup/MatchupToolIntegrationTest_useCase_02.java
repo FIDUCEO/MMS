@@ -28,10 +28,11 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
+import org.esa.snap.core.util.StopWatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,12 +44,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_02 {
@@ -108,7 +106,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
         useCaseConfig.setTimeDelta(10800);  // 3 hours - we have one intersecting time interval
-        useCaseConfig.setMaxPixelDistance(1);  // value in km
+        useCaseConfig.setMaxPixelDistance(3);  // value in km
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -116,11 +114,14 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
 
-        final Date startTime = new Date();
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         MatchupToolMain.main(args);
-        final Date stopTime = new Date();
-        System.out.println("Start matchup ... " + startTime);
-        System.out.println("Stop matchup ... " + stopTime);
+
+        stopWatch.stop();
+        System.out.println("processing time = " + stopWatch.getTimeDiffString());
+
 
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertTrue(mmdFile.isFile());
@@ -177,7 +178,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
     private UseCaseConfig createUseCaseConfig() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("mmd12");
+        useCaseConfig.setName("mmd02");
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
