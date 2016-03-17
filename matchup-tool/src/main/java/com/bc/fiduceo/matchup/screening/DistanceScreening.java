@@ -32,6 +32,7 @@ import java.util.List;
 
 public class DistanceScreening implements Screening {
 
+    private final double MEAN_EARTH_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS / 1000d;
     private final float maxDeltaInKm;
 
     public DistanceScreening(float maxDeltaInKm) {
@@ -49,7 +50,7 @@ public class DistanceScreening implements Screening {
                 final Sample secondary = sampleSet.getSecondary();
                 final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
                 final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
-                final double kmDistance = radDistance * RsMathUtils.MEAN_EARTH_RADIUS / 1000d;
+                final double kmDistance = radDistance * MEAN_EARTH_IN_KM;
                 if (kmDistance <= maxDeltaInKm) {
                     targetSamples.add(sampleSet);
                 }
