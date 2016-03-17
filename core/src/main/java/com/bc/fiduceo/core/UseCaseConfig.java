@@ -87,7 +87,7 @@ public class UseCaseConfig {
         final ArrayList<Sensor> additionalSensorList = new ArrayList<>();
         for (final Sensor sensor : sensors) {
             if (!sensor.isPrimary()) {
-               additionalSensorList.add(sensor);
+                additionalSensorList.add(sensor);
             }
         }
         return additionalSensorList;
@@ -119,7 +119,7 @@ public class UseCaseConfig {
                 return dimension;
             }
         }
-        throw new IllegalStateException("Dimensions for Sensor '" +sensorName + "' not available");
+        throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
     public void setDimensions(List<Dimension> dimensions) {
@@ -137,14 +137,35 @@ public class UseCaseConfig {
     public ValidationResult checkValid() {
         final ValidationResult validationResult = new ValidationResult();
         if (StringUtils.isNullOrEmpty(name)) {
-            validationResult.setValid(false);
-            validationResult.addMessage("Use case name not configured.");
+            setInvalidWithMessage("Use case name not configured.", validationResult);
         }
         if (timeDelta < 0) {
-            validationResult.setValid(false);
-            validationResult.addMessage("Matchup time delta not configured.");
+            setInvalidWithMessage("Matchup time delta not configured.", validationResult);
+        }
+        if (getPrimarySensor() == null) {
+            setInvalidWithMessage("Primary sensor not configured.", validationResult);
+        }
+        if (getAdditionalSensors().size() == 0) {
+            setInvalidWithMessage("No additional sensor configured.", validationResult);
+        }
+        final List<Sensor> sensors = getSensors();
+        for (final Sensor sensor : sensors) {
+            // @todo 3 tb/** no good style, improve this 2016-03-17
+            try {
+                getDimensionFor(sensor.getName());
+            } catch (IllegalStateException e) {
+                setInvalidWithMessage("No dimensions for sensor '" + sensor.getName() + "' configured.", validationResult);
+            }
+        }
+        if (StringUtils.isNullOrEmpty(outputPath)) {
+            setInvalidWithMessage("Output path not configured.", validationResult);
         }
         return validationResult;
+    }
+
+    private void setInvalidWithMessage(String message, ValidationResult validationResult) {
+        validationResult.setValid(false);
+        validationResult.addMessage(message);
     }
 
     private static XStream createXStream() {

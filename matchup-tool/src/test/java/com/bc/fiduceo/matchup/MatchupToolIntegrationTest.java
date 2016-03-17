@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -204,18 +205,25 @@ public class MatchupToolIntegrationTest {
     private void writeUseCaseConfig(String configFileName) throws IOException {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setName("use-case-15");
+
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
         useCaseConfig.setSensors(sensorList);
+
+        final List<Dimension> dimensionsList = new ArrayList<>();
+        dimensionsList.add(new Dimension("avhrr-n17", 2, 3));
+        dimensionsList.add(new Dimension("avhrr-n18", 2, 3));
+        useCaseConfig.setDimensions(dimensionsList);
+
         useCaseConfig.setTimeDelta(2);
         useCaseConfig.setOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath());
+
         final File file = new File(configDir, configFileName);
         final FileOutputStream fileOutputStream = new FileOutputStream(file);
         useCaseConfig.store(fileOutputStream);
         fileOutputStream.close();
     }
-
 }

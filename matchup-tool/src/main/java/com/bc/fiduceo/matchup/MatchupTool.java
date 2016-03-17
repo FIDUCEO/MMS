@@ -20,12 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -210,6 +205,17 @@ class MatchupTool {
         context.setEndDate(getEndDate(commandLine));
 
         final UseCaseConfig useCaseConfig = loadUseCaseConfig(commandLine, configDirectory);
+        final ValidationResult validationResult = useCaseConfig.checkValid();
+        if (!validationResult.isValid()) {
+            // @todo 3 tb/tb clean up this mess and write test 2016-03-17
+            final StringBuilder builder = new StringBuilder();
+            final List<String> messages = validationResult.getMessages();
+            for (final String message: messages) {
+                builder.append(message);
+                builder.append("\n");
+            }
+            throw new IllegalArgumentException("Use case configuration errors: " + builder.toString());
+        }
         context.setUseCaseConfig(useCaseConfig);
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
