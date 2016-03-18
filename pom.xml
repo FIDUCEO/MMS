@@ -14,6 +14,7 @@
         <module>core</module>
         <module>ingestion-tool</module>
         <module>matchup-tool</module>
+        <module>cems</module>
     </modules>
 
     <dependencyManagement>
