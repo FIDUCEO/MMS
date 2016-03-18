@@ -35,7 +35,7 @@ public class TimeScreening implements Screening {
         this.maxDeltaInMillis = maxDeltaInMillis;
     }
 
-    public MatchupCollection execute(MatchupCollection matchupCollection) {
+    public MatchupCollection screen(MatchupCollection matchupCollection) {
         final List<MatchupSet> matchupSets = matchupCollection.getSets();
         for (final MatchupSet matchupSet : matchupSets) {
             final List<SampleSet> sourceSamples = matchupSet.getSampleSets();

@@ -39,7 +39,7 @@ public class TimeScreeningTest {
         assertEquals(0, matchupCollection.getNumMatchups());
 
         final TimeScreening timeScreening = new TimeScreening(1200);
-        final MatchupCollection result = timeScreening.execute(matchupCollection);
+        final MatchupCollection result = timeScreening.screen(matchupCollection);
         assertEquals(0, result.getNumMatchups());
     }
 
@@ -60,7 +60,7 @@ public class TimeScreeningTest {
         assertEquals(6, matchupCollection.getNumMatchups());
 
         final TimeScreening timeScreening = new TimeScreening(1200);
-        final MatchupCollection result = timeScreening.execute(matchupCollection);
+        final MatchupCollection result = timeScreening.screen(matchupCollection);
         assertEquals(4, result.getNumMatchups());
 
         final MatchupSet resultSet = result.getSets().get(0);
@@ -99,7 +99,7 @@ public class TimeScreeningTest {
         assertEquals(12, matchupCollection.getNumMatchups());
 
         final TimeScreening timeScreening = new TimeScreening(500);
-        final MatchupCollection result = timeScreening.execute(matchupCollection);
+        final MatchupCollection result = timeScreening.screen(matchupCollection);
         assertEquals(6, result.getNumMatchups());
 
         List<SampleSet> resultSampleSets = result.getSets().get(0).getSampleSets();

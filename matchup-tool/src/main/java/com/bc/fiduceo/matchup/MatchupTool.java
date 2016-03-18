@@ -243,12 +243,12 @@ class MatchupTool {
         System.out.println("rawCount = " + matchupCollection.getNumMatchups());
 
         Screening screening = createTimeScreening(context);
-        matchupCollection = screening.execute(matchupCollection);
+        matchupCollection = screening.screen(matchupCollection);
 
         System.out.println("after TimeScreening = " + matchupCollection.getNumMatchups());
 
         screening = createDistanceScreening(context);
-        matchupCollection = screening.execute(matchupCollection);
+        matchupCollection = screening.screen(matchupCollection);
 
         System.out.println("after DistanceScreening = " + matchupCollection.getNumMatchups());
 

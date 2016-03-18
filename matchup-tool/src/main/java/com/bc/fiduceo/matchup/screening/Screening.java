@@ -4,5 +4,5 @@ import com.bc.fiduceo.matchup.MatchupCollection;
 
 public interface Screening {
 
-    MatchupCollection execute(MatchupCollection matchupCollection);
+    MatchupCollection screen(MatchupCollection matchupCollection);
 }
