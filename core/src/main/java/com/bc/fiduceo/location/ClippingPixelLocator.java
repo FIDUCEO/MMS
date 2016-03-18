@@ -17,6 +17,7 @@
 package com.bc.fiduceo.location;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 public class ClippingPixelLocator implements PixelLocator {
 
@@ -38,17 +39,13 @@ public class ClippingPixelLocator implements PixelLocator {
     @Override
     public Point2D[] getPixelLocation(double lon, double lat) {
         final Point2D[] pixelLocation = pixelLocator.getPixelLocation(lon, lat);
-        if (pixelLocation.length > 1) {
-            final Point2D p0 = pixelLocation[0];
-            final int y = (int) Math.round(p0.getY());
+        final ArrayList<Point2D> points = new ArrayList<>();
+        for (Point2D point2D : pixelLocation) {
+            final int y = (int) Math.floor(point2D.getY());
             if (y >= minY && y <= maxY) {
-                return new Point2D[]{p0};
-            } else {
-                return new Point2D[]{pixelLocation[1]};
+                points.add(point2D);
             }
-        } else {
-            // @todo 1 se/se wrong implementation ... write tests and ensure that only valid (clipped!) pixel positions are returned.
-            return pixelLocation;
         }
+        return points.toArray(new Point2D[points.size()]);
     }
 }
