@@ -20,7 +20,13 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.ValidationResult;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -275,9 +281,9 @@ class MatchupTool {
         }
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context, useCaseConfig);
+        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
 
-        final File file = createMmdFile(context, useCaseConfig);
+        final File file = createMmdFile(context);
         final MmdWriter mmdWriter = new MmdWriter();
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         mmdWriter.create(file,
@@ -320,10 +326,10 @@ class MatchupTool {
 
                     writeMmdValues(primaryVariables, primaryReader, px, py, primaryInterval, mmdWriter, stackIndex);
                     writeMmdValues(secondaryVariables, secondaryReader, sx, sy, secondaryInterval, mmdWriter, stackIndex);
-                    mmdWriter.write(px, primarySensorName+"_x", stackIndex);
-                    mmdWriter.write(py, primarySensorName+"_y", stackIndex);
-                    mmdWriter.write(sx, secondarySensorName+"_x", stackIndex);
-                    mmdWriter.write(sy, secondarySensorName+"_y", stackIndex);
+                    mmdWriter.write(px, primarySensorName + "_x", stackIndex);
+                    mmdWriter.write(py, primarySensorName + "_y", stackIndex);
+                    mmdWriter.write(sx, secondarySensorName + "_x", stackIndex);
+                    mmdWriter.write(sy, secondarySensorName + "_y", stackIndex);
                     stackIndex++;
                 }
             }
@@ -348,7 +354,8 @@ class MatchupTool {
         }
     }
 
-    private File createMmdFile(ToolContext context, UseCaseConfig useCaseConfig) throws IOException {
+    private File createMmdFile(ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
         final File file = mmdFile.toFile();
@@ -366,15 +373,16 @@ class MatchupTool {
         return file;
     }
 
-    // @todo 2 tb/tb write tests, make static and package local 2016-03-16
-    private VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context, UseCaseConfig useCaseConfig) throws IOException {
+    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
 
-        final List<Dimension> dimensions = context.getUseCaseConfig().getDimensions();
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
         variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
         variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
         return variablesConfiguration;

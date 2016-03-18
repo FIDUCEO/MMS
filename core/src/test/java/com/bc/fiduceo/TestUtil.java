@@ -32,6 +32,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +49,10 @@ public class TestUtil {
 
     private static final String SYSTEM_TEMP_PROPETY = "java.io.tmpdir";
     private static final String TEST_DIRECTORY = "fiduceo_test";
+
+    public static Path getTestDataDirectoryPath() throws IOException {
+        return Paths.get(getTestDataDirectory().toURI());
+    }
 
     public static File getTestDataDirectory() throws IOException {
         final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
