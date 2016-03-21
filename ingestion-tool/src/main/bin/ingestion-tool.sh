@@ -21,7 +21,7 @@ export JAVA_EXE="$(which java)"
 
 export LIBDIR="$INSTALLDIR"/lib
 export OLD_CLASSPATH="$CLASSPATH"
-CLASSPATH="$INSTALLDIR/*:$INSTALLDIR"
+CLASSPATH="$LIBDIR/*:$LIBDIR"
 
 "$JAVA_EXE" "$JAVA_OPTS" -classpath "$CLASSPATH" com.bc.fiduceo.ingest.IngestionToolMain "$@"
 
