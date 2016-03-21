@@ -64,6 +64,18 @@
             <fileMode>0770</fileMode>
             <filtered>true</filtered>
         </fileSet>
+
+        <fileSet>
+            <directory>src/main/config</directory>
+            <outputDirectory>/config</outputDirectory>
+            <directoryMode>0770</directoryMode>
+            <includes>
+                <include>*.properties</include>
+                <include>*.xml</include>
+            </includes>
+            <fileMode>0770</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
     </fileSets>
 
     <moduleSets>
