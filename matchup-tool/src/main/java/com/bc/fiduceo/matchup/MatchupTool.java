@@ -375,6 +375,11 @@ class MatchupTool {
 
     static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        extractPrototypes(variablesConfiguration, matchupCollection, context);
+        return variablesConfiguration;
+    }
+
+    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
@@ -385,7 +390,6 @@ class MatchupTool {
 
         variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
         variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-        return variablesConfiguration;
     }
 
     private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException {
