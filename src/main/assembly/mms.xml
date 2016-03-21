@@ -32,6 +32,7 @@
     <fileSets>
         <fileSet>
             <directory>cems/src/main/bin</directory>
+            <outputDirectory>/</outputDirectory>
             <directoryMode>0770</directoryMode>
             <includes>
                 <include>*.sh</include>
@@ -42,6 +43,7 @@
 
         <fileSet>
             <directory>ingestion-tool/src/main/bin</directory>
+            <outputDirectory>/</outputDirectory>
             <directoryMode>0770</directoryMode>
             <includes>
                 <include>*.sh</include>
@@ -53,6 +55,7 @@
 
         <fileSet>
             <directory>matchup-tool/src/main/bin</directory>
+            <outputDirectory>/</outputDirectory>
             <directoryMode>0770</directoryMode>
             <includes>
                 <include>*.sh</include>
