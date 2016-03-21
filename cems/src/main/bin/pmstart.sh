@@ -6,10 +6,8 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-# @todo 1 tb/tb check if we need this - or always assume that cwd is used 2016-03-18
-if [ -z "$MMS_INST" ]; then
-    MMS_INST=`pwd`
-fi
+
+WORKING_DIR=`pwd`
 
 workflow=$(basename ${1%.py})
 
@@ -25,7 +23,7 @@ then
 fi
 
 # @todo 1 tb/tb check which environment variables we need at CEMS
-nohup ${mms.python.exec} ${mms.home}/python/$workflow.py > $MMS_INST/$workflow.out 2>&1 &
-echo $! > $MMS_INST/$workflow.pid
+nohup ${mms.python.exec} ${mms.home}/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
+echo $! > $WORKING_DIR/$workflow.pid
 sleep 8
-cat $MMS_INST/$workflow.status
+cat $WORKING_DIR/$workflow.status
