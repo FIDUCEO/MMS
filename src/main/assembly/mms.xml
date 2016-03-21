@@ -29,19 +29,48 @@
 
     <includeBaseDirectory>false</includeBaseDirectory>
 
+    <fileSets>
+        <fileSet>
+            <directory>cems/src/main/bin</directory>
+            <directoryMode>0770</directoryMode>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>0770</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
+            <directory>ingestion-tool/src/main/bin</directory>
+            <directoryMode>0770</directoryMode>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0770</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
+            <directory>matchup-tool/src/main/bin</directory>
+            <directoryMode>0770</directoryMode>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0770</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+    </fileSets>
+
     <moduleSets>
         <moduleSet>
 
             <!-- Enable access to all projects in the current multimodule build! -->
             <useAllReactorProjects>true</useAllReactorProjects>
 
-            <!-- Now, select which projects to include in this module-set. -->
-            <includes>
-                <include>com.bc.fiduceo:core</include>
-                <include>com.bc.fiduceo:google-s2</include>
-            </includes>
             <binaries>
-                <outputDirectory>modules/maven-assembly-plugin</outputDirectory>
+                <outputDirectory>lib</outputDirectory>
                 <unpack>false</unpack>
             </binaries>
         </moduleSet>
@@ -52,6 +81,9 @@
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
             <scope>runtime</scope>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
+            <fileMode>0664</fileMode>
         </dependencySet>
     </dependencySets>
 </assembly>
