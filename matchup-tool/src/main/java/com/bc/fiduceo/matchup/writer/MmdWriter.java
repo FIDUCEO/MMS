@@ -141,6 +141,9 @@ public class MmdWriter {
             netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
             netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
             netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.BYTE, "matchup_count file_name");
+            final String yDimension = getDimensionNameNy(sensorName);
+            final String xDimension = getDimensionNameNx(sensorName);
+            netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
         }
     }
 
@@ -158,13 +161,18 @@ public class MmdWriter {
 
     private void createDimensions(List<Dimension> dimensions, int numMatchups) {
         for (final Dimension dimension : dimensions) {
-            String dimensionName = dimension.getName() + "_nx";
-            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNx());
-
-            dimensionName = dimension.getName() + "_ny";
-            netcdfFileWriter.addDimension(null, dimensionName, dimension.getNy());
+            netcdfFileWriter.addDimension(null, getDimensionNameNx(dimension.getName()), dimension.getNx());
+            netcdfFileWriter.addDimension(null, getDimensionNameNy(dimension.getName()), dimension.getNy());
         }
         netcdfFileWriter.addDimension(null, "file_name", 128);
         netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
+    }
+
+    private String getDimensionNameNy(String sensorName) {
+        return sensorName + "_ny";
+    }
+
+    private String getDimensionNameNx(String sensorName) {
+        return sensorName + "_nx";
     }
 }

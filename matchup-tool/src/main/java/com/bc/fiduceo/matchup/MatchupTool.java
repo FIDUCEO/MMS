@@ -325,6 +325,10 @@ class MatchupTool {
                  final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
                 primaryReader.open(primaryObservationPath.toFile());
                 secondaryReader.open(secondaryObservationPath.toFile());
+
+                // @todo 1 se/mb  implement the code to calculate the time difference between
+                // @todo          Satelite sensing start and 1970 in the unit seconds
+
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
@@ -350,6 +354,8 @@ class MatchupTool {
         mmdWriter.write(sample.x, sensorName + "_x", zIndex);
         mmdWriter.write(sample.y, sensorName + "_y", zIndex);
         mmdWriter.write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
+        // @todo 1 se/mb continue implement writing acquisition_time per sensor per pixel
+
     }
 
     private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
