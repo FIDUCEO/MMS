@@ -23,6 +23,8 @@ package com.bc.fiduceo.matchup.writer;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +38,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -94,8 +97,16 @@ public class MmdWriter_IO_Test {
         variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setName("useCaseName");
+        useCaseConfig.setDimensions(dimemsions);
+
+        final Sensor primarySensor = new Sensor("avhrr-n11");
+        primarySensor.setPrimary(true);
+        final Sensor secondarySensor = new Sensor("avhrr-n12");
+        useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
         try {
-            mmdWriter.create(mmdFile, dimemsions, variablePrototypes, 2346);
+            mmdWriter.create(mmdFile, useCaseConfig, variablePrototypes, 2346);
         } finally {
             mmdWriter.close();
         }
@@ -111,6 +122,47 @@ public class MmdWriter_IO_Test {
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
             assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
+
+            final Attribute comment = mmd.findGlobalAttribute("comment");
+            assertNotNull(comment);
+            assertEquals(DataType.STRING, comment.getDataType());
+            assertEquals(
+                        "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'.",
+                        comment.getStringValue()
+            );
+
+            final Attribute useCaseConfigAttr = mmd.findGlobalAttribute("use-case-configuration");
+            assertNotNull(useCaseConfigAttr);
+            assertEquals(DataType.STRING, useCaseConfigAttr.getDataType());
+            assertEquals(
+                        "<use-case-config name=\"useCaseName\">\n" +
+                        "  <sensors class=\"java.util.Arrays$ArrayList\">\n" +
+                        "    <a class=\"sensor-array\">\n" +
+                        "      <sensor>\n" +
+                        "        <name>avhrr-n11</name>\n" +
+                        "        <primary>true</primary>\n" +
+                        "      </sensor>\n" +
+                        "      <sensor>\n" +
+                        "        <name>avhrr-n12</name>\n" +
+                        "        <primary>false</primary>\n" +
+                        "      </sensor>\n" +
+                        "    </a>\n" +
+                        "  </sensors>\n" +
+                        "  <dimensions>\n" +
+                        "    <dimension name=\"avhrr-n11\">\n" +
+                        "      <nx>5</nx>\n" +
+                        "      <ny>7</ny>\n" +
+                        "    </dimension>\n" +
+                        "    <dimension name=\"avhrr-n12\">\n" +
+                        "      <nx>3</nx>\n" +
+                        "      <ny>5</ny>\n" +
+                        "    </dimension>\n" +
+                        "  </dimensions>\n" +
+                        "  <time-delta-seconds>-1</time-delta-seconds>\n" +
+                        "  <max-pixel-distance-km>0.0</max-pixel-distance-km>\n" +
+                        "</use-case-config>",
+                        useCaseConfigAttr.getStringValue()
+            );
 
             assertDimension("avhrr-n11_nx", 5, mmd);
             assertDimension("avhrr-n11_ny", 7, mmd);

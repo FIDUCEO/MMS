@@ -33,9 +33,9 @@ public class UseCaseConfig {
     private String name;
     private List<Sensor> sensors;
     private List<Dimension> dimensions;
-    private int timeDelta;
+    private int timeDeltaSeconds;
     private String outputPath;
-    private float maxPixelDistance;
+    private float maxPixelDistanceKm;
 
     public static UseCaseConfig load(InputStream inputStream) {
         final XStream xStream = createXStream();
@@ -50,7 +50,7 @@ public class UseCaseConfig {
     public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
-        timeDelta = -1;
+        timeDeltaSeconds = -1;
     }
 
     public String getName() {
@@ -93,12 +93,12 @@ public class UseCaseConfig {
         return additionalSensorList;
     }
 
-    public int getTimeDelta() {
-        return timeDelta;
+    public int getTimeDeltaSeconds() {
+        return timeDeltaSeconds;
     }
 
-    public void setTimeDelta(int timeDelta) {
-        this.timeDelta = timeDelta;
+    public void setTimeDeltaSeconds(int timeDeltaSeconds) {
+        this.timeDeltaSeconds = timeDeltaSeconds;
     }
 
     public void setOutputPath(String outputPath) {
@@ -126,12 +126,12 @@ public class UseCaseConfig {
         this.dimensions = dimensions;
     }
 
-    public void setMaxPixelDistance(float maxPixelDistance) {
-        this.maxPixelDistance = maxPixelDistance;
+    public void setMaxPixelDistanceKm(float maxPixelDistanceKm) {
+        this.maxPixelDistanceKm = maxPixelDistanceKm;
     }
 
-    public float getMaxPixelDistance() {
-        return maxPixelDistance;
+    public float getMaxPixelDistanceKm() {
+        return maxPixelDistanceKm;
     }
 
     public ValidationResult checkValid() {
@@ -139,7 +139,7 @@ public class UseCaseConfig {
         if (StringUtils.isNullOrEmpty(name)) {
             setInvalidWithMessage("Use case name not configured.", validationResult);
         }
-        if (timeDelta < 0) {
+        if (timeDeltaSeconds < 0) {
             setInvalidWithMessage("Matchup time delta not configured.", validationResult);
         }
         if (getPrimarySensor() == null) {
@@ -172,7 +172,8 @@ public class UseCaseConfig {
         final XStream xStream = new XStream();
         xStream.alias("use-case-config", UseCaseConfig.class);
         xStream.useAttributeFor(UseCaseConfig.class, "name");
-        xStream.aliasField("time-delta", UseCaseConfig.class, "timeDelta");
+        xStream.aliasField("time-delta-seconds", UseCaseConfig.class, "timeDeltaSeconds");
+        xStream.aliasField("max-pixel-distance-km", UseCaseConfig.class, "maxPixelDistanceKm");
         xStream.aliasField("output-path", UseCaseConfig.class, "outputPath");
         xStream.alias("sensor", Sensor.class);
 

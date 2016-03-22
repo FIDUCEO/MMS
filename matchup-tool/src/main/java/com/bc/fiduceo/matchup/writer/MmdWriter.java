@@ -31,6 +31,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -68,12 +69,27 @@ public class MmdWriter {
         return nameBuilder.toString();
     }
 
-    public void create(File mmdFile, List<Dimension> dimensions, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "comment",
+                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+        ));
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        useCaseConfig.store(outputStream);
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "use-case-configuration",
+                    outputStream.toString()
+        ));
+    }
+
+    public void create(File mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
         createGlobalAttributes();
+        createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
         createDimensions(dimensions, numMatchups);
-        createXYVariablesPerSensor(dimensions);
+        createExtraMmdVariablesPerSensor(dimensions);
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
@@ -95,11 +111,20 @@ public class MmdWriter {
         }
     }
 
-    public void write(int v, String variableName, int stackIndex) throws IOException, InvalidRangeException {
+    public void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final Variable variable = netcdfFileWriter.findVariable(variableName);
-        final int[] origin = {stackIndex};
+        final int[] origin = {zIndex};
         final Array a = variable.read(origin, new int[]{1});
         a.setInt(0, v);
+        netcdfFileWriter.write(variable, origin, a);
+    }
+
+    public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
+        final Variable variable = netcdfFileWriter.findVariable(variableName);
+        final int[] origin = {zIndex, 0};
+        Array a = Array.factory(v.getBytes());
+        final int[] shape = a.getShape();
+        a = a.reshape(new int[]{1, shape[0]});
         netcdfFileWriter.write(variable, origin, a);
     }
 
@@ -110,11 +135,12 @@ public class MmdWriter {
         netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, dataD3);
     }
 
-    void createXYVariablesPerSensor(List<Dimension> dimensions) {
+    void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
         for (Dimension dimension : dimensions) {
-            final String dimensionName = dimension.getName();
-            netcdfFileWriter.addVariable(null, dimensionName + "_x", DataType.INT, "matchup_count");
-            netcdfFileWriter.addVariable(null, dimensionName + "_y", DataType.INT, "matchup_count");
+            final String sensorName = dimension.getName();
+            netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
+            netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
+            netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.BYTE, "matchup_count file_name");
         }
     }
 
@@ -138,6 +164,7 @@ public class MmdWriter {
             dimensionName = dimension.getName() + "_ny";
             netcdfFileWriter.addDimension(null, dimensionName, dimension.getNy());
         }
+        netcdfFileWriter.addDimension(null, "file_name", 128);
         netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
     }
 }

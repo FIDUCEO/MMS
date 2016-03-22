@@ -115,13 +115,13 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__timeDelta() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                "  <time-delta>300</time-delta>" +
+                "  <time-delta-seconds>300</time-delta-seconds>" +
                 "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertEquals("use-case 20", useCaseConfig.getName());
-        assertEquals(300, useCaseConfig.getTimeDelta());
+        assertEquals(300, useCaseConfig.getTimeDeltaSeconds());
     }
 
     @Test
@@ -170,12 +170,12 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__maxPixelDistance() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                " <maxPixelDistance>19.2</maxPixelDistance>" +
+                " <maxPixelDistanceKm>19.2</maxPixelDistanceKm>" +
                 "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
 
-        assertEquals(19.2f, useCaseConfig.getMaxPixelDistance(), 1e-8);
+        assertEquals(19.2f, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
     }
 
     @Test
@@ -186,9 +186,9 @@ public class UseCaseConfigTest {
 
         useCaseConfig.setSensors(sensorList);
         useCaseConfig.setName("test_use_case");
-        useCaseConfig.setTimeDelta(12345);
+        useCaseConfig.setTimeDeltaSeconds(12345);
         useCaseConfig.setOutputPath("wherever/you/want/it");
-        useCaseConfig.setMaxPixelDistance(14.8f);
+        useCaseConfig.setMaxPixelDistanceKm(14.8f);
 
         final List<Dimension> dimensionList = new ArrayList<>();
         dimensionList.add(new Dimension("first", 11, 15));
@@ -219,9 +219,9 @@ public class UseCaseConfigTest {
                 "      <ny>5</ny>\n" +
                 "    </dimension>\n" +
                 "  </dimensions>\n" +
-                "  <time-delta>12345</time-delta>\n" +
+                "  <time-delta-seconds>12345</time-delta-seconds>\n" +
                 "  <output-path>wherever/you/want/it</output-path>\n" +
-                "  <maxPixelDistance>14.8</maxPixelDistance>\n" +
+                "  <max-pixel-distance-km>14.8</max-pixel-distance-km>\n" +
                 "</use-case-config>", outputStream.toString());
     }
 
@@ -294,8 +294,8 @@ public class UseCaseConfigTest {
 
     @Test
     public void testSetGetTimeDelta() {
-        useCaseConfig.setTimeDelta(4067);
-        assertEquals(4067, useCaseConfig.getTimeDelta());
+        useCaseConfig.setTimeDeltaSeconds(4067);
+        assertEquals(4067, useCaseConfig.getTimeDeltaSeconds());
     }
 
     @Test
@@ -346,8 +346,8 @@ public class UseCaseConfigTest {
     public void testSetGetMaxPixelDistance() {
         float maxDistace = 12.8f;
 
-        useCaseConfig.setMaxPixelDistance(maxDistace);
-        assertEquals(maxDistace, useCaseConfig.getMaxPixelDistance(), 1e-8);
+        useCaseConfig.setMaxPixelDistanceKm(maxDistace);
+        assertEquals(maxDistace, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
     }
 
     @Test
@@ -360,6 +360,6 @@ public class UseCaseConfigTest {
         assertNotNull(dimensions);
         assertEquals(0, dimensions.size());
 
-        assertEquals(-1, useCaseConfig.getTimeDelta());
+        assertEquals(-1, useCaseConfig.getTimeDeltaSeconds());
     }
 }

@@ -218,7 +218,7 @@ public class MatchupToolIntegrationTest {
         dimensionsList.add(new Dimension("avhrr-n18", 2, 3));
         useCaseConfig.setDimensions(dimensionsList);
 
-        useCaseConfig.setTimeDelta(2);
+        useCaseConfig.setTimeDeltaSeconds(2);
         useCaseConfig.setOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath());
 
         final File file = new File(configDir, configFileName);

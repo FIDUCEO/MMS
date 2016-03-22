@@ -21,17 +21,23 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import com.bc.fiduceo.TestUtil;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Test;
+import org.junit.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Group;
+import ucar.nc2.NetcdfFileWriter;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class MmdWriterTest {
 
@@ -52,5 +58,42 @@ public class MmdWriterTest {
 
         final String fileName = MmdWriter.createMMDFileName(useCaseConfig, startDate, endDate);
         assertEquals("mmd-12_avhrr-n08_avhrr-n07_2011-245_2011-251.nc", fileName);
+    }
+
+    @Test
+    public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setName("NameOfTheUseCase");
+        useCaseConfig.setTimeDeltaSeconds(234);
+        useCaseConfig.setMaxPixelDistanceKm(12.34f);
+
+        final Sensor primarySensor = new Sensor("SensorName1");
+        primarySensor.setPrimary(true);
+        useCaseConfig.setSensors(Arrays.asList(
+                    primarySensor,
+                    new Sensor("SensorName2"),
+                    new Sensor("SensorName3")
+        ));
+        useCaseConfig.setDimensions(Arrays.asList(
+                    new Dimension("SensorName1", 1, 2),
+                    new Dimension("SensorName2", 3, 4),
+                    new Dimension("SensorName3", 5, 6)
+        ));
+
+        final NetcdfFileWriter mockWriter = mock(NetcdfFileWriter.class);
+
+        //test
+        MmdWriter.createUseCaseAttributes(mockWriter, useCaseConfig);
+
+        //verification
+        final String useCaseAttributeName = "use-case-configuration";
+        // @todo 1 se/tb please check english!! 2016-03-22
+        final String expectedCommentText = "The MMD file is created based on the use case configuration " +
+                                           "documented in the attribute '" + useCaseAttributeName + "'.";
+        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("comment", expectedCommentText)));
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        useCaseConfig.store(outputStream);
+        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
+        verifyNoMoreInteractions(mockWriter);
     }
 }

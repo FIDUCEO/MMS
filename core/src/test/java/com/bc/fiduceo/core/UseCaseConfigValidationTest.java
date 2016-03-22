@@ -59,7 +59,7 @@ public class UseCaseConfigValidationTest {
     public void testValidation_invalid_missingTimeDelta() {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
-        useCaseConfig.setTimeDelta(-1);
+        useCaseConfig.setTimeDeltaSeconds(-1);
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
@@ -131,7 +131,7 @@ public class UseCaseConfigValidationTest {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
         useCaseConfig.setOutputPath(null);
-        useCaseConfig.setTimeDelta(-1);
+        useCaseConfig.setTimeDeltaSeconds(-1);
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
@@ -144,7 +144,7 @@ public class UseCaseConfigValidationTest {
     private UseCaseConfig createValidConfig() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setName("config-name");
-        useCaseConfig.setTimeDelta(345);
+        useCaseConfig.setTimeDeltaSeconds(345);
 
         final List<Sensor> sensorList = new ArrayList<>();
         sensorList.add(new Sensor("secondary"));

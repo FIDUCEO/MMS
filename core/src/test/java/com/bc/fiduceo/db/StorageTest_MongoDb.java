@@ -25,7 +25,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.runner.RunWith;
 
 @RunWith(DatabaseTestRunner.class)
-public class StorageTest_MongoDb extends StorageTest{
+public class StorageTest_MongoDb extends StorageTest {
 
     // This test will use a local database implementation. Please make sure that you have a running MongoDb database server
     // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored

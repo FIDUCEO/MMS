@@ -57,6 +57,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
     @Before
     public void setUp() throws SQLException {
+        TestUtil.deleteTestDirectory();
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
@@ -85,7 +86,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDelta(22);
+        useCaseConfig.setTimeDeltaSeconds(22);
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -105,8 +106,8 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDelta(10800);  // 3 hours - we have one intersecting time interval
-        useCaseConfig.setMaxPixelDistance(3);  // value in km
+        useCaseConfig.setTimeDeltaSeconds(10800);  // 3 hours - we have one intersecting time interval
+        useCaseConfig.setMaxPixelDistanceKm(3);  // value in km
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -134,7 +135,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDelta(10000);  // 2 hours something, just too small to have an overllipng time interval
+        useCaseConfig.setTimeDeltaSeconds(10000);  // 2 hours something, just too small to have an overllipng time interval
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();

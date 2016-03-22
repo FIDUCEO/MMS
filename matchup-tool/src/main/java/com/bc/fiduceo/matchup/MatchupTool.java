@@ -176,6 +176,25 @@ class MatchupTool {
         return TimeUtils.parseDOYBeginOfDay(startDateString);
     }
 
+    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        extractPrototypes(variablesConfiguration, matchupCollection, context);
+        return variablesConfiguration;
+    }
+
+    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+    }
+
     public void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
 
@@ -218,7 +237,7 @@ class MatchupTool {
             // @todo 3 tb/tb clean up this mess and write test 2016-03-17
             final StringBuilder builder = new StringBuilder();
             final List<String> messages = validationResult.getMessages();
-            for (final String message: messages) {
+            for (final String message : messages) {
                 builder.append(message);
                 builder.append("\n");
             }
@@ -263,13 +282,13 @@ class MatchupTool {
 
     private DistanceScreening createDistanceScreening(ToolContext context) {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final float maxPixelDistance = useCaseConfig.getMaxPixelDistance();
+        final float maxPixelDistance = useCaseConfig.getMaxPixelDistanceKm();
         return new DistanceScreening(maxPixelDistance);
     }
 
     private TimeScreening createTimeScreening(ToolContext context) {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final int timeDelta = useCaseConfig.getTimeDelta();
+        final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
         final int timeDeltaInMillis = timeDelta * 1000;
         return new TimeScreening(timeDeltaInMillis);
     }
@@ -280,17 +299,10 @@ class MatchupTool {
             return;
         }
 
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
+        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration);
 
-        final File file = createMmdFile(context);
-        final MmdWriter mmdWriter = new MmdWriter();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        mmdWriter.create(file,
-                         dimensions,
-                         variablesConfiguration.get(),
-                         matchupCollection.getNumMatchups());
-
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
         final String primarySensorName = primarySensor.getName();
@@ -305,7 +317,7 @@ class MatchupTool {
         final ReaderFactory readerFactory = ReaderFactory.get();
 
         final List<MatchupSet> sets = matchupCollection.getSets();
-        int stackIndex = 0;
+        int zIndex = 0;
         for (MatchupSet set : sets) {
             final Path primaryObservationPath = set.getPrimaryObservationPath();
             final Path secondaryObservationPath = set.getSecondaryObservationPath();
@@ -313,24 +325,12 @@ class MatchupTool {
                  final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
                 primaryReader.open(primaryObservationPath.toFile());
                 secondaryReader.open(secondaryObservationPath.toFile());
-
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
-                    final Sample primarySample = sampleSet.getPrimary();
-                    final int px = primarySample.x;
-                    final int py = primarySample.y;
-
-                    final Sample secondarySample = sampleSet.getSecondary();
-                    final int sx = secondarySample.x;
-                    final int sy = secondarySample.y;
-
-                    writeMmdValues(primaryVariables, primaryReader, px, py, primaryInterval, mmdWriter, stackIndex);
-                    writeMmdValues(secondaryVariables, secondaryReader, sx, sy, secondaryInterval, mmdWriter, stackIndex);
-                    mmdWriter.write(px, primarySensorName + "_x", stackIndex);
-                    mmdWriter.write(py, primarySensorName + "_y", stackIndex);
-                    mmdWriter.write(sx, secondarySensorName + "_x", stackIndex);
-                    mmdWriter.write(sy, secondarySensorName + "_y", stackIndex);
-                    stackIndex++;
+                    writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
+                    writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, mmdWriter, secondaryReader);
+                    zIndex++;
+                    // @todo 1 se/** mmdWriter.flush each chunk size... se trello (Implement writing of MMD variables in complete chunks.) 2016-03-21
                 }
             }
         }
@@ -345,13 +345,31 @@ class MatchupTool {
 
     }
 
-    private void writeMmdValues(List<VariablePrototype> variables, Reader reader, int x, int y, Interval interval, MmdWriter mmdWriter, int stackIndex) throws IOException, InvalidRangeException {
+    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
+        writeMmdValues(sample.x, sample.y, zIndex, variables, interval, mmdWriter, reader);
+        mmdWriter.write(sample.x, sensorName + "_x", zIndex);
+        mmdWriter.write(sample.y, sensorName + "_y", zIndex);
+        mmdWriter.write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
+    }
+
+    private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
         for (VariablePrototype variable : variables) {
             final String sourceVariableName = variable.getSourceVariableName();
             final String targetVariableName = variable.getTargetVariableName();
             final Array primaryWindow = reader.readRaw(x, y, interval, sourceVariableName);
-            mmdWriter.write(primaryWindow, targetVariableName, stackIndex);
+            mmdWriter.write(primaryWindow, targetVariableName, zIndex);
         }
+    }
+
+    private MmdWriter createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final File file = createMmdFile(context);
+        final MmdWriter mmdWriter = new MmdWriter();
+        mmdWriter.create(file,
+                         useCaseConfig,
+                         variablesConfiguration.get(),
+                         matchupCollection.getNumMatchups());
+        return mmdWriter;
     }
 
     private File createMmdFile(ToolContext context) throws IOException {
@@ -373,29 +391,10 @@ class MatchupTool {
         return file;
     }
 
-    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        extractPrototypes(variablesConfiguration, matchupCollection, context);
-        return variablesConfiguration;
-    }
-
-    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-    }
-
     private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final int timeDelta = useCaseConfig.getTimeDelta();
+        final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
         final int timeDeltaInMillis = timeDelta * 1000;
 
         QueryParameter parameter = getPrimarySensorParameter(context);
