@@ -45,7 +45,6 @@ import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
-import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
@@ -66,10 +65,8 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 class MatchupTool {
@@ -77,6 +74,17 @@ class MatchupTool {
     private static String VERSION = "1.0.0";
     private final Logger logger;
     private final ReaderFactory readerFactory;
+
+    MatchupTool() {
+        logger = FiduceoLogger.getLogger();
+        readerFactory = ReaderFactory.get();
+    }
+
+    public void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+
+        runMatchupGeneration(context);
+    }
 
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
         final PixelLocator pixelLocator;
@@ -193,24 +201,6 @@ class MatchupTool {
         variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
     }
 
-    public static long calculateTimeDiffSensingStartFrom1970(Date startTime) {
-        TimeZone utc = TimeZone.getTimeZone("UTC");
-        Calendar instance = Calendar.getInstance(utc);
-        instance.setTime(startTime);
-        return instance.getTimeInMillis() / 1000;
-    }
-
-    MatchupTool() {
-        logger = FiduceoLogger.getLogger();
-        readerFactory = ReaderFactory.get();
-    }
-
-    public void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-
-        runMatchupGeneration(context);
-    }
-
     // package access for testing only tb 2016-02-18
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -303,7 +293,7 @@ class MatchupTool {
         return new TimeScreening(timeDeltaInMillis);
     }
 
-    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException, SQLException {
+    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
             return;
@@ -336,14 +326,6 @@ class MatchupTool {
                  final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
                 primaryReader.open(primaryObservationPath.toFile());
                 secondaryReader.open(secondaryObservationPath.toFile());
-
-                AcquisitionInfo acquisitionInfo = primaryReader.read();
-                Date sensingStart = acquisitionInfo.getSensingStart();
-
-                long primaryTimeDiffrent = calculateTimeDiffSensingStartFrom1970(set.getPrimaryObservationStartTime());
-                // @todo 1 se/mb  implement the code to calculate the time difference between
-                // @todo          Satelite sensing start and 1970 in the unit seconds
-
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
@@ -365,12 +347,13 @@ class MatchupTool {
     }
 
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
-        writeMmdValues(sample.x, sample.y, zIndex, variables, interval, mmdWriter, reader);
-        mmdWriter.write(sample.x, sensorName + "_x", zIndex);
-        mmdWriter.write(sample.y, sensorName + "_y", zIndex);
+        final int x = sample.x;
+        final int y = sample.y;
+        writeMmdValues(x, y, zIndex, variables, interval, mmdWriter, reader);
+        mmdWriter.write(x, sensorName + "_x", zIndex);
+        mmdWriter.write(y, sensorName + "_y", zIndex);
         mmdWriter.write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
-        // @todo 1 se/mb continue implement writing acquisition_time per sensor per pixel
-
+        mmdWriter.write(reader.readAcquisitionTime(x, y, interval), sensorName + "_acquisition_time", zIndex);
     }
 
     private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
@@ -379,9 +362,6 @@ class MatchupTool {
             final String targetVariableName = variable.getTargetVariableName();
             final Array window = reader.readRaw(x, y, interval, sourceVariableName);
             mmdWriter.write(window, targetVariableName, zIndex);
-//            if (sourceVariableName.equals("dtime")){
-//                mmdWriter.write(primaryWindow, targetVariableName, zIndex);
-//            }
         }
     }
 
@@ -390,9 +370,9 @@ class MatchupTool {
         final File file = createMmdFile(context);
         final MmdWriter mmdWriter = new MmdWriter();
         mmdWriter.create(file,
-                useCaseConfig,
-                variablesConfiguration.get(),
-                matchupCollection.getNumMatchups());
+                         useCaseConfig,
+                         variablesConfiguration.get(),
+                         matchupCollection.getNumMatchups());
         return mmdWriter;
     }
 
@@ -453,10 +433,6 @@ class MatchupTool {
                 final MatchupSet matchupSet = new MatchupSet();
                 matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
                 matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
-
-                matchupSet.setPrimaryObservationStartTime(primaryObservation.getStartTime());
-                matchupSet.setSecondaryObservationStartTime(secondaryObservation.getStartTime());
-                Date primaryObservationStartTime = matchupSet.getPrimaryObservationStartTime();
 
                 for (final Intersection intersection : intersectingIntervals) {
                     final TimeInfo timeInfo = intersection.getTimeInfo();

@@ -44,6 +44,7 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -66,17 +67,13 @@ public class AVHRR_GAC_Reader implements Reader {
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
     private SwathPixelLocator pixelLocator;
-
-
-
-    private static Attribute getAttribute(Variable variable, String attributeName) {
-        return variable.findAttribute(attributeName);
-    }
+    private long startTimeMilliSecondsSince1970;
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
+        startTimeMilliSecondsSince1970 = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME)).getTime();
     }
 
     @Override
@@ -91,7 +88,7 @@ public class AVHRR_GAC_Reader implements Reader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
+        final Date startDate = new Date(startTimeMilliSecondsSince1970);
         acquisitionInfo.setSensingStart(startDate);
 
         final Date stopDate = parseDateAttribute(netcdfFile.findGlobalAttribute(STOP_TIME_ATTRIBUTE_NAME));
@@ -173,6 +170,12 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+        final ArrayFloat.D2 raw = (ArrayFloat.D2) readRaw(x, y, interval, "dtime");
+        return convertToAquisitionTime(raw, startTimeMilliSecondsSince1970);
+    }
+
+    @Override
     public List<Variable> getVariables() {
         final List<Variable> variables = netcdfFile.getVariables();
 
@@ -233,6 +236,53 @@ public class AVHRR_GAC_Reader implements Reader {
         return new ClippingPixelLocator(pixelLocator, minY, maxY);
     }
 
+    static Number extractFillValue(Variable variable) {
+        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
+        if (fillAttrib != null) {
+            return fillAttrib.getNumericValue();
+        }
+        return getDefaultFillValue(variable);
+    }
+
+    static Number getDefaultFillValue(Variable variable) {
+        final Class type = variable.getDataType().getPrimitiveClassType();
+        if (double.class == type) {
+            return Double.MIN_VALUE;
+        } else if (float.class == type) {
+            return Float.MIN_VALUE;
+        } else if (long.class == type) {
+            return Long.MIN_VALUE;
+        } else if (int.class == type) {
+            return Integer.MIN_VALUE;
+        } else if (short.class == type) {
+            return Short.MIN_VALUE;
+        } else if (byte.class == type) {
+            return Byte.MIN_VALUE;
+        } else {
+            throw new RuntimeException("not implemented for type " + type.getTypeName());
+        }
+    }
+
+    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
+        final int[] shape = rawData.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                final float v = rawData.get(i, j);
+                final float milliSeconds = v * 1000;
+                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
+                times.set(i, j, secondsSince1970);
+            }
+        }
+        return times;
+    }
+
+    private static Attribute getAttribute(Variable variable, String attributeName) {
+        return variable.findAttribute(attributeName);
+    }
+
     private Geometries calculateGeometries() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Geometries geometries = new Geometries();
@@ -279,33 +329,6 @@ public class AVHRR_GAC_Reader implements Reader {
     private Number getFillValue(String variableName) {
         final Variable variable = netcdfFile.findVariable(variableName);
         return extractFillValue(variable);
-    }
-
-    static Number extractFillValue(Variable variable) {
-        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
-        if (fillAttrib != null) {
-            return fillAttrib.getNumericValue();
-        }
-        return getDefaultFillValue(variable);
-    }
-
-    static Number getDefaultFillValue(Variable variable) {
-        final Class type = variable.getDataType().getPrimitiveClassType();
-        if (double.class == type) {
-            return Double.MIN_VALUE;
-        } else if (float.class == type) {
-            return Float.MIN_VALUE;
-        } else if (long.class == type) {
-            return Long.MIN_VALUE;
-        } else if (int.class == type) {
-            return Integer.MIN_VALUE;
-        } else if (short.class == type) {
-            return Short.MIN_VALUE;
-        } else if (byte.class == type) {
-            return Byte.MIN_VALUE;
-        } else {
-            throw new RuntimeException("not implemented for type " + type.getTypeName());
-        }
     }
 
     private class Geometries {

@@ -22,7 +22,6 @@ package com.bc.fiduceo.matchup;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MatchupSet {
@@ -31,27 +30,9 @@ public class MatchupSet {
 
     private Path primaryObservationPath;
     private Path secondaryObservationPath;
-    private Date primaryObservationStartTime;
-    private Date secondaryObservationStartTime;
 
     public MatchupSet() {
         sampleSets = new ArrayList<>();
-    }
-
-    public Date getSecondaryObservationStartTime() {
-        return secondaryObservationStartTime;
-    }
-
-    public void setSecondaryObservationStartTime(Date secondaryObservationStartTime) {
-        this.secondaryObservationStartTime = secondaryObservationStartTime;
-    }
-
-    public Date getPrimaryObservationStartTime() {
-        return primaryObservationStartTime;
-    }
-
-    public void setPrimaryObservationStartTime(Date primaryObservationStartTime) {
-        this.primaryObservationStartTime = primaryObservationStartTime;
     }
 
     public Path getPrimaryObservationPath() {

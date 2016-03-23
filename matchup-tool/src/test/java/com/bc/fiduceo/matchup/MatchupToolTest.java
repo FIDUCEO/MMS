@@ -354,18 +354,6 @@ public class MatchupToolTest {
         verifyNoMoreInteractions(configuration);
     }
 
-    @Test
-    public void testCalculateTheTimeDifferentFrom_1970_01_01() throws Exception {
-        final Date testDate_1970_01_01 = TimeUtils.parse("1970-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
-        assertEquals(0, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDate_1970_01_01));
-
-        final Date testDateAfter_1970_01_01 = TimeUtils.parse("1970-01-01 00:30:00", "yyyy-MM-dd HH:mm:ss");
-        assertEquals(1800, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDateAfter_1970_01_01));
-
-        final Date testDateBefore_1970_01_01 = TimeUtils.parse("1969-12-31 11:59:00", "yyyy-MM-dd HH:mm:ss");
-        assertEquals(-43260, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDateBefore_1970_01_01));
-    }
-
     private Sensor createSensor(String name, boolean isPrimary) {
         final Sensor primarySensor = new Sensor();
         primarySensor.setPrimary(isPrimary);

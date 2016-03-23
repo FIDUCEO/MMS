@@ -35,6 +35,7 @@ import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
@@ -136,6 +137,11 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
+    }
+
+    @Override
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+        throw new RuntimeException("not implemented");
     }
 
     @Override

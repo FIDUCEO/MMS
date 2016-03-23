@@ -136,6 +136,19 @@ public class TimeUtilsTest {
         TestUtil.assertCorrectUTCDate(2007, 5, 9, 23, 55, 0, 0, adjustedDate);
     }
 
+    @Test
+    public void testCalculateTheTimeDifferentFrom_1970_01_01() throws Exception {
+        Date date;
+
+        date = TimeUtils.parse("1970-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(0, date.getTime());
+
+        date = TimeUtils.parse("1970-01-01 00:30:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(1800000, date.getTime());
+
+        date = TimeUtils.parse("1969-12-31 23:59:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(-60000, date.getTime());
+    }
 
     @Test
     public void testGetUTCCalendar() {

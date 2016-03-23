@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -63,6 +64,16 @@ public interface Reader extends AutoCloseable {
      * @throws InvalidRangeException
      */
     Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
+
+    /**
+     * Reads an {@link Array} of acquisition time values per pixel.
+     * The unit value is seconds since 1970-01-01 00:00:00.
+     * @param x the center x position of the window reading process.
+     * @param y the center y position of the window reading process.
+     * @param interval the window sizes.
+     * @return an {@link Array} of acquisition time values per pixel
+     */
+    ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 
     List<Variable> getVariables();
 }

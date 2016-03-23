@@ -28,8 +28,11 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -40,6 +43,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -305,6 +309,43 @@ public class AVHRR_GAC_ReaderTest {
         final Number number = AVHRR_GAC_Reader.extractFillValue(mock);
 
         assertEquals(39.90, number);
+    }
+
+    @Test
+    public void testConvertToAcqusitionTime_1970_01_01() throws Exception {
+        final int startTimeMilliSecondsSince1970 = 0;
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+                    new float[]{1.1f, 2.2f, 3.3f},
+                    new float[]{4.4f, 5.5f, 6.6f},
+                    });
+        final int[] expectedSeconds = {1, 2, 3, 4, 6, 7};
+
+        // test
+        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
+
+        // verifiying
+        assertNotNull(aquisitionTime);
+        assertArrayEquals(expectedSeconds, (int[]) aquisitionTime.getStorage());
+    }
+
+    @Test
+    public void testConvertToAcqusitionTime_2015_03_23() throws Exception {
+        final ProductData.UTC startUTC = ProductData.UTC.parse("2015-03-23 12:34:56", "yyyy-MM-dd HH:mm:ss");
+        final long startTimeMilliSecondsSince1970 = startUTC.getAsDate().getTime();
+        final int v = (int) (startTimeMilliSecondsSince1970 * 0.001);
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+                    new float[]{1.1f, 2.2f, 3.3f},
+                    new float[]{4.4f, 5.5f, 6.6f},
+                    });
+        final int[] expectedSeconds = {1 + v, 2 + v, 3 + v, 4 + v, 6 + v, 7 + v};
+
+        // test
+        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
+
+        // verifiying
+        assertEquals(1427114096000L, startTimeMilliSecondsSince1970);
+        assertNotNull(aquisitionTime);
+        assertArrayEquals(expectedSeconds, (int[]) aquisitionTime.getStorage());
     }
 
     GeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {

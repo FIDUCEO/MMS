@@ -152,6 +152,11 @@ public class AMSU_MHS_L1B_Reader implements Reader {
     }
 
     @Override
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public List<Variable> getVariables() {
         throw new RuntimeException("not implemented");
     }
