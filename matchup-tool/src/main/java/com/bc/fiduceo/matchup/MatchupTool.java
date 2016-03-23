@@ -300,7 +300,8 @@ class MatchupTool {
         }
 
         final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
-        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration, 1000);
+        final int cacheSize = 100000;
+        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration, cacheSize);
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
@@ -330,7 +331,7 @@ class MatchupTool {
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
                     writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, mmdWriter, secondaryReader);
-                    if (zIndex > 0 && zIndex % 1000 == 0) {
+                    if (zIndex > 0 && zIndex % cacheSize == 0) {
                         mmdWriter.flush();
                     }
                     zIndex++;

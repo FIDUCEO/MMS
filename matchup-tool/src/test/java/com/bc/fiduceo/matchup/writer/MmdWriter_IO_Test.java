@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -60,7 +61,7 @@ public class MmdWriter_IO_Test {
     }
 
     @Test
-    public void testCreate() throws IOException {
+    public void testCreate() throws IOException, InvalidRangeException {
         final MmdWriter mmdWriter = new MmdWriter(10000);
 
         final File mmdFile = new File(testDir, "test_mmd.nc");

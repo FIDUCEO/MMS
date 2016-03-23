@@ -116,8 +116,7 @@ public class MmdWriter {
     public void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final Variable variable = netcdfFileWriter.findVariable(variableName);
         final int[] origin = {zIndex};
-        final Array a = variable.read(origin, new int[]{1});
-        a.setInt(0, v);
+        final Array a = Array.factory(new int[]{v});
         netcdfFileWriter.write(variable, origin, a);
     }
 
@@ -163,6 +162,7 @@ public class MmdWriter {
             final int[] origin = {zStart, 0, 0};
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
         }
+        dataCacheMap.clear();
         flushCount++;
     }
 

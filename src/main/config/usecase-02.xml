@@ -39,7 +39,7 @@
             <ny>5</ny>
         </dimension>
     </dimensions>
-    <time-delta>300</time-delta>
+    <time-delta-seconds>300</time-delta-seconds>
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>
-    <maxPixelDistance>4.0</maxPixelDistance>
+    <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
 </use-case-config>
