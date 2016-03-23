@@ -69,14 +69,14 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.0" + ls + ls +
-                     "usage: matchup-tool <options>" + ls +
-                     "Valid options are:" + ls +
-                     "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                     "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                     "   -h,--help            Prints the tool usage." + ls +
-                     "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                     "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
-                     "                        directory." + ls, outputStream.toString());
+                "usage: matchup-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help            Prints the tool usage." + ls +
+                "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
+                "                        directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -352,6 +352,18 @@ public class MatchupToolTest {
         inOrder.verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
         inOrder.verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
         verifyNoMoreInteractions(configuration);
+    }
+
+    @Test
+    public void testCalculateTheTimeDifferentFrom_1970_01_01() throws Exception {
+        final Date testDate_1970_01_01 = TimeUtils.parse("1970-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(0, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDate_1970_01_01));
+
+        final Date testDateAfter_1970_01_01 = TimeUtils.parse("1970-01-01 00:30:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(1800, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDateAfter_1970_01_01));
+
+        final Date testDateBefore_1970_01_01 = TimeUtils.parse("1969-12-31 11:59:00", "yyyy-MM-dd HH:mm:ss");
+        assertEquals(-43260, MatchupTool.calculateTimeDiffSensingStartFrom1970(testDateBefore_1970_01_01));
     }
 
     private Sensor createSensor(String name, boolean isPrimary) {
