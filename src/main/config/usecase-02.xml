@@ -41,5 +41,5 @@
     </dimensions>
     <time-delta-seconds>300</time-delta-seconds>
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>
-    <max-pixel-distance-km>5,657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
+    <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
 </use-case-config>

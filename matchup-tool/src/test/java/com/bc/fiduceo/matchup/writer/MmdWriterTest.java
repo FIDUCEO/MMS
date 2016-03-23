@@ -28,7 +28,11 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
+import com.sun.medialib.mlib.mediaLibImageInterpTable;
 import org.junit.*;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
@@ -96,4 +100,26 @@ public class MmdWriterTest {
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
         verifyNoMoreInteractions(mockWriter);
     }
+
+
+    @Test
+    public void testThrowAway() throws Exception {
+        final Array stack = Array.factory(DataType.INT, new int[]{4, 3, 3});
+        final Array dataToBeWritten = Array.factory(new int[][]{
+                    new int[]{1, 2, 3},
+                    new int[]{4, 5, 6},
+                    new int[]{7, 8, 9}
+        });
+        final Index index = stack.getIndex().set(1);
+        Array.arraycopy(dataToBeWritten, 0, stack, index.currentElement(), (int) dataToBeWritten.getSize());
+        final int[] storage = (int[]) stack.getStorage();
+        final int[] expecteds = new int[]{
+                    0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    1, 2, 3, 4, 5, 6, 7, 8, 9,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0
+        };
+        assertArrayEquals(expecteds, storage);
+    }
 }
+

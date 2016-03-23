@@ -300,7 +300,8 @@ class MatchupTool {
         }
 
         final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
-        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration);
+        final int cacheSize = 100000;
+        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration, cacheSize);
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
@@ -330,6 +331,9 @@ class MatchupTool {
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
                     writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, mmdWriter, secondaryReader);
+                    if (zIndex > 0 && zIndex % cacheSize == 0) {
+                        mmdWriter.flush();
+                    }
                     zIndex++;
                     // @todo 1 se/** mmdWriter.flush each chunk size... se trello (Implement writing of MMD variables in complete chunks.) 2016-03-21
                 }
@@ -365,10 +369,10 @@ class MatchupTool {
         }
     }
 
-    private MmdWriter createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration) throws IOException {
+    private MmdWriter createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration, final int cacheSize) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final File file = createMmdFile(context);
-        final MmdWriter mmdWriter = new MmdWriter();
+        final MmdWriter mmdWriter = new MmdWriter(cacheSize);
         mmdWriter.create(file,
                          useCaseConfig,
                          variablesConfiguration.get(),
