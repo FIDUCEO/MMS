@@ -107,6 +107,8 @@ public class MmdWriter {
 
     public void close() throws IOException, InvalidRangeException {
         flush();
+        variableMap.clear();
+        dataCacheMap.clear();
         if (netcdfFileWriter != null) {
             netcdfFileWriter.close();
             netcdfFileWriter = null;
@@ -114,14 +116,14 @@ public class MmdWriter {
     }
 
     public void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Variable variable = netcdfFileWriter.findVariable(variableName);
+        final Variable variable = getVariable(variableName);
         final int[] origin = {zIndex};
         final Array a = Array.factory(new int[]{v});
         netcdfFileWriter.write(variable, origin, a);
     }
 
     public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Variable variable = netcdfFileWriter.findVariable(variableName);
+        final Variable variable = getVariable(variableName);
         final int[] origin = {zIndex, 0};
         Array a = Array.factory(v.getBytes());
         final int[] shape = a.getShape();
@@ -130,10 +132,7 @@ public class MmdWriter {
     }
 
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
-        if (!variableMap.containsKey(variableName)) {
-            variableMap.put(variableName, netcdfFileWriter.findVariable(variableName));
-        }
-        final Variable variable = variableMap.get(variableName);
+        final Variable variable = getVariable(variableName);
         if (!dataCacheMap.containsKey(variableName)) {
             final int[] shape = variable.getShape();
             shape[0] = cacheSize;
@@ -162,7 +161,6 @@ public class MmdWriter {
             final int[] origin = {zStart, 0, 0};
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
         }
-        dataCacheMap.clear();
         flushCount++;
     }
 
@@ -177,6 +175,13 @@ public class MmdWriter {
                     "use-case-configuration",
                     outputStream.toString()
         ));
+    }
+
+    Variable getVariable(String variableName) {
+        if (!variableMap.containsKey(variableName)) {
+            variableMap.put(variableName, netcdfFileWriter.findVariable(variableName));
+        }
+        return variableMap.get(variableName);
     }
 
     void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {

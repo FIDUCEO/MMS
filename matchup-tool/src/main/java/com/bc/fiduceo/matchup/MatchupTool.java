@@ -300,7 +300,7 @@ class MatchupTool {
         }
 
         final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
-        final int cacheSize = 100000;
+        final int cacheSize = 2048;
         final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration, cacheSize);
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -317,7 +317,6 @@ class MatchupTool {
 
         final ReaderFactory readerFactory = ReaderFactory.get();
 
-
         final List<MatchupSet> sets = matchupCollection.getSets();
         int zIndex = 0;
         for (MatchupSet set : sets) {
@@ -331,23 +330,15 @@ class MatchupTool {
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
                     writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, mmdWriter, secondaryReader);
+                    zIndex++;
                     if (zIndex > 0 && zIndex % cacheSize == 0) {
                         mmdWriter.flush();
                     }
-                    zIndex++;
-                    // @todo 1 se/** mmdWriter.flush each chunk size... se trello (Implement writing of MMD variables in complete chunks.) 2016-03-21
                 }
             }
         }
 
         mmdWriter.close();
-
-
-        // - if pixels are left: create output file
-        // - for all remaining pixels:
-        // -- extract pixel window for all bands and write to output (primary and secondary observation)
-        // -- store metadata of each sensor-acquisition as described in use-case
-
     }
 
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {

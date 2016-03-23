@@ -268,6 +268,7 @@ public class AVHRR_GAC_Reader implements Reader {
         final int height = shape[0];
         final int width = shape[1];
         final ArrayInt.D2 times = new ArrayInt.D2(height, width);
+        // @todo 1 se/** take care about no (data value) fill value
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 final float v = rawData.get(i, j);
