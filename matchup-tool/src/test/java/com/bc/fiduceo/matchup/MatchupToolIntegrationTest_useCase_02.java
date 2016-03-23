@@ -57,7 +57,6 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
     @Before
     public void setUp() throws SQLException {
-        TestUtil.deleteTestDirectory();
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
