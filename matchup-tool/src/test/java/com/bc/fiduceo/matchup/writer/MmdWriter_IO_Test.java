@@ -61,7 +61,7 @@ public class MmdWriter_IO_Test {
 
     @Test
     public void testCreate() throws IOException {
-        final MmdWriter mmdWriter = new MmdWriter();
+        final MmdWriter mmdWriter = new MmdWriter(10000);
 
         final File mmdFile = new File(testDir, "test_mmd.nc");
         final List<Dimension> dimemsions = new ArrayList<>();

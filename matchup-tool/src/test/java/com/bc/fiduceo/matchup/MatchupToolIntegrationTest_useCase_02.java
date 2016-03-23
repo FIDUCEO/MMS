@@ -77,7 +77,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
             storage.close();
         }
 
-        TestUtil.deleteTestDirectory();
+//        TestUtil.deleteTestDirectory();
     }
 
     @Test

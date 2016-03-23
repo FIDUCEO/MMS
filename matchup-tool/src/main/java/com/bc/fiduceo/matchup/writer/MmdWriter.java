@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
@@ -35,11 +36,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MmdWriter {
 
+    private final int cacheSize;
+    private final Map<String, Array> dataCacheMap;
+    private final Map<String, Variable> variableMap;
+
     private NetcdfFileWriter netcdfFileWriter;
+    private int flushCount = 0;
+
+    public MmdWriter(int cacheSize) {
+        this.cacheSize = cacheSize;
+        dataCacheMap = new HashMap<>();
+        variableMap = new HashMap<>();
+    }
 
     public static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
         final StringBuilder nameBuilder = new StringBuilder();
@@ -69,19 +83,6 @@ public class MmdWriter {
         return nameBuilder.toString();
     }
 
-    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
-        ));
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        useCaseConfig.store(outputStream);
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "use-case-configuration",
-                    outputStream.toString()
-        ));
-    }
-
     public void create(File mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
@@ -104,7 +105,8 @@ public class MmdWriter {
         netcdfFileWriter.create();
     }
 
-    public void close() throws IOException {
+    public void close() throws IOException, InvalidRangeException {
+        flush();
         if (netcdfFileWriter != null) {
             netcdfFileWriter.close();
             netcdfFileWriter = null;
@@ -129,10 +131,52 @@ public class MmdWriter {
     }
 
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
-        final Variable variable = netcdfFileWriter.findVariable(variableName);
-        final int[] shape = data.getShape();
-        final Array dataD3 = data.reshape(new int[]{1, shape[0], shape[1]});
-        netcdfFileWriter.write(variable, new int[]{stackIndex, 0, 0}, dataD3);
+        if (!variableMap.containsKey(variableName)) {
+            variableMap.put(variableName, netcdfFileWriter.findVariable(variableName));
+        }
+        final Variable variable = variableMap.get(variableName);
+        if (!dataCacheMap.containsKey(variableName)) {
+            final int[] shape = variable.getShape();
+            shape[0] = cacheSize;
+            dataCacheMap.put(variableName, Array.factory(variable.getDataType(), shape));
+        }
+        final Array target = dataCacheMap.get(variableName);
+        final Index index = target.getIndex();
+        index.set(stackIndex % cacheSize);
+        Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
+    }
+
+    public void flush() throws IOException, InvalidRangeException {
+        for (Map.Entry<String, Array> entry : dataCacheMap.entrySet()) {
+            final String variableName = entry.getKey();
+            final Variable variable = variableMap.get(variableName);
+            Array dataToBeWritten = entry.getValue();
+
+            final int matchupCount = variable.getShape(0);
+            final int zStart = flushCount * cacheSize;
+            if (zStart + cacheSize > matchupCount) {
+                final int restHeight = matchupCount - zStart;
+                final int[] shape = dataToBeWritten.getShape();
+                shape[0] = restHeight;
+                dataToBeWritten = dataToBeWritten.section(new int[3], shape);
+            }
+            final int[] origin = {zStart, 0, 0};
+            netcdfFileWriter.write(variable, origin, dataToBeWritten);
+        }
+        flushCount++;
+    }
+
+    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "comment",
+                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+        ));
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        useCaseConfig.store(outputStream);
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "use-case-configuration",
+                    outputStream.toString()
+        ));
     }
 
     void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
