@@ -123,13 +123,11 @@ public class MmdWriter {
     }
 
     public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(variableName);
-        final int[] shape = variable.getShape();
+        final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
         v.getChars(0, v.length(), chars, 0 );
-        final Array data = Array.factory(chars);
-        shape[0] = 1;
-        write(data.reshape(shape), variableName, zIndex);
+        final Array data = Array.factory(new char[][]{chars});
+        write(data, variableName, zIndex);
     }
 
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
