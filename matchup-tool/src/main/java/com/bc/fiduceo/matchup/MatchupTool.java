@@ -53,6 +53,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -317,6 +318,9 @@ class MatchupTool {
 
         final ReaderFactory readerFactory = ReaderFactory.get();
 
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         final List<MatchupSet> sets = matchupCollection.getSets();
         int zIndex = 0;
         for (MatchupSet set : sets) {
@@ -337,6 +341,9 @@ class MatchupTool {
                 }
             }
         }
+
+        stopWatch.stop();
+        System.out.println("stopWatch.getTimeDiffString() = " + stopWatch.getTimeDiffString());
 
         mmdWriter.close();
     }

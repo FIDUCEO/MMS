@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.util.ArrayUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -35,6 +36,7 @@ import ucar.nc2.Variable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -116,32 +118,35 @@ public class MmdWriter {
     }
 
     public void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(variableName);
-        final int[] origin = {zIndex};
-        final Array a = Array.factory(new int[]{v});
-        netcdfFileWriter.write(variable, origin, a);
+        final Array data = Array.factory(new int[][]{{v}});
+        write(data, variableName, zIndex);
     }
 
     public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final Variable variable = getVariable(variableName);
-        final int[] origin = {zIndex, 0};
-        Array a = Array.factory(v.getBytes());
-        final int[] shape = a.getShape();
-        a = a.reshape(new int[]{1, shape[0]});
-        netcdfFileWriter.write(variable, origin, a);
+        final int[] shape = variable.getShape();
+        final char[] chars = new char[shape[1]];
+        v.getChars(0, v.length(), chars, 0 );
+        final Array data = Array.factory(chars);
+        shape[0] = 1;
+        write(data.reshape(shape), variableName, zIndex);
     }
 
     public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(variableName);
+        final Array target = getTarget(variableName);
+        final Index index = target.getIndex();
+        index.set(stackIndex % cacheSize);
+        Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
+    }
+
+    private Array getTarget(String variableName) {
         if (!dataCacheMap.containsKey(variableName)) {
+            Variable variable = getVariable(variableName);
             final int[] shape = variable.getShape();
             shape[0] = cacheSize;
             dataCacheMap.put(variableName, Array.factory(variable.getDataType(), shape));
         }
-        final Array target = dataCacheMap.get(variableName);
-        final Index index = target.getIndex();
-        index.set(stackIndex % cacheSize);
-        Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
+        return dataCacheMap.get(variableName);
     }
 
     public void flush() throws IOException, InvalidRangeException {
@@ -156,7 +161,7 @@ public class MmdWriter {
                 final int restHeight = matchupCount - zStart;
                 final int[] shape = dataToBeWritten.getShape();
                 shape[0] = restHeight;
-                dataToBeWritten = dataToBeWritten.section(new int[3], shape);
+                dataToBeWritten = dataToBeWritten.section(new int[shape.length], shape);
             }
             final int[] origin = {zStart, 0, 0};
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
@@ -177,19 +182,19 @@ public class MmdWriter {
         ));
     }
 
-    Variable getVariable(String variableName) {
+    private Variable getVariable(String variableName) {
         if (!variableMap.containsKey(variableName)) {
             variableMap.put(variableName, netcdfFileWriter.findVariable(variableName));
         }
         return variableMap.get(variableName);
     }
 
-    void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
+    private void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
         for (Dimension dimension : dimensions) {
             final String sensorName = dimension.getName();
             netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
             netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
-            netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.BYTE, "matchup_count file_name");
+            netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.CHAR, "matchup_count file_name");
             final String yDimension = getDimensionNameNy(sensorName);
             final String xDimension = getDimensionNameNx(sensorName);
             netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
