@@ -24,7 +24,6 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.util.ArrayUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -36,7 +35,6 @@ import ucar.nc2.Variable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -96,9 +94,9 @@ public class MmdWriter {
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   variablePrototype.getTargetVariableName(),
-                                                                   DataType.getType(variablePrototype.getDataType()),
-                                                                   variablePrototype.getDimensionNames());
+                    variablePrototype.getTargetVariableName(),
+                    DataType.getType(variablePrototype.getDataType()),
+                    variablePrototype.getDimensionNames());
             final List<Attribute> attributes = variablePrototype.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
@@ -125,7 +123,7 @@ public class MmdWriter {
     public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
-        v.getChars(0, v.length(), chars, 0 );
+        v.getChars(0, v.length(), chars, 0);
         final Array data = Array.factory(new char[][]{chars});
         write(data, variableName, zIndex);
     }
@@ -169,14 +167,14 @@ public class MmdWriter {
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "comment",
+                "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "use-case-configuration",
-                    outputStream.toString()
+                "use-case-configuration",
+                outputStream.toString()
         ));
     }
 
