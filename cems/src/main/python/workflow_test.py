@@ -1,3 +1,5 @@
+import datetime
+import os
 import unittest
 
 from period import Period
@@ -6,6 +8,18 @@ from workflow import Workflow
 
 
 class WorkflowTest(unittest.TestCase):
+    logdir = 'test_log'
+
+    def tearDown(self):
+        if os.path.exists('test.report'):
+            os.remove('test.report')
+
+        if os.path.exists('test.status'):
+            os.remove('test.status')
+
+        if os.path.exists(self.logdir):
+            os.rmdir(self.logdir)
+
     def test_get_usecase(self):
         w = Workflow('test', 1)
         self.assertEqual('test', w.get_usecase())
@@ -66,3 +80,78 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual([Sensor('atsr-en', Period((1997, 1, 1), (1999, 1, 1))),
                           Sensor('atsr-e2', Period((1996, 6, 1), (1997, 1, 1))),
                           Sensor('atsr-e1', Period((1992, 6, 1), (1996, 1, 1)))], sensors)
+
+    def test_get_sensor_pairs(self):
+        w = Workflow('test', 4)
+        w.add_primary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+        w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+        w.add_primary_sensor('avhrr.n12', (1991, 9, 16), (1998, 12, 14))
+        w.add_secondary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+        w.add_secondary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+        w.add_secondary_sensor('avhrr.n12', (1991, 9, 16), (1998, 12, 14))
+
+        sensor_pairs = w._get_sensor_pairs()
+        self.assertEqual(2, len(sensor_pairs))
+        self.assertEqual('avhrr.n12', sensor_pairs[0].get_primary_name())
+        self.assertEqual('avhrr.n11', sensor_pairs[1].get_primary_name())
+
+    def test_get_data_period(self):
+        w = Workflow('test', 2)
+        w.add_primary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+        w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+        w.add_primary_sensor('avhrr.n12', (1991, 9, 16), (1998, 12, 14))
+        w.add_secondary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+        w.add_secondary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+        w.add_secondary_sensor('avhrr.n12', (1991, 9, 16), (1998, 12, 14))
+
+        data_period = w._get_data_period()
+        self.assertEqual(datetime.date(1988, 11, 8), data_period.get_start_date())
+        self.assertEqual(datetime.date(1994, 12, 31), data_period.get_end_date())
+
+    def test_get_effective_production_period_empty_list(self):
+        w = Workflow('test', 2)
+
+        period = w._get_effective_production_period()
+        self.assertEqual(period, None)
+
+    def test_get_effective_production_period_one_sensor_interval(self):
+        w = Workflow('test', 2)
+        w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+
+        period = w._get_effective_production_period()
+        self.assertEqual(Period((1988, 11, 8), (1994, 12, 31)), period)
+
+    def test_get_effective_production_period_one_sensor_with_workflow_period(self):
+        w = Workflow('test', 2, Period((1994, 1, 1), (1994, 12, 31)))
+        w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+
+        period = w._get_effective_production_period()
+        self.assertEqual(Period((1994, 1, 1), (1994, 12, 31)), period)
+
+    def test_get_effective_production_period_many_sensors(self):
+        w = Workflow('test', 2)
+        w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
+        w.add_primary_sensor('avhrr.n12', (1991, 9, 16), (1998, 12, 14))
+        w.add_secondary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+
+        period = w._get_effective_production_period()
+        self.assertEqual(Period((1988, 11, 8), (1991, 9, 16)), period)
+
+    def test_next_year_start(self):
+        w = Workflow('test', 2)
+        date = datetime.date(2001, 10, 14)
+
+        next = w._next_year_start(date)
+        self.assertEqual(datetime.date(2002, 1, 1), next)
+
+    def test_get_monitor(self):
+        w = Workflow('test', 10)
+
+        monitor = w._get_monitor(list([('localhost', 10)]), list(), self.logdir, True)
+        self.assertNotEqual(monitor, None)
+
+    def test_ingest_avhrr(self):
+        w = Workflow('test', 11)
+        w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
+
+        w.run_ingestion(list([('localhost', 5)]), self.logdir, True)

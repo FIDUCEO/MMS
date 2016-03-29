@@ -1,7 +1,10 @@
+import datetime
 import exceptions
 
+from monitor import Monitor
 from period import Period
 from sensor import Sensor
+from sensorpair import SensorPair
 
 
 class Workflow:
@@ -88,3 +91,104 @@ class Workflow:
         :rtype : list
         """
         return sorted(list(self.secondary_sensors), reverse=True)
+
+    def _get_sensor_pairs(self):
+        """
+
+        :rtype : list
+        """
+        sensor_pairs = set()
+        primary_sensors = self._get_primary_sensors()
+        secondary_sensors = self._get_secondary_sensors()
+        if len(secondary_sensors) > 0:
+            for p in primary_sensors:
+                for s in secondary_sensors:
+                    if p != s:
+                        try:
+                            sensor_pair = SensorPair(p, s, self.get_production_period())
+                            sensor_pairs.add(sensor_pair)
+                        except exceptions.ValueError:
+                            pass
+        else:
+            for p in primary_sensors:
+                try:
+                    sensor_pair = SensorPair(p, p, self.get_production_period())
+                    sensor_pairs.add(sensor_pair)
+                except exceptions.ValueError:
+                    pass
+        return sorted(list(sensor_pairs), reverse=True)
+
+    def _get_data_period(self):
+        """
+
+        :rtype : Period
+        """
+        start_date = datetime.date.max
+        end_date = datetime.date.min
+        for sensor_pair in self._get_sensor_pairs():
+            period = sensor_pair.get_period()
+            if period.get_start_date() < start_date:
+                start_date = period.get_start_date()
+            if period.get_end_date() > end_date:
+                end_date = period.get_end_date()
+        if start_date < end_date:
+            return Period(start_date, end_date)
+        else:
+            return None
+
+    def _get_effective_production_period(self):
+        """
+
+        :rtype : Period
+        """
+        data_period = self._get_data_period()
+        if data_period is None:
+            return None
+        production_period = self.get_production_period()
+        if production_period is None:
+            return data_period
+        else:
+            return production_period.get_intersection(data_period)
+
+    def _get_monitor(self, hosts, calls, log_dir, simulation):
+        """
+
+        :type hosts: list
+        :type calls: list
+        :type log_dir: str
+        :type simulation: bool
+        :rtype : Monitor
+        """
+        preconditions = list()
+        # @todo 2 tb/tb do we need this 2016-03-29
+        # self._add_inp_preconditions(preconditions)
+        # self._add_obs_preconditions(preconditions)
+        # self._add_smp_preconditions(preconditions)
+        return Monitor(preconditions, self.get_usecase(), hosts, calls, log_dir, simulation)
+
+    def _next_year_start(self, date):
+        """
+
+        :type date: datetime.date
+        :rtype : datetime.date
+        """
+        return datetime.date(date.year + 1, 1, 1)
+
+    def run_ingestion(self, hosts, log_dir, simulation=False):
+        """
+
+        :param hosts: list
+        :param log_dir: str
+        :param simulation: bool
+        :return:
+        """
+        monitor = self._get_monitor(hosts, list(), log_dir, simulation)
+
+        production_period = self._get_effective_production_period()
+        date = production_period.get_start_date()
+        while date < production_period.get_end_date():
+            chunk = Period(date, self._next_year_start(date))
+            print(str(chunk.get_start_date()) + '  ' + str(chunk.get_end_date()))
+            date = self._next_year_start(date)
+
+        monitor.wait_for_completion_and_terminate()
