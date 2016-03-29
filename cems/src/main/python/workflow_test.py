@@ -144,6 +144,40 @@ class WorkflowTest(unittest.TestCase):
         next = w._next_year_start(date)
         self.assertEqual(datetime.date(2002, 1, 1), next)
 
+    def test_get_next_period(self):
+        w = Workflow('test', 10)
+
+        date = datetime.date(2001, 10, 14)
+        next_period = w._get_next_period(date)
+        self.assertEqual(Period((2001, 10, 15), (2001, 10, 24)), next_period)
+
+    def test_get_next_period_cut_at_month_end(self):
+        w = Workflow('test', 10)
+
+        date = datetime.date(2001, 9, 22)
+        next_period = w._get_next_period(date)
+        self.assertEqual(Period((2001, 9, 23), (2001, 9, 30)), next_period)
+
+        next_period = w._get_next_period(next_period.get_end_date())
+        self.assertEqual(Period((2001, 10, 1), (2001, 10, 10)), next_period)
+
+    def test_get_next_period_overlap_year(self):
+        w = Workflow('test', 7)
+
+        date = datetime.date(2001, 12, 26)
+        next_period = w._get_next_period(date)
+        self.assertEqual(Period((2001, 12, 27), (2001, 12, 31)), next_period)
+
+        next_period = w._get_next_period(next_period.get_end_date())
+        self.assertEqual(Period((2002, 1, 1), (2002, 1, 7)), next_period)
+
+    def test_get_next_period_changed_period(self):
+        w = Workflow('test', 5)
+
+        date = datetime.date(2002, 11, 15)
+        next_period = w._get_next_period(date)
+        self.assertEqual(Period((2002, 11, 16), (2002, 11, 20)), next_period)
+
     def test_get_monitor(self):
         w = Workflow('test', 10)
 

@@ -1,5 +1,7 @@
+import calendar
 import datetime
 import exceptions
+from datetime import timedelta
 
 from monitor import Monitor
 from period import Period
@@ -174,6 +176,26 @@ class Workflow:
         """
         return datetime.date(date.year + 1, 1, 1)
 
+    def _get_next_period(self, date):
+        """
+
+        :param date: datetime.date
+        :return: Period
+        """
+
+        start = date + timedelta(1)
+        end = date + timedelta(self.time_slot_days)
+        if end.year > start.year:
+            last_year = end.year - 1
+            last_day = calendar.monthrange(last_year, 12)[1]
+            end = datetime.date(last_year, 12, last_day)
+        elif end.month > start.month:
+            month_before = end.month - 1
+            last_day = calendar.monthrange(end.year, month_before)[1]
+            end = datetime.date(end.year, month_before, last_day)
+
+        return Period(start, end)
+
     def run_ingestion(self, hosts, log_dir, simulation=False):
         """
 
@@ -187,8 +209,8 @@ class Workflow:
         production_period = self._get_effective_production_period()
         date = production_period.get_start_date()
         while date < production_period.get_end_date():
-            chunk = Period(date, self._next_year_start(date))
+            chunk = self._get_next_period(date)
             print(str(chunk.get_start_date()) + '  ' + str(chunk.get_end_date()))
-            date = self._next_year_start(date)
+            date = chunk.get_end_date()
 
         monitor.wait_for_completion_and_terminate()
