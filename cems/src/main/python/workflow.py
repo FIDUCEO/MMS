@@ -206,11 +206,15 @@ class Workflow:
         """
         monitor = self._get_monitor(hosts, list(), log_dir, simulation)
 
-        production_period = self._get_effective_production_period()
-        date = production_period.get_start_date()
-        while date < production_period.get_end_date():
-            chunk = self._get_next_period(date)
-            print(str(chunk.get_start_date()) + '  ' + str(chunk.get_end_date()))
-            date = chunk.get_end_date()
+        sensors = self._get_primary_sensors()
+        for sensor in sensors:
+            sensor_period = sensor.get_period()
+            date = sensor_period.get_start_date()
+            while date < sensor_period.get_end_date():
+                chunk = self._get_next_period(date)
+                job_name = 'ingest-' + sensor.get_name() + '-' + str(date.year) + '-' + str(date.month) + '-' + str(date.day)
+                print(job_name)
+                # Job()
+                date = chunk.get_end_date()
 
         monitor.wait_for_completion_and_terminate()
