@@ -37,7 +37,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,7 +49,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_02 {
@@ -125,7 +132,19 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertTrue(mmdFile.isFile());
-        // @todo 1 tb/** open MMD file and check content
+
+        final NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath());
+        try {
+            assertScalarVariable("avhrr-n17_x", 0, 0.f, mmd);
+            assertScalarVariable("avhrr-n17_y", 1, 13000.f, mmd);
+            assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
+            assertScalarVariable("avhrr-n18_x", 3, 225.f, mmd);
+            assertScalarVariable("avhrr-n18_y", 4, 2283.f, mmd);
+            assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
+            // @todo 2 tb/** add more assertions here
+        } finally {
+            mmd.close();
+        }
     }
 
     @Test
@@ -193,5 +212,20 @@ public class MatchupToolIntegrationTest_useCase_02 {
         useCaseConfig.setDimensions(dimensions);
 
         return useCaseConfig;
+    }
+
+    private void assertScalarVariable(String variableName, int index, float expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
+        final Variable variable = mmd.findVariable(variableName);
+        assertNotNull(variable);
+        final Array data = variable.read(new int[]{index}, new int[]{1});
+        assertEquals(expected, data.getFloat(0), 1e-8);
+    }
+
+    private void assertStringVariable(String variableName, int index, String expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
+        final Variable variable = mmd.findVariable(variableName);
+        assertNotNull(variable);
+        final Array data = variable.read(new int[]{index, 0}, new int[]{1, 128});
+        final char[] valueAsArray = (char[]) data.get1DJavaArray(char.class);
+        assertEquals(expected, new String(valueAsArray).trim());
     }
 }

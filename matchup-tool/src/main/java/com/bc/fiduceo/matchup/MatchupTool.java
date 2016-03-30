@@ -261,8 +261,6 @@ class MatchupTool {
         //
         // - detect all pixels (x/y) in primary observation that are contained in intersecting area
         // -- for each pixel:
-        // --- perform check on pixel spatial delta -> remove pixels that are further away
-        // --- perform check for observation angles (optional) -> remove pixels where constraint is not fulfilled
         // --- perform cloud processing (optional) -> remove pixels or add flags
         //
 
