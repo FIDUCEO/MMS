@@ -148,8 +148,3 @@ class PeriodTests(unittest.TestCase):
     def test_period_from_isoformat(self):
         # @todo 1 tb/tb find out how we can access this method from a test 2016-03-22
         period_1 = Period((1980, 1, 1), (1980, 5, 31))
-
-    def test_period_hash(self):
-        period = Period((1980, 1, 1), (1980, 5, 31))
-
-        self.assertEquals(-42667530194L, period.__hash__())
