@@ -24,8 +24,13 @@ class WorkflowTest(unittest.TestCase):
         w = Workflow('test', 1)
         self.assertEqual('test', w.get_usecase())
 
+    def test_get_config_dir(self):
+        w = Workflow('test', 1, '/some/where/config')
+        self.assertEqual('/some/where/config', w._get_config_dir())
+
+
     def test_get_production_period(self):
-        w = Workflow('test', 2, Period((2001, 3, 24), (2001, 4, 12)))
+        w = Workflow('test', 2, 'config/dir', Period((2001, 3, 24), (2001, 4, 12)))
         self.assertEqual(Period((2001, 3, 24), (2001, 4, 12)), w.get_production_period())
 
     def test_get_samples_per_time_slot_default(self):
@@ -122,7 +127,7 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(Period((1988, 11, 8), (1994, 12, 31)), period)
 
     def test_get_effective_production_period_one_sensor_with_workflow_period(self):
-        w = Workflow('test', 2, Period((1994, 1, 1), (1994, 12, 31)))
+        w = Workflow('test', 2, 'config', Period((1994, 1, 1), (1994, 12, 31)))
         w.add_primary_sensor('avhrr.n11', (1988, 11, 8), (1994, 12, 31))
 
         period = w._get_effective_production_period()
@@ -136,6 +141,29 @@ class WorkflowTest(unittest.TestCase):
 
         period = w._get_effective_production_period()
         self.assertEqual(Period((1988, 11, 8), (1991, 9, 16)), period)
+
+    def test_get_inp_preconditions_for_one_sensor(self):
+        w = Workflow('test', 8)
+        w.add_primary_sensor('avhrr.n10', (1986, 11, 17), (1991, 9, 16))
+
+        preconditions = list()
+        preconditions = w._add_inp_preconditions(preconditions)
+        self.assertEqual(232, len(preconditions))
+        self.assertEqual('ingest-avhrr.n10-1986-322-1986-329', preconditions[0])
+        self.assertEqual('ingest-avhrr.n10-1989-048-1989-055', preconditions[108])
+        self.assertEqual('ingest-avhrr.n10-1991-252-1991-259', preconditions[231])
+
+    def test_get_inp_preconditions_for_two_sensors(self):
+        w = Workflow('test', 14)
+        w.add_primary_sensor('avhrr.n11', (1988, 12, 18), (1990, 8, 15))
+        w.add_primary_sensor('avhrr.n12', (1985, 10, 16), (1988, 6, 23))
+
+        preconditions = list()
+        preconditions = w._add_inp_preconditions(preconditions)
+        self.assertEqual(59, len(preconditions))
+        self.assertEqual('ingest-avhrr.n12-1985-290-1985-303', preconditions[0])
+        self.assertEqual('ingest-avhrr.n11-1989-272-1989-273', preconditions[27])
+        self.assertEqual('ingest-avhrr.n11-1990-227-1990-240', preconditions[58])
 
     def test_next_year_start(self):
         w = Workflow('test', 2)
@@ -178,6 +206,15 @@ class WorkflowTest(unittest.TestCase):
         next_period = w._get_next_period(date)
         self.assertEqual(Period((2002, 11, 16), (2002, 11, 20)), next_period)
 
+    def test_get_year_day_of_year(self):
+        w = Workflow('test', 7)
+
+        date = datetime.date(1989, 12, 9)
+        self.assertEqual('1989-343', w._get_year_day_of_year(date))
+
+        date = datetime.date(1989, 2, 7)
+        self.assertEqual('1989-038', w._get_year_day_of_year(date))
+
     def test_get_monitor(self):
         w = Workflow('test', 10)
 
@@ -185,7 +222,13 @@ class WorkflowTest(unittest.TestCase):
         self.assertNotEqual(monitor, None)
 
     def test_ingest_avhrr(self):
-        w = Workflow('test', 11)
+        w = Workflow('test', 11, 'config/dir')
         w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
 
         w.run_ingestion(list([('localhost', 5)]), self.logdir, True)
+
+        with open('test.status', 'r') as status:
+            self.assertEqual('37 created, 0 running, 0 backlog, 37 processed, 0 failed\n', status.readline())
+
+        with open('test.report', 'r') as report:
+            self.assertEqual(37, len(report.readlines()))

@@ -26,7 +26,7 @@ class Period:
             self.end_date = b
             """:type : datetime.date"""
         else:
-            raise exceptions.ValueError, "The start date must be less than the end date."
+            raise exceptions.ValueError, "The start date must be less than the end date." + a.isoformat() + ' - ' + b.isoformat()
 
     def get_start_date(self):
         """
