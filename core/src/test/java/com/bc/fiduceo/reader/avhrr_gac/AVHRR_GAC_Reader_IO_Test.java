@@ -35,17 +35,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
 import ucar.ma2.Index;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_IO_Test {
 
@@ -186,7 +184,6 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(referenceTime + 507000, timeLocator.getTimeFor(169, 1014));
             assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(170, 2015));
             assertEquals(referenceTime + 6834501, timeLocator.getTimeFor(171, 13669));
-
         } finally {
             reader.close();
         }
@@ -207,324 +204,234 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(303, 2015));
             assertEquals(referenceTime + 2007999, timeLocator.getTimeFor(304, 4016));
             assertEquals(referenceTime + 6118997, timeLocator.getTimeFor(171, 12238));
-
         } finally {
             reader.close();
         }
     }
 
     @Test
-    public void testWindowCenter() throws Exception {
+    public void testReadRaw_windowCenter() throws Exception {
         final File file = createAvhrrNOAA18Path();
         reader.open(file);
         try {
-            Array array = reader.readRaw(4, 4, new Interval(3, 3), "lon");
+            final Array array = reader.readRaw(4, 4, new Interval(3, 3), "lon");
             assertNotNull(array);
             assertEquals(9, array.getSize());
 
-            assertEqualDoubleValueFromArray(-152.41099548339844, 0, 0,array);
-            assertEqualDoubleValueFromArray(-151.1510009765625, 0, 1, array);
-            assertEqualDoubleValueFromArray(-149.8489990234375, 0, 2, array);
-
+            assertEqualDoubleValueFromArray(-152.41099548339844, 0, 0, array);
+            assertEqualDoubleValueFromArray(-151.1510009765625, 1, 0, array);
+            assertEqualDoubleValueFromArray(-149.8489990234375, 2, 0, array);
+            assertEqualDoubleValueFromArray(-152.1490020751953, 0, 1, array);
             assertEqualDoubleValueFromArray(-150.88499450683594, 1, 1, array);
-            assertEqualDoubleValueFromArray(-149.57899475097656, 1, 2, array);
-            assertEqualDoubleValueFromArray(-149.57899475097656, 1, 2, array);
-            assertEqualDoubleValueFromArray(-151.88999938964844, 2, 0, array);
-            assertEqualDoubleValueFromArray(-150.62100219726562, 2, 1, array);
+            assertEqualDoubleValueFromArray(-149.57899475097656, 2, 1, array);
+            assertEqualDoubleValueFromArray(-151.88999938964844, 0, 2, array);
+            assertEqualDoubleValueFromArray(-150.62100219726562, 1, 2, array);
             assertEqualDoubleValueFromArray(-149.31100463867188, 2, 2, array);
         } finally {
             reader.close();
         }
     }
 
-
-    private void assertEqualDoubleValueFromArray(double value, int i, int j, Array array) {
-        Index index = array.getIndex();
-        index.set(i, j);
-        assertEquals(value, array.getDouble(index), 1e-8);
-    }
-
     @Test
-    public void testBottomWindowOut() throws Exception {
+    public void testReadRaw_bottomWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
         try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-            Array array = reader.readRaw(5, 12235, new Interval(3, 13), "lon");
+            final Array array = reader.readRaw(5, 12235, new Interval(3, 13), "lat");
             assertNotNull(array);
             assertEquals(39, array.getSize());
 
-            assertEqualDoubleValueFromArray(174.82699584960938, 0, 0, array);
-            assertEqualDoubleValueFromArray(175.9340057373047, 0, 1, array);
-            assertEqualDoubleValueFromArray(177.09300231933594, 0, 2, array);
-            assertEqualDoubleValueFromArray(177.09300231933594, 0, 2, array);
-            assertEqualDoubleValueFromArray(-32768.0, 12, 1, array);
+            assertEqualDoubleValueFromArray(85.36900329589844, 0, 0, array);
+            assertEqualDoubleValueFromArray(85.53700256347656, 1, 0, array);
+            assertEqualDoubleValueFromArray(85.697998046875, 2, 0, array);
+            assertEqualDoubleValueFromArray(85.50499725341797, 1, 8, array);
+            assertEqualDoubleValueFromArray(85.48999786376953, 1, 9, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 10, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 11, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 12, array);
         } finally {
             reader.close();
         }
     }
 
     @Test
-    public void testTopWindowOut() throws Exception {
+    public void testReadRaw_topWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
 
         try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-            Array array = reader.readRaw(2, 1, new Interval(3, 5), "lon");
+            final Array array = reader.readRaw(2, 1, new Interval(3, 5), "relative_azimuth_angle");
             assertNotNull(array);
             assertEquals(15, array.getSize());
 
             assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
-
-            assertEqualDoubleValueFromArray(-155.5709991455078, 1, 0, array);
-            assertEqualDoubleValueFromArray(-154.40899658203125, 1, 1, array);
-            assertEqualDoubleValueFromArray(-153.20599365234375, 1, 2, array);
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
-    public void testLeftWindowOut() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(2, 10, new Interval(9, 9), "lon");
-            assertNotNull(array);
-            assertEquals(81, array.getSize());
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
-
-            assertEqualDoubleValueFromArray(-155.2050018310547, 0, 2, array);
-            assertEqualDoubleValueFromArray(-154.05299377441406, 0, 3, array);
-            assertEqualDoubleValueFromArray(-152.86199951171875, 0, 4, array);
-            assertEqualDoubleValueFromArray(-151.63099670410156, 0, 5, array);
-            assertEqualDoubleValueFromArray(-150.35899353027344, 0, 6, array);
-            assertEqualDoubleValueFromArray(-149.0449981689453, 0, 7, array);
-            assertEqualDoubleValueFromArray(-147.68899536132812, 0, 8, array);
-
             assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
             assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
+
+            assertEqualDoubleValueFromArray(6683.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(6682.0, 1, 1, array);
+            assertEqualDoubleValueFromArray(6682.0, 2, 1, array);
         } finally {
             reader.close();
-
         }
     }
 
     @Test
-    public void testRightWindowOut() throws Exception {
+    public void testReadRaw_leftWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
         try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(407, 10, new Interval(9, 9), "lon");
-            assertNotNull(array);
-            assertEquals(81, array.getSize());
-            assertEqualDoubleValueFromArray(-14.597991943359375, 0, 0, array);
-            assertEqualDoubleValueFromArray(-14.52899169921875, 0, 1, array);
-            assertEqualDoubleValueFromArray(-14.386993408203125, 0, 3, array);
-            assertEqualDoubleValueFromArray(-14.31500244140625, 0, 4, array);
-            assertEqualDoubleValueFromArray(-14.24200439453125, 0, 5, array);
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
-        } finally {
-
-            reader.close();
-        }
-    }
-
-
-    @Test
-    public void testTopLeftWindowOut() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(2, 3, new Interval(9, 9), "lon");
+            final Array array = reader.readRaw(2, 117, new Interval(9, 9), "ch1");
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
             assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 3, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 4, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 5, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 6, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(14.0, 2, 0, array);
+            assertEqualDoubleValueFromArray(14.0, 3, 0, array);
+            assertEqualDoubleValueFromArray(19.0, 4, 0, array);
+
             assertEqualDoubleValueFromArray(-32768.0, 0, 7, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
+            assertEqualDoubleValueFromArray(-32768.0, 1, 7, array);
+            assertEqualDoubleValueFromArray(14.0, 2, 7, array);
+            assertEqualDoubleValueFromArray(14.0, 3, 7, array);
+            assertEqualDoubleValueFromArray(19.0, 4, 7, array);
+        } finally {
+            reader.close();
+        }
+    }
 
-            assertEqualDoubleValueFromArray(-155.5709991455078, 1, 3, array);
-            assertEqualDoubleValueFromArray(-154.40899658203125, 1, 4, array);
-            assertEqualDoubleValueFromArray(-153.20599365234375, 1, 5, array);
+    @Test
+    public void testReadRaw_rightWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
 
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
+        try {
+            final Array array = reader.readRaw(407, 240, new Interval(9, 9), "ch2");
+            assertNotNull(array);
+            assertEquals(81, array.getSize());
+
+            assertEqualDoubleValueFromArray(435, 4, 0, array);
+            assertEqualDoubleValueFromArray(369, 5, 0, array);
+            assertEqualDoubleValueFromArray(-32768, 6, 0, array);
+            assertEqualDoubleValueFromArray(-32768, 7, 0, array);
+            assertEqualDoubleValueFromArray(-32768, 8, 0, array);
+
+            assertEqualDoubleValueFromArray(405, 4, 7, array);
+            assertEqualDoubleValueFromArray(393, 5, 7, array);
+            assertEqualDoubleValueFromArray(-32768, 6, 7, array);
+            assertEqualDoubleValueFromArray(-32768, 7, 7, array);
+            assertEqualDoubleValueFromArray(-32768, 8, 7, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topLeftWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            final Array array = reader.readRaw(2, 3, new Interval(9, 9), "cloud_mask");
+            assertNotNull(array);
+            assertEquals(81, array.getSize());
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-128.0, 4, 0, array);
+            assertEqualDoubleValueFromArray(-128.0, 8, 0, array);
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(-128.0, 1, 1, array);
+            assertEqualDoubleValueFromArray(7.0, 2, 1, array);
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 2, array);
+            assertEqualDoubleValueFromArray(-128.0, 1, 2, array);
+            assertEqualDoubleValueFromArray(7.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomRightWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            Array array = reader.readRaw(405, 12235, new Interval(9, 9), "dtime");
+            assertNotNull(array);
+
+            assertEqualDoubleValueFromArray(6118.99658203125, 5, 7, array);
+            assertEqualDoubleValueFromArray(6118.99658203125, 6, 7, array);
+            assertEqualDoubleValueFromArray(6118.99658203125, 7, 7, array);
+            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 8, 7, array);
+
+            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 5, 8, array);
+            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 6, 8, array);
+            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 7, 8, array);
+            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomLeftWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            Array array = reader.readRaw(2, 12235, new Interval(9, 9), "qual_flags");
+            assertNotNull(array);
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(-128.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(17.0, 2, 0, array);
+            assertEqualDoubleValueFromArray(17.0, 3, 0, array);
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 7, array);
+            assertEqualDoubleValueFromArray(-128.0, 1, 7, array);
+            assertEqualDoubleValueFromArray(18.0, 2, 7, array);
+            assertEqualDoubleValueFromArray(18.0, 3, 7, array);
+
+            assertEqualDoubleValueFromArray(-128.0, 0, 8, array);
+            assertEqualDoubleValueFromArray(-128.0, 1, 8, array);
+            assertEqualDoubleValueFromArray(-128.0, 2, 8, array);
+            assertEqualDoubleValueFromArray(-128.0, 3, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topRightWindowOut() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            Array array = reader.readRaw(407, 3, new Interval(9, 9), "relative_azimuth_angle");
+            assertNotNull(array);
+
             assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
             assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
             assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
             assertEqualDoubleValueFromArray(-32768.0, 7, 0, array);
             assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 1, array);
+
+            assertEqualDoubleValueFromArray(-11094.0, 4, 1, array);
+            assertEqualDoubleValueFromArray(-11089.0, 5, 1, array);
             assertEqualDoubleValueFromArray(-32768.0, 6, 1, array);
             assertEqualDoubleValueFromArray(-32768.0, 7, 1, array);
             assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
-        } finally {
 
-            reader.close();
-        }
-    }
-
-
-    @Test
-    public void testBottomRightWindowOut() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(405, 12235, new Interval(9, 9), "lon");
-            assertNotNull(array);
-            assertEquals(81, array.getSize());
-
-
-            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 2, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 3, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 4, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 5, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 6, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 7, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
-
-            assertEqualDoubleValueFromArray(-37.912994384765625, 1, 3, array);
-            assertEqualDoubleValueFromArray(-37.860992431640625, 1, 4, array);
-            assertEqualDoubleValueFromArray(-37.808013916015625, 1, 5, array);
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
+            assertEqualDoubleValueFromArray(-11101.0, 4, 8, array);
+            assertEqualDoubleValueFromArray(-11098.0, 5, 8, array);
             assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
             assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
             assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
-    public void testBottomLeftWindowOut() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(2, 12235, new Interval(9, 9), "lon");
-            assertNotNull(array);
-            assertEquals(81, array.getSize());
-
-
-            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 2, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 3, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 4, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 5, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 6, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 7, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
-
-            assertEqualDoubleValueFromArray(172.6439971923828, 1, 3, array);
-            assertEqualDoubleValueFromArray(173.63999938964844, 1, 4, array);
-            assertEqualDoubleValueFromArray(174.6790008544922, 1, 5, array);
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
-    public void testTopRightWindowInOut() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(407, 3, new Interval(9, 9), "lat");
-            assertNotNull(array);
-            assertEquals(81, array.getSize());
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 2, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 3, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 4, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 5, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 6, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 7, array);
-            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
-
-            assertEqualDoubleValueFromArray(68.71700286865234, 1, 0, array);
-            assertEqualDoubleValueFromArray(68.54100036621094, 1, 1, array);
-            assertEqualDoubleValueFromArray(68.1729965209961, 1, 3, array);
-            assertEqualDoubleValueFromArray(67.98200225830078, 1, 4, array);
-            assertEqualDoubleValueFromArray(67.78500366210938, 1, 5, array);
-
-            assertEqualDoubleValueFromArray(-32768.0, 0, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 3, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 4, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
-    public void testWindowInside() throws Exception {
-        try {
-            File avhrrNOAA18Path = createAvhrrNOAA18Path();
-            reader.open(avhrrNOAA18Path);
-
-            ArrayFloat.D2 array = (ArrayFloat.D2) reader.readRaw(109, 100, new Interval(5, 7), "lon");
-            assertEquals(35, array.getSize());
-            assertEquals("-56.211 -55.936005 -55.664 -55.397003 -55.132996 -56.360992 -56.086 -55.813995 -55.546997 -55.28299 -56.509003 -56.23401 -55.963013 -55.696014 -55.432007 -56.657013 -56.38199 -56.110992 -55.843994 -55.580994 -56.803986 -56.52899 -56.259003 -55.992004 -55.727997 -56.950012 -56.675995 -56.405 -56.138 -55.875 -57.095 -56.821014 -56.550995 -56.283997 -56.020996 ", array.toString());
         } finally {
             reader.close();
         }
@@ -542,5 +449,11 @@ public class AVHRR_GAC_Reader_IO_Test {
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
+    }
+
+    private void assertEqualDoubleValueFromArray(double expected, int x, int y, Array array) {
+        final Index index = array.getIndex();
+        index.set(y, x);
+        assertEquals(expected, array.getDouble(index), 1e-8);
     }
 }

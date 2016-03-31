@@ -32,7 +32,7 @@ import java.util.List;
 
 public class DistanceScreening implements Screening {
 
-    private final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS / 1000d;
+    private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS / 1000d;
     private final double maxDeltaInKm;
 
     public DistanceScreening(double maxDeltaInKm) {
