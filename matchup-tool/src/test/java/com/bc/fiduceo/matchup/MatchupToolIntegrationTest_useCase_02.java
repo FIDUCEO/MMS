@@ -55,6 +55,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_02 {
 
@@ -135,11 +136,11 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath());
         try {
-            assertScalarVariable("avhrr-n17_x", 0, 0.f, mmd);
-            assertScalarVariable("avhrr-n17_y", 1, 13000.f, mmd);
+            assertScalarVariable("avhrr-n17_x", 0, 52.f, mmd);
+            assertScalarVariable("avhrr-n17_y", 1, 13025.f, mmd);
             assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
-            assertScalarVariable("avhrr-n18_x", 3, 225.f, mmd);
-            assertScalarVariable("avhrr-n18_y", 4, 2283.f, mmd);
+            assertScalarVariable("avhrr-n18_x", 3, 79.f, mmd);
+            assertScalarVariable("avhrr-n18_y", 4, 2306.f, mmd);
             assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
             // @todo 2 tb/** add more assertions here
         } finally {

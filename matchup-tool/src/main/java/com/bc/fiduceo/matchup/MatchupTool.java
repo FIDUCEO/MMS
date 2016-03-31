@@ -53,6 +53,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.collections.ArrayStack;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
@@ -66,6 +67,7 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -81,138 +83,10 @@ class MatchupTool {
         readerFactory = ReaderFactory.get();
     }
 
-    public void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
-    }
-
-    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
-        final PixelLocator pixelLocator;
-        if (isSegmented) {
-            pixelLocator = reader.getSubScenePixelLocator(polygon);
-        } else {
-            pixelLocator = reader.getPixelLocator();
-        }
-        return pixelLocator;
-    }
-
-    static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        parameter.setSensorName(secondarySensor.getName());
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        parameter.setGeometry(geoBounds);
-        return parameter;
-    }
-
-    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        if (sets.size() > 0) {
-            return sets.get(0);
-        }
-        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
-    }
-
-    // package access for testing only tb 2016-03-14
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
-        }
-
-        return additionalSensors.get(0);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(ToolContext context) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        if (primarySensor == null) {
-            throw new RuntimeException("primary sensor not present in configuration file");
-        }
-        parameter.setSensorName(primarySensor.getName());
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-02-18
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
-        options.addOption(startOption);
-
-        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
-        options.addOption(endOption);
-
-        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
-        options.addOption(useCaseOption);
-
-        return options;
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getEndDate(CommandLine commandLine) {
-        final String endDateString = commandLine.getOptionValue("end");
-        if (StringUtils.isNullOrEmpty(endDateString)) {
-            throw new RuntimeException("cmd-line parameter `end` missing");
-        }
-        return TimeUtils.parseDOYEndOfDay(endDateString);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getStartDate(CommandLine commandLine) {
-        final String startDateString = commandLine.getOptionValue("start");
-        if (StringUtils.isNullOrEmpty(startDateString)) {
-            throw new RuntimeException("cmd-line parameter `start` missing");
-        }
-        return TimeUtils.parseDOYBeginOfDay(startDateString);
-    }
-
-    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        extractPrototypes(variablesConfiguration, matchupCollection, context);
-        return variablesConfiguration;
-    }
-
-    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
     }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -264,6 +138,9 @@ class MatchupTool {
         // --- perform cloud processing (optional) -> remove pixels or add flags
         //
 
+        // ------------------------------------------------------------------------------------------------------------
+        // Screening operations without file access
+        // ------------------------------------------------------------------------------------------------------------
         System.out.println("rawCount = " + matchupCollection.getNumMatchups());
 
         Screening screening = createTimeScreening(context);
@@ -275,6 +152,60 @@ class MatchupTool {
         matchupCollection = screening.screen(matchupCollection);
 
         System.out.println("after DistanceScreening = " + matchupCollection.getNumMatchups());
+        // ------------------------------------------------------------------------------------------------------------
+        // Screening operations without file access
+        // ------------------------------------------------------------------------------------------------------------
+
+
+
+        // ------------------------------------------------------------------------------------------------------------
+        // Screening operations with file access
+        // ------------------------------------------------------------------------------------------------------------
+
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final String primarySensorName = useCaseConfig.getPrimarySensor().getName();
+        String secondarySensorName = getSecondarySensor(useCaseConfig).getName();
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        for (final MatchupSet set : sets) {
+            final Path primaryFilePath = set.getPrimaryObservationPath();
+            final Path secondaryFilePath = set.getSecondaryObservationPath();
+
+            try (Reader primaryReader = readerFactory.getReader(primarySensorName);
+                 Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
+                primaryReader.open(primaryFilePath.toFile());
+                secondaryReader.open(secondaryFilePath.toFile());
+
+                // the algorithm -> extract to class tb 2016-03-31
+                final List<SampleSet> resultSet = new ArrayList<>();
+                final List<SampleSet> sampleSets = set.getSampleSets();
+                final Interval singlePixel = new Interval(1, 1);
+                for (final SampleSet sampleSet : sampleSets) {
+                    final Sample primaryPixel = sampleSet.getPrimary();
+                    final Array szaPrimary = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, "satellite_zenith_angle");
+
+                    final Sample secondaryPixel = sampleSet.getSecondary();
+                    final Array szaSecondary = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, "satellite_zenith_angle");
+                    final double szaDelta = Math.abs(szaPrimary.getDouble(0) - szaSecondary.getDouble(0));
+                    if (szaDelta <= 10.0) {
+                        resultSet.add(sampleSet);
+                    }
+                }
+
+                set.setSampleSets(resultSet);
+
+            } catch (IOException e) {
+                // todo 1 tb/tb add logging 2016-03-31
+            }
+            // open primary observation file
+            // open secondary observation file
+            // iterate over sampleSets
+        }
+
+        // ------------------------------------------------------------------------------------------------------------
+        // Screening operations with file access
+        // ------------------------------------------------------------------------------------------------------------
+
+        System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
         writeMMD(matchupCollection, context);
     }
@@ -475,5 +406,133 @@ class MatchupTool {
         }
 
         return useCaseConfig;
+    }
+
+    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+        final PixelLocator pixelLocator;
+        if (isSegmented) {
+            pixelLocator = reader.getSubScenePixelLocator(polygon);
+        } else {
+            pixelLocator = reader.getPixelLocator();
+        }
+        return pixelLocator;
+    }
+
+    static boolean isSegmented(Geometry primaryGeoBounds) {
+        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        parameter.setSensorName(secondarySensor.getName());
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        parameter.setGeometry(geoBounds);
+        return parameter;
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
+        }
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
+    }
+
+    // package access for testing only tb 2016-03-14
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() != 1) {
+            throw new RuntimeException("Unable to run matchup with given sensor number");
+        }
+
+        return additionalSensors.get(0);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static QueryParameter getPrimarySensorParameter(ToolContext context) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
+        parameter.setSensorName(primarySensor.getName());
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-02-18
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        options.addOption(endOption);
+
+        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
+        options.addOption(useCaseOption);
+
+        return options;
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getEndDate(CommandLine commandLine) {
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
+        return TimeUtils.parseDOYEndOfDay(endDateString);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getStartDate(CommandLine commandLine) {
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+        return TimeUtils.parseDOYBeginOfDay(startDateString);
+    }
+
+    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        extractPrototypes(variablesConfiguration, matchupCollection, context);
+        return variablesConfiguration;
+    }
+
+    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
     }
 }

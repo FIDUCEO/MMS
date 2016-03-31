@@ -433,6 +433,22 @@ public class AVHRR_GAC_Reader_IO_Test {
     }
 
     @Test
+    public void testReadScaled_onlyScaling_onePixel() throws IOException, InvalidRangeException {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            final Array array = reader.readScaled(80, 4601, new Interval(1, 1), "satellite_zenith_angle");
+            assertNotNull(array);
+            assertEquals(1, array.getSize());
+
+            assertEquals(39.19999912381172, array.getDouble(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
         final File avhrrNOAA18Path = createAvhrrNOAA18Path();
         reader.open(avhrrNOAA18Path);
