@@ -22,23 +22,12 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
@@ -68,6 +57,95 @@ public class AVHRR_GAC_Reader implements Reader {
     private ArrayCache arrayCache;
     private SwathPixelLocator pixelLocator;
     private long startTimeMilliSecondsSince1970;
+
+    // package access for testing only tb 2016-03-02
+    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
+        if (timeAttribute == null) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
+        }
+        final String startTimeString = timeAttribute.getStringValue();
+        if (StringUtils.isNullOrEmpty(startTimeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
+        }
+        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
+
+    // package access for testing only se 2016-03-11
+    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
+        final Point centroid = subSceneGeometry.getCentroid();
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
+
+        final int sh2 = subsetHeight / 2;
+
+        final double centerX = width / 2 + 0.5;
+
+        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
+        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
+        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
+        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
+        final double d1 = cd1.distance(cLon, cLat);
+        final double d2 = cd2.distance(cLon, cLat);
+
+        final int minY;
+        final int maxY;
+        if (d1 < d2) {
+            minY = 0;
+            maxY = subsetHeight - 1;
+        } else {
+            minY = subsetHeight - 1;
+            maxY = height - 1;
+        }
+        return new ClippingPixelLocator(pixelLocator, minY, maxY);
+    }
+
+    static Number extractFillValue(Variable variable) {
+        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
+        if (fillAttrib != null) {
+            return fillAttrib.getNumericValue();
+        }
+        return getDefaultFillValue(variable);
+    }
+
+    static Number getDefaultFillValue(Variable variable) {
+        final Class type = variable.getDataType().getPrimitiveClassType();
+        if (double.class == type) {
+            return Double.MIN_VALUE;
+        } else if (float.class == type) {
+            return Float.MIN_VALUE;
+        } else if (long.class == type) {
+            return Long.MIN_VALUE;
+        } else if (int.class == type) {
+            return Integer.MIN_VALUE;
+        } else if (short.class == type) {
+            return Short.MIN_VALUE;
+        } else if (byte.class == type) {
+            return Byte.MIN_VALUE;
+        } else {
+            throw new RuntimeException("not implemented for type " + type.getTypeName());
+        }
+    }
+
+    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
+        final int[] shape = rawData.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
+        // @todo 1 se/** take care about no (data value) fill value
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                final float v = rawData.get(i, j);
+                final float milliSeconds = v * 1000;
+                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
+                times.set(i, j, secondsSince1970);
+            }
+        }
+        return times;
+    }
+
+    private static Attribute getAttribute(Variable variable, String attributeName) {
+        return variable.findAttribute(attributeName);
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -170,6 +248,11 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
+    }
+
+    @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         final ArrayFloat.D2 raw = (ArrayFloat.D2) readRaw(x, y, interval, "dtime");
         return convertToAquisitionTime(raw, startTimeMilliSecondsSince1970);
@@ -185,105 +268,6 @@ public class AVHRR_GAC_Reader implements Reader {
         return variables;
     }
 
-    // package access for testing only tb 2016-03-02
-    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
-        if (timeAttribute == null) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
-        }
-        final String startTimeString = timeAttribute.getStringValue();
-        if (StringUtils.isNullOrEmpty(startTimeString)) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
-        }
-        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
-
-    // package access for testing only tb 2016-03-03
-    static void checkForValidity(GeometryCollection boundingGeometry) {
-        final Geometry[] geometries = boundingGeometry.getGeometries();
-        for (final Geometry geometry : geometries) {
-            if (!geometry.isValid()) {
-                throw new RuntimeException("Invalid geometry detected");
-            }
-        }
-    }
-
-    // package access for testing only se 2016-03-11
-    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
-        final Point centroid = subSceneGeometry.getCentroid();
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
-
-        final int sh2 = subsetHeight / 2;
-
-        final double centerX = width / 2 + 0.5;
-
-        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
-        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
-        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
-        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double d1 = cd1.distance(cLon, cLat);
-        final double d2 = cd2.distance(cLon, cLat);
-
-        final int minY;
-        final int maxY;
-        if (d1 < d2) {
-            minY = 0;
-            maxY = subsetHeight - 1;
-        } else {
-            minY = subsetHeight - 1;
-            maxY = height - 1;
-        }
-        return new ClippingPixelLocator(pixelLocator, minY, maxY);
-    }
-
-    static Number extractFillValue(Variable variable) {
-        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
-        if (fillAttrib != null) {
-            return fillAttrib.getNumericValue();
-        }
-        return getDefaultFillValue(variable);
-    }
-
-    static Number getDefaultFillValue(Variable variable) {
-        final Class type = variable.getDataType().getPrimitiveClassType();
-        if (double.class == type) {
-            return Double.MIN_VALUE;
-        } else if (float.class == type) {
-            return Float.MIN_VALUE;
-        } else if (long.class == type) {
-            return Long.MIN_VALUE;
-        } else if (int.class == type) {
-            return Integer.MIN_VALUE;
-        } else if (short.class == type) {
-            return Short.MIN_VALUE;
-        } else if (byte.class == type) {
-            return Byte.MIN_VALUE;
-        } else {
-            throw new RuntimeException("not implemented for type " + type.getTypeName());
-        }
-    }
-
-    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
-        final int[] shape = rawData.getShape();
-        final int height = shape[0];
-        final int width = shape[1];
-        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
-        // @todo 1 se/** take care about no (data value) fill value
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                final float v = rawData.get(i, j);
-                final float milliSeconds = v * 1000;
-                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
-                times.set(i, j, secondsSince1970);
-            }
-        }
-        return times;
-    }
-
-    private static Attribute getAttribute(Variable variable, String attributeName) {
-        return variable.findAttribute(attributeName);
-    }
-
     private Geometries calculateGeometries() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Geometries geometries = new Geometries();
@@ -294,9 +278,11 @@ public class AVHRR_GAC_Reader implements Reader {
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
+            if (!boundingGeometry.isValid()) {
+                throw new RuntimeException("Invalid bounding geometry detected");
+            }
             final int height = longitudes.getShape()[0];
             geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
-            checkForValidity((GeometryCollection) boundingGeometry);
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
         } else {
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);

@@ -3,16 +3,16 @@ package com.bc.fiduceo.geometry;
 import com.bc.fiduceo.geometry.s2.BcS2GeometryFactory;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BcGeometryCollectionTest {
     @Test
     public void testGetCoordinates() throws Exception {
         final GeometryCollection geometryCollection = getGeometryCollection();
 
-        Point[] coordinates = geometryCollection.getCoordinates();
+        final Point[] coordinates = geometryCollection.getCoordinates();
         assertNotNull(coordinates);
         assertEquals(10, coordinates.length);
         assertEquals("POINT(0.0 0.0)", coordinates[0].toString());
@@ -25,22 +25,46 @@ public class BcGeometryCollectionTest {
         assertEquals("POINT(5.0 0.9999999999999998)", coordinates[7].toString());
         assertEquals("POINT(3.0000000000000004 1.0)", coordinates[8].toString());
         assertEquals("POINT(3.0000000000000004 0.0)", coordinates[9].toString());
-
-        Point point = coordinates[2];
-        assertEquals(4.000000000000001, point.getLon(), 1e-8);
-        assertEquals(1.0, point.getLat(), 1e-8);
-
-
-        point = coordinates[7];
-        assertEquals(5.0, point.getLon(), 1e-8);
-        assertEquals(0.9999999999999998, point.getLat(), 1e-8);
     }
 
     @Test
     public void testGetInner() throws Exception {
-        GeometryCollection geometryCollection = getGeometryCollection();
-        Object inner = geometryCollection.getInner();
+        final GeometryCollection geometryCollection = getGeometryCollection();
+        final Object inner = geometryCollection.getInner();
         assertTrue(inner instanceof Geometry[]);
+    }
+
+    @Test
+    public void testIsValid_valid(){
+        final GeometryCollection geometryCollection = new BcGeometryCollection();
+        final Geometry[] geometries = new Geometry[2];
+        geometries[0] = mock(Geometry.class);
+        when(geometries[0].isValid()).thenReturn(true);
+        geometries[1] = mock(Geometry.class);
+        when(geometries[1].isValid()).thenReturn(true);
+        geometryCollection.setGeometries(geometries);
+
+        assertTrue(geometryCollection.isValid());
+    }
+
+    @Test
+    public void testIsValid_invalid(){
+        final GeometryCollection geometryCollection = new BcGeometryCollection();
+        final Geometry[] geometries = new Geometry[2];
+        geometries[0] = mock(Geometry.class);
+        when(geometries[0].isValid()).thenReturn(false);
+        geometries[1] = mock(Geometry.class);
+        when(geometries[1].isValid()).thenReturn(true);
+        geometryCollection.setGeometries(geometries);
+
+        assertFalse(geometryCollection.isValid());
+    }
+
+    @Test
+    public void testIsValid_valid_empty() {
+        final GeometryCollection geometryCollection = new BcGeometryCollection();
+
+        assertFalse(geometryCollection.isValid());
     }
 
     private GeometryCollection getGeometryCollection() {

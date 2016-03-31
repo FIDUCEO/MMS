@@ -64,7 +64,7 @@ public class AIRS_L1B_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private final Logger logger;
 
-    public AIRS_L1B_Reader() {
+    AIRS_L1B_Reader() {
         final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
         // @todo 1 tb/tb inject factory 2015-12-08
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
@@ -136,6 +136,11 @@ public class AIRS_L1B_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
+    }
+
+    @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
     }
 

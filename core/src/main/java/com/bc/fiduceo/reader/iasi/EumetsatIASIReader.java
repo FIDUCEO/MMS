@@ -74,7 +74,7 @@ public class EumetsatIASIReader implements Reader {
     private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
 
-    public EumetsatIASIReader() {
+    EumetsatIASIReader() {
         final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
         // @todo 1 tb/tb inject factory 2015-12-08
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
@@ -130,6 +130,11 @@ public class EumetsatIASIReader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("Not yet implemented");
+    }
+
+    @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         throw new RuntimeException("Not yet implemented");
     }
 

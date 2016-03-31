@@ -29,6 +29,10 @@ class BcGeometryCollection implements GeometryCollection {
 
     private Geometry[] geometries;
 
+    BcGeometryCollection() {
+        geometries = new Geometry[0];
+    }
+
     @Override
     public Geometry[] getGeometries() {
         return geometries;
@@ -51,7 +55,17 @@ class BcGeometryCollection implements GeometryCollection {
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        if (geometries.length == 0) {
+            return false;
+        }
+
+        for (Geometry geometry : geometries) {
+            if (!geometry.isValid()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

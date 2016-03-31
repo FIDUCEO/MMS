@@ -66,6 +66,24 @@ public interface Reader extends AutoCloseable {
     Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
 
     /**
+     * Reads data of a window defined by a center pixel position an a defined window size.
+     * Scaling factor and offset are applied, if present. If not, this method returns the same data as readRaw().
+     * According to this constraints the window dimensions must always be odd. If not
+     * an IllegalArgumentException will be thrown. In the case where parts of the window are out
+     * of the border, the outside array positions are filled with the fill value defined by the
+     * product.
+     *
+     * @param centerX the center x position.
+     * @param centerY the center y position.
+     * @param interval the window sizes.
+     * @param variableName the name of the data variable.
+     * @return a data Array containing the data of the defined window.
+     * @throws IOException
+     * @throws InvalidRangeException
+     */
+    Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
+
+    /**
      * Reads an {@link Array} of acquisition time values per pixel.
      * The unit value is seconds since 1970-01-01 00:00:00.
      * @param x the center x position of the window reading process.

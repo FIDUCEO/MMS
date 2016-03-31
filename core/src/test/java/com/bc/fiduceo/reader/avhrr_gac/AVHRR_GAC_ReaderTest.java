@@ -129,40 +129,6 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testCheckForValidity_valid() {
-        final Geometry geometry_1 = mock(Geometry.class);
-        when(geometry_1.isValid()).thenReturn(true);
-
-        final Geometry geometry_2 = mock(Geometry.class);
-        when(geometry_2.isValid()).thenReturn(true);
-
-        final GeometryCollection geometryCollection = createGeometryCollection(geometry_1, geometry_2);
-
-        try {
-            AVHRR_GAC_Reader.checkForValidity(geometryCollection);
-        } catch (Exception e) {
-            fail("No exception expected");
-        }
-    }
-
-    @Test
-    public void testCheckForValidity_invalid() {
-        final Geometry geometry_1 = mock(Geometry.class);
-        when(geometry_1.isValid()).thenReturn(true);
-
-        final Geometry geometry_2 = mock(Geometry.class);
-        when(geometry_2.isValid()).thenReturn(false);
-
-        final GeometryCollection geometryCollection = createGeometryCollection(geometry_1, geometry_2);
-
-        try {
-            AVHRR_GAC_Reader.checkForValidity(geometryCollection);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
     public void testGetSubScenePixelLocator_firstScene() throws Exception {
         final Polygon polygon = mock(Polygon.class);
         when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(26, 40));
