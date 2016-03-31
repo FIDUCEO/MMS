@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.IOException;
@@ -384,7 +385,7 @@ public class AVHRR_GAC_Reader_IO_Test {
         reader.open(avhrrNOAA18Path);
 
         try {
-            Array array = reader.readRaw(2, 12235, new Interval(9, 9), "qual_flags");
+            final Array array = reader.readRaw(2, 12235, new Interval(9, 9), "qual_flags");
             assertNotNull(array);
 
             assertEqualDoubleValueFromArray(-128.0, 0, 0, array);
@@ -401,6 +402,81 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEqualDoubleValueFromArray(-128.0, 1, 8, array);
             assertEqualDoubleValueFromArray(-128.0, 2, 8, array);
             assertEqualDoubleValueFromArray(-128.0, 3, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            final Array array = reader.readScaled(56, 3349, new Interval(3, 3), "cloud_probability");
+            assertNotNull(array);
+
+            assertEqualDoubleValueFromArray(0.9960619928315282, 0, 0, array);
+            assertEqualDoubleValueFromArray(0.736219996586442, 1, 0, array);
+            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 0, array);
+
+            assertEqualDoubleValueFromArray(0.9921249928884208, 0, 1, array);
+            assertEqualDoubleValueFromArray(0.23228400386869907, 1, 1, array);
+            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 1, array);
+
+            assertEqualDoubleValueFromArray(0.9527549934573472, 0, 2, array);
+            assertEqualDoubleValueFromArray(0.18504000455141068, 1, 2, array);
+            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            final Array array = reader.readScaled(115, 8081, new Interval(3, 3), "ch2");
+            assertNotNull(array);
+
+            assertEqualDoubleValueFromArray(0.014999999621068127, 0, 0, array);
+            assertEqualDoubleValueFromArray(0.010699999729695264, 1, 0, array);
+            assertEqualDoubleValueFromArray(0.008899999775167089, 2, 0, array);
+
+            assertEqualDoubleValueFromArray(0.01129999971453799, 0, 1, array);
+            assertEqualDoubleValueFromArray(0.008899999775167089, 1, 1, array);
+            assertEqualDoubleValueFromArray(0.008899999775167089, 2, 1, array);
+
+            assertEqualDoubleValueFromArray(0.017399999560439028, 0, 2, array);
+            assertEqualDoubleValueFromArray(0.008899999775167089, 1, 2, array);
+            assertEqualDoubleValueFromArray(0.010699999729695264, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        reader.open(avhrrNOAA18Path);
+
+        try {
+            final Array array = reader.readScaled(356, 12234, new Interval(3, 3), "qual_flags");
+            assertNotNull(array);
+
+            assertEqualDoubleValueFromArray(17.0, 0, 0, array);
+            assertEqualDoubleValueFromArray(17.0, 1, 0, array);
+            assertEqualDoubleValueFromArray(17.0, 2, 0, array);
+
+            assertEqualDoubleValueFromArray(17.0, 0, 1, array);
+            assertEqualDoubleValueFromArray(17.0, 1, 1, array);
+            assertEqualDoubleValueFromArray(17.0, 2, 1, array);
+
+            assertEqualDoubleValueFromArray(18.0, 0, 2, array);
+            assertEqualDoubleValueFromArray(18.0, 1, 2, array);
+            assertEqualDoubleValueFromArray(18.0, 2, 2, array);
         } finally {
             reader.close();
         }

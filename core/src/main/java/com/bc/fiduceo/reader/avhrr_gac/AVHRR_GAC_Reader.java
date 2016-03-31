@@ -31,11 +31,9 @@ import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -147,6 +145,17 @@ public class AVHRR_GAC_Reader implements Reader {
         return variable.findAttribute(attributeName);
     }
 
+    // package access for testing only tb 2016-03-31
+    static int getProductWidth(NetcdfFile netcdfFile) {
+        final List<Dimension> dimensions = netcdfFile.getDimensions();
+        for (final Dimension dimension : dimensions) {
+            if ("ni".equalsIgnoreCase(dimension.getFullName())) {
+                return dimension.getLength();
+            }
+        }
+        throw new RuntimeException("missing dimension 'ni'11");
+    }
+
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
@@ -196,7 +205,6 @@ public class AVHRR_GAC_Reader implements Reader {
             acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
         }
 
-
         return acquisitionInfo;
     }
 
@@ -242,14 +250,23 @@ public class AVHRR_GAC_Reader implements Reader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
-        // @todo 1 se/se fetch the product width from the product
-        final int defaultWidth = 409;
+
+        final int defaultWidth = getProductWidth(netcdfFile);
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, defaultWidth);
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("Not yet implemented");
+        final Array array = readRaw(centerX, centerY, interval, variableName);
+
+        final Variable variable = netcdfFile.findVariable(null, variableName);
+        double scaleFactor = getScaleFactor(variable);
+        double offset = getOffset(variable);
+        if (mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 
     @Override
@@ -318,34 +335,55 @@ public class AVHRR_GAC_Reader implements Reader {
         return extractFillValue(variable);
     }
 
+    // package access for testing only tb 2016-03-31
+    static double getScaleFactor(Variable variable) {
+        final Attribute scaleFactorAttribute = getAttribute(variable, "scale_factor");
+        if (scaleFactorAttribute == null){
+            return 1.0;
+        }
+        return scaleFactorAttribute.getNumericValue().doubleValue();
+    }
+
+    // package access for testing only tb 2016-03-31
+    static double getOffset(Variable variable) {
+        final Attribute offsetAttribute = getAttribute(variable, "add_offset");
+        if (offsetAttribute == null){
+            return 0.0;
+        }
+        return offsetAttribute.getNumericValue().doubleValue();
+    }
+
+    // package access for testing only tb 2016-03-31
+    static boolean mustScale(double scaleFactor, double offset) {
+        return scaleFactor != 1.0 || offset != 0.0;
+    }
+
     private class Geometries {
-
-
         private Geometry boundingGeometry;
         private Geometry timeAxesGeometry;
         private Integer subsetHeight;
 
-        public Geometry getBoundingGeometry() {
+        Geometry getBoundingGeometry() {
             return boundingGeometry;
         }
 
-        public void setBoundingGeometry(Geometry boundingGeometry) {
+        void setBoundingGeometry(Geometry boundingGeometry) {
             this.boundingGeometry = boundingGeometry;
         }
 
-        public Geometry getTimeAxesGeometry() {
+        Geometry getTimeAxesGeometry() {
             return timeAxesGeometry;
         }
 
-        public void setTimeAxesGeometry(Geometry timeAxesGeometry) {
+        void setTimeAxesGeometry(Geometry timeAxesGeometry) {
             this.timeAxesGeometry = timeAxesGeometry;
         }
 
-        public Integer getSubsetHeight() {
+        Integer getSubsetHeight() {
             return subsetHeight;
         }
 
-        public void setSubsetHeight(Integer subsetHeight) {
+        void setSubsetHeight(Integer subsetHeight) {
             this.subsetHeight = subsetHeight;
         }
     }

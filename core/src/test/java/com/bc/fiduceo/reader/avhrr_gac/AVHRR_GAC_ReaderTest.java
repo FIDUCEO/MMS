@@ -22,8 +22,6 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.ClippingPixelLocator;
@@ -35,27 +33,21 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ConstantConditions")
 public class AVHRR_GAC_ReaderTest {
 
     private AVHRR_GAC_Reader reader;
@@ -278,20 +270,20 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testConvertToAcqusitionTime_1970_01_01() throws Exception {
+    public void testConvertToAcquisitionTime_1970_01_01() throws Exception {
         final int startTimeMilliSecondsSince1970 = 0;
         final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
-                    new float[]{1.1f, 2.2f, 3.3f},
-                    new float[]{4.4f, 5.5f, 6.6f},
-                    });
+                new float[]{1.1f, 2.2f, 3.3f},
+                new float[]{4.4f, 5.5f, 6.6f},
+        });
         final int[] expectedSeconds = {1, 2, 3, 4, 6, 7};
 
         // test
-        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
+        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
 
         // verifiying
-        assertNotNull(aquisitionTime);
-        assertArrayEquals(expectedSeconds, (int[]) aquisitionTime.getStorage());
+        assertNotNull(acquisitionTime);
+        assertArrayEquals(expectedSeconds, (int[]) acquisitionTime.getStorage());
     }
 
     @Test
@@ -300,9 +292,9 @@ public class AVHRR_GAC_ReaderTest {
         final long startTimeMilliSecondsSince1970 = startUTC.getAsDate().getTime();
         final int v = (int) (startTimeMilliSecondsSince1970 * 0.001);
         final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
-                    new float[]{1.1f, 2.2f, 3.3f},
-                    new float[]{4.4f, 5.5f, 6.6f},
-                    });
+                new float[]{1.1f, 2.2f, 3.3f},
+                new float[]{4.4f, 5.5f, 6.6f},
+        });
         final int[] expectedSeconds = {1 + v, 2 + v, 3 + v, 4 + v, 6 + v, 7 + v};
 
         // test
@@ -314,8 +306,76 @@ public class AVHRR_GAC_ReaderTest {
         assertArrayEquals(expectedSeconds, (int[]) aquisitionTime.getStorage());
     }
 
-    GeometryCollection createGeometryCollection(Geometry geometry_1, Geometry geometry_2) {
-        final Geometry[] geometries = new Geometry[]{geometry_1, geometry_2};
-        return geometryFactory.createGeometryCollection(geometries);
+    @Test
+    public void testGetProductWidth() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        Dimension dimension = mock(Dimension.class);
+        when(dimension.getFullName()).thenReturn("ni");
+        when(dimension.getLength()).thenReturn(108);
+        ArrayList<Dimension> dimensionList = new ArrayList<>();
+        dimensionList.add(dimension);
+        when(netcdfFile.getDimensions()).thenReturn(dimensionList);
+
+        assertEquals(108, AVHRR_GAC_Reader.getProductWidth(netcdfFile));
+    }
+
+    @Test
+    public void testGetProductWidth_dimensionMissing() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension dimension = mock(Dimension.class);
+        when(dimension.getFullName()).thenReturn("theWrongOne");
+        when(dimension.getLength()).thenReturn(2008);
+        final ArrayList<Dimension> dimensionList = new ArrayList<>();
+        dimensionList.add(dimension);
+        when(netcdfFile.getDimensions()).thenReturn(dimensionList);
+
+        try {
+            AVHRR_GAC_Reader.getProductWidth(netcdfFile);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetScaleFactor() {
+        final Variable variable = mock(Variable.class);
+        final Attribute scaleFactorAttribute = mock(Attribute.class);
+        when(scaleFactorAttribute.getNumericValue()).thenReturn(1.675);
+        when(variable.findAttribute("scale_factor")).thenReturn(scaleFactorAttribute);
+
+        assertEquals(1.675, AVHRR_GAC_Reader.getScaleFactor(variable), 1e-8);
+    }
+
+    @Test
+    public void testGetScaleFactor_attributeNotPresent() {
+        final Variable variable = mock(Variable.class);
+
+        assertEquals(1.0, AVHRR_GAC_Reader.getScaleFactor(variable), 1e-8);
+    }
+
+    @Test
+    public void testGetOffset() {
+        final Variable variable = mock(Variable.class);
+        final Attribute offsetAttribute = mock(Attribute.class);
+        when(offsetAttribute.getNumericValue()).thenReturn(1.289);
+        when(variable.findAttribute("add_offset")).thenReturn(offsetAttribute);
+
+        assertEquals(1.289, AVHRR_GAC_Reader.getOffset(variable), 1e-8);
+    }
+
+    @Test
+    public void testGetOffset_attributeNotPresent() {
+        final Variable variable = mock(Variable.class);
+
+        assertEquals(0.0, AVHRR_GAC_Reader.getOffset(variable), 1e-8);
+    }
+
+    @Test
+    public void testMustScale() {
+        assertTrue(AVHRR_GAC_Reader.mustScale(1.2, 0.45));
+        assertTrue(AVHRR_GAC_Reader.mustScale(1.2, 0.0));
+        assertTrue(AVHRR_GAC_Reader.mustScale(1.0, 0.45));
+
+        assertFalse(AVHRR_GAC_Reader.mustScale(1.0, 0.0));
     }
 }
