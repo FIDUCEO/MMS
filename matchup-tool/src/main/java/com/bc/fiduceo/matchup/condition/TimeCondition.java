@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 
 import java.util.ArrayList;
@@ -39,9 +40,14 @@ public class TimeCondition implements Condition {
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
-            final long actualTimeDelta = Math.abs(sampleSet.getPrimary().time - sampleSet.getSecondary().time);
-            if (actualTimeDelta <= maxTimeDeltaInMillis) {
-                targetSamples.add(sampleSet);
+            final Sample primary = sampleSet.getPrimary();
+            final Sample secondary = sampleSet.getSecondary();
+            // @todo 1 tb/tb remove this check, should be added to the sample point generation stage. We shall always have all fileds set! 2016-04-01
+            if (primary != null && secondary != null) {
+                final long actualTimeDelta = Math.abs(primary.time - secondary.time);
+                if (actualTimeDelta <= maxTimeDeltaInMillis) {
+                    targetSamples.add(sampleSet);
+                }
             }
         }
         matchupSet.setSampleSets(targetSamples);
