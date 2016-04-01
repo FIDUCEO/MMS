@@ -51,6 +51,7 @@ public class UseCaseConfig {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
         timeDeltaSeconds = -1;
+        maxPixelDistanceKm = -1.f;
     }
 
     public String getName() {

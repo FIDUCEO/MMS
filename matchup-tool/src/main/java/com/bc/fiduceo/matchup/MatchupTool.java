@@ -36,9 +36,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.matchup.screening.DistanceScreening;
-import com.bc.fiduceo.matchup.screening.Screening;
-import com.bc.fiduceo.matchup.screening.TimeScreening;
+import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.VariablePrototype;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
@@ -53,7 +51,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.collections.ArrayStack;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
@@ -139,26 +136,6 @@ class MatchupTool {
         //
 
         // ------------------------------------------------------------------------------------------------------------
-        // Screening operations without file access
-        // ------------------------------------------------------------------------------------------------------------
-        System.out.println("rawCount = " + matchupCollection.getNumMatchups());
-
-        Screening screening = createTimeScreening(context);
-        matchupCollection = screening.screen(matchupCollection);
-
-        System.out.println("after TimeScreening = " + matchupCollection.getNumMatchups());
-
-        screening = createDistanceScreening(context);
-        matchupCollection = screening.screen(matchupCollection);
-
-        System.out.println("after DistanceScreening = " + matchupCollection.getNumMatchups());
-        // ------------------------------------------------------------------------------------------------------------
-        // Screening operations without file access
-        // ------------------------------------------------------------------------------------------------------------
-
-
-
-        // ------------------------------------------------------------------------------------------------------------
         // Screening operations with file access
         // ------------------------------------------------------------------------------------------------------------
 
@@ -208,19 +185,6 @@ class MatchupTool {
         System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
         writeMMD(matchupCollection, context);
-    }
-
-    private DistanceScreening createDistanceScreening(ToolContext context) {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final float maxPixelDistance = useCaseConfig.getMaxPixelDistanceKm();
-        return new DistanceScreening(maxPixelDistance);
-    }
-
-    private TimeScreening createTimeScreening(ToolContext context) {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
-        final int timeDeltaInMillis = timeDelta * 1000;
-        return new TimeScreening(timeDeltaInMillis);
     }
 
     private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
@@ -301,9 +265,9 @@ class MatchupTool {
         final File file = createMmdFile(context);
         final MmdWriter mmdWriter = new MmdWriter(cacheSize);
         mmdWriter.create(file,
-                         useCaseConfig,
-                         variablesConfiguration.get(),
-                         matchupCollection.getNumMatchups());
+                useCaseConfig,
+                variablesConfiguration.get(),
+                matchupCollection.getNumMatchups());
         return mmdWriter;
     }
 
@@ -332,10 +296,10 @@ class MatchupTool {
         final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
         final int timeDeltaInMillis = timeDelta * 1000;
 
-        QueryParameter parameter = getPrimarySensorParameter(context);
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+        final ConditionEngine conditionEngine = new ConditionEngine();
+        conditionEngine.configure(useCaseConfig);
 
+        final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
             primaryReader.open(primaryObservation.getDataFilePath().toFile());
@@ -346,9 +310,7 @@ class MatchupTool {
             final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
             final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
 
-            parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
-            final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
-
+            final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd, primaryGeoBounds);
             for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                 final Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName());
                 secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
@@ -381,12 +343,43 @@ class MatchupTool {
                 }
 
                 if (matchupSet.getNumObservations() > 0) {
-                    matchupCollection.add(matchupSet);
+                    logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
+                    conditionEngine.process(matchupSet);
+                    logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+
+                    if (matchupSet.getNumObservations() > 0) {
+                        matchupCollection.add(matchupSet);
+                    }
                 }
             }
         }
 
         return matchupCollection;
+    }
+
+    private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd, Geometry primaryGeoBounds) throws SQLException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
+        logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
+
+        logger.info("Received " + secondaryObservations.size() + " secondary satellite observations");
+
+        return secondaryObservations;
+    }
+
+    private List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
+        final QueryParameter parameter = getPrimarySensorParameter(context);
+        logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+
+        logger.info("Received " + primaryObservations.size() + " primary satellite observations");
+
+        return primaryObservations;
     }
 
     private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {

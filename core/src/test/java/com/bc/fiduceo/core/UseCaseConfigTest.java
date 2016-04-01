@@ -361,5 +361,6 @@ public class UseCaseConfigTest {
         assertEquals(0, dimensions.size());
 
         assertEquals(-1, useCaseConfig.getTimeDeltaSeconds());
+        assertEquals(-1.0, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
     }
 }

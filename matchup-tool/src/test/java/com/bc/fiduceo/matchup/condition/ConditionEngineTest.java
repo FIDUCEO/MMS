@@ -1,0 +1,138 @@
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
+package com.bc.fiduceo.matchup.condition;
+
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class ConditionEngineTest {
+
+    private ConditionEngine conditionEngine;
+    private MatchupSet matchupSet;
+
+    @Before
+    public void setUp() {
+        conditionEngine = new ConditionEngine();
+        matchupSet = new MatchupSet();
+    }
+
+    @Test
+    public void testApply_noConditions_emptySet() {
+        conditionEngine.process(matchupSet);
+
+        assertEquals(0, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_noConditions_oneMatchup() {
+        matchupSet.getSampleSets().add(createSampleSet(2000, 30000));
+
+        conditionEngine.process(matchupSet);
+
+        assertEquals(1, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_noConditions_threeMatchup() {
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(234, 556));
+        sampleSets.add(createSampleSet(19887, 3668));
+        sampleSets.add(createSampleSet(8837, 662));
+
+        conditionEngine.process(matchupSet);
+
+        assertEquals(3, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_timeCondition() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setTimeDeltaSeconds(20);
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(100000, 100100));
+        sampleSets.add(createSampleSet(100200, 100500));
+        sampleSets.add(createSampleSet(200200, 100500));    // <- this one gets removed
+
+        conditionEngine.configure(useCaseConfig);
+        conditionEngine.process(matchupSet);
+
+        assertEquals(2, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_distanceCondition() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setMaxPixelDistanceKm(4);
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(4.5, 5.6, 4.50001, 5.60001));
+        sampleSets.add(createSampleSet(20.0, 14.0, 20.002, 13.998));
+        sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
+
+        conditionEngine.configure(useCaseConfig);
+        conditionEngine.process(matchupSet);
+
+        assertEquals(2, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_bothConditions() {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setTimeDeltaSeconds(10);
+        useCaseConfig.setMaxPixelDistanceKm(4);
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(4.5, 5.6, 4.50001, 5.60001));
+        sampleSets.add(createSampleSet(200000, 100100));    // <- this one gets removed
+        sampleSets.add(createSampleSet(20.0, 14.0, 20.002, 13.998));
+        sampleSets.add(createSampleSet(100200, 100500));
+        sampleSets.add(createSampleSet(100200, 100500));
+        sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
+
+        conditionEngine.configure(useCaseConfig);
+        conditionEngine.process(matchupSet);
+
+        assertEquals(4, matchupSet.getNumObservations());
+    }
+
+    private SampleSet createSampleSet(long primaryTime, long secondaryTime) {
+        final SampleSet sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(0, 0, 0, 0, primaryTime));
+        sampleSet.setSecondary(new Sample(0, 0, 0, 0, secondaryTime));
+        return sampleSet;
+    }
+
+    private SampleSet createSampleSet(double primaryLon, double primaryLat, double secondaryLon, double secondaryLat) {
+        final SampleSet sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(0, 0, primaryLon, primaryLat, 0));
+        sampleSet.setSecondary(new Sample(0, 0, secondaryLon, secondaryLat, 0));
+        return sampleSet;
+    }
+}

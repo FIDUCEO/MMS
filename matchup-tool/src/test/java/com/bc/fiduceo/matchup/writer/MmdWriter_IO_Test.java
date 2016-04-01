@@ -160,7 +160,7 @@ public class MmdWriter_IO_Test {
                         "    </dimension>\n" +
                         "  </dimensions>\n" +
                         "  <time-delta-seconds>-1</time-delta-seconds>\n" +
-                        "  <max-pixel-distance-km>0.0</max-pixel-distance-km>\n" +
+                        "  <max-pixel-distance-km>-1.0</max-pixel-distance-km>\n" +
                         "</use-case-config>",
                         useCaseConfigAttr.getStringValue()
             );
