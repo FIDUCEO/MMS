@@ -32,7 +32,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.esa.snap.core.util.StopWatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +48,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
@@ -117,15 +120,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         insert_AVHRR_GAC_NOAA18();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
         MatchupToolMain.main(args);
-
-        stopWatch.stop();
-        System.out.println("processing time = " + stopWatch.getTimeDiffString());
-
 
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertTrue(mmdFile.isFile());
@@ -141,8 +136,28 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
             assert2DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
             assert2DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
+
             assert2DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
             assert2DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
+            assert2DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
+            assert2DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
+            assert2DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
+            assert2DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
+            assert2DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
+            assert2DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
+            assert2DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
+            assert2DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
+            assert2DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
+            assert2DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
+            assert2DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
+            assert2DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
+            assert2DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
+            assert2DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
+            assert2DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
+
+            assert2DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
+            assert2DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
+            assert2DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
             // @todo 2 tb/** add more assertions here
         } finally {
             mmd.close();
@@ -155,7 +170,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(10000);  // 2 hours something, just too small to have an overllipng time interval
+        useCaseConfig.setTimeDeltaSeconds(10000);  // 2 hours something, just too small to have an overlapping time interval
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
