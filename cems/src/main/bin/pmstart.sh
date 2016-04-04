@@ -1,15 +1,18 @@
 #!/bin/bash
 
+echo "pmstart"
+
 if [ -z "$1" ]; then
     echo "call   : pmstart <workflow>"
     echo "example: pmstart usecase-17.py"
     exit 1
 fi
 
-
 WORKING_DIR=`pwd`
+echo $WORKING_DIR
 
 workflow=$(basename ${1%.py})
+echo workflow
 
 if [ -e ${workflow}.pid ]
 then
