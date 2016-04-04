@@ -25,7 +25,7 @@ then
     fi
 fi
 
-nohup ${MMS_PYTHON_EXEC} ${MMS_HOME}/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
+nohup ${MMS_PYTHON_EXEC} ${MMS_HOME}/bin/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
 echo $! > $WORKING_DIR/$workflow.pid
 sleep 8
 cat $WORKING_DIR/$workflow.status
