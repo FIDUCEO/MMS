@@ -258,7 +258,7 @@ class Workflow:
         """
 
         :param hosts: list
-        :param log_dir: str
+        :param logdir: str
         :param simulation: bool
         :return:
         """
@@ -268,6 +268,7 @@ class Workflow:
         for sensor in sensors:
             sensor_period = sensor.get_period()
             date = sensor_period.get_start_date()
+            version = sensor.get_version()
             while date < sensor_period.get_end_date():
                 chunk = self._get_next_period(date)
                 start_string = self._get_year_day_of_year(chunk.get_start_date())
@@ -277,7 +278,7 @@ class Workflow:
                 post_condition = 'stored-' + sensor_name + '-' + start_string + '-' + end_string
 
                 job = Job(job_name, 'ingest_start.sh', [job_name], [post_condition],
-                          [sensor_name, start_string, end_string, self._get_config_dir()])
+                          [sensor_name, start_string, end_string, version, self._get_config_dir()])
                 monitor.execute(job)
 
                 date = chunk.get_end_date()

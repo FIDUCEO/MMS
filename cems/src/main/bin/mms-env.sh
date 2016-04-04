@@ -3,6 +3,10 @@
 # MMS function definitions
 # useage ${mms_home}/bin/mms-env.sh  (in xxx-start.sh and xxx-run.sh)
 
+export MMS_HOME='/group_workspaces/cems2/fiduceo/Software/mms'
+
+export PATH=$MMS_HOME/bin:$PATH
+
 set -e
 
 if [ -z "${MMS_INST}" ]; then
