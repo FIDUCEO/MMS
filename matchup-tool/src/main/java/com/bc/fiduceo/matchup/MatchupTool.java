@@ -297,7 +297,7 @@ class MatchupTool {
         final int timeDeltaInMillis = timeDelta * 1000;
 
         final ConditionEngine conditionEngine = new ConditionEngine();
-        conditionEngine.configure(useCaseConfig);
+        conditionEngine.configure(useCaseConfig, context.getStartDate(), context.getEndDate());
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {

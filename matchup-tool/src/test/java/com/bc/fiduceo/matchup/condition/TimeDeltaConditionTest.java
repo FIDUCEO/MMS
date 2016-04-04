@@ -30,14 +30,14 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class TimeConditionTest {
+public class TimeDeltaConditionTest {
 
     @Test
     public void testApply_emptySampleSet() {
-        final TimeCondition timeCondition = new TimeCondition(500);
+        final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(500);
         final MatchupSet matchupSet = new MatchupSet();
 
-        timeCondition.apply(matchupSet);
+        timeDeltaCondition.apply(matchupSet);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -54,8 +54,8 @@ public class TimeConditionTest {
         sampleSets.add(createSampleSet(7000, 8080));
         matchupSet.setSampleSets(sampleSets);
 
-        final TimeCondition timeCondition = new TimeCondition(1200);
-        timeCondition.apply(matchupSet);
+        final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
+        timeDeltaCondition.apply(matchupSet);
 
         assertEquals(4, matchupSet.getNumObservations());
     }

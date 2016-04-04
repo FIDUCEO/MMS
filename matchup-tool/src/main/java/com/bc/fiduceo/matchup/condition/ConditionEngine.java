@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ConditionEngine {
@@ -40,17 +41,22 @@ public class ConditionEngine {
         }
     }
 
-    public void configure(UseCaseConfig useCaseConfig) {
+    public void configure(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
         final int timeDeltaSeconds = useCaseConfig.getTimeDeltaSeconds();
         if (timeDeltaSeconds >= 0) {
-            final TimeCondition timeCondition = new TimeCondition(timeDeltaSeconds * 1000);
-            conditions.add(timeCondition);
+            final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(timeDeltaSeconds * 1000);
+            conditions.add(timeDeltaCondition);
         }
 
         final float maxPixelDistanceKm = useCaseConfig.getMaxPixelDistanceKm();
         if (maxPixelDistanceKm >= 0) {
             final DistanceCondition distanceCondition = new DistanceCondition(maxPixelDistanceKm);
             conditions.add(distanceCondition);
+        }
+
+        if (startDate != null && endDate != null && startDate.compareTo(endDate)<0) {
+            final TimeRangeCondition timeRangeCondition = new TimeRangeCondition(startDate, endDate);
+            conditions.add(timeRangeCondition);
         }
     }
 }
