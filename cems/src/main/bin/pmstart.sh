@@ -9,10 +9,10 @@ if [ -z "$1" ]; then
 fi
 
 WORKING_DIR=`pwd`
-echo $WORKING_DIR
+echo "working dir: "$WORKING_DIR"
 
 workflow=$(basename ${1%.py})
-echo workflow
+echo "workflow: $workflow"
 
 if [ -e ${workflow}.pid ]
 then
@@ -25,8 +25,7 @@ then
     fi
 fi
 
-# @todo 1 tb/tb check which environment variables we need at CEMS
-nohup ${mms.python.exec} ${mms.home}/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
+nohup ${MMS_PYTHON_EXEC} ${MMS_HOME}/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
 echo $! > $WORKING_DIR/$workflow.pid
 sleep 8
 cat $WORKING_DIR/$workflow.status
