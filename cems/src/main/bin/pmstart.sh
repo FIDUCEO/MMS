@@ -9,7 +9,7 @@ if [ -z "$1" ]; then
 fi
 
 WORKING_DIR=`pwd`
-echo "working dir: "$WORKING_DIR"
+echo "working dir: $WORKING_DIR"
 
 workflow=$(basename ${1%.py})
 echo "workflow: $workflow"
