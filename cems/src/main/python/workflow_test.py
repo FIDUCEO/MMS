@@ -55,6 +55,11 @@ class WorkflowTest(unittest.TestCase):
         w.add_primary_sensor('atsr-e2', '1995-06-01', '1996-01-01')
         self.assertEqual([Sensor('atsr-e2', Period((1995, 6, 1), (1996, 1, 1)))], w._get_primary_sensors())
 
+    def test_add_get_primary_sensors_version(self):
+        w = Workflow('test', 5)
+        w.add_primary_sensor('atsr-e2', '1995-06-01', '1996-01-01', 'version_5')
+        self.assertEqual([Sensor('atsr-e2', Period((1995, 6, 1), (1996, 1, 1)), 'version_5')], w._get_primary_sensors())
+
     def test_add_get_primary_sensors_multiple(self):
         w = Workflow('test', 5)
         w.add_primary_sensor('atsr-e2', '1995-06-01', '1996-01-01')
@@ -74,6 +79,11 @@ class WorkflowTest(unittest.TestCase):
         w = Workflow('test', 8)
         w.add_secondary_sensor('avhrr-n16', '1995-06-01', '1996-01-01')
         self.assertEqual([Sensor('avhrr-n16', Period((1995, 6, 1), (1996, 1, 1)))], w._get_secondary_sensors())
+
+    def test_add_get_secondary_sensors_version(self):
+        w = Workflow('test', 8)
+        w.add_secondary_sensor('avhrr-n16', '1995-06-01', '1996-01-01', 'v_3')
+        self.assertEqual([Sensor('avhrr-n16', Period((1995, 6, 1), (1996, 1, 1)), 'v_3')], w._get_secondary_sensors())
 
     def test_add_get_secondary_sensors_multiple(self):
         w = Workflow('test', 9)
@@ -225,7 +235,7 @@ class WorkflowTest(unittest.TestCase):
         w = Workflow('test', 11, 'config/dir')
         w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
 
-        w.run_ingestion(list([('localhost', 5)]), self.logdir, True)
+        w.run_ingestion(list([('localhost', 5)]), True, self.logdir, )
 
         with open('test.status', 'r') as status:
             self.assertEqual('37 created, 0 running, 0 backlog, 37 processed, 0 failed\n', status.readline())

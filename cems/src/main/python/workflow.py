@@ -68,7 +68,7 @@ class Workflow:
         """
         return self.time_slot_days
 
-    def add_primary_sensor(self, name, start_date, end_date):
+    def add_primary_sensor(self, name, start_date, end_date, version=''):
         """
 
         :type name: str
@@ -77,7 +77,10 @@ class Workflow:
         for sensor in self._get_primary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
                 raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
-        self.primary_sensors.add(Sensor(name, period))
+        if version == '':
+            self.primary_sensors.add(Sensor(name, period))
+        else:
+            self.primary_sensors.add(Sensor(name, period, version))
 
     def _get_primary_sensors(self):
         """
@@ -86,16 +89,23 @@ class Workflow:
         """
         return sorted(list(self.primary_sensors), reverse=True)
 
-    def add_secondary_sensor(self, name, start_date, end_date):
+    def add_secondary_sensor(self, name, start_date, end_date, version=''):
         """
 
         :type name: str
+        :type start_date: Period
+        :type end_date: Period
+        :type version: str
         """
         period = Period(start_date, end_date)
         for sensor in self._get_secondary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
                 raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
-        self.secondary_sensors.add(Sensor(name, period))
+
+        if version == '':
+            self.secondary_sensors.add(Sensor(name, period))
+        else:
+            self.secondary_sensors.add(Sensor(name, period, version))
 
     def _get_secondary_sensors(self):
         """
@@ -244,7 +254,7 @@ class Workflow:
 
         return Period(start, end)
 
-    def run_ingestion(self, hosts, log_dir, simulation=False):
+    def run_ingestion(self, hosts, simulation=False, logdir='trace'):
         """
 
         :param hosts: list
@@ -252,7 +262,7 @@ class Workflow:
         :param simulation: bool
         :return:
         """
-        monitor = self._get_monitor(hosts, list(), log_dir, simulation)
+        monitor = self._get_monitor(hosts, list(), logdir, simulation)
 
         sensors = self._get_primary_sensors()
         for sensor in sensors:

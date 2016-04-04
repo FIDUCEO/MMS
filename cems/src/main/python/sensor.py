@@ -1,12 +1,14 @@
 class Sensor:
-    def __init__(self, name, period=None):
+    def __init__(self, name, period=None, version=''):
         """
 
         :type name: str
         :type period: Period
+        :type version: str
         """
         self.name = name
         self.period = period
+        self.version = version
 
     def get_name(self):
         """
@@ -21,6 +23,13 @@ class Sensor:
         :rtype : Period
         """
         return self.period
+
+    def get_version(self):
+        """
+
+        :rtype : str
+        """
+        return self.version
 
     def __eq__(self, other):
         """
