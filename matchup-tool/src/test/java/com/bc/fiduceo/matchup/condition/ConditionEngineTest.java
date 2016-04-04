@@ -27,6 +27,7 @@ import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -71,7 +72,7 @@ public class ConditionEngineTest {
     }
 
     @Test
-    public void testApply_timeCondition() {
+    public void testApply_timeDeltaCondition() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setTimeDeltaSeconds(20);
 
@@ -80,10 +81,38 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(200200, 100500));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig);
+        conditionEngine.configure(useCaseConfig, null, null);
         conditionEngine.process(matchupSet);
 
         assertEquals(2, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_timeRangeCondition() {
+        final long oneDayMillis = 1000 * 60 * 60 * 24;
+        final long fiveDays = 5 * oneDayMillis;
+        final long twelveDays = 12 * oneDayMillis;
+        final Date startDate = new Date();
+        final long startTime = startDate.getTime();
+        final Date endDate = new Date(startTime + twelveDays);
+        final long endTime = endDate.getTime();
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(startTime - 1, 100500));    // <- this one gets removed
+        sampleSets.add(createSampleSet(startTime, 100100));
+        sampleSets.add(createSampleSet(startTime + fiveDays, 100500));
+        sampleSets.add(createSampleSet(endTime, 100500));
+        sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
+
+        conditionEngine.configure(new UseCaseConfig(), startDate, endDate);
+        conditionEngine.process(matchupSet);
+
+        assertEquals(3, matchupSet.getNumObservations());
+        final List<SampleSet> resultSet = matchupSet.getSampleSets();
+
+        assertEquals(startTime, resultSet.get(0).getPrimary().time);
+        assertEquals(startTime + fiveDays, resultSet.get(1).getPrimary().time);
+        assertEquals(endTime, resultSet.get(2).getPrimary().time);
     }
 
     @Test
@@ -96,14 +125,14 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(20.0, 14.0, 20.002, 13.998));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig);
+        conditionEngine.configure(useCaseConfig, null, null);
         conditionEngine.process(matchupSet);
 
         assertEquals(2, matchupSet.getNumObservations());
     }
 
     @Test
-    public void testApply_bothConditions() {
+    public void testApply_distanceAndTimeDeltaCondition() {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setTimeDeltaSeconds(10);
         useCaseConfig.setMaxPixelDistanceKm(4);
@@ -116,7 +145,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig);
+        conditionEngine.configure(useCaseConfig, null, null);
         conditionEngine.process(matchupSet);
 
         assertEquals(4, matchupSet.getNumObservations());
