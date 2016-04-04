@@ -29,7 +29,7 @@ import java.util.List;
 
 public class TimeCondition implements Condition {
 
-    private final long  maxTimeDeltaInMillis;
+    private final long maxTimeDeltaInMillis;
 
     public TimeCondition(long maxTimeDeltaInMillis) {
         this.maxTimeDeltaInMillis = maxTimeDeltaInMillis;
@@ -42,12 +42,9 @@ public class TimeCondition implements Condition {
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
             final Sample secondary = sampleSet.getSecondary();
-            // @todo 1 tb/tb remove this check, should be added to the sample point generation stage. We shall always have all fileds set! 2016-04-01
-            if (primary != null && secondary != null) {
-                final long actualTimeDelta = Math.abs(primary.time - secondary.time);
-                if (actualTimeDelta <= maxTimeDeltaInMillis) {
-                    targetSamples.add(sampleSet);
-                }
+            final long actualTimeDelta = Math.abs(primary.time - secondary.time);
+            if (actualTimeDelta <= maxTimeDeltaInMillis) {
+                targetSamples.add(sampleSet);
             }
         }
         matchupSet.setSampleSets(targetSamples);

@@ -8,6 +8,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 class SampleCollector {
@@ -26,17 +27,25 @@ class SampleCollector {
 
     public void addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
         Point2D geopos = new Point2D.Double();
-        for (final SampleSet sourceSample : sampleSets) {
-            final Sample primary = sourceSample.getPrimary();
+        final List<SampleSet> toBeRemoved = new ArrayList<>();
+        for (final SampleSet sampleSet : sampleSets) {
+            final Sample primary = sampleSet.getPrimary();
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
-            for (Point2D pixelLocation : pixelLocations) {
-                final int x = (int) pixelLocation.getX();
-                final int y = (int) pixelLocation.getY();
-                geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                final long time = timeLocator.getTimeFor(x, y);
-                final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
-                sourceSample.setSecondary(sample);
+            if (pixelLocations.length > 0) {
+                for (Point2D pixelLocation : pixelLocations) {
+                    final int x = (int) pixelLocation.getX();
+                    final int y = (int) pixelLocation.getY();
+                    geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
+                    final long time = timeLocator.getTimeFor(x, y);
+                    final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
+                    sampleSet.setSecondary(sample);
+                }
+            } else {
+                toBeRemoved.add(sampleSet);
             }
+        }
+        for (SampleSet sampleSet : toBeRemoved) {
+            sampleSets.remove(sampleSet);
         }
     }
 
