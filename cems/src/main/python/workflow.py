@@ -93,8 +93,8 @@ class Workflow:
         """
 
         :type name: str
-        :type start_date: Period
-        :type end_date: Period
+        :type start_date: str
+        :type end_date: str
         :type version: str
         """
         period = Period(start_date, end_date)
@@ -249,7 +249,7 @@ class Workflow:
             last_day = calendar.monthrange(end.year, month_before)[1]
             end = datetime.date(end.year, month_before, last_day)
 
-        if end <= start:
+        if end < start:
             return None
 
         return Period(start, end)

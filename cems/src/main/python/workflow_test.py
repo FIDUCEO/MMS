@@ -170,10 +170,10 @@ class WorkflowTest(unittest.TestCase):
 
         preconditions = list()
         preconditions = w._add_inp_preconditions(preconditions)
-        self.assertEqual(59, len(preconditions))
+        self.assertEqual(153, len(preconditions))
         self.assertEqual('ingest-avhrr.n12-1985-290-1985-303', preconditions[0])
-        self.assertEqual('ingest-avhrr.n11-1989-272-1989-273', preconditions[27])
-        self.assertEqual('ingest-avhrr.n11-1990-227-1990-240', preconditions[58])
+        self.assertEqual('ingest-avhrr.n12-1986-210-1986-212', preconditions[27])
+        self.assertEqual('ingest-avhrr.n12-1987-166-1987-179', preconditions[58])
 
     def test_next_year_start(self):
         w = Workflow('test', 2)
@@ -235,10 +235,22 @@ class WorkflowTest(unittest.TestCase):
         w = Workflow('test', 11, 'config/dir')
         w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
 
-        w.run_ingestion(list([('localhost', 5)]), True, self.logdir, )
+        w.run_ingestion(list([('localhost', 5)]), True, self.logdir)
 
         with open('test.status', 'r') as status:
             self.assertEqual('37 created, 0 running, 0 backlog, 37 processed, 0 failed\n', status.readline())
 
         with open('test.report', 'r') as report:
             self.assertEqual(37, len(report.readlines()))
+
+    def test_ingest_avhrr_n07(self):
+        w = Workflow('test', 7,'/group_workspaces/cems2/fiduceo/Software/mms/config')
+        w.add_primary_sensor('avhrr-n07', '1981-09-01', '1985-01-30', 'v01.2')
+
+        w.run_ingestion(list([('localhost', 24)]), True, self.logdir)
+
+        with open('test.status', 'r') as status:
+            self.assertEqual('203 created, 0 running, 0 backlog, 203 processed, 0 failed\n', status.readline())
+
+        with open('test.report', 'r') as report:
+            self.assertEqual(203, len(report.readlines()))

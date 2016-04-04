@@ -20,7 +20,7 @@ class Period:
             b = self.__from_iso_format(end_date)
         else:
             b = datetime.date(end_date[0], end_date[1], end_date[2])
-        if a < b:
+        if a <= b:
             self.start_date = a
             """:type : datetime.date"""
             self.end_date = b
