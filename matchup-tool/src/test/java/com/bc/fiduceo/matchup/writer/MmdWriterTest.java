@@ -181,9 +181,8 @@ public class MmdWriterTest {
         MmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);
 
         // validation
-        final InOrder inOrder = inOrder(configuration);
-        inOrder.verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
-        inOrder.verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
+        verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
+        verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
         verifyNoMoreInteractions(configuration);
     }
 

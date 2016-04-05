@@ -104,10 +104,12 @@ public class MmdWriter {
             return;
         }
 
-        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
-        createMmdWriter(matchupCollection, context, variablesConfiguration);
-
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        extractPrototypes(variablesConfiguration, matchupCollection, context);
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final File file = createMmdFile(context);
+        create(file, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
+
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
         final String primarySensorName = primarySensor.getName();
@@ -217,12 +219,6 @@ public class MmdWriter {
         }
     }
 
-    private static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        extractPrototypes(variablesConfiguration, matchupCollection, context);
-        return variablesConfiguration;
-    }
-
     private void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final Array data = Array.factory(new int[][]{{v}});
         write(data, variableName, zIndex);
@@ -280,15 +276,6 @@ public class MmdWriter {
             final Array window = reader.readRaw(x, y, interval, sourceVariableName);
             write(window, targetVariableName, zIndex);
         }
-    }
-
-    private void createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final File file = createMmdFile(context);
-        create(file,
-               useCaseConfig,
-               variablesConfiguration.get(),
-               matchupCollection.getNumMatchups());
     }
 
     private File createMmdFile(ToolContext context) throws IOException {
