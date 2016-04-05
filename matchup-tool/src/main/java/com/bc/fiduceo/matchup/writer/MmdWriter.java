@@ -21,9 +21,19 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.util.StopWatch;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -35,16 +45,20 @@ import ucar.nc2.Variable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class MmdWriter {
 
     private final int cacheSize;
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
+    private final Logger logger;
 
     private NetcdfFileWriter netcdfFileWriter;
     private int flushCount = 0;
@@ -53,6 +67,7 @@ public class MmdWriter {
         this.cacheSize = cacheSize;
         dataCacheMap = new HashMap<>();
         variableMap = new HashMap<>();
+        logger = FiduceoLogger.getLogger();
     }
 
     public static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
@@ -83,7 +98,94 @@ public class MmdWriter {
         return nameBuilder.toString();
     }
 
-    public void create(File mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+    public void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
+        if (matchupCollection.getNumMatchups() == 0) {
+            logger.warning("No matchups in time interval, creation of MMD file skipped.");
+            return;
+        }
+
+        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
+        createMmdWriter(matchupCollection, context, variablesConfiguration);
+
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+        final String primarySensorName = primarySensor.getName();
+        final String secondarySensorName = secondarySensor.getName();
+        final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
+        final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
+        final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
+        final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
+        final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
+        final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
+
+        final ReaderFactory readerFactory = ReaderFactory.get();
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        int zIndex = 0;
+        for (MatchupSet set : sets) {
+            final Path primaryObservationPath = set.getPrimaryObservationPath();
+            final Path secondaryObservationPath = set.getSecondaryObservationPath();
+            try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
+                 final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
+                primaryReader.open(primaryObservationPath.toFile());
+                secondaryReader.open(secondaryObservationPath.toFile());
+                final List<SampleSet> sampleSets = set.getSampleSets();
+                for (SampleSet sampleSet : sampleSets) {
+                    writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
+                    writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
+                    zIndex++;
+                    if (zIndex > 0 && zIndex % cacheSize == 0) {
+                        flush();
+                    }
+                }
+            }
+        }
+
+        stopWatch.stop();
+        System.out.println("stopWatch.getTimeDiffString() = " + stopWatch.getTimeDiffString());
+
+        close();
+    }
+
+    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "comment",
+                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+        ));
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        useCaseConfig.store(outputStream);
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "use-case-configuration",
+                    outputStream.toString()
+        ));
+    }
+
+    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
+        }
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
+    }
+
+    void create(File mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
         netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
 
         createGlobalAttributes();
@@ -94,9 +196,9 @@ public class MmdWriter {
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                    variablePrototype.getTargetVariableName(),
-                    DataType.getType(variablePrototype.getDataType()),
-                    variablePrototype.getDimensionNames());
+                                                                   variablePrototype.getTargetVariableName(),
+                                                                   DataType.getType(variablePrototype.getDataType()),
+                                                                   variablePrototype.getDimensionNames());
             final List<Attribute> attributes = variablePrototype.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
@@ -105,7 +207,7 @@ public class MmdWriter {
         netcdfFileWriter.create();
     }
 
-    public void close() throws IOException, InvalidRangeException {
+    void close() throws IOException, InvalidRangeException {
         flush();
         variableMap.clear();
         dataCacheMap.clear();
@@ -115,12 +217,18 @@ public class MmdWriter {
         }
     }
 
-    public void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
+    private static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        extractPrototypes(variablesConfiguration, matchupCollection, context);
+        return variablesConfiguration;
+    }
+
+    private void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final Array data = Array.factory(new int[][]{{v}});
         write(data, variableName, zIndex);
     }
 
-    public void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
+    private void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
         v.getChars(0, v.length(), chars, 0);
@@ -128,24 +236,14 @@ public class MmdWriter {
         write(data, variableName, zIndex);
     }
 
-    public void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
+    private void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
         final Array target = getTarget(variableName);
         final Index index = target.getIndex();
         index.set(stackIndex % cacheSize);
         Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
     }
 
-    private Array getTarget(String variableName) {
-        if (!dataCacheMap.containsKey(variableName)) {
-            Variable variable = getVariable(variableName);
-            final int[] shape = variable.getShape();
-            shape[0] = cacheSize;
-            dataCacheMap.put(variableName, Array.factory(variable.getDataType(), shape));
-        }
-        return dataCacheMap.get(variableName);
-    }
-
-    public void flush() throws IOException, InvalidRangeException {
+    private void flush() throws IOException, InvalidRangeException {
         for (Map.Entry<String, Array> entry : dataCacheMap.entrySet()) {
             final String variableName = entry.getKey();
             final Variable variable = variableMap.get(variableName);
@@ -165,17 +263,61 @@ public class MmdWriter {
         flushCount++;
     }
 
-    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "comment",
-                "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
-        ));
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        useCaseConfig.store(outputStream);
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "use-case-configuration",
-                outputStream.toString()
-        ));
+    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+        final int x = sample.x;
+        final int y = sample.y;
+        writeMmdValues(x, y, zIndex, variables, interval, reader);
+        write(x, sensorName + "_x", zIndex);
+        write(y, sensorName + "_y", zIndex);
+        write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
+        write(reader.readAcquisitionTime(x, y, interval), sensorName + "_acquisition_time", zIndex);
+    }
+
+    private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+        for (VariablePrototype variable : variables) {
+            final String sourceVariableName = variable.getSourceVariableName();
+            final String targetVariableName = variable.getTargetVariableName();
+            final Array window = reader.readRaw(x, y, interval, sourceVariableName);
+            write(window, targetVariableName, zIndex);
+        }
+    }
+
+    private void createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final File file = createMmdFile(context);
+        create(file,
+               useCaseConfig,
+               variablesConfiguration.get(),
+               matchupCollection.getNumMatchups());
+    }
+
+    private File createMmdFile(ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
+        final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
+        final File file = mmdFile.toFile();
+        final File targetDir = file.getParentFile();
+        if (!targetDir.isDirectory()) {
+            if (!targetDir.mkdirs()) {
+                throw new IOException("unable to create mmd output directory '" + targetDir.getAbsolutePath() + "'");
+            }
+        }
+
+        // @todo 3 tb/tb we might set an overwrite property to the system config later, if requested 2016-03-16
+        if (!file.createNewFile()) {
+            throw new IOException("unable to create mmd output file '" + file.getAbsolutePath() + "'");
+        }
+        return file;
+    }
+
+    private Array getTarget(String variableName) {
+        if (!dataCacheMap.containsKey(variableName)) {
+            Variable variable = getVariable(variableName);
+            final int[] shape = variable.getShape();
+            shape[0] = cacheSize;
+            dataCacheMap.put(variableName, Array.factory(variable.getDataType(), shape));
+        }
+        return dataCacheMap.get(variableName);
     }
 
     private Variable getVariable(String variableName) {

@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
@@ -38,8 +37,6 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
-import com.bc.fiduceo.matchup.writer.VariablePrototype;
-import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
@@ -51,7 +48,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -62,7 +58,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,10 +75,111 @@ class MatchupTool {
         readerFactory = ReaderFactory.get();
     }
 
+    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+        final PixelLocator pixelLocator;
+        if (isSegmented) {
+            pixelLocator = reader.getSubScenePixelLocator(polygon);
+        } else {
+            pixelLocator = reader.getPixelLocator();
+        }
+        return pixelLocator;
+    }
+
+    static boolean isSegmented(Geometry primaryGeoBounds) {
+        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        parameter.setSensorName(secondarySensor.getName());
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        parameter.setGeometry(geoBounds);
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() != 1) {
+            throw new RuntimeException("Unable to run matchup with given sensor number");
+        }
+
+        return additionalSensors.get(0);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static QueryParameter getPrimarySensorParameter(ToolContext context) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
+        parameter.setSensorName(primarySensor.getName());
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-02-18
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        options.addOption(startOption);
+
+        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        options.addOption(endOption);
+
+        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
+        options.addOption(useCaseOption);
+
+        return options;
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getEndDate(CommandLine commandLine) {
+        final String endDateString = commandLine.getOptionValue("end");
+        if (StringUtils.isNullOrEmpty(endDateString)) {
+            throw new RuntimeException("cmd-line parameter `end` missing");
+        }
+        return TimeUtils.parseDOYEndOfDay(endDateString);
+    }
+
+    // package access for testing only tb 2016-02-23
+    static Date getStartDate(CommandLine commandLine) {
+        final String startDateString = commandLine.getOptionValue("start");
+        if (StringUtils.isNullOrEmpty(startDateString)) {
+            throw new RuntimeException("cmd-line parameter `start` missing");
+        }
+        return TimeUtils.parseDOYBeginOfDay(startDateString);
+    }
+
     void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
 
         runMatchupGeneration(context);
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
     }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -184,110 +280,9 @@ class MatchupTool {
 
         System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
-        writeMMD(matchupCollection, context);
-    }
-
-    private void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
-        if (matchupCollection.getNumMatchups() == 0) {
-            logger.warning("No matchups in time interval, creation of MMD file skipped.");
-            return;
-        }
-
-        final VariablesConfiguration variablesConfiguration = createVariablesConfiguration(matchupCollection, context);
         final int cacheSize = 2048;
-        final MmdWriter mmdWriter = createMmdWriter(matchupCollection, context, variablesConfiguration, cacheSize);
-
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        final String primarySensorName = primarySensor.getName();
-        final String secondarySensorName = secondarySensor.getName();
-        final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
-        final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
-        final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
-        final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
-        final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
-        final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
-
-        final ReaderFactory readerFactory = ReaderFactory.get();
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        int zIndex = 0;
-        for (MatchupSet set : sets) {
-            final Path primaryObservationPath = set.getPrimaryObservationPath();
-            final Path secondaryObservationPath = set.getSecondaryObservationPath();
-            try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
-                 final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
-                primaryReader.open(primaryObservationPath.toFile());
-                secondaryReader.open(secondaryObservationPath.toFile());
-                final List<SampleSet> sampleSets = set.getSampleSets();
-                for (SampleSet sampleSet : sampleSets) {
-                    writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, mmdWriter, primaryReader);
-                    writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, mmdWriter, secondaryReader);
-                    zIndex++;
-                    if (zIndex > 0 && zIndex % cacheSize == 0) {
-                        mmdWriter.flush();
-                    }
-                }
-            }
-        }
-
-        stopWatch.stop();
-        System.out.println("stopWatch.getTimeDiffString() = " + stopWatch.getTimeDiffString());
-
-        mmdWriter.close();
-    }
-
-    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
-        final int x = sample.x;
-        final int y = sample.y;
-        writeMmdValues(x, y, zIndex, variables, interval, mmdWriter, reader);
-        mmdWriter.write(x, sensorName + "_x", zIndex);
-        mmdWriter.write(y, sensorName + "_y", zIndex);
-        mmdWriter.write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
-        mmdWriter.write(reader.readAcquisitionTime(x, y, interval), sensorName + "_acquisition_time", zIndex);
-    }
-
-    private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, MmdWriter mmdWriter, Reader reader) throws IOException, InvalidRangeException {
-        for (VariablePrototype variable : variables) {
-            final String sourceVariableName = variable.getSourceVariableName();
-            final String targetVariableName = variable.getTargetVariableName();
-            final Array window = reader.readRaw(x, y, interval, sourceVariableName);
-            mmdWriter.write(window, targetVariableName, zIndex);
-        }
-    }
-
-    private MmdWriter createMmdWriter(MatchupCollection matchupCollection, ToolContext context, VariablesConfiguration variablesConfiguration, final int cacheSize) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final File file = createMmdFile(context);
         final MmdWriter mmdWriter = new MmdWriter(cacheSize);
-        mmdWriter.create(file,
-                useCaseConfig,
-                variablesConfiguration.get(),
-                matchupCollection.getNumMatchups());
-        return mmdWriter;
-    }
-
-    private File createMmdFile(ToolContext context) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
-        final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
-        final File file = mmdFile.toFile();
-        final File targetDir = file.getParentFile();
-        if (!targetDir.isDirectory()) {
-            if (!targetDir.mkdirs()) {
-                throw new IOException("unable to create mmd output directory '" + targetDir.getAbsolutePath() + "'");
-            }
-        }
-
-        // @todo 3 tb/tb we might set an overwrite property to the system config later, if requested 2016-03-16
-        if (!file.createNewFile()) {
-            throw new IOException("unable to create mmd output file '" + file.getAbsolutePath() + "'");
-        }
-        return file;
+        mmdWriter.writeMMD(matchupCollection, context);
     }
 
     private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException {
@@ -399,133 +394,5 @@ class MatchupTool {
         }
 
         return useCaseConfig;
-    }
-
-    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
-        final PixelLocator pixelLocator;
-        if (isSegmented) {
-            pixelLocator = reader.getSubScenePixelLocator(polygon);
-        } else {
-            pixelLocator = reader.getPixelLocator();
-        }
-        return pixelLocator;
-    }
-
-    static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        parameter.setSensorName(secondarySensor.getName());
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        parameter.setGeometry(geoBounds);
-        return parameter;
-    }
-
-    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        if (sets.size() > 0) {
-            return sets.get(0);
-        }
-        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
-    }
-
-    // package access for testing only tb 2016-03-14
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
-        }
-
-        return additionalSensors.get(0);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(ToolContext context) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        if (primarySensor == null) {
-            throw new RuntimeException("primary sensor not present in configuration file");
-        }
-        parameter.setSensorName(primarySensor.getName());
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-02-18
-    static Options getOptions() {
-        final Options options = new Options();
-
-        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
-        options.addOption(helpOption);
-
-        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
-        options.addOption(configOption);
-
-        final Option startOption = new Option("s", "start", true, "Defines the processing start-date, format 'yyyy-DDD'");
-        options.addOption(startOption);
-
-        final Option endOption = new Option("e", "end", true, "Defines the processing end-date, format 'yyyy-DDD'");
-        options.addOption(endOption);
-
-        final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");
-        options.addOption(useCaseOption);
-
-        return options;
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getEndDate(CommandLine commandLine) {
-        final String endDateString = commandLine.getOptionValue("end");
-        if (StringUtils.isNullOrEmpty(endDateString)) {
-            throw new RuntimeException("cmd-line parameter `end` missing");
-        }
-        return TimeUtils.parseDOYEndOfDay(endDateString);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static Date getStartDate(CommandLine commandLine) {
-        final String startDateString = commandLine.getOptionValue("start");
-        if (StringUtils.isNullOrEmpty(startDateString)) {
-            throw new RuntimeException("cmd-line parameter `start` missing");
-        }
-        return TimeUtils.parseDOYBeginOfDay(startDateString);
-    }
-
-    static VariablesConfiguration createVariablesConfiguration(MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        extractPrototypes(variablesConfiguration, matchupCollection, context);
-        return variablesConfiguration;
-    }
-
-    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
     }
 }

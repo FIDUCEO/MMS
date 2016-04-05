@@ -27,9 +27,12 @@ import static org.mockito.Mockito.*;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import com.sun.medialib.mlib.mediaLibImageInterpTable;
 import org.junit.*;
+import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -38,6 +41,8 @@ import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -120,6 +125,73 @@ public class MmdWriterTest {
                     0, 0, 0, 0, 0, 0, 0, 0, 0
         };
         assertArrayEquals(expecteds, storage);
+    }
+
+    @Test
+    public void testGetFirstMatchupSet_emptyList() {
+        final MatchupCollection matchupCollection = new MatchupCollection();
+
+        try {
+            MmdWriter.getFirstMatchupSet(matchupCollection);
+            fail("IllegalStateException expected");
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    @Test
+    public void testGetFirstMatchupSet() {
+        final MatchupCollection collection = new MatchupCollection();
+        final MatchupSet first = new MatchupSet();
+        final MatchupSet second = new MatchupSet();
+        collection.add(first);
+        collection.add(second);
+
+        final MatchupSet set = MmdWriter.getFirstMatchupSet(collection);
+
+        assertSame(first, set);
+    }
+
+    @Test
+    public void testVariableConfiguration() throws Exception {
+        //preparation
+        final Sensor primarySensor = createSensor("avhrr-n17", true);
+        final Sensor secondarySensor = createSensor("avhrr-n18", false);
+        final Dimension primaryWindowDimension = new Dimension("avhrr-n17", 5, 4);
+        final Dimension secondaryWindowDimension = new Dimension("avhrr-n18", 5, 4);
+        final Path mockingPrimaryPath = Paths.get("mockingPrimaryPath");
+        final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
+
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension));
+        useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
+
+        final ToolContext toolContext = mock(ToolContext.class);
+        when(toolContext.getUseCaseConfig()).thenReturn(useCaseConfig);
+
+        final MatchupSet matchupSet = new MatchupSet();
+        matchupSet.setPrimaryObservationPath(mockingPrimaryPath);
+        matchupSet.setSecondaryObservationPath(mockingSecondaryPath);
+
+        final MatchupCollection matchupCollection = new MatchupCollection();
+        matchupCollection.add(matchupSet);
+
+        final VariablesConfiguration configuration = mock(VariablesConfiguration.class);
+
+        // test execution
+        MmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);
+
+        // validation
+        final InOrder inOrder = inOrder(configuration);
+        inOrder.verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
+        inOrder.verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
+        verifyNoMoreInteractions(configuration);
+    }
+
+    private Sensor createSensor(String name, boolean isPrimary) {
+        final Sensor primarySensor = new Sensor();
+        primarySensor.setPrimary(isPrimary);
+        primarySensor.setName(name);
+        return primarySensor;
     }
 }
 

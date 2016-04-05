@@ -26,7 +26,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
@@ -34,7 +33,6 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
@@ -42,13 +40,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.*;
-import org.mockito.InOrder;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -69,14 +63,14 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.0" + ls + ls +
-                "usage: matchup-tool <options>" + ls +
-                "Valid options are:" + ls +
-                "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                "   -h,--help            Prints the tool usage." + ls +
-                "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
-                "                        directory." + ls, outputStream.toString());
+                     "usage: matchup-tool <options>" + ls +
+                     "Valid options are:" + ls +
+                     "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                     "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                     "   -h,--help            Prints the tool usage." + ls +
+                     "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                     "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
+                     "                        directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -293,72 +287,4 @@ public class MatchupToolTest {
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
     }
-
-    @Test
-    public void testGetFirstMatchupSet_emptyList() {
-        final MatchupCollection matchupCollection = new MatchupCollection();
-
-        try {
-            MatchupTool.getFirstMatchupSet(matchupCollection);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException expected) {
-        }
-    }
-
-    @Test
-    public void testGetFirstMatchupSet() {
-        final MatchupCollection collection = new MatchupCollection();
-        final MatchupSet first = new MatchupSet();
-        final MatchupSet second = new MatchupSet();
-        collection.add(first);
-        collection.add(second);
-
-        final MatchupSet set = MatchupTool.getFirstMatchupSet(collection);
-
-        assertSame(first, set);
-    }
-
-    @Test
-    public void testVariableConfiguration() throws Exception {
-        //preparation
-        final Sensor primarySensor = createSensor("avhrr-n17", true);
-        final Sensor secondarySensor = createSensor("avhrr-n18", false);
-        final Dimension primaryWindowDimension = new Dimension("avhrr-n17", 5, 4);
-        final Dimension secondaryWindowDimension = new Dimension("avhrr-n18", 5, 4);
-        final Path mockingPrimaryPath = Paths.get("mockingPrimaryPath");
-        final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
-
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension));
-        useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
-
-        final ToolContext toolContext = mock(ToolContext.class);
-        when(toolContext.getUseCaseConfig()).thenReturn(useCaseConfig);
-
-        final MatchupSet matchupSet = new MatchupSet();
-        matchupSet.setPrimaryObservationPath(mockingPrimaryPath);
-        matchupSet.setSecondaryObservationPath(mockingSecondaryPath);
-
-        final MatchupCollection matchupCollection = new MatchupCollection();
-        matchupCollection.add(matchupSet);
-
-        final VariablesConfiguration configuration = mock(VariablesConfiguration.class);
-
-        // test execution
-        MatchupTool.extractPrototypes(configuration, matchupCollection, toolContext);
-
-        // validation
-        final InOrder inOrder = inOrder(configuration);
-        inOrder.verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
-        inOrder.verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
-        verifyNoMoreInteractions(configuration);
-    }
-
-    private Sensor createSensor(String name, boolean isPrimary) {
-        final Sensor primarySensor = new Sensor();
-        primarySensor.setPrimary(isPrimary);
-        primarySensor.setName(name);
-        return primarySensor;
-    }
-
 }
