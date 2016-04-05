@@ -8,6 +8,7 @@
 
 export MMS_HOME='/group_workspaces/cems2/fiduceo/Software/mms'
 export MMS_PYTHON_EXEC='/usr/bin/python'
+export MMS_JAVA_EXEC='/group_workspaces/cems2/fiduceo/Software/jdk1.8.0_73/bin/java'
 
 export PATH=$MMS_HOME/bin:$PATH
 
@@ -90,11 +91,7 @@ submit_job() {
     jobname=$1
     command=$2
 
-    echo ${jobname}
-    echo ${command}
-    echo ${@}
-
-    bsubmit="bsub -R rusage[mem=8192] -m lotus241 -W 12:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${MMS_HOME}/bin/${command} ${@}"
+    bsubmit="bsub -R rusage[mem=8192] -m lotus241 -W 12:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${MMS_HOME}/bin/${command} ${@:3}"
 
     rm -f ${MMS_LOG}/${jobname}.out
     rm -f ${MMS_LOG}/${jobname}.err

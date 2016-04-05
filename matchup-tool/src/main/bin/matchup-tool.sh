@@ -12,8 +12,14 @@ export INSTALLDIR="$(dirname $0)"
 #    '-Xms64M' sets the minimum heap space to 64 megabytes
 #    '-Xmx512M' sets the maximum heap space to 512 megabytes
 #------------------------------------------------------------------
-export JAVA_OPTS="-Xmx2048M"
-export JAVA_EXE="$(which java)"
+export JAVA_OPTS="-Xmx8192M"
+
+# check if we`re running on CEMS, if so take the java executable externally defined
+if [ -z ${MMS_JAVA_EXEC} ]; then
+    export JAVA_EXE="$(MMS_JAVA_EXEC)"
+else
+    export JAVA_EXE="$(which java)"
+fi
 
 # -======================-
 # Other values
