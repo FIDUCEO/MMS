@@ -15,10 +15,12 @@ export INSTALLDIR="$(dirname $0)"
 export JAVA_OPTS="-Xmx8192M"
 
 # check if we`re running on CEMS, if so take the java executable externally defined
-if [ -z ${MMS_JAVA_EXEC} ]; then
-    export JAVA_EXE="$(MMS_JAVA_EXEC)"
-else
+if [ -z "${MMS_JAVA_EXEC}" ]; then
+    # not set, use what we have on the system
     export JAVA_EXE="$(which java)"
+else
+    # yes, we seem to be on CEMS
+    export JAVA_EXE="$MMS_JAVA_EXEC"
 fi
 
 # -======================-
