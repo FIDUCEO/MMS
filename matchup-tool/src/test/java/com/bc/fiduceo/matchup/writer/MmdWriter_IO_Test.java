@@ -20,16 +20,16 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -38,12 +38,13 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -63,8 +64,6 @@ public class MmdWriter_IO_Test {
     @Test
     public void testCreate() throws IOException, InvalidRangeException {
         final MmdWriter mmdWriter = new MmdWriter(10000);
-
-        final File mmdFile = new File(testDir, "test_mmd.nc");
         final List<Dimension> dimemsions = new ArrayList<>();
         dimemsions.add(new Dimension("avhrr-n11", 5, 7));
         dimemsions.add(new Dimension("avhrr-n12", 3, 5));
@@ -106,17 +105,20 @@ public class MmdWriter_IO_Test {
         primarySensor.setPrimary(true);
         final Sensor secondarySensor = new Sensor("avhrr-n12");
         useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
+
+        final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
+
         try {
-            mmdWriter.create(mmdFile, useCaseConfig, variablePrototypes, 2346);
+            mmdWriter.initializeNetcdfFile(mmdFile, useCaseConfig, variablePrototypes, 2346);
         } finally {
             mmdWriter.close();
         }
 
-        assertTrue(mmdFile.isFile());
+        assertTrue(Files.isRegularFile(mmdFile));
 
         NetcdfFile mmd = null;
         try {
-            mmd = NetcdfFile.open(mmdFile.getPath());
+            mmd = NetcdfFile.open(mmdFile.toString());
 
             assertGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)", mmd);
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);

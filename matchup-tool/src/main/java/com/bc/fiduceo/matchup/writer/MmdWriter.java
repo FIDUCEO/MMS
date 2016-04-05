@@ -43,8 +43,8 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -107,8 +107,8 @@ public class MmdWriter {
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         extractPrototypes(variablesConfiguration, matchupCollection, context);
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final File file = createMmdFile(context);
-        create(file, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
+        final Path mmdFile = createMmdFile(context);
+        initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
@@ -187,8 +187,8 @@ public class MmdWriter {
         throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
     }
 
-    void create(File mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
-        netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.getPath());
+    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+        netcdfFileWriter = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, mmdFile.toAbsolutePath().toString());
 
         createGlobalAttributes();
         createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
@@ -278,23 +278,30 @@ public class MmdWriter {
         }
     }
 
-    private File createMmdFile(ToolContext context) throws IOException {
+    private Path createMmdFile(ToolContext context) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
-        final File file = mmdFile.toFile();
-        final File targetDir = file.getParentFile();
-        if (!targetDir.isDirectory()) {
-            if (!targetDir.mkdirs()) {
-                throw new IOException("unable to create mmd output directory '" + targetDir.getAbsolutePath() + "'");
+        final Path targetDir = mmdFile.getParent();
+
+
+        if (!Files.isDirectory(targetDir)) {
+            try {
+                Files.createDirectories(targetDir);
+            } catch (IOException e) {
+                throw new IOException("Unable to create mmd output directory '" + targetDir.toAbsolutePath().toString() + "'");
             }
         }
 
         // @todo 3 tb/tb we might set an overwrite property to the system config later, if requested 2016-03-16
-        if (!file.createNewFile()) {
-            throw new IOException("unable to create mmd output file '" + file.getAbsolutePath() + "'");
+        if (Files.exists(mmdFile)) {
+            throw new IOException("Mmd output file already exists '" + mmdFile.toAbsolutePath().toString() + "'");
         }
-        return file;
+        try {
+            return Files.createFile(mmdFile);
+        } catch (IOException e) {
+            throw new IOException("unable to create mmd output file '" + mmdFile.toAbsolutePath().toString() + "'");
+        }
     }
 
     private Array getTarget(String variableName) {
