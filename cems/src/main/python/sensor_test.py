@@ -14,13 +14,13 @@ class SensorTest(unittest.TestCase):
         self.assertEqual('2007-01-01', sensor.get_period().get_start_date().isoformat())
         self.assertEqual('2008-01-01', sensor.get_period().get_end_date().isoformat())
 
-    def test_get_version_default(self):
+    def test_get_data_version_default(self):
         sensor = Sensor('atsr-en', Period((2007, 1, 1), (2008, 1, 1)))
-        self.assertEqual('', sensor.get_version())
+        self.assertEqual('', sensor.get_data_version())
 
     def test_get_version(self):
         sensor = Sensor('atsr-en', Period((2007, 1, 1), (2008, 1, 1)), 'a_version')
-        self.assertEqual('a_version', sensor.get_version())
+        self.assertEqual('a_version', sensor.get_data_version())
 
     def test_sensor_equality(self):
         sensor_1 = Sensor('atsr-e2', Period((2007, 1, 1), (2008, 1, 1)))

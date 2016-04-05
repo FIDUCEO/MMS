@@ -1,34 +1,13 @@
 #!/bin/bash
 set -x
-# example usage: ingestion-run.sh 2003 01 mms2
+# example usage: ingestion-run.sh avhrr-n07 1982-234 1982-231 v01.2 ./config_dir
 
-year=$1
-month=$2
-usecase=$3
+sensor=$1
+start_date=$2
+end_date=$3
+data_version=$4
+config_dir=$5
 
-echo "`date -u +%Y%m%d-%H%M%S` ingestion ${year}/${month} ..."
+echo "`date -u +%Y%m%d-%H%M%S` ingestion ${start_date} - ${end_date} ..."
 
-${mms.home}/bin/ingestion-tool.sh -c ${mms.home}/config/${usecase}-config.properties \
--Dmms.source.11.inputDirectory=atsr.1/v2.1/${year}/${month} \
--Dmms.source.12.inputDirectory=atsr.2/v2.1/${year}/${month} \
--Dmms.source.13.inputDirectory=atsr.3/v2.1/${year}/${month} \
--Dmms.source.18.inputDirectory=avhrr.n06/v01.2/${year}/${month} \
--Dmms.source.19.inputDirectory=avhrr.n07/v01.2/${year}/${month} \
--Dmms.source.20.inputDirectory=avhrr.n08/v01.2/${year}/${month} \
--Dmms.source.21.inputDirectory=avhrr.n09/v01.2/${year}/${month} \
--Dmms.source.22.inputDirectory=avhrr.n10/v01.2/${year}/${month} \
--Dmms.source.23.inputDirectory=avhrr.n11/v01.2/${year}/${month} \
--Dmms.source.24.inputDirectory=avhrr.n12/v01.2/${year}/${month} \
--Dmms.source.26.inputDirectory=avhrr.n14/v01.2/${year}/${month} \
--Dmms.source.27.inputDirectory=avhrr.n15/v01.2/${year}/${month} \
--Dmms.source.28.inputDirectory=avhrr.n16/v01.2/${year}/${month} \
--Dmms.source.29.inputDirectory=avhrr.n17/v01.2/${year}/${month} \
--Dmms.source.30.inputDirectory=avhrr.n18/v01.2/${year}/${month} \
--Dmms.source.31.inputDirectory=avhrr.n19/v01.2/${year}/${month} \
--Dmms.source.32.inputDirectory=avhrr.m02/v01.2/${year}/${month} \
--Dmms.source.33.inputDirectory=avhrr.m01/v01/${year}/${month} \
--Dmms.source.34.inputDirectory=avhrr_f.m02/v1/${year}/${month} \
--Dmms.source.35.inputDirectory=avhrr_f.m01/v1/${year}/${month} \
--Dmms.source.36.inputDirectory=amsr2/v1/${year}/${month} \
--Dmms.source.43.inputDirectory=aerosol-aai/v01/${year}/${month} \
--Dmms.source.44.inputDirectory=sea-ice/v01/${year}/${month}
+${MMS_HOME}/bin/ingestion-tool.sh -s ${sensor} -start ${start_date} -end ${end_date} -v ${data_version} -c ${config_dir}
