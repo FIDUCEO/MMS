@@ -89,7 +89,12 @@ wait_for_task_jobs_completion() {
 submit_job() {
     jobname=$1
     command=$2
-    bsubmit="bsub -R rusage[mem=20480] -m lotus241 -W 24:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${mms.home}/bin/${command} ${@:3}"
+
+    echo ${jobname}
+    echo ${command}
+    echo ${@:3}
+
+    bsubmit="bsub -R rusage[mem=8192] -m lotus241 -W 12:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${MMS_HOME}/bin/${command} ${@:3}"
 
     rm -f ${MMS_LOG}/${jobname}.out
     rm -f ${MMS_LOG}/${jobname}.err
