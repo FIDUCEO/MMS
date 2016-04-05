@@ -3,8 +3,8 @@
 echo "pmstart"
 
 if [ -z "$1" ]; then
-    echo "call   : pmstart <workflow>"
-    echo "example: pmstart usecase-17.py"
+    echo "call   : pmstart.sh <workflow>"
+    echo "example: pmstart.sh usecase-17.py"
     exit 1
 fi
 

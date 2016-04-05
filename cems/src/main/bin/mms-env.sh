@@ -92,9 +92,9 @@ submit_job() {
 
     echo ${jobname}
     echo ${command}
-    echo ${@:3}
+    echo ${@}
 
-    bsubmit="bsub -R rusage[mem=8192] -m lotus241 -W 12:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${MMS_HOME}/bin/${command} ${@:3}"
+    bsubmit="bsub -R rusage[mem=8192] -m lotus241 -W 12:00 -P fiduceo -cwd ${MMS_INST} -oo ${MMS_LOG}/${jobname}.out -eo ${MMS_LOG}/${jobname}.err -J ${jobname} ${MMS_HOME}/bin/${command} ${@}"
 
     rm -f ${MMS_LOG}/${jobname}.out
     rm -f ${MMS_LOG}/${jobname}.err

@@ -5,14 +5,14 @@
 sensor=$1
 start_date=$2
 end_date=$3
-veriosn=$4
+version=$4
 config_dir=$5
 
 task="ingest"
 jobname="${task}-${sensor}-${version}-${start_date}-${end_date}"
 echo ${jobname}
 
-command="${task}_run.sh ${sensor} ${month} ${usecase}"
+command="${task}_run.sh ${sensor} ${start_date} ${end_date} ${version} ${config_dir}"
 
 echo "`date -u +%Y%m%d-%H%M%S` submitting job '${jobname}'"
 
