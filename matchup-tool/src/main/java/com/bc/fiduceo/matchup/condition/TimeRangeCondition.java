@@ -17,14 +17,13 @@
 package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TimeRangeCondition implements Condition{
+class TimeRangeCondition implements Condition {
 
     private final long startTime;
     private final long endTime;
@@ -40,7 +39,7 @@ public class TimeRangeCondition implements Condition{
         final List<SampleSet> targetSets = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {
             final long time = sampleSet.getPrimary().time;
-            if(time >= startTime && time <= endTime) {
+            if (time >= startTime && time <= endTime) {
                 targetSets.add(sampleSet);
             }
         }

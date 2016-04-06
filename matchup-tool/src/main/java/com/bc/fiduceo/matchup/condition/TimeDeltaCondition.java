@@ -27,7 +27,7 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimeDeltaCondition implements Condition {
+class TimeDeltaCondition implements Condition {
 
     private final long maxTimeDeltaInMillis;
 

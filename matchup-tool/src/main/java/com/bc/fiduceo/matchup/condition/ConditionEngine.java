@@ -54,7 +54,7 @@ public class ConditionEngine {
             conditions.add(distanceCondition);
         }
 
-        if (startDate != null && endDate != null && startDate.compareTo(endDate)<0) {
+        if (startDate != null && endDate != null && startDate.before(endDate)) {
             final TimeRangeCondition timeRangeCondition = new TimeRangeCondition(startDate, endDate);
             conditions.add(timeRangeCondition);
         }

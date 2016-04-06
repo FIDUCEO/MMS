@@ -29,7 +29,7 @@ import org.esa.snap.core.util.math.SphericalDistance;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DistanceCondition implements Condition {
+class DistanceCondition implements Condition {
 
     private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
