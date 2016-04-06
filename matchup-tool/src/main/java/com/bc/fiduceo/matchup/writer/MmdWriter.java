@@ -104,6 +104,8 @@ public class MmdWriter {
             return;
         }
 
+        logger.info("Start writing mmd-file ...");
+
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         extractPrototypes(variablesConfiguration, matchupCollection, context);
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -148,7 +150,9 @@ public class MmdWriter {
         }
 
         stopWatch.stop();
-        System.out.println("stopWatch.getTimeDiffString() = " + stopWatch.getTimeDiffString());
+
+        logger.info("Successfully wrote mmd-file to '" + mmdFile.toAbsolutePath().toString() + "'");
+        logger.info("Write ting time: '" + stopWatch.getTimeDiffString());
 
         close();
     }
@@ -243,20 +247,31 @@ public class MmdWriter {
         for (Map.Entry<String, Array> entry : dataCacheMap.entrySet()) {
             final String variableName = entry.getKey();
             final Variable variable = variableMap.get(variableName);
+
             Array dataToBeWritten = entry.getValue();
+            final int[] shape = dataToBeWritten.getShape();
+            final int[] origin = new int[shape.length];
+            final int[] stride = createStride(shape);
 
             final int matchupCount = variable.getShape(0);
             final int zStart = flushCount * cacheSize;
             if (zStart + cacheSize > matchupCount) {
                 final int restHeight = matchupCount - zStart;
-                final int[] shape = dataToBeWritten.getShape();
                 shape[0] = restHeight;
-                dataToBeWritten = dataToBeWritten.section(new int[shape.length], shape);
+                dataToBeWritten = dataToBeWritten.sectionNoReduce(origin, shape, stride);
             }
-            final int[] origin = {zStart, 0, 0};
+            origin[0] = zStart;
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
         }
         flushCount++;
+    }
+
+    private int[] createStride(int[] shape) {
+        final int[] stride = new int[shape.length];
+        for (int i = 0; i < shape.length; i++) {
+            stride[i] = 1;
+        }
+        return stride;
     }
 
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
@@ -283,7 +298,6 @@ public class MmdWriter {
         final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
         final Path targetDir = mmdFile.getParent();
-
 
         if (!Files.isDirectory(targetDir)) {
             try {

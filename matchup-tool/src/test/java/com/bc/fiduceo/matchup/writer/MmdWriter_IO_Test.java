@@ -27,6 +27,11 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
 import org.junit.runner.*;
@@ -200,6 +205,58 @@ public class MmdWriter_IO_Test {
         }
     }
 
+    @Test
+    public void testWrite_usecase02_AVHRR() throws IOException, InvalidRangeException {
+        final MmdWriter mmdWriter = new MmdWriter(128);
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+
+        final MatchupCollection matchupCollection = createMatchupCollection_AVHRR(testDataDirectory);
+
+        final ToolContext context = new ToolContext();
+        final UseCaseConfig useCaseConfig = createUseCaseConfig_AVHRR();
+        context.setUseCaseConfig(useCaseConfig);
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
+        context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
+
+        try {
+            mmdWriter.writeMMD(matchupCollection, context);
+        } finally {
+            mmdWriter.close();
+        }
+    }
+
+    private UseCaseConfig createUseCaseConfig_AVHRR() throws IOException {
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        useCaseConfig.setName("mmd02");
+        final ArrayList<Sensor> sensorList = new ArrayList<>();
+        final Sensor primary = new Sensor("avhrr-n10");
+        primary.setPrimary(true);
+        sensorList.add(primary);
+        sensorList.add(new Sensor("avhrr-n11"));
+        useCaseConfig.setSensors(sensorList);
+        final ArrayList<Dimension> dimensionList = new ArrayList<>();
+        dimensionList.add(new Dimension("avhrr-n10", 5, 5));
+        dimensionList.add(new Dimension("avhrr-n11", 5, 5));
+        useCaseConfig.setDimensions(dimensionList);
+        useCaseConfig.setOutputPath(testDir.getAbsolutePath());
+        return useCaseConfig;
+    }
+
+    private static MatchupCollection createMatchupCollection_AVHRR(File testDataDirectory) {
+        final MatchupCollection matchupCollection = new MatchupCollection();
+        final MatchupSet matchupSet = new MatchupSet();
+        final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", "v01.2", "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
+        matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
+        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", "v01.2", "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
+        matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
+        final SampleSet sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(0, 8981, 34.726, -67.245, 610071188));
+        sampleSet.setSecondary(new Sample(408, 819, 34.793, -67.246, 610071904));
+        matchupSet.getSampleSets().add(sampleSet);
+        matchupCollection.add(matchupSet);
+        return matchupCollection;
+    }
+
     private void assertCorrectDimensions(Variable variable, int z, int y, int x) {
         assertEquals(z, variable.getDimension(0).getLength());
         assertEquals(y, variable.getDimension(1).getLength());
@@ -221,7 +278,7 @@ public class MmdWriter_IO_Test {
     }
 
     private void assertGlobalAttribute(String name, String value, NetcdfFile mmd) {
-        Attribute globalAttribute = mmd.findGlobalAttribute(name);
+        final Attribute globalAttribute = mmd.findGlobalAttribute(name);
         assertNotNull(globalAttribute);
         assertEquals(value, globalAttribute.getStringValue());
     }
