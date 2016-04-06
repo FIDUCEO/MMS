@@ -264,14 +264,6 @@ public class MmdWriter {
         flushCount++;
     }
 
-    private int[] createStride(int[] shape) {
-        final int[] stride = new int[shape.length];
-        for (int i = 0; i < shape.length; i++) {
-            stride[i] = 1;
-        }
-        return stride;
-    }
-
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
         final int x = sample.x;
         final int y = sample.y;
