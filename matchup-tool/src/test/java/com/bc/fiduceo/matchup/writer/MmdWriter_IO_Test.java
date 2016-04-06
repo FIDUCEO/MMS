@@ -173,7 +173,10 @@ public class MmdWriter_IO_Test {
             assertDimension("avhrr-n12_ny", 5, mmd);
             assertDimension("matchup_count", 2346, mmd);
 
-            Variable variable = mmd.findVariable("avhrr-n11_ch3b");
+            Variable variable;
+            Attribute att;
+
+            variable = mmd.findVariable("avhrr-n11_ch3b");
             assertNotNull(variable);
             assertCorrectDimensions(variable, 2346, 7, 5);
             assertEquals(DataType.SHORT, variable.getDataType());
@@ -193,6 +196,84 @@ public class MmdWriter_IO_Test {
             assertCorrectDimensions(variable, 2346, 5, 3);
             assertEquals(DataType.FLOAT, variable.getDataType());
 
+            variable = mmd.findVariable("avhrr-n11_x");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("pixel original x location in satellite raster", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n12_x");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("pixel original x location in satellite raster", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n11_y");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("pixel original y location in satellite raster", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n12_y");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("pixel original y location in satellite raster", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n11_file_name");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 128);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("file name of the original data file", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n12_file_name");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 128);
+            assertEquals(1, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("file name of the original data file", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n11_acquisition_time");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 7, 5);
+            assertEquals(3, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("acquisition time of original pixel", att.getStringValue());
+            att = variable.findAttribute("unit");
+            assertNotNull(att);
+            assertEquals("seconds since 1970-01-01", att.getStringValue());
+            att = variable.findAttribute("_FillValue");
+            assertNotNull(att);
+            assertEquals("-2147483648", att.getStringValue());
+
+            variable = mmd.findVariable("avhrr-n12_acquisition_time");
+            assertNotNull(variable);
+            assertCorrectDimensions(variable, 2346, 5, 3);
+            assertEquals(3, variable.getAttributes().size());
+            att = variable.findAttribute("description");
+            assertNotNull(att);
+            assertEquals("acquisition time of original pixel", att.getStringValue());
+            att = variable.findAttribute("unit");
+            assertNotNull(att);
+            assertEquals("seconds since 1970-01-01", att.getStringValue());
+            att = variable.findAttribute("_FillValue");
+            assertNotNull(att);
+            assertEquals("-2147483648", att.getStringValue());
+
+            final List<Variable> variables = mmd.getVariables();
+            assertEquals(12, variables.size());
         } finally {
             if (mmd != null) {
                 mmd.close();
@@ -200,10 +281,13 @@ public class MmdWriter_IO_Test {
         }
     }
 
-    private void assertCorrectDimensions(Variable variable, int z, int y, int x) {
-        assertEquals(z, variable.getDimension(0).getLength());
-        assertEquals(y, variable.getDimension(1).getLength());
-        assertEquals(x, variable.getDimension(2).getLength());
+    private void assertCorrectDimensions(Variable variable, int... dims) {
+        final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
+        assertEquals(dims.length, dimensions.size());
+        for (int i = 0; i < dims.length; i++) {
+            int dim = dims[i];
+            assertEquals("wrong dimension at idx " + i, dim, dimensions.get(i).getLength());
+        }
     }
 
     private void assertDimension(String name, int expected, NetcdfFile mmd) {

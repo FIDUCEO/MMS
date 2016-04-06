@@ -324,12 +324,22 @@ public class MmdWriter {
     private void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
         for (Dimension dimension : dimensions) {
             final String sensorName = dimension.getName();
-            netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
-            netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
-            netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.CHAR, "matchup_count file_name");
+
+            final Variable variableX = netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
+            variableX.addAttribute(new Attribute("description", "pixel original x location in satellite raster"));
+
+            final Variable variableY = netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
+            variableY.addAttribute(new Attribute("description", "pixel original y location in satellite raster"));
+
+            final Variable variableFileName = netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.CHAR, "matchup_count file_name");
+            variableFileName.addAttribute(new Attribute("description", "file name of the original data file"));
+
             final String yDimension = getDimensionNameNy(sensorName);
             final String xDimension = getDimensionNameNx(sensorName);
-            netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
+            final Variable variableAcqTime = netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
+            variableAcqTime.addAttribute(new Attribute("description", "acquisition time of original pixel"));
+            variableAcqTime.addAttribute(new Attribute("unit", "seconds since 1970-01-01"));
+            variableAcqTime.addAttribute(new Attribute("_FillValue", "-2147483648"));
         }
     }
 
