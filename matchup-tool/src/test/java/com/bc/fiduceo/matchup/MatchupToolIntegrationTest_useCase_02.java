@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
@@ -36,10 +37,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,37 +126,38 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         final NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath());
         try {
-            assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
-            assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
-            assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
-            assertScalarVariable("avhrr-n18_x", 3, 79.0, mmd);
-            assertScalarVariable("avhrr-n18_y", 4, 2306.0, mmd);
-            assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
+            NCTestUtils.assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
+            NCTestUtils.assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
 
-            assert2DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
-            assert2DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
+            NCTestUtils.assertScalarVariable("avhrr-n18_x", 3, 79.0, mmd);
+            NCTestUtils.assertScalarVariable("avhrr-n18_y", 4, 2306.0, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
 
-            assert2DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
-            assert2DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
-            assert2DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
-            assert2DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
-            assert2DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
-            assert2DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
-            assert2DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
-            assert2DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
-            assert2DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
-            assert2DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
-            assert2DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
-            assert2DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
-            assert2DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
-            assert2DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
-            assert2DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
-            assert2DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
-            assert2DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
 
-            assert2DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
-            assert2DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
-            assert2DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
+
+            NCTestUtils.assert3DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
             // @todo 2 tb/** add more assertions here
         } finally {
             mmd.close();
@@ -229,27 +229,5 @@ public class MatchupToolIntegrationTest_useCase_02 {
         useCaseConfig.setDimensions(dimensions);
 
         return useCaseConfig;
-    }
-
-    private void assertScalarVariable(String variableName, int index, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final Variable variable = mmd.findVariable(variableName);
-        assertNotNull(variable);
-        final Array data = variable.read(new int[]{index}, new int[]{1});
-        assertEquals(expected, data.getDouble(0), 1e-8);
-    }
-
-    private void assert2DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final Variable variable = mmd.findVariable(variableName);
-        assertNotNull(variable);
-        final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
-        assertEquals(expected, data.getDouble(0), 1e-8);
-    }
-
-    private void assertStringVariable(String variableName, int index, String expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final Variable variable = mmd.findVariable(variableName);
-        assertNotNull(variable);
-        final Array data = variable.read(new int[]{index, 0}, new int[]{1, 128});
-        final char[] valueAsArray = (char[]) data.get1DJavaArray(char.class);
-        assertEquals(expected, new String(valueAsArray).trim());
     }
 }

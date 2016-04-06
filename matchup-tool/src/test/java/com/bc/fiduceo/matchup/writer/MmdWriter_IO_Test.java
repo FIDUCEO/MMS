@@ -20,9 +20,8 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
@@ -33,8 +32,10 @@ import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -50,6 +51,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -135,41 +140,41 @@ public class MmdWriter_IO_Test {
             assertNotNull(comment);
             assertEquals(DataType.STRING, comment.getDataType());
             assertEquals(
-                        "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'.",
-                        comment.getStringValue()
+                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'.",
+                    comment.getStringValue()
             );
 
             final Attribute useCaseConfigAttr = mmd.findGlobalAttribute("use-case-configuration");
             assertNotNull(useCaseConfigAttr);
             assertEquals(DataType.STRING, useCaseConfigAttr.getDataType());
             assertEquals(
-                        "<use-case-config name=\"useCaseName\">\n" +
-                        "  <sensors class=\"java.util.Arrays$ArrayList\">\n" +
-                        "    <a class=\"sensor-array\">\n" +
-                        "      <sensor>\n" +
-                        "        <name>avhrr-n11</name>\n" +
-                        "        <primary>true</primary>\n" +
-                        "      </sensor>\n" +
-                        "      <sensor>\n" +
-                        "        <name>avhrr-n12</name>\n" +
-                        "        <primary>false</primary>\n" +
-                        "      </sensor>\n" +
-                        "    </a>\n" +
-                        "  </sensors>\n" +
-                        "  <dimensions>\n" +
-                        "    <dimension name=\"avhrr-n11\">\n" +
-                        "      <nx>5</nx>\n" +
-                        "      <ny>7</ny>\n" +
-                        "    </dimension>\n" +
-                        "    <dimension name=\"avhrr-n12\">\n" +
-                        "      <nx>3</nx>\n" +
-                        "      <ny>5</ny>\n" +
-                        "    </dimension>\n" +
-                        "  </dimensions>\n" +
-                        "  <time-delta-seconds>-1</time-delta-seconds>\n" +
-                        "  <max-pixel-distance-km>-1.0</max-pixel-distance-km>\n" +
-                        "</use-case-config>",
-                        useCaseConfigAttr.getStringValue()
+                    "<use-case-config name=\"useCaseName\">\n" +
+                            "  <sensors class=\"java.util.Arrays$ArrayList\">\n" +
+                            "    <a class=\"sensor-array\">\n" +
+                            "      <sensor>\n" +
+                            "        <name>avhrr-n11</name>\n" +
+                            "        <primary>true</primary>\n" +
+                            "      </sensor>\n" +
+                            "      <sensor>\n" +
+                            "        <name>avhrr-n12</name>\n" +
+                            "        <primary>false</primary>\n" +
+                            "      </sensor>\n" +
+                            "    </a>\n" +
+                            "  </sensors>\n" +
+                            "  <dimensions>\n" +
+                            "    <dimension name=\"avhrr-n11\">\n" +
+                            "      <nx>5</nx>\n" +
+                            "      <ny>7</ny>\n" +
+                            "    </dimension>\n" +
+                            "    <dimension name=\"avhrr-n12\">\n" +
+                            "      <nx>3</nx>\n" +
+                            "      <ny>5</ny>\n" +
+                            "    </dimension>\n" +
+                            "  </dimensions>\n" +
+                            "  <time-delta-seconds>-1</time-delta-seconds>\n" +
+                            "  <max-pixel-distance-km>-1.0</max-pixel-distance-km>\n" +
+                            "</use-case-config>",
+                    useCaseConfigAttr.getStringValue()
             );
 
             assertDimension("avhrr-n11_nx", 5, mmd);
@@ -286,16 +291,9 @@ public class MmdWriter_IO_Test {
         }
     }
 
-    private void assertCorrectDimensions(Variable variable, int... dims) {
-        final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
-        assertEquals(dims.length, dimensions.size());
-        for (int i = 0; i < dims.length; i++) {
-            int dim = dims[i];
-            assertEquals("wrong dimension at idx " + i, dim, dimensions.get(i).getLength());
-        }
     @Test
     public void testWrite_usecase02_AVHRR() throws IOException, InvalidRangeException {
-        final MmdWriter mmdWriter = new MmdWriter(128);
+        final MmdWriter mmdWriter = new MmdWriter(6);
         final File testDataDirectory = TestUtil.getTestDataDirectory();
 
         final MatchupCollection matchupCollection = createMatchupCollection_AVHRR(testDataDirectory);
@@ -306,10 +304,34 @@ public class MmdWriter_IO_Test {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
+        mmdWriter.writeMMD(matchupCollection, context);
+        mmdWriter.close();
+
+
+        NetcdfFile netcdfFile = null;
         try {
-            mmdWriter.writeMMD(matchupCollection, context);
+            netcdfFile = NetcdfFile.open(testDir.getAbsolutePath() + File.separator + "mmd02_avhrr-n10_avhrr-n11_1989-122_1989-123.nc");
+
+            NCTestUtils.assertScalarVariable("avhrr-n10_x", 0, 0.0, netcdfFile);
+            NCTestUtils.assertScalarVariable("avhrr-n10_y", 1, 8982.0, netcdfFile);
+            NCTestUtils.assertStringVariable("avhrr-n10_file_name", 2, "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc", netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, 610066698.0, netcdfFile);
+
+            NCTestUtils.assertScalarVariable("avhrr-n11_x", 4, 408.0, netcdfFile);
+            NCTestUtils.assertScalarVariable("avhrr-n11_y", 5, 824.0, netcdfFile);
+            NCTestUtils.assertStringVariable("avhrr-n11_file_name", 6, "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc", netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_acquisition_time", 1, 0, 7, 610071907.0, netcdfFile);
+
+            NCTestUtils.assert3DVariable("avhrr-n11_lat", 2, 0, 0, -67.18399810791016, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_lon", 3, 0, 1, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 2, 1e-45, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch1", 0, 1, 3, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch2", 1, 1, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 2, 1, 5, 0.0, netcdfFile);
         } finally {
-            mmdWriter.close();
+            if (netcdfFile != null) {
+                netcdfFile.close();
+            }
         }
     }
 
@@ -337,10 +359,12 @@ public class MmdWriter_IO_Test {
         matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
         final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", "v01.2", "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
         matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
-        final SampleSet sampleSet = new SampleSet();
-        sampleSet.setPrimary(new Sample(0, 8981, 34.726, -67.245, 610071188));
-        sampleSet.setSecondary(new Sample(408, 819, 34.793, -67.246, 610071904));
-        matchupSet.getSampleSets().add(sampleSet);
+        for (int i = 0; i < 8; i++) {
+            final SampleSet sampleSet = new SampleSet();
+            sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));
+            sampleSet.setSecondary(new Sample(408, 819 + i, 34.793, -67.246, 610071904));
+            matchupSet.getSampleSets().add(sampleSet);
+        }
         matchupCollection.add(matchupSet);
         return matchupCollection;
     }
@@ -369,5 +393,14 @@ public class MmdWriter_IO_Test {
         final Attribute globalAttribute = mmd.findGlobalAttribute(name);
         assertNotNull(globalAttribute);
         assertEquals(value, globalAttribute.getStringValue());
+    }
+
+    private void assertCorrectDimensions(Variable variable, int... dims) {
+        final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
+        assertEquals(dims.length, dimensions.size());
+        for (int i = 0; i < dims.length; i++) {
+            int dim = dims[i];
+            assertEquals("wrong dimension at idx " + i, dim, dimensions.get(i).getLength());
+        }
     }
 }
