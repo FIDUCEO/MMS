@@ -303,7 +303,6 @@ public class MmdWriter_IO_Test {
         mmdWriter.writeMMD(matchupCollection, context);
         mmdWriter.close();
 
-
         NetcdfFile netcdfFile = null;
         try {
             netcdfFile = NetcdfFile.open(testDir.getAbsolutePath() + File.separator + "mmd02_avhrr-n10_avhrr-n11_1989-122_1989-123.nc");
@@ -323,7 +322,35 @@ public class MmdWriter_IO_Test {
             NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 2, 1e-45, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_ch1", 0, 1, 3, 0.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_ch2", 1, 1, 4, 0.0, netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 2, 1, 5, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 2, 1, 5, -2968.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch4", 3, 1, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch5", 4, 1, 7, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_mask", 0, 2, 0, 7.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_probability", 1, 2, 1, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ict_temp", 3, 2, 3, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_l1b_line_number", 4, 2, 4, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_qual_flags", 0, 3, 5, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_relative_azimuth_angle", 1, 3, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_satellite_zenith_angle", 2, 3, 7, 6957.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_solar_zenith_angle", 3, 3, 0, -32768.0, netcdfFile);
+
+            NCTestUtils.assert3DVariable("avhrr-n10_lat", 4, 3, 1, -67.66300201416016, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_lon", 0, 4, 2, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_dtime", 1, 4, 3, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch1", 2, 4, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch2", 3, 4, 5, 46.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch3b", 4, 4, 6, -1197.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch4", 0, 0, 7, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_cloud_mask", 1, 0, 0, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_cloud_probability", 1, 0, 1, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ict_temp", 2, 0, 2, 2052.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_l1b_line_number", 3, 0, 3, 8983.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_qual_flags", 4, 0, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_relative_azimuth_angle", 0, 1, 5, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 1, 1, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 2, 1, 6, 6844.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 3, 1, 6, 6797.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_solar_zenith_angle", 4, 1, 7, 12181.0, netcdfFile);
         } finally {
             if (netcdfFile != null) {
                 netcdfFile.close();
