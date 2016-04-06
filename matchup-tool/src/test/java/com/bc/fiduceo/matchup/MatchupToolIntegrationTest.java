@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
@@ -31,24 +33,33 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.InvalidRangeException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
-
 @RunWith(IOTestRunner.class)
 public class MatchupToolIntegrationTest {
 
+    private final String ls = System.lineSeparator();
+    private final String expectedPrintUsage = "matchup-tool version 1.0.0" + ls +
+                                              "" + ls +
+                                              "usage: matchup-tool <options>" + ls +
+                                              "Valid options are:" + ls +
+                                              "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                                              "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                                              "   -h,--help            Prints the tool usage." + ls +
+                                              "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                                              "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
+                                              "                        directory." + ls;
     private File configDir;
 
     @Before
@@ -65,22 +76,22 @@ public class MatchupToolIntegrationTest {
         TestUtil.deleteTestDirectory();
     }
 
-
     @Test
-    public void testRunMatchup_notInputParameter() throws ParseException, IOException, SQLException, InvalidRangeException {
-        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2016-02-15
+    public void testRunMatchup_notInputParameter_printUsageExpected() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String[] args = new String[0];
-        MatchupToolMain.main(args);
+        final String errOutput = callMatchupToolMain_wrappedWithSystemErrSpy(args);
+        assertEquals(expectedPrintUsage, errOutput);
     }
 
     @Test
-    public void testRunMatchup_help() throws ParseException, IOException, SQLException, InvalidRangeException {
-        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2016-02-16
+    public void testRunMatchup_withHelpParameter_printUsageExpected() throws ParseException, IOException, SQLException, InvalidRangeException {
         String[] args = new String[]{"-h"};
-        MatchupToolMain.main(args);
+        final String errOut = callMatchupToolMain_wrappedWithSystemErrSpy(args);
+        assertEquals(expectedPrintUsage, errOut);
 
         args = new String[]{"--help"};
-        MatchupToolMain.main(args);
+        final String errOutput = callMatchupToolMain_wrappedWithSystemErrSpy(args);
+        assertEquals(expectedPrintUsage, errOutput);
     }
 
     @Test
@@ -95,6 +106,8 @@ public class MatchupToolIntegrationTest {
             MatchupToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            final String path = new File(configDir, "system.properties").getAbsolutePath();
+            assertEquals("Configuration file not found: " + path, expected.getMessage());
         }
     }
 
@@ -110,6 +123,8 @@ public class MatchupToolIntegrationTest {
             MatchupToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            final String path = new File(configDir, "database.properties").getAbsolutePath();
+            assertEquals("Configuration file not found: " + path, expected.getMessage());
         }
     }
 
@@ -124,6 +139,7 @@ public class MatchupToolIntegrationTest {
             MatchupToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("Use case configuration file not supplied", expected.getMessage());
         }
     }
 
@@ -140,6 +156,7 @@ public class MatchupToolIntegrationTest {
             MatchupToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("cmd-line parameter `start` missing", expected.getMessage());
         }
     }
 
@@ -156,6 +173,7 @@ public class MatchupToolIntegrationTest {
             MatchupToolMain.main(args);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("cmd-line parameter `end` missing", expected.getMessage());
         }
     }
 
@@ -188,6 +206,19 @@ public class MatchupToolIntegrationTest {
             storage.clear();
             storage.close();
         }
+    }
+
+    private String callMatchupToolMain_wrappedWithSystemErrSpy(String[] args) throws ParseException, IOException, SQLException, InvalidRangeException {
+        final PrintStream err = System.err;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(out);
+        System.setErr(printStream);
+
+        MatchupToolMain.main(args);
+
+        System.setErr(err);
+        printStream.close();
+        return out.toString();
     }
 
     private SatelliteObservation createSatelliteObservation(Geometry geometry, String sensorName, String startDate, String stopDate) {
