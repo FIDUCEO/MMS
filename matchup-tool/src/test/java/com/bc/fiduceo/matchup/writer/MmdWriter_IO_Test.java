@@ -69,6 +69,7 @@ public class MmdWriter_IO_Test {
 
     @Test
     public void testCreate() throws IOException, InvalidRangeException {
+//        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(10000);
         final MmdWriter mmdWriter = new MmdWriter(10000);
         final List<Dimension> dimemsions = new ArrayList<>();
         dimemsions.add(new Dimension("avhrr-n11", 5, 7));
@@ -289,6 +290,7 @@ public class MmdWriter_IO_Test {
 
     @Test
     public void testWrite_usecase02_AVHRR() throws IOException, InvalidRangeException {
+//        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(6);
         final MmdWriter mmdWriter = new MmdWriter(6);
         final File testDataDirectory = TestUtil.getTestDataDirectory();
 

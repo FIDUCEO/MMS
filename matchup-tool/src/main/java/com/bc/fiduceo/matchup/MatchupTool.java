@@ -37,6 +37,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.matchup.writer.MmdWriterNC4;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
@@ -281,6 +282,7 @@ class MatchupTool {
         System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
         final int cacheSize = 2048;
+        //final MmdWriterNC4 mmdWriter = new MmdWriterNC4(cacheSize);
         final MmdWriter mmdWriter = new MmdWriter(cacheSize);
         mmdWriter.writeMMD(matchupCollection, context);
     }

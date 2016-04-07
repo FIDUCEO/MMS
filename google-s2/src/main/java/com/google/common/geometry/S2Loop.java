@@ -771,12 +771,12 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
           crosses = crosser.robustCrossing(vertex(b2)) > 0;
           previousIndex = b2;
           if (crosses ) {
-            log.info("Edges " + a1 + " and " + b1 + " cross");
-            log.info(String.format("Edge locations in degrees: " + "%s-%s and %s-%s",
-                new S2LatLng(vertex(a1)).toStringDegrees(),
-                new S2LatLng(vertex(a2)).toStringDegrees(),
-                new S2LatLng(vertex(b1)).toStringDegrees(),
-                new S2LatLng(vertex(b2)).toStringDegrees()));
+//            log.info("Edges " + a1 + " and " + b1 + " cross");
+//            log.info(String.format("Edge locations in degrees: " + "%s-%s and %s-%s",
+//                new S2LatLng(vertex(a1)).toStringDegrees(),
+//                new S2LatLng(vertex(a2)).toStringDegrees(),
+//                new S2LatLng(vertex(b1)).toStringDegrees(),
+//                new S2LatLng(vertex(b2)).toStringDegrees()));
             return false;
           }
         }

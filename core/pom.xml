@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-netcdf</artifactId>
+            <artifactId>snap-core</artifactId>
         </dependency>
 
         <dependency>
@@ -48,6 +48,15 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>cdm</artifactId>
         </dependency>
 
         <dependency>
