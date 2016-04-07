@@ -301,7 +301,6 @@ public class MmdWriter_IO_Test {
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
         mmdWriter.writeMMD(matchupCollection, context);
-        mmdWriter.close();
 
         NetcdfFile netcdfFile = null;
         try {

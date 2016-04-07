@@ -98,75 +98,88 @@ public class MmdWriter {
         return nameBuilder.toString();
     }
 
+    /**
+     * Writes the complete MatchupCollection matchup data to the MD file.
+     * Closes the file!
+     *
+     * @param matchupCollection the matchup data collection
+     * @param context the ToolContext
+     *
+     * @throws IOException
+     * @throws InvalidRangeException
+     */
     public void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
             return;
         }
 
-        logger.info("Start writing mmd-file ...");
+        try {
+            logger.info("Start writing mmd-file ...");
 
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        extractPrototypes(variablesConfiguration, matchupCollection, context);
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final Path mmdFile = createMmdFile(context);
-        initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
+            final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+            extractPrototypes(variablesConfiguration, matchupCollection, context);
+            final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+            final Path mmdFile = createMmdFile(context);
+            initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
 
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
-        final String primarySensorName = primarySensor.getName();
-        final String secondarySensorName = secondarySensor.getName();
-        final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
-        final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
-        final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
-        final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
-        final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
-        final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
+            final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+            final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+            final String primarySensorName = primarySensor.getName();
+            final String secondarySensorName = secondarySensor.getName();
+            final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
+            final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
+            final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
+            final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
+            final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
+            final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
 
-        final ReaderFactory readerFactory = ReaderFactory.get();
+            final ReaderFactory readerFactory = ReaderFactory.get();
 
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+            final StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
 
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        int zIndex = 0;
-        for (MatchupSet set : sets) {
-            final Path primaryObservationPath = set.getPrimaryObservationPath();
-            final Path secondaryObservationPath = set.getSecondaryObservationPath();
-            try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
-                 final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
-                primaryReader.open(primaryObservationPath.toFile());
-                secondaryReader.open(secondaryObservationPath.toFile());
-                final List<SampleSet> sampleSets = set.getSampleSets();
-                for (SampleSet sampleSet : sampleSets) {
-                    writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
-                    writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
-                    zIndex++;
-                    if (zIndex > 0 && zIndex % cacheSize == 0) {
-                        flush();
+            final List<MatchupSet> sets = matchupCollection.getSets();
+            int zIndex = 0;
+            for (MatchupSet set : sets) {
+                final Path primaryObservationPath = set.getPrimaryObservationPath();
+                final Path secondaryObservationPath = set.getSecondaryObservationPath();
+                try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
+                     final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
+                    primaryReader.open(primaryObservationPath.toFile());
+                    secondaryReader.open(secondaryObservationPath.toFile());
+                    final List<SampleSet> sampleSets = set.getSampleSets();
+                    for (SampleSet sampleSet : sampleSets) {
+                        writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
+                        writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
+                        zIndex++;
+                        if (zIndex > 0 && zIndex % cacheSize == 0) {
+                            flush();
+                        }
                     }
                 }
             }
+
+            stopWatch.stop();
+
+            logger.info("Successfully wrote mmd-file to '" + mmdFile.toAbsolutePath().toString() + "'");
+            logger.info("Writing time: '" + stopWatch.getTimeDiffString());
+
+        } finally {
+            close();
         }
-
-        stopWatch.stop();
-
-        logger.info("Successfully wrote mmd-file to '" + mmdFile.toAbsolutePath().toString() + "'");
-        logger.info("Write ting time: '" + stopWatch.getTimeDiffString());
-
-        close();
     }
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "comment",
+                "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "use-case-configuration",
-                    outputStream.toString()
+                "use-case-configuration",
+                outputStream.toString()
         ));
     }
 
@@ -202,9 +215,9 @@ public class MmdWriter {
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   variablePrototype.getTargetVariableName(),
-                                                                   DataType.getType(variablePrototype.getDataType()),
-                                                                   variablePrototype.getDimensionNames());
+                    variablePrototype.getTargetVariableName(),
+                    DataType.getType(variablePrototype.getDataType()),
+                    variablePrototype.getDimensionNames());
             final List<Attribute> attributes = variablePrototype.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
@@ -262,6 +275,7 @@ public class MmdWriter {
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
         }
         flushCount++;
+        netcdfFileWriter.flush();
     }
 
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
