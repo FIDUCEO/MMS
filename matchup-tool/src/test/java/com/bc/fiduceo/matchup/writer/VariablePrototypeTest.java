@@ -20,53 +20,60 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 import ucar.nc2.Attribute;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
+import java.util.List;
 
 public class VariablePrototypeTest {
 
-    private VariablePrototype config;
+    private VariablePrototype prototype;
 
     @Before
     public void setUp() throws Exception {
-        config = new VariablePrototype();
+        prototype = new VariablePrototype();
     }
 
     @Test
     public void testSetGetName() {
         final String name = "the_variable_name";
 
-        config.setTargetVariableName(name);
-        assertEquals(name, config.getTargetVariableName());
+        prototype.setTargetVariableName(name);
+        assertEquals(name, prototype.getTargetVariableName());
     }
 
     @Test
     public void testSetGetDimensionNames() {
         final String dimensionNames = "matchup ny ny";
 
-        config.setDimensionNames(dimensionNames);
-        assertEquals(dimensionNames, config.getDimensionNames());
+        prototype.setDimensionNames(dimensionNames);
+        assertEquals(dimensionNames, prototype.getDimensionNames());
     }
 
     @Test
     public void testSetGetDataType() {
         final String dataType = "float";
 
-        config.setDataType(dataType);
-        assertEquals(dataType, config.getDataType());
+        prototype.setDataType(dataType);
+        assertEquals(dataType, prototype.getDataType());
     }
 
     @Test
     public void testSetGetAttributes() throws Exception {
         final ArrayList<Attribute> attributes = new ArrayList<>();
 
-        config.setAttributes(attributes);
+        prototype.setAttributes(attributes);
 
-        assertEquals(attributes, config.getAttributes());
+        assertSame(attributes, prototype.getAttributes());
+    }
+
+    @Test
+    public void testGetEmptyListAfterInitialisation() throws Exception {
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(0, attributes.size());
     }
 }

@@ -214,6 +214,7 @@ public class MmdWriter {
         createExtraMmdVariablesPerSensor(dimensions);
 
         for (final VariablePrototype variablePrototype : variablePrototypes) {
+            ensureFillValue(variablePrototype);
             final Variable variable = netcdfFileWriter.addVariable(null,
                     variablePrototype.getTargetVariableName(),
                     DataType.getType(variablePrototype.getDataType()),
@@ -224,6 +225,30 @@ public class MmdWriter {
             }
         }
         netcdfFileWriter.create();
+    }
+
+    static void ensureFillValue(VariablePrototype prototype) {
+        final String name = "_FillValue";
+        final List<Attribute> attributes = prototype.getAttributes();
+            for (Attribute attribute : attributes) {
+                if (name.equals(attribute.getShortName())) {
+                    return;
+                }
+            }
+        final DataType dataType = DataType.getType(prototype.getDataType());
+        if (DataType.DOUBLE.equals(dataType)) {
+            attributes.add(new Attribute(name, Double.MIN_VALUE));
+        } else if (DataType.FLOAT.equals(dataType)) {
+            attributes.add(new Attribute(name, Float.MIN_VALUE));
+        } else if (DataType.LONG.equals(dataType)) {
+            attributes.add(new Attribute(name, Long.MIN_VALUE));
+        } else if (DataType.INT.equals(dataType)) {
+            attributes.add(new Attribute(name, Integer.MIN_VALUE));
+        } else if (DataType.SHORT.equals(dataType)) {
+            attributes.add(new Attribute(name, Short.MIN_VALUE));
+        } else if (DataType.BYTE.equals(dataType)) {
+            attributes.add(new Attribute(name, Byte.MIN_VALUE));
+        }
     }
 
     void close() throws IOException, InvalidRangeException {
@@ -357,7 +382,7 @@ public class MmdWriter {
             final Variable variableAcqTime = netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
             variableAcqTime.addAttribute(new Attribute("description", "acquisition time of original pixel"));
             variableAcqTime.addAttribute(new Attribute("unit", "seconds since 1970-01-01"));
-            variableAcqTime.addAttribute(new Attribute("_FillValue", "-2147483648"));
+            variableAcqTime.addAttribute(new Attribute("_FillValue", -2147483648));
         }
     }
 

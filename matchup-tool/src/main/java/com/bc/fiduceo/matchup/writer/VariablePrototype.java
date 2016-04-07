@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import ucar.nc2.Attribute;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VariablePrototype {
@@ -31,6 +32,10 @@ public class VariablePrototype {
     private String dimensionNames;
     private String dataType;
     private List<Attribute> attributes;
+
+    public VariablePrototype() {
+        attributes = new ArrayList<>();
+    }
 
     public String getTargetVariableName() {
         return targetVariableName;

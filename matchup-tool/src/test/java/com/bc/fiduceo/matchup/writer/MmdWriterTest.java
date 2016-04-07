@@ -32,7 +32,6 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
-import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -45,10 +44,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class MmdWriterTest {
+
+    private final String fillValueName = "_FillValue";
 
     @Test
     public void testCreateMMDFileName() {
@@ -149,6 +151,198 @@ public class MmdWriterTest {
         final MatchupSet set = MmdWriter.getFirstMatchupSet(collection);
 
         assertSame(first, set);
+    }
+
+    @Test
+    public void testEnsureFillValue_Double() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.DOUBLE.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Double.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Float() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.FLOAT.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Float.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Long() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.LONG.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Long.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Integer() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.INT.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Integer.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Short() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.SHORT.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Short.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Byte() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.BYTE.name());
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(Byte.MIN_VALUE, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Double_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.DOUBLE.name());
+        final double fillValue = 1234.5678;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Float_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.FLOAT.name());
+        final float fillValue = 1234.5678f;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Long_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.LONG.name());
+        final long fillValue = 12345678912345678L;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getValue(0));
+    }
+
+    @Test
+    public void testEnsureFillValue_Integer_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.INT.name());
+        final int fillValue = 123456789;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Short_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.SHORT.name());
+        final short fillValue = 12345;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getNumericValue());
+    }
+
+    @Test
+    public void testEnsureFillValue_Byte_existing() throws Exception {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setDataType(DataType.BYTE.name());
+        final byte fillValue = 123;
+        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+
+        MmdWriter.ensureFillValue(prototype);
+
+        final List<Attribute> attributes = prototype.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(1, attributes.size());
+        final Attribute attribute = attributes.get(0);
+        assertEquals(fillValueName, attribute.getShortName());
+        assertEquals(fillValue, attribute.getNumericValue());
     }
 
     @Test

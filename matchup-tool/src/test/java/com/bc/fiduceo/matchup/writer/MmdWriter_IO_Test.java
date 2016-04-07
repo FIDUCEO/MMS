@@ -262,7 +262,7 @@ public class MmdWriter_IO_Test {
             assertEquals("seconds since 1970-01-01", att.getStringValue());
             att = variable.findAttribute("_FillValue");
             assertNotNull(att);
-            assertEquals("-2147483648", att.getStringValue());
+            assertEquals(-2147483648, att.getNumericValue());
 
             variable = mmd.findVariable("avhrr-n12_acquisition_time");
             assertNotNull(variable);
@@ -276,7 +276,7 @@ public class MmdWriter_IO_Test {
             assertEquals("seconds since 1970-01-01", att.getStringValue());
             att = variable.findAttribute("_FillValue");
             assertNotNull(att);
-            assertEquals("-2147483648", att.getStringValue());
+            assertEquals(-2147483648, att.getNumericValue());
 
             final List<Variable> variables = mmd.getVariables();
             assertEquals(12, variables.size());
