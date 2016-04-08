@@ -129,6 +129,7 @@ public class TestUtil {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
+        properties.setProperty("netcdf-format", "N4");
 
         TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
     }

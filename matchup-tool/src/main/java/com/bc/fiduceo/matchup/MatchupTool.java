@@ -283,9 +283,10 @@ class MatchupTool {
 
         System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
+        // @todo 2 tb/** move this value to configuration 2016-04-08
         final int cacheSize = 2048;
-        //final MmdWriterNC4 mmdWriter = new MmdWriterNC4(cacheSize);
-        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(N3, cacheSize);
+        final SystemConfig systemConfig = context.getSystemConfig();
+        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(systemConfig.getNetcdfFormat(), cacheSize);
         mmdWriter.writeMMD(matchupCollection, context);
     }
 

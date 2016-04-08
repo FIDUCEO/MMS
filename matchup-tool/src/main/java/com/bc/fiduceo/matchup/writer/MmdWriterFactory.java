@@ -23,7 +23,6 @@ package com.bc.fiduceo.matchup.writer;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.nc2.NetcdfFileWriter;
 
 import java.util.Date;
 import java.util.List;
@@ -34,7 +33,12 @@ import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 
 public class MmdWriterFactory {
 
-    public static MmdWriter createFileWriter(NetcdfType type, int cacheSize) {
+    public static MmdWriter createFileWriter(String typeString, int cacheSize) {
+        final NetcdfType netcdfType = NetcdfType.valueOf(typeString);
+        return createFileWriter(netcdfType, cacheSize);
+    }
+
+    static MmdWriter createFileWriter(NetcdfType type, int cacheSize) {
         if (type == N3) {
             return new MmdWriterNC3(cacheSize);
         } else if (type == N4) {

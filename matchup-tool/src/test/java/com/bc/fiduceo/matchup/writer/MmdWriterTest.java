@@ -53,25 +53,6 @@ public class MmdWriterTest {
     private final String fillValueName = "_FillValue";
 
     @Test
-    public void testCreateMMDFileName() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("mmd-12");
-
-        final List<Sensor> sensors = new ArrayList<>();
-        sensors.add(new Sensor("avhrr-n07"));
-        final Sensor primary = new Sensor("avhrr-n08");
-        primary.setPrimary(true);
-        sensors.add(primary);
-        useCaseConfig.setSensors(sensors);
-
-        final Date startDate = TimeUtils.parseDOYBeginOfDay("2011-245");
-        final Date endDate = TimeUtils.parseDOYEndOfDay("2011-251");
-
-        final String fileName = MmdWriterFactory.createMMDFileName(useCaseConfig, startDate, endDate);
-        assertEquals("mmd-12_avhrr-n08_avhrr-n07_2011-245_2011-251.nc", fileName);
-    }
-
-    @Test
     public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setName("NameOfTheUseCase");

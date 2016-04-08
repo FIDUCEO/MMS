@@ -56,6 +56,7 @@ public class SystemConfigTest {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", testDirectory.getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
+        properties.setProperty("netcdf-format", "N3");
         final FileOutputStream outputStream = new FileOutputStream(systemConfigFile);
         properties.store(outputStream, "");
         outputStream.close();
@@ -65,5 +66,6 @@ public class SystemConfigTest {
 
         assertEquals(testDirectory.getAbsolutePath(), systemConfig.getArchiveRoot());
         assertEquals("S2", systemConfig.getGeometryLibraryType());
+        assertEquals("N3", systemConfig.getNetcdfFormat());
     }
 }
