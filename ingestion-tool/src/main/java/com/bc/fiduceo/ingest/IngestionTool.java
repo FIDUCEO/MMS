@@ -99,6 +99,7 @@ class IngestionTool {
                 continue;
             }
 
+            logger.info("registering '" + filePath.toString() + "' ...");
             reader.open(filePath.toFile());
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
@@ -115,6 +116,8 @@ class IngestionTool {
             } finally {
                 reader.close();
             }
+
+            logger.info("success");
         }
     }
 

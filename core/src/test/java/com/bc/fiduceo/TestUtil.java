@@ -20,9 +20,7 @@
 
 package com.bc.fiduceo;
 
-import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
@@ -32,27 +30,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TestUtil {
 
     private static final String SYSTEM_TEMP_PROPETY = "java.io.tmpdir";
     private static final String TEST_DIRECTORY = "fiduceo_test";
-
-    public static Path getTestDataDirectoryPath() throws IOException {
-        return Paths.get(getTestDataDirectory().toURI());
-    }
 
     public static File getTestDataDirectory() throws IOException {
         final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
@@ -119,7 +107,7 @@ public class TestUtil {
     public static BasicDataSource getdatasourceMongoDb() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("mongodb");
-        dataSource.setUrl("mongodb://localhost:27017/test");
+        dataSource.setUrl("mongodb://localhost:27017");
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
         return dataSource;
@@ -198,15 +186,15 @@ public class TestUtil {
         return databaseConfigFile;
     }
 
-    public static String assembleFileSystemPath(String[] pathSegments, boolean relative){
+    public static String assembleFileSystemPath(String[] pathSegments, boolean relative) {
         final StringBuilder builder = new StringBuilder();
         final String sep = File.separator;
         if (relative) {
             builder.append(sep);
         }
-        for (int i = 0; i < pathSegments.length; i++){
+        for (int i = 0; i < pathSegments.length; i++) {
             builder.append(pathSegments[i]);
-            if (i < pathSegments.length - 1){
+            if (i < pathSegments.length - 1) {
                 builder.append(sep);
             }
         }

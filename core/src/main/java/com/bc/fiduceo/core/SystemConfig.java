@@ -45,14 +45,14 @@ public class SystemConfig {
     }
 
     public String getArchiveRoot() {
-        return properties.getProperty("archive-root");
+        return properties.getProperty("archive-root").trim();
     }
 
     public String getGeometryLibraryType() {
-        return properties.getProperty("geometry-library-type");
+        return properties.getProperty("geometry-library-type").trim();
     }
 
     public String getNetcdfFormat() {
-        return properties.getProperty("netcdf-format");
+        return properties.getProperty("netcdf-format").trim();
     }
 }

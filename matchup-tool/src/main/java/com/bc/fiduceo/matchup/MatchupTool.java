@@ -221,7 +221,7 @@ class MatchupTool {
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
 
-        logger.info("Sucess loading configuration.");
+        logger.info("Success loading configuration.");
         return context;
     }
 
