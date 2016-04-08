@@ -37,7 +37,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
-import com.bc.fiduceo.matchup.writer.MmdWriterNC4;
+import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
@@ -64,6 +64,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
 
 class MatchupTool {
 
@@ -283,7 +285,7 @@ class MatchupTool {
 
         final int cacheSize = 2048;
         //final MmdWriterNC4 mmdWriter = new MmdWriterNC4(cacheSize);
-        final MmdWriter mmdWriter = new MmdWriter(cacheSize);
+        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(N3, cacheSize);
         mmdWriter.writeMMD(matchupCollection, context);
     }
 

@@ -30,7 +30,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
@@ -47,11 +47,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
@@ -124,8 +120,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertTrue(mmdFile.isFile());
 
-        final NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath());
-        try {
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             NCTestUtils.assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
             NCTestUtils.assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
             NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
@@ -159,8 +154,6 @@ public class MatchupToolIntegrationTest_useCase_02 {
             NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
             NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
             // @todo 2 tb/** add more assertions here
-        } finally {
-            mmd.close();
         }
     }
 
@@ -185,7 +178,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
     }
 
     private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriter.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
+        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
         return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 

@@ -70,7 +70,7 @@ public class MmdWriter_IO_Test {
     @Test
     public void testCreate() throws IOException, InvalidRangeException {
 //        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(10000);
-        final MmdWriter mmdWriter = new MmdWriter(10000);
+        final MmdWriterNC3 mmdWriter = new MmdWriterNC3(10000);
         final List<Dimension> dimemsions = new ArrayList<>();
         dimemsions.add(new Dimension("avhrr-n11", 5, 7));
         dimemsions.add(new Dimension("avhrr-n12", 3, 5));
@@ -289,9 +289,78 @@ public class MmdWriter_IO_Test {
     }
 
     @Test
-    public void testWrite_usecase02_AVHRR() throws IOException, InvalidRangeException {
-//        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(6);
-        final MmdWriter mmdWriter = new MmdWriter(6);
+    public void testWrite_usecase02_AVHRR_NC3() throws IOException, InvalidRangeException {
+        final MmdWriter mmdWriter = new MmdWriterNC3(6);
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+
+        final MatchupCollection matchupCollection = createMatchupCollection_AVHRR(testDataDirectory);
+
+        final ToolContext context = new ToolContext();
+        final UseCaseConfig useCaseConfig = createUseCaseConfig_AVHRR();
+        context.setUseCaseConfig(useCaseConfig);
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
+        context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
+
+        mmdWriter.writeMMD(matchupCollection, context);
+
+        NetcdfFile netcdfFile = null;
+        try {
+            netcdfFile = NetcdfFile.open(testDir.getAbsolutePath() + File.separator + "mmd02_avhrr-n10_avhrr-n11_1989-122_1989-123.nc");
+
+            NCTestUtils.assertScalarVariable("avhrr-n10_x", 0, 0.0, netcdfFile);
+            NCTestUtils.assertScalarVariable("avhrr-n10_y", 1, 8982.0, netcdfFile);
+            NCTestUtils.assertStringVariable("avhrr-n10_file_name", 2, "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc", netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, 610066698.0, netcdfFile);
+
+            NCTestUtils.assertScalarVariable("avhrr-n11_x", 4, 408.0, netcdfFile);
+            NCTestUtils.assertScalarVariable("avhrr-n11_y", 5, 824.0, netcdfFile);
+            NCTestUtils.assertStringVariable("avhrr-n11_file_name", 6, "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc", netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_acquisition_time", 1, 0, 7, 610071907.0, netcdfFile);
+
+            NCTestUtils.assert3DVariable("avhrr-n11_lat", 2, 0, 0, -67.18399810791016, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_lon", 3, 0, 1, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 2, 1e-45, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch1", 0, 1, 3, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch2", 1, 1, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 2, 1, 5, -2968.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch4", 3, 1, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch5", 4, 1, 7, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_mask", 0, 2, 0, 7.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_probability", 1, 2, 1, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_ict_temp", 3, 2, 3, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_l1b_line_number", 4, 2, 4, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_qual_flags", 0, 3, 5, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_relative_azimuth_angle", 1, 3, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_satellite_zenith_angle", 2, 3, 7, 6957.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_solar_zenith_angle", 3, 3, 0, -32768.0, netcdfFile);
+
+            NCTestUtils.assert3DVariable("avhrr-n10_lat", 4, 3, 1, -67.66300201416016, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_lon", 0, 4, 2, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_dtime", 1, 4, 3, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch1", 2, 4, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch2", 3, 4, 5, 46.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch3b", 4, 4, 6, -1197.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch4", 0, 0, 7, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_cloud_mask", 1, 0, 0, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_cloud_probability", 1, 0, 1, -128.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_ict_temp", 2, 0, 2, 2052.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_l1b_line_number", 3, 0, 3, 8983.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_qual_flags", 4, 0, 4, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_relative_azimuth_angle", 0, 1, 5, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 1, 1, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 2, 1, 6, 6844.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_satellite_zenith_angle", 3, 1, 6, 6797.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_solar_zenith_angle", 4, 1, 7, 12181.0, netcdfFile);
+        } finally {
+            if (netcdfFile != null) {
+                netcdfFile.close();
+            }
+        }
+    }
+
+    @Test
+    public void testWrite_usecase02_AVHRR_NC4() throws IOException, InvalidRangeException {
+        final MmdWriter mmdWriter = new MmdWriterNC4(6);
         final File testDataDirectory = TestUtil.getTestDataDirectory();
 
         final MatchupCollection matchupCollection = createMatchupCollection_AVHRR(testDataDirectory);

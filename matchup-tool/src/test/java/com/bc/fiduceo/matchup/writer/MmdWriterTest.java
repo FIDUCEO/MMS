@@ -67,7 +67,7 @@ public class MmdWriterTest {
         final Date startDate = TimeUtils.parseDOYBeginOfDay("2011-245");
         final Date endDate = TimeUtils.parseDOYEndOfDay("2011-251");
 
-        final String fileName = MmdWriter.createMMDFileName(useCaseConfig, startDate, endDate);
+        final String fileName = MmdWriterFactory.createMMDFileName(useCaseConfig, startDate, endDate);
         assertEquals("mmd-12_avhrr-n08_avhrr-n07_2011-245_2011-251.nc", fileName);
     }
 
@@ -94,7 +94,7 @@ public class MmdWriterTest {
         final NetcdfFileWriter mockWriter = mock(NetcdfFileWriter.class);
 
         //test
-        MmdWriter.createUseCaseAttributes(mockWriter, useCaseConfig);
+        MmdWriterNC3.createUseCaseAttributes(mockWriter, useCaseConfig);
 
         //verification
         final String useCaseAttributeName = "use-case-configuration";
@@ -134,7 +134,7 @@ public class MmdWriterTest {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
         try {
-            MmdWriter.getFirstMatchupSet(matchupCollection);
+            MmdWriterNC3.getFirstMatchupSet(matchupCollection);
             fail("IllegalStateException expected");
         } catch (IllegalStateException expected) {
         }
@@ -148,7 +148,7 @@ public class MmdWriterTest {
         collection.add(first);
         collection.add(second);
 
-        final MatchupSet set = MmdWriter.getFirstMatchupSet(collection);
+        final MatchupSet set = MmdWriterNC3.getFirstMatchupSet(collection);
 
         assertSame(first, set);
     }
@@ -158,7 +158,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.DOUBLE.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -173,7 +173,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.FLOAT.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -188,7 +188,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.LONG.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -203,7 +203,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.INT.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -218,7 +218,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.SHORT.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -233,7 +233,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.BYTE.name());
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -250,7 +250,7 @@ public class MmdWriterTest {
         final double fillValue = 1234.5678;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -267,7 +267,7 @@ public class MmdWriterTest {
         final float fillValue = 1234.5678f;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -284,7 +284,7 @@ public class MmdWriterTest {
         final long fillValue = 12345678912345678L;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -301,7 +301,7 @@ public class MmdWriterTest {
         final int fillValue = 123456789;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -318,7 +318,7 @@ public class MmdWriterTest {
         final short fillValue = 12345;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -335,7 +335,7 @@ public class MmdWriterTest {
         final byte fillValue = 123;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriter.ensureFillValue(prototype);
+        MmdWriterNC3.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -372,7 +372,7 @@ public class MmdWriterTest {
         final VariablesConfiguration configuration = mock(VariablesConfiguration.class);
 
         // test execution
-        MmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);
+        MmdWriterNC3.extractPrototypes(configuration, matchupCollection, toolContext);
 
         // validation
         verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
