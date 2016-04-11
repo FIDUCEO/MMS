@@ -202,6 +202,9 @@ public class MmdWriter_IO_Test {
             assertNotNull(variable);
             assertCorrectDimensions(variable, 2346, 5, 3);
             assertEquals(DataType.FLOAT, variable.getDataType());
+            att = variable.findAttribute("_FillValue");
+            assertNotNull(att);
+            assertEquals(Float.MIN_VALUE, att.getNumericValue().floatValue(), 1e-8);
 
             variable = mmd.findVariable("avhrr-n11_x");
             assertNotNull(variable);
