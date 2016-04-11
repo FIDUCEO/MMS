@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.matchup;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
@@ -33,33 +31,34 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class MatchupToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
     private final String expectedPrintUsage = "matchup-tool version 1.0.0" + ls +
-                                              "" + ls +
-                                              "usage: matchup-tool <options>" + ls +
-                                              "Valid options are:" + ls +
-                                              "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                                              "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                                              "   -h,--help            Prints the tool usage." + ls +
-                                              "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                                              "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
-                                              "                        directory." + ls;
+            ls +
+            "usage: matchup-tool <options>" + ls +
+            "Valid options are:" + ls +
+            "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+            "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+            "   -h,--help                   Prints the tool usage." + ls +
+            "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+            "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+            "                               configuration directory." + ls;
     private File configDir;
 
     @Before
@@ -97,7 +96,7 @@ public class MatchupToolIntegrationTest {
     @Test
     public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176", "-u", configFileName};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start-time", "1999-124", "-end", "1999-176", "-u", configFileName};
 
         TestUtil.writeDatabaseProperties_H2(configDir);
         writeUseCaseConfig(configFileName);
@@ -114,7 +113,7 @@ public class MatchupToolIntegrationTest {
     @Test
     public void testRunMatchup_missingDatabaseProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "1999-124", "--end-time", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
         writeUseCaseConfig(configFileName);
@@ -130,7 +129,7 @@ public class MatchupToolIntegrationTest {
 
     @Test
     public void testRunMatchup_missingUseCaseConfig() throws ParseException, IOException, SQLException, InvalidRangeException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124", "-e", "1999-176"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "1999-124", "-end", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
         TestUtil.writeDatabaseProperties_H2(configDir);
@@ -146,7 +145,7 @@ public class MatchupToolIntegrationTest {
     @Test
     public void testRunMatchup_missingStartDate() throws ParseException, IOException, SQLException, InvalidRangeException {
         final String configFileName = "use-case-config.xml";
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-e", "1999-176"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-end", "1999-176"};
 
         TestUtil.writeSystemProperties(configDir);
         TestUtil.writeDatabaseProperties_H2(configDir);
