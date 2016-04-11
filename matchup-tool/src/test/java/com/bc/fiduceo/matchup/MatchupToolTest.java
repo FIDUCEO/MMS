@@ -21,10 +21,6 @@
 package com.bc.fiduceo.matchup;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -39,12 +35,17 @@ import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
 
 public class MatchupToolTest {
 
@@ -62,15 +63,16 @@ public class MatchupToolTest {
 
         matchupTool.printUsageTo(outputStream);
 
-        assertEquals("matchup-tool version 1.0.0" + ls + ls +
-                     "usage: matchup-tool <options>" + ls +
-                     "Valid options are:" + ls +
-                     "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                     "   -e,--end <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                     "   -h,--help            Prints the tool usage." + ls +
-                     "   -s,--start <arg>     Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                     "   -u,--usecase <arg>   Defines the path to the use-case configuration file. Path is relative to the configuration" + ls +
-                     "                        directory." + ls, outputStream.toString());
+        assertEquals("matchup-tool version 1.0.0" + ls +
+                ls +
+                "usage: matchup-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help                   Prints the tool usage." + ls +
+                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                "                               configuration directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -94,15 +96,15 @@ public class MatchupToolTest {
 
         final Option startOption = options.getOption("start");
         assertNotNull(startOption);
-        assertEquals("s", startOption.getOpt());
-        assertEquals("start", startOption.getLongOpt());
+        assertEquals("start", startOption.getOpt());
+        assertEquals("start-time", startOption.getLongOpt());
         assertEquals("Defines the processing start-date, format 'yyyy-DDD'", startOption.getDescription());
         assertTrue(startOption.hasArg());
 
         final Option endOption = options.getOption("end");
         assertNotNull(endOption);
-        assertEquals("e", endOption.getOpt());
-        assertEquals("end", endOption.getLongOpt());
+        assertEquals("end", endOption.getOpt());
+        assertEquals("end-time", endOption.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'", endOption.getDescription());
         assertTrue(endOption.hasArg());
 
