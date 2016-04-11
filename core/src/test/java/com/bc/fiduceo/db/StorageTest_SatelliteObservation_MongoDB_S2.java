@@ -48,7 +48,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+// @todo 2 tb/** re-evaluate this code and the class structure, seems to be redundant 2016-04-11
 @RunWith(DbAndIOTestRunner.class)
+@Ignore
 public class StorageTest_SatelliteObservation_MongoDB_S2 extends StorageTest_SatelliteObservation {
 
     // This test will use a local database implementation. Please make sure that you have a running MongoDb database server

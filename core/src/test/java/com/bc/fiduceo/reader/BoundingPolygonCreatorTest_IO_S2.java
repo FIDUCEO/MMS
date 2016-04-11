@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.amsu_mhs.AMSU_MHS_L1B_Reader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.ArrayDouble;
@@ -70,7 +71,9 @@ public class BoundingPolygonCreatorTest_IO_S2 {
     }
 
     @Test
+    @Ignore
     public void createValidMultiplePolygon_AMSU_Reader() throws IOException {
+        // @todo 1 tb/** is this really what we want to test? 2016-04-11
         List<Polygon> polygonList = new ArrayList<>();
         List<ArrayDouble.D2> long_lat = AMSU_MHS_L1B_Reader.getLat_Long(netcdfFile);
 

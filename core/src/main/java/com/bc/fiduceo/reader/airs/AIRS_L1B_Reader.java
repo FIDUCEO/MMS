@@ -44,7 +44,9 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 public class AIRS_L1B_Reader implements Reader {
@@ -59,10 +61,9 @@ public class AIRS_L1B_Reader implements Reader {
     // @todo 3 tb/tb move to config file 2015-12-09
     private static final int GEO_INTERVAL_X = 12;
     private static final int GEO_INTERVAL_Y = 12;
-
+    private final Logger logger;
     private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
-    private final Logger logger;
 
     AIRS_L1B_Reader() {
         final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
@@ -71,6 +72,49 @@ public class AIRS_L1B_Reader implements Reader {
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
         logger = FiduceoLogger.getLogger();
+    }
+
+    static String getElementValue(Element element, String attribute) {
+        if (element.getName().equals(attribute)) {
+            return element.getChild("VALUE").getValue();
+        }
+        for (Element subElement : element.getChildren()) {
+            if (subElement.getName().equals(attribute)) {
+                return subElement.getChild("VALUE").getValue();
+            } else {
+                final String elementValue = getElementValue(subElement, attribute);
+                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
+                    return elementValue;
+                }
+            }
+        }
+        return null;
+    }
+
+    // package access for testing only tb 2015-08-05
+    static Element getEosElement(String satelliteMeta) throws IOException {
+        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
+        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
+
+        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
+        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
+        while (lineFinder.hasMoreTokens()) {
+            final String line = lineFinder.nextToken().trim();
+            sb.append(line);
+            sb.append("\n");
+        }
+        final EosCoreMetaParser parser = new EosCoreMetaParser();
+        return parser.parseFromString(sb.toString());
+    }
+
+    // package access for testing only tb 2015-08-05
+    static String getEosMetadata(String name, Group eosGroup) throws IOException {
+        final Variable structMetadataVar = eosGroup.findVariable(name);
+        if (structMetadataVar == null) {
+            return null;
+        }
+        final Array metadataArray = structMetadataVar.read();
+        return metadataArray.toString();
     }
 
     @Override
@@ -85,9 +129,10 @@ public class AIRS_L1B_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
-        netcdfFile.close();
+        if (netcdfFile != null) {
+            netcdfFile.close();
+        }
     }
-
 
     @Override
     public AcquisitionInfo read() throws IOException {
@@ -160,50 +205,6 @@ public class AIRS_L1B_Reader implements Reader {
         final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
         return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
     }
-
-    static String getElementValue(Element element, String attribute) {
-        if (element.getName().equals(attribute)) {
-            return element.getChild("VALUE").getValue();
-        }
-        for (Element subElement : element.getChildren()) {
-            if (subElement.getName().equals(attribute)) {
-                return subElement.getChild("VALUE").getValue();
-            } else {
-                final String elementValue = getElementValue(subElement, attribute);
-                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
-                    return elementValue;
-                }
-            }
-        }
-        return null;
-    }
-
-    // package access for testing only tb 2015-08-05
-    static Element getEosElement(String satelliteMeta) throws IOException {
-        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
-        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
-
-        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
-        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
-        while (lineFinder.hasMoreTokens()) {
-            final String line = lineFinder.nextToken().trim();
-            sb.append(line);
-            sb.append("\n");
-        }
-        final EosCoreMetaParser parser = new EosCoreMetaParser();
-        return parser.parseFromString(sb.toString());
-    }
-
-    // package access for testing only tb 2015-08-05
-    static String getEosMetadata(String name, Group eosGroup) throws IOException {
-        final Variable structMetadataVar = eosGroup.findVariable(name);
-        if (structMetadataVar == null) {
-            return null;
-        }
-        final Array metadataArray = structMetadataVar.read();
-        return metadataArray.toString();
-    }
-
 
     // @todo 3 tb/** make static, packagelocal and write tests for this method 2016-03-16
     private String stripMicrosecs(String timeString) {
