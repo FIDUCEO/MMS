@@ -189,7 +189,7 @@ class MatchupTool {
         logger.info("Loading configuration ...");
         final ToolContext context = new ToolContext();
 
-        final String configValue = commandLine.getOptionValue("config");
+        final String configValue = commandLine.getOptionValue("config", "./config");
         final File configDirectory = new File(configValue);
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();
