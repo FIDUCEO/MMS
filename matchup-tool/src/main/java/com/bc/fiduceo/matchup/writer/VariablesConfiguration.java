@@ -94,7 +94,8 @@ public class VariablesConfiguration {
     /**
      * Returns a list of {@link VariablePrototype} associated with the given sensor name.
      * If there are no associated {@link VariablePrototype}s, an empty list will be returned.
-     * @param sensorName
+     *
+     * @param sensorName the name of the sensor
      * @return a list of {@link VariablePrototype}
      */
     public List<VariablePrototype> getPrototypesFor(String sensorName) {
@@ -105,14 +106,9 @@ public class VariablesConfiguration {
     }
 
 
-    // @todo 2 tb/tb make static and add tests
-    String createDimensionNames(Dimension dimension) {
-        final StringBuilder dimensionNames = new StringBuilder();
-        dimensionNames.append("matchup_count ");
-        dimensionNames.append(dimension.getName());
-        dimensionNames.append("_ny ");
-        dimensionNames.append(dimension.getName());
-        dimensionNames.append("_nx");
-        return dimensionNames.toString();
+    // package access for testing only tb 2016-04-12
+    static String createDimensionNames(Dimension dimension) {
+        final String dimensionName = dimension.getName();
+        return "matchup_count " + dimensionName + "_ny " + dimensionName + "_nx";
     }
 }

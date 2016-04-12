@@ -44,7 +44,6 @@ public class RawDataReader {
         final boolean caseOneDimensionalArray = rank == 2 && shape[0] == 1;
         if (rank == 3 && shape[0] == 1) {
             rawArray = rawArray.section(new int[]{0, 0, 0}, shape);
-            rank = rawArray.getRank();
             shape = rawArray.getShape();
         } else if (caseOneDimensionalArray) {
             shape[0] = shape[1];

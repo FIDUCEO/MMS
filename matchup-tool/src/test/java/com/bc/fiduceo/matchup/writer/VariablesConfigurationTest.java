@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import com.bc.fiduceo.core.Dimension;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -229,5 +230,13 @@ public class VariablesConfigurationTest {
         assertEquals(expectedAttribValues.getFloat(0), actualAttribValues.getFloat(0), 1e-8f);
         assertEquals(expectedAttribValues.getFloat(1), actualAttribValues.getFloat(1), 1e-8f);
         assertEquals(expectedAttribValues.getFloat(2), actualAttribValues.getFloat(2), 1e-8f);
+    }
+
+    @Test
+    public void testCreateDimensionNames() {
+        final Dimension dimension = new Dimension("mhs-ma", 7, 9);
+
+        final String dimensionNames = VariablesConfiguration.createDimensionNames(dimension);
+        assertEquals("matchup_count mhs-ma_ny mhs-ma_nx", dimensionNames);
     }
 }
