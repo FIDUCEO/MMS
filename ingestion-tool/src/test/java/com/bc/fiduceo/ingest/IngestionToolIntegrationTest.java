@@ -205,6 +205,55 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_AMSUB_NOAA15() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(3, satelliteObservations.size());
+
+            final SatelliteObservation observation = satelliteObservations.get(0);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 37, 120, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 18, 24, 53, 119, observation.getStopTime());
+            assertEquals("amsub-n15", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", "L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+            assertEquals(TestData.AMSUB_N15_GEOMETRIES[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.AMSUB_N15_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 37, 120, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, timeAxes[0].getEndTime());
+            assertEquals(TestData.AMSUB_N15_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
+
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 18, 24, 53, 119, timeAxes[1].getEndTime());
+            assertEquals(TestData.AMSUB_N15_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+
+    }
+
     // @todo 2 tb/tb reanimate test when we have usecase 2 running - temporarily disabled 2016-03-03
 //    @Ignore
 //    @Test
@@ -241,88 +290,7 @@ public class IngestionToolIntegrationTest {
 //        }
 //    }
 
-    // @todo 2 tb/tb reanimate test when we have usecase 2 running - temporarily disabled 2016-03-03
-//    @Test
-//    public void testIngest_AMSU_MHS() throws ParseException, IOException, SQLException {
-//        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2015-340", "-end", "2015-350", "-v", "1.0"};
-//        try {
-//            writeSystemProperties();
-//            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-//            IngestionToolMain.main(args);
-//            List<SatelliteObservation> satelliteObservations = storage.get();
-//            assertEquals(1, satelliteObservations.size());
-//            SatelliteObservation observationFromDb = satelliteObservations.get(0);
-//
-//
-//            assertEquals(observationFromDb.getSensor().getName(), "amsub-n15");
-//            assertEquals(observationFromDb.getGeoBounds().getCoordinates().length, 106);
-//
-//            ArrayList<Polygon> polygonArrayList = (ArrayList<Polygon>) observationFromDb.getGeoBounds().getInner();
-//            Polygon polygon = polygonArrayList.get(0);
-//            assertEquals("Polygon: (1) loops:\n" +
-//                    "loop <\n" +
-//                    "(21.409899459140426, -97.86539752771206)\n" +
-//                    "(23.37569940948015, -87.36939779286331)\n" +
-//                    "(24.473999381734757, -78.28879802225856)\n" +
-//                    "(32.309399183795904, -79.61389798878372)\n" +
-//                    "(40.14389898587979, -80.8503979575471)\n" +
-//                    "(47.97329878809251, -81.99969792851334)\n" +
-//                    "(55.79489859050227, -83.04969790198811)\n" +
-//                    "(63.60739839314192, -83.95919787901221)\n" +
-//                    "(71.41009819602914, -84.60049786281161)\n" +
-//                    "(79.20129799920687, -84.45279786654282)\n" +
-//                    "(86.95229780340014, -77.60479803953785)\n" +
-//                    "(85.1658978485284, 83.14399789960589)\n" +
-//                    "(77.40039804470145, 86.30149781984073)\n" +
-//                    "(69.61679824133171, 86.1600978234128)\n" +
-//                    "(61.827198438113555, 85.43649784169247)\n" +
-//                    "(54.03249863502424, 84.48979786560812)\n" +
-//                    "(46.23289883205871, 83.4170978927068)\n" +
-//                    "(38.429999029176535, 82.25039792218013)\n" +
-//                    "(30.625799226327217, 80.99789795382094)\n" +
-//                    "(22.824399423407158, 79.65619798771513)\n" +
-//                    "(15.030799620290047, 78.21409802414564)\n" +
-//                    "(7.251599816809179, 76.65309806357982)\n" +
-//                    "(-0.5048999872451532, 74.94649810669216)\n" +
-//                    "(-8.228299792135662, 73.0563981544401)\n" +
-//                    "(-15.906599598165483, 70.92909820818022)\n" +
-//                    "(-23.523499405746406, 68.48709826987033)\n" +
-//                    "(-30.00809924193164, 66.04839833147707)\n" +
-//                    "(-32.292799184215255, 77.71499803675397)\n" +
-//                    "(-33.357899157308566, 87.94689777827443)\n" +
-//                    "(-25.573299353964103, 89.21159774632542)\n" +
-//                    "(-17.788399550627222, 90.57729771182494)\n" +
-//                    "(-10.009099747148863, 92.05809767441679)\n" +
-//                    "(-2.242899943339581, 93.67609763354267)\n" +
-//                    "(5.50149986102042, 95.46419758837146)\n" +
-//                    "(13.212299666229224, 97.46889753772851)\n" +
-//                    "(20.874799472658196, 99.75799747990095)\n" +
-//                    "(28.469099280810042, 102.43129741236771)\n" +
-//                    "(35.96709909139463, 105.64229733125103)\n" +
-//                    "(43.32499890551844, 109.63469723039455)\n" +
-//                    "(50.47019872501551, 114.81299709957966)\n" +
-//                    "(57.270398553228006, 121.87539692116844)\n" +
-//                    "(63.46869839664578, 132.0412966643562)\n" +
-//                    "(68.54659826836723, 147.2297962806624)\n" +
-//                    "(71.56179819219687, 168.993895730855)\n" +
-//                    "(71.47999819426332, -165.71089581379056)\n" +
-//                    "(68.33329827375564, -144.24439635607996)\n" +
-//                    "(63.17339840410568, -129.34169673255383)\n" +
-//                    "(56.921898562031856, -119.36029698470523)\n" +
-//                    "(50.08059873485763, -112.40929716030223)\n" +
-//                    "(42.89839891629528, -107.29989728937656)\n" +
-//                    "(35.504099103090994, -103.35219738910382)\n" +
-//                    "(27.969099293441104, -100.17149746945506)\n" +
-//                    ">\n", polygon.toString());
-//
-//
-//        } finally {
-//            storage.clear();
-//            storage.close();
-//        }
-//    }
+
 
     private void writeSystemProperties() throws IOException {
         final Properties properties = new Properties();
