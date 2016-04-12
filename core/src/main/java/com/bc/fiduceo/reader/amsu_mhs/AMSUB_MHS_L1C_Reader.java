@@ -43,9 +43,13 @@ package com.bc.fiduceo.reader.amsu_mhs;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
@@ -76,6 +80,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
     private static final String LONGITUDE_VARIABLE_NAME = "Longitude";
+    private static final int NUM_SPLITS = 2;
 
     private NetcdfFile netcdfFile;
 
@@ -101,15 +106,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final Geometries geometries = new Geometries();
-
-        final Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
-        final Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
-
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
-
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
@@ -119,12 +115,55 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         final int endDay = getGlobalAttributeAsInteger("enddatady");
         final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
 
-        acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
-        acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
+        final Date sensingStart = getDate(startYear, startDay, startTime);
+        acquisitionInfo.setSensingStart(sensingStart);
+
+        final Date sensingStop = getDate(endYear, endDay, endTime);
+        acquisitionInfo.setSensingStop(sensingStop);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
+        final Geometries geometries = extractGeometries();
+        acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+
+        setTimeAxes(acquisitionInfo, sensingStart, sensingStop, geometries);
+
         return acquisitionInfo;
+    }
+
+    private Geometries extractGeometries() throws IOException {
+        final Geometries geometries = new Geometries();
+
+        // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
+        Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
+        longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+        Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
+        latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
+
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        Geometry timeAxisGeometry;
+
+        // AMSU-B scans from west to east on the ascending node. Thus we have to run clockwise around the lon/lat arrays to
+        // have the correct inside/outside relation on the polygons tb 2016-04-12
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(longitudes, latitudes);
+        if (!boundingGeometry.isValid()) {
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS, true);
+            if (!boundingGeometry.isValid()) {
+                throw new RuntimeException("Invalid bounding geometry detected");
+            }
+
+            final int height = longitudes.getShape()[0];
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
+        } else {
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        }
+
+        geometries.setBoundingGeometry(boundingGeometry);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+
+        return geometries;
     }
 
     @Override
@@ -247,7 +286,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             final GeometryFactory geometryFactory = getGeometryFactory();
 
             // @todo 2 tb/tb move intervals to config 2016-04-12
-            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(8, 50), geometryFactory);
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(10, 40), geometryFactory);
         }
 
         return boundingPolygonCreator;
@@ -268,5 +307,26 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             throw new IOException("Global attribute '" + attributeName + "' not found.");
         }
         return attribute.getNumericValue().intValue();
+    }
+
+    // @todo 3 tb/tb duplicated code - refactor and move to common reader helper class 2016-04-12
+    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Date startDate, Date stopDate, Geometries geometries) {
+        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
+        if (timeAxesGeometry instanceof GeometryCollection) {
+            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+            final Geometry[] axesGeometries = axesCollection.getGeometries();
+            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+            final TimeInterval timeInterval = new TimeInterval(startDate, stopDate);
+            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
+            for (int i = 0; i < axesGeometries.length; i++) {
+                final LineString axisGeometry = (LineString) axesGeometries[i];
+                final TimeInterval currentTimeInterval = timeSplits[i];
+                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
+            }
+            acquisitionInfo.setTimeAxes(timeAxes);
+        } else {
+            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, startDate, stopDate);
+            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
+        }
     }
 }

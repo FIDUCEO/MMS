@@ -27,6 +27,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.google.common.collect.Lists;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
@@ -193,45 +194,6 @@ public class BoundingPolygonCreator {
         return polygonList;
     }
 
-    //todo mba : include the NodeType 2016-02-10.
-    public AcquisitionInfo createBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude) {
-        final int[] shape = arrayLatitude.getShape();
-        List<Polygon> polygonsBounding = new ArrayList<>();
-        int width = shape[1] - 1;
-        int height = shape[0] - 1;
-
-        int[] timeAxisStart = new int[2];
-        int[] timeAxisEnd = new int[2];
-
-
-        for (int i = 1; i <= 4; i++) {
-            polygonsBounding = createPolygonsBounding(arrayLatitude, arrayLongitude, width, height, i);
-            if (arePolygonsValid(polygonsBounding)) {
-                break;
-            }
-        }
-        try {
-            if (polygonsBounding.size() == 0) {
-                throw new Exception("There is no point is create from the boundary");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        List<Point> pointList = new ArrayList<>();
-        for (Polygon polygon : polygonsBounding) {
-            pointList.addAll(Arrays.asList(polygon.getCoordinates()));
-        }
-
-        acquisitionInfo.setCoordinates(pointList);
-        acquisitionInfo.setMultiPolygons(polygonsBounding);
-        acquisitionInfo.setTimeAxisStartIndices(timeAxisStart);
-        acquisitionInfo.setTimeAxisEndIndices(timeAxisEnd);
-
-        return acquisitionInfo;
-    }
-
     public AcquisitionInfo createPixelCodedBoundingPolygon(ArrayDouble.D2 arrayLatitude, ArrayDouble.D2 arrayLongitude,
                                                            NodeType nodeType) {
         int[] timeAxisStart = new int[2];
@@ -291,46 +253,25 @@ public class BoundingPolygonCreator {
     }
 
     public Geometry createBoundingGeometry(Array longitudes, Array latitudes) {
-        final int[] shape = longitudes.getShape();
-        int maxX = shape[1] - 1;
-        int maxY = shape[0] - 1;
-
-        final Index index = longitudes.getIndex();
-        final List<Point> coordinates = new ArrayList<>();
-        for (int y = 0; y < maxY; y += intervalY) {
-            index.set(y, 0);
-            final double lon = longitudes.getDouble(index);
-            final double lat = latitudes.getDouble(index);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-
-        for (int x = 0; x < maxX; x += intervalX) {
-            index.set(maxY, x);
-            final double lon = longitudes.getDouble(index);
-            final double lat = latitudes.getDouble(index);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-
-        for (int y = maxY; y > 0; y -= intervalY) {
-            index.set(y, maxX);
-            final double lon = longitudes.getDouble(index);
-            final double lat = latitudes.getDouble(index);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-
-        for (int x = maxX; x > 0; x -= intervalX) {
-            index.set(0, x);
-            final double lon = longitudes.getDouble(index);
-            final double lat = latitudes.getDouble(index);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
+        final List<Point> coordinates = extractBoundaryCoordinates(longitudes, latitudes);
 
         closePolygon(coordinates);
 
         return geometryFactory.createPolygon(coordinates);
     }
 
-    public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits) {
+
+
+    public Geometry createBoundingGeometryClockwise(Array longitudes, Array latitudes) {
+        final List<Point> coordinates = extractBoundaryCoordinates(longitudes, latitudes);
+
+        closePolygon(coordinates);
+        final List<Point> reverse = Lists.reverse(coordinates);
+
+        return geometryFactory.createPolygon(reverse);
+    }
+
+    public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits, boolean clockwise) {
         final Geometry[] geometries = new Geometry[numSplits];
 
         final int[] shape = longitudes.getShape();
@@ -353,7 +294,11 @@ public class BoundingPolygonCreator {
                 throw new RuntimeException(e.getMessage());
             }
 
-            geometries[i] = createBoundingGeometry(longitudesSubset, latitudesSubset);
+            if (clockwise) {
+                geometries[i] = createBoundingGeometryClockwise(longitudesSubset, latitudesSubset);
+            } else {
+                geometries[i] = createBoundingGeometry(longitudesSubset, latitudesSubset);
+            }
 
             yOffset += subsetHeight - 1;
             if (yOffset + subsetHeight > height) {
@@ -432,6 +377,43 @@ public class BoundingPolygonCreator {
         if (coordinates.size() > 1) {
             coordinates.add(coordinates.get(0));
         }
+    }
+
+    private List<Point> extractBoundaryCoordinates(Array longitudes, Array latitudes) {
+        final int[] shape = longitudes.getShape();
+        int maxX = shape[1] - 1;
+        int maxY = shape[0] - 1;
+
+        final Index index = longitudes.getIndex();
+        final List<Point> coordinates = new ArrayList<>();
+        for (int y = 0; y < maxY; y += intervalY) {
+            index.set(y, 0);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int x = 0; x < maxX; x += intervalX) {
+            index.set(maxY, x);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int y = maxY; y > 0; y -= intervalY) {
+            index.set(y, maxX);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+
+        for (int x = maxX; x > 0; x -= intervalX) {
+            index.set(0, x);
+            final double lon = longitudes.getDouble(index);
+            final double lat = latitudes.getDouble(index);
+            coordinates.add(geometryFactory.createPoint(lon, lat));
+        }
+        return coordinates;
     }
 
 

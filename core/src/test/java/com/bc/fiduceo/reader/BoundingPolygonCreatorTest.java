@@ -153,6 +153,39 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
+    public void testCreateBoundingGeometryClockwise_AIRS() {
+        final Array latitudes = Array.factory(AIRS_LATITUDES);
+        final Array longitudes = Array.factory(AIRS_LONGITUDES);
+
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(longitudes, latitudes);
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof Polygon);
+
+        final Point[] coordinates = boundingGeometry.getCoordinates();
+        assertEquals(9, coordinates.length);
+
+        // checks left side downwards
+        assertEquals(138.19514475348302, coordinates[0].getLon(), 1e-8);
+        assertEquals(71.15288152754994, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(138.77287682180165, coordinates[1].getLon(), 1e-8);
+        assertEquals(71.4359164390965, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(139.86561480588978, coordinates[2].getLon(), 1e-8);
+        assertEquals(71.9452820772289, coordinates[2].getLat(), 1e-8);
+
+        // checks right side upwards
+        assertEquals(138.53923435004424, coordinates[4].getLon(), 1e-8);
+        assertEquals(72.21432551071354, coordinates[4].getLat(), 1e-8);
+
+        assertEquals(138.01571817610454, coordinates[5].getLon(), 1e-8);
+        assertEquals(71.96597011172345, coordinates[5].getLat(), 1e-8);
+
+        assertEquals(136.90199908664985, coordinates[6].getLon(), 1e-8);
+        assertEquals(71.41032171663477, coordinates[6].getLat(), 1e-8);
+    }
+
+    @Test
     public void testCreateBoundingGeometry_AVHRR_intervalVaried() {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
@@ -190,7 +223,7 @@ public class BoundingPolygonCreatorTest {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
 
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2);
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, false);
         assertNotNull(boundingGeometry);
         assertTrue(boundingGeometry instanceof GeometryCollection);
 
@@ -232,11 +265,57 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
+    public void testCreateBoundingGeometrySplitted_clockwise_splitInTwo() {
+        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, true);
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof GeometryCollection);
+
+        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(2, geometries.length);
+
+        // check upper part
+        Point[] coordinates = geometries[0].getCoordinates();
+        assertEquals(9, coordinates.length);
+
+        assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.43, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-114.77901, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.402, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-114.384995, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.35, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(-114.996994, coordinates[7].getLon(), 1e-8);
+        assertEquals(6.373, coordinates[7].getLat(), 1e-8);
+
+        // check lower part
+        coordinates = geometries[1].getCoordinates();
+        assertEquals(9, coordinates.length);
+
+        assertEquals(-115.003006, coordinates[0].getLon(), 1e-8);
+        assertEquals(6.344, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(-114.797, coordinates[1].getLon(), 1e-8);
+        assertEquals(6.317, coordinates[1].getLat(), 1e-8);
+
+        assertEquals(-114.403, coordinates[2].getLon(), 1e-8);
+        assertEquals(6.264, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(-115.015, coordinates[7].getLon(), 1e-8);
+        assertEquals(6.287, coordinates[7].getLat(), 1e-8);
+    }
+
+    @Test
     public void testCreateBoundingGeometrySplitted_splitInThree() {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
 
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 3);
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 3, false);
         assertNotNull(boundingGeometry);
         assertTrue(boundingGeometry instanceof GeometryCollection);
 

@@ -43,6 +43,9 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +94,36 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+
+            Point[] coordinates = geometries[0].getCoordinates();
+            assertEquals(85, coordinates.length);
+            assertEquals(134.5867, coordinates[0].getLon(), 1e-8);
+            assertEquals(51.186, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-30.2003, coordinates[24].getLon(), 1e-8);
+            assertEquals(36.4925, coordinates[24].getLat(), 1e-8);
+
+            coordinates = geometries[1].getCoordinates();
+            assertEquals(85, coordinates.length);
+            assertEquals(-26.8742, coordinates[0].getLon(), 1e-8);
+            assertEquals(-78.5383, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(152.2549, coordinates[24].getLon(), 1e-8);
+            assertEquals(-11.3641, coordinates[24].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 6, 30, 33, 808, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 7, 27, 26, 452, time);
         } finally {
             reader.close();
         }
