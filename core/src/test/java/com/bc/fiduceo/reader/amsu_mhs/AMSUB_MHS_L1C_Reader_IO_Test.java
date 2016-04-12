@@ -41,19 +41,17 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.ma2.ArrayDouble;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,41 +59,47 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(IOTestRunner.class)
-public class AMSU_MHS_L1B_Reader_IO_Test {
+public class AMSUB_MHS_L1C_Reader_IO_Test {
 
-    private AMSU_MHS_L1B_Reader reader;
+    private AMSUB_MHS_L1C_Reader reader;
+    private File testDataDirectory;
 
     @Before
     public void setUp() throws IOException {
-//        reader = new AMSU_MHS_L1B_Reader();
-//        final File testDataDirectory = TestUtil.getTestDataDirectory();
-//        final File file = new File(testDataDirectory, "L8912163.NSS.AMBX.NK.D08001.S0000.E0155.B5008586.GC.gz.l1c.h5");
-//        reader.open(file);
-    }
-
-    @After
-    public void tearDown() throws IOException {
-//        reader.close();
+        reader = new AMSUB_MHS_L1C_Reader();
+        testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @Test
-    public void testAcqusitionInfo() throws IOException, ParseException {
-//        final AcquisitionInfo acquisitionInfo = reader.read();
-//
-//        final List<Point> coordinates = acquisitionInfo.getCoordinates();
-//        assertNotNull(coordinates);
-//        assertEquals(121, coordinates.size());
-//        assertCoordinate(-108.08909726943968, -72.57329816664424, coordinates.get(0));
-//        assertCoordinate(-96.7779975551821, -7.57889980854088, coordinates.get(10));
-//
-//        assertNotNull(acquisitionInfo.getSensingStart());
-//        assertNotNull(acquisitionInfo.getSensingStop());
-//        TestUtil.assertCorrectUTCDate(2008, 1, 1, 0, 1, 8, 476, acquisitionInfo.getSensingStart());
-//        TestUtil.assertCorrectUTCDate(2008, 1, 1, 1, 55, 8, 475, acquisitionInfo.getSensingStop());
+    public void testReadAcquisitionInfo_AMSUB_NOAA15() throws IOException, ParseException {
+        final File amsubFile = createAmsubNOAA15Path();
+
+        try {
+            reader.open(amsubFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 6, 30, 29, 119, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 8, 24, 23, 785, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+        } finally {
+            reader.close();
+        }
     }
 
-    private void assertCoordinate(double expectedX, double expectedY, Point coordinate) {
-        assertEquals(expectedX, coordinate.getLon(), 1e-8);
-        assertEquals(expectedY, coordinate.getLat(), 1e-8);
+    private File createAmsubNOAA15Path() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", "L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
     }
 }

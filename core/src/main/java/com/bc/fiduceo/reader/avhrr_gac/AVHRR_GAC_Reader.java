@@ -56,105 +56,6 @@ public class AVHRR_GAC_Reader implements Reader {
     private SwathPixelLocator pixelLocator;
     private long startTimeMilliSecondsSince1970;
 
-    // package access for testing only tb 2016-03-02
-    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
-        if (timeAttribute == null) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
-        }
-        final String startTimeString = timeAttribute.getStringValue();
-        if (StringUtils.isNullOrEmpty(startTimeString)) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
-        }
-        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
-
-    // package access for testing only se 2016-03-11
-    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
-        final Point centroid = subSceneGeometry.getCentroid();
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
-
-        final int sh2 = subsetHeight / 2;
-
-        final double centerX = width / 2 + 0.5;
-
-        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
-        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
-        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
-        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double d1 = cd1.distance(cLon, cLat);
-        final double d2 = cd2.distance(cLon, cLat);
-
-        final int minY;
-        final int maxY;
-        if (d1 < d2) {
-            minY = 0;
-            maxY = subsetHeight - 1;
-        } else {
-            minY = subsetHeight - 1;
-            maxY = height - 1;
-        }
-        return new ClippingPixelLocator(pixelLocator, minY, maxY);
-    }
-
-    static Number extractFillValue(Variable variable) {
-        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
-        if (fillAttrib != null) {
-            return fillAttrib.getNumericValue();
-        }
-        return getDefaultFillValue(variable);
-    }
-
-    static Number getDefaultFillValue(Variable variable) {
-        final Class type = variable.getDataType().getPrimitiveClassType();
-        if (double.class == type) {
-            return Double.MIN_VALUE;
-        } else if (float.class == type) {
-            return Float.MIN_VALUE;
-        } else if (long.class == type) {
-            return Long.MIN_VALUE;
-        } else if (int.class == type) {
-            return Integer.MIN_VALUE;
-        } else if (short.class == type) {
-            return Short.MIN_VALUE;
-        } else if (byte.class == type) {
-            return Byte.MIN_VALUE;
-        } else {
-            throw new RuntimeException("not implemented for type " + type.getTypeName());
-        }
-    }
-
-    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
-        final int[] shape = rawData.getShape();
-        final int height = shape[0];
-        final int width = shape[1];
-        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
-        // @todo 1 se/** take care about no (data value) fill value
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                final float v = rawData.get(i, j);
-                final float milliSeconds = v * 1000;
-                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
-                times.set(i, j, secondsSince1970);
-            }
-        }
-        return times;
-    }
-
-    private static Attribute getAttribute(Variable variable, String attributeName) {
-        return variable.findAttribute(attributeName);
-    }
-
-    // package access for testing only tb 2016-03-31
-    static int getProductWidth(NetcdfFile netcdfFile) {
-        final List<Dimension> dimensions = netcdfFile.getDimensions();
-        for (final Dimension dimension : dimensions) {
-            if ("ni".equalsIgnoreCase(dimension.getFullName())) {
-                return dimension.getLength();
-            }
-        }
-        throw new RuntimeException("missing dimension 'ni'11");
-    }
 
     @Override
     public void open(File file) throws IOException {
@@ -358,33 +259,103 @@ public class AVHRR_GAC_Reader implements Reader {
         return scaleFactor != 1.0 || offset != 0.0;
     }
 
-    private class Geometries {
-        private Geometry boundingGeometry;
-        private Geometry timeAxesGeometry;
-        private Integer subsetHeight;
-
-        Geometry getBoundingGeometry() {
-            return boundingGeometry;
+    // package access for testing only tb 2016-03-02
+    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
+        if (timeAttribute == null) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
         }
-
-        void setBoundingGeometry(Geometry boundingGeometry) {
-            this.boundingGeometry = boundingGeometry;
+        final String startTimeString = timeAttribute.getStringValue();
+        if (StringUtils.isNullOrEmpty(startTimeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
         }
+        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
 
-        Geometry getTimeAxesGeometry() {
-            return timeAxesGeometry;
-        }
+    // package access for testing only se 2016-03-11
+    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
+        final Point centroid = subSceneGeometry.getCentroid();
+        final double cLon = centroid.getLon();
+        final double cLat = centroid.getLat();
 
-        void setTimeAxesGeometry(Geometry timeAxesGeometry) {
-            this.timeAxesGeometry = timeAxesGeometry;
-        }
+        final int sh2 = subsetHeight / 2;
 
-        Integer getSubsetHeight() {
-            return subsetHeight;
-        }
+        final double centerX = width / 2 + 0.5;
 
-        void setSubsetHeight(Integer subsetHeight) {
-            this.subsetHeight = subsetHeight;
+        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
+        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
+        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
+        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
+        final double d1 = cd1.distance(cLon, cLat);
+        final double d2 = cd2.distance(cLon, cLat);
+
+        final int minY;
+        final int maxY;
+        if (d1 < d2) {
+            minY = 0;
+            maxY = subsetHeight - 1;
+        } else {
+            minY = subsetHeight - 1;
+            maxY = height - 1;
         }
+        return new ClippingPixelLocator(pixelLocator, minY, maxY);
+    }
+
+    static Number extractFillValue(Variable variable) {
+        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
+        if (fillAttrib != null) {
+            return fillAttrib.getNumericValue();
+        }
+        return getDefaultFillValue(variable);
+    }
+
+    static Number getDefaultFillValue(Variable variable) {
+        final Class type = variable.getDataType().getPrimitiveClassType();
+        if (double.class == type) {
+            return Double.MIN_VALUE;
+        } else if (float.class == type) {
+            return Float.MIN_VALUE;
+        } else if (long.class == type) {
+            return Long.MIN_VALUE;
+        } else if (int.class == type) {
+            return Integer.MIN_VALUE;
+        } else if (short.class == type) {
+            return Short.MIN_VALUE;
+        } else if (byte.class == type) {
+            return Byte.MIN_VALUE;
+        } else {
+            throw new RuntimeException("not implemented for type " + type.getTypeName());
+        }
+    }
+
+    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
+        final int[] shape = rawData.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
+        // @todo 1 se/** take care about no (data value) fill value
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                final float v = rawData.get(i, j);
+                final float milliSeconds = v * 1000;
+                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
+                times.set(i, j, secondsSince1970);
+            }
+        }
+        return times;
+    }
+
+    private static Attribute getAttribute(Variable variable, String attributeName) {
+        return variable.findAttribute(attributeName);
+    }
+
+    // package access for testing only tb 2016-03-31
+    static int getProductWidth(NetcdfFile netcdfFile) {
+        final List<Dimension> dimensions = netcdfFile.getDimensions();
+        for (final Dimension dimension : dimensions) {
+            if ("ni".equalsIgnoreCase(dimension.getFullName())) {
+                return dimension.getLength();
+            }
+        }
+        throw new RuntimeException("missing dimension 'ni'11");
     }
 }

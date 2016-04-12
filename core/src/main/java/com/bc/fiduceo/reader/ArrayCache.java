@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 import ucar.ma2.Array;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -51,6 +52,26 @@ public class ArrayCache {
             cache.put(variableName, array);
         }
 
+        return array;
+    }
+
+    public Array get(String groupName, String variableName) throws IOException {
+        final String groupedVariableName = groupName + "_" + variableName;
+        Array array = cache.get(groupedVariableName);
+        if (array == null) {
+            synchronized (netcdfFile) {
+                final Group group = netcdfFile.findGroup(groupName);
+                if (group == null) {
+                    throw new IOException("requested group '" + groupName + "' not present in file");
+                }
+                final Variable variable = netcdfFile.findVariable(group, variableName);
+                if (variable == null) {
+                    throw new IOException("requested variable '" + variableName + "' not present in file");
+                }
+                array = variable.read();
+            }
+            cache.put(groupedVariableName, array);
+        }
         return array;
     }
 }

@@ -21,16 +21,17 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 
-import org.junit.Before;
+import com.bc.fiduceo.TestUtil;
+import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
-import org.junit.Test;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,7 +46,7 @@ public class AMSUB_MHS_ReaderTest {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
 
         try {
-            AMSU_MHS_L1B_Reader.getLongitudes(netcdfFile);
+            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
             fail("IOException expected");
         } catch (IOException expected) {
         }
@@ -58,7 +59,7 @@ public class AMSUB_MHS_ReaderTest {
         when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
 
         try {
-            AMSU_MHS_L1B_Reader.getLongitudes(netcdfFile);
+            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
             fail("IOException expected");
         } catch (IOException expected) {
         }
@@ -73,7 +74,7 @@ public class AMSUB_MHS_ReaderTest {
         when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
 
         try {
-            AMSU_MHS_L1B_Reader.getLongitudes(netcdfFile);
+            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
             fail("IOException expected");
         } catch (IOException expected) {
         }
@@ -92,11 +93,29 @@ public class AMSUB_MHS_ReaderTest {
         when(geolocationGroup.findVariable("Longitude")).thenReturn(longitude);
         when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
 
-        final Array longitudes = AMSU_MHS_L1B_Reader.getLongitudes(netcdfFile);
+        final Array longitudes = AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
         assertNotNull(longitudes);
         assertEquals(1.5, longitudes.getDouble(0), 1e-8);
         assertEquals(2.0, longitudes.getDouble(1), 1e-8);
         assertEquals(2.5, longitudes.getDouble(2), 1e-8);
         assertEquals(3.0, longitudes.getDouble(3), 1e-8);
+    }
+
+    @Test
+    public void testGetDate() {
+        Date date = AMSUB_MHS_L1C_Reader.getDate(2002, 125, 0);
+        TestUtil.assertCorrectUTCDate(2002, 5, 5, 0, 0, 0, 0, date);
+
+        date = AMSUB_MHS_L1C_Reader.getDate(2002, 126, 0);
+        TestUtil.assertCorrectUTCDate(2002, 5, 6, 0, 0, 0, 0, date);
+
+        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 1000);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 1, 0, date);
+
+        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 22567);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 22, 567, date);
+
+        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 82022567);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 22, 47, 2, 567, date);
     }
 }

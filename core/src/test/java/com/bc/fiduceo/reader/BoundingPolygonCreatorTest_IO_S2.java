@@ -25,7 +25,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.reader.amsu_mhs.AMSU_MHS_L1B_Reader;
+import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
 public class BoundingPolygonCreatorTest_IO_S2 {
 
     private NetcdfFile netcdfFile;
-    private AMSU_MHS_L1B_Reader reader;
+    private AMSUB_MHS_L1C_Reader reader;
     private BoundingPolygonCreator boundingPolygonCreator;
 
 
@@ -60,7 +60,7 @@ public class BoundingPolygonCreatorTest_IO_S2 {
         File testDataDirectory = TestUtil.getTestDataDirectory();
         File file = new File(testDataDirectory, "NSS.AMBX.NK.D15348.S0057.E0250.B9144748.GC.h5");
         netcdfFile = NetcdfFile.open(file.getPath());
-        reader = new AMSU_MHS_L1B_Reader();
+        reader = new AMSUB_MHS_L1C_Reader();
         reader.open(file);
     }
 
@@ -75,7 +75,7 @@ public class BoundingPolygonCreatorTest_IO_S2 {
     public void createValidMultiplePolygon_AMSU_Reader() throws IOException {
         // @todo 1 tb/** is this really what we want to test? 2016-04-11
         List<Polygon> polygonList = new ArrayList<>();
-        List<ArrayDouble.D2> long_lat = AMSU_MHS_L1B_Reader.getLat_Long(netcdfFile);
+        List<ArrayDouble.D2> long_lat = AMSUB_MHS_L1C_Reader.getLat_Long(netcdfFile);
 
         ArrayDouble.D2 arrayLong = long_lat.get(0);
         ArrayDouble.D2 arrayLat = long_lat.get(1);

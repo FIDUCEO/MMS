@@ -41,14 +41,18 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
-import org.esa.snap.core.datamodel.ProductData;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
@@ -67,30 +71,22 @@ import java.util.Date;
 import java.util.List;
 
 
-public class AMSU_MHS_L1B_Reader implements Reader {
+public class AMSUB_MHS_L1C_Reader implements Reader {
 
     private static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
     private static final String LONGITUDE_VARIABLE_NAME = "Longitude";
 
-    // @todo 2 tb/** read these values from config 2016-03-11
-    private static final int IntervalX = 50;
-    private static final int IntervalY = 50;
-
-    private final BoundingPolygonCreator boundingPolygonCreator;
     private NetcdfFile netcdfFile;
 
-
-    public AMSU_MHS_L1B_Reader() {
-        // @todo 2 tb/tb inject geometry factory 2016-02-25
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        boundingPolygonCreator = new BoundingPolygonCreator(new Interval(IntervalX, IntervalY), geometryFactory);
-        netcdfFile = null;
-    }
+    private ArrayCache arrayCache;
+    private GeometryFactory geometryFactory;
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
     }
 
     @Override
@@ -103,12 +99,17 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        List<ArrayDouble.D2> lat_long = getLat_Long(netcdfFile);
-        ArrayDouble.D2 arrayDoubleLongitude = lat_long.get(0);
-        ArrayDouble.D2 arrayDoubleLatitude = lat_long.get(1);
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createBoundingPolygon(arrayDoubleLatitude,
-                arrayDoubleLongitude);
+        final Geometries geometries = new Geometries();
+
+        final Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
+        final Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
+
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
 
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
@@ -120,6 +121,8 @@ public class AMSU_MHS_L1B_Reader implements Reader {
 
         acquisitionInfo.setSensingStart(getDate(startYear, startDay, startTime));
         acquisitionInfo.setSensingStop(getDate(endYear, endDay, endTime));
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
         return acquisitionInfo;
     }
@@ -166,25 +169,18 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
-    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
-        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (attribute == null) {
-            throw new IOException("Global attribute '" + attributeName + "' not found.");
-        }
-        return attribute.getNumericValue().intValue();
-    }
-
-    private Date getDate(int year, int day_of_yr, int time) {
-        final Calendar calendar = ProductData.UTC.createCalendar();
+    // package access for testing only tb 2016-04-12
+    static Date getDate(int year, int dayOfYear, int millisecsInDay) {
+        final Calendar calendar = TimeUtils.getUTCCalendar();
         calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, day_of_yr);
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        calendar.add(Calendar.MILLISECOND, time);
+        calendar.add(Calendar.MILLISECOND, millisecsInDay);
         return calendar.getTime();
     }
 
@@ -238,11 +234,39 @@ public class AMSU_MHS_L1B_Reader implements Reader {
         }
         List<ArrayDouble.D2> d2List = new ArrayList<>();
 
-        ArrayDouble.D2 arrayLong = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = AMSU_MHS_L1B_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
+        ArrayDouble.D2 arrayLong = AMSUB_MHS_L1C_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
+        ArrayDouble.D2 arrayLat = AMSUB_MHS_L1C_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
 
         d2List.add(arrayLong);// Index 0 Longitude
         d2List.add(arrayLat);// Index 0 Latitude
         return d2List;
+    }
+
+    private BoundingPolygonCreator getBoundingPolygonCreator() {
+        if (boundingPolygonCreator == null) {
+            final GeometryFactory geometryFactory = getGeometryFactory();
+
+            // @todo 2 tb/tb move intervals to config 2016-04-12
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(8, 50), geometryFactory);
+        }
+
+        return boundingPolygonCreator;
+    }
+
+    private GeometryFactory getGeometryFactory() {
+        if (geometryFactory == null) {
+            // @todo 1 tb/tb inject geometry factory 2016-04-12
+            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        }
+
+        return geometryFactory;
+    }
+
+    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
+        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (attribute == null) {
+            throw new IOException("Global attribute '" + attributeName + "' not found.");
+        }
+        return attribute.getNumericValue().intValue();
     }
 }

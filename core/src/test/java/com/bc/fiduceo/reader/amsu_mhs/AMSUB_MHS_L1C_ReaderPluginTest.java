@@ -43,13 +43,13 @@ import static org.junit.Assert.assertTrue;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 
-public class AMSU_MHS_L1B_ReaderPluginTest {
+public class AMSUB_MHS_L1C_ReaderPluginTest {
 
-    private AMSU_MHS_L1B_ReaderPlugin plugin;
+    private AMSUB_MHS_L1C_ReaderPlugin plugin;
 
     @Before
     public void setUp() throws Exception {
-        plugin = new AMSU_MHS_L1B_ReaderPlugin();
+        plugin = new AMSUB_MHS_L1C_ReaderPlugin();
     }
 
     @Test
@@ -64,6 +64,6 @@ public class AMSU_MHS_L1B_ReaderPluginTest {
     public void testCreateReader() {
         final Reader reader = plugin.createReader();
         assertNotNull(reader);
-        assertTrue(reader instanceof AMSU_MHS_L1B_Reader);
+        assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
     }
 }

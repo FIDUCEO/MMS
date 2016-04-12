@@ -20,7 +20,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
-import com.bc.fiduceo.reader.amsu_mhs.AMSU_MHS_L1B_Reader;
+import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
 import org.junit.*;
@@ -50,7 +50,7 @@ public class ReaderFactoryTest {
         Reader reader = readerFactory.getReader("amsub-n11");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof AMSU_MHS_L1B_Reader);
+        assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
     }
 
     @Test
