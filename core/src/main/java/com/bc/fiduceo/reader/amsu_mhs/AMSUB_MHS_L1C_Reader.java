@@ -58,18 +58,15 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -77,9 +74,7 @@ import java.util.List;
 
 public class AMSUB_MHS_L1C_Reader implements Reader {
 
-    private static final String SCALE_ATTRIBUTE_NAME = "Scale";
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
-    private static final String LONGITUDE_VARIABLE_NAME = "Longitude";
     private static final int NUM_SPLITS = 2;
 
     private NetcdfFile netcdfFile;
@@ -106,7 +101,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-
         final int startYear = getGlobalAttributeAsInteger("startdatayr");
         final int startDay = getGlobalAttributeAsInteger("startdatady");
         final int startTime = getGlobalAttributeAsInteger("startdatatime_ms");
@@ -131,40 +125,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return acquisitionInfo;
     }
 
-    private Geometries extractGeometries() throws IOException {
-        final Geometries geometries = new Geometries();
-
-        // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
-        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
-        Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
-        longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
-        Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
-        latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
-
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        Geometry timeAxisGeometry;
-
-        // AMSU-B scans from west to east on the ascending node. Thus we have to run clockwise around the lon/lat arrays to
-        // have the correct inside/outside relation on the polygons tb 2016-04-12
-        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(longitudes, latitudes);
-        if (!boundingGeometry.isValid()) {
-            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS, true);
-            if (!boundingGeometry.isValid()) {
-                throw new RuntimeException("Invalid bounding geometry detected");
-            }
-
-            final int height = longitudes.getShape()[0];
-            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
-        } else {
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
-        }
-
-        geometries.setBoundingGeometry(boundingGeometry);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-
-        return geometries;
-    }
 
     @Override
     public String getRegEx() {
@@ -174,8 +134,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         // @todo 1 tb/tb continue here 2016-02-25
-        final Array longitudes = getLongitudes(netcdfFile);
-        return new AMSU_MHS_GeoCoding();
+        throw new RuntimeException("not implemented");
     }
 
     @Override
@@ -221,64 +180,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
         calendar.add(Calendar.MILLISECOND, millisecsInDay);
         return calendar.getTime();
-    }
-
-    static Array getLongitudes(NetcdfFile netcdfFile) throws IOException {
-        final Group geolocationGroup = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME);
-        if (geolocationGroup == null) {
-            throw new IOException("File does not contain the group '" + GEOLOCATION_GROUP_NAME + "' that is required");
-        }
-
-        final Variable longitudesVariable = geolocationGroup.findVariable(LONGITUDE_VARIABLE_NAME);
-        if (longitudesVariable == null) {
-            throw new IOException("File does not contain the variable '" + LONGITUDE_VARIABLE_NAME + "' that is required");
-        }
-        final Attribute scaleAtribute = longitudesVariable.findAttribute(SCALE_ATTRIBUTE_NAME);
-        if (scaleAtribute == null) {
-            throw new IOException("The variable '" + LONGITUDE_VARIABLE_NAME + "' does not contain the required attribute '" + SCALE_ATTRIBUTE_NAME + "'");
-        }
-
-        final Array longitudes = longitudesVariable.read();
-        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleAtribute.getNumericValue().doubleValue(), 0.0);
-        return MAMath.convert2Unpacked(longitudes, scaleOffset);
-    }
-
-    static ArrayDouble.D2 rescaleCoordinate(ArrayInt.D2 coodinate, double scale) {
-        int[] coordinates = (int[]) coodinate.copyTo1DJavaArray();
-        int[] shape = coodinate.getShape();
-        ArrayDouble arrayDouble = new ArrayDouble(shape);
-
-        for (int i = 0; i < coordinates.length; i++) {
-            arrayDouble.setDouble(i, ((coordinates[i] * scale)));
-        }
-        return (ArrayDouble.D2) arrayDouble.copy();
-    }
-
-    public static List<ArrayDouble.D2> getLat_Long(NetcdfFile netcdfFile) throws IOException {
-        Array latitude = null;
-        Array longitude = null;
-        float latScale = 1;
-        float longScale = 1;
-        List<Variable> geolocation = netcdfFile.findGroup(GEOLOCATION_GROUP_NAME).getVariables();
-
-
-        for (Variable geo : geolocation) {
-            if (geo.getShortName().equals("Latitude")) {
-                latitude = geo.read();
-                latScale = (float) geo.findAttribute(SCALE_ATTRIBUTE_NAME).getNumericValue();
-            } else if (geo.getShortName().equals(LONGITUDE_VARIABLE_NAME)) {
-                longitude = geo.read();
-                longScale = (float) geo.findAttribute("Scale").getNumericValue();
-            }
-        }
-        List<ArrayDouble.D2> d2List = new ArrayList<>();
-
-        ArrayDouble.D2 arrayLong = AMSUB_MHS_L1C_Reader.rescaleCoordinate((ArrayInt.D2) longitude, longScale);
-        ArrayDouble.D2 arrayLat = AMSUB_MHS_L1C_Reader.rescaleCoordinate((ArrayInt.D2) latitude, latScale);
-
-        d2List.add(arrayLong);// Index 0 Longitude
-        d2List.add(arrayLat);// Index 0 Latitude
-        return d2List;
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
@@ -329,4 +230,40 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
         }
     }
+
+    private Geometries extractGeometries() throws IOException {
+        final Geometries geometries = new Geometries();
+
+        // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
+        Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
+        longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+        Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
+        latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
+
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        Geometry timeAxisGeometry;
+
+        // AMSU-B scans from west to east on the ascending node. Thus we have to run clockwise around the lon/lat arrays to
+        // have the correct inside/outside relation on the polygons tb 2016-04-12
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(longitudes, latitudes);
+        if (!boundingGeometry.isValid()) {
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS, true);
+            if (!boundingGeometry.isValid()) {
+                throw new RuntimeException("Invalid bounding geometry detected");
+            }
+
+            final int height = longitudes.getShape()[0];
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
+        } else {
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        }
+
+        geometries.setBoundingGeometry(boundingGeometry);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+
+        return geometries;
+    }
+
 }

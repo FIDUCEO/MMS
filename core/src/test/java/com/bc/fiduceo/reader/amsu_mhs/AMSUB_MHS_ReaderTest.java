@@ -32,74 +32,18 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_ReaderTest {
-
-    @Test
-    public void testGetLongitudes_missingGroup() {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-
-        try {
-            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
-        }
-    }
-
-    @Test
-    public void testGetLongitudes_missingVariable() {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Group geolocationGroup = mock(Group.class);
-        when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
-
-        try {
-            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
-        }
-    }
-
-    @Test
-    public void testGetLongitudes_missingScaleFactorAttribute() {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Group geolocationGroup = mock(Group.class);
-        final Variable longitude = mock(Variable.class);
-        when(geolocationGroup.findVariable("Longitude")).thenReturn(longitude);
-        when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
-
-        try {
-            AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
-        }
-    }
-
-    @Test
-    public void testGetLongitudes_retrieveScaledData() throws IOException {
-        final Array unscaledLongitudes = Array.factory(DataType.DOUBLE, new int[]{2, 2}, new double[]{3, 4, 5, 6});
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Group geolocationGroup = mock(Group.class);
-        final Variable longitude = mock(Variable.class);
-        final Attribute scaleAttribute = mock(Attribute.class);
-        when(scaleAttribute.getNumericValue()).thenReturn(0.5);
-        when(longitude.read()).thenReturn(unscaledLongitudes);
-        when(longitude.findAttribute("Scale")).thenReturn(scaleAttribute);
-        when(geolocationGroup.findVariable("Longitude")).thenReturn(longitude);
-        when(netcdfFile.findGroup("Geolocation")).thenReturn(geolocationGroup);
-
-        final Array longitudes = AMSUB_MHS_L1C_Reader.getLongitudes(netcdfFile);
-        assertNotNull(longitudes);
-        assertEquals(1.5, longitudes.getDouble(0), 1e-8);
-        assertEquals(2.0, longitudes.getDouble(1), 1e-8);
-        assertEquals(2.5, longitudes.getDouble(2), 1e-8);
-        assertEquals(3.0, longitudes.getDouble(3), 1e-8);
-    }
 
     @Test
     public void testGetDate() {
@@ -117,5 +61,35 @@ public class AMSUB_MHS_ReaderTest {
 
         date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 82022567);
         TestUtil.assertCorrectUTCDate(2008, 8, 4, 22, 47, 2, 567, date);
+    }
+
+    @Test
+    public void testGetRegEx() {
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader();
+
+        final String regEx = reader.getRegEx();
+        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5", regEx);
+
+        final Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("L0502033.NSS.AMBX.NK.D07234.S1004.E1149.B4821213.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
+        assertFalse(matcher.matches());
     }
 }

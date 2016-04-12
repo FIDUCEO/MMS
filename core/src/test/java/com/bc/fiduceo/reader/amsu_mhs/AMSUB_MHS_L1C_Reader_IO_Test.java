@@ -75,7 +75,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_AMSUB_NOAA15() throws IOException, ParseException {
-        final File amsubFile = createAmsubNOAA15Path();
+        final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
 
         try {
             reader.open(amsubFile);
@@ -129,8 +129,64 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         }
     }
 
-    private File createAmsubNOAA15Path() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", "L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5"}, false);
+    @Test
+    public void testReadAcquisitionInfo_AMSUB_NOAA15_laterAcquisition() throws IOException, ParseException {
+        final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 37, 120, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 18, 24, 53, 119, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+
+            Point[] coordinates = geometries[0].getCoordinates();
+            assertEquals(77, coordinates.length);
+            assertEquals(-29.0474, coordinates[0].getLon(), 1e-8);
+            assertEquals(61.1013, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(174.4584, coordinates[24].getLon(), 1e-8);
+            assertEquals(14.7534, coordinates[24].getLat(), 1e-8);
+
+            coordinates = geometries[1].getCoordinates();
+            assertEquals(77, coordinates.length);
+            assertEquals(-179.2796, coordinates[0].getLon(), 1e-8);
+            assertEquals(-75.2729, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-0.1681, coordinates[24].getLon(), 1e-8);
+            assertEquals(-8.6179, coordinates[24].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 39, 757, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    private File createAmsubNOAA15Path(String fileName) {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", fileName}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
