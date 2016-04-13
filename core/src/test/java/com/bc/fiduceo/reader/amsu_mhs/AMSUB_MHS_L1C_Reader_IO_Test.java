@@ -95,27 +95,19 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(NodeType.UNDEFINED, nodeType);
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-            assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
+            assertSplittedBoundingGeometry(boundingGeometry);
+
             final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
             final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-
             Point[] coordinates = geometries[0].getCoordinates();
             assertEquals(85, coordinates.length);
-            assertEquals(134.5867, coordinates[0].getLon(), 1e-8);
-            assertEquals(51.186, coordinates[0].getLat(), 1e-8);
-
-            assertEquals(-30.2003, coordinates[24].getLon(), 1e-8);
-            assertEquals(36.4925, coordinates[24].getLat(), 1e-8);
+            assertCorrectCoordinate(134.5867, 51.186, coordinates[0]);
+            assertCorrectCoordinate(-30.2003, 36.4925, coordinates[24]);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(85, coordinates.length);
-            assertEquals(-26.8742, coordinates[0].getLon(), 1e-8);
-            assertEquals(-78.5383, coordinates[0].getLat(), 1e-8);
-
-            assertEquals(152.2549, coordinates[24].getLon(), 1e-8);
-            assertEquals(-11.3641, coordinates[24].getLat(), 1e-8);
+            assertCorrectCoordinate(-26.8742, -78.5383, coordinates[0]);
+            assertCorrectCoordinate(152.2549, -11.3641, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -151,27 +143,19 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(NodeType.UNDEFINED, nodeType);
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-            assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
+            assertSplittedBoundingGeometry(boundingGeometry);
+
             final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
             final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-
             Point[] coordinates = geometries[0].getCoordinates();
             assertEquals(77, coordinates.length);
-            assertEquals(-29.0474, coordinates[0].getLon(), 1e-8);
-            assertEquals(61.1013, coordinates[0].getLat(), 1e-8);
-
-            assertEquals(174.4584, coordinates[24].getLon(), 1e-8);
-            assertEquals(14.7534, coordinates[24].getLat(), 1e-8);
+            assertCorrectCoordinate(-29.0474, 61.1013, coordinates[0]);
+            assertCorrectCoordinate(174.4584, 14.7534, coordinates[24]);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(77, coordinates.length);
-            assertEquals(-179.2796, coordinates[0].getLon(), 1e-8);
-            assertEquals(-75.2729, coordinates[0].getLat(), 1e-8);
-
-            assertEquals(-0.1681, coordinates[24].getLon(), 1e-8);
-            assertEquals(-8.6179, coordinates[24].getLat(), 1e-8);
+            assertCorrectCoordinate(-179.2796, -75.2729, coordinates[0]);
+            assertCorrectCoordinate(-0.1681, -8.6179, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -182,6 +166,56 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+
+    @Test
+    public void testReadAcquisitionInfo_MHS_NOAA18() throws IOException, ParseException {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5");
+
+        try {
+            reader.open(mhsFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 10, 10, 7, 277, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 56, 28, 610, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertSplittedBoundingGeometry(boundingGeometry);
+
+            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            Point[] coordinates = geometries[0].getCoordinates();
+
+            assertEquals(79, coordinates.length);
+            assertCorrectCoordinate(6.8728, 63.4891, coordinates[0]);
+            assertCorrectCoordinate(-144.1532, 9.9494, coordinates[25]);
+
+            coordinates = geometries[1].getCoordinates();
+            assertEquals(79, coordinates.length);
+            assertCorrectCoordinate(-131.5143, -78.9114, coordinates[0]);
+            assertCorrectCoordinate(40.2073, 5.992, coordinates[26]);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 10, 10, 8, 839, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 3, 17, 943, time);
         } finally {
             reader.close();
         }
@@ -231,5 +265,25 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
+    }
+
+    private File createMhsNOAA18Path(String fileName) {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mhs-n18", "v1.0", "2007", "08", "22", fileName}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private void assertSplittedBoundingGeometry(Geometry boundingGeometry) {
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof GeometryCollection);
+        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
+        final Geometry[] geometries_2 = geometryCollection.getGeometries();
+        assertEquals(2, geometries_2.length);
+    }
+
+    private void assertCorrectCoordinate(double expectedLon, double expectedLat, Point coordinate) {
+        assertEquals(expectedLon, coordinate.getLon(), 1e-8);
+        assertEquals(expectedLat, coordinate.getLat(), 1e-8);
     }
 }
