@@ -22,16 +22,32 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.math.CosineDistance;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -54,6 +70,7 @@ public class AVHRR_GAC_Reader implements Reader {
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
     private SwathPixelLocator pixelLocator;
+    private TimeLocator timeLocator;
     private long startTimeMilliSecondsSince1970;
 
 
@@ -62,10 +79,12 @@ public class AVHRR_GAC_Reader implements Reader {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
         startTimeMilliSecondsSince1970 = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME)).getTime();
+        timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
+        timeLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -125,10 +144,13 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        final Array dTime = arrayCache.get("dtime");
-        final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
+        if (timeLocator == null) {
+            final Array dTime = arrayCache.get("dtime");
+            final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
 
-        return new AVHRR_GAC_TimeLocator(dTime, startDate);
+            timeLocator = new AVHRR_GAC_TimeLocator(dTime, startDate);
+        }
+        return timeLocator;
     }
 
     @Override
@@ -243,7 +265,7 @@ public class AVHRR_GAC_Reader implements Reader {
     // package access for testing only tb 2016-03-31
     static double getScaleFactor(Variable variable) {
         final Attribute scaleFactorAttribute = getAttribute(variable, "scale_factor");
-        if (scaleFactorAttribute == null){
+        if (scaleFactorAttribute == null) {
             return 1.0;
         }
         return scaleFactorAttribute.getNumericValue().doubleValue();
@@ -252,7 +274,7 @@ public class AVHRR_GAC_Reader implements Reader {
     // package access for testing only tb 2016-03-31
     static double getOffset(Variable variable) {
         final Attribute offsetAttribute = getAttribute(variable, "add_offset");
-        if (offsetAttribute == null){
+        if (offsetAttribute == null) {
             return 0.0;
         }
         return offsetAttribute.getNumericValue().doubleValue();

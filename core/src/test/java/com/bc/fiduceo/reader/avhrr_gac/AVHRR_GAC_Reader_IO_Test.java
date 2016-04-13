@@ -191,6 +191,26 @@ public class AVHRR_GAC_Reader_IO_Test {
     }
 
     @Test
+    public void testGetTimeLocator_NOAA17_callingTwiceReturnsTheSameObject() throws IOException {
+        final File file = createAvhrrNOAA17Path();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final TimeLocator timeLocator_2 = reader.getTimeLocator();
+            assertNotNull(timeLocator_2);
+
+            assertSame(timeLocator, timeLocator_2);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetTimeLocator_NOAA18() throws IOException {
         final File file = createAvhrrNOAA18Path();
 
