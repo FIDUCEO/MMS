@@ -171,7 +171,6 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         }
     }
 
-
     @Test
     public void testReadAcquisitionInfo_MHS_NOAA18() throws IOException, ParseException {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5");
@@ -255,6 +254,25 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             assertSame(timeLocator, timeLocator_2);
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_MHS_NOAA18() throws IOException {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+
+        try {
+            reader.open(mhsFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1187789535277L, timeLocator.getTimeFor(1, 0));
+            assertEquals(1187789876610L, timeLocator.getTimeFor(2, 128));
+            assertEquals(1187792292609L, timeLocator.getTimeFor(3, 1034));
+            assertEquals(1187795892609L, timeLocator.getTimeFor(4, 2384));
         } finally {
             reader.close();
         }
