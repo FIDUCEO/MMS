@@ -41,9 +41,7 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class AMSUB_MHS_L1C_ReaderPlugin implements ReaderPlugin {
 
-    // @todo 2 tb/mb where are the MHS sensor-keys? Please either implement here or rename reader class (and the plugin) 2016-03-11
-    private static final String[] SENSOR_KEYS = {"amsub-tn", "amsub-n06", "amsub-n07", "amsub-n08", "amsub-n09",
-                                                 "amsub-n10", "amsub-n11", "amsub-n12", "amsub-n14", "amsub-n15", "amsub-n16", "amsub-n17", "amsub-n18", "amsub-n19"};
+    private static final String[] SENSOR_KEYS = {"amsub-n15", "amsub-n16", "amsub-n17", "mhs-n18", "mhs-n19", "mhs-ma", "mhs-mb"};
 
 
     public String[] getSupportedSensorKeys() {

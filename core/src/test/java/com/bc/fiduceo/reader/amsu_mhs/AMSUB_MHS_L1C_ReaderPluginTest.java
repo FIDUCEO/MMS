@@ -54,7 +54,7 @@ public class AMSUB_MHS_L1C_ReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKey() throws Exception {
-        final String[] expected = {"amsub-tn", "amsub-n06", "amsub-n07", "amsub-n08", "amsub-n09", "amsub-n10", "amsub-n11", "amsub-n12", "amsub-n14", "amsub-n15", "amsub-n16", "amsub-n17", "amsub-n18", "amsub-n19"};
+        final String[] expected = {"amsub-n15", "amsub-n16", "amsub-n17", "mhs-n18", "mhs-n19", "mhs-ma", "mhs-mb"};
 
         final String[] sensorKeys= plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);

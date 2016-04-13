@@ -39,7 +39,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetAVHHRReaderKey() throws Exception {
-        Reader reader = readerFactory.getReader("avhrr-n06");
+        final Reader reader = readerFactory.getReader("avhrr-n06");
 
         assertNotNull(reader);
         assertTrue(reader instanceof AVHRR_GAC_Reader);
@@ -47,7 +47,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetAMSUReaderKey() throws Exception {
-        Reader reader = readerFactory.getReader("amsub-n11");
+        final Reader reader = readerFactory.getReader("amsub-n17");
 
         assertNotNull(reader);
         assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
@@ -55,7 +55,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetAIRSReaderKey() throws Exception {
-        Reader reader = readerFactory.getReader("airs-aq");
+        final Reader reader = readerFactory.getReader("airs-aq");
 
         assertNotNull(reader);
         assertTrue(reader instanceof AIRS_L1B_Reader);
@@ -63,7 +63,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetEumetsatIASIReaderKey() throws Exception {
-        Reader reader = readerFactory.getReader("iasi-mb");
+        final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
         assertTrue(reader instanceof EumetsatIASIReader);

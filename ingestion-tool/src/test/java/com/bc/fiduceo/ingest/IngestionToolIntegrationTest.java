@@ -246,12 +246,57 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 18, 24, 53, 119, timeAxes[1].getEndTime());
             assertEquals(TestData.AMSUB_N15_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
-
         } finally {
             storage.clear();
             storage.close();
         }
+    }
 
+    @Test
+    public void testIngest_MHS_NOAA18() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mhs-n18", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(3, satelliteObservations.size());
+
+            final SatelliteObservation observation = satelliteObservations.get(1);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 51, 27, 277, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 13, 37, 32, 610, observation.getStopTime());
+            assertEquals("mhs-n18", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mhs-n18", "v1.0", "2007", "08", "22", "NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+            assertEquals(TestData.MHS_N18_GEOMETRIES[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.MHS_N18_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 51, 27, 277, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 12, 44, 29, 943, timeAxes[0].getEndTime());
+            assertEquals(TestData.MHS_N18_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
+
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 12, 44, 29, 943, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(2007, 8, 22, 13, 37, 32, 610, timeAxes[1].getEndTime());
+            assertEquals(TestData.MHS_N18_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
     }
 
     // @todo 2 tb/tb reanimate test when we have usecase 2 running - temporarily disabled 2016-03-03
