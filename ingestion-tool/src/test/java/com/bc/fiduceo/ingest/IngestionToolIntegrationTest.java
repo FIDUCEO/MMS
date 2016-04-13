@@ -123,7 +123,7 @@ public class IngestionToolIntegrationTest {
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
 
-            final SatelliteObservation observation = satelliteObservations.get(0);
+            final SatelliteObservation observation = getSatelliteObservation("20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 5, 28, 48, 0, observation.getStopTime());
             assertEquals("avhrr-n17", observation.getSensor().getName());
@@ -171,7 +171,7 @@ public class IngestionToolIntegrationTest {
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
 
-            final SatelliteObservation observation = satelliteObservations.get(0);
+            final SatelliteObservation observation = getSatelliteObservation("20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 4, 12, 0, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 9, 46, 11, 0, observation.getStopTime());
             assertEquals("avhrr-n18", observation.getSensor().getName());
@@ -218,7 +218,7 @@ public class IngestionToolIntegrationTest {
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(3, satelliteObservations.size());
 
-            final SatelliteObservation observation = satelliteObservations.get(0);
+            final SatelliteObservation observation = getSatelliteObservation("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 37, 120, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 18, 24, 53, 119, observation.getStopTime());
             assertEquals("amsub-n15", observation.getSensor().getName());
@@ -265,7 +265,7 @@ public class IngestionToolIntegrationTest {
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(3, satelliteObservations.size());
 
-            final SatelliteObservation observation = satelliteObservations.get(1);
+            final SatelliteObservation observation = getSatelliteObservation("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 51, 27, 277, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 13, 37, 32, 610, observation.getStopTime());
             assertEquals("mhs-n18", observation.getSensor().getName());
@@ -299,48 +299,20 @@ public class IngestionToolIntegrationTest {
         }
     }
 
-    // @todo 2 tb/tb reanimate test when we have usecase 2 running - temporarily disabled 2016-03-03
-//    @Ignore
-//    @Test
-//    public void testIngest_AIRS() throws ParseException, IOException, SQLException {
-//        // @todo 1 tb/** this testGroupInputProduct relies on the results being returned in a specifi order - change this 2015-12-22
-//        // @todo 2 tb/tb move geometry factory type to some other location, parametrize testGroupInputProduct 2015-12-16
-//        final Storage storage = Storage.create(TestUtil.getDatasource_H2(), new GeometryFactory(GeometryFactory.Type.JTS));
-//        storage.initialize();
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs"};
-//        try {
-//            writeSystemProperties();
-//            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-//
-//            IngestionToolMain.main(args);
-//
-//            final List<SatelliteObservation> satelliteObservations = storage.get();
-//            final SatelliteObservation observation = satelliteObservations.get(1);
-//            final Sensor sensor = observation.getSensor();
-//            assertTrue(sensor.getName().contains("AIRS"));
-//
-//            assertEquals("02-Sep-2015 02:17:22", TimeUtils.format(observation.getStartTime()));
-//            assertEquals("02-Sep-2015 02:23:21", TimeUtils.format(observation.getStopTime()));
-//            // @todo 1 tb/** something is wrong with the path stored in the DB check and resolve 2015-12-22
-//            assertTrue(observation.getDataFilePath().toString().contains("AIRS.2015.09.02.023.L1B.AIRS_Rad.v5.0.23.0.G15246021652.hdf"));
-//            assertEquals("POLYGON ((129.0250670999712 89.79658975406977, 84.86982219864322 88.25602001883792, 81.90290725421067 85.65352859896593, 81.3576435143464 83.81490908412849, 81.11962740918655 82.26953345570404, 80.9699719499203 80.78247578538293, 80.84489337073471 79.15438865050432, 80.71104039446459 77.08294691030505, 80.53453700811556 73.81603312585354, 79.3675206918862 73.81209529369254, 72.40057120621034 73.69182913234798, 65.61766811537095 73.3539676636789, 59.18281156604972 72.80034444822064, 53.20262229851623 72.05601617696243, 47.73275674707719 71.14340662799174, 42.79684164519756 70.08122973044242, 38.34567255972898 68.90462336877947, 34.37287139761094 67.61918933634195, 30.823735270859643 66.24658402113647, 27.651190877552047 64.80095475900657, 24.809181150357116 63.29386187193271, 21.850407220205888 64.21820075117444, 16.607890159954643 65.57760911279104, 12.587203385901809 66.41330926760962, 9.013604411603218 67.02699129324324, 5.402603891171518 67.53889306433688, 1.2785654966557936 68.00522531950848, -4.17068964541869 68.44711693204631, -13.074610533265286 68.77849058101255, -13.02427652238762 69.09764314472332, -12.718673119359968 71.0130353793829, -12.405163962874246 72.9280900870151, -12.080750819552595 74.84320632611005, -11.740975374740096 76.7579444858891, -11.377940291650905 78.67196596645067, -10.975842076883234 80.58535883463844, -10.505485010935299 82.49870429049207, -9.893744504161857 84.41191323747495, -8.920099154760043 86.32499905024413, -6.4170300611108315 88.23613967607469, 129.0250670999712 89.79658975406977))",
-//                    observation.getGeoBounds().toString());
-//
-//            // @todo 1 tb/** this is not correct, check why and correct 2015-12-22
-//            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
-//        } finally {
-//            storage.clear();
-//            storage.close();
-//        }
-//    }
-
-
-
     private void writeSystemProperties() throws IOException {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
         TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
+    }
+
+    private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {
+        for (final SatelliteObservation observation :satelliteObservations) {
+            if (observation.getDataFilePath().endsWith(name)) {
+                return observation;
+            }
+        }
+        fail("requested observation not in database: " + name);
+        return null;
     }
 }
