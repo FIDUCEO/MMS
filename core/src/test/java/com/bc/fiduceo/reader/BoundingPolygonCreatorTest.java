@@ -21,7 +21,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -31,10 +30,8 @@ import com.bc.fiduceo.geometry.Polygon;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -101,22 +98,6 @@ public class BoundingPolygonCreatorTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-    }
-
-    @Test
-    public void testCreatePixelCodedBoundingPolygon_ascendingNode() {
-        final ArrayDouble.D2 longitudes = (ArrayDouble.D2) Array.factory(AIRS_LONGITUDES);
-        final ArrayDouble.D2 latitudes = (ArrayDouble.D2) Array.factory(AIRS_LATITUDES);
-
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon(latitudes, longitudes, NodeType.ASCENDING);
-        assertNotNull(acquisitionInfo);
-
-        final List<Point> coordinates = acquisitionInfo.getCoordinates();
-        assertEquals(8, coordinates.size());
-        assertEquals(138.19514475348305, coordinates.get(0).getLon(), 1e-8);
-        assertEquals(71.15288152754994, coordinates.get(0).getLat(), 1e-8);
-        assertEquals(138.9939729311918, coordinates.get(3).getLon(), 1e-8);
-        assertEquals(72.12942839534938, coordinates.get(3).getLat(), 1e-8);
     }
 
     @Test

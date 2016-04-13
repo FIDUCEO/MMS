@@ -24,7 +24,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.util.Date;
@@ -35,25 +34,10 @@ public class AcquisitionInfo {
     private Geometry boundingGeometry;
     private TimeAxis[] timeAxes;
     private List<Point> coordinates;
-    private List<Polygon> multiPolygons;
-    private int[] timeAxisStartIndices;
-    private int[] timeAxisEndIndices;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
     private Integer subsetHeight;
-
-    // @todo tb/** remove this and use GeometryCollection instead 2016-03-02
-    @Deprecated
-    public List<Polygon> getMultiPolygons() {
-        return multiPolygons;
-    }
-
-    // @todo tb/** remove this and use GeometryCollection instead 2016-03-02
-    @Deprecated
-    public void setMultiPolygons(List<Polygon> multiPolygons) {
-        this.multiPolygons = multiPolygons;
-    }
 
     // @todo tb/** remove this and use Geometry instead 2016-03-04
     @Deprecated
@@ -81,30 +65,6 @@ public class AcquisitionInfo {
 
     public void setTimeAxes(TimeAxis[] timeAxes) {
         this.timeAxes = timeAxes;
-    }
-
-    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
-    @Deprecated
-    public int[] getTimeAxisStartIndices() {
-        return timeAxisStartIndices;
-    }
-
-    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
-    @Deprecated
-    public void setTimeAxisStartIndices(int[] timeAxisStartIndices) {
-        this.timeAxisStartIndices = timeAxisStartIndices;
-    }
-
-    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
-    @Deprecated
-    public int[] getTimeAxisEndIndices() {
-        return timeAxisEndIndices;
-    }
-
-    // @todo tb/** remove this and use TimeAxis instead 2016-03-04
-    @Deprecated
-    public void setTimeAxisEndIndices(int[] timeAxisEndIndices) {
-        this.timeAxisEndIndices = timeAxisEndIndices;
     }
 
     public Date getSensingStart() {

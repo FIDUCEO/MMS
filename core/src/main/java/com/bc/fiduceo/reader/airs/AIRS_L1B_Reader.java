@@ -34,7 +34,6 @@ import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -58,19 +57,11 @@ public class AIRS_L1B_Reader implements Reader {
     private static final String CORE_METADATA = "coremetadata";
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
-    // @todo 3 tb/tb move to config file 2015-12-09
-    private static final int GEO_INTERVAL_X = 12;
-    private static final int GEO_INTERVAL_Y = 12;
+
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
-    private BoundingPolygonCreator boundingPolygonCreator;
 
     AIRS_L1B_Reader() {
-        final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
-        // @todo 1 tb/tb inject factory 2015-12-08
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
-
-        boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
         logger = FiduceoLogger.getLogger();
     }
 
@@ -152,7 +143,8 @@ public class AIRS_L1B_Reader implements Reader {
         final Array latitudes = latitudeVariable.read();
         final Array longitudes = longitudeVariable.read();
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createPixelCodedBoundingPolygon((ArrayDouble.D2) latitudes, (ArrayDouble.D2) longitudes, nodeType);
+
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setNodeType(nodeType);
 
         final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
@@ -161,7 +153,9 @@ public class AIRS_L1B_Reader implements Reader {
         acquisitionInfo.setSensingStart(sensingStart);
         acquisitionInfo.setSensingStop(sensingStop);
 
-        return acquisitionInfo;
+        throw new RuntimeException("incomplete code, continue implementing tb 2016-04-13");
+
+//        return acquisitionInfo;
     }
 
     @Override
