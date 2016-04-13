@@ -49,6 +49,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.SwathPixelLocator;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
@@ -58,6 +59,7 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
@@ -81,6 +83,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     private ArrayCache arrayCache;
     private TimeLocator timeLocator;
+    private PixelLocator pixelLocator;
     private GeometryFactory geometryFactory;
     private BoundingPolygonCreator boundingPolygonCreator;
 
@@ -136,8 +139,25 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        // @todo 1 tb/tb continue here 2016-02-25
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
+            Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
+            longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+            final Array floatLongitudes = Array.factory(Float.class, longitudes.getShape());
+            MAMath.copyFloat(floatLongitudes, longitudes);
+
+            Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
+            latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
+            final Array floatLatitudes = Array.factory(Float.class, latitudes.getShape());
+            MAMath.copyFloat(floatLatitudes, latitudes);
+
+            final int[] shape = longitudes.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = new SwathPixelLocator(floatLongitudes, floatLatitudes, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override

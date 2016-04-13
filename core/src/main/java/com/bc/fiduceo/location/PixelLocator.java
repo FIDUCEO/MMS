@@ -27,22 +27,22 @@ public interface PixelLocator {
 
     /**
      * Returns the (lon, lat) geo-location that corresponds to a given (x, y) pixel
-     * location. The lon value as X and the lat value as Y.
+     * location. The lon value as X and the lat value as Y. The pixel location uses the
+     * upper left pixel corner as reference; to refer to pixel-center, set x+0.5 and y+0.5.
      *
      * @param x The pixel x location.
      * @param y The pixel y location.
      * @param g The geo-location object. It will be used to return the geo-location. If {@code null} a new instance will be created.
-     *
      * @return Point2D if a geo-location was found, {@code null} otherwise.
      */
-    public Point2D getGeoLocation(double x, double y, Point2D g);
+    Point2D getGeoLocation(double x, double y, Point2D g);
 
     /**
      * Returns an array of (x, y) pixel location that corresponds to a given (lon, lat) geo-location.
+     * The pixel location uses the upper left pixel corner as reference..
      *
      * @param lon The pixel longitude [-180.0, 180.0].
      * @param lat The pixel latitude [-90.0, 90.0].
-     *
      * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
      */
     Point2D[] getPixelLocation(double lon, double lat);
