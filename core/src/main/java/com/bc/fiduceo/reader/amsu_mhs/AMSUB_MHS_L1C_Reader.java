@@ -80,6 +80,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private NetcdfFile netcdfFile;
 
     private ArrayCache arrayCache;
+    private TimeLocator timeLocator;
     private GeometryFactory geometryFactory;
     private BoundingPolygonCreator boundingPolygonCreator;
 
@@ -87,10 +88,12 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
+        timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
+        timeLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -143,8 +146,15 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     }
 
     @Override
-    public TimeLocator getTimeLocator() {
-        throw new RuntimeException("not implemented");
+    public TimeLocator getTimeLocator() throws IOException {
+        if (timeLocator == null) {
+            final Array scnlinyr = arrayCache.get("Data", "scnlinyr");
+            final Array scnlindy = arrayCache.get("Data", "scnlindy");
+            final Array scnlintime = arrayCache.get("Data", "scnlintime");
+
+            timeLocator = new AMSUB_MHS_TimeLocator(scnlinyr, scnlindy, scnlintime);
+        }
+        return timeLocator;
     }
 
     @Override

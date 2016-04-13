@@ -47,6 +47,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -180,6 +182,45 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_AMSUB_NOAA15() throws IOException {
+        final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1187764229119L, timeLocator.getTimeFor(1, 0));
+            assertEquals(1187764570452L, timeLocator.getTimeFor(2, 128));
+            assertEquals(1187766986453L, timeLocator.getTimeFor(3, 1034));
+            assertEquals(1187771063785L, timeLocator.getTimeFor(4, 2563));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_AMSUB_NOAA15_callingTwiceReturnsSameObject() throws IOException {
+        final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final TimeLocator timeLocator_2 = reader.getTimeLocator();
+            assertNotNull(timeLocator_2);
+
+            assertSame(timeLocator, timeLocator_2);
+
         } finally {
             reader.close();
         }

@@ -93,8 +93,6 @@ public class AVHRR_GAC_Reader implements Reader {
         return acquisitionInfo;
     }
 
-
-
     @Override
     public String getRegEx() {
         return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
