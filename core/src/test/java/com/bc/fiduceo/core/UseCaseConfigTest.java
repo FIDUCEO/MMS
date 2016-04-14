@@ -20,27 +20,27 @@
 
 package com.bc.fiduceo.core;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.jdom.JDOMException;
+import org.junit.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class UseCaseConfigTest {
 
     private UseCaseConfig useCaseConfig;
 
     @Before
-    public void setUp() {
-        useCaseConfig = new UseCaseConfig();
+    public void setUp() throws JDOMException, IOException {
+        useCaseConfig = UseCaseConfig.load(new ByteArrayInputStream("<use-case-config name=\"testName\"/>".getBytes()));
     }
 
     @Test
@@ -56,12 +56,12 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__oneSensor() {
         final String useCaseXml = "<use-case-config name=\"use-case 18\">" +
-                "  <sensors>" +
-                "    <sensor>" +
-                "      <name>amsub-n16</name>" +
-                "    </sensor>" +
-                "  </sensors>" +
-                "</use-case-config>";
+                                  "  <sensors>" +
+                                  "    <sensor>" +
+                                  "      <name>amsub-n16</name>" +
+                                  "    </sensor>" +
+                                  "  </sensors>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -74,34 +74,35 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__twoSensors() {
         final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
-                "  <sensors>" +
-                "    <sensor>" +
-                "      <name>amsub-n16</name>" +
-                "    </sensor>" +
-                "    <sensor>" +
-                "      <name>mhs-n18</name>" +
-                "    </sensor>" +
-                "  </sensors>" +
-                "</use-case-config>";
+                                  "  <sensors>" +
+                                  "    <sensor>" +
+                                  "      <name>amsub-n16</name>" +
+                                  "    </sensor>" +
+                                  "    <sensor>" +
+                                  "      <name>mhs-n18</name>" +
+                                  "    </sensor>" +
+                                  "  </sensors>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertEquals("use-case 19", useCaseConfig.getName());
         final List<Sensor> sensors = useCaseConfig.getSensors();
         assertEquals(2, sensors.size());
+        assertEquals("amsub-n16", sensors.get(0).getName());
         assertEquals("mhs-n18", sensors.get(1).getName());
     }
 
     @Test
     public void testLoad__oneSensor_primary() {
         final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
-                "  <sensors>" +
-                "    <sensor>" +
-                "      <name>amsub-n20</name>" +
-                "      <primary>true</primary>" +
-                "    </sensor>" +
-                "  </sensors>" +
-                "</use-case-config>";
+                                  "  <sensors>" +
+                                  "    <sensor>" +
+                                  "      <name>amsub-n20</name>" +
+                                  "      <primary>true</primary>" +
+                                  "    </sensor>" +
+                                  "  </sensors>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -115,8 +116,8 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__timeDelta() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                "  <time-delta-seconds>300</time-delta-seconds>" +
-                "</use-case-config>";
+                                  "  <time-delta-seconds>300</time-delta-seconds>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -127,8 +128,8 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__outputPath() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                "  <output-path>file/system/path</output-path>" +
-                "</use-case-config>";
+                                  "  <output-path>file/system/path</output-path>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -138,17 +139,17 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__dimensionList() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                "  <dimensions>" +
-                "    <dimension name=\"avhrr-n08\">" +
-                "      <nx>7</nx>" +
-                "      <ny>8</ny>" +
-                "    </dimension>" +
-                "    <dimension name=\"avhrr-n09\">" +
-                "      <nx>9</nx>" +
-                "      <ny>10</ny>" +
-                "    </dimension>" +
-                "  </dimensions>" +
-                "</use-case-config>";
+                                  "  <dimensions>" +
+                                  "    <dimension name=\"avhrr-n08\">" +
+                                  "      <nx>7</nx>" +
+                                  "      <ny>8</ny>" +
+                                  "    </dimension>" +
+                                  "    <dimension name=\"avhrr-n09\">" +
+                                  "      <nx>9</nx>" +
+                                  "      <ny>10</ny>" +
+                                  "    </dimension>" +
+                                  "  </dimensions>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -170,8 +171,8 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__maxPixelDistance() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                " <maxPixelDistanceKm>19.2</maxPixelDistanceKm>" +
-                "</use-case-config>";
+                                  " <max-pixel-distance-km>19.2</max-pixel-distance-km>" +
+                                  "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
 
@@ -179,50 +180,56 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testStore() {
-        final List<Sensor> sensorList = new ArrayList<>();
-        sensorList.add(new Sensor("first"));
-        sensorList.add(new Sensor("second"));
+    public void testStore() throws IOException {
 
-        useCaseConfig.setSensors(sensorList);
-        useCaseConfig.setName("test_use_case");
-        useCaseConfig.setTimeDeltaSeconds(12345);
-        useCaseConfig.setOutputPath("wherever/you/want/it");
-        useCaseConfig.setMaxPixelDistanceKm(14.8f);
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("test_use_case")
+                    .withSensors(Arrays.asList(
+                                new Sensor("first"),
+                                new Sensor("second")))
+                    .withDimensions(Arrays.asList(
+                                new Dimension("first", 11, 15),
+                                new Dimension("second", 3, 5)))
+                    .withTimeDeltaSeconds(12345)
+                    .withOutputPath("wherever/you/want/it")
+                    .withMaxPixelDistanceKm(14.8f)
+                    .createConfig();
 
-        final List<Dimension> dimensionList = new ArrayList<>();
-        dimensionList.add(new Dimension("first", 11, 15));
-        dimensionList.add(new Dimension("second", 3, 5));
-        useCaseConfig.setDimensions(dimensionList);
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         useCaseConfig.store(outputStream);
-        assertEquals("<use-case-config name=\"test_use_case\">\n" +
-                "  <sensors>\n" +
-                "    <sensor>\n" +
-                "      <name>first</name>\n" +
-                "      <primary>false</primary>\n" +
-                "    </sensor>\n" +
-                "    <sensor>\n" +
-                "      <name>second</name>\n" +
-                "      <primary>false</primary>\n" +
-                "    </sensor>\n" +
-                "  </sensors>\n" +
-                "  <dimensions>\n" +
-                "    <dimension name=\"first\">\n" +
-                "      <nx>11</nx>\n" +
-                "      <ny>15</ny>\n" +
-                "    </dimension>\n" +
-                "    <dimension name=\"second\">\n" +
-                "      <nx>3</nx>\n" +
-                "      <ny>5</ny>\n" +
-                "    </dimension>\n" +
-                "  </dimensions>\n" +
-                "  <time-delta-seconds>12345</time-delta-seconds>\n" +
-                "  <output-path>wherever/you/want/it</output-path>\n" +
-                "  <max-pixel-distance-km>14.8</max-pixel-distance-km>\n" +
-                "</use-case-config>", outputStream.toString());
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        pw.println("<use-case-config name=\"test_use_case\">");
+        pw.println("  <sensors>");
+        pw.println("    <sensor>");
+        pw.println("      <name>first</name>");
+        pw.println("      <primary>false</primary>");
+        pw.println("    </sensor>");
+        pw.println("    <sensor>");
+        pw.println("      <name>second</name>");
+        pw.println("      <primary>false</primary>");
+        pw.println("    </sensor>");
+        pw.println("  </sensors>");
+        pw.println("  <dimensions>");
+        pw.println("    <dimension name=\"first\">");
+        pw.println("      <nx>11</nx>");
+        pw.println("      <ny>15</ny>");
+        pw.println("    </dimension>");
+        pw.println("    <dimension name=\"second\">");
+        pw.println("      <nx>3</nx>");
+        pw.println("      <ny>5</ny>");
+        pw.println("    </dimension>");
+        pw.println("  </dimensions>");
+        pw.println("  <time-delta-seconds>12345</time-delta-seconds>");
+        pw.println("  <output-path>wherever/you/want/it</output-path>");
+        pw.println("  <max-pixel-distance-km>14.8</max-pixel-distance-km>");
+        pw.println("</use-case-config>");
+        pw.flush();
+
+        assertEquals(sw.toString().trim(), outputStream.toString().trim());
     }
 
     @Test
@@ -338,7 +345,7 @@ public class UseCaseConfigTest {
         try {
             useCaseConfig.getDimensionFor("first");
             fail("IllegalStateException expected");
-        } catch (IllegalStateException expected){
+        } catch (IllegalStateException expected) {
         }
     }
 

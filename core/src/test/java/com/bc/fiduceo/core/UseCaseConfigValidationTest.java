@@ -21,14 +21,13 @@
 package com.bc.fiduceo.core;
 
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class UseCaseConfigValidationTest {
 
@@ -142,24 +141,19 @@ public class UseCaseConfigValidationTest {
     }
 
     private UseCaseConfig createValidConfig() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("config-name");
-        useCaseConfig.setTimeDeltaSeconds(345);
-
-        final List<Sensor> sensorList = new ArrayList<>();
-        sensorList.add(new Sensor("secondary"));
         final Sensor primary = new Sensor("primary");
         primary.setPrimary(true);
-        sensorList.add(primary);
-        useCaseConfig.setSensors(sensorList);
 
-        final List<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("primary", 2, 3));
-        dimensions.add(new Dimension("secondary", 4, 5));
-        useCaseConfig.setDimensions(dimensions);
-
-        useCaseConfig.setOutputPath("some/arbitrary/path");
-
-        return useCaseConfig;
+        return UseCaseConfigBuilder
+                    .build("config-name")
+                    .withTimeDeltaSeconds(345)
+                    .withSensors(Arrays.asList(
+                                new Sensor("secondary"),
+                                primary))
+                    .withDimensions(Arrays.asList(
+                                new Dimension("primary", 2, 3),
+                                new Dimension("secondary", 4, 5)))
+                    .withOutputPath("some/arbitrary/path")
+                    .createConfig();
     }
 }

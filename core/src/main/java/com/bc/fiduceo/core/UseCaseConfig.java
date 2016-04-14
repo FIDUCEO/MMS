@@ -20,9 +20,16 @@
 
 package com.bc.fiduceo.core;
 
-import com.thoughtworks.xstream.XStream;
 import org.esa.snap.core.util.StringUtils;
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -30,6 +37,21 @@ import java.util.List;
 
 public class UseCaseConfig {
 
+    public static final String TAG_NAME_ROOT = "use-case-config";
+    public static final String TAG_NAME_TIME_DELTA_SECONDS = "time-delta-seconds";
+    public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-distance-km";
+    public static final String TAG_NAME_OUTPUT_PATH = "output-path";
+    public static final String TAG_NAME_SENSORS = "sensors";
+    public static final String TAG_NAME_SENSOR = "sensor";
+    public static final String TAG_NAME_PRIMARY = "primary";
+    public static final String TAG_NAME_DIMENSIONS = "dimensions";
+    public static final String TAG_NAME_DIMENSION = "dimension";
+    public static final String TAG_NAME_NX = "nx";
+    public static final String TAG_NAME_NY = "ny";
+    public static final String TAG_NAME_NAME = "name";
+    public static final String ATTRIBUTE_NAME_NAME = "name";
+
+    transient private final Document document;
     private String name;
     private List<Sensor> sensors;
     private List<Dimension> dimensions;
@@ -37,28 +59,34 @@ public class UseCaseConfig {
     private String outputPath;
     private float maxPixelDistanceKm;
 
-    public static UseCaseConfig load(InputStream inputStream) {
-        final XStream xStream = createXStream();
-        return (UseCaseConfig) xStream.fromXML(inputStream);
-    }
-
-    public void store(OutputStream outputStream) {
-        final XStream xStream = createXStream();
-        xStream.toXML(this, outputStream);
-    }
-
-    public UseCaseConfig() {
+    private UseCaseConfig(Document document) {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
         timeDeltaSeconds = -1;
         maxPixelDistanceKm = -1.f;
+        this.document = document;
+        init();
+    }
+
+    public static UseCaseConfig load(InputStream inputStream) {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+        try {
+            final Document document = saxBuilder.build(inputStream);
+            return new UseCaseConfig(document);
+        } catch (JDOMException | IOException | RuntimeException e) {
+            throw new RuntimeException("Unable to initialize use case configuration.", e);
+        }
+    }
+
+    public void store(OutputStream outputStream) throws IOException {
+        new XMLOutputter(Format.getPrettyFormat()).output(document, outputStream);
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
@@ -66,7 +94,7 @@ public class UseCaseConfig {
         return sensors;
     }
 
-    public void setSensors(List<Sensor> sensors) {
+    void setSensors(List<Sensor> sensors) {
         this.sensors = sensors;
     }
 
@@ -98,20 +126,24 @@ public class UseCaseConfig {
         return timeDeltaSeconds;
     }
 
-    public void setTimeDeltaSeconds(int timeDeltaSeconds) {
+    void setTimeDeltaSeconds(int timeDeltaSeconds) {
         this.timeDeltaSeconds = timeDeltaSeconds;
-    }
-
-    public void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
     }
 
     public String getOutputPath() {
         return outputPath;
     }
 
+    void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
+    }
+
     public List<Dimension> getDimensions() {
         return dimensions;
+    }
+
+    void setDimensions(List<Dimension> dimensions) {
+        this.dimensions = dimensions;
     }
 
     public Dimension getDimensionFor(String sensorName) {
@@ -123,16 +155,12 @@ public class UseCaseConfig {
         throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
-    public void setDimensions(List<Dimension> dimensions) {
-        this.dimensions = dimensions;
-    }
-
-    public void setMaxPixelDistanceKm(float maxPixelDistanceKm) {
-        this.maxPixelDistanceKm = maxPixelDistanceKm;
-    }
-
     public float getMaxPixelDistanceKm() {
         return maxPixelDistanceKm;
+    }
+
+    void setMaxPixelDistanceKm(float maxPixelDistanceKm) {
+        this.maxPixelDistanceKm = maxPixelDistanceKm;
     }
 
     public ValidationResult checkValid() {
@@ -164,23 +192,73 @@ public class UseCaseConfig {
         return validationResult;
     }
 
+    private static Attribute mandatory_getAttribute(final Element element, final String name) {
+        final Attribute attribute = element.getAttribute(name);
+        if (attribute == null) {
+            throw new RuntimeException("Attribute '" + name + "' expected");
+        }
+        return attribute;
+    }
+
+    private static Element mandatory_getChild(final Element element, final String name) {
+        final Element child = element.getChild(name);
+        if (child == null) {
+            throw new RuntimeException("Children '" + name + "' expected");
+        }
+        return child;
+    }
+
+    private static Element mandatory_getRootElement(Document document) {
+        final Element rootElement = document.getRootElement();
+        final String name = rootElement.getName();
+        if (!TAG_NAME_ROOT.equals(name)) {
+            throw new RuntimeException("Root tag name '" + TAG_NAME_ROOT + "' expected");
+        }
+        return rootElement;
+    }
+
+    private void init() {
+        final Element rootElement = mandatory_getRootElement(document);
+        setName(mandatory_getAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
+        final Element seconds = rootElement.getChild(TAG_NAME_TIME_DELTA_SECONDS);
+        if (seconds != null) {
+            setTimeDeltaSeconds(Integer.valueOf(seconds.getValue()));
+        }
+        final Element distance = rootElement.getChild(TAG_NAME_MAX_PIXEL_DISTANCE_KM);
+        if (distance != null) {
+            setMaxPixelDistanceKm(Float.valueOf(distance.getValue()));
+        }
+        final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
+        if (outputPath != null) {
+            setOutputPath(outputPath.getValue());
+        }
+        final Element sensors = rootElement.getChild(TAG_NAME_SENSORS);
+        if (sensors != null) {
+            final List<Element> sensorList = sensors.getChildren(TAG_NAME_SENSOR);
+            for (Element sensorElem : sensorList) {
+                final Element name = mandatory_getChild(sensorElem, TAG_NAME_NAME);
+                final Sensor sensor = new Sensor(name.getValue());
+                final Element primary = sensorElem.getChild(TAG_NAME_PRIMARY);
+                if (primary != null) {
+                    sensor.setPrimary(Boolean.valueOf(primary.getValue()));
+                }
+                getSensors().add(sensor);
+            }
+        }
+        final Element dimensions = rootElement.getChild(TAG_NAME_DIMENSIONS);
+        if (dimensions != null) {
+            final List<Element> dimensionList = dimensions.getChildren(TAG_NAME_DIMENSION);
+            for (Element dimensionElem : dimensionList) {
+                final String name = mandatory_getAttribute(dimensionElem, ATTRIBUTE_NAME_NAME).getValue();
+                final int nx = Integer.valueOf(mandatory_getChild(dimensionElem, TAG_NAME_NX).getValue());
+                final int ny = Integer.valueOf(mandatory_getChild(dimensionElem, TAG_NAME_NY).getValue());
+                getDimensions().add(new Dimension(name, nx, ny));
+            }
+        }
+    }
+
     private void setInvalidWithMessage(String message, ValidationResult validationResult) {
         validationResult.setValid(false);
         validationResult.addMessage(message);
-    }
-
-    private static XStream createXStream() {
-        final XStream xStream = new XStream();
-        xStream.alias("use-case-config", UseCaseConfig.class);
-        xStream.useAttributeFor(UseCaseConfig.class, "name");
-        xStream.aliasField("time-delta-seconds", UseCaseConfig.class, "timeDeltaSeconds");
-        xStream.aliasField("max-pixel-distance-km", UseCaseConfig.class, "maxPixelDistanceKm");
-        xStream.aliasField("output-path", UseCaseConfig.class, "outputPath");
-        xStream.alias("sensor", Sensor.class);
-
-        xStream.alias("dimension", Dimension.class);
-        xStream.useAttributeFor(Dimension.class, "name");
-
-        return xStream;
     }
 }

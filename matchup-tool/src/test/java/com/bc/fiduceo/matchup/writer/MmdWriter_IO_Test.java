@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
@@ -30,12 +32,11 @@ import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -44,6 +45,8 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,10 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -75,9 +74,6 @@ public class MmdWriter_IO_Test {
     public void testCreate() throws IOException, InvalidRangeException {
 //        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(10000);
         final MmdWriterNC3 mmdWriter = new MmdWriterNC3(10000);
-        final List<Dimension> dimemsions = new ArrayList<>();
-        dimemsions.add(new Dimension("avhrr-n11", 5, 7));
-        dimemsions.add(new Dimension("avhrr-n12", 3, 5));
 
         final List<VariablePrototype> variablePrototypes = new ArrayList<>();
         VariablePrototype variablePrototype = new VariablePrototype();
@@ -108,14 +104,18 @@ public class MmdWriter_IO_Test {
         variablePrototype.setAttributes(new ArrayList<>());
         variablePrototypes.add(variablePrototype);
 
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("useCaseName");
-        useCaseConfig.setDimensions(dimemsions);
-
         final Sensor primarySensor = new Sensor("avhrr-n11");
         primarySensor.setPrimary(true);
-        final Sensor secondarySensor = new Sensor("avhrr-n12");
-        useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("useCaseName")
+                    .withDimensions(Arrays.asList(
+                                new Dimension("avhrr-n11", 5, 7),
+                                new Dimension("avhrr-n12", 3, 5)))
+                    .withSensors(Arrays.asList(
+                                primarySensor,
+                                new Sensor("avhrr-n12")))
+                    .createConfig();
 
         final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
 
@@ -147,34 +147,36 @@ public class MmdWriter_IO_Test {
             final Attribute useCaseConfigAttr = mmd.findGlobalAttribute("use-case-configuration");
             assertNotNull(useCaseConfigAttr);
             assertEquals(DataType.STRING, useCaseConfigAttr.getDataType());
-            assertEquals(
-                    "<use-case-config name=\"useCaseName\">\n" +
-                            "  <sensors class=\"java.util.Arrays$ArrayList\">\n" +
-                            "    <a class=\"sensor-array\">\n" +
-                            "      <sensor>\n" +
-                            "        <name>avhrr-n11</name>\n" +
-                            "        <primary>true</primary>\n" +
-                            "      </sensor>\n" +
-                            "      <sensor>\n" +
-                            "        <name>avhrr-n12</name>\n" +
-                            "        <primary>false</primary>\n" +
-                            "      </sensor>\n" +
-                            "    </a>\n" +
-                            "  </sensors>\n" +
-                            "  <dimensions>\n" +
-                            "    <dimension name=\"avhrr-n11\">\n" +
-                            "      <nx>5</nx>\n" +
-                            "      <ny>7</ny>\n" +
-                            "    </dimension>\n" +
-                            "    <dimension name=\"avhrr-n12\">\n" +
-                            "      <nx>3</nx>\n" +
-                            "      <ny>5</ny>\n" +
-                            "    </dimension>\n" +
-                            "  </dimensions>\n" +
-                            "  <time-delta-seconds>-1</time-delta-seconds>\n" +
-                            "  <max-pixel-distance-km>-1.0</max-pixel-distance-km>\n" +
-                            "</use-case-config>",
-                    useCaseConfigAttr.getStringValue()
+
+            final StringWriter sw = new StringWriter();
+            final PrintWriter pw = new PrintWriter(sw);
+            pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            pw.println("<use-case-config name=\"useCaseName\">");
+            pw.println("  <dimensions>");
+            pw.println("    <dimension name=\"avhrr-n11\">");
+            pw.println("      <nx>5</nx>");
+            pw.println("      <ny>7</ny>");
+            pw.println("    </dimension>");
+            pw.println("    <dimension name=\"avhrr-n12\">");
+            pw.println("      <nx>3</nx>");
+            pw.println("      <ny>5</ny>");
+            pw.println("    </dimension>");
+            pw.println("  </dimensions>");
+            pw.println("  <sensors>");
+            pw.println("    <sensor>");
+            pw.println("      <name>avhrr-n11</name>");
+            pw.println("      <primary>true</primary>");
+            pw.println("    </sensor>");
+            pw.println("    <sensor>");
+            pw.println("      <name>avhrr-n12</name>");
+            pw.println("      <primary>false</primary>");
+            pw.println("    </sensor>");
+            pw.println("  </sensors>");
+            pw.println("</use-case-config>");
+            pw.flush();
+
+            assertEquals(sw.toString().trim(),
+                         useCaseConfigAttr.getStringValue().trim()
             );
 
             assertDimension("avhrr-n11_nx", 5, mmd);
@@ -306,6 +308,23 @@ public class MmdWriter_IO_Test {
         execute_usecase_02(mmdWriter);
     }
 
+    private static MatchupCollection createMatchupCollection_AVHRR(File testDataDirectory) {
+        final MatchupCollection matchupCollection = new MatchupCollection();
+        final MatchupSet matchupSet = new MatchupSet();
+        final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", "v01.2", "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
+        matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
+        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", "v01.2", "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
+        matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
+        for (int i = 0; i < 8; i++) {
+            final SampleSet sampleSet = new SampleSet();
+            sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));
+            sampleSet.setSecondary(new Sample(408, 819 + i, 34.793, -67.246, 610071904));
+            matchupSet.getSampleSets().add(sampleSet);
+        }
+        matchupCollection.add(matchupSet);
+        return matchupCollection;
+    }
+
     private void execute_usecase_02(MmdWriter mmdWriter) throws IOException, InvalidRangeException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
 
@@ -374,37 +393,20 @@ public class MmdWriter_IO_Test {
         }
     }
 
-    private static MatchupCollection createMatchupCollection_AVHRR(File testDataDirectory) {
-        final MatchupCollection matchupCollection = new MatchupCollection();
-        final MatchupSet matchupSet = new MatchupSet();
-        final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", "v01.2", "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
-        matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
-        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", "v01.2", "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
-        matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
-        for (int i = 0; i < 8; i++) {
-            final SampleSet sampleSet = new SampleSet();
-            sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));
-            sampleSet.setSecondary(new Sample(408, 819 + i, 34.793, -67.246, 610071904));
-            matchupSet.getSampleSets().add(sampleSet);
-        }
-        matchupCollection.add(matchupSet);
-        return matchupCollection;
-    }
-
     private UseCaseConfig createUseCaseConfig_AVHRR() throws IOException {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("mmd02");
-        final ArrayList<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n10");
         primary.setPrimary(true);
-        sensorList.add(primary);
-        sensorList.add(new Sensor("avhrr-n11"));
-        useCaseConfig.setSensors(sensorList);
-        final ArrayList<Dimension> dimensionList = new ArrayList<>();
-        dimensionList.add(new Dimension("avhrr-n10", 5, 5));
-        dimensionList.add(new Dimension("avhrr-n11", 5, 5));
-        useCaseConfig.setDimensions(dimensionList);
-        useCaseConfig.setOutputPath(testDir.getAbsolutePath());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("mmd02")
+                    .withSensors(Arrays.asList(
+                                primary,
+                                new Sensor("avhrr-n11")))
+                    .withDimensions(Arrays.asList(
+                                new Dimension("avhrr-n10", 5, 5),
+                                new Dimension("avhrr-n11", 5, 5)))
+                    .withOutputPath(testDir.getAbsolutePath())
+                    .createConfig();
         return useCaseConfig;
     }
 

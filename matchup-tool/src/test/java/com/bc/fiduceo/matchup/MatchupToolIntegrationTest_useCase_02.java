@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -86,8 +87,9 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
-        final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(22);
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                    .withTimeDeltaSeconds(22)
+                    .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -106,9 +108,10 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
-        final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(10800);  // 3 hours - we have one intersecting time interval
-        useCaseConfig.setMaxPixelDistanceKm(3);  // value in km
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                    .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
+                    .withMaxPixelDistanceKm(3)   // value in km
+                    .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -164,8 +167,9 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
 
-        final UseCaseConfig useCaseConfig = createUseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(10000);  // 2 hours something, just too small to have an overlapping time interval
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                    .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval
+                    .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
         insert_AVHRR_GAC_NOAA17();
@@ -207,22 +211,21 @@ public class MatchupToolIntegrationTest_useCase_02 {
         return useCaseConfigFile;
     }
 
-    private UseCaseConfig createUseCaseConfig() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("mmd02");
+    private UseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
-        useCaseConfig.setSensors(sensorList);
-        useCaseConfig.setOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath());
 
         final List<Dimension> dimensions = new ArrayList<>();
         dimensions.add(new Dimension("avhrr-n17", 5, 5));
         dimensions.add(new Dimension("avhrr-n18", 5, 5));
-        useCaseConfig.setDimensions(dimensions);
 
-        return useCaseConfig;
+        return UseCaseConfigBuilder
+                    .build("mmd02")
+                    .withSensors(sensorList)
+                    .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath())
+                    .withDimensions(dimensions);
     }
 }

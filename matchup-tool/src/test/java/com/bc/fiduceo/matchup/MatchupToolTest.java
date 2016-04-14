@@ -24,6 +24,7 @@ package com.bc.fiduceo.matchup;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
@@ -64,15 +65,15 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.0" + ls +
-                ls +
-                "usage: matchup-tool <options>" + ls +
-                "Valid options are:" + ls +
-                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                "   -h,--help                   Prints the tool usage." + ls +
-                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-                "                               configuration directory." + ls, outputStream.toString());
+                     ls +
+                     "usage: matchup-tool <options>" + ls +
+                     "Valid options are:" + ls +
+                     "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                     "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                     "   -h,--help                   Prints the tool usage." + ls +
+                     "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                     "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                     "                               configuration directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -162,12 +163,13 @@ public class MatchupToolTest {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("2002-23"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("2002-23"));
 
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor sensor = new Sensor("amsub-n16");
         sensor.setPrimary(true);
         sensorList.add(sensor);
-        useCaseConfig.setSensors(sensorList);
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
+                    .withSensors(sensorList)
+                    .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
@@ -181,11 +183,13 @@ public class MatchupToolTest {
     public void testGetPrimarySensorParameter_missingPrimarySensor() {
         final ToolContext context = new ToolContext();
 
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor sensor = new Sensor("amsub-n16");
         sensorList.add(sensor);
-        useCaseConfig.setSensors(sensorList);
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
+                    .withSensors(sensorList)
+                    .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         try {

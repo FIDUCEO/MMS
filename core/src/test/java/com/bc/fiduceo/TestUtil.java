@@ -153,7 +153,6 @@ public class TestUtil {
     }
 
     public static File createTestDirectory() {
-        deleteTestDirectory();
         final File testDir = getTestDir();
         if (!testDir.mkdirs()) {
             fail("unable to create test directory: " + testDir.getAbsolutePath());

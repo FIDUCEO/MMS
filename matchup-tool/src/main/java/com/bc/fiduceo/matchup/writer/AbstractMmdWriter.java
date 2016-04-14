@@ -71,98 +71,13 @@ abstract class AbstractMmdWriter implements MmdWriter {
         variableMap = new HashMap<>();
     }
 
-    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "comment",
-                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
-        ));
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        useCaseConfig.store(outputStream);
-        netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "use-case-configuration",
-                outputStream.toString()
-        ));
-    }
-
-    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-    }
-
-    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        if (sets.size() > 0) {
-            return sets.get(0);
-        }
-        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
-    }
-
-    static void ensureFillValue(VariablePrototype prototype) {
-        final String name = "_FillValue";
-        final List<Attribute> attributes = prototype.getAttributes();
-        for (Attribute attribute : attributes) {
-            if (name.equals(attribute.getShortName())) {
-                return;
-            }
-        }
-        final DataType dataType = DataType.getType(prototype.getDataType());
-        if (DataType.DOUBLE.equals(dataType)) {
-            attributes.add(new Attribute(name, Double.MIN_VALUE));
-        } else if (DataType.FLOAT.equals(dataType)) {
-            attributes.add(new Attribute(name, Float.MIN_VALUE));
-        } else if (DataType.LONG.equals(dataType)) {
-            attributes.add(new Attribute(name, Long.MIN_VALUE));
-        } else if (DataType.INT.equals(dataType)) {
-            attributes.add(new Attribute(name, Integer.MIN_VALUE));
-        } else if (DataType.SHORT.equals(dataType)) {
-            attributes.add(new Attribute(name, Short.MIN_VALUE));
-        } else if (DataType.BYTE.equals(dataType)) {
-            attributes.add(new Attribute(name, Byte.MIN_VALUE));
-        }
-    }
-
-    abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
-
-    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
-        createNetCdfFileWriter(mmdFile);
-
-        createGlobalAttributes();
-        createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        createDimensions(dimensions, numMatchups);
-        createExtraMmdVariablesPerSensor(dimensions);
-
-        for (final VariablePrototype variablePrototype : variablePrototypes) {
-            ensureFillValue(variablePrototype);
-            final Variable variable = netcdfFileWriter.addVariable(null,
-                    variablePrototype.getTargetVariableName(),
-                    DataType.getType(variablePrototype.getDataType()),
-                    variablePrototype.getDimensionNames());
-            final List<Attribute> attributes = variablePrototype.getAttributes();
-            for (Attribute attribute : attributes) {
-                if (attribute.getFullName().startsWith("_Chunk")) {
-                    continue;
-                }
-                variable.addAttribute(attribute);
-            }
-        }
-        netcdfFileWriter.create();
-    }
-
     /**
      * Writes the complete MatchupCollection matchup data to the MD file.
      * Closes the file!
      *
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
+     *
      * @throws IOException
      * @throws InvalidRangeException
      */
@@ -225,6 +140,106 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
         } finally {
             close();
+        }
+    }
+
+    static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "comment",
+                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+        ));
+        try {
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            useCaseConfig.store(outputStream);
+            netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                        "use-case-configuration",
+                        outputStream.toString()
+            ));
+        } catch (IOException e) {
+            throw new RuntimeException("should never come here");
+        }
+    }
+
+    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
+        }
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
+    }
+
+    static void ensureFillValue(VariablePrototype prototype) {
+        final String name = "_FillValue";
+        final List<Attribute> attributes = prototype.getAttributes();
+        for (Attribute attribute : attributes) {
+            if (name.equals(attribute.getShortName())) {
+                return;
+            }
+        }
+        final DataType dataType = DataType.getType(prototype.getDataType());
+        if (DataType.DOUBLE.equals(dataType)) {
+            attributes.add(new Attribute(name, Double.MIN_VALUE));
+        } else if (DataType.FLOAT.equals(dataType)) {
+            attributes.add(new Attribute(name, Float.MIN_VALUE));
+        } else if (DataType.LONG.equals(dataType)) {
+            attributes.add(new Attribute(name, Long.MIN_VALUE));
+        } else if (DataType.INT.equals(dataType)) {
+            attributes.add(new Attribute(name, Integer.MIN_VALUE));
+        } else if (DataType.SHORT.equals(dataType)) {
+            attributes.add(new Attribute(name, Short.MIN_VALUE));
+        } else if (DataType.BYTE.equals(dataType)) {
+            attributes.add(new Attribute(name, Byte.MIN_VALUE));
+        }
+    }
+
+    abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
+
+    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+        createNetCdfFileWriter(mmdFile);
+
+        createGlobalAttributes();
+        createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        createDimensions(dimensions, numMatchups);
+        createExtraMmdVariablesPerSensor(dimensions);
+
+        for (final VariablePrototype variablePrototype : variablePrototypes) {
+            ensureFillValue(variablePrototype);
+            final Variable variable = netcdfFileWriter.addVariable(null,
+                                                                   variablePrototype.getTargetVariableName(),
+                                                                   DataType.getType(variablePrototype.getDataType()),
+                                                                   variablePrototype.getDimensionNames());
+            final List<Attribute> attributes = variablePrototype.getAttributes();
+            for (Attribute attribute : attributes) {
+                if (attribute.getFullName().startsWith("_Chunk")) {
+                    continue;
+                }
+                variable.addAttribute(attribute);
+            }
+        }
+        netcdfFileWriter.create();
+    }
+
+    void close() throws IOException, InvalidRangeException {
+        flush();
+        variableMap.clear();
+        dataCacheMap.clear();
+        if (netcdfFileWriter != null) {
+            netcdfFileWriter.close();
+            netcdfFileWriter = null;
         }
     }
 
@@ -380,15 +395,5 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
         flushCount++;
         netcdfFileWriter.flush();
-    }
-
-    void close() throws IOException, InvalidRangeException {
-        flush();
-        variableMap.clear();
-        dataCacheMap.clear();
-        if (netcdfFileWriter != null) {
-            netcdfFileWriter.close();
-            netcdfFileWriter = null;
-        }
     }
 }

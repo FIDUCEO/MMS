@@ -29,8 +29,8 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.tool.ToolContext;
-import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -42,10 +42,8 @@ import ucar.nc2.NetcdfFileWriter;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class MmdWriterTest {
@@ -54,23 +52,25 @@ public class MmdWriterTest {
 
     @Test
     public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("NameOfTheUseCase");
-        useCaseConfig.setTimeDeltaSeconds(234);
-        useCaseConfig.setMaxPixelDistanceKm(12.34f);
-
         final Sensor primarySensor = new Sensor("SensorName1");
         primarySensor.setPrimary(true);
-        useCaseConfig.setSensors(Arrays.asList(
+        final List<Sensor> sensorList = Arrays.asList(
                     primarySensor,
                     new Sensor("SensorName2"),
                     new Sensor("SensorName3")
-        ));
-        useCaseConfig.setDimensions(Arrays.asList(
-                    new Dimension("SensorName1", 1, 2),
-                    new Dimension("SensorName2", 3, 4),
-                    new Dimension("SensorName3", 5, 6)
-        ));
+        );
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("NameOfTheUseCase")
+                    .withTimeDeltaSeconds(234)
+                    .withMaxPixelDistanceKm(12.34f)
+                    .withSensors(sensorList)
+                    .withDimensions(Arrays.asList(
+                                new Dimension("SensorName1", 1, 2),
+                                new Dimension("SensorName2", 3, 4),
+                                new Dimension("SensorName3", 5, 6)
+                    ))
+                    .createConfig();
 
         final NetcdfFileWriter mockWriter = mock(NetcdfFileWriter.class);
 
@@ -87,7 +87,6 @@ public class MmdWriterTest {
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
         verifyNoMoreInteractions(mockWriter);
     }
-
 
     @Test
     public void testThrowAway() throws Exception {
@@ -335,9 +334,10 @@ public class MmdWriterTest {
         final Path mockingPrimaryPath = Paths.get("mockingPrimaryPath");
         final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
 
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension));
-        useCaseConfig.setSensors(Arrays.asList(primarySensor, secondarySensor));
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
+                    .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
+                    .withSensors(Arrays.asList(primarySensor, secondarySensor))
+                    .createConfig();
 
         final ToolContext toolContext = mock(ToolContext.class);
         when(toolContext.getUseCaseConfig()).thenReturn(useCaseConfig);
@@ -355,8 +355,8 @@ public class MmdWriterTest {
         MmdWriterNC3.extractPrototypes(configuration, matchupCollection, toolContext);
 
         // validation
-        verify(configuration).extractPrototypes(primarySensor, mockingPrimaryPath, primaryWindowDimension);
-        verify(configuration).extractPrototypes(secondarySensor, mockingSecondaryPath, secondaryWindowDimension);
+        verify(configuration).extractPrototypes(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
+        verify(configuration).extractPrototypes(refEq(secondarySensor), refEq(mockingSecondaryPath), refEq(secondaryWindowDimension));
         verifyNoMoreInteractions(configuration);
     }
 

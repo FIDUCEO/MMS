@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -41,6 +42,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -237,23 +239,21 @@ public class MatchupToolIntegrationTest {
     }
 
     private UseCaseConfig writeUseCaseConfig(String configFileName) throws IOException {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("use-case-15");
-
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
-        useCaseConfig.setSensors(sensorList);
 
-        final List<Dimension> dimensionsList = new ArrayList<>();
-        dimensionsList.add(new Dimension("avhrr-n17", 2, 3));
-        dimensionsList.add(new Dimension("avhrr-n18", 2, 3));
-        useCaseConfig.setDimensions(dimensionsList);
-
-        useCaseConfig.setTimeDeltaSeconds(2);
-        useCaseConfig.setOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath());
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("use-case-15")
+                    .withSensors(sensorList)
+                    .withDimensions(Arrays.asList(
+                                new Dimension("avhrr-n17", 2, 3),
+                                new Dimension("avhrr-n18", 2, 3)))
+                    .withTimeDeltaSeconds(2)
+                    .withOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath())
+                    .createConfig();
 
         final File file = new File(configDir, configFileName);
         final FileOutputStream fileOutputStream = new FileOutputStream(file);

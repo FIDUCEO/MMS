@@ -21,12 +21,14 @@
 package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -73,8 +75,12 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_timeDeltaCondition() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(20);
+
+        final InputStream stream = UseCaseConfigBuilder
+                    .build("name")
+                    .withTimeDeltaSeconds(20)
+                    .getStream();
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
 
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(100000, 100100));
@@ -104,7 +110,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
 
-        conditionEngine.configure(new UseCaseConfig(), startDate, endDate);
+        conditionEngine.configure(UseCaseConfig.load(UseCaseConfigBuilder.build("name").getStream()), startDate, endDate);
         conditionEngine.process(matchupSet);
 
         assertEquals(3, matchupSet.getNumObservations());
@@ -117,8 +123,11 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_distanceCondition() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setMaxPixelDistanceKm(4);
+        final InputStream stream = UseCaseConfigBuilder
+                    .build("name")
+                    .withMaxPixelDistanceKm(4)
+                    .getStream();
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
 
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(4.5, 5.6, 4.50001, 5.60001));
@@ -133,9 +142,12 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_distanceAndTimeDeltaCondition() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setTimeDeltaSeconds(10);
-        useCaseConfig.setMaxPixelDistanceKm(4);
+        final InputStream stream = UseCaseConfigBuilder
+                    .build("name")
+                    .withTimeDeltaSeconds(10)
+                    .withMaxPixelDistanceKm(4)
+                    .getStream();
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
 
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(4.5, 5.6, 4.50001, 5.60001));

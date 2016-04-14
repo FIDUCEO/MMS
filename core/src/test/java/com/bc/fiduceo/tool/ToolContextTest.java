@@ -41,17 +41,16 @@
 package com.bc.fiduceo.tool;
 
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
 
 public class ToolContextTest {
 
@@ -86,7 +85,7 @@ public class ToolContextTest {
 
     @Test
     public void testSetGetUseCaseConfig() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("mmd-12").createConfig();
 
         context.setUseCaseConfig(useCaseConfig);
         assertSame(useCaseConfig, context.getUseCaseConfig());

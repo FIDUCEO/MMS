@@ -20,32 +20,40 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NAME;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_PRIMARY;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_ROOT;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSOR;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 import static org.junit.Assert.*;
+
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.util.TimeUtils;
+import org.junit.*;
+
+import java.io.ByteArrayInputStream;
+import java.util.Date;
 
 public class MmdWriterFactoryTest {
 
     @Test
     public void testCreateMMDFileName() {
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
-        useCaseConfig.setName("mmd-12");
+        final String config = "<" + TAG_NAME_ROOT + " name=\"mmd-12\">" +
+                              "  <" + TAG_NAME_SENSORS + ">" +
+                              "    <" + TAG_NAME_SENSOR + ">" +
+                              "      <" + TAG_NAME_NAME + ">avhrr-n07</" + TAG_NAME_NAME + ">" +
+                              "    </" + TAG_NAME_SENSOR + ">" +
+                              "    <" + TAG_NAME_SENSOR + ">" +
+                              "      <" + TAG_NAME_NAME + ">avhrr-n08</" + TAG_NAME_NAME + ">" +
+                              "      <" + TAG_NAME_PRIMARY + ">true</" + TAG_NAME_PRIMARY + ">" +
+                              "    </" + TAG_NAME_SENSOR + ">" +
+                              "  </" + TAG_NAME_SENSORS + ">" +
+                              "</" + TAG_NAME_ROOT + ">";
 
-        final List<Sensor> sensors = new ArrayList<>();
-        sensors.add(new Sensor("avhrr-n07"));
-        final Sensor primary = new Sensor("avhrr-n08");
-        primary.setPrimary(true);
-        sensors.add(primary);
-        useCaseConfig.setSensors(sensors);
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(new ByteArrayInputStream(config.getBytes()));
 
         final Date startDate = TimeUtils.parseDOYBeginOfDay("2011-245");
         final Date endDate = TimeUtils.parseDOYEndOfDay("2011-251");
