@@ -19,13 +19,14 @@ package com.bc.fiduceo.location;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-public class ClippingPixelLocator implements PixelLocator {
+class ClippingPixelLocator implements PixelLocator {
 
-    public final PixelLocator pixelLocator;
-    public final int minY;
-    public final int maxY;
+    // @todo 3 tb/se change tests, we should not access inner object states to run tests 2016-04-14
+    final PixelLocator pixelLocator;
+    final int minY;
+    final int maxY;
 
-    public ClippingPixelLocator(PixelLocator pixelLocator, int minY, int maxY) {
+    ClippingPixelLocator(PixelLocator pixelLocator, int minY, int maxY) {
         this.pixelLocator = pixelLocator;
         this.minY = minY;
         this.maxY = maxY;

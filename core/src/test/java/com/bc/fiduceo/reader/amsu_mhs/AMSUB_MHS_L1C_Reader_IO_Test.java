@@ -318,7 +318,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(31.553499221801758, geoLocation.getY(), 1e-8); // original 31.5535
 
             pixelLocation = pixelLocator.getPixelLocation(-123.383, 31.5535);
-            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(1, pixelLocation.length);
             assertEquals(20.51628831614342, pixelLocation[0].getX(), 1e-8);    // original 20.5
             assertEquals(484.4601792290086, pixelLocation[0].getY(), 1e-8);    // original 484.5
 
@@ -328,7 +328,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(-5.781399726867676, geoLocation.getY(), 1e-8); // original -5.7814
 
             pixelLocation = pixelLocator.getPixelLocation(-134.959, -5.7814);
-            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(1, pixelLocation.length);
             assertEquals(30.45967510530061, pixelLocation[0].getX(), 1e-8);    // original 30.5
             assertEquals(727.5172845630435, pixelLocation[0].getY(), 1e-8);    // original 727.5
 
@@ -338,7 +338,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(-51.36819839477539, geoLocation.getY(), 1e-8); // original -51.3682
 
             pixelLocation = pixelLocator.getPixelLocation(-149.6549, -51.3682);
-            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(1, pixelLocation.length);
             assertEquals(40.58351743748158, pixelLocation[0].getX(), 1e-8);    // original 40.5
             assertEquals(1024.4990507940652, pixelLocation[0].getY(), 1e-8);    // original 1024.5
 
@@ -348,7 +348,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(-79.1156997680664, geoLocation.getY(), 1e-8); // original -79.1157
 
             pixelLocation = pixelLocator.getPixelLocation(99.3901, -79.1157);
-            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(1, pixelLocation.length);
             assertEquals(50.484098850555775, pixelLocation[0].getX(), 1e-8);    // original 50.5
             assertEquals(1301.4747256336116, pixelLocation[0].getY(), 1e-8);    // original 1301.5
 
@@ -358,9 +358,99 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(-51.80769729614258, geoLocation.getY(), 1e-8); // original -51.8077
 
             pixelLocation = pixelLocator.getPixelLocation(50.5024, -51.8077);
-            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(1, pixelLocation.length);
             assertEquals(60.49520617819131, pixelLocation[0].getX(), 1e-8);    // original 60.5
             assertEquals(1504.5986111709697, pixelLocation[0].getY(), 1e-8);    // original 1504.5
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_AMSUB_NOAA15() throws IOException, ParseException {
+        final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(134.58670043945312, geoLocation.getX(), 1e-8);  // original 134.5867
+            assertEquals(51.185997009277344, geoLocation.getY(), 1e-8); // original 51.186
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(134.5867, 51.186);
+            assertEquals(2, pixelLocation.length);  // we are in the overlapping area
+            assertEquals(0.4715504690469804, pixelLocation[0].getX(), 1e-8);    // original 0.5
+            assertEquals(0.8111074622107415, pixelLocation[0].getY(), 1e-8);    // original 0.5
+
+            assertEquals(77.69149200396195, pixelLocation[1].getX(), 1e-8);
+            assertEquals(2247.573633028767, pixelLocation[1].getY(), 1e-8);
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(10.5, 246.5, null);
+            assertEquals(52.30149841308594, geoLocation.getX(), 1e-8);  // original 52.3015
+            assertEquals(74.90239715576172, geoLocation.getY(), 1e-8); // original 74.9024
+
+            pixelLocation = pixelLocator.getPixelLocation(52.3015, 74.9024);
+            assertEquals(2, pixelLocation.length);  // we are in the overlapping area
+            assertEquals(10.518601337554388, pixelLocation[0].getX(), 1e-8);    // original 10.5
+            assertEquals(246.49994190945807, pixelLocation[0].getY(), 1e-8);    // original 246.5
+
+            assertEquals(8.909629189213087, pixelLocation[1].getX(), 1e-8);
+            assertEquals(2481.1179758565668, pixelLocation[1].getY(), 1e-8);
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(20.5, 484.5, null);
+            assertEquals(-9.354100227355957, geoLocation.getX(), 1e-8);  // original -9.3541
+            assertEquals(46.54669952392578, geoLocation.getY(), 1e-8); // original 46.5467
+
+            pixelLocation = pixelLocator.getPixelLocation(-9.3541, 46.5467);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(20.549521097468954, pixelLocation[0].getX(), 1e-8);    // original 20.5
+            assertEquals(484.47231359716176, pixelLocation[0].getY(), 1e-8);    // original 484.5
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(30.5, 727.5, null);
+            assertEquals(-23.289798736572266, geoLocation.getX(), 1e-8);  // original -23.2898
+            assertEquals(9.112299919128418, geoLocation.getY(), 1e-8); // original 9.1123
+
+            pixelLocation = pixelLocator.getPixelLocation(-23.2898, 9.1123);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(30.589228290151972, pixelLocation[0].getX(), 1e-8);    // original 30.5
+            assertEquals(727.4296637874371, pixelLocation[0].getY(), 1e-8);    // original 727.5
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(40.5, 1024.5, null);
+            assertEquals(-35.8302001953125, geoLocation.getX(), 1e-8);  // original -35.8302
+            assertEquals(-37.38059997558594, geoLocation.getY(), 1e-8); // original -37.3806
+
+            pixelLocation = pixelLocator.getPixelLocation(-35.8302, -37.3806);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(40.47791010604271, pixelLocation[0].getX(), 1e-8);    // original 40.5
+            assertEquals(1024.3933174972674, pixelLocation[0].getY(), 1e-8);    // original 1024.5
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(50.5, 1301.5, null);
+            assertEquals(-80.20600128173828, geoLocation.getX(), 1e-8);  // original -80.206
+            assertEquals(-77.39289855957031, geoLocation.getY(), 1e-8); // original -77.3929
+
+            pixelLocation = pixelLocator.getPixelLocation(-80.206, -77.3929);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(50.48494718955499, pixelLocation[0].getX(), 1e-8);    // original 50.5
+            assertEquals(1301.4961686392523, pixelLocation[0].getY(), 1e-8);    // original 1301.5
+
+            //-------------------------------------------------------------
+            geoLocation = pixelLocator.getGeoLocation(60.5, 1504.5, null);
+            assertEquals(168.4783935546875, geoLocation.getX(), 1e-8);  // original 168.4784
+            assertEquals(-64.35199737548828, geoLocation.getY(), 1e-8); // original -64.352
+
+            pixelLocation = pixelLocator.getPixelLocation(168.4784, -64.352);
+            assertEquals(1, pixelLocation.length);  // is part of self intersecting area
+            assertEquals(60.49976819818859, pixelLocation[0].getX(), 1e-8);    // original 60.5
+            assertEquals(1504.4747569343847, pixelLocation[0].getY(), 1e-8);    // original 1504.5
 
         } finally {
             reader.close();
