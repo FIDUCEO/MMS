@@ -25,8 +25,10 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
+import ucar.nc2.util.IO;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -68,6 +70,8 @@ public class VariablesConfiguration {
                 prototype.setAttributes(newAttributes);
                 prototypes.add(prototype);
             }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
         }
     }
 

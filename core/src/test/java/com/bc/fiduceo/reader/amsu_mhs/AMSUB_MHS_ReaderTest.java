@@ -92,4 +92,25 @@ public class AMSUB_MHS_ReaderTest {
         matcher = pattern.matcher("W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
         assertFalse(matcher.matches());
     }
+
+    @Test
+    public void testIsAmsub() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Attribute attribute = mock(Attribute.class);
+        when(netcdfFile.findGlobalAttribute("instrument")).thenReturn(attribute);
+
+        when(attribute.getNumericValue()).thenReturn(11);
+        assertTrue(AMSUB_MHS_L1C_Reader.isAmsub(netcdfFile));
+
+        when(attribute.getNumericValue()).thenReturn(12);
+        assertFalse(AMSUB_MHS_L1C_Reader.isAmsub(netcdfFile));
+
+        when(attribute.getNumericValue()).thenReturn(108);
+
+        try {
+            AMSUB_MHS_L1C_Reader.isAmsub(netcdfFile);
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+    }
 }

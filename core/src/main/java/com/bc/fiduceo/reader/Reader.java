@@ -93,5 +93,5 @@ public interface Reader extends AutoCloseable {
      */
     ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 
-    List<Variable> getVariables();
+    List<Variable> getVariables() throws InvalidRangeException;
 }

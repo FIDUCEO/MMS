@@ -59,16 +59,17 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
+import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -86,12 +87,15 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private PixelLocator pixelLocator;
     private GeometryFactory geometryFactory;
     private BoundingPolygonCreator boundingPolygonCreator;
+    private boolean isAmsuB;
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
         timeLocator = null;
+
+        isAmsuB = isAmsub(netcdfFile);
     }
 
     @Override
@@ -191,8 +195,38 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() {
-        throw new RuntimeException("not implemented");
+    public List<Variable> getVariables() throws InvalidRangeException {
+        final List<Variable> result = new ArrayList<>();
+        final List<Variable> variables = netcdfFile.getVariables();
+        final int channelIndexOffset = isAmsuB ? 16 : 1;
+
+        for (final Variable variable : variables) {
+            final String variableName = variable.getFullName();
+            if (variableName.contains("btemps")) {
+                split3dVariableIntoLayers(result, variable, "btemp_ch", channelIndexOffset);
+            } else if (variableName.contains("chanqual")) {
+                split3dVariableIntoLayers(result, variable, "chanqual_ch", channelIndexOffset);
+            } else {
+                result.add(variable);
+            }
+        }
+
+        return result;
+    }
+
+    private void split3dVariableIntoLayers(List<Variable> result, Variable variable, String variableBaseName, int channelIndexOffset) throws InvalidRangeException {
+        final int[] shape = variable.getShape();
+        shape[0] = 1;
+        final int[] origin = {0, 0, 0};
+
+        for (int channel = 0; channel < 5; channel++) {
+            final Section section = new Section(origin, shape);
+            final Variable channelVariable = variable.section(section);
+            final int channelIndex = channelIndexOffset + channel;
+            channelVariable.setName(variableBaseName + channelIndex);
+            result.add(channelVariable);
+            origin[0]++;
+        }
     }
 
     // package access for testing only tb 2016-04-12
@@ -208,6 +242,19 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
         calendar.add(Calendar.MILLISECOND, millisecsInDay);
         return calendar.getTime();
+    }
+
+    // package access for testing only tb 2016-04-14
+    static boolean isAmsub(NetcdfFile netcdfFile) throws IOException {
+        final Attribute instrument = netcdfFile.findGlobalAttribute("instrument");
+        final int instrumentId = instrument.getNumericValue().intValue();
+        if (instrumentId == 11) {
+            return true;
+        } else if (instrumentId == 12) {
+            return false;
+        } else {
+            throw new IOException("Unsupported instrument type");
+        }
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {

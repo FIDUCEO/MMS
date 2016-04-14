@@ -54,12 +54,15 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -508,6 +511,88 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(26.40093136888642, pixelLocation[0].getX(), 1e-8);    // original 26.5
             assertEquals(1563.4830863678947, pixelLocation[0].getY(), 1e-8);    // original 1563.5
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_MHS_NOAA18() throws IOException, InvalidRangeException {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+
+        try {
+            reader.open(mhsFile);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(23, variables.size());
+            Variable variable = variables.get(0);
+            assertEquals("btemp_ch1", variable.getShortName());
+            variable = variables.get(1);
+            assertEquals("btemp_ch2", variable.getShortName());
+            variable = variables.get(2);
+            assertEquals("btemp_ch3", variable.getShortName());
+            variable = variables.get(3);
+            assertEquals("btemp_ch4", variable.getShortName());
+            variable = variables.get(4);
+            assertEquals("btemp_ch5", variable.getShortName());
+
+            variable = variables.get(5);
+            assertEquals("chanqual_ch1", variable.getShortName());
+            variable = variables.get(6);
+            assertEquals("chanqual_ch2", variable.getShortName());
+            variable = variables.get(7);
+            assertEquals("chanqual_ch3", variable.getShortName());
+            variable = variables.get(8);
+            assertEquals("chanqual_ch4", variable.getShortName());
+            variable = variables.get(9);
+            assertEquals("chanqual_ch5", variable.getShortName());
+
+            variable = variables.get(10);
+            assertEquals("instrtemp", variable.getShortName());
+
+            variable = variables.get(17);
+            assertEquals("Latitude", variable.getShortName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_AMSUB_NOAA15() throws IOException, InvalidRangeException {
+        final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(23, variables.size());
+            Variable variable = variables.get(0);
+            assertEquals("btemp_ch16", variable.getShortName());
+            variable = variables.get(1);
+            assertEquals("btemp_ch17", variable.getShortName());
+            variable = variables.get(2);
+            assertEquals("btemp_ch18", variable.getShortName());
+            variable = variables.get(3);
+            assertEquals("btemp_ch19", variable.getShortName());
+            variable = variables.get(4);
+            assertEquals("btemp_ch20", variable.getShortName());
+
+            variable = variables.get(5);
+            assertEquals("chanqual_ch16", variable.getShortName());
+            variable = variables.get(6);
+            assertEquals("chanqual_ch17", variable.getShortName());
+            variable = variables.get(7);
+            assertEquals("chanqual_ch18", variable.getShortName());
+            variable = variables.get(8);
+            assertEquals("chanqual_ch19", variable.getShortName());
+            variable = variables.get(9);
+            assertEquals("chanqual_ch20", variable.getShortName());
+
+            variable = variables.get(11);
+            assertEquals("qualind", variable.getShortName());
+
+            variable = variables.get(18);
+            assertEquals("Longitude", variable.getShortName());
         } finally {
             reader.close();
         }

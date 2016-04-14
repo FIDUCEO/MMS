@@ -37,10 +37,12 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -225,6 +227,28 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(303, 2015));
             assertEquals(referenceTime + 2007999, timeLocator.getTimeFor(304, 4016));
             assertEquals(referenceTime + 6118997, timeLocator.getTimeFor(171, 12238));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_NOAA17() throws IOException {
+        final File file = createAvhrrNOAA17Path();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(17, variables.size());
+            Variable variable = variables.get(0);
+            assertEquals("lat", variable.getFullName());
+
+            variable = variables.get(8);
+            assertEquals("ch5", variable.getFullName());
+
+            variable = variables.get(16);
+            assertEquals("l1b_line_number", variable.getFullName());
         } finally {
             reader.close();
         }
