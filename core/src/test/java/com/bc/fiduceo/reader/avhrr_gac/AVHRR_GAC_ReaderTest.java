@@ -22,11 +22,6 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.location.ClippingPixelLocator;
-import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.location.PixelLocatorFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,15 +33,20 @@ import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ConstantConditions")
 public class AVHRR_GAC_ReaderTest {
