@@ -29,6 +29,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
@@ -195,11 +197,13 @@ public class MatchupToolIntegrationTest {
 
             TestUtil.writeSystemProperties(configDir);
             TestUtil.writeDatabaseProperties_H2(configDir);
-            writeUseCaseConfig(configFileName);
+            final UseCaseConfig useCaseConfig = writeUseCaseConfig(configFileName);
 
             MatchupToolMain.main(args);
 
-            // @todo 1 tb/tb assert that no output file is generated 2016-02-19
+            final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
+            final File mmdFile = new File(useCaseConfig.getOutputPath(), mmdFileName);
+            assertFalse(mmdFile.isFile());
 
         } finally {
             storage.clear();
@@ -232,7 +236,7 @@ public class MatchupToolIntegrationTest {
         return observation;
     }
 
-    private void writeUseCaseConfig(String configFileName) throws IOException {
+    private UseCaseConfig writeUseCaseConfig(String configFileName) throws IOException {
         final UseCaseConfig useCaseConfig = new UseCaseConfig();
         useCaseConfig.setName("use-case-15");
 
@@ -255,5 +259,7 @@ public class MatchupToolIntegrationTest {
         final FileOutputStream fileOutputStream = new FileOutputStream(file);
         useCaseConfig.store(fileOutputStream);
         fileOutputStream.close();
+
+        return useCaseConfig;
     }
 }
