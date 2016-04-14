@@ -61,13 +61,12 @@ public class VariablesConfiguration {
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
                 final VariablePrototype prototype = new VariablePrototype();
-                final String shortName = variable.getShortName();
-                prototype.setSourceVariableName(shortName);
-                prototype.setTargetVariableName(sensorName + "_" + shortName);
+                prototype.setSourceVariableName(variable.getFullName());
+                prototype.setTargetVariableName(sensorName + "_" + variable.getShortName());
                 prototype.setDataType(variable.getDataType().toString());
                 prototype.setDimensionNames(dimensionNames);
-                final List<Attribute> newAttributes = getAttributeClones(variable);
-                prototype.setAttributes(newAttributes);
+                prototype.setAttributes(getAttributeClones(variable));
+
                 prototypes.add(prototype);
             }
         } catch (InvalidRangeException e) {

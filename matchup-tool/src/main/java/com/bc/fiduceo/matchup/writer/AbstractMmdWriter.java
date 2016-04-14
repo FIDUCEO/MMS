@@ -74,7 +74,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
                 "comment",
-                "The MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);

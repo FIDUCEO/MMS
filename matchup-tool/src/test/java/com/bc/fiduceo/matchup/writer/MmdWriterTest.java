@@ -79,8 +79,7 @@ public class MmdWriterTest {
 
         //verification
         final String useCaseAttributeName = "use-case-configuration";
-        // @todo 1 se/tb please check english!! 2016-03-22
-        final String expectedCommentText = "The MMD file is created based on the use case configuration " +
+        final String expectedCommentText = "This MMD file is created based on the use case configuration " +
                                            "documented in the attribute '" + useCaseAttributeName + "'.";
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("comment", expectedCommentText)));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

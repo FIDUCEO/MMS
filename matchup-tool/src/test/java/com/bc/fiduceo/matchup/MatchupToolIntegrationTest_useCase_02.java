@@ -153,6 +153,8 @@ public class MatchupToolIntegrationTest_useCase_02 {
             NCTestUtils.assert3DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
             NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
             NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch1", 1, 1, 28, 0.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch2", 2, 1, 29, 5.0, mmd);
             // @todo 2 tb/** add more assertions here
         }
     }
