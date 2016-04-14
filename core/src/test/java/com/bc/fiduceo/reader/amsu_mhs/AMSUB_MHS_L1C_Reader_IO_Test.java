@@ -44,7 +44,9 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -451,6 +453,60 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
             assertEquals(60.49976819818859, pixelLocation[0].getX(), 1e-8);    // original 60.5
             assertEquals(1504.4747569343847, pixelLocation[0].getY(), 1e-8);    // original 1504.5
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testSubScenePixelLocator_MHS_NOAA18() throws IOException, ParseException {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((-157.6385 -36.6767, 177.5199 -32.9176, 150.1497 -62.1028, -159.8103 -69.9033, -157.6385 -36.6767))");
+
+        try {
+            reader.open(mhsFile);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(polygon);
+            assertNotNull(subScenePixelLocator);
+
+            Point2D geoLocation = subScenePixelLocator.getGeoLocation(18.5, 1061.5, null);
+            assertEquals(-169.9741973876953, geoLocation.getX(), 1e-8);  // original -169.9742
+            assertEquals(-55.09589767456055, geoLocation.getY(), 1e-8); // original -55.0959
+
+            Point2D[] pixelLocation = subScenePixelLocator.getPixelLocation(-169.9742, -55.0959);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(18.4837931639385, pixelLocation[0].getX(), 1e-8);    // original 18.5
+            assertEquals(1061.542564721166, pixelLocation[0].getY(), 1e-8);    // original 1061.5
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testSubScenePixelLocator_AMSUB_NOAA15() throws IOException, ParseException {
+        final File mhsFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((-12.2705 -57.3754, 20.1677 -52.4447, 1.9342 -16.1438, -17.6123 -19.269, -12.2705 -57.3754))");
+
+        try {
+            reader.open(mhsFile);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(polygon);
+            assertNotNull(subScenePixelLocator);
+
+            Point2D geoLocation = subScenePixelLocator.getGeoLocation(26.5, 1563.5, null);
+            assertEquals(-5.109499931335449, geoLocation.getX(), 1e-8);  // original -5.1095
+            assertEquals(-41.448699951171875, geoLocation.getY(), 1e-8); // original -41.4487
+
+            Point2D[] pixelLocation = subScenePixelLocator.getPixelLocation(-5.1095, -41.4487);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(26.40093136888642, pixelLocation[0].getX(), 1e-8);    // original 26.5
+            assertEquals(1563.4830863678947, pixelLocation[0].getY(), 1e-8);    // original 1563.5
 
         } finally {
             reader.close();

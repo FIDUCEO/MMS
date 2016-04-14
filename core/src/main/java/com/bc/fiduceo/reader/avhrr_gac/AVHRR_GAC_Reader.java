@@ -128,7 +128,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        final ArrayFloat longitudes = (ArrayFloat) arrayCache.get("lon");
+        final Array longitudes = arrayCache.get("lon");
         final int[] shape = longitudes.getShape();
         final int height = shape[0];
         final int width = shape[1];

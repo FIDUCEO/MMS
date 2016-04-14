@@ -59,6 +59,7 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
@@ -151,8 +152,15 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
-        throw new RuntimeException("not implemented");
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+        final Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
+        final int[] shape = longitudes.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
+        final PixelLocator pixelLocator = getPixelLocator();
+
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
