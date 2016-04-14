@@ -26,6 +26,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,12 +52,11 @@ import static org.mockito.Mockito.*;
 public class AVHRR_GAC_ReaderTest {
 
     private AVHRR_GAC_Reader reader;
-    private GeometryFactory geometryFactory;
+
 
     @Before
     public void setUp() {
         reader = new AVHRR_GAC_Reader();
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
     }
 
     @Test
@@ -118,54 +118,6 @@ public class AVHRR_GAC_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
         }
-    }
-
-    @Test
-    public void testGetSubScenePixelLocator_firstScene() throws Exception {
-        final Polygon polygon = mock(Polygon.class);
-        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(26, 40));
-        final PixelLocator locator = mock(PixelLocator.class);
-        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(new Point2D.Double(30, 45));
-        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(new Point2D.Double(15, -45));
-
-        final PixelLocator pixelLocator = AVHRR_GAC_Reader.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
-
-        verify(locator, times(1)).getGeoLocation(100.5, 2500.5, null);
-        verify(locator, times(1)).getGeoLocation(100.5, 7500.5, null);
-        verifyNoMoreInteractions(locator);
-        verify(polygon, times(1)).getCentroid();
-        verifyNoMoreInteractions(polygon);
-
-        assertNotNull(pixelLocator);
-        assertEquals(true, pixelLocator instanceof ClippingPixelLocator);
-        final ClippingPixelLocator clipping = (ClippingPixelLocator) pixelLocator;
-        assertEquals(0, clipping.minY);
-        assertEquals(4999, clipping.maxY);
-        assertSame(locator, clipping.pixelLocator);
-    }
-
-    @Test
-    public void testGetSubScenePixelLocator_secondScene() throws Exception {
-        final Polygon polygon = mock(Polygon.class);
-        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(17, -40));
-        final PixelLocator locator = mock(PixelLocator.class);
-        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(new Point2D.Double(30, 45));
-        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(new Point2D.Double(15, -45));
-
-        final PixelLocator pixelLocator = AVHRR_GAC_Reader.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
-
-        verify(locator, times(1)).getGeoLocation(100.5, 2500.5, null);
-        verify(locator, times(1)).getGeoLocation(100.5, 7500.5, null);
-        verifyNoMoreInteractions(locator);
-        verify(polygon, times(1)).getCentroid();
-        verifyNoMoreInteractions(polygon);
-
-        assertNotNull(pixelLocator);
-        assertEquals(true, pixelLocator instanceof ClippingPixelLocator);
-        final ClippingPixelLocator clipping = (ClippingPixelLocator) pixelLocator;
-        assertEquals(4999, clipping.minY);
-        assertEquals(8999, clipping.maxY);
-        assertSame(locator, clipping.pixelLocator);
     }
 
     @Test

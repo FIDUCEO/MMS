@@ -49,7 +49,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.location.SwathPixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
@@ -145,7 +145,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             final int[] shape = longitudes.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = new SwathPixelLocator(toFloat(longitudes), toFloat(latitudes), width, height);
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(toFloat(longitudes), toFloat(latitudes), width, height);
         }
         return pixelLocator;
     }

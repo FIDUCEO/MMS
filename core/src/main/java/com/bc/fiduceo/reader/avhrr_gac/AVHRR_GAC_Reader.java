@@ -26,12 +26,10 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.bc.fiduceo.location.ClippingPixelLocator;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.location.SwathPixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
@@ -42,7 +40,6 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.math.CosineDistance;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
@@ -53,7 +50,6 @@ import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -69,7 +65,7 @@ public class AVHRR_GAC_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
-    private SwathPixelLocator pixelLocator;
+    private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
     private long startTimeMilliSecondsSince1970;
 
@@ -125,7 +121,7 @@ public class AVHRR_GAC_Reader implements Reader {
             final int[] shape = lonStorage.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = new SwathPixelLocator(lonStorage, latStorage, width, height);
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
         }
         return pixelLocator;
     }
@@ -139,7 +135,7 @@ public class AVHRR_GAC_Reader implements Reader {
         final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
         final PixelLocator pixelLocator = getPixelLocator();
 
-        return getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
@@ -295,35 +291,6 @@ public class AVHRR_GAC_Reader implements Reader {
             throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
         }
         return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
-
-    // package access for testing only se 2016-03-11
-    static PixelLocator getSubScenePixelLocator(Polygon subSceneGeometry, int width, int height, int subsetHeight, PixelLocator pixelLocator) {
-        final Point centroid = subSceneGeometry.getCentroid();
-        final double cLon = centroid.getLon();
-        final double cLat = centroid.getLat();
-
-        final int sh2 = subsetHeight / 2;
-
-        final double centerX = width / 2 + 0.5;
-
-        final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
-        final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
-        final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
-        final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
-        final double d1 = cd1.distance(cLon, cLat);
-        final double d2 = cd2.distance(cLon, cLat);
-
-        final int minY;
-        final int maxY;
-        if (d1 < d2) {
-            minY = 0;
-            maxY = subsetHeight - 1;
-        } else {
-            minY = subsetHeight - 1;
-            maxY = height - 1;
-        }
-        return new ClippingPixelLocator(pixelLocator, minY, maxY);
     }
 
     static Number extractFillValue(Variable variable) {
