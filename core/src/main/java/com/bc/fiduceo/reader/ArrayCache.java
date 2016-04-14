@@ -70,7 +70,7 @@ public class ArrayCache {
         return container.array;
     }
 
-    public Array getScaled(String variableName, String groupName, String scaleAttributeName, String offsetAttributeName) throws IOException {
+    public Array getScaled(String groupName, String variableName, String scaleAttributeName, String offsetAttributeName) throws IOException {
         final String groupedVariableName = createGroupedName(groupName, variableName);
         ArrayContainer arrayContainer = scaledCache.get(groupedVariableName);
         if (arrayContainer == null) {
@@ -178,9 +178,6 @@ public class ArrayCache {
         if (scale != 1.f || offset != 0.f) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scale, offset);
             arrayContainer.array = MAMath.convert2Unpacked(arrayContainer.array, scaleOffset);
-            final Array floatArray= Array.factory(Float.class, arrayContainer.array.getShape());
-            MAMath.copyFloat(floatArray, arrayContainer.array);
-            arrayContainer.array = floatArray;
         }
     }
 

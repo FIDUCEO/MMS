@@ -214,7 +214,7 @@ public class ArrayCacheTest {
         attributeList.add(offsetAttribute);
         when(variable.getAttributes()).thenReturn(attributeList);
 
-        final Array resultArray = arrayCache.getScaled("a_group_variable", "a_group", "scale", "offset");
+        final Array resultArray = arrayCache.getScaled("a_group", "a_group_variable", "scale", "offset");
         assertNotNull(resultArray);
         assertEquals(1.9, resultArray.getFloat(0), 1e-6);
         assertEquals(2.4, resultArray.getFloat(1), 1e-6);

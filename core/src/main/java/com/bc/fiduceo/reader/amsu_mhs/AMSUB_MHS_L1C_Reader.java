@@ -59,7 +59,6 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
@@ -140,22 +139,13 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
-            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
-            Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
-            longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
-            final Array floatLongitudes = Array.factory(Float.class, longitudes.getShape());
-            MAMath.copyFloat(floatLongitudes, longitudes);
-
-            Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
-            latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
-            final Array floatLatitudes = Array.factory(Float.class, latitudes.getShape());
-            MAMath.copyFloat(floatLatitudes, latitudes);
+            final Array longitudes = arrayCache.getScaled(GEOLOCATION_GROUP_NAME, "Longitude", "Scale", null);
+            final Array latitudes = arrayCache.getScaled(GEOLOCATION_GROUP_NAME, "Latitude", "Scale", null);
 
             final int[] shape = longitudes.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = new SwathPixelLocator(floatLongitudes, floatLatitudes, width, height);
+            pixelLocator = new SwathPixelLocator(toFloat(longitudes), toFloat(latitudes), width, height);
         }
         return pixelLocator;
     }
@@ -264,12 +254,8 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private Geometries extractGeometries() throws IOException {
         final Geometries geometries = new Geometries();
 
-        // @todo 2 tb/tb check if this is constant for the mission or if we need to read from the variable 2016-04-12
-        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1e-4, 0.0);
-        Array longitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Longitude");
-        longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
-        Array latitudes = arrayCache.get(GEOLOCATION_GROUP_NAME, "Latitude");
-        latitudes = MAMath.convert2Unpacked(latitudes, scaleOffset);
+        final Array longitudes = arrayCache.getScaled(GEOLOCATION_GROUP_NAME, "Longitude", "Scale", null);
+        final Array latitudes = arrayCache.getScaled(GEOLOCATION_GROUP_NAME, "Latitude", "Scale", null);
 
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         Geometry timeAxisGeometry;
@@ -294,6 +280,12 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    private Array toFloat(Array original) {
+        final Array floatArray = Array.factory(Float.class, original.getShape());
+        MAMath.copyFloat(floatArray, original);
+        return floatArray;
     }
 
 }

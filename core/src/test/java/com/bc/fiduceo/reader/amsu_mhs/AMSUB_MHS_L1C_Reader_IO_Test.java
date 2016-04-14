@@ -103,13 +103,13 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final Geometry[] geometries = geometryCollection.getGeometries();
             Point[] coordinates = geometries[0].getCoordinates();
             assertEquals(85, coordinates.length);
-            assertCorrectCoordinate(134.5867, 51.186, coordinates[0]);
-            assertCorrectCoordinate(-30.2003, 36.4925, coordinates[24]);
+            assertCorrectCoordinate(134.58669660005398, 51.18599870693288, coordinates[0]);
+            assertCorrectCoordinate(-30.20029923707625, 36.49249907812191, coordinates[24]);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(85, coordinates.length);
-            assertCorrectCoordinate(-26.8742, -78.5383, coordinates[0]);
-            assertCorrectCoordinate(152.2549, -11.3641, coordinates[24]);
+            assertCorrectCoordinate(-26.874199321100605, -78.53829801595566, coordinates[0]);
+            assertCorrectCoordinate(152.2548961537177, -11.364099712918687, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -151,13 +151,13 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final Geometry[] geometries = geometryCollection.getGeometries();
             Point[] coordinates = geometries[0].getCoordinates();
             assertEquals(77, coordinates.length);
-            assertCorrectCoordinate(-29.0474, 61.1013, coordinates[0]);
-            assertCorrectCoordinate(174.4584, 14.7534, coordinates[24]);
+            assertCorrectCoordinate(-29.04739926620095, 61.10129845645133, coordinates[0]);
+            assertCorrectCoordinate(174.45839559281012, 14.75339962729777, coordinates[24]);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(77, coordinates.length);
-            assertCorrectCoordinate(-179.2796, -75.2729, coordinates[0]);
-            assertCorrectCoordinate(-0.1681, -8.6179, coordinates[24]);
+            assertCorrectCoordinate(-179.27959547101636, -75.27289809844662, coordinates[0]);
+            assertCorrectCoordinate(-0.1681, -8.617899782293533, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -200,13 +200,13 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             Point[] coordinates = geometries[0].getCoordinates();
 
             assertEquals(79, coordinates.length);
-            assertCorrectCoordinate(6.8728, 63.4891, coordinates[0]);
-            assertCorrectCoordinate(-144.1532, 9.9494, coordinates[25]);
+            assertCorrectCoordinate(6.872799826378468, 63.48909839613043, coordinates[0]);
+            assertCorrectCoordinate(-144.15319635838387, 9.949399748657015, coordinates[25]);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(79, coordinates.length);
-            assertCorrectCoordinate(-131.5143, -78.9114, coordinates[0]);
-            assertCorrectCoordinate(40.2073, 5.992, coordinates[26]);
+            assertCorrectCoordinate(-131.51429667766934, -78.91139800653036, coordinates[0]);
+            assertCorrectCoordinate(40.20729898427817, 5.991999848629348, coordinates[26]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -292,55 +292,55 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
             assertEquals(6.872799873352051, geoLocation.getX(), 1e-8);  // original 6.8728
-            assertEquals(63.48910140991211, geoLocation.getY(), 1e-8); // original 63.4891
+            assertEquals(63.489097595214844, geoLocation.getY(), 1e-8); // original 63.4891
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(6.8728, 63.4891);
             assertEquals(2, pixelLocation.length);  // is part of self intersecting area
-            assertEquals(0.4854576739823773, pixelLocation[0].getX(), 1e-8);    // original 0.5
-            assertEquals(0.6067433077776373, pixelLocation[0].getY(), 1e-8);    // original 0.5
+            assertEquals(0.48546158480835666, pixelLocation[0].getX(), 1e-8);    // original 0.5
+            assertEquals(0.606753391875949, pixelLocation[0].getY(), 1e-8);    // original 0.5
 
-            assertEquals(40.26354763429055, pixelLocation[1].getX(), 1e-8);
-            assertEquals(2258.693408205721, pixelLocation[1].getY(), 1e-8);
+            assertEquals(40.26355242809091, pixelLocation[1].getX(), 1e-8);
+            assertEquals(2258.6934166055794, pixelLocation[1].getY(), 1e-8);
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(10.5, 246.5, null);
-            assertEquals(-94.14900207519531, geoLocation.getX(), 1e-8);  // original -94.149
+            assertEquals(-94.14899444580078, geoLocation.getX(), 1e-8);  // original -94.149
             assertEquals(65.11270141601562, geoLocation.getY(), 1e-8); // original 65.3599
 
             pixelLocation = pixelLocator.getPixelLocation(-94.149, 65.3599);
             assertEquals(1, pixelLocation.length);
-            assertEquals(11.056682426358119, pixelLocation[0].getX(), 1e-8);    // original 10.5
-            assertEquals(245.30989969157616, pixelLocation[0].getY(), 1e-8);    // original 246.5
+            assertEquals(11.056689038123926, pixelLocation[0].getX(), 1e-8);    // original 10.5
+            assertEquals(245.3098948236201, pixelLocation[0].getY(), 1e-8);    // original 246.5
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(20.5, 484.5, null);
-            assertEquals(-123.38300323486328, geoLocation.getX(), 1e-8);  // original -123.383
+            assertEquals(-123.38299560546875, geoLocation.getX(), 1e-8);  // original -123.383
             assertEquals(31.553499221801758, geoLocation.getY(), 1e-8); // original 31.5535
 
             pixelLocation = pixelLocator.getPixelLocation(-123.383, 31.5535);
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
-            assertEquals(20.516272737155752, pixelLocation[0].getX(), 1e-8);    // original 20.5
-            assertEquals(484.4601809288276, pixelLocation[0].getY(), 1e-8);    // original 484.5
+            assertEquals(20.51628831614342, pixelLocation[0].getX(), 1e-8);    // original 20.5
+            assertEquals(484.4601792290086, pixelLocation[0].getY(), 1e-8);    // original 484.5
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(30.5, 727.5, null);
             assertEquals(-134.95899963378906, geoLocation.getX(), 1e-8);  // original -134.959
-            assertEquals(-5.781400203704834, geoLocation.getY(), 1e-8); // original -5.7814
+            assertEquals(-5.781399726867676, geoLocation.getY(), 1e-8); // original -5.7814
 
             pixelLocation = pixelLocator.getPixelLocation(-134.959, -5.7814);
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
-            assertEquals(30.459649412126947, pixelLocation[0].getX(), 1e-8);    // original 30.5
-            assertEquals(727.5172798921044, pixelLocation[0].getY(), 1e-8);    // original 727.5
+            assertEquals(30.45967510530061, pixelLocation[0].getX(), 1e-8);    // original 30.5
+            assertEquals(727.5172845630435, pixelLocation[0].getY(), 1e-8);    // original 727.5
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(40.5, 1024.5, null);
-            assertEquals(-149.6549072265625, geoLocation.getX(), 1e-8);  // original -149.6549
+            assertEquals(-149.65489196777344, geoLocation.getX(), 1e-8);  // original -149.6549
             assertEquals(-51.36819839477539, geoLocation.getY(), 1e-8); // original -51.3682
 
             pixelLocation = pixelLocator.getPixelLocation(-149.6549, -51.3682);
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
-            assertEquals(40.58350752962217, pixelLocation[0].getX(), 1e-8);    // original 40.5
-            assertEquals(1024.4990389293164, pixelLocation[0].getY(), 1e-8);    // original 1024.5
+            assertEquals(40.58351743748158, pixelLocation[0].getX(), 1e-8);    // original 40.5
+            assertEquals(1024.4990507940652, pixelLocation[0].getY(), 1e-8);    // original 1024.5
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(50.5, 1301.5, null);
@@ -349,18 +349,18 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             pixelLocation = pixelLocator.getPixelLocation(99.3901, -79.1157);
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
-            assertEquals(50.48410770605768, pixelLocation[0].getX(), 1e-8);    // original 50.5
-            assertEquals(1301.474733617968, pixelLocation[0].getY(), 1e-8);    // original 1301.5
+            assertEquals(50.484098850555775, pixelLocation[0].getX(), 1e-8);    // original 50.5
+            assertEquals(1301.4747256336116, pixelLocation[0].getY(), 1e-8);    // original 1301.5
 
             //-------------------------------------------------------------
             geoLocation = pixelLocator.getGeoLocation(60.5, 1504.5, null);
             assertEquals(50.50239944458008, geoLocation.getX(), 1e-8);  // original 50.5024
-            assertEquals(-51.807701110839844, geoLocation.getY(), 1e-8); // original -51.8077
+            assertEquals(-51.80769729614258, geoLocation.getY(), 1e-8); // original -51.8077
 
             pixelLocation = pixelLocator.getPixelLocation(50.5024, -51.8077);
             assertEquals(1, pixelLocation.length);  // is part of self intersecting area
             assertEquals(60.49520617819131, pixelLocation[0].getX(), 1e-8);    // original 60.5
-            assertEquals(1504.5986213393405, pixelLocation[0].getY(), 1e-8);    // original 1504.5
+            assertEquals(1504.5986111709697, pixelLocation[0].getY(), 1e-8);    // original 1504.5
 
         } finally {
             reader.close();
