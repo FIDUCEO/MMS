@@ -31,13 +31,7 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
@@ -152,6 +146,7 @@ public class AVHRR_GAC_Reader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
+        // @todo 2 tb/tb read attributes from arrayCache
         final Number fillValue = getFillValue(variableName);
 
         final int defaultWidth = getProductWidth(netcdfFile);
@@ -162,6 +157,7 @@ public class AVHRR_GAC_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
+        // @todo 2 tb/tb read attributes from arrayCache
         final Variable variable = netcdfFile.findVariable(null, variableName);
         double scaleFactor = getScaleFactor(variable);
         double offset = getOffset(variable);
@@ -298,26 +294,7 @@ public class AVHRR_GAC_Reader implements Reader {
         if (fillAttrib != null) {
             return fillAttrib.getNumericValue();
         }
-        return getDefaultFillValue(variable);
-    }
-
-    static Number getDefaultFillValue(Variable variable) {
-        final Class type = variable.getDataType().getPrimitiveClassType();
-        if (double.class == type) {
-            return Double.MIN_VALUE;
-        } else if (float.class == type) {
-            return Float.MIN_VALUE;
-        } else if (long.class == type) {
-            return Long.MIN_VALUE;
-        } else if (int.class == type) {
-            return Integer.MIN_VALUE;
-        } else if (short.class == type) {
-            return Short.MIN_VALUE;
-        } else if (byte.class == type) {
-            return Byte.MIN_VALUE;
-        } else {
-            throw new RuntimeException("not implemented for type " + type.getTypeName());
-        }
+        return ReaderUtils.getDefaultFillValue(variable);
     }
 
     static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
@@ -349,6 +326,6 @@ public class AVHRR_GAC_Reader implements Reader {
                 return dimension.getLength();
             }
         }
-        throw new RuntimeException("missing dimension 'ni'11");
+        throw new RuntimeException("missing dimension 'ni'");
     }
 }

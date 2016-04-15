@@ -43,7 +43,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AMSUB_MHS_ReaderTest {
+public class AMSUB_MHS_L1C_ReaderTest {
 
     @Test
     public void testGetDate() {
@@ -113,4 +113,63 @@ public class AMSUB_MHS_ReaderTest {
         } catch (IOException expected) {
         }
     }
+
+    @Test
+    public void testGetGroupName() {
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("btemps"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("chanqual"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("instrtemp"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("qualind"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("scanqual"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("scnlin"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("scnlindy"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("scnlintime"));
+        assertEquals("Data", AMSUB_MHS_L1C_Reader.getGroupName("scnlinyr"));
+
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Latitude"));
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Longitude"));
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Satellite_azimuth_angle"));
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Satellite_zenith_angle"));
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Solar_azimuth_angle"));
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Solar_zenith_angle"));
+    }
+
+    @Test
+    public void testGetGroupName_invalidVariableName() {
+        try {
+            AMSUB_MHS_L1C_Reader.getGroupName("Der Messkanal");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testStripChannelSuffix() {
+        assertEquals("btemps", AMSUB_MHS_L1C_Reader.stripChannelSuffix("btemps_ch17"));
+        assertEquals("chanqual", AMSUB_MHS_L1C_Reader.stripChannelSuffix("chanqual_ch4"));
+
+        assertEquals("Latitude", AMSUB_MHS_L1C_Reader.stripChannelSuffix("Latitude"));
+        assertEquals("scnlindy", AMSUB_MHS_L1C_Reader.stripChannelSuffix("scnlindy"));
+    }
+
+    @Test
+    public void testGetChannelLayer(){
+        assertEquals(0, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch1"));
+        assertEquals(0, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch16"));
+
+        assertEquals(1, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch2"));
+        assertEquals(1, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch17"));
+
+        assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch5"));
+        assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch20"));
+    }
+
+    // @todo 1 tb/tb continue here 2016-04-15
+//    @Test
+//    public void testExtractFillValue() {
+//        final Variable mock = mock(Variable.class);
+//        final Attribute attributeMock = mock(Attribute.class);
+//        when(attributeMock.getNumericValue()).thenReturn(39.90);
+//        when(mock.findAttribute("_FillValue")).thenReturn(attributeMock);
+//    }
 }

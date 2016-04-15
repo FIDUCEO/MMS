@@ -20,16 +20,9 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.ArrayLong;
-import ucar.ma2.ArrayShort;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * @author muhammad.bc
@@ -41,7 +34,7 @@ public class RawDataReader {
 
         int[] shape = rawArray.getShape();
         int rank = rawArray.getRank();
-        final boolean caseOneDimensionalArray = rank == 2 && shape[0] == 1;
+        final boolean caseOneDimensionalArray = isOneDimensional(rank, shape);
         if (rank == 3 && shape[0] == 1) {
             rawArray = rawArray.section(new int[]{0, 0, 0}, shape);
             shape = rawArray.getShape();
@@ -114,6 +107,15 @@ public class RawDataReader {
         final Rectangle windowRec = new Rectangle(winOffSetX, winOffSetY, windowWidth, windowHeight);
         final Rectangle arrayRectangle = new Rectangle(0, 0, rawWidth, rawHeight);
         return arrayRectangle.contains(windowRec);
+    }
+
+    static boolean isOneDimensional(int rank, int[] shape) {
+        if (rank == 1) {
+            return true;
+        } else if (rank == 2 && shape[0] == 1) {
+            return true;
+        }
+        return false;
     }
 }
 

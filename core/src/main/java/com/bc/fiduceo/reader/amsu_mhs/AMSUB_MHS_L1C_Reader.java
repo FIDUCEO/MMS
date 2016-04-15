@@ -42,27 +42,13 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -78,6 +64,7 @@ import java.util.List;
 public class AMSUB_MHS_L1C_Reader implements Reader {
 
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
+    private static final String DATA_GROUP_NAME = "Data";
     private static final int NUM_SPLITS = 2;
 
     private NetcdfFile netcdfFile;
@@ -169,9 +156,9 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     @Override
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
-            final Array scnlinyr = arrayCache.get("Data", "scnlinyr");
-            final Array scnlindy = arrayCache.get("Data", "scnlindy");
-            final Array scnlintime = arrayCache.get("Data", "scnlintime");
+            final Array scnlinyr = arrayCache.get(DATA_GROUP_NAME, "scnlinyr");
+            final Array scnlindy = arrayCache.get(DATA_GROUP_NAME, "scnlindy");
+            final Array scnlintime = arrayCache.get(DATA_GROUP_NAME, "scnlintime");
 
             timeLocator = new AMSUB_MHS_TimeLocator(scnlinyr, scnlindy, scnlintime);
         }
@@ -180,7 +167,27 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("Not yet implemented");
+        final String rawVariableName = stripChannelSuffix(variableName);
+        final String groupName = getGroupName(rawVariableName);
+        Array array = arrayCache.get(groupName, rawVariableName);
+
+        final int rank = array.getRank();
+        if (rank == 3) {
+            final int channelLayer = getChannelLayer(variableName);
+            final int[] shape = array.getShape();
+            shape[2] = 1;   // we only want one z-layer
+            final int[] offsets = {0, 0, channelLayer};
+            array = array.section(offsets, shape);
+        } else if (rawVariableName.equals("chanqual")) {
+            final int channelLayer = getChannelLayer(variableName);
+            final int[] shape = array.getShape();
+            shape[1] = 1;   // we only want one channel
+            final int[] offsets = {0, channelLayer};
+            array = array.section(offsets, shape);
+        }
+
+        // @todo 1 tb/tb provide correct invalid Pixel value 2015-04-15
+        return RawDataReader.read(centerX, centerY, interval, -1, array, 90);
     }
 
     @Override
@@ -213,21 +220,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return result;
     }
 
-    private void split3dVariableIntoLayers(List<Variable> result, Variable variable, String variableBaseName, int channelIndexOffset) throws InvalidRangeException {
-        final int[] shape = variable.getShape();
-        shape[0] = 1;
-        final int[] origin = {0, 0, 0};
-
-        for (int channel = 0; channel < 5; channel++) {
-            final Section section = new Section(origin, shape);
-            final Variable channelVariable = variable.section(section);
-            final int channelIndex = channelIndexOffset + channel;
-            channelVariable.setName(variableBaseName + channelIndex);
-            result.add(channelVariable);
-            origin[0]++;
-        }
-    }
-
     // package access for testing only tb 2016-04-12
     static Date getDate(int year, int dayOfYear, int millisecsInDay) {
         final Calendar calendar = TimeUtils.getUTCCalendar();
@@ -253,6 +245,64 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             return false;
         } else {
             throw new IOException("Unsupported instrument type");
+        }
+    }
+
+    // package access for testing only tb 2016-04-15
+    static String getGroupName(String variableName) {
+        if ("btemps".equals(variableName) ||
+                "chanqual".equals(variableName) ||
+                "qualind".equals(variableName) ||
+                "scanqual".equals(variableName) ||
+                "scnlin".equals(variableName) ||
+                "scnlindy".equals(variableName) ||
+                "scnlintime".equals(variableName) ||
+                "scnlinyr".equals(variableName) ||
+                "instrtemp".equals(variableName)) {
+            return DATA_GROUP_NAME;
+        } else if ("Latitude".equals(variableName) ||
+                "Longitude".equals(variableName) ||
+                "Satellite_azimuth_angle".equals(variableName) ||
+                "Solar_azimuth_angle".equals(variableName) ||
+                "Satellite_zenith_angle".equals(variableName) ||
+                "Solar_zenith_angle".equals(variableName)) {
+            return GEOLOCATION_GROUP_NAME;
+        }
+
+        throw new RuntimeException("Requested invalid variable name: " + variableName);
+    }
+
+    static String stripChannelSuffix(String fullVariableName) {
+        final int splitIndex = fullVariableName.indexOf("_ch");
+        if (splitIndex > 0) {
+            return fullVariableName.substring(0, splitIndex);
+        }
+        return fullVariableName;
+    }
+
+    // package access for testing only tb 2016-04-15
+    static int getChannelLayer(String fullVariableName) {
+        final int splitIndex = fullVariableName.indexOf("_ch");
+        if (splitIndex < 0) {
+            return 0;
+        }
+        final String channelNumber = fullVariableName.substring(splitIndex + 3);
+        final int channelIndex = Integer.parseInt(channelNumber) - 1;
+        return channelIndex > 5 ? channelIndex - 15: channelIndex;
+    }
+
+    private void split3dVariableIntoLayers(List<Variable> result, Variable variable, String variableBaseName, int channelIndexOffset) throws InvalidRangeException {
+        final int[] shape = variable.getShape();
+        shape[0] = 1;
+        final int[] origin = {0, 0, 0};
+
+        for (int channel = 0; channel < 5; channel++) {
+            final Section section = new Section(origin, shape);
+            final Variable channelVariable = variable.section(section);
+            final int channelIndex = channelIndexOffset + channel;
+            channelVariable.setName(variableBaseName + channelIndex);
+            result.add(channelVariable);
+            origin[0]++;
         }
     }
 
@@ -336,10 +386,10 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return geometries;
     }
 
+    // @todo 2 tb/** make static, package local and write test 2016-04-15
     private Array toFloat(Array original) {
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
     }
-
 }

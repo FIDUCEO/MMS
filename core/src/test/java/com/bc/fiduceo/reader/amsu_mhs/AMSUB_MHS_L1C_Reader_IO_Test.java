@@ -41,19 +41,17 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -64,12 +62,10 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
+@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
 public class AMSUB_MHS_L1C_Reader_IO_Test {
 
@@ -597,6 +593,35 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testReadRaw_AMSUB_NOAA15_windowCenter() throws Exception {
+        final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            Array array = reader.readRaw(7, 56, new Interval(3, 3), "btemps_ch16");
+            assertValueAt(28237.0, 1, 1, array);
+
+            array = reader.readRaw(8, 57, new Interval(3, 3), "btemps_ch17");
+            assertValueAt(27872.0, 2, 1, array);
+
+            // @todo 1 tb/tb continue here 2016-04-15
+//            array = reader.readRaw(9, 58, new Interval(3, 3), "chanqual_ch18");
+//            assertValueAt(0.0, 0, 2, array);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    private void assertValueAt(double expected, int x, int y, Array array) {
+        final Index index = array.getIndex();
+        index.set(y, x);
+        assertEquals(expected, array.getDouble(index), 1e-8);
+    }
+
 
     private File createAmsubNOAA15Path(String fileName) {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", fileName}, false);

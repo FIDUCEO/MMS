@@ -39,12 +39,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -120,79 +115,6 @@ public class AVHRR_GAC_ReaderTest {
         }
     }
 
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeDouble() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.DOUBLE);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Double.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeFloat() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.FLOAT);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Float.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeLong() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.LONG);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Long.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeInt() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.INT);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Integer.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeShort() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.SHORT);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Short.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeByte() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.BYTE);
-
-        final Number value = AVHRR_GAC_Reader.getDefaultFillValue(mock);
-
-        assertEquals(Byte.MIN_VALUE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forUnknownType() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.STRUCTURE);
-
-        try {
-            AVHRR_GAC_Reader.getDefaultFillValue(mock);
-            fail("RuntimeException expected");
-        } catch (NullPointerException notExpected) {
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
 
     @Test
     public void testExtractFillValue_throwsRuntimeExceptionIfThereIsNoFillValueAndTheVariableHasAnUndefinedDataType() {
