@@ -20,8 +20,10 @@
 
 package com.bc.fiduceo.core;
 
+import static com.bc.fiduceo.util.JDomUtils.*;
+
+import com.bc.fiduceo.util.JDomUtils;
 import org.esa.snap.core.util.StringUtils;
-import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -57,13 +59,11 @@ public class UseCaseConfig {
     private List<Dimension> dimensions;
     private int timeDeltaSeconds;
     private String outputPath;
-    private float maxPixelDistanceKm;
 
     private UseCaseConfig(Document document) {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
         timeDeltaSeconds = -1;
-        maxPixelDistanceKm = -1.f;
         this.document = document;
         init();
     }
@@ -88,6 +88,10 @@ public class UseCaseConfig {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    public Element getDomElement(String elemName) {
+        return document.getRootElement().getChild(elemName);
     }
 
     public List<Sensor> getSensors() {
@@ -155,14 +159,6 @@ public class UseCaseConfig {
         throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
-    public float getMaxPixelDistanceKm() {
-        return maxPixelDistanceKm;
-    }
-
-    void setMaxPixelDistanceKm(float maxPixelDistanceKm) {
-        this.maxPixelDistanceKm = maxPixelDistanceKm;
-    }
-
     public ValidationResult checkValid() {
         final ValidationResult validationResult = new ValidationResult();
         if (StringUtils.isNullOrEmpty(name)) {
@@ -192,41 +188,16 @@ public class UseCaseConfig {
         return validationResult;
     }
 
-    private static Attribute mandatory_getAttribute(final Element element, final String name) {
-        final Attribute attribute = element.getAttribute(name);
-        if (attribute == null) {
-            throw new RuntimeException("Attribute '" + name + "' expected");
-        }
-        return attribute;
-    }
-
-    private static Element mandatory_getChild(final Element element, final String name) {
-        final Element child = element.getChild(name);
-        if (child == null) {
-            throw new RuntimeException("Children '" + name + "' expected");
-        }
-        return child;
-    }
-
-    private static Element mandatory_getRootElement(Document document) {
-        final Element rootElement = document.getRootElement();
-        final String name = rootElement.getName();
-        if (!TAG_NAME_ROOT.equals(name)) {
-            throw new RuntimeException("Root tag name '" + TAG_NAME_ROOT + "' expected");
-        }
-        return rootElement;
-    }
-
     private void init() {
         final Element rootElement = mandatory_getRootElement(document);
         setName(mandatory_getAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
-        final Element seconds = rootElement.getChild(TAG_NAME_TIME_DELTA_SECONDS);
-        if (seconds != null) {
-            setTimeDeltaSeconds(Integer.valueOf(seconds.getValue()));
-        }
-        final Element distance = rootElement.getChild(TAG_NAME_MAX_PIXEL_DISTANCE_KM);
-        if (distance != null) {
-            setMaxPixelDistanceKm(Float.valueOf(distance.getValue()));
+        final Element conditions = rootElement.getChild("conditions");
+        if (conditions != null) {
+            final Element timeDelta = conditions.getChild("time-delta");
+            if (timeDelta != null) {
+                final String trimmed = mandatory_getChildTextTrim(timeDelta, TAG_NAME_TIME_DELTA_SECONDS);
+                setTimeDeltaSeconds(Integer.valueOf(trimmed));
+            }
         }
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {

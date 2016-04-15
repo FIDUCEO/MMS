@@ -54,13 +54,17 @@ public class UseCaseConfigBuilder {
         return configBuilder;
     }
 
-    public UseCaseConfigBuilder withTimeDeltaSeconds(int seconds) {
-        addChild(getRootElement(), TAG_NAME_TIME_DELTA_SECONDS, seconds);
+    public UseCaseConfigBuilder withTimeDeltaSeconds(long seconds) {
+        final Element conditions = ensureChild(getRootElement(), "conditions");
+        final Element timeDelta = ensureChild(conditions, "time-delta");
+        addChild(timeDelta, TAG_NAME_TIME_DELTA_SECONDS, seconds);
         return this;
     }
 
     public UseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
-        addChild(getRootElement(), TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        final Element conditions = ensureChild(getRootElement(), "conditions");
+        final Element spericalDistance = ensureChild(conditions, "sperical-distance");
+        addChild(spericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
         return this;
     }
 
@@ -108,6 +112,16 @@ public class UseCaseConfigBuilder {
         return load(getStream());
     }
 
+    private Element ensureChild(Element element, String tagName) {
+        Element child = element.getChild(tagName);
+        if (child != null) {
+            return child;
+        }
+        child = new Element(tagName);
+        element.addContent(child);
+        return child;
+    }
+
     private Element getRootElement() {
         return document.getRootElement();
     }
@@ -118,6 +132,10 @@ public class UseCaseConfigBuilder {
 
     private Element addChild(Element element, String name, int value) {
         return addChild(element, name, Integer.toString(value));
+    }
+
+    private Element addChild(Element element, String name, long value) {
+        return addChild(element, name, Long.toString(value));
     }
 
     private Element addChild(Element element, String name, float value) {

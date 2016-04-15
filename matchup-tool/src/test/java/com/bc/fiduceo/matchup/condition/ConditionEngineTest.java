@@ -123,11 +123,11 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_distanceCondition() {
-        final InputStream stream = UseCaseConfigBuilder
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
                     .build("name")
                     .withMaxPixelDistanceKm(4)
-                    .getStream();
-        final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
+                    .withTimeDeltaSeconds(1)
+                    .createConfig();
 
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(4.5, 5.6, 4.50001, 5.60001));

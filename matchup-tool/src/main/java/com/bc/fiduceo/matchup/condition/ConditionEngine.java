@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
+import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,34 +30,33 @@ import java.util.List;
 
 public class ConditionEngine {
 
-    private final List<Condition> conditions;
+    private final List<Condition> conditionsList;
 
     public ConditionEngine() {
-        conditions = new ArrayList<>();
+        conditionsList = new ArrayList<>();
     }
 
     public void process(MatchupSet matchupSet) {
-        for (final Condition condition : conditions) {
+        for (final Condition condition : conditionsList) {
             condition.apply(matchupSet);
         }
     }
 
     public void configure(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
-        final int timeDeltaSeconds = useCaseConfig.getTimeDeltaSeconds();
-        if (timeDeltaSeconds >= 0) {
-            final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(timeDeltaSeconds * 1000);
-            conditions.add(timeDeltaCondition);
-        }
-
-        final float maxPixelDistanceKm = useCaseConfig.getMaxPixelDistanceKm();
-        if (maxPixelDistanceKm >= 0) {
-            final DistanceCondition distanceCondition = new DistanceCondition(maxPixelDistanceKm);
-            conditions.add(distanceCondition);
+        final Element conditionsElem = useCaseConfig.getDomElement("conditions");
+        if (conditionsElem != null) {
+            final List<Element> children = conditionsElem.getChildren();
+            for (Element child : children) {
+                final Condition condition = ConditionFactory.get().getCondition(child);
+                if (condition != null) {
+                    conditionsList.add(condition);
+                }
+            }
         }
 
         if (startDate != null && endDate != null && startDate.before(endDate)) {
             final TimeRangeCondition timeRangeCondition = new TimeRangeCondition(startDate, endDate);
-            conditions.add(timeRangeCondition);
+            conditionsList.add(timeRangeCondition);
         }
     }
 }

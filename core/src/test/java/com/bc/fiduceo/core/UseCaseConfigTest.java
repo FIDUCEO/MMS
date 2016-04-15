@@ -116,7 +116,11 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__timeDelta() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                                  "  <time-delta-seconds>300</time-delta-seconds>" +
+                                  "  <conditions>" +
+                                  "    <time-delta>" +
+                                  "      <time-delta-seconds>300</time-delta-seconds>" +
+                                  "    </time-delta>" +
+                                  "  </conditions>" +
                                   "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
@@ -169,17 +173,6 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testLoad__maxPixelDistance() {
-        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                                  " <max-pixel-distance-km>19.2</max-pixel-distance-km>" +
-                                  "</use-case-config>";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
-        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
-
-        assertEquals(19.2f, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
-    }
-
-    @Test
     public void testStore() throws IOException {
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
@@ -223,9 +216,15 @@ public class UseCaseConfigTest {
         pw.println("      <ny>5</ny>");
         pw.println("    </dimension>");
         pw.println("  </dimensions>");
-        pw.println("  <time-delta-seconds>12345</time-delta-seconds>");
+        pw.println("  <conditions>");
+        pw.println("    <time-delta>");
+        pw.println("      <time-delta-seconds>12345</time-delta-seconds>");
+        pw.println("    </time-delta>");
+        pw.println("    <sperical-distance>");
+        pw.println("      <max-pixel-distance-km>14.8</max-pixel-distance-km>");
+        pw.println("    </sperical-distance>");
+        pw.println("  </conditions>");
         pw.println("  <output-path>wherever/you/want/it</output-path>");
-        pw.println("  <max-pixel-distance-km>14.8</max-pixel-distance-km>");
         pw.println("</use-case-config>");
         pw.flush();
 
@@ -350,14 +349,6 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testSetGetMaxPixelDistance() {
-        float maxDistace = 12.8f;
-
-        useCaseConfig.setMaxPixelDistanceKm(maxDistace);
-        assertEquals(maxDistace, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
-    }
-
-    @Test
     public void testConstruction() {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         assertNotNull(additionalSensors);
@@ -368,6 +359,5 @@ public class UseCaseConfigTest {
         assertEquals(0, dimensions.size());
 
         assertEquals(-1, useCaseConfig.getTimeDeltaSeconds());
-        assertEquals(-1.0, useCaseConfig.getMaxPixelDistanceKm(), 1e-8);
     }
 }
