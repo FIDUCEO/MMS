@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.core;
 
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 
 import org.jdom.JDOMException;
@@ -228,7 +229,7 @@ public class UseCaseConfigTest {
         pw.println("</use-case-config>");
         pw.flush();
 
-        assertEquals(sw.toString().trim(), outputStream.toString().trim());
+        assertThat(sw.toString(), equalToIgnoringWhiteSpace(outputStream.toString()));
     }
 
     @Test

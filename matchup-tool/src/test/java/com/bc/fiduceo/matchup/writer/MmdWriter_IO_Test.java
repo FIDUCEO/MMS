@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
@@ -175,9 +176,8 @@ public class MmdWriter_IO_Test {
             pw.println("</use-case-config>");
             pw.flush();
 
-            assertEquals(sw.toString().trim(),
-                         useCaseConfigAttr.getStringValue().trim()
-            );
+            assertThat(sw.toString(), equalToIgnoringWhiteSpace(useCaseConfigAttr.getStringValue()));
+
 
             assertDimension("avhrr-n11_nx", 5, mmd);
             assertDimension("avhrr-n11_ny", 7, mmd);
@@ -397,7 +397,7 @@ public class MmdWriter_IO_Test {
         final Sensor primary = new Sensor("avhrr-n10");
         primary.setPrimary(true);
 
-        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+        return UseCaseConfigBuilder
                     .build("mmd02")
                     .withSensors(Arrays.asList(
                                 primary,
@@ -407,7 +407,6 @@ public class MmdWriter_IO_Test {
                                 new Dimension("avhrr-n11", 5, 5)))
                     .withOutputPath(testDir.getAbsolutePath())
                     .createConfig();
-        return useCaseConfig;
     }
 
     private void assertCorrectDimensions(Variable variable, int z, int y, int x) {
