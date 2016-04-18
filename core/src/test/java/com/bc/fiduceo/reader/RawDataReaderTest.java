@@ -23,18 +23,24 @@ package com.bc.fiduceo.reader;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RawDataReaderTest {
 
     @Test
-    public void testIsOneDimensional() {
-        assertTrue(RawDataReader.isOneDimensional(1, new int[]{67}));
-        assertTrue(RawDataReader.isOneDimensional(2, new int[]{1, 108}));
+    public void testGetInputDimensions() {
+        assertEquals(RawDataReader.InputDimension.ONE_D, RawDataReader.getInputDimension(1, new int[]{67}));
+        assertEquals(RawDataReader.InputDimension.ONE_D, RawDataReader.getInputDimension(1, new int[]{12}));
 
-        assertFalse(RawDataReader.isOneDimensional(2, new int[]{45, 108}));
-        assertFalse(RawDataReader.isOneDimensional(3, new int[]{1, 108, 1675}));
-        assertFalse(RawDataReader.isOneDimensional(3, new int[]{12, 108, 1675}));
+        assertEquals(RawDataReader.InputDimension.TWO_D_FALSE_DIMENSION, RawDataReader.getInputDimension(2, new int[]{1, 12}));
+        assertEquals(RawDataReader.InputDimension.TWO_D_FALSE_DIMENSION, RawDataReader.getInputDimension(2, new int[]{1, 2689}));
+
+        assertEquals(RawDataReader.InputDimension.TWO_D, RawDataReader.getInputDimension(2, new int[]{450, 2689}));
+        assertEquals(RawDataReader.InputDimension.TWO_D, RawDataReader.getInputDimension(2, new int[]{2, 5}));
+
+        assertEquals(RawDataReader.InputDimension.THREE_D_FALSE_DIMENSION, RawDataReader.getInputDimension(3, new int[]{1, 409, 4443}));
+        assertEquals(RawDataReader.InputDimension.THREE_D_FALSE_DIMENSION, RawDataReader.getInputDimension(3, new int[]{1, 10, 10}));
     }
 }

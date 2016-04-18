@@ -20,7 +20,14 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayByte;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayLong;
+import ucar.ma2.ArrayShort;
+import ucar.ma2.InvalidRangeException;
 
 import java.awt.*;
 
@@ -30,19 +37,28 @@ import java.awt.*;
  */
 public class RawDataReader {
 
+    enum InputDimension {
+        THREE_D_FALSE_DIMENSION,
+        TWO_D,
+        TWO_D_FALSE_DIMENSION,
+        ONE_D
+    }
+
     public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, final int defaultWidth) throws InvalidRangeException {
 
         int[] shape = rawArray.getShape();
         int rank = rawArray.getRank();
-        final boolean caseOneDimensionalArray = isOneDimensional(rank, shape);
-        if (rank == 3 && shape[0] == 1) {
-            rawArray = rawArray.section(new int[]{0, 0, 0}, shape);
+        final InputDimension inputDimension = getInputDimension(rank, shape);
+        if (inputDimension == InputDimension.THREE_D_FALSE_DIMENSION) {
+            rawArray = rawArray.reduce();
             shape = rawArray.getShape();
-        } else if (caseOneDimensionalArray) {
+        } else if (inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
             shape[0] = shape[1];
             shape[1] = defaultWidth;
             rawArray = rawArray.reduce();
-        }
+        } else if (inputDimension == InputDimension.ONE_D) {
+            shape = new int[]{shape[0], defaultWidth};
+        } // no specific handling for the pure 2d data case tb 2016-04-18
 
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
@@ -54,14 +70,15 @@ public class RawDataReader {
         final int offsetX = centerX - windowWidth / 2;
         final int offsetY = centerY - windowHeight / 2;
 
-        if (!caseOneDimensionalArray) {
+        if (inputDimension == InputDimension.ONE_D ||
+                inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
+            return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
+        } else {
             boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
             if (windowInside) {
                 return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
             }
             return readFrom2DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
-        } else {
-            return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         }
     }
 
@@ -109,13 +126,21 @@ public class RawDataReader {
         return arrayRectangle.contains(windowRec);
     }
 
-    static boolean isOneDimensional(int rank, int[] shape) {
+    // package access for testing only tb 2016-04-18
+    static InputDimension getInputDimension(int rank, int[] shape) {
         if (rank == 1) {
-            return true;
+            return InputDimension.ONE_D;
         } else if (rank == 2 && shape[0] == 1) {
-            return true;
-        }
-        return false;
+            return InputDimension.TWO_D_FALSE_DIMENSION;
+        } else //noinspection ConstantConditions - to clarify the code intention tb 2016-04-18
+            if (rank == 2 && shape[0] != 1) {
+                return InputDimension.TWO_D;
+            } else if (rank == 3 && shape[0] == 1) {
+                return InputDimension.THREE_D_FALSE_DIMENSION;
+            }
+
+        throw new RuntimeException("Unsupported input dimensionality");
     }
+
 }
 

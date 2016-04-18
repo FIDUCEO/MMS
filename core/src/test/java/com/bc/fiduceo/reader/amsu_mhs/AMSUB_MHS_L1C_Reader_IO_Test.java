@@ -607,9 +607,24 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             array = reader.readRaw(8, 57, new Interval(3, 3), "btemps_ch17");
             assertValueAt(27872.0, 2, 1, array);
 
-            // @todo 1 tb/tb continue here 2016-04-15
-//            array = reader.readRaw(9, 58, new Interval(3, 3), "chanqual_ch18");
-//            assertValueAt(0.0, 0, 2, array);
+            array = reader.readRaw(9, 58, new Interval(3, 3), "chanqual_ch18");
+            assertValueAt(0.0, 0, 2, array);
+
+            array = reader.readRaw(10, 59, new Interval(3, 3), "chanqual_ch19");
+            assertValueAt(0.0, 1, 2, array);
+
+            array = reader.readRaw(11, 60, new Interval(3, 3), "instrtemp");
+            assertValueAt(29285.0, 2, 2, array);
+
+            array = reader.readRaw(12, 61, new Interval(3, 3), "qualind");
+            assertValueAt(0.0, 0, 0, array);
+
+            array = reader.readRaw(13, 62, new Interval(3, 3), "scanqual");
+            assertValueAt(0.0, 1, 0, array);
+
+            // @todo 1 tb/tb continue here 2016-04-18
+//            array = reader.readRaw(14, 0, new Interval(3, 3), "scnlin");
+//            assertValueAt(64.0, 1, 0, array);
 
         } finally {
             reader.close();

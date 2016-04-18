@@ -114,18 +114,6 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
 
         try {
             RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
-            fail("InvalidRangeException expected");
-        } catch (InvalidRangeException expected) {
-        }
-    }
-
-
-    @Test
-    public void testRawArrayHasLessThanTwoDimensions() throws InvalidRangeException {
-        final Array rawArray = Array.factory(new float[]{11, 12, 13});
-
-        try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
