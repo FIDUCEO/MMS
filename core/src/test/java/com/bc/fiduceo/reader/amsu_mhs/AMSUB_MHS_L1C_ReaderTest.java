@@ -157,13 +157,4 @@ public class AMSUB_MHS_L1C_ReaderTest {
         assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch5"));
         assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch20"));
     }
-
-    // @todo 1 tb/tb continue here 2016-04-15
-//    @Test
-//    public void testExtractFillValue() {
-//        final Variable mock = mock(Variable.class);
-//        final Attribute attributeMock = mock(Attribute.class);
-//        when(attributeMock.getNumericValue()).thenReturn(39.90);
-//        when(mock.findAttribute("_FillValue")).thenReturn(attributeMock);
-//    }
 }

@@ -548,6 +548,11 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             variable = variables.get(17);
             assertEquals("Latitude", variable.getShortName());
+
+            variable = variables.get(19);
+            assertEquals("Satellite_azimuth_angle", variable.getShortName());
+            variable = variables.get(21);
+            assertEquals("Solar_azimuth_angle", variable.getShortName());
         } finally {
             reader.close();
         }
@@ -589,6 +594,11 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             variable = variables.get(18);
             assertEquals("Longitude", variable.getShortName());
+
+            variable = variables.get(19);
+            assertEquals("Satellite_azimuth_angle", variable.getShortName());
+            variable = variables.get(21);
+            assertEquals("Solar_azimuth_angle", variable.getShortName());
         } finally {
             reader.close();
         }
@@ -640,13 +650,13 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             array = reader.readRaw(19, 68, new Interval(3, 3), "Longitude");
             NCTestUtils.assertValueAt(1331347.0, 0, 2, array);
 
-            array = reader.readRaw(20, 69, new Interval(3, 3), "Satellite_azimith_angle");
+            array = reader.readRaw(20, 69, new Interval(3, 3), "Satellite_azimuth_angle");
             NCTestUtils.assertValueAt(18317.0, 1, 2, array);
 
             array = reader.readRaw(21, 70, new Interval(3, 3), "Satellite_zenith_angle");
             NCTestUtils.assertValueAt(2821.0, 2, 2, array);
 
-            array = reader.readRaw(22, 71, new Interval(3, 3), "Solar_azimith_angle");
+            array = reader.readRaw(22, 71, new Interval(3, 3), "Solar_azimuth_angle");
             NCTestUtils.assertValueAt(23955.0, 0, 0, array);
 
             array = reader.readRaw(23, 72, new Interval(3, 3), "Solar_zenith_angle");
@@ -702,7 +712,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             array = reader.readRaw(36, 85, new Interval(3, 3), "Longitude");
             NCTestUtils.assertValueAt(-375704.0, 2, 2, array);
 
-            array = reader.readRaw(37, 86, new Interval(3, 3), "Satellite_azimith_angle");
+            array = reader.readRaw(37, 86, new Interval(3, 3), "Satellite_azimuth_angle");
             NCTestUtils.assertValueAt(24717.0, 0, 0, array);
 
             array = reader.readRaw(38, 87, new Interval(3, 3), "Satellite_zenith_angle");
@@ -748,7 +758,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
         try {
             reader.open(mhsFile);
-            final Array array = reader.readRaw(56, 0, new Interval(3, 3), "Solar_azimith_angle");
+            final Array array = reader.readRaw(56, 0, new Interval(3, 3), "Solar_azimuth_angle");
             assertNotNull(array);
             assertEquals(9, array.getSize());
 
@@ -798,7 +808,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
         try {
             reader.open(mhsFile);
-            final Array array = reader.readRaw(89, 1876, new Interval(3, 3), "Satellite_azimith_angle");
+            final Array array = reader.readRaw(89, 1876, new Interval(3, 3), "Satellite_azimuth_angle");
             assertNotNull(array);
             assertEquals(9, array.getSize());
 

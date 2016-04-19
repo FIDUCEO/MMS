@@ -168,7 +168,10 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final String rawVariableName = stripChannelSuffix(variableName);
+        String rawVariableName = stripChannelSuffix(variableName);
+        if (rawVariableName.contains("azimuth")) {
+            rawVariableName = rawVariableName.replace("azimuth", "azimith");
+        }
         final String groupName = getGroupName(rawVariableName);
         Array array = arrayCache.get(groupName, rawVariableName);
 
@@ -214,6 +217,11 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
                 split3dVariableIntoLayers(result, variable, "btemp_ch", channelIndexOffset);
             } else if (variableName.contains("chanqual")) {
                 split3dVariableIntoLayers(result, variable, "chanqual_ch", channelIndexOffset);
+            } else if (variableName.contains("azimith")) {
+                final String shortName = variable.getShortName();
+                final String correctedVariableName = shortName.replace("azimith", "azimuth");
+                variable.setShortName(correctedVariableName);
+                result.add(variable);
             } else {
                 result.add(variable);
             }
