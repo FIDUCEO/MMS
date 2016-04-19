@@ -170,7 +170,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         String rawVariableName = stripChannelSuffix(variableName);
         if (rawVariableName.contains("azimuth")) {
-            rawVariableName = rawVariableName.replace("azimuth", "azimith");
+            rawVariableName = falsifyAzimuth(rawVariableName);
         }
         final String groupName = getGroupName(rawVariableName);
         Array array = arrayCache.get(groupName, rawVariableName);
@@ -194,6 +194,8 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, 90);
     }
+
+
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
@@ -219,7 +221,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
                 split3dVariableIntoLayers(result, variable, "chanqual_ch", channelIndexOffset);
             } else if (variableName.contains("azimith")) {
                 final String shortName = variable.getShortName();
-                final String correctedVariableName = shortName.replace("azimith", "azimuth");
+                final String correctedVariableName = correctAzimuth(shortName);
                 variable.setShortName(correctedVariableName);
                 result.add(variable);
             } else {
@@ -228,6 +230,16 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         }
 
         return result;
+    }
+
+    // package access for testing only tb 2016-04-19
+    static String falsifyAzimuth(String rawVariableName) {
+        return rawVariableName.replace("azimuth", "azimith");
+    }
+
+    // package access for testing only tb 2016-04-19
+    static String correctAzimuth(String shortName) {
+        return shortName.replace("azimith", "azimuth");
     }
 
     // package access for testing only tb 2016-04-12

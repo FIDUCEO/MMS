@@ -157,4 +157,14 @@ public class AMSUB_MHS_L1C_ReaderTest {
         assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch5"));
         assertEquals(4, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch20"));
     }
+
+    @Test
+    public void testFalsifyAzimuth() {
+        assertEquals("general_azimith", AMSUB_MHS_L1C_Reader.falsifyAzimuth("general_azimuth"));
+    }
+
+    @Test
+    public void testCorrectAzimuth() {
+        assertEquals("general_azimuth", AMSUB_MHS_L1C_Reader.correctAzimuth("general_azimith"));
+    }
 }
