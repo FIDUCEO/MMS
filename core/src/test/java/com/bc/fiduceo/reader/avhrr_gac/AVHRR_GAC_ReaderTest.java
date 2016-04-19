@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.ReaderUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -178,14 +179,5 @@ public class AVHRR_GAC_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-    }
-
-    @Test
-    public void testMustScale() {
-        assertTrue(AVHRR_GAC_Reader.mustScale(1.2, 0.45));
-        assertTrue(AVHRR_GAC_Reader.mustScale(1.2, 0.0));
-        assertTrue(AVHRR_GAC_Reader.mustScale(1.0, 0.45));
-
-        assertFalse(AVHRR_GAC_Reader.mustScale(1.0, 0.0));
     }
 }

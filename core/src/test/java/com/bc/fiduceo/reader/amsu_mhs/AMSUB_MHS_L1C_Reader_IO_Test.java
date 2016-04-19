@@ -522,15 +522,15 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final List<Variable> variables = reader.getVariables();
             assertEquals(23, variables.size());
             Variable variable = variables.get(0);
-            assertEquals("btemp_ch1", variable.getShortName());
+            assertEquals("btemps_ch1", variable.getShortName());
             variable = variables.get(1);
-            assertEquals("btemp_ch2", variable.getShortName());
+            assertEquals("btemps_ch2", variable.getShortName());
             variable = variables.get(2);
-            assertEquals("btemp_ch3", variable.getShortName());
+            assertEquals("btemps_ch3", variable.getShortName());
             variable = variables.get(3);
-            assertEquals("btemp_ch4", variable.getShortName());
+            assertEquals("btemps_ch4", variable.getShortName());
             variable = variables.get(4);
-            assertEquals("btemp_ch5", variable.getShortName());
+            assertEquals("btemps_ch5", variable.getShortName());
 
             variable = variables.get(5);
             assertEquals("chanqual_ch1", variable.getShortName());
@@ -568,15 +568,15 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final List<Variable> variables = reader.getVariables();
             assertEquals(23, variables.size());
             Variable variable = variables.get(0);
-            assertEquals("btemp_ch16", variable.getShortName());
+            assertEquals("btemps_ch16", variable.getShortName());
             variable = variables.get(1);
-            assertEquals("btemp_ch17", variable.getShortName());
+            assertEquals("btemps_ch17", variable.getShortName());
             variable = variables.get(2);
-            assertEquals("btemp_ch18", variable.getShortName());
+            assertEquals("btemps_ch18", variable.getShortName());
             variable = variables.get(3);
-            assertEquals("btemp_ch19", variable.getShortName());
+            assertEquals("btemps_ch19", variable.getShortName());
             variable = variables.get(4);
-            assertEquals("btemp_ch20", variable.getShortName());
+            assertEquals("btemps_ch20", variable.getShortName());
 
             variable = variables.get(5);
             assertEquals("chanqual_ch16", variable.getShortName());
@@ -923,6 +923,56 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, array);
             NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 2, array);
             NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_windowCenter() throws Exception {
+        final File mhsFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readScaled(78, 2100, new Interval(3, 3), "Solar_zenith_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(75.65999830886722, 0, 0, array);
+            NCTestUtils.assertValueAt(75.8999983035028, 1, 0, array);
+            NCTestUtils.assertValueAt(76.14999829791486, 2, 0, array);
+
+            NCTestUtils.assertValueAt(75.62999830953777, 0, 1, array);
+            NCTestUtils.assertValueAt(75.86999830417335, 1, 1, array);
+            NCTestUtils.assertValueAt(76.10999829880893, 2, 1, array);
+
+            NCTestUtils.assertValueAt(75.58999831043184, 0, 2, array);
+            NCTestUtils.assertValueAt(75.82999830506742, 1, 2, array);
+            NCTestUtils.assertValueAt(76.07999829947948, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_upperRightWindowOut() throws Exception {
+        final File mhsFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readScaled(89, 0, new Interval(3, 3), "btemps_ch17");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(-9999.989776482806, 0, 0, array);
+            NCTestUtils.assertValueAt(-9999.989776482806, 1, 0, array);
+            NCTestUtils.assertValueAt(-9999.989776482806, 2, 0, array);
+
+            NCTestUtils.assertValueAt(270.979993943125, 0, 1, array);
+            NCTestUtils.assertValueAt(271.00999394245446, 1, 1, array);
+            NCTestUtils.assertValueAt(-9999.989776482806, 2, 1, array);
+
+            NCTestUtils.assertValueAt(271.2599939368665, 0, 2, array);
+            NCTestUtils.assertValueAt(271.82999392412603, 1, 2, array);
+            NCTestUtils.assertValueAt(-9999.989776482806, 2, 2, array);
         } finally {
             reader.close();
         }

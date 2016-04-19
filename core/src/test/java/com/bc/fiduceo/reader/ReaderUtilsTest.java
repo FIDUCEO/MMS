@@ -25,8 +25,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -124,5 +123,14 @@ public class ReaderUtilsTest {
         final Number value = ReaderUtils.getDefaultFillValue(array);
 
         assertEquals(Long.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testMustScale() {
+        assertTrue(ReaderUtils.mustScale(1.2, 0.45));
+        assertTrue(ReaderUtils.mustScale(1.2, 0.0));
+        assertTrue(ReaderUtils.mustScale(1.0, 0.45));
+
+        assertFalse(ReaderUtils.mustScale(1.0, 0.0));
     }
 }

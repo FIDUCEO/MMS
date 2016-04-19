@@ -149,7 +149,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
         double scaleFactor = getScaleFactor(variableName);
         double offset = getOffset(variableName);
-        if (mustScale(scaleFactor, offset)) {
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
         }
@@ -260,11 +260,6 @@ public class AVHRR_GAC_Reader implements Reader {
             return scaleFactorValue.doubleValue();
         }
         return 1.0;
-    }
-
-    // package access for testing only tb 2016-03-31
-    static boolean mustScale(double scaleFactor, double offset) {
-        return scaleFactor != 1.0 || offset != 0.0;
     }
 
     // package access for testing only tb 2016-03-02

@@ -102,7 +102,6 @@ public class ArrayCache {
             scaleIfNecessary(arrayContainer, scale, offset);
 
             scaledCache.put(groupedVariableName, arrayContainer);
-
         }
         return arrayContainer.array;
     }

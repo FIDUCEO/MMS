@@ -53,4 +53,8 @@ public class ReaderUtils {
             throw new RuntimeException("not implemented for type " + type.getTypeName());
         }
     }
+
+    public static boolean mustScale(double scaleFactor, double offset) {
+        return scaleFactor != 1.0 || offset != 0.0;
+    }
 }

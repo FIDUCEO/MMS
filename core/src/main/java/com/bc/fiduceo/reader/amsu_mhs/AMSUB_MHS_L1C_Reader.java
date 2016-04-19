@@ -195,11 +195,18 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, 90);
     }
 
-
-
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("Not yet implemented");
+        final Array array = readRaw(centerX, centerY, interval, variableName);
+
+        final String strippedVariableName = stripChannelSuffix(variableName);
+
+        double scaleFactor = getScaleFactor(strippedVariableName);
+        if (ReaderUtils.mustScale(scaleFactor, 0.0)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 
     @Override
@@ -216,7 +223,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         for (final Variable variable : variables) {
             final String variableName = variable.getFullName();
             if (variableName.contains("btemps")) {
-                split3dVariableIntoLayers(result, variable, "btemp_ch", channelIndexOffset);
+                split3dVariableIntoLayers(result, variable, "btemps_ch", channelIndexOffset);
             } else if (variableName.contains("chanqual")) {
                 split3dVariableIntoLayers(result, variable, "chanqual_ch", channelIndexOffset);
             } else if (variableName.contains("azimith")) {
@@ -424,5 +431,14 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
+    }
+
+    private double getScaleFactor(String variableName) throws IOException {
+        final String groupName = getGroupName(variableName);
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue("Scale", groupName, variableName);
+        if (scaleFactorValue != null) {
+            return scaleFactorValue.doubleValue();
+        }
+        return 1.0;
     }
 }
