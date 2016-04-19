@@ -33,10 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -268,5 +265,108 @@ public class ArrayCacheTest {
     @Test
     public void testGetGroupedName() {
         assertEquals("nasen_mann", ArrayCache.createGroupedName("nasen", "mann"));
+    }
+
+    @Test
+    public void testGetAttribute_variableNotPresent() {
+        try {
+            arrayCache.getAttributeValue("attribute_name", "not_present_variable");
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+
+        verify(netcdfFile, times(1)).findVariable(null, "not_present_variable");
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttribute_attributeNotPresent() throws IOException {
+        final String attributeValue = arrayCache.getAttributeValue("attribute_name", "a_variable");
+        assertNull(attributeValue);
+
+        verify(netcdfFile, times(1)).findVariable(null, "a_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttribute() throws IOException {
+        final Attribute numberAttribute = new Attribute("attribute_number", -99999);
+        final Attribute stringAttribute = new Attribute("attribute_string", "the_value");
+        final List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(numberAttribute);
+        attributeList.add(stringAttribute);
+        when(variable.getAttributes()).thenReturn(attributeList);
+
+        String attributeValue = arrayCache.getAttributeValue("attribute_number", "a_variable");
+        assertEquals("-99999", attributeValue);
+
+        attributeValue = arrayCache.getAttributeValue("attribute_string", "a_variable");
+        assertEquals("the_value", attributeValue);
+
+        verify(netcdfFile, times(1)).findVariable(null, "a_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttributeFromGroup_groupNotPresent() {
+        try {
+            arrayCache.getAttributeValue("attribute_name", "a_mean_group", "a_group_variable");
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+
+        verify(netcdfFile, times(1)).findGroup("a_mean_group");
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttributeFromGroup_variableNotPresent() {
+        try {
+            arrayCache.getAttributeValue("attribute_name", "a_group", "not_present_variable");
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+
+        verify(netcdfFile, times(1)).findGroup("a_group");
+        verify(netcdfFile, times(1)).findVariable(group, "not_present_variable");
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttributeFromGroup_attributeNotPresent() throws IOException {
+        final String attributeValue = arrayCache.getAttributeValue("attribute_name", "a_group", "a_group_variable");
+        assertNull(attributeValue);
+
+        verify(netcdfFile, times(1)).findGroup("a_group");
+        verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttributeFromGroup() throws IOException {
+        final Attribute numberAttribute = new Attribute("attribute_number", -99999);
+        final Attribute stringAttribute = new Attribute("attribute_string", "the_value");
+        final List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(numberAttribute);
+        attributeList.add(stringAttribute);
+        when(variable.getAttributes()).thenReturn(attributeList);
+
+        String attributeValue = arrayCache.getAttributeValue("attribute_number", "a_group", "a_group_variable");
+        assertEquals("-99999", attributeValue);
+
+        attributeValue = arrayCache.getAttributeValue("attribute_string", "a_group", "a_group_variable");
+        assertEquals("the_value", attributeValue);
+
+        verify(netcdfFile, times(1)).findGroup("a_group");
+        verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
     }
 }

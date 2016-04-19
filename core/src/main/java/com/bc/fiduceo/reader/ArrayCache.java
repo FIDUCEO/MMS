@@ -143,6 +143,55 @@ public class ArrayCache {
         return arrayContainer.array;
     }
 
+    /**
+     * Retrieves the string representation of the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param variableName  the variable name
+     * @return the string value or null
+     * @throws IOException
+     */
+    public String getAttributeValue(String attributeName, String variableName) throws IOException {
+        final Array array = get(variableName);
+        if (array != null) {
+            return getAttributeStringValue(attributeName, variableName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves the string representation of the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param groupName     the name of the group containing the variable
+     * @param variableName  the variable name
+     * @return the string value or null
+     * @throws IOException
+     */
+    public String getAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
+        final Array array = get(groupName, variableName);
+        if (array != null) {
+            final String groupedName = createGroupedName(groupName, variableName);
+            return getAttributeStringValue(attributeName, groupedName);
+        }
+
+        return null;
+    }
+
+    private String getAttributeStringValue(String attributeName, String variableKey) {
+        final ArrayContainer arrayContainer = cache.get(variableKey);
+        final Attribute attribute = arrayContainer.get(attributeName);
+        if (attribute != null) {
+            if (attribute.isString()) {
+                return attribute.getStringValue();
+            } else {
+                return attribute.getNumericValue().toString();
+            }
+        }
+        return null;
+    }
+
     // package access for testing only tb 2016-04-14
     static String createGroupedName(String groupName, String variableName) {
         return groupName + "_" + variableName;
