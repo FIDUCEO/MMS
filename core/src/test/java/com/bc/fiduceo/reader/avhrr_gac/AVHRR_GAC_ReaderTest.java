@@ -27,11 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,34 +113,6 @@ public class AVHRR_GAC_ReaderTest {
         }
     }
 
-
-    @Test
-    public void testExtractFillValue_throwsRuntimeExceptionIfThereIsNoFillValueAndTheVariableHasAnUndefinedDataType() {
-        final Variable mock = mock(Variable.class);
-        when(mock.findAttribute("_FillValue")).thenReturn(null);
-        when(mock.getDataType()).thenReturn(DataType.STRUCTURE);
-
-        try {
-            AVHRR_GAC_Reader.extractFillValue(mock);
-            fail("RuntimeException expected");
-        } catch (NullPointerException notExpected) {
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
-    public void testExtractFillValue_FromVariable() throws Exception {
-        final Variable mock = mock(Variable.class);
-        final Attribute attributeMock = mock(Attribute.class);
-        when(attributeMock.getNumericValue()).thenReturn(39.90);
-        when(mock.findAttribute("_FillValue")).thenReturn(attributeMock);
-
-        final Number number = AVHRR_GAC_Reader.extractFillValue(mock);
-
-        assertEquals(39.90, number);
-    }
-
     @Test
     public void testConvertToAcquisitionTime_1970_01_01() throws Exception {
         final int startTimeMilliSecondsSince1970 = 0;
@@ -208,40 +178,6 @@ public class AVHRR_GAC_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-    }
-
-    @Test
-    public void testGetScaleFactor() {
-        final Variable variable = mock(Variable.class);
-        final Attribute scaleFactorAttribute = mock(Attribute.class);
-        when(scaleFactorAttribute.getNumericValue()).thenReturn(1.675);
-        when(variable.findAttribute("scale_factor")).thenReturn(scaleFactorAttribute);
-
-        assertEquals(1.675, AVHRR_GAC_Reader.getScaleFactor(variable), 1e-8);
-    }
-
-    @Test
-    public void testGetScaleFactor_attributeNotPresent() {
-        final Variable variable = mock(Variable.class);
-
-        assertEquals(1.0, AVHRR_GAC_Reader.getScaleFactor(variable), 1e-8);
-    }
-
-    @Test
-    public void testGetOffset() {
-        final Variable variable = mock(Variable.class);
-        final Attribute offsetAttribute = mock(Attribute.class);
-        when(offsetAttribute.getNumericValue()).thenReturn(1.289);
-        when(variable.findAttribute("add_offset")).thenReturn(offsetAttribute);
-
-        assertEquals(1.289, AVHRR_GAC_Reader.getOffset(variable), 1e-8);
-    }
-
-    @Test
-    public void testGetOffset_attributeNotPresent() {
-        final Variable variable = mock(Variable.class);
-
-        assertEquals(0.0, AVHRR_GAC_Reader.getOffset(variable), 1e-8);
     }
 
     @Test

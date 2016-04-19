@@ -389,7 +389,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     }
 
     private Number getFillValue(String rawVariableName, String groupName, Array array) throws IOException {
-        final String fillValueString = arrayCache.getAttributeValue("FillValue", groupName, rawVariableName);
+        final String fillValueString = arrayCache.getStringAttributeValue("FillValue", groupName, rawVariableName);
         final Number fillValue;
         if (StringUtils.isNotNullAndNotEmpty(fillValueString)) {
             fillValue = Double.parseDouble(fillValueString);

@@ -151,7 +151,7 @@ public class ArrayCache {
      * @return the string value or null
      * @throws IOException
      */
-    public String getAttributeValue(String attributeName, String variableName) throws IOException {
+    public String getStringAttributeValue(String attributeName, String variableName) throws IOException {
         final Array array = get(variableName);
         if (array != null) {
             return getAttributeStringValue(attributeName, variableName);
@@ -169,11 +169,47 @@ public class ArrayCache {
      * @return the string value or null
      * @throws IOException
      */
-    public String getAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
+    public String getStringAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
         final Array array = get(groupName, variableName);
         if (array != null) {
             final String groupedName = createGroupedName(groupName, variableName);
             return getAttributeStringValue(attributeName, groupedName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves the number representation of the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param variableName  the variable name
+     * @return the number value or null
+     * @throws IOException
+     */
+    public Number getNumberAttributeValue(String attributeName, String variableName) throws IOException {
+        final Array array = get(variableName);
+        if (array != null) {
+            return getAttributeNumberValue(attributeName, variableName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves the number representation of the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param groupName     the name of the group containing the variable
+     * @param variableName  the variable name
+     * @return the number value or null
+     * @throws IOException
+     */
+    public Number getNumberAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
+        final Array array = get(groupName, variableName);
+        if (array != null) {
+            final String groupedName = createGroupedName(groupName, variableName);
+            return getAttributeNumberValue(attributeName, groupedName);
         }
 
         return null;
@@ -187,6 +223,17 @@ public class ArrayCache {
                 return attribute.getStringValue();
             } else {
                 return attribute.getNumericValue().toString();
+            }
+        }
+        return null;
+    }
+
+    private Number getAttributeNumberValue(String attributeName, String variableKey) {
+        final ArrayContainer arrayContainer = cache.get(variableKey);
+        final Attribute attribute = arrayContainer.get(attributeName);
+        if (attribute != null) {
+            if (!attribute.isString()) {
+                return attribute.getNumericValue();
             }
         }
         return null;

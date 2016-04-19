@@ -22,23 +22,14 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -146,7 +137,6 @@ public class AVHRR_GAC_Reader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
-        // @todo 2 tb/tb read attributes from arrayCache
         final Number fillValue = getFillValue(variableName);
 
         final int defaultWidth = getProductWidth(netcdfFile);
@@ -157,10 +147,8 @@ public class AVHRR_GAC_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
-        // @todo 2 tb/tb read attributes from arrayCache
-        final Variable variable = netcdfFile.findVariable(null, variableName);
-        double scaleFactor = getScaleFactor(variable);
-        double offset = getOffset(variable);
+        double scaleFactor = getScaleFactor(variableName);
+        double offset = getOffset(variableName);
         if (mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -249,27 +237,29 @@ public class AVHRR_GAC_Reader implements Reader {
         return geometryFactory;
     }
 
-    private Number getFillValue(String variableName) {
-        final Variable variable = netcdfFile.findVariable(variableName);
-        return extractFillValue(variable);
+    private Number getFillValue(String variableName) throws IOException {
+        final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", variableName);
+        if (fillValue != null) {
+            return fillValue;
+        }
+        final Array array = arrayCache.get(variableName);
+        return ReaderUtils.getDefaultFillValue(array);
     }
 
-    // package access for testing only tb 2016-03-31
-    static double getScaleFactor(Variable variable) {
-        final Attribute scaleFactorAttribute = getAttribute(variable, "scale_factor");
-        if (scaleFactorAttribute == null) {
-            return 1.0;
+    private double getOffset(String variableName) throws IOException {
+        final Number offsetValue = arrayCache.getNumberAttributeValue("add_offset", variableName);
+        if (offsetValue != null) {
+            return offsetValue.doubleValue();
         }
-        return scaleFactorAttribute.getNumericValue().doubleValue();
+        return 0.0;
     }
 
-    // package access for testing only tb 2016-03-31
-    static double getOffset(Variable variable) {
-        final Attribute offsetAttribute = getAttribute(variable, "add_offset");
-        if (offsetAttribute == null) {
-            return 0.0;
+    private double getScaleFactor(String variableName) throws IOException {
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue("scale_factor", variableName);
+        if (scaleFactorValue != null) {
+            return scaleFactorValue.doubleValue();
         }
-        return offsetAttribute.getNumericValue().doubleValue();
+        return 1.0;
     }
 
     // package access for testing only tb 2016-03-31
@@ -289,14 +279,6 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
-    static Number extractFillValue(Variable variable) {
-        final Attribute fillAttrib = getAttribute(variable, "_FillValue");
-        if (fillAttrib != null) {
-            return fillAttrib.getNumericValue();
-        }
-        return ReaderUtils.getDefaultFillValue(variable);
-    }
-
     static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
         final int[] shape = rawData.getShape();
         final int height = shape[0];
@@ -312,10 +294,6 @@ public class AVHRR_GAC_Reader implements Reader {
             }
         }
         return times;
-    }
-
-    private static Attribute getAttribute(Variable variable, String attributeName) {
-        return variable.findAttribute(attributeName);
     }
 
     // package access for testing only tb 2016-03-31
