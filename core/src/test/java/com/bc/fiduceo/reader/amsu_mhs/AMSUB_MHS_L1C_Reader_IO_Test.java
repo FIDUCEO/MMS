@@ -718,6 +718,205 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_bottomWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(55, 2384, new Interval(3, 3), "Solar_zenith_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(6376, 0, 0, array);
+            NCTestUtils.assertValueAt(6383, 1, 0, array);
+            NCTestUtils.assertValueAt(6389, 2, 0, array);
+
+            NCTestUtils.assertValueAt(6391, 0, 1, array);
+            NCTestUtils.assertValueAt(6397, 1, 1, array);
+            NCTestUtils.assertValueAt(6404, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 2, array);
+            NCTestUtils.assertValueAt(-999999.0, 1, 2, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(56, 0, new Interval(3, 3), "Solar_azimith_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 1, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(19180.0, 0, 1, array);
+            NCTestUtils.assertValueAt(19220.0, 1, 1, array);
+            NCTestUtils.assertValueAt(19261.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(19165.0, 0, 2, array);
+            NCTestUtils.assertValueAt(19206.0, 1, 2, array);
+            NCTestUtils.assertValueAt(19247.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_leftWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(0, 1684, new Interval(3, 3), "Satellite_zenith_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 0, array);
+            NCTestUtils.assertValueAt(5972.0, 1, 0, array);
+            NCTestUtils.assertValueAt(5811.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 1, array);
+            NCTestUtils.assertValueAt(5972.0, 1, 1, array);
+            NCTestUtils.assertValueAt(5811.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 2, array);
+            NCTestUtils.assertValueAt(5972.0, 1, 2, array);
+            NCTestUtils.assertValueAt(5811.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_rightWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(89, 1876, new Interval(3, 3), "Satellite_azimith_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(32888.0, 0, 0, array);
+            NCTestUtils.assertValueAt(32923.0, 1, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(32909.0, 0, 1, array);
+            NCTestUtils.assertValueAt(32944.0, 1, 1, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(32931.0, 0, 2, array);
+            NCTestUtils.assertValueAt(32965.0, 1, 2, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topLeftWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(0, 0, new Interval(3, 3), "Longitude");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 1, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 1, array);
+            NCTestUtils.assertValueAt(-341819.0, 1, 1, array);
+            NCTestUtils.assertValueAt(-334336.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 2, array);
+            NCTestUtils.assertValueAt(-343612.0, 1, 2, array);
+            NCTestUtils.assertValueAt(-336118.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topRightWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(89, 0, new Interval(3, 3), "Latitude");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(-999999.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 1, 0, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(643634.0, 0, 1, array);
+            NCTestUtils.assertValueAt(643640.0, 1, 1, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(645180.0, 0, 2, array);
+            NCTestUtils.assertValueAt(645184.0, 1, 2, array);
+            NCTestUtils.assertValueAt(-999999.0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomRightWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(89, 2384, new Interval(3, 3), "scnlinyr");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(2007.0, 0, 0, array);
+            NCTestUtils.assertValueAt(2007.0, 1, 0, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 0, array);
+
+            NCTestUtils.assertValueAt(2007.0, 0, 1, array);
+            NCTestUtils.assertValueAt(2007.0, 1, 1, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 1, array);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 2, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomLeftWindowOut() throws Exception {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readRaw(0, 2384, new Interval(3, 3), "scnlintime");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 0, array);
+            NCTestUtils.assertValueAt(55089942.0, 1, 0, array);
+            NCTestUtils.assertValueAt(55089942.0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 1, array);
+            NCTestUtils.assertValueAt(55092609.0, 1, 1, array);
+            NCTestUtils.assertValueAt(55092609.0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 2, array);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File createAmsubNOAA15Path(String fileName) {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", fileName}, false);
