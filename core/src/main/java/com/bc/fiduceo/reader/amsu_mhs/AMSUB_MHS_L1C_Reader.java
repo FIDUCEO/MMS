@@ -48,6 +48,7 @@ import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -186,8 +187,9 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             array = array.section(offsets, shape);
         }
 
-        // @todo 1 tb/tb provide correct invalid Pixel value 2015-04-15
-        return RawDataReader.read(centerX, centerY, interval, -1, array, 90);
+        final Number fillValue = getFillValue(rawVariableName, groupName, array);
+
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 90);
     }
 
     @Override
@@ -288,7 +290,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         }
         final String channelNumber = fullVariableName.substring(splitIndex + 3);
         final int channelIndex = Integer.parseInt(channelNumber) - 1;
-        return channelIndex > 5 ? channelIndex - 15: channelIndex;
+        return channelIndex > 5 ? channelIndex - 15 : channelIndex;
     }
 
     private void split3dVariableIntoLayers(List<Variable> result, Variable variable, String variableBaseName, int channelIndexOffset) throws InvalidRangeException {
@@ -384,6 +386,17 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    private Number getFillValue(String rawVariableName, String groupName, Array array) throws IOException {
+        final String fillValueString = arrayCache.getAttributeValue("FillValue", groupName, rawVariableName);
+        final Number fillValue;
+        if (StringUtils.isNotNullAndNotEmpty(fillValueString)) {
+            fillValue = Double.parseDouble(fillValueString);
+        } else {
+            fillValue = ReaderUtils.getDefaultFillValue(array);
+        }
+        return fillValue;
     }
 
     // @todo 2 tb/** make static, package local and write test 2016-04-15

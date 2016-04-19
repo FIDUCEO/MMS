@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 import org.junit.Test;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
@@ -103,5 +104,25 @@ public class ReaderUtilsTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testGetDefaultFillValue_Array_Double() throws Exception {
+        final Array array = mock(Array.class);
+        when(array.getDataType()).thenReturn(DataType.DOUBLE);
+
+        final Number value = ReaderUtils.getDefaultFillValue(array);
+
+        assertEquals(Double.MIN_VALUE, value);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_Aray_Long() throws Exception {
+        final Array array = mock(Array.class);
+        when(array.getDataType()).thenReturn(DataType.LONG);
+
+        final Number value = ReaderUtils.getDefaultFillValue(array);
+
+        assertEquals(Long.MIN_VALUE, value);
     }
 }

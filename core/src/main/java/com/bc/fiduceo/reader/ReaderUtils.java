@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import ucar.ma2.Array;
 import ucar.nc2.Variable;
 
 
@@ -27,6 +28,15 @@ public class ReaderUtils {
 
     public static Number getDefaultFillValue(Variable variable) {
         final Class type = variable.getDataType().getPrimitiveClassType();
+        return getDefaultFillValue(type);
+    }
+
+    public static Number getDefaultFillValue(Array array) {
+        final Class type = array.getDataType().getPrimitiveClassType();
+        return getDefaultFillValue(type);
+    }
+
+    private static Number getDefaultFillValue(Class type) {
         if (double.class == type) {
             return Double.MIN_VALUE;
         } else if (float.class == type) {
