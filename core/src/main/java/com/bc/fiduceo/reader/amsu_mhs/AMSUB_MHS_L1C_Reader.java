@@ -262,8 +262,8 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             return DATA_GROUP_NAME;
         } else if ("Latitude".equals(variableName) ||
                 "Longitude".equals(variableName) ||
-                "Satellite_azimuth_angle".equals(variableName) ||
-                "Solar_azimuth_angle".equals(variableName) ||
+                "Satellite_azimith_angle".equals(variableName) ||
+                "Solar_azimith_angle".equals(variableName) ||
                 "Satellite_zenith_angle".equals(variableName) ||
                 "Solar_zenith_angle".equals(variableName)) {
             return GEOLOCATION_GROUP_NAME;

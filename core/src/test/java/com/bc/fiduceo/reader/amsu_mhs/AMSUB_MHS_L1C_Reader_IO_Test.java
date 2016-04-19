@@ -622,10 +622,35 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             array = reader.readRaw(13, 62, new Interval(3, 3), "scanqual");
             assertValueAt(0.0, 1, 0, array);
 
-            // @todo 1 tb/tb continue here 2016-04-18
-//            array = reader.readRaw(14, 0, new Interval(3, 3), "scnlin");
-//            assertValueAt(64.0, 1, 0, array);
+            array = reader.readRaw(14, 63, new Interval(3, 3), "scnlin");
+            assertValueAt(63.0, 1, 0, array);
 
+            array = reader.readRaw(15, 64, new Interval(3, 3), "scnlindy");
+            assertValueAt(234.0, 2, 0, array);
+
+            array = reader.readRaw(16, 65, new Interval(3, 3), "scnlintime");
+            assertValueAt(23602452.0, 0, 1, array);
+
+            array = reader.readRaw(17, 66, new Interval(3, 3), "scnlinyr");
+            assertValueAt(2007, 1, 1, array);
+
+            array = reader.readRaw(18, 67, new Interval(3, 3), "Latitude");
+            assertValueAt(629951.0, 2, 1, array);
+
+            array = reader.readRaw(19, 68, new Interval(3, 3), "Longitude");
+            assertValueAt(1331347.0, 0, 2, array);
+
+            array = reader.readRaw(20, 69, new Interval(3, 3), "Satellite_azimith_angle");
+            assertValueAt(18317.0, 1, 2, array);
+
+            array = reader.readRaw(21, 70, new Interval(3, 3), "Satellite_zenith_angle");
+            assertValueAt(2821.0, 2, 2, array);
+
+            array = reader.readRaw(22, 71, new Interval(3, 3), "Solar_azimith_angle");
+            assertValueAt(23955.0, 0, 0, array);
+
+            array = reader.readRaw(23, 72, new Interval(3, 3), "Solar_zenith_angle");
+            assertValueAt(6344.0, 1, 0, array);
         } finally {
             reader.close();
         }

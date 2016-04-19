@@ -23,23 +23,15 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -128,9 +120,11 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
         assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Latitude"));
         assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Longitude"));
-        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Satellite_azimuth_angle"));
+        // notabene: some oddity in the input data contains the wrong spelling tb 2016-04-19
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Satellite_azimith_angle"));
         assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Satellite_zenith_angle"));
-        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Solar_azimuth_angle"));
+        // notabene: some oddity in the input data contains the wrong spelling tb 2016-04-19
+        assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Solar_azimith_angle"));
         assertEquals("Geolocation", AMSUB_MHS_L1C_Reader.getGroupName("Solar_zenith_angle"));
     }
 
@@ -153,7 +147,7 @@ public class AMSUB_MHS_L1C_ReaderTest {
     }
 
     @Test
-    public void testGetChannelLayer(){
+    public void testGetChannelLayer() {
         assertEquals(0, AMSUB_MHS_L1C_Reader.getChannelLayer("btemps_ch1"));
         assertEquals(0, AMSUB_MHS_L1C_Reader.getChannelLayer("chanqual_ch16"));
 
