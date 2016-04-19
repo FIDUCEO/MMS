@@ -40,6 +40,7 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -51,7 +52,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
-import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -602,55 +602,55 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             reader.open(amsubFile);
 
             Array array = reader.readRaw(7, 56, new Interval(3, 3), "btemps_ch16");
-            assertValueAt(28237.0, 1, 1, array);
+            NCTestUtils.assertValueAt(28237.0, 1, 1, array);
 
             array = reader.readRaw(8, 57, new Interval(3, 3), "btemps_ch17");
-            assertValueAt(27872.0, 2, 1, array);
+            NCTestUtils.assertValueAt(27872.0, 2, 1, array);
 
             array = reader.readRaw(9, 58, new Interval(3, 3), "chanqual_ch18");
-            assertValueAt(0.0, 0, 2, array);
+            NCTestUtils.assertValueAt(0.0, 0, 2, array);
 
             array = reader.readRaw(10, 59, new Interval(3, 3), "chanqual_ch19");
-            assertValueAt(0.0, 1, 2, array);
+            NCTestUtils.assertValueAt(0.0, 1, 2, array);
 
             array = reader.readRaw(11, 60, new Interval(3, 3), "instrtemp");
-            assertValueAt(29285.0, 2, 2, array);
+            NCTestUtils.assertValueAt(29285.0, 2, 2, array);
 
             array = reader.readRaw(12, 61, new Interval(3, 3), "qualind");
-            assertValueAt(0.0, 0, 0, array);
+            NCTestUtils.assertValueAt(0.0, 0, 0, array);
 
             array = reader.readRaw(13, 62, new Interval(3, 3), "scanqual");
-            assertValueAt(0.0, 1, 0, array);
+            NCTestUtils.assertValueAt(0.0, 1, 0, array);
 
             array = reader.readRaw(14, 63, new Interval(3, 3), "scnlin");
-            assertValueAt(63.0, 1, 0, array);
+            NCTestUtils.assertValueAt(63.0, 1, 0, array);
 
             array = reader.readRaw(15, 64, new Interval(3, 3), "scnlindy");
-            assertValueAt(234.0, 2, 0, array);
+            NCTestUtils.assertValueAt(234.0, 2, 0, array);
 
             array = reader.readRaw(16, 65, new Interval(3, 3), "scnlintime");
-            assertValueAt(23602452.0, 0, 1, array);
+            NCTestUtils.assertValueAt(23602452.0, 0, 1, array);
 
             array = reader.readRaw(17, 66, new Interval(3, 3), "scnlinyr");
-            assertValueAt(2007, 1, 1, array);
+            NCTestUtils.assertValueAt(2007, 1, 1, array);
 
             array = reader.readRaw(18, 67, new Interval(3, 3), "Latitude");
-            assertValueAt(629951.0, 2, 1, array);
+            NCTestUtils.assertValueAt(629951.0, 2, 1, array);
 
             array = reader.readRaw(19, 68, new Interval(3, 3), "Longitude");
-            assertValueAt(1331347.0, 0, 2, array);
+            NCTestUtils.assertValueAt(1331347.0, 0, 2, array);
 
             array = reader.readRaw(20, 69, new Interval(3, 3), "Satellite_azimith_angle");
-            assertValueAt(18317.0, 1, 2, array);
+            NCTestUtils.assertValueAt(18317.0, 1, 2, array);
 
             array = reader.readRaw(21, 70, new Interval(3, 3), "Satellite_zenith_angle");
-            assertValueAt(2821.0, 2, 2, array);
+            NCTestUtils.assertValueAt(2821.0, 2, 2, array);
 
             array = reader.readRaw(22, 71, new Interval(3, 3), "Solar_azimith_angle");
-            assertValueAt(23955.0, 0, 0, array);
+            NCTestUtils.assertValueAt(23955.0, 0, 0, array);
 
             array = reader.readRaw(23, 72, new Interval(3, 3), "Solar_zenith_angle");
-            assertValueAt(6344.0, 1, 0, array);
+            NCTestUtils.assertValueAt(6344.0, 1, 0, array);
         } finally {
             reader.close();
         }
@@ -664,64 +664,58 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             reader.open(mhsFile);
 
             Array array = reader.readRaw(24, 73, new Interval(3, 3), "btemps_ch1");
-            assertValueAt(17881.0, 1, 1, array);
+            NCTestUtils.assertValueAt(17881.0, 1, 1, array);
 
             array = reader.readRaw(25, 74, new Interval(3, 3), "btemps_ch3");
-            assertValueAt(23870.0, 2, 1, array);
+            NCTestUtils.assertValueAt(23870.0, 2, 1, array);
 
             array = reader.readRaw(26, 75, new Interval(3, 3), "chanqual_ch4");
-            assertValueAt(0.0, 1, 0, array);
+            NCTestUtils.assertValueAt(0.0, 1, 0, array);
 
             array = reader.readRaw(27, 76, new Interval(3, 3), "chanqual_ch5");
-            assertValueAt(0.0, 1, 1, array);
+            NCTestUtils.assertValueAt(0.0, 1, 1, array);
 
             array = reader.readRaw(28, 77, new Interval(3, 3), "instrtemp");
-            assertValueAt(29376.0, 2, 1, array);
+            NCTestUtils.assertValueAt(29376.0, 2, 1, array);
 
             array = reader.readRaw(29, 78, new Interval(3, 3), "qualind");
-            assertValueAt(0.0, 0, 2, array);
+            NCTestUtils.assertValueAt(0.0, 0, 2, array);
 
             array = reader.readRaw(30, 79, new Interval(3, 3), "scanqual");
-            assertValueAt(0.0, 1, 2, array);
+            NCTestUtils.assertValueAt(0.0, 1, 2, array);
 
             array = reader.readRaw(31, 80, new Interval(3, 3), "scnlin");
-            assertValueAt(82.0, 2, 2, array);
+            NCTestUtils.assertValueAt(82.0, 2, 2, array);
 
             array = reader.readRaw(32, 81, new Interval(3, 3), "scnlindy");
-            assertValueAt(234.0, 0, 0, array);
+            NCTestUtils.assertValueAt(234.0, 0, 0, array);
 
             array = reader.readRaw(33, 82, new Interval(3, 3), "scnlintime");
-            assertValueAt(48951277.0, 1, 0, array);
+            NCTestUtils.assertValueAt(48951277.0, 1, 0, array);
 
             array = reader.readRaw(34, 83, new Interval(3, 3), "scnlinyr");
-            assertValueAt(2007, 1, 1, array);
+            NCTestUtils.assertValueAt(2007, 1, 1, array);
 
             array = reader.readRaw(35, 84, new Interval(3, 3), "Latitude");
-            assertValueAt(737050.0, 2, 1, array);
+            NCTestUtils.assertValueAt(737050.0, 2, 1, array);
 
             array = reader.readRaw(36, 85, new Interval(3, 3), "Longitude");
-            assertValueAt(-375704.0, 2, 2, array);
+            NCTestUtils.assertValueAt(-375704.0, 2, 2, array);
 
             array = reader.readRaw(37, 86, new Interval(3, 3), "Satellite_azimith_angle");
-            assertValueAt(24717.0, 0, 0, array);
+            NCTestUtils.assertValueAt(24717.0, 0, 0, array);
 
             array = reader.readRaw(38, 87, new Interval(3, 3), "Satellite_zenith_angle");
-            assertValueAt(820.0, 1, 0, array);
+            NCTestUtils.assertValueAt(820.0, 1, 0, array);
 
             array = reader.readRaw(39, 88, new Interval(3, 3), "Solar_azimith_angle");
-            assertValueAt(16533.0, 2, 0, array);
+            NCTestUtils.assertValueAt(16533.0, 2, 0, array);
 
             array = reader.readRaw(40, 89, new Interval(3, 3), "Solar_zenith_angle");
-            assertValueAt(6333.0, 0, 1, array);
+            NCTestUtils.assertValueAt(6333.0, 0, 1, array);
         } finally {
             reader.close();
         }
-    }
-
-    private void assertValueAt(double expected, int x, int y, Array array) {
-        final Index index = array.getIndex();
-        index.set(y, x);
-        assertEquals(expected, array.getDouble(index), 1e-8);
     }
 
 

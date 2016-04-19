@@ -21,6 +21,7 @@
 package com.bc.fiduceo;
 
 import ucar.ma2.Array;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -52,5 +53,11 @@ public class NCTestUtils {
         assertNotNull(variable);
         final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);
+    }
+
+    public static void assertValueAt(double expected, int x, int y, Array array) {
+        final Index index = array.getIndex();
+        index.set(y, x);
+        assertEquals(expected, array.getDouble(index), 1e-8);
     }
 }

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -35,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
-import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -263,15 +263,15 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(9, array.getSize());
 
-            assertEqualDoubleValueFromArray(-152.41099548339844, 0, 0, array);
-            assertEqualDoubleValueFromArray(-151.1510009765625, 1, 0, array);
-            assertEqualDoubleValueFromArray(-149.8489990234375, 2, 0, array);
-            assertEqualDoubleValueFromArray(-152.1490020751953, 0, 1, array);
-            assertEqualDoubleValueFromArray(-150.88499450683594, 1, 1, array);
-            assertEqualDoubleValueFromArray(-149.57899475097656, 2, 1, array);
-            assertEqualDoubleValueFromArray(-151.88999938964844, 0, 2, array);
-            assertEqualDoubleValueFromArray(-150.62100219726562, 1, 2, array);
-            assertEqualDoubleValueFromArray(-149.31100463867188, 2, 2, array);
+            NCTestUtils.assertValueAt(-152.41099548339844, 0, 0, array);
+            NCTestUtils.assertValueAt(-151.1510009765625, 1, 0, array);
+            NCTestUtils.assertValueAt(-149.8489990234375, 2, 0, array);
+            NCTestUtils.assertValueAt(-152.1490020751953, 0, 1, array);
+            NCTestUtils.assertValueAt(-150.88499450683594, 1, 1, array);
+            NCTestUtils.assertValueAt(-149.57899475097656, 2, 1, array);
+            NCTestUtils.assertValueAt(-151.88999938964844, 0, 2, array);
+            NCTestUtils.assertValueAt(-150.62100219726562, 1, 2, array);
+            NCTestUtils.assertValueAt(-149.31100463867188, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -287,14 +287,14 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(39, array.getSize());
 
-            assertEqualDoubleValueFromArray(85.36900329589844, 0, 0, array);
-            assertEqualDoubleValueFromArray(85.53700256347656, 1, 0, array);
-            assertEqualDoubleValueFromArray(85.697998046875, 2, 0, array);
-            assertEqualDoubleValueFromArray(85.50499725341797, 1, 8, array);
-            assertEqualDoubleValueFromArray(85.48999786376953, 1, 9, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 10, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 11, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 12, array);
+            NCTestUtils.assertValueAt(85.36900329589844, 0, 0, array);
+            NCTestUtils.assertValueAt(85.53700256347656, 1, 0, array);
+            NCTestUtils.assertValueAt(85.697998046875, 2, 0, array);
+            NCTestUtils.assertValueAt(85.50499725341797, 1, 8, array);
+            NCTestUtils.assertValueAt(85.48999786376953, 1, 9, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 10, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 11, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 12, array);
         } finally {
             reader.close();
         }
@@ -310,13 +310,13 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(15, array.getSize());
 
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 2, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 2, 0, array);
 
-            assertEqualDoubleValueFromArray(6683.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(6682.0, 1, 1, array);
-            assertEqualDoubleValueFromArray(6682.0, 2, 1, array);
+            NCTestUtils.assertValueAt(6683.0, 0, 1, array);
+            NCTestUtils.assertValueAt(6682.0, 1, 1, array);
+            NCTestUtils.assertValueAt(6682.0, 2, 1, array);
         } finally {
             reader.close();
         }
@@ -332,17 +332,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
-            assertEqualDoubleValueFromArray(-32768.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(14.0, 2, 0, array);
-            assertEqualDoubleValueFromArray(14.0, 3, 0, array);
-            assertEqualDoubleValueFromArray(19.0, 4, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 0, array);
+            NCTestUtils.assertValueAt(14.0, 2, 0, array);
+            NCTestUtils.assertValueAt(14.0, 3, 0, array);
+            NCTestUtils.assertValueAt(19.0, 4, 0, array);
 
-            assertEqualDoubleValueFromArray(-32768.0, 0, 7, array);
-            assertEqualDoubleValueFromArray(-32768.0, 1, 7, array);
-            assertEqualDoubleValueFromArray(14.0, 2, 7, array);
-            assertEqualDoubleValueFromArray(14.0, 3, 7, array);
-            assertEqualDoubleValueFromArray(19.0, 4, 7, array);
+            NCTestUtils.assertValueAt(-32768.0, 0, 7, array);
+            NCTestUtils.assertValueAt(-32768.0, 1, 7, array);
+            NCTestUtils.assertValueAt(14.0, 2, 7, array);
+            NCTestUtils.assertValueAt(14.0, 3, 7, array);
+            NCTestUtils.assertValueAt(19.0, 4, 7, array);
         } finally {
             reader.close();
         }
@@ -358,17 +358,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
-            assertEqualDoubleValueFromArray(435, 4, 0, array);
-            assertEqualDoubleValueFromArray(369, 5, 0, array);
-            assertEqualDoubleValueFromArray(-32768, 6, 0, array);
-            assertEqualDoubleValueFromArray(-32768, 7, 0, array);
-            assertEqualDoubleValueFromArray(-32768, 8, 0, array);
+            NCTestUtils.assertValueAt(435, 4, 0, array);
+            NCTestUtils.assertValueAt(369, 5, 0, array);
+            NCTestUtils.assertValueAt(-32768, 6, 0, array);
+            NCTestUtils.assertValueAt(-32768, 7, 0, array);
+            NCTestUtils.assertValueAt(-32768, 8, 0, array);
 
-            assertEqualDoubleValueFromArray(405, 4, 7, array);
-            assertEqualDoubleValueFromArray(393, 5, 7, array);
-            assertEqualDoubleValueFromArray(-32768, 6, 7, array);
-            assertEqualDoubleValueFromArray(-32768, 7, 7, array);
-            assertEqualDoubleValueFromArray(-32768, 8, 7, array);
+            NCTestUtils.assertValueAt(405, 4, 7, array);
+            NCTestUtils.assertValueAt(393, 5, 7, array);
+            NCTestUtils.assertValueAt(-32768, 6, 7, array);
+            NCTestUtils.assertValueAt(-32768, 7, 7, array);
+            NCTestUtils.assertValueAt(-32768, 8, 7, array);
         } finally {
             reader.close();
         }
@@ -384,17 +384,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(81, array.getSize());
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-128.0, 4, 0, array);
-            assertEqualDoubleValueFromArray(-128.0, 8, 0, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-128.0, 4, 0, array);
+            NCTestUtils.assertValueAt(-128.0, 8, 0, array);
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(-128.0, 1, 1, array);
-            assertEqualDoubleValueFromArray(7.0, 2, 1, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 1, array);
+            NCTestUtils.assertValueAt(-128.0, 1, 1, array);
+            NCTestUtils.assertValueAt(7.0, 2, 1, array);
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 2, array);
-            assertEqualDoubleValueFromArray(-128.0, 1, 2, array);
-            assertEqualDoubleValueFromArray(7.0, 2, 2, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 2, array);
+            NCTestUtils.assertValueAt(-128.0, 1, 2, array);
+            NCTestUtils.assertValueAt(7.0, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -409,15 +409,15 @@ public class AVHRR_GAC_Reader_IO_Test {
             Array array = reader.readRaw(405, 12235, new Interval(9, 9), "dtime");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(6118.99658203125, 5, 7, array);
-            assertEqualDoubleValueFromArray(6118.99658203125, 6, 7, array);
-            assertEqualDoubleValueFromArray(6118.99658203125, 7, 7, array);
-            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 8, 7, array);
+            NCTestUtils.assertValueAt(6118.99658203125, 5, 7, array);
+            NCTestUtils.assertValueAt(6118.99658203125, 6, 7, array);
+            NCTestUtils.assertValueAt(6118.99658203125, 7, 7, array);
+            NCTestUtils.assertValueAt(Float.MIN_VALUE, 8, 7, array);
 
-            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 5, 8, array);
-            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 6, 8, array);
-            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 7, 8, array);
-            assertEqualDoubleValueFromArray(Float.MIN_VALUE, 8, 8, array);
+            NCTestUtils.assertValueAt(Float.MIN_VALUE, 5, 8, array);
+            NCTestUtils.assertValueAt(Float.MIN_VALUE, 6, 8, array);
+            NCTestUtils.assertValueAt(Float.MIN_VALUE, 7, 8, array);
+            NCTestUtils.assertValueAt(Float.MIN_VALUE, 8, 8, array);
         } finally {
             reader.close();
         }
@@ -432,20 +432,20 @@ public class AVHRR_GAC_Reader_IO_Test {
             final Array array = reader.readRaw(2, 12235, new Interval(9, 9), "qual_flags");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(-128.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(17.0, 2, 0, array);
-            assertEqualDoubleValueFromArray(17.0, 3, 0, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 0, array);
+            NCTestUtils.assertValueAt(-128.0, 1, 0, array);
+            NCTestUtils.assertValueAt(17.0, 2, 0, array);
+            NCTestUtils.assertValueAt(17.0, 3, 0, array);
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 7, array);
-            assertEqualDoubleValueFromArray(-128.0, 1, 7, array);
-            assertEqualDoubleValueFromArray(18.0, 2, 7, array);
-            assertEqualDoubleValueFromArray(18.0, 3, 7, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 7, array);
+            NCTestUtils.assertValueAt(-128.0, 1, 7, array);
+            NCTestUtils.assertValueAt(18.0, 2, 7, array);
+            NCTestUtils.assertValueAt(18.0, 3, 7, array);
 
-            assertEqualDoubleValueFromArray(-128.0, 0, 8, array);
-            assertEqualDoubleValueFromArray(-128.0, 1, 8, array);
-            assertEqualDoubleValueFromArray(-128.0, 2, 8, array);
-            assertEqualDoubleValueFromArray(-128.0, 3, 8, array);
+            NCTestUtils.assertValueAt(-128.0, 0, 8, array);
+            NCTestUtils.assertValueAt(-128.0, 1, 8, array);
+            NCTestUtils.assertValueAt(-128.0, 2, 8, array);
+            NCTestUtils.assertValueAt(-128.0, 3, 8, array);
         } finally {
             reader.close();
         }
@@ -460,17 +460,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             final Array array = reader.readScaled(56, 3349, new Interval(3, 3), "cloud_probability");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(0.9960619928315282, 0, 0, array);
-            assertEqualDoubleValueFromArray(0.736219996586442, 1, 0, array);
-            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 0, array);
+            NCTestUtils.assertValueAt(0.9960619928315282, 0, 0, array);
+            NCTestUtils.assertValueAt(0.736219996586442, 1, 0, array);
+            NCTestUtils.assertValueAt(0.9960619928315282, 2, 0, array);
 
-            assertEqualDoubleValueFromArray(0.9921249928884208, 0, 1, array);
-            assertEqualDoubleValueFromArray(0.23228400386869907, 1, 1, array);
-            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 1, array);
+            NCTestUtils.assertValueAt(0.9921249928884208, 0, 1, array);
+            NCTestUtils.assertValueAt(0.23228400386869907, 1, 1, array);
+            NCTestUtils.assertValueAt(0.9960619928315282, 2, 1, array);
 
-            assertEqualDoubleValueFromArray(0.9527549934573472, 0, 2, array);
-            assertEqualDoubleValueFromArray(0.18504000455141068, 1, 2, array);
-            assertEqualDoubleValueFromArray(0.9960619928315282, 2, 2, array);
+            NCTestUtils.assertValueAt(0.9527549934573472, 0, 2, array);
+            NCTestUtils.assertValueAt(0.18504000455141068, 1, 2, array);
+            NCTestUtils.assertValueAt(0.9960619928315282, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -501,17 +501,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             final Array array = reader.readScaled(115, 8081, new Interval(3, 3), "ch2");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(0.014999999621068127, 0, 0, array);
-            assertEqualDoubleValueFromArray(0.010699999729695264, 1, 0, array);
-            assertEqualDoubleValueFromArray(0.008899999775167089, 2, 0, array);
+            NCTestUtils.assertValueAt(0.014999999621068127, 0, 0, array);
+            NCTestUtils.assertValueAt(0.010699999729695264, 1, 0, array);
+            NCTestUtils.assertValueAt(0.008899999775167089, 2, 0, array);
 
-            assertEqualDoubleValueFromArray(0.01129999971453799, 0, 1, array);
-            assertEqualDoubleValueFromArray(0.008899999775167089, 1, 1, array);
-            assertEqualDoubleValueFromArray(0.008899999775167089, 2, 1, array);
+            NCTestUtils.assertValueAt(0.01129999971453799, 0, 1, array);
+            NCTestUtils.assertValueAt(0.008899999775167089, 1, 1, array);
+            NCTestUtils.assertValueAt(0.008899999775167089, 2, 1, array);
 
-            assertEqualDoubleValueFromArray(0.017399999560439028, 0, 2, array);
-            assertEqualDoubleValueFromArray(0.008899999775167089, 1, 2, array);
-            assertEqualDoubleValueFromArray(0.010699999729695264, 2, 2, array);
+            NCTestUtils.assertValueAt(0.017399999560439028, 0, 2, array);
+            NCTestUtils.assertValueAt(0.008899999775167089, 1, 2, array);
+            NCTestUtils.assertValueAt(0.010699999729695264, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -526,17 +526,17 @@ public class AVHRR_GAC_Reader_IO_Test {
             final Array array = reader.readScaled(356, 12234, new Interval(3, 3), "qual_flags");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(17.0, 0, 0, array);
-            assertEqualDoubleValueFromArray(17.0, 1, 0, array);
-            assertEqualDoubleValueFromArray(17.0, 2, 0, array);
+            NCTestUtils.assertValueAt(17.0, 0, 0, array);
+            NCTestUtils.assertValueAt(17.0, 1, 0, array);
+            NCTestUtils.assertValueAt(17.0, 2, 0, array);
 
-            assertEqualDoubleValueFromArray(17.0, 0, 1, array);
-            assertEqualDoubleValueFromArray(17.0, 1, 1, array);
-            assertEqualDoubleValueFromArray(17.0, 2, 1, array);
+            NCTestUtils.assertValueAt(17.0, 0, 1, array);
+            NCTestUtils.assertValueAt(17.0, 1, 1, array);
+            NCTestUtils.assertValueAt(17.0, 2, 1, array);
 
-            assertEqualDoubleValueFromArray(18.0, 0, 2, array);
-            assertEqualDoubleValueFromArray(18.0, 1, 2, array);
-            assertEqualDoubleValueFromArray(18.0, 2, 2, array);
+            NCTestUtils.assertValueAt(18.0, 0, 2, array);
+            NCTestUtils.assertValueAt(18.0, 1, 2, array);
+            NCTestUtils.assertValueAt(18.0, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -551,23 +551,23 @@ public class AVHRR_GAC_Reader_IO_Test {
             Array array = reader.readRaw(407, 3, new Interval(9, 9), "relative_azimuth_angle");
             assertNotNull(array);
 
-            assertEqualDoubleValueFromArray(-32768.0, 4, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 5, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 0, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 4, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 5, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 6, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 7, 0, array);
+            NCTestUtils.assertValueAt(-32768.0, 8, 0, array);
 
-            assertEqualDoubleValueFromArray(-11094.0, 4, 1, array);
-            assertEqualDoubleValueFromArray(-11089.0, 5, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 1, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 1, array);
+            NCTestUtils.assertValueAt(-11094.0, 4, 1, array);
+            NCTestUtils.assertValueAt(-11089.0, 5, 1, array);
+            NCTestUtils.assertValueAt(-32768.0, 6, 1, array);
+            NCTestUtils.assertValueAt(-32768.0, 7, 1, array);
+            NCTestUtils.assertValueAt(-32768.0, 8, 1, array);
 
-            assertEqualDoubleValueFromArray(-11101.0, 4, 8, array);
-            assertEqualDoubleValueFromArray(-11098.0, 5, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 6, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 7, 8, array);
-            assertEqualDoubleValueFromArray(-32768.0, 8, 8, array);
+            NCTestUtils.assertValueAt(-11101.0, 4, 8, array);
+            NCTestUtils.assertValueAt(-11098.0, 5, 8, array);
+            NCTestUtils.assertValueAt(-32768.0, 6, 8, array);
+            NCTestUtils.assertValueAt(-32768.0, 7, 8, array);
+            NCTestUtils.assertValueAt(-32768.0, 8, 8, array);
         } finally {
             reader.close();
         }
@@ -585,11 +585,5 @@ public class AVHRR_GAC_Reader_IO_Test {
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
-    }
-
-    private void assertEqualDoubleValueFromArray(double expected, int x, int y, Array array) {
-        final Index index = array.getIndex();
-        index.set(y, x);
-        assertEquals(expected, array.getDouble(index), 1e-8);
     }
 }
