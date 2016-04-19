@@ -52,6 +52,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -973,6 +974,67 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             NCTestUtils.assertValueAt(271.2599939368665, 0, 2, array);
             NCTestUtils.assertValueAt(271.82999392412603, 1, 2, array);
             NCTestUtils.assertValueAt(-9999.989776482806, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_AMSUB_NOAA15_centerWindow() throws IOException, InvalidRangeException {
+        final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final Array acquisitionTime = reader.readAcquisitionTime(32, 1098, new Interval(3, 3));
+            assertNotNull(acquisitionTime);
+            assertEquals(9, acquisitionTime.getSize());
+
+            final int upperLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63031787).getTime() / 1000);
+            final int centerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63034454).getTime() / 1000);
+            final int lowerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63037121).getTime() / 1000);
+
+            NCTestUtils.assertValueAt(upperLineTime, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(upperLineTime, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(upperLineTime, 2, 0, acquisitionTime);
+
+            NCTestUtils.assertValueAt(centerLineTime, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(centerLineTime, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(centerLineTime, 2, 1, acquisitionTime);
+
+            NCTestUtils.assertValueAt(lowerLineTime, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(lowerLineTime, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(lowerLineTime, 2, 2, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_AMSUB_NOAA15_upperLeftOutside() throws IOException, InvalidRangeException {
+        final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final Array acquisitionTime = reader.readAcquisitionTime(0, 0, new Interval(3, 3));
+            assertNotNull(acquisitionTime);
+            assertEquals(9, acquisitionTime.getSize());
+
+            final int centerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60037120).getTime() / 1000);
+            final int lowerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60039787).getTime() / 1000);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 0, acquisitionTime);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(centerLineTime, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(centerLineTime, 2, 1, acquisitionTime);
+
+            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(lowerLineTime, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(lowerLineTime, 2, 2, acquisitionTime);
         } finally {
             reader.close();
         }

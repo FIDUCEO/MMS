@@ -209,9 +209,31 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return array;
     }
 
+    // @todo 3 tb/** this method does the correct thing but there is room for improvement 2016-04-19
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array scnlinyr = readRaw(x, y, interval, "scnlinyr");
+        final int fillValue = getFillValue("scnlinyr", "Data", scnlinyr).intValue();
+        final Array acquisitionTimeArray = scnlinyr.copy();
+        final Index acquisitionTimeIndex = acquisitionTimeArray.getIndex();
+        int yTime = y - interval.getY()/2;
+        final TimeLocator timeLocator = getTimeLocator();
+        final Index scnlinyrIndex = scnlinyr.getIndex();
+
+        for (int yIndex = 0; yIndex < interval.getY(); yIndex++){
+            for (int xIndex = 0; xIndex < interval.getX(); xIndex++) {
+                scnlinyrIndex.set(yIndex, xIndex);
+                acquisitionTimeIndex.set(yIndex, xIndex);
+                if (scnlinyr.getInt(scnlinyrIndex) != fillValue) {
+                    final long scanLineTime = timeLocator.getTimeFor(0, yTime);
+                    final int scanLineTimeInSeconds = (int) (scanLineTime / 1000);
+                    acquisitionTimeArray.setInt(acquisitionTimeIndex, scanLineTimeInSeconds);
+                }
+            }
+            yTime++;
+        }
+
+        return (ArrayInt.D2) acquisitionTimeArray;
     }
 
     @Override
