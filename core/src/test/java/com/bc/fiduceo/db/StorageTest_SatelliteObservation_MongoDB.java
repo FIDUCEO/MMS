@@ -164,18 +164,6 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
     }
 
     @Test
-    public void testSubsetHeight() throws Exception {
-        final Geometry g1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
-        final Geometry g2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
-        final SatelliteObservation obs = createMultiGeometrySatelliteObservation(g1, g2);
-        obs.setSubsetHeight(4);
-        storage.insert(obs);
-        final List<SatelliteObservation> satelliteObservations = storage.get();
-        assertEquals(1, satelliteObservations.size());
-        assertEquals(4, satelliteObservations.get(0).getSubsetHeight().intValue());
-    }
-
-    @Test
     public void testMultiGeometries_overlappingGeometries_searchByIntersection_intersectsSecond() throws ParseException, SQLException {
         final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
         final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");

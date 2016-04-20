@@ -37,7 +37,6 @@ public class AcquisitionInfo {
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
-    private Integer subsetHeight;
 
     // @todo tb/** remove this and use Geometry instead 2016-03-04
     @Deprecated
@@ -89,13 +88,5 @@ public class AcquisitionInfo {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
-    }
-
-    public Integer getSubsetHeight() {
-        return subsetHeight;
-    }
-
-    public void setSubsetHeight(Integer subsetHeight) {
-        this.subsetHeight = subsetHeight;
     }
 }
