@@ -517,7 +517,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSeacrhByVersion_notAvailableVersion() throws ParseException, SQLException {
+    public void testSearchByVersion_notAvailableVersion() throws ParseException, SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -529,7 +529,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSeacrhByVersion_matchingVersion() throws ParseException, SQLException {
+    public void testSearchByVersion_matchingVersion() throws ParseException, SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 

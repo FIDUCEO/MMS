@@ -44,6 +44,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ConstantConditions")
 @RunWith(DbAndIOTestRunner.class)
 public class IngestionToolIntegrationTest {
 
@@ -133,6 +134,7 @@ public class IngestionToolIntegrationTest {
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("1.01", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
             assertTrue(geoBounds instanceof GeometryCollection);
@@ -181,6 +183,7 @@ public class IngestionToolIntegrationTest {
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("1.02", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
             assertTrue(geoBounds instanceof GeometryCollection);
@@ -228,6 +231,7 @@ public class IngestionToolIntegrationTest {
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
             assertTrue(geoBounds instanceof GeometryCollection);
@@ -275,6 +279,7 @@ public class IngestionToolIntegrationTest {
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
             assertTrue(geoBounds instanceof GeometryCollection);
