@@ -65,8 +65,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
-
 class MatchupTool {
 
     private static String VERSION = "1.0.0";
@@ -226,13 +224,8 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException, InvalidRangeException {
-        MatchupCollection matchupCollection = createMatchupCollection(context);
+        final MatchupCollection matchupCollection = createMatchupCollection(context);
 
-        //
-        // - detect all pixels (x/y) in primary observation that are contained in intersecting area
-        // -- for each pixel:
-        // --- perform cloud processing (optional) -> remove pixels or add flags
-        //
 
         // ------------------------------------------------------------------------------------------------------------
         // Screening operations with file access
@@ -272,16 +265,12 @@ class MatchupTool {
             } catch (IOException e) {
                 logger.severe(e.getMessage());
             }
-            // open primary observation file
-            // open secondary observation file
-            // iterate over sampleSets
+
         }
 
         // ------------------------------------------------------------------------------------------------------------
         // Screening operations with file access
         // ------------------------------------------------------------------------------------------------------------
-
-        System.out.println("after VZA screening = " + matchupCollection.getNumMatchups());
 
         // @todo 2 tb/** move this value to configuration 2016-04-08
         final int cacheSize = 2048;
