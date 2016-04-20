@@ -30,8 +30,6 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
     // version 3.2 or higher. The test assumes an empty schema "test" and uses the connection credentials stored
     // in the datasource description below. tb 2016-02-08
 
-    // @todo 3 tb/** all these tests should not be database specific. Move them to the StorageTest_SatelliteObservation class 2016-03-04
-
     public StorageTest_SatelliteObservation_MongoDB() {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("mongodb");
