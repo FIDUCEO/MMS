@@ -121,7 +121,6 @@ public class BcS2TimeAxisTest {
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(polyline), new Date(100000000000L), new Date(100001000000L));
         final TimeInterval timeInterval = timeAxis.getIntersectionTime(polygon);
         assertNotNull(timeInterval);
-        // @todo 2 tb/tb improve calculation of end-time when line ends inside of the polgon 2015-11-20
         assertTimeIntervalEquals(100000749695L, 100000999999L, timeInterval);
     }
 
@@ -146,8 +145,6 @@ public class BcS2TimeAxisTest {
         assertNotNull(timeInterval);
         assertTimeIntervalEquals(100000384991L, 100000903592L, timeInterval);
     }
-
-    // @todo 3 tb/tb add more tests with more complex geometries, import real satellite data boundaries and check! 2015-11-23
 
     @Test
     public void testGetTime_PointOnLine() throws ParseException {

@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
+import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -166,5 +167,19 @@ public class AMSUB_MHS_L1C_ReaderTest {
     @Test
     public void testCorrectAzimuth() {
         assertEquals("general_azimuth", AMSUB_MHS_L1C_Reader.correctAzimuth("general_azimith"));
+    }
+
+    @Test
+    public void testToFloat() {
+        final int[] ints = {12, 23, 45, 67};
+        final Array intArray = Array.factory(ints);
+
+        final Array floatArray = AMSUB_MHS_L1C_Reader.toFloat(intArray);
+        assertNotNull(floatArray);
+        assertEquals(float.class, floatArray.getDataType().getPrimitiveClassType());
+        assertEquals(12.0, floatArray.getFloat(0), 1e-8);
+        assertEquals(23.0, floatArray.getFloat(1), 1e-8);
+        assertEquals(45.0, floatArray.getFloat(2), 1e-8);
+        assertEquals(67.0, floatArray.getFloat(3), 1e-8);
     }
 }

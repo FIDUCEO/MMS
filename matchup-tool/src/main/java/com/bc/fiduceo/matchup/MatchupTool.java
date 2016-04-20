@@ -270,7 +270,7 @@ class MatchupTool {
                 set.setSampleSets(resultSet);
 
             } catch (IOException e) {
-                // todo 1 tb/tb add logging 2016-03-31
+                logger.severe(e.getMessage());
             }
             // open primary observation file
             // open secondary observation file

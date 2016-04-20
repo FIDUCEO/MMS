@@ -42,14 +42,31 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -216,11 +233,11 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         final int fillValue = getFillValue("scnlinyr", "Data", scnlinyr).intValue();
         final Array acquisitionTimeArray = scnlinyr.copy();
         final Index acquisitionTimeIndex = acquisitionTimeArray.getIndex();
-        int yTime = y - interval.getY()/2;
+        int yTime = y - interval.getY() / 2;
         final TimeLocator timeLocator = getTimeLocator();
         final Index scnlinyrIndex = scnlinyr.getIndex();
 
-        for (int yIndex = 0; yIndex < interval.getY(); yIndex++){
+        for (int yIndex = 0; yIndex < interval.getY(); yIndex++) {
             for (int xIndex = 0; xIndex < interval.getX(); xIndex++) {
                 scnlinyrIndex.set(yIndex, xIndex);
                 acquisitionTimeIndex.set(yIndex, xIndex);
@@ -448,8 +465,8 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return fillValue;
     }
 
-    // @todo 2 tb/** make static, package local and write test 2016-04-15
-    private Array toFloat(Array original) {
+    // package access for testing only tb 2016-04-20
+    static Array toFloat(Array original) {
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
