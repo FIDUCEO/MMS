@@ -257,6 +257,26 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
+    public void testIngest_AMSUB_NOAA15_twice() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(3, satelliteObservations.size());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
     public void testIngest_MHS_NOAA18() throws SQLException, IOException, ParseException {
         final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mhs-n18", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};

@@ -86,4 +86,16 @@ public class QueryParameterTest {
         parameter.setVersion(version_2);
         assertEquals(version_2, parameter.getVersion());
     }
+
+    @Test
+    public void testSetGetPath() {
+        final String path_1 = "v1.0";
+        final String path_2 = "v2.0";
+
+        parameter.setPath(path_1);
+        assertEquals(path_1, parameter.getPath());
+
+        parameter.setPath(path_2);
+        assertEquals(path_2, parameter.getPath());
+    }
 }

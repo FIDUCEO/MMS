@@ -321,7 +321,11 @@ public class MongoDbDriver extends AbstractDriver {
         if (StringUtils.isNotNullAndNotEmpty(version)) {
             queryConstraints.append(VERSION_KEY, new Document("$eq", version));
         }
-        // @todo 1 tb/tb extend to support filePath 2016-04-20
+
+        final String path = parameter.getPath();
+        if (StringUtils.isNotNullAndNotEmpty(path)) {
+            queryConstraints.append(DATA_FILE_KEY, new Document("$eq", path));
+        }
 
         return queryConstraints;
     }

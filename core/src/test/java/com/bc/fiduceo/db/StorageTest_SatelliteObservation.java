@@ -49,6 +49,7 @@ public abstract class StorageTest_SatelliteObservation {
 
     private static final String VERSION = "ver1.0";
     private static final String SENSOR_NAME = "test_sensor";
+    public static final String DATA_FILE_PATH = "the_data.file";
 
     protected BasicDataSource dataSource;
     protected Storage storage;
@@ -540,6 +541,30 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(1, satelliteObservations.size());
     }
 
+    @Test
+    public void testSearchByPath_notAvailablePath() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setPath("not_available_path");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(0, satelliteObservations.size());
+    }
+
+    @Test
+    public void testSearchByPath_matchingPath() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setPath(DATA_FILE_PATH);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(1, satelliteObservations.size());
+    }
+
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(startTime);
@@ -548,7 +573,7 @@ public abstract class StorageTest_SatelliteObservation {
         final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
         observation.setGeoBounds(geometry);
 
-        observation.setDataFilePath("the_data.file");
+        observation.setDataFilePath(DATA_FILE_PATH);
 
         final LineString timeAxisGeometry = (LineString) geometryFactory.parse("LINESTRING(1 5, 1 6, 1 7)");
         final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);

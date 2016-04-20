@@ -332,6 +332,7 @@ public class MongoDbDriverTest {
         queryParameter.setStartTime(TimeUtils.parseDOYBeginOfDay("2015-300"));
         queryParameter.setStopTime(TimeUtils.parseDOYBeginOfDay("2015-302"));
         queryParameter.setVersion("ver2.8");
+        queryParameter.setPath("/some/where/over/the/rainbow");
 
         final Document queryDocument = MongoDbDriver.createQueryDocument(queryParameter);
         assertNotNull(queryDocument);
@@ -361,6 +362,9 @@ public class MongoDbDriverTest {
         final String version = versionDoc.getString("$eq");
         assertEquals("ver2.8", version);
 
+        final Document dataFileDoc = (Document) queryDocument.get("dataFile");
+        final String dataFile = dataFileDoc.getString("$eq");
+        assertEquals("/some/where/over/the/rainbow", dataFile);
     }
 
     private MultiPolygon getMultiPolygon(String wkt) {

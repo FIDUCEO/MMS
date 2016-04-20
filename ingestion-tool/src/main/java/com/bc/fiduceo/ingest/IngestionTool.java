@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.db.DatabaseConfig;
+import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
@@ -44,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,25 +83,33 @@ class IngestionTool {
         final Reader reader = readerFactory.getReader(sensorType);
 
         final Pattern pattern = getPattern(reader);
-
         final Storage storage = context.getStorage();
+
+        final QueryParameter queryParameter = new QueryParameter();
 
         final SystemConfig systemConfig = context.getSystemConfig();
         final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
-
         final Archive archive = new Archive(archiveRootPath);
         final Date startDate = context.getStartDate();
         final Date endDate = context.getEndDate();
-        final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
 
+        final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
         for (final Path filePath : productPaths) {
             final Matcher matcher = getMatcher(filePath, pattern);
+            final String dataFilePath = filePath.toString();
             if (!matcher.matches()) {
-                logger.warning("The file '" + filePath.toString() + "' des not follow the file naming pattern. Skipping");
+                logger.warning("The file '" + dataFilePath + "' des not follow the file naming pattern. Skipping");
                 continue;
             }
 
-            logger.info("registering '" + filePath.toString() + "' ...");
+            queryParameter.setPath(dataFilePath);
+            final List<SatelliteObservation> observations = storage.get(queryParameter);
+            if (observations.size() > 0) {
+                logger.info("The file '" + dataFilePath + "' is already registered to the database. Skipping");
+                continue;
+            }
+
+            logger.info("registering '" + dataFilePath + "' ...");
             reader.open(filePath.toFile());
             try {
                 final AcquisitionInfo acquisitionInfo = reader.read();
@@ -108,7 +118,7 @@ class IngestionTool {
                 satelliteObservation.setSensor(new Sensor(sensorType));
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-                satelliteObservation.setDataFilePath(filePath.toString());
+                satelliteObservation.setDataFilePath(dataFilePath);
                 satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
                 satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
                 satelliteObservation.setVersion(processingVersion);
@@ -120,8 +130,6 @@ class IngestionTool {
             logger.info("success");
         }
     }
-
-
 
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
