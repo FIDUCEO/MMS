@@ -48,6 +48,10 @@ public class IngestionToolMain {
             return;
         }
 
-        ingestionTool.run(commandLine);
+        try {
+            ingestionTool.run(commandLine);
+        } catch (Throwable e) {
+            System.exit(-1);
+        }
     }
 }

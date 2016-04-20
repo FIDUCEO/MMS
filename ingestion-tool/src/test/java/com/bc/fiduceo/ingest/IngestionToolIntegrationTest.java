@@ -84,31 +84,33 @@ public class IngestionToolIntegrationTest {
         IngestionToolMain.main(args);
     }
 
-    @Test
-    public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
+    // @todo 2 tb/tb unfortunately these test do not work anymore. We need to call System.exit() on exceptions to
+    // supply a non-zero exit code to the shell scripts on CEMS 2016-04-20
+//    @Test
+//    public void testIngest_missingSystemProperties() throws ParseException, IOException, SQLException {
+//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
+//
+//        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+//
+//        try {
+//            IngestionToolMain.main(args);
+//            fail("RuntimeException expected");
+//        } catch (RuntimeException expected) {
+//        }
+//    }
 
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
-        try {
-            IngestionToolMain.main(args);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
-    public void testIngest_missingDatabaseProperties() throws ParseException, IOException, SQLException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
-
-        writeSystemProperties();
-
-        try {
-            IngestionToolMain.main(args);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
+//    @Test
+//    public void testIngest_missingDatabaseProperties() throws ParseException, IOException, SQLException {
+//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "airs-aqua"};
+//
+//        writeSystemProperties();
+//
+//        try {
+//            IngestionToolMain.main(args);
+//            fail("RuntimeException expected");
+//        } catch (RuntimeException expected) {
+//        }
+//    }
 
     @Test
     public void testIngest_AVHRR_GAC_NOAA17() throws SQLException, IOException, ParseException {
