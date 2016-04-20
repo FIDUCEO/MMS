@@ -109,7 +109,8 @@ submit_job() {
     if echo ${line} | grep -qF 'is submitted'
     then
         jobs=`echo ${line} | awk '{ print substr($2,2,length($2)-2) }'`
-        echo "${MMS_LOG}/${jobname}.out/${jobs}" > ${MMS_TASKS}/${jobname}.tasks
+# @todo 1 tb/tb this does not work: correct it 2016-04-20
+#        echo "${MMS_LOG}/${jobname}.out/${jobs}" > ${MMS_TASKS}/${jobname}.tasks
     else
         echo "`date -u +%Y%m%d-%H%M%S`: tasks for ${jobname} failed (reason: was not submitted)"
         exit 1
