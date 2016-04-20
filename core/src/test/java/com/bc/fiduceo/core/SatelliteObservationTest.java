@@ -20,16 +20,34 @@
 
 package com.bc.fiduceo.core;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class SatelliteObservationTest {
 
+    private SatelliteObservation observation;
+
+    @Before
+    public void setUp() {
+        observation = new SatelliteObservation();
+    }
+
     @Test
     public void testConstructor() {
-        final SatelliteObservation observation = new SatelliteObservation();
-
         assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+    }
+
+    @Test
+    public void testSetGetVersion() {
+        final String version_1 = "1.0";
+        final String version_2 = "2.0";
+
+        observation.setVersion(version_1);
+        assertEquals(version_1, observation.getVersion());
+
+        observation.setVersion(version_2);
+        assertEquals(version_2, observation.getVersion());
     }
 }

@@ -37,6 +37,7 @@ public class SatelliteObservation {
     private Sensor sensor;
     private NodeType nodeType;
     private Path dataFilePath;
+    private String version;
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
@@ -98,4 +99,11 @@ public class SatelliteObservation {
         this.timeAxes = timeAxes;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
+    }
 }
