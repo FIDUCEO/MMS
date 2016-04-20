@@ -29,6 +29,7 @@ public class QueryParameter {
     private Date stopTime;
     private String sensorName;
     private Geometry geometry;
+    private String version;
 
     public void setStartTime(Date startDate) {
         this.startTime = startDate;
@@ -60,5 +61,13 @@ public class QueryParameter {
 
     public Geometry getGeometry() {
         return geometry;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }

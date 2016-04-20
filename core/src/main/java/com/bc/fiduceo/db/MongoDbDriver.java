@@ -317,7 +317,11 @@ public class MongoDbDriver extends AbstractDriver {
                     new Document("$geometry", convertToGeoJSON(geometry))));
         }
 
-        // @todo 1 tb/tb extend to support version and filePath 2016-04-20
+        final String version = parameter.getVersion();
+        if (StringUtils.isNotNullAndNotEmpty(version)) {
+            queryConstraints.append(VERSION_KEY, new Document("$eq", version));
+        }
+        // @todo 1 tb/tb extend to support filePath 2016-04-20
 
         return queryConstraints;
     }

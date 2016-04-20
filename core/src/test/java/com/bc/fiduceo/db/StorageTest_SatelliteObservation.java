@@ -502,7 +502,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBygeometry_MultiGeometries_overlappingGeometries_searchByIntersection_intersectsSecond() throws ParseException, SQLException {
+    public void testSearchByGeometry_MultiGeometries_overlappingGeometries_searchByIntersection_intersectsSecond() throws ParseException, SQLException {
         final Geometry geometry_1 = geometryFactory.parse("POLYGON ((0 0, 4 0, 4 1, 0 1, 0 0))");
         final Geometry geometry_2 = geometryFactory.parse("POLYGON ((3 0, 5 0, 5 1, 3 1, 3 0))");
 
@@ -514,6 +514,30 @@ public abstract class StorageTest_SatelliteObservation {
         final List<SatelliteObservation> satelliteObservations = storage.get(parameter);
         assertEquals(1, satelliteObservations.size());
         // @todo 1 tb/tb check geometry entry 2016-03-01
+    }
+
+    @Test
+    public void testSeacrhByVersion_notAvailableVersion() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setVersion("not_available");
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(0, satelliteObservations.size());
+    }
+
+    @Test
+    public void testSeacrhByVersion_matchingVersion() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setVersion(VERSION);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(1, satelliteObservations.size());
     }
 
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {

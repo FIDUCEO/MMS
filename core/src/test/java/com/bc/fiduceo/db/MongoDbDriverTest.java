@@ -331,30 +331,35 @@ public class MongoDbDriverTest {
         queryParameter.setSensorName("amsub_n15");
         queryParameter.setStartTime(TimeUtils.parseDOYBeginOfDay("2015-300"));
         queryParameter.setStopTime(TimeUtils.parseDOYBeginOfDay("2015-302"));
+        queryParameter.setVersion("ver2.8");
 
-        Document queryDocument = MongoDbDriver.createQueryDocument(queryParameter);
+        final Document queryDocument = MongoDbDriver.createQueryDocument(queryParameter);
         assertNotNull(queryDocument);
 
-        Document startTimeDoc = (Document) queryDocument.get("startTime");
-        Date startTime = startTimeDoc.getDate("$lt");
+        final Document startTimeDoc = (Document) queryDocument.get("startTime");
+        final Date startTime = startTimeDoc.getDate("$lt");
         assertEquals(queryParameter.getStopTime(), startTime);
 
-        Document stopTimeDoc = (Document) queryDocument.get("stopTime");
-        Date stopTime = stopTimeDoc.getDate("$gt");
+        final Document stopTimeDoc = (Document) queryDocument.get("stopTime");
+        final Date stopTime = stopTimeDoc.getDate("$gt");
         assertEquals(queryParameter.getStartTime(), stopTime);
 
 
-        Document sensorDoc = (Document) queryDocument.get("sensor.name");
-        String sensorType = sensorDoc.getString("$eq");
+        final Document sensorDoc = (Document) queryDocument.get("sensor.name");
+        final String sensorType = sensorDoc.getString("$eq");
         assertEquals(queryParameter.getSensorName(), sensorType);
 
-        Document document = (Document) ((Document) queryDocument.get("geoBounds")).get("$geoIntersects");
-        assertNotNull(document);
+        final Document geoDoc = (Document) ((Document) queryDocument.get("geoBounds")).get("$geoIntersects");
+        assertNotNull(geoDoc);
 
-        com.mongodb.client.model.geojson.Polygon polygon = (com.mongodb.client.model.geojson.Polygon) document.get("$geometry");
+        com.mongodb.client.model.geojson.Polygon polygon = (com.mongodb.client.model.geojson.Polygon) geoDoc.get("$geometry");
         assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, " +
                         "Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
                 polygon.toString());
+
+        final Document versionDoc = (Document) queryDocument.get("version");
+        final String version = versionDoc.getString("$eq");
+        assertEquals("ver2.8", version);
 
     }
 
