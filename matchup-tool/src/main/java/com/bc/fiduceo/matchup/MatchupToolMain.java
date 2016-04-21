@@ -46,6 +46,11 @@ public class MatchupToolMain {
             return;
         }
 
-        matchupTool.run(commandLine);
+        try {
+            matchupTool.run(commandLine);
+        } catch (Throwable e) {
+            System.err.println(e.getMessage());
+            System.exit(-1);
+        }
     }
 }

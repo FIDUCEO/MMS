@@ -51,6 +51,7 @@ public class IngestionToolMain {
         try {
             ingestionTool.run(commandLine);
         } catch (Throwable e) {
+            System.err.println(e.getMessage());
             System.exit(-1);
         }
     }
