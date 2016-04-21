@@ -21,11 +21,11 @@
 <use-case-config name="mmd02">
     <sensors>
         <sensor>
-            <name>avhrr-n17</name>
+            <name>avhrr-n18</name>
             <primary>true</primary>
         </sensor>
         <sensor>
-            <name>avhrr-n18</name>
+            <name>avhrr-n17</name>
             <primary>false</primary>
         </sensor>
     </sensors>
@@ -39,7 +39,15 @@
             <ny>5</ny>
         </dimension>
     </dimensions>
-    <time-delta-seconds>300</time-delta-seconds>
+    <conditions>
+        <time-delta>
+            <time-delta-seconds>300</time-delta-seconds>
+        </time-delta>
+        <sperical-distance>
+            <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
+        </sperical-distance>
+    </conditions>
+
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>
-    <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
+
 </use-case-config>
