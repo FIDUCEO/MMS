@@ -367,6 +367,20 @@ public class MongoDbDriverTest {
         assertEquals("/some/where/over/the/rainbow", dataFile);
     }
 
+    @Test
+    public void testParseAddress() {
+        assertEquals("localhost", MongoDbDriver.parseAddress("mongodb://localhost:33456/nasenmann"));
+        assertEquals("192.29.25.134", MongoDbDriver.parseAddress("mongodb://192.29.25.134:33456/nasenmann"));
+    }
+
+    @Test
+    public void testParsePort() {
+        assertEquals("33456", MongoDbDriver.parsePort("mongodb://localhost:33456/nasenmann"));
+        assertEquals("19876", MongoDbDriver.parsePort("mongodb://192.29.25.134:19876/nasenmann"));
+
+        assertEquals("2647", MongoDbDriver.parsePort("mongodb://192.29.25.134:2647"));
+    }
+
     private MultiPolygon getMultiPolygon(String wkt) {
         return (MultiPolygon) geometryFactory.parse(wkt);
     }

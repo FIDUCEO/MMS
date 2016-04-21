@@ -23,17 +23,11 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -61,6 +55,7 @@ public class MongoDbDriver extends AbstractDriver {
     private static final String SATELLITE_DATA_COLLECTION = "SATELLITE_OBSERVATION";
     private static final String TIME_AXES_KEY = "timeAxes";
     private static final String VERSION_KEY = "version";
+    private static final String DATABASE_NAME = "FIDUCEO";
 
     private MongoClient mongoClient;
     private GeometryFactory geometryFactory;
@@ -73,9 +68,21 @@ public class MongoDbDriver extends AbstractDriver {
 
     @Override
     public void open(BasicDataSource dataSource) throws SQLException {
-        final MongoClientURI clientURI = new MongoClientURI(dataSource.getUrl());
-        mongoClient = new MongoClient(clientURI);
-        database = mongoClient.getDatabase("FIDUCEO");
+        final String address = parseAddress(dataSource.getUrl());
+        final String port = parsePort(dataSource.getUrl());
+        final ServerAddress serverAddress = new ServerAddress(address, Integer.parseInt(port));
+
+        final String username = dataSource.getUsername();
+        final String password = dataSource.getPassword();
+        if (StringUtils.isNotNullAndNotEmpty(password) && StringUtils.isNotNullAndNotEmpty(username)) {
+            final MongoCredential credential = MongoCredential.createCredential(username, DATABASE_NAME, password.toCharArray());
+            final List<MongoCredential> credentialsList = new ArrayList<>();
+            credentialsList.add(credential);
+            mongoClient = new MongoClient(serverAddress, credentialsList);
+        } else {
+            mongoClient = new MongoClient(serverAddress);
+        }
+        database = mongoClient.getDatabase(DATABASE_NAME);
     }
 
     @Override
@@ -259,7 +266,7 @@ public class MongoDbDriver extends AbstractDriver {
         return geometryFactory.createLineString(lineStringPoints);
     }
 
-
+    // @todo 2 tb/** make static and add tests 2016-04-21
     TimeAxis[] convertToTimeAxes(Document jsonTimeAxes) {
         final List<Document> timeAxesDocuments = (List<Document>) jsonTimeAxes.get("timeAxes");
         final TimeAxis[] timeAxes = new TimeAxis[timeAxesDocuments.size()];
@@ -391,5 +398,24 @@ public class MongoDbDriver extends AbstractDriver {
             polygonPoints.add(position);
         }
         return polygonPoints;
+    }
+
+    // package access for testing only tb 2016-04-21
+    static String parseAddress(String databaseUrl) {
+        final int slashIndex = databaseUrl.indexOf("//");
+        final int colonIndex = databaseUrl.indexOf(":", slashIndex);
+        return databaseUrl.substring(slashIndex + 2, colonIndex);
+    }
+
+    // package access for testing only tb 2016-04-21
+    static String parsePort(String databaseUrl) {
+        int slashIndex = databaseUrl.indexOf("//");
+        final int colonIndex = databaseUrl.indexOf(":", slashIndex);
+        slashIndex = databaseUrl.indexOf("/", colonIndex);
+        if (slashIndex > 0) {
+            return databaseUrl.substring(colonIndex + 1, slashIndex);
+        } else {
+            return databaseUrl.substring(colonIndex + 1);
+        }
     }
 }

@@ -49,11 +49,12 @@ public abstract class StorageTest_SatelliteObservation {
 
     private static final String VERSION = "ver1.0";
     private static final String SENSOR_NAME = "test_sensor";
-    public static final String DATA_FILE_PATH = "the_data.file";
+    private static final String DATA_FILE_PATH = "the_data.file";
 
     protected BasicDataSource dataSource;
-    protected Storage storage;
     protected GeometryFactory geometryFactory;
+
+    private Storage storage;
 
     @Before
     public void setUp() throws SQLException, IOException {
