@@ -22,7 +22,6 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.runner.RunWith;
 
 @RunWith(DatabaseTestRunner.class)
