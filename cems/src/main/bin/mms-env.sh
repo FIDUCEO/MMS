@@ -55,7 +55,7 @@ wait_for_task_jobs_completion() {
         # 619457  rquast  RUN   lotus      lotus.jc.rl host209.jc. *r.n12-sub Aug 14 10:15
         # 619458  rquast  RUN   lotus      lotus.jc.rl host209.jc. *r.n11-sub Aug 14 10:15
         # 619452  rquast  RUN   lotus      lotus.jc.rl host043.jc. *r.n10-sub Aug 14 10:15
-        if bjobs -P esacci_sst | egrep -q "^$jobs\\>"
+        if bjobs -P fiduceo | egrep -q "^$jobs\\>"
         then
             continue
         fi
@@ -109,8 +109,8 @@ submit_job() {
     if echo ${line} | grep -qF 'is submitted'
     then
         jobs=`echo ${line} | awk '{ print substr($2,2,length($2)-2) }'`
-# @todo 1 tb/tb this does not work: correct it 2016-04-20
-#        echo "${MMS_LOG}/${jobname}.out/${jobs}" > ${MMS_TASKS}/${jobname}.tasks
+         # this call sets the correct start condition for the wait-procedure "wait_for_task_jobs_completion()"
+        echo "${MMS_LOG}/${jobname}.out/${jobs}" > ${MMS_TASKS}/${jobname}.tasks
     else
         echo "`date -u +%Y%m%d-%H%M%S`: tasks for ${jobname} failed (reason: was not submitted)"
         exit 1
