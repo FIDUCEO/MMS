@@ -18,28 +18,14 @@
  *
  */
 
-package com.bc.fiduceo.matchup.condition;
+package com.bc.fiduceo.matchup.screening;
 
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
 
-import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
-// @todo 3 tb/** write tests for this class 2016-04-25
-public class DistanceConditionPlugin implements ConditionPlugin {
+public interface ScreeningPlugin {
 
-    @Override
-    public DistanceCondition createCondition(Element element) {
-        if (!getConditionName().equals(element.getName())) {
-            throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
-        }
+    Screening createScreening(Element element);
 
-        final String trimmed = JDomUtils.mandatory_getChildTextTrim(element, TAG_NAME_MAX_PIXEL_DISTANCE_KM);
-        return new DistanceCondition(Double.valueOf(trimmed));
-    }
-
-    @Override
-    public String getConditionName() {
-        return "sperical-distance";
-    }
+    String getScreeningName();
 }

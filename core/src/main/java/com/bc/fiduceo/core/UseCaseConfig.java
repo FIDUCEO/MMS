@@ -20,9 +20,6 @@
 
 package com.bc.fiduceo.core;
 
-import static com.bc.fiduceo.util.JDomUtils.*;
-
-import com.bc.fiduceo.util.JDomUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -36,6 +33,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bc.fiduceo.util.JDomUtils.mandatory_getAttribute;
+import static com.bc.fiduceo.util.JDomUtils.mandatory_getChild;
+import static com.bc.fiduceo.util.JDomUtils.mandatory_getChildTextTrim;
+import static com.bc.fiduceo.util.JDomUtils.mandatory_getRootElement;
 
 public class UseCaseConfig {
 

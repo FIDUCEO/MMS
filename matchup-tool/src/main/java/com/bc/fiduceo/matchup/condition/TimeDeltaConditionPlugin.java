@@ -25,6 +25,7 @@ import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_TIME_DELTA_SECONDS;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
+// @todo 3 tb/** write tests for this class 2016-04-25
 public class TimeDeltaConditionPlugin implements ConditionPlugin {
 
     @Override
