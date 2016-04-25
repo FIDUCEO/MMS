@@ -20,14 +20,11 @@
 
 package com.bc.fiduceo.matchup.screening;
 
-import com.vividsolutions.jts.awt.PointShapeFactory;
-import org.jdom.Document;
+import com.bc.fiduceo.TestUtil;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +43,7 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateScreening() throws JDOMException, IOException {
         final String XML = "<angular/>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreeningPlugin plugin = new AngularScreeningPlugin();
         final Screening screening = plugin.createScreening(rootElement);
@@ -60,7 +57,7 @@ public class AngularScreeningPluginTest {
         final String XML = "<angular>" +
                 "  <primaryVZAVariable name=\"zenith_angle\" />" +
                 "</angular>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreening.Configuration configuration = AngularScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
@@ -72,7 +69,7 @@ public class AngularScreeningPluginTest {
         final String XML = "<angular>" +
                 "  <secondaryVZAVariable name=\"2nd_angle\" />" +
                 "</angular>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreening.Configuration configuration = AngularScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
@@ -86,7 +83,7 @@ public class AngularScreeningPluginTest {
                 "    11.3" +
                 "  </maxPrimaryVZA>" +
                 "</angular>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreening.Configuration configuration = AngularScreeningPlugin.createConfiguration(rootElement);
         assertEquals(11.3, configuration.maxPrimaryVZA, 1e-8);
@@ -100,7 +97,7 @@ public class AngularScreeningPluginTest {
                 "    12.4" +
                 "  </maxSecondaryVZA>" +
                 "</angular>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreening.Configuration configuration = AngularScreeningPlugin.createConfiguration(rootElement);
         assertEquals(12.4, configuration.maxSecondaryVZA, 1e-8);
@@ -114,16 +111,11 @@ public class AngularScreeningPluginTest {
                 "    13.5" +
                 "  </maxAngleDelta>" +
                 "</angular>";
-        final Element rootElement = createDomElement(XML);
+        final Element rootElement = TestUtil.createDomElement(XML);
 
         final AngularScreening.Configuration configuration = AngularScreeningPlugin.createConfiguration(rootElement);
         assertEquals(13.5, configuration.maxAngleDelta, 1e-8);
         assertTrue(configuration.useDelta);
     }
 
-    private Element createDomElement(String XML) throws JDOMException, IOException {
-        final SAXBuilder saxBuilder = new SAXBuilder();
-        final Document document = saxBuilder.build(new ByteArrayInputStream(XML.getBytes()));
-        return document.getRootElement();
-    }
 }

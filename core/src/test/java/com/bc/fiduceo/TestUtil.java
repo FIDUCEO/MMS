@@ -25,7 +25,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -208,6 +213,12 @@ public class TestUtil {
             coordinates[i] = new Coordinate(point.getLon(), point.getLat());
         }
         return coordinates;
+    }
+
+    public static Element createDomElement(String XML) throws JDOMException, IOException {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+        final Document document = saxBuilder.build(new ByteArrayInputStream(XML.getBytes()));
+        return document.getRootElement();
     }
 
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {

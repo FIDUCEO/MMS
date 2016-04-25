@@ -27,6 +27,16 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/* The XML template for this condition class looks like:
+
+    <time-delta>
+        <time-delta-seconds>
+            300
+        </time-delta-seconds>
+    </time-delta>
+
+ */
+
 class TimeDeltaCondition implements Condition {
 
     private final long maxTimeDeltaInMillis;
