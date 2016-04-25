@@ -23,8 +23,11 @@ package com.bc.fiduceo.matchup.screening;
 
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.reader.Reader;
+import ucar.ma2.InvalidRangeException;
+
+import java.io.IOException;
 
 public interface Screening {
 
-    void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader);
+    void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException;
 }
