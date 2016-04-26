@@ -42,6 +42,7 @@ import static com.bc.fiduceo.util.JDomUtils.mandatory_getRootElement;
 public class UseCaseConfig {
 
     public static final String TAG_NAME_ROOT = "use-case-config";
+    // @todo se move the following two tag names
     public static final String TAG_NAME_TIME_DELTA_SECONDS = "time-delta-seconds";
     public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-distance-km";
     public static final String TAG_NAME_OUTPUT_PATH = "output-path";

@@ -35,7 +35,10 @@ import java.util.List;
 
 public class AngularScreening implements Screening {
 
+    private final Interval singlePixel = new Interval(1, 1);
     private Configuration configuration;
+    private boolean hasPrimary;
+    private boolean hasSecondary;
 
     public AngularScreening() {
         this.configuration = new Configuration();
@@ -45,50 +48,10 @@ public class AngularScreening implements Screening {
     public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
-        final Interval singlePixel = new Interval(1, 1);
-
-        final boolean hasPrimary = StringUtils.isNotNullAndNotEmpty(configuration.primaryVariableName);
-        final boolean hasSecondary = StringUtils.isNotNullAndNotEmpty(configuration.secondaryVariableName);
-        double primaryVZA = Double.MAX_VALUE;
-        double secondaryVZA = Double.MAX_VALUE;
 
         for (final SampleSet sampleSet : sampleSets) {
-            boolean keep = true;
 
-            if (hasPrimary) {
-                final Sample primaryPixel = sampleSet.getPrimary();
-                final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, configuration.primaryVariableName);
-
-                primaryVZA = szaPrimaryArray.getDouble(0);
-            }
-
-            if (hasSecondary) {
-                final Sample secondaryPixel = sampleSet.getSecondary();
-                final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
-
-                secondaryVZA = szaSecondaryArray.getDouble(0);
-            }
-
-            if (configuration.usePrimary) {
-                if (primaryVZA > configuration.maxPrimaryVZA) {
-                    keep = false;
-                }
-            }
-
-            if (configuration.useSecondary) {
-                if (secondaryVZA > configuration.maxSecondaryVZA) {
-                    keep = false;
-                }
-            }
-
-            if (configuration.useDelta) {
-                final double absDelta = Math.abs(primaryVZA - secondaryVZA);
-                if (absDelta > configuration.maxAngleDelta) {
-                    keep = false;
-                }
-            }
-
-            if (keep) {
+            if (shouldBeKept(sampleSet, primaryReader, secondaryReader)) {
                 resultSet.add(sampleSet);
             }
         }
@@ -98,9 +61,52 @@ public class AngularScreening implements Screening {
 
     public void configure(Configuration configuration) {
         this.configuration = configuration;
+        hasPrimary = StringUtils.isNotNullAndNotEmpty(configuration.primaryVariableName);
+        hasSecondary = StringUtils.isNotNullAndNotEmpty(configuration.secondaryVariableName);
+    }
+
+    private boolean shouldBeKept(SampleSet sampleSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+        double primaryVZA = Double.MAX_VALUE;
+        double secondaryVZA = Double.MAX_VALUE;
+
+        if (hasPrimary) {
+            final Sample primaryPixel = sampleSet.getPrimary();
+            final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, configuration.primaryVariableName);
+
+            primaryVZA = szaPrimaryArray.getDouble(0);
+        }
+
+        if (hasSecondary) {
+            final Sample secondaryPixel = sampleSet.getSecondary();
+            final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
+
+            secondaryVZA = szaSecondaryArray.getDouble(0);
+        }
+
+        if (configuration.usePrimary) {
+            if (primaryVZA > configuration.maxPrimaryVZA) {
+                return false;
+            }
+        }
+
+        if (configuration.useSecondary) {
+            if (secondaryVZA > configuration.maxSecondaryVZA) {
+                return false;
+            }
+        }
+
+        if (configuration.useDelta) {
+            final double absDelta = Math.abs(primaryVZA - secondaryVZA);
+            if (absDelta > configuration.maxAngleDelta) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     static class Configuration {
+
         String primaryVariableName;
         String secondaryVariableName;
 

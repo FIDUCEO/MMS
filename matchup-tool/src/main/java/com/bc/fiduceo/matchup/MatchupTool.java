@@ -36,6 +36,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
+import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.math.Intersection;
@@ -288,6 +289,9 @@ class MatchupTool {
         final ConditionEngine conditionEngine = new ConditionEngine();
         conditionEngine.configure(useCaseConfig, context.getStartDate(), context.getEndDate());
 
+        final ScreeningEngine screeningEngine = new ScreeningEngine();
+        screeningEngine.configure(useCaseConfig);
+
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
@@ -334,6 +338,7 @@ class MatchupTool {
                 if (matchupSet.getNumObservations() > 0) {
                     logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
                     conditionEngine.process(matchupSet);
+                    // @todo se use screening engine
                     logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
 
                     if (matchupSet.getNumObservations() > 0) {
