@@ -25,7 +25,6 @@ import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
-// @todo 3 tb/** write tests for this class 2016-04-25
 public class DistanceConditionPlugin implements ConditionPlugin {
 
     @Override
@@ -40,6 +39,6 @@ public class DistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "sperical-distance";
+        return "spherical-distance";
     }
 }

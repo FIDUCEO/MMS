@@ -43,9 +43,9 @@
         <time-delta>
             <time-delta-seconds>300</time-delta-seconds>
         </time-delta>
-        <sperical-distance>
+        <spherical-distance>
             <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
-        </sperical-distance>
+        </spherical-distance>
     </conditions>
 
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>

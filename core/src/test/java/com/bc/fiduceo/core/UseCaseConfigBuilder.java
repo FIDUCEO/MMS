@@ -63,8 +63,8 @@ public class UseCaseConfigBuilder {
 
     public UseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
         final Element conditions = ensureChild(getRootElement(), "conditions");
-        final Element spericalDistance = ensureChild(conditions, "sperical-distance");
-        addChild(spericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        final Element sphericalDistance = ensureChild(conditions, "spherical-distance");
+        addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
         return this;
     }
 

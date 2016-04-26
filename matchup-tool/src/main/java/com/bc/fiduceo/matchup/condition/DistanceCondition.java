@@ -29,13 +29,22 @@ import org.esa.snap.core.util.math.SphericalDistance;
 import java.util.ArrayList;
 import java.util.List;
 
+/* The XML template for this condition class looks like:
+
+    <spherical-distance>
+        <max-pixel-distance-km>
+            4.5
+        </max-pixel-distance-km>
+    </spherical-distance>
+ */
+
 class DistanceCondition implements Condition {
 
     private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
     private final double maxDistanceInKm;
 
-    public DistanceCondition(double maxDistanceInKm) {
+    DistanceCondition(double maxDistanceInKm) {
         this.maxDistanceInKm = maxDistanceInKm;
     }
 

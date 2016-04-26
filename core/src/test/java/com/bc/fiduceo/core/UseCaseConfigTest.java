@@ -221,9 +221,9 @@ public class UseCaseConfigTest {
         pw.println("    <time-delta>");
         pw.println("      <time-delta-seconds>12345</time-delta-seconds>");
         pw.println("    </time-delta>");
-        pw.println("    <sperical-distance>");
+        pw.println("    <spherical-distance>");
         pw.println("      <max-pixel-distance-km>14.8</max-pixel-distance-km>");
-        pw.println("    </sperical-distance>");
+        pw.println("    </spherical-distance>");
         pw.println("  </conditions>");
         pw.println("  <output-path>wherever/you/want/it</output-path>");
         pw.println("</use-case-config>");
