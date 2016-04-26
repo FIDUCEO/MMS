@@ -25,6 +25,7 @@ class Workflow:
         self.time_slot_days = time_slot_days
         self.primary_sensors = set()
         self.secondary_sensors = set()
+        self.usecase_config = None
 
     def get_usecase(self):
         """
@@ -32,6 +33,13 @@ class Workflow:
         :rtype : str
         """
         return self.usecase
+
+    def set_usecase_config(self, usecase_config):
+        """
+
+        :type usecase_config: str
+        """
+        self.usecase_config = usecase_config
 
     def _get_config_dir(self):
         """
@@ -284,3 +292,33 @@ class Workflow:
                 date = chunk.get_end_date()
 
         monitor.wait_for_completion_and_terminate()
+
+    def run_matchup(self, hosts, simulation=False, logdir='trace'):
+        """
+
+        :param hosts: list
+        :param logdir: str
+        :param simulation: bool
+        :return:
+        """
+        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+
+        sensors = self._get_sensor_pairs()
+        for sensor_pair in sensors:
+            name = sensor_pair.get_name()
+            """:type : str"""
+            sensor_period = sensor_pair.get_period()
+            date = sensor_period.get_start_date()
+            while date < sensor_period.get_end_date():
+                chunk = self._get_next_period(date)
+                start_string = self._get_year_day_of_year(chunk.get_start_date())
+                end_string = self._get_year_day_of_year(chunk.get_end_date())
+
+                job_name = 'matchup-' + name + '-' + start_string + '-' + end_string + '-' + self.usecase_config
+                post_condition = 'matchup-' + name + '-' + start_string + '-' + end_string + '-' + self.usecase_config
+
+                job = Job(job_name, 'matchup_start.sh', [job_name], [post_condition],
+                          [start_string, end_string, self._get_config_dir(), self.usecase_config])
+                monitor.execute(job)
+
+                date = chunk.get_end_date()

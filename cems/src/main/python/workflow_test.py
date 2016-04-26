@@ -254,3 +254,17 @@ class WorkflowTest(unittest.TestCase):
 
         with open('test.report', 'r') as report:
             self.assertEqual(203, len(report.readlines()))
+
+    def test_matchup_avhrr_n08_avhrr_n07(self):
+        w = Workflow('test', 7,'/group_workspaces/cems2/fiduceo/Software/mms/config')
+        w.add_primary_sensor('avhrr-n08', '1983-05-04', '1985-10-03', 'v01.2')
+        w.add_secondary_sensor('avhrr-n07', '1981-09-01', '1985-01-30', 'v01.2')
+
+        w.set_usecase_config("mms02.xml")
+        w.run_matchup(list([('localhost', 24)]), True, self.logdir)
+
+        with open('test.status', 'r') as status:
+            self.assertEqual('203 created, 0 running, 0 backlog, 203 processed, 0 failed\n', status.readline())
+
+        with open('test.report', 'r') as report:
+            self.assertEqual(203, len(report.readlines()))
