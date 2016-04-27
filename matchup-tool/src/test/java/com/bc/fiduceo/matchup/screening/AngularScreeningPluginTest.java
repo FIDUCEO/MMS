@@ -48,8 +48,6 @@ public class AngularScreeningPluginTest {
         final AngularScreeningPlugin plugin = new AngularScreeningPlugin();
         final Screening screening = plugin.createScreening(rootElement);
         assertNotNull(screening);
-
-
     }
 
     @Test

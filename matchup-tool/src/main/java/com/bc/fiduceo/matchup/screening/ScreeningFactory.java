@@ -23,8 +23,6 @@ import org.jdom.Element;
 
 import java.util.HashMap;
 
-// @todo se write tests
-
 public class ScreeningFactory {
 
     private static ScreeningFactory screeningFactory;
