@@ -34,6 +34,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.math.FloatRange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,6 +112,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                     .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
                     .withMaxPixelDistanceKm(3)   // value in km
+                    .withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
                     .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 

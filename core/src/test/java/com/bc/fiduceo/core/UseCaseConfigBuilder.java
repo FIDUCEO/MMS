@@ -16,6 +16,17 @@
  */
 package com.bc.fiduceo.core;
 
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import static com.bc.fiduceo.core.UseCaseConfig.ATTRIBUTE_NAME_NAME;
 import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSION;
 import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSIONS;
@@ -31,17 +42,6 @@ import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
 import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_TIME_DELTA_SECONDS;
 import static com.bc.fiduceo.core.UseCaseConfig.load;
 
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 public class UseCaseConfigBuilder {
 
     private Document document;
@@ -54,6 +54,7 @@ public class UseCaseConfigBuilder {
         return configBuilder;
     }
 
+    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
     public UseCaseConfigBuilder withTimeDeltaSeconds(long seconds) {
         final Element conditions = ensureChild(getRootElement(), "conditions");
         final Element timeDelta = ensureChild(conditions, "time-delta");
@@ -61,10 +62,37 @@ public class UseCaseConfigBuilder {
         return this;
     }
 
+    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
     public UseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
         final Element conditions = ensureChild(getRootElement(), "conditions");
         final Element sphericalDistance = ensureChild(conditions, "spherical-distance");
         addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        return this;
+    }
+
+    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
+    public UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element angular = ensureChild(screenings, "angular");
+
+        final Element primaryVariable = ensureChild(angular, "primaryVZAVariable");
+        addAttribute(primaryVariable, "name", primaryVariableName);
+
+        final Element secondaryVariable = ensureChild(angular, "secondaryVZAVariable");
+        addAttribute(secondaryVariable, "name", secondaryVariableName);
+
+        if (!Float.isNaN(maxPrimaryVza)) {
+            addChild(angular, "maxPrimaryVZA", maxPrimaryVza);
+        }
+
+        if (!Float.isNaN(maxSecondaryVza)) {
+            addChild(angular, "maxSecondaryVZA", maxSecondaryVza);
+        }
+
+        if (!Float.isNaN(maxDelta)) {
+            addChild(angular, "maxAngleDelta", maxDelta);
+        }
+
         return this;
     }
 
@@ -151,5 +179,9 @@ public class UseCaseConfigBuilder {
         child.setText(value);
         element.addContent(child);
         return child;
+    }
+
+    private void addAttribute(Element element, String attributeName, String attributeValue) {
+        element.setAttribute(attributeName, attributeValue);
     }
 }

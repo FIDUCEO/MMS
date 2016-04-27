@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
@@ -51,7 +50,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
@@ -59,9 +57,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -227,52 +223,6 @@ class MatchupTool {
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = createMatchupCollection(context);
 
-
-        // ------------------------------------------------------------------------------------------------------------
-        // Screening operations with file access
-        // ------------------------------------------------------------------------------------------------------------
-
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final String primarySensorName = useCaseConfig.getPrimarySensor().getName();
-        String secondarySensorName = getSecondarySensor(useCaseConfig).getName();
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        for (final MatchupSet set : sets) {
-            final Path primaryFilePath = set.getPrimaryObservationPath();
-            final Path secondaryFilePath = set.getSecondaryObservationPath();
-
-            try (Reader primaryReader = readerFactory.getReader(primarySensorName);
-                 Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
-                primaryReader.open(primaryFilePath.toFile());
-                secondaryReader.open(secondaryFilePath.toFile());
-
-                // the algorithm -> extract to class tb 2016-03-31
-                final List<SampleSet> resultSet = new ArrayList<>();
-                final List<SampleSet> sampleSets = set.getSampleSets();
-                final Interval singlePixel = new Interval(1, 1);
-                for (final SampleSet sampleSet : sampleSets) {
-                    final Sample primaryPixel = sampleSet.getPrimary();
-                    final Array szaPrimary = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, "satellite_zenith_angle");
-
-                    final Sample secondaryPixel = sampleSet.getSecondary();
-                    final Array szaSecondary = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, "satellite_zenith_angle");
-                    final double szaDelta = Math.abs(szaPrimary.getDouble(0) - szaSecondary.getDouble(0));
-                    if (szaDelta <= 10.0) {
-                        resultSet.add(sampleSet);
-                    }
-                }
-
-                set.setSampleSets(resultSet);
-
-            } catch (IOException e) {
-                logger.severe(e.getMessage());
-            }
-
-        }
-
-        // ------------------------------------------------------------------------------------------------------------
-        // Screening operations with file access
-        // ------------------------------------------------------------------------------------------------------------
-
         // @todo 2 tb/** move this value to configuration 2016-04-08
         final int cacheSize = 2048;
         final SystemConfig systemConfig = context.getSystemConfig();
@@ -280,7 +230,7 @@ class MatchupTool {
         mmdWriter.writeMMD(matchupCollection, context);
     }
 
-    private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException {
+    private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
@@ -338,8 +288,10 @@ class MatchupTool {
                 if (matchupSet.getNumObservations() > 0) {
                     logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
                     conditionEngine.process(matchupSet);
-                    // @todo se use screening engine
                     logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+
+                    screeningEngine.process(matchupSet, primaryReader, secondaryReader);
+                    logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
 
                     if (matchupSet.getNumObservations() > 0) {
                         matchupCollection.add(matchupSet);
