@@ -20,46 +20,26 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.util.JDomUtils;
+import org.jdom.Element;
 
-import java.util.Date;
 
-public class ConditionsContext {
+public class BorderDistanceConditionPlugin implements ConditionPlugin {
 
-    private Date startDate;
-    private Date endDate;
-    private Dimension primarySize;
-    private Dimension secondarySize;
+    @Override
+    public Condition createCondition(Element element) {
+        if (!getConditionName().equals(element.getName())) {
+            throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
+        }
 
-    public Date getStartDate() {
-        return startDate;
+        final String nx = JDomUtils.mandatory_getChildTextTrim(element, "nx");
+        final String ny = JDomUtils.mandatory_getChildTextTrim(element, "ny");
+
+        return new BorderDistanceCondition(Integer.parseInt(nx), Integer.parseInt(ny));
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Dimension getPrimarySize() {
-        return primarySize;
-    }
-
-    public void setPrimarySize(Dimension primarySize) {
-        this.primarySize = primarySize;
-    }
-
-    public Dimension getSecondarySize() {
-        return secondarySize;
-    }
-
-    public void setSecondarySize(Dimension secondarySize) {
-        this.secondarySize = secondarySize;
+    @Override
+    public String getConditionName() {
+        return "border-distance";
     }
 }

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
@@ -290,6 +291,11 @@ class MatchupTool {
                 }
 
                 if (matchupSet.getNumObservations() > 0) {
+                    final Dimension primarySize = primaryReader.getProductSize();
+                    conditionsContext.setPrimarySize(primarySize);
+                    final Dimension secondarySize = secondaryReader.getProductSize();
+                    conditionsContext.setSecondarySize(secondarySize);
+
                     logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
                     conditionEngine.process(matchupSet, conditionsContext);
                     logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
