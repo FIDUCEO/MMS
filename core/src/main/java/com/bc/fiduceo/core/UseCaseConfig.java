@@ -77,7 +77,7 @@ public class UseCaseConfig {
             final Document document = saxBuilder.build(inputStream);
             return new UseCaseConfig(document);
         } catch (JDOMException | IOException | RuntimeException e) {
-            throw new RuntimeException("Unable to initialize use case configuration.", e);
+            throw new RuntimeException("Unable to initialize use case configuration: " + e.getMessage(), e);
         }
     }
 
