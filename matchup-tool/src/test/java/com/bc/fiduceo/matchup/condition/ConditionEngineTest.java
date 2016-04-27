@@ -87,7 +87,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(200200, 100500));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, null, null);
+        conditionEngine.configure(useCaseConfig, new ConditionsContext());
         conditionEngine.process(matchupSet);
 
         assertEquals(2, matchupSet.getNumObservations());
@@ -110,7 +110,10 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
 
-        conditionEngine.configure(UseCaseConfig.load(UseCaseConfigBuilder.build("name").getStream()), startDate, endDate);
+        final ConditionsContext context = new ConditionsContext();
+        context.setStartDate(startDate);
+        context.setEndDate(endDate);
+        conditionEngine.configure(UseCaseConfig.load(UseCaseConfigBuilder.build("name").getStream()), context);
         conditionEngine.process(matchupSet);
 
         assertEquals(3, matchupSet.getNumObservations());
@@ -134,7 +137,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(20.0, 14.0, 20.002, 13.998));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, null, null);
+        conditionEngine.configure(useCaseConfig, new ConditionsContext());
         conditionEngine.process(matchupSet);
 
         assertEquals(2, matchupSet.getNumObservations());
@@ -157,7 +160,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, null, null);
+        conditionEngine.configure(useCaseConfig, new ConditionsContext());
         conditionEngine.process(matchupSet);
 
         assertEquals(4, matchupSet.getNumObservations());

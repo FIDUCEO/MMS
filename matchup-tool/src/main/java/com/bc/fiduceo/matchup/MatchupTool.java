@@ -35,6 +35,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
+import com.bc.fiduceo.matchup.condition.ConditionsContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
@@ -237,7 +238,10 @@ class MatchupTool {
         final int timeDeltaInMillis = timeDelta * 1000;
 
         final ConditionEngine conditionEngine = new ConditionEngine();
-        conditionEngine.configure(useCaseConfig, context.getStartDate(), context.getEndDate());
+        final ConditionsContext conditionsContext = new ConditionsContext();
+        conditionsContext.setStartDate(context.getStartDate());
+        conditionsContext.setEndDate(context.getEndDate());
+        conditionEngine.configure(useCaseConfig, conditionsContext);
 
         final ScreeningEngine screeningEngine = new ScreeningEngine();
         screeningEngine.configure(useCaseConfig);

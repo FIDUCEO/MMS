@@ -42,7 +42,7 @@ public class ConditionEngine {
         }
     }
 
-    public void configure(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
+    public void configure(UseCaseConfig useCaseConfig, ConditionsContext context) {
         final Element conditionsElem = useCaseConfig.getDomElement("conditions");
         if (conditionsElem != null) {
             final List<Element> children = conditionsElem.getChildren();
@@ -54,6 +54,8 @@ public class ConditionEngine {
             }
         }
 
+        final Date startDate = context.getStartDate();
+        final Date endDate = context.getEndDate();
         if (startDate != null && endDate != null && startDate.before(endDate)) {
             final TimeRangeCondition timeRangeCondition = new TimeRangeCondition(startDate, endDate);
             conditionsList.add(timeRangeCondition);
