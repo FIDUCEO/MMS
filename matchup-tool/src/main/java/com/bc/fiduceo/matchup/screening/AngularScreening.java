@@ -33,14 +33,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AngularScreening implements Screening {
+class AngularScreening implements Screening {
 
     private final Interval singlePixel = new Interval(1, 1);
     private Configuration configuration;
     private boolean hasPrimary;
     private boolean hasSecondary;
 
-    public AngularScreening() {
+    AngularScreening() {
         this.configuration = new Configuration();
     }
 
