@@ -34,7 +34,7 @@ class TimeRangeCondition implements Condition {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet) {
+    public void apply(MatchupSet matchupSet, ConditionsContext context) {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final List<SampleSet> targetSets = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {

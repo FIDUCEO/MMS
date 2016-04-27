@@ -36,7 +36,7 @@ public class DistanceConditionTest {
         final DistanceCondition distanceCondition = new DistanceCondition(2.82);
         final MatchupSet matchupSet = new MatchupSet();
 
-        distanceCondition.apply(matchupSet);
+        distanceCondition.apply(matchupSet, new ConditionsContext());
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -50,7 +50,7 @@ public class DistanceConditionTest {
         sampleSets.add(createSampleSet(-11.5, 22.5, -10.0, 20.0));  // <- this one gets removed
         sampleSets.add(createSampleSet(-12.0, 23.0, -12.002, 22.998));
 
-        distanceCondition.apply(matchupSet);
+        distanceCondition.apply(matchupSet, new ConditionsContext());
 
         assertEquals(2, matchupSet.getNumObservations());
     }

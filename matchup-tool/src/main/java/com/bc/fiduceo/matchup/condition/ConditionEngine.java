@@ -36,9 +36,9 @@ public class ConditionEngine {
         conditionsList = new ArrayList<>();
     }
 
-    public void process(MatchupSet matchupSet) {
+    public void process(MatchupSet matchupSet, ConditionsContext context) {
         for (final Condition condition : conditionsList) {
-            condition.apply(matchupSet);
+            condition.apply(matchupSet, context);
         }
     }
 

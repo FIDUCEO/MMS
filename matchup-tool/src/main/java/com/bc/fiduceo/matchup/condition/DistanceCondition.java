@@ -49,7 +49,7 @@ class DistanceCondition implements Condition {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet) {
+    public void apply(MatchupSet matchupSet, ConditionsContext context) {
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {

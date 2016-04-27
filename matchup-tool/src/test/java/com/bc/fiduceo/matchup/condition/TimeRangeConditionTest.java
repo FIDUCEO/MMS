@@ -42,7 +42,7 @@ public class TimeRangeConditionTest {
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
 
-        timeRangeCondition.apply(matchupSet);
+        timeRangeCondition.apply(matchupSet, new ConditionsContext());
 
         assertEquals(3, matchupSet.getNumObservations());
         final List<SampleSet> resultSet = matchupSet.getSampleSets();

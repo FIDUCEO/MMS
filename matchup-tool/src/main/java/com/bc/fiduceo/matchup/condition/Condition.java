@@ -25,5 +25,5 @@ import com.bc.fiduceo.matchup.MatchupSet;
 
 interface Condition {
 
-    void apply(MatchupSet matchupSet);
+    void apply(MatchupSet matchupSet, ConditionsContext context);
 }

@@ -38,16 +38,18 @@ public class ConditionEngineTest {
 
     private ConditionEngine conditionEngine;
     private MatchupSet matchupSet;
+    private ConditionsContext context;
 
     @Before
     public void setUp() {
         conditionEngine = new ConditionEngine();
         matchupSet = new MatchupSet();
+        context = new ConditionsContext();
     }
 
     @Test
     public void testApply_noConditions_emptySet() {
-        conditionEngine.process(matchupSet);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -56,7 +58,7 @@ public class ConditionEngineTest {
     public void testApply_noConditions_oneMatchup() {
         matchupSet.getSampleSets().add(createSampleSet(2000, 30000));
 
-        conditionEngine.process(matchupSet);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(1, matchupSet.getNumObservations());
     }
@@ -68,7 +70,7 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(19887, 3668));
         sampleSets.add(createSampleSet(8837, 662));
 
-        conditionEngine.process(matchupSet);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(3, matchupSet.getNumObservations());
     }
@@ -87,8 +89,8 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(200200, 100500));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, new ConditionsContext());
-        conditionEngine.process(matchupSet);
+        conditionEngine.configure(useCaseConfig, context);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(2, matchupSet.getNumObservations());
     }
@@ -110,11 +112,10 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
 
-        final ConditionsContext context = new ConditionsContext();
         context.setStartDate(startDate);
         context.setEndDate(endDate);
         conditionEngine.configure(UseCaseConfig.load(UseCaseConfigBuilder.build("name").getStream()), context);
-        conditionEngine.process(matchupSet);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(3, matchupSet.getNumObservations());
         final List<SampleSet> resultSet = matchupSet.getSampleSets();
@@ -137,8 +138,8 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(20.0, 14.0, 20.002, 13.998));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, new ConditionsContext());
-        conditionEngine.process(matchupSet);
+        conditionEngine.configure(useCaseConfig, context);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(2, matchupSet.getNumObservations());
     }
@@ -160,8 +161,8 @@ public class ConditionEngineTest {
         sampleSets.add(createSampleSet(100200, 100500));
         sampleSets.add(createSampleSet(1.0, 2.0, 3.0, 4.0));    // <- this one gets removed
 
-        conditionEngine.configure(useCaseConfig, new ConditionsContext());
-        conditionEngine.process(matchupSet);
+        conditionEngine.configure(useCaseConfig, context);
+        conditionEngine.process(matchupSet, context);
 
         assertEquals(4, matchupSet.getNumObservations());
     }

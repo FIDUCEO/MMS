@@ -291,7 +291,7 @@ class MatchupTool {
 
                 if (matchupSet.getNumObservations() > 0) {
                     logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                    conditionEngine.process(matchupSet);
+                    conditionEngine.process(matchupSet, conditionsContext);
                     logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
 
                     screeningEngine.process(matchupSet, primaryReader, secondaryReader);
