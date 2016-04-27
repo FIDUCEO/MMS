@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.airs;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
@@ -189,6 +190,11 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public List<Variable> getVariables() {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Dimension getProductSize() {
+        throw new RuntimeException("Not yet implemented");
     }
 
     // package access for testing only tb 2016-01-08

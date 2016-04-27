@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
@@ -94,4 +95,11 @@ public interface Reader extends AutoCloseable {
     ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 
     List<Variable> getVariables() throws InvalidRangeException;
+
+    /**
+     * Retieves the width and height of the product measurement data.
+     *
+     * @return the data Dimension
+     */
+    Dimension getProductSize();
 }

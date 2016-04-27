@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
@@ -545,9 +546,9 @@ public class AVHRR_GAC_Reader_IO_Test {
     @Test
     public void testReadRaw_topRightWindowOut() throws Exception {
         final File avhrrNOAA18Path = createAvhrrNOAA18Path();
-        reader.open(avhrrNOAA18Path);
 
         try {
+            reader.open(avhrrNOAA18Path);
             Array array = reader.readRaw(407, 3, new Interval(9, 9), "relative_azimuth_angle");
             assertNotNull(array);
 
@@ -568,6 +569,38 @@ public class AVHRR_GAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(-32768.0, 6, 8, array);
             NCTestUtils.assertValueAt(-32768.0, 7, 8, array);
             NCTestUtils.assertValueAt(-32768.0, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_NOAA18() throws Exception {
+        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+
+        try {
+            reader.open(avhrrNOAA18Path);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(12239, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_NOAA17() throws Exception {
+        final File avhrrNOAA17Path = createAvhrrNOAA17Path();
+
+        try {
+            reader.open(avhrrNOAA17Path);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(13670, productSize.getNy());
         } finally {
             reader.close();
         }

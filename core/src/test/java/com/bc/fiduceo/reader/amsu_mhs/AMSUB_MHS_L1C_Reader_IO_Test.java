@@ -42,6 +42,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
@@ -1035,6 +1036,38 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, acquisitionTime);
             NCTestUtils.assertValueAt(lowerLineTime, 1, 2, acquisitionTime);
             NCTestUtils.assertValueAt(lowerLineTime, 2, 2, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_MHS_NOAA18() throws IOException, InvalidRangeException {
+        final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+
+        try {
+            reader.open(mhsFile);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(90, productSize.getNx());
+            assertEquals(2385, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_AMSUB_NOAA15() throws IOException, InvalidRangeException {
+        final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
+
+        try {
+            reader.open(amsubFile);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(90, productSize.getNx());
+            assertEquals(2321, productSize.getNy());
         } finally {
             reader.close();
         }

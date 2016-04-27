@@ -171,6 +171,13 @@ public class AVHRR_GAC_Reader implements Reader {
         return variables;
     }
 
+    @Override
+    public com.bc.fiduceo.core.Dimension getProductSize() {
+        final Variable ch1 = netcdfFile.findVariable("ch1");
+        final int[] shape = ch1.getShape();
+        return new com.bc.fiduceo.core.Dimension("ch1", shape[2], shape[1]);
+    }
+
     private Geometries calculateGeometries() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Geometries geometries = new Geometries();

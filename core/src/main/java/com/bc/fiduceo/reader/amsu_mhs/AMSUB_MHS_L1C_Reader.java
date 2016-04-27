@@ -40,6 +40,7 @@
 
 package com.bc.fiduceo.reader.amsu_mhs;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
@@ -276,6 +277,13 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         }
 
         return result;
+    }
+
+    @Override
+    public Dimension getProductSize() {
+        final Variable longitudes = netcdfFile.findVariable(GEOLOCATION_GROUP_NAME + "/Longitude");
+        final int[] shape = longitudes.getShape();
+        return new Dimension("longitude", shape[1], shape[0]);
     }
 
     // package access for testing only tb 2016-04-19

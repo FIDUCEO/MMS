@@ -40,6 +40,7 @@
 
 package com.bc.fiduceo.reader.iasi;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
@@ -156,5 +157,10 @@ public class EumetsatIASIReader implements Reader {
 
         final String attributeValue = globalAttribute.getStringValue();
         return TimeUtils.parse(attributeValue, DATE_FORMAT);
+    }
+
+    @Override
+    public Dimension getProductSize() {
+        throw new RuntimeException("Not yet implemented");
     }
 }
