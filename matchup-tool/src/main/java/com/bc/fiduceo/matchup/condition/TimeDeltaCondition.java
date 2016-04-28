@@ -41,7 +41,7 @@ class TimeDeltaCondition implements Condition {
 
     private final long maxTimeDeltaInMillis;
 
-    public TimeDeltaCondition(long maxTimeDeltaInMillis) {
+    TimeDeltaCondition(long maxTimeDeltaInMillis) {
         this.maxTimeDeltaInMillis = maxTimeDeltaInMillis;
     }
 

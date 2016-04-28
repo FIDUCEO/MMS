@@ -32,25 +32,29 @@ import java.sql.SQLException;
 public class MatchupToolMain {
 
     public static void main(String[] args) throws ParseException, IOException, SQLException, InvalidRangeException {
-        final MatchupTool matchupTool = new MatchupTool();
-
-        if (args.length == 0) {
-            matchupTool.printUsageTo(System.err);
-            return;
+        System.out.println("MatchupToolMain");
+        for (final String arg : args) {
+            System.out.println("  " + arg);
         }
-
-        final CommandLineParser parser = new PosixParser();
-        final CommandLine commandLine = parser.parse(MatchupTool.getOptions(), args);
-        if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
-            matchupTool.printUsageTo(System.err);
-            return;
-        }
-
-        try {
-            matchupTool.run(commandLine);
-        } catch (Throwable e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
-        }
+//        final MatchupTool matchupTool = new MatchupTool();
+//
+//        if (args.length == 0) {
+//            matchupTool.printUsageTo(System.err);
+//            return;
+//        }
+//
+//        final CommandLineParser parser = new PosixParser();
+//        final CommandLine commandLine = parser.parse(MatchupTool.getOptions(), args);
+//        if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
+//            matchupTool.printUsageTo(System.err);
+//            return;
+//        }
+//
+//        try {
+//            matchupTool.run(commandLine);
+//        } catch (Throwable e) {
+//            System.err.println(e.getMessage());
+//            System.exit(-1);
+//        }
     }
 }
