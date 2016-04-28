@@ -39,14 +39,21 @@
             <ny>5</ny>
         </dimension>
     </dimensions>
+
     <conditions>
         <time-delta>
             <time-delta-seconds>300</time-delta-seconds>
         </time-delta>
+        <border-distance>
+            <nx>2</nx>
+            <ny>2</ny>
+        </border-distance>
         <spherical-distance>
             <max-pixel-distance-km>5.657</max-pixel-distance-km>   <!--sqrt(2) * 4km-->
         </spherical-distance>
     </conditions>
+
+
 
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>
 

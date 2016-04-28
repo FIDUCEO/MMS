@@ -264,7 +264,7 @@ class WorkflowTest(unittest.TestCase):
         w.run_matchup(list([('localhost', 24)]), True, self.logdir)
 
         with open('test.status', 'r') as status:
-            self.assertEqual('203 created, 0 running, 0 backlog, 203 processed, 0 failed\n', status.readline())
+            self.assertEqual('104 created, 0 running, 0 backlog, 104 processed, 0 failed\n', status.readline())
 
         with open('test.report', 'r') as report:
-            self.assertEqual(203, len(report.readlines()))
+            self.assertEqual(104, len(report.readlines()))

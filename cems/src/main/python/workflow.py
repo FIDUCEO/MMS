@@ -315,10 +315,14 @@ class Workflow:
                 end_string = self._get_year_day_of_year(chunk.get_end_date())
 
                 job_name = 'matchup-' + name + '-' + start_string + '-' + end_string + '-' + self.usecase_config
+                primary_name = sensor_pair.get_primary_name()
+                pre_condition = 'ingest-' + primary_name + '-' + start_string + '-' + end_string
                 post_condition = 'matchup-' + name + '-' + start_string + '-' + end_string + '-' + self.usecase_config
 
-                job = Job(job_name, 'matchup_start.sh', [job_name], [post_condition],
+                job = Job(job_name, 'matchup_start.sh', [pre_condition], [post_condition],
                           [start_string, end_string, self._get_config_dir(), self.usecase_config])
                 monitor.execute(job)
 
                 date = chunk.get_end_date()
+
+        monitor.wait_for_completion_and_terminate()
