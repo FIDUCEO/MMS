@@ -157,4 +157,12 @@ public class TimeUtilsTest {
         assertNotNull(utcCalendar);
         assertEquals("UTC", utcCalendar.getTimeZone().getID());
     }
+
+    @Test
+    public void testGetBeginOfMoth() {
+        final Date date = TimeUtils.parse("2011-08-19 18:24:53", "yyyy-MM-dd HH:mm:ss");
+
+        final Date begin = TimeUtils.getBeginOfMonth(date);
+        TestUtil.assertCorrectUTCDate(2011, 8, 1, 0, 0, 0, begin);
+    }
 }

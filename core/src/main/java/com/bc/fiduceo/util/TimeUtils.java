@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class TimeUtils {
 
@@ -108,10 +109,49 @@ public class TimeUtils {
         return calendar.getTime();
     }
 
+    public static Date getBeginOfMonth(Date date) {
+        final Calendar utcCalendar = calendarThreadLocal.get();
+        utcCalendar.setTime(date);
+        utcCalendar.set(Calendar.DAY_OF_MONTH, 1);
+        return getBeginningOfDay(utcCalendar.getTime());
+    }
+
+    public static Date getEndOfMonth(Date date) {
+        final Calendar utcCalendar = calendarThreadLocal.get();
+        final int maxDay = utcCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        utcCalendar.setTime(date);
+        utcCalendar.set(Calendar.DAY_OF_MONTH, maxDay);
+        return getEndOfDay(utcCalendar.getTime());
+    }
+
+    public static Date getBeginningOfDay(Date day) {
+        return calendarDayOf(day).getTime();
+    }
+
+    public static Date getEndOfDay(Date day) {
+        final Calendar calendar = calendarThreadLocal.get();
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        return calendar.getTime();
+    }
+
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {
         @Override
         protected Calendar initialValue() {
             return ProductData.UTC.createCalendar();
         }
+    }
+
+    private static Calendar calendarDayOf(Date time) {
+        final Calendar calendar = calendarThreadLocal.get();
+        calendar.setTime(time);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        return calendar;
     }
 }
