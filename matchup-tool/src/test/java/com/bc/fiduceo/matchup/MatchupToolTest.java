@@ -282,14 +282,15 @@ public class MatchupToolTest {
         additionalSensors.add(new Sensor("the sensor"));
         when(config.getAdditionalSensors()).thenReturn(additionalSensors);
 
-        final Geometry geometry = mock(Geometry.class);
+//        final Geometry geometry = mock(Geometry.class);
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
 
-        final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, geometry, startDate, endDate);
+        final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, startDate, endDate);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
-        assertSame(geometry, parameter.getGeometry());
+        // removed due to poor database performance tb 2016-05-02
+        //assertSame(geometry, parameter.getGeometry());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
     }

@@ -90,13 +90,14 @@ class MatchupTool {
     }
 
     // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Geometry geoBounds, Date searchTimeStart, Date searchTimeEnd) {
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
         parameter.setSensorName(secondarySensor.getName());
         parameter.setStartTime(searchTimeStart);
         parameter.setStopTime(searchTimeEnd);
-        parameter.setGeometry(geoBounds);
+        // removed due to poor database performance tb 2016-05-02
+        //parameter.setGeometry(geoBounds);
         return parameter;
     }
 
@@ -258,7 +259,7 @@ class MatchupTool {
             final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
             final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
 
-            final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd, primaryGeoBounds);
+            final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
             for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                 final Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName());
                 secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
@@ -313,9 +314,9 @@ class MatchupTool {
         return matchupCollection;
     }
 
-    private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd, Geometry primaryGeoBounds) throws SQLException {
+    private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, primaryGeoBounds, searchTimeStart, searchTimeEnd);
+        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
         logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
         final Storage storage = context.getStorage();
