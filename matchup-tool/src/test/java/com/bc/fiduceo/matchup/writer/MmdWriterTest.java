@@ -30,6 +30,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
+import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
 import com.bc.fiduceo.tool.ToolContext;
 import org.junit.*;
 import ucar.ma2.Array;
@@ -60,8 +61,7 @@ public class MmdWriterTest {
                     new Sensor("SensorName3")
         );
 
-        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
-                    .build("NameOfTheUseCase")
+        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("NameOfTheUseCase")
                     .withTimeDeltaSeconds(234)
                     .withMaxPixelDistanceKm(12.34f)
                     .withSensors(sensorList)

@@ -16,6 +16,19 @@
  */
 package com.bc.fiduceo.core;
 
+import static com.bc.fiduceo.core.UseCaseConfig.ATTRIBUTE_NAME_NAME;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSION;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSIONS;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NAME;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NX;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NY;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_OUTPUT_PATH;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_PRIMARY;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_ROOT;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSOR;
+import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
+import static com.bc.fiduceo.core.UseCaseConfig.load;
+
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -27,73 +40,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.bc.fiduceo.core.UseCaseConfig.ATTRIBUTE_NAME_NAME;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSION;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSIONS;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NAME;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NX;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NY;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_OUTPUT_PATH;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_PRIMARY;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_ROOT;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSOR;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_TIME_DELTA_SECONDS;
-import static com.bc.fiduceo.core.UseCaseConfig.load;
-
 public class UseCaseConfigBuilder {
 
     private Document document;
 
-    public static UseCaseConfigBuilder build(String name) {
-        final UseCaseConfigBuilder configBuilder = new UseCaseConfigBuilder();
+    public UseCaseConfigBuilder(String name) {
         final Element rootElement = new Element(TAG_NAME_ROOT);
         rootElement.setAttribute(new Attribute(ATTRIBUTE_NAME_NAME, name != null ? name : "testName"));
-        configBuilder.document = new Document(rootElement);
-        return configBuilder;
+        document = new Document(rootElement);
     }
 
-    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
-    public UseCaseConfigBuilder withTimeDeltaSeconds(long seconds) {
-        final Element conditions = ensureChild(getRootElement(), "conditions");
-        final Element timeDelta = ensureChild(conditions, "time-delta");
-        addChild(timeDelta, TAG_NAME_TIME_DELTA_SECONDS, seconds);
-        return this;
-    }
-
-    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
-    public UseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
-        final Element conditions = ensureChild(getRootElement(), "conditions");
-        final Element sphericalDistance = ensureChild(conditions, "spherical-distance");
-        addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
-        return this;
-    }
-
-    // @todo 2 tb/** remove this from core package - is matchup tool specific 2016-04-27
-    public UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
-        final Element screenings = ensureChild(getRootElement(), "screenings");
-        final Element angular = ensureChild(screenings, "angular");
-
-        final Element primaryVariable = ensureChild(angular, "primaryVZAVariable");
-        addAttribute(primaryVariable, "name", primaryVariableName);
-
-        final Element secondaryVariable = ensureChild(angular, "secondaryVZAVariable");
-        addAttribute(secondaryVariable, "name", secondaryVariableName);
-
-        if (!Float.isNaN(maxPrimaryVza)) {
-            addChild(angular, "maxPrimaryVZA", maxPrimaryVza);
-        }
-
-        if (!Float.isNaN(maxSecondaryVza)) {
-            addChild(angular, "maxSecondaryVZA", maxSecondaryVza);
-        }
-
-        if (!Float.isNaN(maxDelta)) {
-            addChild(angular, "maxAngleDelta", maxDelta);
-        }
-
-        return this;
+    public static UseCaseConfigBuilder build(String name) {
+        return new UseCaseConfigBuilder(name);
     }
 
     public InputStream getStream() {
@@ -140,7 +98,7 @@ public class UseCaseConfigBuilder {
         return load(getStream());
     }
 
-    private Element ensureChild(Element element, String tagName) {
+    protected Element ensureChild(Element element, String tagName) {
         Element child = element.getChild(tagName);
         if (child != null) {
             return child;
@@ -150,8 +108,20 @@ public class UseCaseConfigBuilder {
         return child;
     }
 
-    private Element getRootElement() {
+    protected Element getRootElement() {
         return document.getRootElement();
+    }
+
+    protected Element addChild(Element element, String name, long value) {
+        return addChild(element, name, Long.toString(value));
+    }
+
+    protected Element addChild(Element element, String name, float value) {
+        return addChild(element, name, Float.toString(value));
+    }
+
+    protected void addAttribute(Element element, String attributeName, String attributeValue) {
+        element.setAttribute(attributeName, attributeValue);
     }
 
     private Element addChild(Element element, String name, boolean value) {
@@ -160,14 +130,6 @@ public class UseCaseConfigBuilder {
 
     private Element addChild(Element element, String name, int value) {
         return addChild(element, name, Integer.toString(value));
-    }
-
-    private Element addChild(Element element, String name, long value) {
-        return addChild(element, name, Long.toString(value));
-    }
-
-    private Element addChild(Element element, String name, float value) {
-        return addChild(element, name, Float.toString(value));
     }
 
     private Element addChild(Element element, String name) {
@@ -179,9 +141,5 @@ public class UseCaseConfigBuilder {
         child.setText(value);
         element.addContent(child);
         return child;
-    }
-
-    private void addAttribute(Element element, String attributeName, String attributeValue) {
-        element.setAttribute(attributeName, attributeValue);
     }
 }

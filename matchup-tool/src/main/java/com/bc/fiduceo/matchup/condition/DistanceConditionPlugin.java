@@ -20,12 +20,13 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
-
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
 public class DistanceConditionPlugin implements ConditionPlugin {
+
+    public static final String TAG_NAME_CONDITION_NAME = "spherical-distance";
+    public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-distance-km";
 
     @Override
     public DistanceCondition createCondition(Element element) {
@@ -39,6 +40,6 @@ public class DistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "spherical-distance";
+        return TAG_NAME_CONDITION_NAME;
     }
 }

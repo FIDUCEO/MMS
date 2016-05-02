@@ -216,7 +216,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
         return useCaseConfigFile;
     }
 
-    private UseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("mhs-n18");
         primary.setPrimary(true);
@@ -227,8 +227,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
         dimensions.add(new Dimension("mhs-n18", 5, 5));
         dimensions.add(new Dimension("amsub-n15", 5, 5));
 
-        return UseCaseConfigBuilder
-                .build("mmd17")
+        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd17")
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-17").getPath())
                 .withDimensions(dimensions);

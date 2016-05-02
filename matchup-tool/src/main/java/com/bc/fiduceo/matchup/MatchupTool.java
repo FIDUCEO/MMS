@@ -236,14 +236,16 @@ class MatchupTool {
     private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final int timeDelta = useCaseConfig.getTimeDeltaSeconds();
-        final int timeDeltaInMillis = timeDelta * 1000;
 
         final ConditionEngine conditionEngine = new ConditionEngine();
         final ConditionsContext conditionsContext = new ConditionsContext();
         conditionsContext.setStartDate(context.getStartDate());
         conditionsContext.setEndDate(context.getEndDate());
-        conditionEngine.configure(useCaseConfig, conditionsContext);
+        conditionsContext.validateTime(); // don't remove this line!
+        conditionEngine.configure(useCaseConfig);
+
+        final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
+        final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
 
         final ScreeningEngine screeningEngine = new ScreeningEngine();
         screeningEngine.configure(useCaseConfig);
@@ -253,8 +255,8 @@ class MatchupTool {
             final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
             primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
-            final Date searchTimeStart = TimeUtils.addSeconds(-timeDelta, primaryObservation.getStartTime());
-            final Date searchTimeEnd = TimeUtils.addSeconds(timeDelta, primaryObservation.getStopTime());
+            final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryObservation.getStartTime());
+            final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryObservation.getStopTime());
 
             final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
             final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);

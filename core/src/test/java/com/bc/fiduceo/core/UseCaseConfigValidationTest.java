@@ -55,19 +55,6 @@ public class UseCaseConfigValidationTest {
     }
 
     @Test
-    public void testValidation_invalid_missingTimeDelta() {
-        final UseCaseConfig useCaseConfig = createValidConfig();
-
-        useCaseConfig.setTimeDeltaSeconds(-1);
-
-        final ValidationResult result = useCaseConfig.checkValid();
-        assertFalse(result.isValid());
-        final List<String> messages = result.getMessages();
-        assertEquals(1, messages.size());
-        assertEquals("Matchup time delta not configured.", messages.get(0));
-    }
-
-    @Test
     public void testValidation_invalid_missingPrimary() {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
@@ -130,13 +117,13 @@ public class UseCaseConfigValidationTest {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
         useCaseConfig.setOutputPath(null);
-        useCaseConfig.setTimeDeltaSeconds(-1);
+        useCaseConfig.setSensors(Arrays.asList(useCaseConfig.getSensors().get(0)));
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
         final List<String> messages = result.getMessages();
         assertEquals(2, messages.size());
-        assertEquals("Matchup time delta not configured.", messages.get(0));
+        assertEquals("Primary sensor not configured.", messages.get(0));
         assertEquals("Output path not configured.", messages.get(1));
     }
 
@@ -146,7 +133,6 @@ public class UseCaseConfigValidationTest {
 
         return UseCaseConfigBuilder
                     .build("config-name")
-                    .withTimeDeltaSeconds(345)
                     .withSensors(Arrays.asList(
                                 new Sensor("secondary"),
                                 primary))

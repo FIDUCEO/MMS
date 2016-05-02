@@ -60,4 +60,8 @@ class TimeDeltaCondition implements Condition {
         matchupSet.setSampleSets(targetSamples);
         sourceSamples.clear();
     }
+
+    public long getMaxTimeDeltaInMillis() {
+        return maxTimeDeltaInMillis;
+    }
 }

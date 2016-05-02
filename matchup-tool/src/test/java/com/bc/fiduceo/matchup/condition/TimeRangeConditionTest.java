@@ -21,12 +21,16 @@ public class TimeRangeConditionTest {
     private Date startDate;
     private Date endDate;
     private TimeRangeCondition timeRangeCondition;
+    private ConditionsContext context;
 
     @Before
     public void setUp() throws Exception {
         startDate = new Date();
         endDate = new Date(startDate.getTime() + twelveDays);
-        timeRangeCondition = new TimeRangeCondition(startDate, endDate);
+        context = new ConditionsContext();
+        context.setStartDate(startDate);
+        context.setEndDate(endDate);
+        timeRangeCondition = new TimeRangeCondition();
     }
 
     @Test
@@ -42,7 +46,7 @@ public class TimeRangeConditionTest {
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed
 
-        timeRangeCondition.apply(matchupSet, new ConditionsContext());
+        timeRangeCondition.apply(matchupSet, context);
 
         assertEquals(3, matchupSet.getNumObservations());
         final List<SampleSet> resultSet = matchupSet.getSampleSets();

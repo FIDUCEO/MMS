@@ -115,22 +115,6 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testLoad__timeDelta() {
-        final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                                  "  <conditions>" +
-                                  "    <time-delta>" +
-                                  "      <time-delta-seconds>300</time-delta-seconds>" +
-                                  "    </time-delta>" +
-                                  "  </conditions>" +
-                                  "</use-case-config>";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
-
-        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
-        assertEquals("use-case 20", useCaseConfig.getName());
-        assertEquals(300, useCaseConfig.getTimeDeltaSeconds());
-    }
-
-    @Test
     public void testLoad__outputPath() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
                                   "  <output-path>file/system/path</output-path>" +
@@ -176,17 +160,14 @@ public class UseCaseConfigTest {
     @Test
     public void testStore() throws IOException {
 
-        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
-                    .build("test_use_case")
+        final UseCaseConfig useCaseConfig = new UseCaseConfigBuilder("test_use_case")
                     .withSensors(Arrays.asList(
                                 new Sensor("first"),
                                 new Sensor("second")))
                     .withDimensions(Arrays.asList(
                                 new Dimension("first", 11, 15),
                                 new Dimension("second", 3, 5)))
-                    .withTimeDeltaSeconds(12345)
                     .withOutputPath("wherever/you/want/it")
-                    .withMaxPixelDistanceKm(14.8f)
                     .createConfig();
 
 
@@ -217,14 +198,6 @@ public class UseCaseConfigTest {
         pw.println("      <ny>5</ny>");
         pw.println("    </dimension>");
         pw.println("  </dimensions>");
-        pw.println("  <conditions>");
-        pw.println("    <time-delta>");
-        pw.println("      <time-delta-seconds>12345</time-delta-seconds>");
-        pw.println("    </time-delta>");
-        pw.println("    <spherical-distance>");
-        pw.println("      <max-pixel-distance-km>14.8</max-pixel-distance-km>");
-        pw.println("    </spherical-distance>");
-        pw.println("  </conditions>");
         pw.println("  <output-path>wherever/you/want/it</output-path>");
         pw.println("</use-case-config>");
         pw.flush();
@@ -300,12 +273,6 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testSetGetTimeDelta() {
-        useCaseConfig.setTimeDeltaSeconds(4067);
-        assertEquals(4067, useCaseConfig.getTimeDeltaSeconds());
-    }
-
-    @Test
     public void testSetGetOutputPath() {
         final String path = "/some/where/on/disk";
 
@@ -358,7 +325,5 @@ public class UseCaseConfigTest {
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         assertNotNull(dimensions);
         assertEquals(0, dimensions.size());
-
-        assertEquals(-1, useCaseConfig.getTimeDeltaSeconds());
     }
 }

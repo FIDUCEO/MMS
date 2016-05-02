@@ -28,6 +28,18 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/* The XML template for this condition class looks like:
+
+    <border-distance>
+        <nx>
+            2
+        </nx>
+        <ny>
+            2
+        </ny>
+    </border-distance>
+ */
+
 class BorderDistanceCondition implements Condition {
 
     private final int deltaX;

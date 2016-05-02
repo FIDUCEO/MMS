@@ -20,12 +20,12 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_TIME_DELTA_SECONDS;
-
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
 public class TimeDeltaConditionPlugin implements ConditionPlugin {
+    public static final String TAG_NAME_CONDITION_NAME = "time-delta";
+    public static final String TAG_NAME_TIME_DELTA_SECONDS = "time-delta-seconds";
 
     @Override
     public TimeDeltaCondition createCondition(Element element) {
@@ -39,6 +39,6 @@ public class TimeDeltaConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "time-delta";
+        return TAG_NAME_CONDITION_NAME;
     }
 }

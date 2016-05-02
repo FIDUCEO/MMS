@@ -36,15 +36,11 @@ import java.util.List;
 
 import static com.bc.fiduceo.util.JDomUtils.mandatory_getAttribute;
 import static com.bc.fiduceo.util.JDomUtils.mandatory_getChild;
-import static com.bc.fiduceo.util.JDomUtils.mandatory_getChildTextTrim;
 import static com.bc.fiduceo.util.JDomUtils.mandatory_getRootElement;
 
 public class UseCaseConfig {
 
     public static final String TAG_NAME_ROOT = "use-case-config";
-    // @todo se move the following two tag names
-    public static final String TAG_NAME_TIME_DELTA_SECONDS = "time-delta-seconds";
-    public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-distance-km";
     public static final String TAG_NAME_OUTPUT_PATH = "output-path";
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
@@ -60,13 +56,11 @@ public class UseCaseConfig {
     private String name;
     private List<Sensor> sensors;
     private List<Dimension> dimensions;
-    private int timeDeltaSeconds;
     private String outputPath;
 
     private UseCaseConfig(Document document) {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
-        timeDeltaSeconds = -1;
         this.document = document;
         init();
     }
@@ -129,14 +123,6 @@ public class UseCaseConfig {
         return additionalSensorList;
     }
 
-    public int getTimeDeltaSeconds() {
-        return timeDeltaSeconds;
-    }
-
-    void setTimeDeltaSeconds(int timeDeltaSeconds) {
-        this.timeDeltaSeconds = timeDeltaSeconds;
-    }
-
     public String getOutputPath() {
         return outputPath;
     }
@@ -167,9 +153,6 @@ public class UseCaseConfig {
         if (StringUtils.isNullOrEmpty(name)) {
             setInvalidWithMessage("Use case name not configured.", validationResult);
         }
-        if (timeDeltaSeconds < 0) {
-            setInvalidWithMessage("Matchup time delta not configured.", validationResult);
-        }
         if (getPrimarySensor() == null) {
             setInvalidWithMessage("Primary sensor not configured.", validationResult);
         }
@@ -194,14 +177,6 @@ public class UseCaseConfig {
     private void init() {
         final Element rootElement = mandatory_getRootElement(document);
         setName(mandatory_getAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
-        final Element conditions = rootElement.getChild("conditions");
-        if (conditions != null) {
-            final Element timeDelta = conditions.getChild("time-delta");
-            if (timeDelta != null) {
-                final String trimmed = mandatory_getChildTextTrim(timeDelta, TAG_NAME_TIME_DELTA_SECONDS);
-                setTimeDeltaSeconds(Integer.valueOf(trimmed));
-            }
-        }
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {
             setOutputPath(outputPath.getValue());

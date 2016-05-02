@@ -34,7 +34,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.math.FloatRange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -213,7 +212,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         return useCaseConfigFile;
     }
 
-    private UseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
         primary.setPrimary(true);
@@ -224,8 +223,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         dimensions.add(new Dimension("avhrr-n17", 5, 5));
         dimensions.add(new Dimension("avhrr-n18", 5, 5));
 
-        return UseCaseConfigBuilder
-                    .build("mmd02")
+        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd02")
                     .withSensors(sensorList)
                     .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath())
                     .withDimensions(dimensions);

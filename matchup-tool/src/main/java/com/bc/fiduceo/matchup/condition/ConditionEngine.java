@@ -25,11 +25,11 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import org.jdom.Element;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ConditionEngine {
 
+    public static final String TAG_NAME_CONDITIONS = "conditions";
     private final List<Condition> conditionsList;
 
     public ConditionEngine() {
@@ -42,8 +42,8 @@ public class ConditionEngine {
         }
     }
 
-    public void configure(UseCaseConfig useCaseConfig, ConditionsContext context) {
-        final Element conditionsElem = useCaseConfig.getDomElement("conditions");
+    public void configure(UseCaseConfig useCaseConfig) {
+        final Element conditionsElem = useCaseConfig.getDomElement(TAG_NAME_CONDITIONS);
         if (conditionsElem != null) {
             final List<Element> children = conditionsElem.getChildren();
             for (Element child : children) {
@@ -53,12 +53,16 @@ public class ConditionEngine {
                 }
             }
         }
+        conditionsList.add(new TimeRangeCondition());
+    }
 
-        final Date startDate = context.getStartDate();
-        final Date endDate = context.getEndDate();
-        if (startDate != null && endDate != null && startDate.before(endDate)) {
-            final TimeRangeCondition timeRangeCondition = new TimeRangeCondition(startDate, endDate);
-            conditionsList.add(timeRangeCondition);
+    public long getMaxTimeDeltaInMillis() {
+        for (Condition condition : conditionsList) {
+            if (condition instanceof TimeDeltaCondition) {
+                TimeDeltaCondition tdc = (TimeDeltaCondition) condition;
+                return tdc.getMaxTimeDeltaInMillis();
+            }
         }
+        return 0;
     }
 }

@@ -54,15 +54,15 @@ public class MatchupToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
     private final String expectedPrintUsage = "matchup-tool version 1.0.0" + ls +
-            ls +
-            "usage: matchup-tool <options>" + ls +
-            "Valid options are:" + ls +
-            "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-            "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-            "   -h,--help                   Prints the tool usage." + ls +
-            "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-            "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-            "                               configuration directory." + ls;
+                                              ls +
+                                              "usage: matchup-tool <options>" + ls +
+                                              "Valid options are:" + ls +
+                                              "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                                              "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                                              "   -h,--help                   Prints the tool usage." + ls +
+                                              "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                                              "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                                              "                               configuration directory." + ls;
     private File configDir;
 
     @Before
@@ -248,13 +248,12 @@ public class MatchupToolIntegrationTest {
         sensorList.add(primary);
         sensorList.add(new Sensor("avhrr-n18"));
 
-        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
-                    .build("use-case-15")
+        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("use-case-15")
+                    .withTimeDeltaSeconds(2)
                     .withSensors(sensorList)
                     .withDimensions(Arrays.asList(
                                 new Dimension("avhrr-n17", 2, 3),
                                 new Dimension("avhrr-n18", 2, 3)))
-                    .withTimeDeltaSeconds(2)
                     .withOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath())
                     .createConfig();
 

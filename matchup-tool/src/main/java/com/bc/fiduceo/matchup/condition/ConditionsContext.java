@@ -62,4 +62,9 @@ public class ConditionsContext {
     public void setSecondarySize(Dimension secondarySize) {
         this.secondarySize = secondarySize;
     }
+
+    public void validateTime() {
+        if (endDate == null || startDate == null || endDate.before(startDate))
+        throw new RuntimeException("End date and/or start date are not valid.");
+    }
 }

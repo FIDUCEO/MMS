@@ -53,7 +53,32 @@
         </spherical-distance>
     </conditions>
 
+    <screenings>
+        <angular>
+            <!-- TODO se -->
+            <!-- omit of no screening using the primary sensor is required -->
+            <primaryVZAVariable name="blabla" />
 
+            <!-- omit of no screening using the secondary sensor is required -->
+            <secondaryVZAVariable name="blabla" />
+
+            <!-- set max threshold in degrees for the primary sensor VZA. Removing this tag switches primary VZA screening off. -->
+            <maxPrimaryVZA>
+                10.0
+            </maxPrimaryVZA>
+
+            <!-- set max threshold in degrees for the secondary sensor VZA. Removing this tag switches secondary VZA screening off-->
+            <maxSecondaryVZA>
+                10.0
+            </maxSecondaryVZA>
+
+             <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA selta screening off -->
+            <maxAngleDelta>
+                10.0
+            </maxAngleDelta>
+        </angular>
+
+    </screenings>
 
     <output-path>/group_workspaces/cems2/fiduceo/Software/mms/output/mmd02</output-path>
 
