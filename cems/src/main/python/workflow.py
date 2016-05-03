@@ -189,7 +189,7 @@ class Workflow:
         sensors = self._get_primary_sensors()
         for sensor in sensors:
             sensor_period = sensor.get_period()
-            date = sensor_period.get_start_date()
+            date = sensor_period.get_start_date()- datetime.timedelta(days=1)
             while date < sensor_period.get_end_date():
                 chunk = self._get_next_period(date)
                 if chunk is None:
@@ -275,7 +275,7 @@ class Workflow:
         sensors = self._get_primary_sensors()
         for sensor in sensors:
             sensor_period = sensor.get_period()
-            date = sensor_period.get_start_date()
+            date = sensor_period.get_start_date() - datetime.timedelta(days=1)
             data_version = sensor.get_data_version()
             while date < sensor_period.get_end_date():
                 chunk = self._get_next_period(date)
@@ -308,7 +308,7 @@ class Workflow:
             name = sensor_pair.get_name()
             """:type : str"""
             sensor_period = sensor_pair.get_period()
-            date = sensor_period.get_start_date()
+            date = sensor_period.get_start_date() - datetime.timedelta(days=1)
             while date < sensor_period.get_end_date():
                 chunk = self._get_next_period(date)
                 start_string = self._get_year_day_of_year(chunk.get_start_date())

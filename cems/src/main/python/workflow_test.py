@@ -159,7 +159,7 @@ class WorkflowTest(unittest.TestCase):
         preconditions = list()
         preconditions = w._add_inp_preconditions(preconditions)
         self.assertEqual(232, len(preconditions))
-        self.assertEqual('ingest-avhrr.n10-1986-322-1986-329', preconditions[0])
+        self.assertEqual('ingest-avhrr.n10-1986-321-1986-328', preconditions[0])
         self.assertEqual('ingest-avhrr.n10-1989-048-1989-055', preconditions[108])
         self.assertEqual('ingest-avhrr.n10-1991-252-1991-259', preconditions[231])
 
@@ -171,7 +171,7 @@ class WorkflowTest(unittest.TestCase):
         preconditions = list()
         preconditions = w._add_inp_preconditions(preconditions)
         self.assertEqual(153, len(preconditions))
-        self.assertEqual('ingest-avhrr.n12-1985-290-1985-303', preconditions[0])
+        self.assertEqual('ingest-avhrr.n12-1985-289-1985-302', preconditions[0])
         self.assertEqual('ingest-avhrr.n12-1986-210-1986-212', preconditions[27])
         self.assertEqual('ingest-avhrr.n12-1987-166-1987-179', preconditions[58])
 
@@ -256,15 +256,15 @@ class WorkflowTest(unittest.TestCase):
             self.assertEqual(203, len(report.readlines()))
 
     def test_matchup_avhrr_n08_avhrr_n07(self):
-        w = Workflow('test', 7,'/group_workspaces/cems2/fiduceo/Software/mms/config')
-        w.add_primary_sensor('avhrr-n08', '1983-05-04', '1985-10-03', 'v01.2')
-        w.add_secondary_sensor('avhrr-n07', '1981-09-01', '1985-01-30', 'v01.2')
+        w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config')
+        w.add_primary_sensor('avhrr-n18', '2008-05-01', '2008-05-31', 'v01.2')
+        w.add_secondary_sensor('avhrr-n17', '2008-05-01', '2008-05-31', 'v01.2')
 
-        w.set_usecase_config("mms02.xml")
-        w.run_matchup(list([('localhost', 24)]), True, self.logdir)
+        w.set_usecase_config('usecase-02.xml')
+        w.run_matchup(list([('localhost', 4)]), True, self.logdir)
 
         with open('test.status', 'r') as status:
-            self.assertEqual('104 created, 0 running, 0 backlog, 104 processed, 0 failed\n', status.readline())
+            self.assertEqual('5 created, 0 running, 0 backlog, 5 processed, 0 failed\n', status.readline())
 
         with open('test.report', 'r') as report:
-            self.assertEqual(104, len(report.readlines()))
+            self.assertEqual(5, len(report.readlines()))
