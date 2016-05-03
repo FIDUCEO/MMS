@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public final class SamplingPointPlotter {
+final class SamplingPointPlotter {
 
     private static final int WIDTH = 800;
     private static final int HEIGHT = 400;
@@ -43,15 +43,12 @@ public final class SamplingPointPlotter {
     private String windowTitle;
     private String mapStrategyName;
 
-    public SamplingPointPlotter() {
-    }
-
-    public SamplingPointPlotter samples(List<SamplingPoint> samples) {
+    SamplingPointPlotter samples(List<SamplingPoint> samples) {
         this.samples = samples;
         return this;
     }
 
-    public SamplingPointPlotter filePath(String filePath) {
+    SamplingPointPlotter filePath(String filePath) {
         this.filePath = filePath;
         return this;
     }
@@ -81,7 +78,7 @@ public final class SamplingPointPlotter {
         return this;
     }
 
-    public BufferedImage plot() throws IOException {
+    BufferedImage plot() throws IOException {
         final MapStrategy strategy = getMapStrategy();
         strategy.initialize(samples);
 
@@ -173,11 +170,6 @@ public final class SamplingPointPlotter {
         } else {
             return new LonLatMapStrategy(WIDTH, HEIGHT);
         }
-    }
-
-    // for creating a movie
-    public static void main(String[] args) throws IOException {
-        // @todo 1 tb/tb implement
     }
 }
 

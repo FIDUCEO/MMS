@@ -20,9 +20,52 @@
 
 package com.bc.fiduceo.matchup.plot;
 
+import com.bc.fiduceo.core.SamplingPoint;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class MapPlotTool {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InvalidRangeException {
+        NetcdfFile netcdfFile = null;
+        try {
+            netcdfFile = NetcdfFile.open(args[0]);
+            final Variable lonVariable = netcdfFile.findVariable("avhrr-n18_lon");
+            final Variable latVariable = netcdfFile.findVariable("avhrr-n18_lat");
+            final Variable timeVariable = netcdfFile.findVariable("avhrr-n18_acquisition_time");
 
+            final int[] shape = lonVariable.getShape();
+            shape[1] = 1;
+            shape[2] = 1;
+            final int[] offsets = new int[shape.length];
+            offsets[0] = 0;
+            offsets[1] = 2;
+            offsets[2] = 2;
+
+            final Array lonArray = lonVariable.read(offsets, shape);
+            final Array latArray = latVariable.read(offsets, shape);
+            final Array timeArray = timeVariable.read(offsets, shape);
+
+            final ArrayList<SamplingPoint> samplingPoints = new ArrayList<>();
+            for (int i = 0; i < shape[0] ; i++){
+                final double lon = lonArray.getDouble(i);
+                final double lat = latArray.getDouble(i);
+                final int time = timeArray.getInt(i);
+                samplingPoints.add(new SamplingPoint(lon, lat, time));
+            }
+
+            final BufferedImage plot = new SamplingPointPlotter().samples(samplingPoints).filePath("D:\\Satellite\\Fiduceo\\MMD02\\blabla.png").plot();
+
+        } finally {
+            if (netcdfFile != null) {
+                netcdfFile.close();
+            }
+        }
     }
 }
