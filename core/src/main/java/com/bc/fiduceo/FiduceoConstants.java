@@ -24,15 +24,17 @@ public class FiduceoConstants {
 
 
     public static final String VERSION;
+    public static final String VERSION_NUMBER;
+    public static final String TIME_STAMP;
 
     static {
         InputStream in = FiduceoConstants.class.getResourceAsStream("/fiduceo-version.properties");
         final Properties fiduceoVersionProperties = new Properties();
         try {
             fiduceoVersionProperties.load(in);
-            VERSION = String.format("Fiduceo version %s (built %s)",
-                                    fiduceoVersionProperties.get("version"),
-                                    fiduceoVersionProperties.get("timestamp"));
+            VERSION_NUMBER = (String) fiduceoVersionProperties.get("version");
+            TIME_STAMP = (String) fiduceoVersionProperties.get("timestamp");
+            VERSION = String.format("Fiduceo version %s (built %s)", VERSION_NUMBER, TIME_STAMP);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

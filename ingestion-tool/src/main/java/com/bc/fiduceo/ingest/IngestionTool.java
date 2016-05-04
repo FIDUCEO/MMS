@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.ingest;
 
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
@@ -52,7 +54,6 @@ import java.util.regex.Pattern;
 
 class IngestionTool {
 
-    private static final String VERSION = "1.0.0";
     private final Logger logger;
 
     IngestionTool() {
@@ -60,7 +61,7 @@ class IngestionTool {
     }
 
     void run(CommandLine commandLine) throws IOException, SQLException {
-        logger.info("Start ingestion, Ingestion Tool version '" + VERSION + "'");
+        logger.info("Start ingestion, Ingestion Tool version '" + VERSION_NUMBER + "'");
 
         final String configDirPath = commandLine.getOptionValue("config");
         final Path confDirPath = Paths.get(configDirPath);
@@ -134,7 +135,7 @@ class IngestionTool {
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("ingestion-tool version " + VERSION);
+        writer.write("ingestion-tool version " + VERSION_NUMBER);
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();

@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup;
 
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
@@ -66,7 +68,6 @@ import java.util.logging.Logger;
 
 class MatchupTool {
 
-    private static String VERSION = "1.0.0";
     private final Logger logger;
     private final ReaderFactory readerFactory;
 
@@ -174,7 +175,7 @@ class MatchupTool {
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
         final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION);
+        writer.write("matchup-tool version " + VERSION_NUMBER);
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
