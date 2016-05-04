@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.writer;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
@@ -132,11 +133,14 @@ public class MmdWriter_IO_Test {
         try {
             mmd = NetcdfFile.open(mmdFile.toString());
 
+            assertEquals(8, mmd.getGlobalAttributes().size());
+
             assertGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)", mmd);
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
             assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
+            assertGlobalAttribute("software_version", FiduceoConstants.VERSION, mmd);
 
             final Attribute comment = mmd.findGlobalAttribute("comment");
             assertNotNull(comment);
