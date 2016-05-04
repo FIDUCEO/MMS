@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.Sensor;
@@ -352,6 +353,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         addGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)");
         addGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
         addGlobalAttribute("creation_date", TimeUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+        addGlobalAttribute("software_version", FiduceoConstants.VERSION);
     }
 
     private void addGlobalAttribute(String name, String val) {
