@@ -16,8 +16,6 @@ import java.util.List;
 public class TimeRangeConditionTest {
 
     private final int oneDayMillis = 1000 * 60 * 60 * 24;
-    private final int fiveDays = 5 * oneDayMillis;
-    private final int twelveDays = 12 * oneDayMillis;
     private Date startDate;
     private Date endDate;
     private TimeRangeCondition timeRangeCondition;
@@ -26,7 +24,10 @@ public class TimeRangeConditionTest {
     @Before
     public void setUp() throws Exception {
         startDate = new Date();
+
+        final int twelveDays = 12 * oneDayMillis;
         endDate = new Date(startDate.getTime() + twelveDays);
+
         context = new ConditionsContext();
         context.setStartDate(startDate);
         context.setEndDate(endDate);
@@ -42,6 +43,7 @@ public class TimeRangeConditionTest {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(startTime - 1, 100500));    // <- this one gets removed
         sampleSets.add(createSampleSet(startTime, 100100));
+        final int fiveDays = 5 * oneDayMillis;
         sampleSets.add(createSampleSet(startTime + fiveDays, 100500));
         sampleSets.add(createSampleSet(endTime, 100500));
         sampleSets.add(createSampleSet(endTime + 1, 100500));    // <- this one gets removed

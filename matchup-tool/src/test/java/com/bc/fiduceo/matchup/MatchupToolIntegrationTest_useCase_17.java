@@ -55,7 +55,6 @@ public class MatchupToolIntegrationTest_useCase_17 {
 
     private File configDir;
     private Storage storage;
-    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws SQLException {
@@ -65,7 +64,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
             fail("unable to create test directory: " + configDir.getAbsolutePath());
         }
 
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
         storage.clear();
         storage.initialize();

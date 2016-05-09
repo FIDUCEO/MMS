@@ -35,5 +35,5 @@ public interface Polygon extends Geometry {
      * Return the true centroid of the polygon multiplied by the area of the
      * polygon. Note that the centroid may not be contained by the polygon.
      */
-    public Point getCentroid();
+    Point getCentroid();
 }
