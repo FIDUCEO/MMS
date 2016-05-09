@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 class ClippingPixelLocator implements PixelLocator {
 
-    // @todo 3 tb/se change tests, we should not access inner object states to run tests 2016-04-14
     final PixelLocator pixelLocator;
     final int minY;
     final int maxY;

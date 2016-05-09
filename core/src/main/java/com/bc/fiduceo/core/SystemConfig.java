@@ -55,4 +55,8 @@ public class SystemConfig {
     public String getNetcdfFormat() {
         return properties.getProperty("netcdf-format").trim();
     }
+
+    public int getMmdWriterCacheSize() {
+        return Integer.parseInt(properties.getProperty("mmd-writer-cache-size").trim());
+    }
 }

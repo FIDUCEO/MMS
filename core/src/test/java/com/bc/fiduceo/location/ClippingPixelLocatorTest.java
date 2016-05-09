@@ -14,9 +14,9 @@ public class ClippingPixelLocatorTest {
 
     @Test
     public void testClipPixelAnswer() throws Exception {
+        final Point2D.Double yIs2 = new Point2D.Double(200, 2);
         final Point2D.Double yIs3 = new Point2D.Double(200, 3);
         final Point2D.Double yIs7 = new Point2D.Double(200, 7);
-        final Point2D.Double yIs2 = new Point2D.Double(200, 2);
         final Point2D.Double yIs8 = new Point2D.Double(200, 8);
         final PixelLocator mock = mock(PixelLocator.class);
         final Point2D[] mockAnswer = {yIs2, yIs3, yIs7, yIs8,};

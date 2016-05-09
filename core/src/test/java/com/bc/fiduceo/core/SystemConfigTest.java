@@ -57,6 +57,7 @@ public class SystemConfigTest {
         properties.setProperty("archive-root", testDirectory.getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
         properties.setProperty("netcdf-format", "N3");
+        properties.setProperty("mmd-writer-cache-size", "1234");
         final FileOutputStream outputStream = new FileOutputStream(systemConfigFile);
         properties.store(outputStream, "");
         outputStream.close();
@@ -67,5 +68,6 @@ public class SystemConfigTest {
         assertEquals(testDirectory.getAbsolutePath(), systemConfig.getArchiveRoot());
         assertEquals("S2", systemConfig.getGeometryLibraryType());
         assertEquals("N3", systemConfig.getNetcdfFormat());
+        assertEquals(1234, systemConfig.getMmdWriterCacheSize());
     }
 }
