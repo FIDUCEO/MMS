@@ -61,7 +61,7 @@ public class VariablesConfiguration {
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
                 final VariablePrototype prototype = new VariablePrototype();
-                prototype.setSourceVariableName(variable.getFullName());
+                prototype.setSourceVariableName(variable.getShortName());
                 prototype.setTargetVariableName(sensorName + "_" + variable.getShortName());
                 prototype.setDataType(variable.getDataType().toString());
                 prototype.setDimensionNames(dimensionNames);

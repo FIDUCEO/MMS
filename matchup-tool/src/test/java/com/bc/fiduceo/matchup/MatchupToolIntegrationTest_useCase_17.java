@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
@@ -80,7 +81,6 @@ public class MatchupToolIntegrationTest_useCase_17 {
         TestUtil.deleteTestDirectory();
     }
 
-    @Ignore
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
@@ -89,6 +89,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(600)  // 10 minutes is large enough to get some matchups
                 .withMaxPixelDistanceKm(5)
+                .withAngularCosineScreening("Satellite_zenith_angle", "Satellite_zenith_angle", 0.01f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
@@ -103,41 +104,67 @@ public class MatchupToolIntegrationTest_useCase_17 {
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            NCTestUtils.assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
-//            NCTestUtils.assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
-//            NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
-//
-//            NCTestUtils.assertScalarVariable("avhrr-n18_x", 3, 79.0, mmd);
-//            NCTestUtils.assertScalarVariable("avhrr-n18_y", 4, 2306.0, mmd);
-//            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_ch1", 1, 1, 28, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_ch2", 2, 1, 29, 5.0, mmd);
-//            // @todo 2 tb/** add more assertions here
+            NCTestUtils.assert3DVariable("amsub-n15_Latitude", 0, 0, 0, 744233.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Longitude", 0, 0, 1, -385331.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Satellite_azimuth_angle", 0, 0, 2, 19563.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Satellite_zenith_angle", 0, 0, 3, 3859.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Solar_azimuth_angle", 0, 0, 4, 13371.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Solar_zenith_angle", 0, 0, 5, 6727.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_acquisition_time", 0, 0, 0, 1187783149.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch16", 0, 0, 1, 17371.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch17", 0, 0, 2, 18808.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch18", 0, 0, 3, 24152.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch19", 0, 0, 4, 25313.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch20", 0, 0, 5, 23665.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch16", 0, 0, 0, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch17", 0, 0, 1, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch18", 0, 0, 2, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch19", 0, 0, 3, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch20", 0, 0, 4, 0.0, mmd);
+
+            NCTestUtils.assertStringVariable("amsub-n15_file_name", 5, "L0502033.NSS.AMBX.NK.D07234.S1004.E1149.B4821213.WI.h5", mmd);
+
+            NCTestUtils.assert3DVariable("amsub-n15_instrtemp", 0, 0, 0, 29273.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_qualind", 0, 0, 1, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scanqual", 0, 0, 2, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlin", 0, 0, 3, 2284.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlindy", 0, 0, 4, 234.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlintime", 0, 0, 5, 42349120.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlinyr", 0, 0, 0, 2007.0, mmd);
+
+            NCTestUtils.assertScalarVariable("amsub-n15_x", 1, 14.0, mmd);
+            NCTestUtils.assertScalarVariable("amsub-n15_y", 2, 2283.0, mmd);
+
+            NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 3, 744460.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Longitude", 0, 0, 4, -384918.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Satellite_azimuth_angle", 0, 0, 5, 24945.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Satellite_zenith_angle", 0, 0, 0, 3788.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Solar_azimuth_angle", 0, 0, 1, 13630.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Solar_zenith_angle", 0, 0, 2, 6680.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_acquisition_time", 0, 0, 3, 1187783732.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch1", 0, 0, 4, 17519.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch2", 0, 0, 5, 19169.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch3", 0, 0, 0, 23988.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch4", 0, 0, 1, 24827.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch5", 0, 0, 2, 23354.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch1", 0, 0, 3, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch2", 0, 0, 4, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch3", 0, 0, 5, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch4", 0, 0, 0, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch5", 0, 0, 1, 0.0, mmd);
+
+            NCTestUtils.assertStringVariable("mhs-n18_file_name", 2, "NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5", mmd);
+
+            NCTestUtils.assert3DVariable("mhs-n18_instrtemp", 0, 0, 3, 29376.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_qualind", 0, 0, 4, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scanqual", 0, 0, 5, 0.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlin", 0, 0, 0, 2373.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlindy", 0, 0, 1, 234.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlintime", 0, 0, 2, 42937943.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlinyr", 0, 0, 3, 2007.0, mmd);
+
+            NCTestUtils.assertScalarVariable("mhs-n18_x", 4, 14.0, mmd);
+            NCTestUtils.assertScalarVariable("mhs-n18_y", 5, 2374.0, mmd);
         }
     }
 
@@ -164,7 +191,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
     }
 
     private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
+        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-233"), TimeUtils.parseDOYEndOfDay("2007-235"));
         return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 
@@ -188,8 +215,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
 
     private SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.get();
-        final Reader reader = readerFactory.getReader(sensorKey);
-        try {
+        try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
             final SatelliteObservation satelliteObservation = new SatelliteObservation();
@@ -202,8 +228,6 @@ public class MatchupToolIntegrationTest_useCase_17 {
             satelliteObservation.setVersion("v1.0");
 
             return satelliteObservation;
-        } finally {
-            reader.close();
         }
     }
 
@@ -224,8 +248,8 @@ public class MatchupToolIntegrationTest_useCase_17 {
         sensorList.add(new Sensor("amsub-n15"));
 
         final List<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("mhs-n18", 5, 5));
-        dimensions.add(new Dimension("amsub-n15", 5, 5));
+        dimensions.add(new Dimension("mhs-n18", 1, 1));
+        dimensions.add(new Dimension("amsub-n15", 1, 1));
 
         return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd17")
                 .withSensors(sensorList)

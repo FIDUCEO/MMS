@@ -70,4 +70,21 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
+    public UseCaseConfigBuilder withAngularCosineScreening(String primaryVZAName, String secondaryVZAName, float threshold) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element angular = ensureChild(screenings, "angular-cosine-proportion");
+
+        final Element primaryVariable = ensureChild(angular, "primary-variable");
+        addAttribute(primaryVariable, "name", primaryVZAName);
+
+        final Element secondaryVariable = ensureChild(angular, "secondary-variable");
+        addAttribute(secondaryVariable, "name", secondaryVZAName);
+
+        if (!Float.isNaN(threshold)) {
+            addChild(angular, "threshold", threshold);
+        }
+
+        return this;
+    }
+
 }
