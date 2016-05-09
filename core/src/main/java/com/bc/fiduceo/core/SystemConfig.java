@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.core;
 
+import org.esa.snap.core.util.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,6 +59,10 @@ public class SystemConfig {
     }
 
     public int getMmdWriterCacheSize() {
-        return Integer.parseInt(properties.getProperty("mmd-writer-cache-size").trim());
+        final String cacheSizeString = properties.getProperty("mmd-writer-cache-size");
+        if (StringUtils.isNotNullAndNotEmpty(cacheSizeString)) {
+            return Integer.parseInt(cacheSizeString.trim());
+        }
+        return 2048;
     }
 }

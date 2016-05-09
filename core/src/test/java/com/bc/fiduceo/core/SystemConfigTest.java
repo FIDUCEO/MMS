@@ -70,4 +70,11 @@ public class SystemConfigTest {
         assertEquals("N3", systemConfig.getNetcdfFormat());
         assertEquals(1234, systemConfig.getMmdWriterCacheSize());
     }
+
+    @Test
+    public void testDefaultValues() {
+        final SystemConfig systemConfig = new SystemConfig();
+
+        assertEquals(2048, systemConfig.getMmdWriterCacheSize());
+    }
 }

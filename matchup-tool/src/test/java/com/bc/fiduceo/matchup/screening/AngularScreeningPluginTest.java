@@ -115,5 +115,4 @@ public class AngularScreeningPluginTest {
         assertEquals(13.5, configuration.maxAngleDelta, 1e-8);
         assertTrue(configuration.useDelta);
     }
-
 }

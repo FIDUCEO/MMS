@@ -62,6 +62,16 @@ public class ScreeningFactoryTest {
     }
 
     @Test
+    public void testGetScreening_angularCosineProportion() throws JDOMException, IOException {
+        final String XML = "<angular-cosine-proportion/>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Screening screening = screeningFactory.getScreening(rootElement);
+        assertNotNull(screening);
+        assertTrue(screening instanceof AngularCosineProportionScreening);
+    }
+
+    @Test
     public void testGetScreening_unkownTag() throws JDOMException, IOException {
         final String XML = "<I_WILL_FAIL/>";
         final Element rootElement = TestUtil.createDomElement(XML);
