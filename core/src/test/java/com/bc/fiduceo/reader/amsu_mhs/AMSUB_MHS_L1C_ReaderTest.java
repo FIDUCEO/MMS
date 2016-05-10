@@ -61,7 +61,7 @@ public class AMSUB_MHS_L1C_ReaderTest {
         final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader();
 
         final String regEx = reader.getRegEx();
-        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI].h5", regEx);
+        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1L].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI](.[A-Z]\\d{7})?.h5", regEx);
 
         final Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
@@ -71,6 +71,9 @@ public class AMSUB_MHS_L1C_ReaderTest {
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.AMBX.NL.D05248.S0003.E0143.B2553334.GC.L8746431.h5");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
