@@ -1,2 +1,3 @@
 com.bc.fiduceo.matchup.screening.AngularScreeningPlugin
 com.bc.fiduceo.matchup.screening.AngularCosineProportionScreeningPlugin
+com.bc.fiduceo.matchup.screening.BuehlerCloudScreeningPlugin
