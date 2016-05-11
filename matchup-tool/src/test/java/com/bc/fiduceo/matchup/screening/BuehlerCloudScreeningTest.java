@@ -223,22 +223,22 @@ public class BuehlerCloudScreeningTest {
         @Test
     public void testCalculateThreshold() {
         double threshold = screening.calculateThreshold(0.63);
-        assertEquals(240.0700046257384, threshold, 1e-8);
+        assertEquals(240.07048176677782, threshold, 1e-8);
 
         threshold = screening.calculateThreshold(1.89);
-        assertEquals(240.1187761585565, threshold, 1e-8);
+        assertEquals(240.11893416680937, threshold, 1e-8);
 
         threshold = screening.calculateThreshold(8.2);
-        assertEquals(239.98544756736771, threshold, 1e-8);
+        assertEquals(240.0080236705834, threshold, 1e-8);
 
         threshold = screening.calculateThreshold(10.72);
-        assertEquals(239.85032554995487, threshold, 1e-8);
+        assertEquals(239.8979225974507, threshold, 1e-8);
 
         threshold = screening.calculateThreshold(35.2);
-        assertEquals(236.62387953299367, threshold, 1e-8);
+        assertEquals(238.0978930658674, threshold, 1e-8);
 
         threshold = screening.calculateThreshold(50.37);
-        assertEquals(231.44540104659083, threshold, 1e-8);
+        assertEquals(235.70333750520854, threshold, 1e-8);
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

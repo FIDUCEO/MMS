@@ -59,25 +59,25 @@ class BuehlerCloudScreening implements Screening {
         double accumulate = 0.0;
 
         double power = 1.0;
-        accumulate += power * 240.0296;
+        accumulate += power * 240.0307051931515;
 
         power *= szaDegrees;
-        accumulate += power * 0.0737;
+        accumulate += power * 0.072461406038773;
 
         power *= szaDegrees;
-        accumulate += power * (-0.0158);
+        accumulate += power * (-0.015418271153414);
 
         power *= szaDegrees;
-        accumulate += power * 0.001;
+        accumulate += power * 0.001002246603123;
 
         power *= szaDegrees;
-        accumulate += power * (-3.4627e-5);
+        accumulate += power * (-3.340724245004187e-5);
 
         power *= szaDegrees;
-        accumulate += power * 5.4127e-7;
+        accumulate += power *  5.185745040106524e-7;
 
         power *= szaDegrees;
-        accumulate += power * (-3.2212e-9);
+        accumulate += power * (-3.063798878759070e-9);
 
         return accumulate;
     }
