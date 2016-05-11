@@ -21,12 +21,16 @@
 package com.bc.fiduceo.matchup.plot;
 
 import com.bc.fiduceo.core.SamplingPoint;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -35,37 +39,66 @@ public class MapPlotTool {
     public static void main(String[] args) throws IOException, InvalidRangeException {
         NetcdfFile netcdfFile = null;
         try {
-            netcdfFile = NetcdfFile.open(args[0]);
-            final Variable lonVariable = netcdfFile.findVariable("avhrr-n18_lon");
-            final Variable latVariable = netcdfFile.findVariable("avhrr-n18_lat");
-            final Variable timeVariable = netcdfFile.findVariable("avhrr-n18_acquisition_time");
+            final String filePath = args[0];
+            netcdfFile = NetcdfFile.open(filePath);
+            final Variable lonVariable = netcdfFile.findVariable(args[1]);
+            final Variable latVariable = netcdfFile.findVariable(args[2]);
+            final Variable timeVariable = netcdfFile.findVariable(args[3]);
 
             final int[] shape = lonVariable.getShape();
             shape[1] = 1;
             shape[2] = 1;
             final int[] offsets = new int[shape.length];
             offsets[0] = 0;
-            offsets[1] = 2;
-            offsets[2] = 2;
+            offsets[1] = shape[1]/2;
+            offsets[2] = shape[2]/2;
 
-            final Array lonArray = lonVariable.read(offsets, shape);
-            final Array latArray = latVariable.read(offsets, shape);
+            final Array lonArray = readScaledIfRequired(lonVariable,offsets, shape);
+            final Array latArray = readScaledIfRequired(latVariable, offsets, shape);
             final Array timeArray = timeVariable.read(offsets, shape);
 
             final ArrayList<SamplingPoint> samplingPoints = new ArrayList<>();
-            for (int i = 0; i < shape[0] ; i++){
+            for (int i = 0; i < shape[0]; i++) {
                 final double lon = lonArray.getDouble(i);
                 final double lat = latArray.getDouble(i);
                 final int time = timeArray.getInt(i);
                 samplingPoints.add(new SamplingPoint(lon, lat, time));
             }
 
-            final BufferedImage plot = new SamplingPointPlotter().samples(samplingPoints).filePath("D:\\Satellite\\Fiduceo\\MMD02\\blabla.png").plot();
+            final String fileName = FileUtils.getFileNameFromPath(filePath);
+            final String pngFileName = FileUtils.exchangeExtension(fileName, ".png");
+            final String outputDir = new File(filePath).getParent();
+            final File targetFile = new File(outputDir, pngFileName);
+            final BufferedImage plot = new SamplingPointPlotter().samples(samplingPoints).filePath(targetFile.getAbsolutePath()).plot();
 
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("usage: map-plot-tool <filepath> <lon-variable> <lat-variable> <time-variable>");
         } finally {
             if (netcdfFile != null) {
                 netcdfFile.close();
             }
+        }
+    }
+
+    private static Array readScaledIfRequired(Variable variable, int[] offsets, int[] shape) throws IOException, InvalidRangeException {
+        final Array array = variable.read(offsets, shape);
+
+        double scale = 1.0;
+        double offset = 0.0;
+        boolean mustScale = false;
+
+        final Attribute scaleAttribute = variable.findAttribute("Scale");
+        if (scaleAttribute != null) {
+            scale = scaleAttribute.getNumericValue().doubleValue();
+            mustScale = true;
+        }
+
+        if (mustScale) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scale, offset);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        } else {
+            return array;
         }
     }
 }
