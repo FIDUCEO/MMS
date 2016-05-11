@@ -233,6 +233,7 @@ class MatchupTool {
         mmdWriter.writeMMD(matchupCollection, context);
     }
 
+    // @todo 2 tb/** this method wants to be refactured 2016-05-11
     private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -252,62 +253,64 @@ class MatchupTool {
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
-            final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName());
-            primaryReader.open(primaryObservation.getDataFilePath().toFile());
+            try (Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
+                primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
-            final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryObservation.getStartTime());
-            final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryObservation.getStopTime());
+                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryObservation.getStartTime());
+                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryObservation.getStopTime());
 
-            final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
-            final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
+                final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
+                final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
 
-            final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
-            for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                final Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName());
-                secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+                for (final SatelliteObservation secondaryObservation : secondaryObservations) {
+                    try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
+                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
 
-                final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
-                final boolean isSecondarySegmented = isSegmented(secondaryGeoBounds);
+                        final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
+                        final boolean isSecondarySegmented = isSegmented(secondaryGeoBounds);
 
-                final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
-                if (intersectingIntervals.length == 0) {
-                    continue;
-                }
+                        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
+                        if (intersectingIntervals.length == 0) {
+                            continue;
+                        }
 
-                final MatchupSet matchupSet = new MatchupSet();
-                matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
-                matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
+                        final MatchupSet matchupSet = new MatchupSet();
+                        matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
 
-                for (final Intersection intersection : intersectingIntervals) {
-                    final TimeInfo timeInfo = intersection.getTimeInfo();
-                    if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
-                        final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
+                        for (final Intersection intersection : intersectingIntervals) {
+                            final TimeInfo timeInfo = intersection.getTimeInfo();
+                            if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
+                                final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
 
-                        SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
-                        sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
+                                SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
+                                sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
 
-                        final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
+                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 
-                        sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                        sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
-                    }
-                }
+                                sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+                                sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
+                            }
+                        }
 
-                if (matchupSet.getNumObservations() > 0) {
-                    final Dimension primarySize = primaryReader.getProductSize();
-                    conditionsContext.setPrimarySize(primarySize);
-                    final Dimension secondarySize = secondaryReader.getProductSize();
-                    conditionsContext.setSecondarySize(secondarySize);
+                        if (matchupSet.getNumObservations() > 0) {
+                            final Dimension primarySize = primaryReader.getProductSize();
+                            conditionsContext.setPrimarySize(primarySize);
+                            final Dimension secondarySize = secondaryReader.getProductSize();
+                            conditionsContext.setSecondarySize(secondarySize);
 
-                    logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                    conditionEngine.process(matchupSet, conditionsContext);
-                    logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+                            logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
+                            conditionEngine.process(matchupSet, conditionsContext);
+                            logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
 
-                    screeningEngine.process(matchupSet, primaryReader, secondaryReader);
-                    logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
+                            screeningEngine.process(matchupSet, primaryReader, secondaryReader);
+                            logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
 
-                    if (matchupSet.getNumObservations() > 0) {
-                        matchupCollection.add(matchupSet);
+                            if (matchupSet.getNumObservations() > 0) {
+                                matchupCollection.add(matchupSet);
+                            }
+                        }
                     }
                 }
             }
