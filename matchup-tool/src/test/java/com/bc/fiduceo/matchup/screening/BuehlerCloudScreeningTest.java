@@ -133,7 +133,7 @@ public class BuehlerCloudScreeningTest {
         when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch18"))).thenReturn(highBtempArray);
         when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
         when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch18"))).thenReturn(lowBtempArray);  // todo
+        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch18"))).thenReturn(lowBtempArray);
         when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
         when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(highVZAArray);
         when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("btemps_ch18"))).thenReturn(highBtempArray);
