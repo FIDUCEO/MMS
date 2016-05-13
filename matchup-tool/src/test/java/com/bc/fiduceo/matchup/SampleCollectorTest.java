@@ -79,12 +79,11 @@ public class SampleCollectorTest {
         matchupSet.addPrimary(new Sample(2, 3, 4.5, 5.5, 100L));
         matchupSet.addPrimary(new Sample(6, 7, 8.5, 9.5, 200L));
 
-        collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
+        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
 
-        final List<SampleSet> resultSampleSets = matchupSet.getSampleSets();
-        assertEquals(2, resultSampleSets.size());
+        assertEquals(2, sampleSets.size());
 
-        SampleSet sampleSet = resultSampleSets.get(0);
+        SampleSet sampleSet = sampleSets.get(0);
         Sample primary = sampleSet.getPrimary();
         assertEquals(2, primary.x);
 
@@ -93,7 +92,7 @@ public class SampleCollectorTest {
         assertEquals(18, secondary.y);
         assertEquals(18015L, secondary.time);
 
-        sampleSet = resultSampleSets.get(1);
+        sampleSet = sampleSets.get(1);
         primary = sampleSet.getPrimary();
         assertEquals(6, primary.x);
         secondary = sampleSet.getSecondary();
@@ -119,12 +118,11 @@ public class SampleCollectorTest {
         matchupSet.addPrimary(primaryOne);
         matchupSet.addPrimary(primaryTwo);
 
-        collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
+        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
 
-        final List<SampleSet> resultSampleSets = matchupSet.getSampleSets();
-        assertEquals(1, resultSampleSets.size());
+        assertEquals(1, sampleSets.size());
 
-        SampleSet sampleSet = resultSampleSets.get(0);
+        SampleSet sampleSet = sampleSets.get(0);
         Sample primary = sampleSet.getPrimary();
         assertSame(primaryTwo, primary);
         final Sample secondary = sampleSet.getSecondary();

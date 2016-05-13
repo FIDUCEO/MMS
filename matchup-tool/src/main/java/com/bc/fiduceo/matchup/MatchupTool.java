@@ -290,7 +290,8 @@ class MatchupTool {
                                 final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 
                                 sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
+                                matchupSet.setSampleSets(completeSamples);
                             }
                         }
 

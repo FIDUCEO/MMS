@@ -25,9 +25,15 @@ class SampleCollector {
         yRange = new Range();
     }
 
-    public void addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
+    /**
+     * Adds the associated secondary sample location and time to the primary location.
+     * @param sampleSets the input data - will be empty after the operation!
+     * @param timeLocator the time locator for the sample locations
+     * @return the result list with the sampleSets that contain two observations
+     */
+    public List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
         Point2D geopos = new Point2D.Double();
-        final List<SampleSet> toBeRemoved = new ArrayList<>();
+        final List<SampleSet> toKeep = new ArrayList<>();
         for (final SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
@@ -39,14 +45,14 @@ class SampleCollector {
                     final long time = timeLocator.getTimeFor(x, y);
                     final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
                     sampleSet.setSecondary(sample);
+                    toKeep.add(sampleSet);
                 }
-            } else {
-                toBeRemoved.add(sampleSet);
             }
         }
-        for (SampleSet sampleSet : toBeRemoved) {
-            sampleSets.remove(sampleSet);
-        }
+
+        sampleSets.clear();
+
+        return toKeep;
     }
 
     public void addPrimarySamples(Polygon polygon, MatchupSet matchupSet, TimeLocator timeLocator) {
