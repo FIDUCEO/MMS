@@ -61,13 +61,55 @@ public class AMSUB_MHS_L1C_ReaderTest {
         final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader();
 
         final String regEx = reader.getRegEx();
-        assertEquals("'?[A-Z].+[AMBX|MHSX].+[NK|M1L].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI](.[A-Z]\\d{7})?.h5", regEx);
+        assertEquals("\\w*.+[AMBX|MHSX].+[A-Z0-9]{2,3}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[A-Z]{2}(.[A-Z]\\d{7})?.h5", regEx);
 
         final Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("L0502033.NSS.AMBX.NK.D07234.S1004.E1149.B4821213.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("1893164003.NSS.MHSX.NN.D14302.S1252.E1447.B4865253.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("36321173.NSS.MHSX.NN.D15326.S1010.E1205.B5414142.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.MHSX.NP.D09244.S0301.E0448.B0291415.SV.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("2153003623.NSS.MHSX.NP.D15356.S0408.E0603.B3540203.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.MHSX.M2.D07173.S1835.E2016.B0349697.SV.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("167601563.NSS.MHSX.NP.D11166.S1120.E1308.B1211415.SV.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("163594483.NSS.MHSX.M2.D11150.S0413.E0557.B2391718.SV.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.MHSX.M1.D13040.S0054.E0237.B0205152.SV.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("2270568163.NSS.AMBX.NK.D16069.S0519.E0713.B9267576.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("2236962993.NSS.AMBX.NK.D16046.S2133.E2327.B9235658.GC.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("1531113603.NSS.AMBX.NL.D14103.S1227.E1419.B6989900.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("1606314663.NSS.AMBX.NL.D14143.S2252.E0047.B7047071.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("1629297203.NSS.AMBX.NL.D14156.S2004.E2158.B7065253.WI.h5");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("2256687383.NSS.MHSX.M1.D16060.S1721.E1817.B1790102.SV.h5");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
@@ -78,6 +120,7 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
         assertTrue(matcher.matches());
+
 
         matcher = pattern.matcher("19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc");
         assertFalse(matcher.matches());

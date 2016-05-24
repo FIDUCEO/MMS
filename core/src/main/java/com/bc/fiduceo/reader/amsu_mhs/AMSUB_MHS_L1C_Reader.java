@@ -143,7 +143,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        return "'?[A-Z].+[AMBX|MHSX].+[NK|M1L].D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[GC|WI](.[A-Z]\\d{7})?.h5";
+        return "\\w*.+[AMBX|MHSX].+[A-Z0-9]{2,3}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[A-Z]{2}(.[A-Z]\\d{7})?.h5";
     }
 
     @Override

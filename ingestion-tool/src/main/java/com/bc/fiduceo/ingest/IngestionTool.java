@@ -99,7 +99,7 @@ class IngestionTool {
             final Matcher matcher = getMatcher(filePath, pattern);
             final String dataFilePath = filePath.toString();
             if (!matcher.matches()) {
-                logger.warning("The file '" + dataFilePath + "' des not follow the file naming pattern. Skipping");
+                logger.warning("The file '" + dataFilePath + "' does not follow the file naming pattern. Skipping");
                 continue;
             }
 
