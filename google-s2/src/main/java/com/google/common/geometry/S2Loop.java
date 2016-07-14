@@ -149,8 +149,33 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     this.depth = src.depth();
   }
 
+  /**
+   * Constructor to create a loop with all values already precomputed.
+   *
+   * @param vertices
+   * @param bound
+   * @param firstLogicalVertex
+   * @param originInside
+     */
+  public S2Loop(S2Point[] vertices, S2LatLngRect bound, int firstLogicalVertex, boolean originInside) {
+    this.numVertices = vertices.length;
+    this.vertices = vertices;
+    this.firstLogicalVertex = firstLogicalVertex;
+    this.bound = bound;
+    this.originInside = originInside;
+    this.depth = 0;
+  }
+
   public int depth() {
     return depth;
+  }
+
+  public int getFirstLogicalVertex() {
+    return firstLogicalVertex;
+  }
+
+  public boolean isOriginInside() {
+    return originInside;
   }
 
   /**
