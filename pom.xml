@@ -22,7 +22,7 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>3.0.1</version>
+                <version>4.0.1</version>
             </dependency>
 
             <dependency>
