@@ -25,8 +25,10 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -35,19 +37,23 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public class HIRS_L1C_Reader implements Reader {
 
     private NetcdfFile netcdfFile;
+    private ArrayCache arrayCache;
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
     }
 
     @Override
     public void close() throws IOException {
+        arrayCache = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -56,7 +62,11 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new IllegalStateException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        setSensingTimes(acquisitionInfo);
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -102,5 +112,17 @@ public class HIRS_L1C_Reader implements Reader {
     @Override
     public Dimension getProductSize() {
         throw new IllegalStateException("not implemented");
+    }
+
+    private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
+        final Array time = arrayCache.get("time");
+        final long startMillisSince1970 = time.getLong(0) * 1000;
+        final Date sensingStart = TimeUtils.create(startMillisSince1970);
+        acquisitionInfo.setSensingStart(sensingStart);
+
+        final int[] shape = time.getShape();
+        final long stopMillisSince1970 = time.getLong(shape[0] - 1) * 1000;
+        final Date sensingStop = TimeUtils.create(stopMillisSince1970);
+        acquisitionInfo.setSensingStop(sensingStop);
     }
 }

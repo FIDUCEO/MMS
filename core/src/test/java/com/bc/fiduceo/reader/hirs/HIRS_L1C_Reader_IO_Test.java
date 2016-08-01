@@ -22,13 +22,16 @@ package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
@@ -49,6 +52,15 @@ public class HIRS_L1C_Reader_IO_Test {
 
         try {
             reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(1979, 10, 14, 16, 23, 59, 0, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(1979, 10, 14, 18, 7, 33, 0, sensingStop);
         } finally {
             reader.close();
         }
@@ -60,6 +72,15 @@ public class HIRS_L1C_Reader_IO_Test {
 
         try {
             reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 45, 0, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 8, 2, 2, 0, sensingStop);
         } finally {
             reader.close();
         }
@@ -71,6 +92,15 @@ public class HIRS_L1C_Reader_IO_Test {
 
         try {
             reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, sensingStop);
         } finally {
             reader.close();
         }
