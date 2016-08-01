@@ -47,7 +47,6 @@ public class AVHRR_GAC_ReaderTest {
 
     private AVHRR_GAC_Reader reader;
 
-
     @Before
     public void setUp() {
         reader = new AVHRR_GAC_Reader();
