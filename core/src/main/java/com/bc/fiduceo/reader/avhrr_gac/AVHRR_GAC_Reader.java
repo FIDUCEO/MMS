@@ -46,14 +46,19 @@ public class AVHRR_GAC_Reader implements Reader {
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
     private static final String STOP_TIME_ATTRIBUTE_NAME = "stop_time";
 
+    private final GeometryFactory geometryFactory;
+
     private NetcdfFile netcdfFile;
+
     private BoundingPolygonCreator boundingPolygonCreator;
-    private GeometryFactory geometryFactory;
     private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
     private long startTimeMilliSecondsSince1970;
 
+    public AVHRR_GAC_Reader(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -225,22 +230,11 @@ public class AVHRR_GAC_Reader implements Reader {
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
         if (boundingPolygonCreator == null) {
-            final GeometryFactory geometryFactory = getGeometryFactory();
-
             // @todo 2 tb/tb move intervals to config 2016-03-02
             boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
         }
 
         return boundingPolygonCreator;
-    }
-
-    private GeometryFactory getGeometryFactory() {
-        if (geometryFactory == null) {
-            // @todo 1 tb/tb inject geometry factory 2016-03-02
-            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        }
-
-        return geometryFactory;
     }
 
     private Number getFillValue(String variableName) throws IOException {

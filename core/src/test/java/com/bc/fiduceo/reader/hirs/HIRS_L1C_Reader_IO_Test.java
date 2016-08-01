@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class HIRS_L1C_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         dataDirectory = TestUtil.getTestDataDirectory();
-        reader = new HIRS_L1C_Reader();
+        reader = new HIRS_L1C_Reader(new GeometryFactory(GeometryFactory.Type.S2));
     }
 
     @Test

@@ -177,6 +177,11 @@ public class UseCaseConfig {
         return validationResult;
     }
 
+    public Element getDomElement(String elemName) {
+        return document.getRootElement().getChild(elemName);
+    }
+
+
     private void init() {
         final Element rootElement = mandatory_getRootElement(document);
         setName(mandatory_getAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());

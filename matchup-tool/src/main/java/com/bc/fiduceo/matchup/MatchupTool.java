@@ -69,11 +69,19 @@ import java.util.logging.Logger;
 class MatchupTool {
 
     private final Logger logger;
-    private final ReaderFactory readerFactory;
+
+    private ReaderFactory readerFactory;
 
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
-        readerFactory = ReaderFactory.get();
+    }
+
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+
+        readerFactory = ReaderFactory.get(context.getGeometryFactory());
+
+        runMatchupGeneration(context);
     }
 
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
@@ -163,12 +171,6 @@ class MatchupTool {
             throw new RuntimeException("cmd-line parameter `start` missing");
         }
         return TimeUtils.parseDOYBeginOfDay(startDateString);
-    }
-
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-
-        runMatchupGeneration(context);
     }
 
     // package access for testing only tb 2016-02-18

@@ -76,7 +76,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
     @Before
     public void setUp() throws IOException {
-        reader = new AMSUB_MHS_L1C_Reader();
+        reader = new AMSUB_MHS_L1C_Reader(new GeometryFactory(GeometryFactory.Type.S2));
         testDataDirectory = TestUtil.getTestDataDirectory();
     }
 

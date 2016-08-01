@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.StringUtils;
 
@@ -32,12 +33,14 @@ import java.util.HashMap;
  */
 public class ReaderFactory {
 
-    private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
     private static ReaderFactory readerFactory;
 
-    public static ReaderFactory get() {
+    private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
+    private final GeometryFactory geometryFactory;
+
+    public static ReaderFactory get(GeometryFactory geometryFactory) {
         if (readerFactory == null) {
-            readerFactory = new ReaderFactory();
+            readerFactory = new ReaderFactory(geometryFactory);
         }
         return readerFactory;
     }
@@ -51,10 +54,12 @@ public class ReaderFactory {
         if (readerPlugin == null) {
             throw new IllegalArgumentException("No reader available for data of type: '" + sensorPlatformKey + "'");
         }
-        return readerPlugin.createReader();
+        return readerPlugin.createReader(geometryFactory);
     }
 
-    private ReaderFactory() {
+    private ReaderFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);
         SnapCoreActivator.loadServices(readerRegistry);
@@ -66,5 +71,4 @@ public class ReaderFactory {
             }
         }
     }
-
 }

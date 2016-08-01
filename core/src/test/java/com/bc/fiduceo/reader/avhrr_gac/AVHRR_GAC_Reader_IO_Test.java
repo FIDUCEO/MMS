@@ -29,6 +29,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -57,7 +58,7 @@ public class AVHRR_GAC_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        reader = new AVHRR_GAC_Reader();
+        reader = new AVHRR_GAC_Reader(new GeometryFactory(GeometryFactory.Type.S2));
     }
 
     @Test

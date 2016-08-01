@@ -86,14 +86,19 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private static final String DATA_GROUP_NAME = "Data";
     private static final int NUM_SPLITS = 2;
 
+    private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
 
     private ArrayCache arrayCache;
     private TimeLocator timeLocator;
     private PixelLocator pixelLocator;
-    private GeometryFactory geometryFactory;
+
     private BoundingPolygonCreator boundingPolygonCreator;
     private boolean isAmsuB;
+
+    public AMSUB_MHS_L1C_Reader(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -384,22 +389,11 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
         if (boundingPolygonCreator == null) {
-            final GeometryFactory geometryFactory = getGeometryFactory();
-
             // @todo 2 tb/tb move intervals to config 2016-04-12
             boundingPolygonCreator = new BoundingPolygonCreator(new Interval(10, 40), geometryFactory);
         }
 
         return boundingPolygonCreator;
-    }
-
-    private GeometryFactory getGeometryFactory() {
-        if (geometryFactory == null) {
-            // @todo 1 tb/tb inject geometry factory 2016-04-12
-            geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        }
-
-        return geometryFactory;
     }
 
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {

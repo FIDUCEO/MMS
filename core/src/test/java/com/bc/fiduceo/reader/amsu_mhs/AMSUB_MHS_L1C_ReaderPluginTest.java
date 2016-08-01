@@ -62,7 +62,7 @@ public class AMSUB_MHS_L1C_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader();
+        final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
     }

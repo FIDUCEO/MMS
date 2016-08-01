@@ -34,7 +34,6 @@ public class EumetsatIASIReaderPluginTest {
         plugin = new EumetsatIASIReaderPlugin();
     }
 
-
     @Test
     public void testGetSensorKeys() {
         final String[] expected = new String[]{"iasi-ma", "iasi-mb"};
@@ -44,7 +43,7 @@ public class EumetsatIASIReaderPluginTest {
 
     @Test
     public void testCreateReader() throws Exception {
-        final Reader reader = plugin.createReader();
+        final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof EumetsatIASIReader);
 

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
@@ -49,7 +50,7 @@ public class AVHRR_GAC_ReaderTest {
 
     @Before
     public void setUp() {
-        reader = new AVHRR_GAC_Reader();
+        reader = new AVHRR_GAC_Reader(new GeometryFactory(GeometryFactory.Type.S2));
     }
 
     @Test

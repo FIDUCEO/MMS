@@ -75,10 +75,8 @@ public class EumetsatIASIReader implements Reader {
     private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
 
-    EumetsatIASIReader() {
+    EumetsatIASIReader(GeometryFactory geometryFactory) {
         final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
-        // @todo 1 tb/tb inject factory 2015-12-08
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
 
         boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
     }

@@ -91,7 +91,8 @@ abstract class AbstractMmdWriter implements MmdWriter {
         try {
             logger.info("Start writing mmd-file ...");
 
-            final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+            final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+            final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
             extractPrototypes(variablesConfiguration, matchupCollection, context);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
             final Path mmdFile = createMmdFile(context);
@@ -108,7 +109,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
             final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
 
-            final ReaderFactory readerFactory = ReaderFactory.get();
+
 
             final StopWatch stopWatch = new StopWatch();
             stopWatch.start();

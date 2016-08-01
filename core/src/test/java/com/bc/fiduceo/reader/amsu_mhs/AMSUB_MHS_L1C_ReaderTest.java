@@ -58,7 +58,7 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader();
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
 
         final String regEx = reader.getRegEx();
         assertEquals("\\w*.+[AMBX|MHSX].+[A-Z0-9]{2,3}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[A-Z]{2}(.[A-Z]\\d{7})?.h5", regEx);

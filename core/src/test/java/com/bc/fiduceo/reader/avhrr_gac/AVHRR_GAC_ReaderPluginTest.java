@@ -54,7 +54,7 @@ public class AVHRR_GAC_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader();
+        final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof AVHRR_GAC_Reader);
     }

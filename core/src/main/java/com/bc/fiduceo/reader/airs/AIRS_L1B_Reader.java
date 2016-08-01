@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.airs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
@@ -60,7 +61,7 @@ public class AIRS_L1B_Reader implements Reader {
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
 
-    AIRS_L1B_Reader() {
+    AIRS_L1B_Reader(GeometryFactory geometryFactory) {
         logger = FiduceoLogger.getLogger();
     }
 

@@ -47,7 +47,8 @@ public class HIRS_L1C_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader();
+        // we dont't need a GeometryFactory for this test tb 2016-08-01
+        final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof HIRS_L1C_Reader);
     }

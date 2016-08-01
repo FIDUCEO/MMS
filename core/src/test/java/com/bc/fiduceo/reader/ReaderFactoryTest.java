@@ -19,9 +19,11 @@
  */
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
+import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
 import org.junit.*;
 
@@ -34,11 +36,11 @@ public class ReaderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        readerFactory = ReaderFactory.get();
+        readerFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
     }
 
     @Test
-    public void testGetAVHHRReaderKey() throws Exception {
+    public void testGetAVHHRReader() throws Exception {
         final Reader reader = readerFactory.getReader("avhrr-n06");
 
         assertNotNull(reader);
@@ -46,7 +48,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetAMSUReaderKey() throws Exception {
+    public void testGetAMSUReader() throws Exception {
         final Reader reader = readerFactory.getReader("amsub-n17");
 
         assertNotNull(reader);
@@ -54,7 +56,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetAIRSReaderKey() throws Exception {
+    public void testGetAIRSReader() throws Exception {
         final Reader reader = readerFactory.getReader("airs-aq");
 
         assertNotNull(reader);
@@ -62,11 +64,19 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetEumetsatIASIReaderKey() throws Exception {
+    public void testGetEumetsatIASIReader() throws Exception {
         final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
         assertTrue(reader instanceof EumetsatIASIReader);
+    }
+
+    @Test
+    public void testGetHirsReader() throws Exception {
+        final Reader reader = readerFactory.getReader("hirs-n11");
+
+        assertNotNull(reader);
+        assertTrue(reader instanceof HIRS_L1C_Reader);
     }
 
     @Test
@@ -98,10 +108,10 @@ public class ReaderFactoryTest {
 
     @Test
     public void testSingletonBehaviour(){
-        final ReaderFactory factory = ReaderFactory.get();
+        final ReaderFactory factory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
         assertNotNull(factory);
 
-        final ReaderFactory secondCallFactory = ReaderFactory.get();
+        final ReaderFactory secondCallFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
         assertNotNull(secondCallFactory);
 
         assertSame(factory, secondCallFactory);

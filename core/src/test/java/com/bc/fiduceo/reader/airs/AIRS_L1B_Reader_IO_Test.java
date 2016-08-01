@@ -68,7 +68,7 @@ public class AIRS_L1B_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         dataDirectory = TestUtil.getTestDataDirectory();
-        airsL1bReader = new AIRS_L1B_Reader();
+        airsL1bReader = new AIRS_L1B_Reader(null);
         dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.S");
     }
 

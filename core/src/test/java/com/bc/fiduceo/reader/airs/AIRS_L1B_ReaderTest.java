@@ -41,6 +41,67 @@ import static org.mockito.Mockito.when;
 
 public class AIRS_L1B_ReaderTest {
 
+    @Test
+    public void testGetEosElement() throws IOException {
+        final Element eosElement = AIRS_L1B_Reader.getEosElement(EOS_CORE_META);
+        assertNotNull(eosElement);
+        List<Content> content = eosElement.getContent();
+        assertEquals(1, content.size());
+        Content subContent = content.get(0);
+        assertNotNull(subContent);
+        Element inventoryMetadataElement = eosElement.getChild("INVENTORYMETADATA");
+        content = inventoryMetadataElement.getContent();
+        assertEquals(10, content.size());
+    }
+
+    @Test
+    public void testGetEosMetadata_groupNotPresent() throws IOException {
+        final Group mockGroup = mock(Group.class);
+        when(mockGroup.findVariable("whatever")).thenReturn(null);
+
+        final String metadata = AIRS_L1B_Reader.getEosMetadata("whatever", mockGroup);
+        assertNull(metadata);
+    }
+
+    @Test
+    public void testElementValue() throws IOException {
+        final Element mockElement = mock(Element.class);
+        final Element childElement = mock(Element.class);
+        when(childElement.getValue()).thenReturn("2015-08-03");
+
+        when(mockElement.getChild("VALUE")).thenReturn(childElement);
+        when(mockElement.getName()).thenReturn("RANGEENDINGDATE");
+
+        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
+        assertNotNull(elementValue);
+        assertEquals("2015-08-03", elementValue);
+    }
+
+    @Test
+    public void testGetEosMetadata_readMetadata() throws IOException {
+        final String expected = "the_text_we_like_to_read";
+        final Group mockGroup = mock(Group.class);
+        final Variable mockVariable = mock(Variable.class);
+
+        final Array mockArray = mock(Array.class);
+        when(mockArray.toString()).thenReturn(expected);
+
+        when(mockVariable.read()).thenReturn(mockArray);
+        when(mockGroup.findVariable("with_data")).thenReturn(mockVariable);
+
+        final String metadata = AIRS_L1B_Reader.getEosMetadata("with_data", mockGroup);
+        assertNotNull(metadata);
+        assertEquals(expected, metadata);
+    }
+
+    @Test
+    public void testParseDate_fullFormat() throws ParseException {
+        final AIRS_L1B_Reader reader = new AIRS_L1B_Reader(null);
+
+        final Date date = reader.parseDate("2012-07-11", "14:33:54.876543Z");
+        TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
+    }
+
     private static final String EOS_CORE_META = "\n" +
             "GROUP=INVENTORYMETADATA\n" +
             "  GROUPTYPE=MASTERGROUP\n" +
@@ -1222,65 +1283,4 @@ public class AIRS_L1B_ReaderTest {
             "END_GROUP=INVENTORYMETADATA\n" +
             "\n" +
             "END\n";
-
-    @Test
-    public void testGetEosElement() throws IOException {
-        final Element eosElement = AIRS_L1B_Reader.getEosElement(EOS_CORE_META);
-        assertNotNull(eosElement);
-        List<Content> content = eosElement.getContent();
-        assertEquals(1, content.size());
-        Content subContent = content.get(0);
-        assertNotNull(subContent);
-        Element inventoryMetadataElement = eosElement.getChild("INVENTORYMETADATA");
-        content = inventoryMetadataElement.getContent();
-        assertEquals(10, content.size());
-    }
-
-    @Test
-    public void testGetEosMetadata_groupNotPresent() throws IOException {
-        final Group mockGroup = mock(Group.class);
-        when(mockGroup.findVariable("whatever")).thenReturn(null);
-
-        final String metadata = AIRS_L1B_Reader.getEosMetadata("whatever", mockGroup);
-        assertNull(metadata);
-    }
-
-    @Test
-    public void testElementValue() throws IOException {
-        final Element mockElement = mock(Element.class);
-        final Element childElement = mock(Element.class);
-        when(childElement.getValue()).thenReturn("2015-08-03");
-
-        when(mockElement.getChild("VALUE")).thenReturn(childElement);
-        when(mockElement.getName()).thenReturn("RANGEENDINGDATE");
-
-        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
-        assertNotNull(elementValue);
-        assertEquals("2015-08-03", elementValue);
-    }
-
-    @Test
-    public void testGetEosMetadata_readMetadata() throws IOException {
-        final String expected = "the_text_we_like_to_read";
-        final Group mockGroup = mock(Group.class);
-        final Variable mockVariable = mock(Variable.class);
-
-        final Array mockArray = mock(Array.class);
-        when(mockArray.toString()).thenReturn(expected);
-
-        when(mockVariable.read()).thenReturn(mockArray);
-        when(mockGroup.findVariable("with_data")).thenReturn(mockVariable);
-
-        final String metadata = AIRS_L1B_Reader.getEosMetadata("with_data", mockGroup);
-        assertNotNull(metadata);
-        assertEquals(expected, metadata);
-    }
-
-    @Test
-    public void testParseDate_fullFormat() throws ParseException {
-        final AIRS_L1B_Reader reader = new AIRS_L1B_Reader();
-
-        final Date date = reader.parseDate("2012-07-11", "14:33:54.876543Z");
-        TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
-    }
 }

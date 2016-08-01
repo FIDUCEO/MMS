@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -43,8 +44,15 @@ import java.util.List;
 
 public class HIRS_L1C_Reader implements Reader {
 
+    private final GeometryFactory geometryFactory;
+
     private NetcdfFile netcdfFile;
+
     private ArrayCache arrayCache;
+
+    public HIRS_L1C_Reader(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
 
     @Override
     public void open(File file) throws IOException {

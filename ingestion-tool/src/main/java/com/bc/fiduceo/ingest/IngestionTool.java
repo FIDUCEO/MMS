@@ -80,7 +80,7 @@ class IngestionTool {
     }
 
     private void ingestMetadata(ToolContext context, String sensorType, String processingVersion) throws SQLException, IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get();
+        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
         final Reader reader = readerFactory.getReader(sensorType);
 
         final Pattern pattern = getPattern(reader);

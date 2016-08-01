@@ -42,6 +42,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class EumetsatIASIReader_IO_Test {
         final File dataDirectory = TestUtil.getTestDataDirectory();
 
         File file = new File(dataDirectory, "W_XX-EUMETSAT-Darmstadt,HYPERSPECT+SOUNDING,MetOpA+IASI_C_EUMP_20130528172543_34281_eps_o_l1.nc");
-        eumetSatIASIReader = new EumetsatIASIReader();
+        eumetSatIASIReader = new EumetsatIASIReader(new GeometryFactory(GeometryFactory.Type.S2));
         eumetSatIASIReader.open(file);
 
         acquisitionInfo = eumetSatIASIReader.read();
@@ -79,12 +80,9 @@ public class EumetsatIASIReader_IO_Test {
         eumetSatIASIReader.close();
     }
 
-
     @Test
     public void testGeoCoordinate() throws com.vividsolutions.jts.io.ParseException {
         acquisitionInfo.getCoordinates();
-
-
     }
 
     @Test

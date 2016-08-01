@@ -22,24 +22,19 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.ReaderFactory;
 import org.junit.*;
 import org.junit.runner.*;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
@@ -53,7 +48,8 @@ public class VariablesConfigurationTest_IO {
 
         final Path noaa17Path = Paths.get(absolutePath);
 
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
         variablesConfiguration.extractPrototypes(sensor, noaa17Path, new Dimension("avhrr-n17", 5, 5));
 
         final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
@@ -119,5 +115,4 @@ public class VariablesConfigurationTest_IO {
         assertEquals("short", prototype.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", prototype.getDimensionNames());
     }
-
 }

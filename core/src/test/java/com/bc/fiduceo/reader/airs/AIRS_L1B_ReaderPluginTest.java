@@ -35,6 +35,7 @@ public class AIRS_L1B_ReaderPluginTest {
         plugin = new AIRS_L1B_ReaderPlugin();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void testImplementsReaderPluginInterface() {
         assertTrue(plugin instanceof ReaderPlugin);
@@ -49,7 +50,7 @@ public class AIRS_L1B_ReaderPluginTest {
 
     @Test
     public void testCreateReaderInstance() throws Exception {
-        final Reader reader = plugin.createReader();
+        final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof AIRS_L1B_Reader);
     }

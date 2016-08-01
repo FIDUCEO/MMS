@@ -61,7 +61,7 @@ public class EumetsatIASIReaderTest {
 
     @Before
     public void setUp() throws Exception {
-        reader = new EumetsatIASIReader();
+        reader = new EumetsatIASIReader(null);
     }
 
     @Test

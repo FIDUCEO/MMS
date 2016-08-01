@@ -28,7 +28,6 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
-import ucar.nc2.util.IO;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,13 +38,14 @@ import java.util.List;
 public class VariablesConfiguration {
 
     private final HashMap<String, List<VariablePrototype>> prototypesMap;
+    private final ReaderFactory readerFactory;
 
-    public VariablesConfiguration() {
+    public VariablesConfiguration(ReaderFactory readerFactory) {
         prototypesMap = new HashMap<>();
+        this.readerFactory = readerFactory;
     }
 
     public void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get();
         final String sensorName = sensor.getName();
 
         final List<VariablePrototype> prototypes;

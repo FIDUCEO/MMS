@@ -55,6 +55,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
 
     private File configDir;
     private Storage storage;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws SQLException {
@@ -64,7 +65,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
             fail("unable to create test directory: " + configDir.getAbsolutePath());
         }
 
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
         storage.clear();
         storage.initialize();
@@ -213,7 +214,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
     }
 
     private SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get();
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
