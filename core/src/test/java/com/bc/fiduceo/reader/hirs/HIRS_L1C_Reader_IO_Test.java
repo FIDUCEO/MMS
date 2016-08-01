@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -61,6 +63,9 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(1979, 10, 14, 18, 7, 33, 0, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
         } finally {
             reader.close();
         }
@@ -81,6 +86,9 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 8, 2, 2, 0, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
         } finally {
             reader.close();
         }
@@ -101,6 +109,9 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
         } finally {
             reader.close();
         }

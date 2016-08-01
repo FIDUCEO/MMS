@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -65,6 +66,8 @@ public class HIRS_L1C_Reader implements Reader {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         setSensingTimes(acquisitionInfo);
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
         return acquisitionInfo;
     }
