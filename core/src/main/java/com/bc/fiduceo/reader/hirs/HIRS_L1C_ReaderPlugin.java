@@ -25,6 +25,7 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class HIRS_L1C_ReaderPlugin implements ReaderPlugin {
 
+    // abbreviations found in the filename        M2         M1         NA          NC          NE          NF          NG          NH          ND          NJ          NK          NL          NM          NN          NP          TN
     private static final String[] SENSOR_KEYS = {"hirs-ma", "hirs-mb", "hirs-n06", "hirs-n07", "hirs-n08", "hirs-n09", "hirs-n10", "hirs-n11", "hirs-n12", "hirs-n14", "hirs-n15", "hirs-n16", "hirs-n17", "nirs-n18", "hirs-n19", "hirs-tn"};
 
     @Override

@@ -30,6 +30,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -38,14 +39,19 @@ import java.util.List;
 
 public class HIRS_L1C_Reader implements Reader {
 
+    private NetcdfFile netcdfFile;
+
     @Override
     public void open(File file) throws IOException {
-        throw new IllegalStateException("not implemented");
+        netcdfFile = NetcdfFile.open(file.getPath());
     }
 
     @Override
     public void close() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
     }
 
     @Override
