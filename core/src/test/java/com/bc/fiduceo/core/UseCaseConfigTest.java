@@ -317,6 +317,21 @@ public class UseCaseConfigTest {
     }
 
     @Test
+    public void testHasDimensionFor() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        sensorList.add(new Sensor("first"));
+        sensorList.add(new Sensor("second"));
+        useCaseConfig.setSensors(sensorList);
+
+        final List<Dimension> dimensionsList = new ArrayList<>();
+        dimensionsList.add(new Dimension("second", 3, 4));
+        useCaseConfig.setDimensions(dimensionsList);
+
+        assertFalse(useCaseConfig.hasDimensionFor("first"));
+        assertTrue(useCaseConfig.hasDimensionFor("second"));
+    }
+
+    @Test
     public void testConstruction() {
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         assertNotNull(additionalSensors);

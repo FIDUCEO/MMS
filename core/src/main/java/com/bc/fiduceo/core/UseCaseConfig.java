@@ -87,10 +87,6 @@ public class UseCaseConfig {
         this.name = name;
     }
 
-    public Element getDomElement(String elemName) {
-        return document.getRootElement().getChild(elemName);
-    }
-
     public List<Sensor> getSensors() {
         return sensors;
     }
@@ -148,6 +144,16 @@ public class UseCaseConfig {
         throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
+    public boolean hasDimensionFor(String sensorName) {
+        for (Dimension dimension : dimensions) {
+            if (dimension.getName().equals(sensorName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // @todo 2 tb/** write test for this method tb 2016-08-01
     public ValidationResult checkValid() {
         final ValidationResult validationResult = new ValidationResult();
         if (StringUtils.isNullOrEmpty(name)) {
@@ -161,10 +167,7 @@ public class UseCaseConfig {
         }
         final List<Sensor> sensors = getSensors();
         for (final Sensor sensor : sensors) {
-            // @todo 3 tb/** no good style, improve this 2016-03-17
-            try {
-                getDimensionFor(sensor.getName());
-            } catch (IllegalStateException e) {
+            if (!hasDimensionFor(sensor.getName())){
                 setInvalidWithMessage("No dimensions for sensor '" + sensor.getName() + "' configured.", validationResult);
             }
         }
