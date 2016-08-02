@@ -84,7 +84,7 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new IllegalStateException("not implemented");
+        return "(\\w*.)?[A-Z]{3}.HIRX.[A-Z0-9]{2}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2}.nc";
     }
 
     @Override
