@@ -20,8 +20,12 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.math.TimeInterval;
 import ucar.ma2.Array;
 import ucar.nc2.Variable;
+
+import java.util.Date;
 
 
 public class ReaderUtils {
@@ -34,6 +38,32 @@ public class ReaderUtils {
     public static Number getDefaultFillValue(Array array) {
         final Class type = array.getDataType().getPrimitiveClassType();
         return getDefaultFillValue(type);
+    }
+
+    public static boolean mustScale(double scaleFactor, double offset) {
+        return scaleFactor != 1.0 || offset != 0.0;
+    }
+
+    public static void setTimeAxes(AcquisitionInfo acquisitionInfo, Geometries geometries, GeometryFactory geometryFactory) {
+        final Date sensingStart = acquisitionInfo.getSensingStart();
+        final Date sensingStop = acquisitionInfo.getSensingStop();
+        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
+        if (timeAxesGeometry instanceof GeometryCollection) {
+            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+            final Geometry[] axesGeometries = axesCollection.getGeometries();
+            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+            final TimeInterval timeInterval = new TimeInterval(sensingStart, sensingStop);
+            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
+            for (int i = 0; i < axesGeometries.length; i++) {
+                final LineString axisGeometry = (LineString) axesGeometries[i];
+                final TimeInterval currentTimeInterval = timeSplits[i];
+                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
+            }
+            acquisitionInfo.setTimeAxes(timeAxes);
+        } else {
+            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, sensingStart, sensingStop);
+            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
+        }
     }
 
     private static Number getDefaultFillValue(Class type) {
@@ -52,9 +82,5 @@ public class ReaderUtils {
         } else {
             throw new RuntimeException("not implemented for type " + type.getTypeName());
         }
-    }
-
-    public static boolean mustScale(double scaleFactor, double offset) {
-        return scaleFactor != 1.0 || offset != 0.0;
     }
 }

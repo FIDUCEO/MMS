@@ -44,30 +44,14 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.math.TimeInterval;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -96,7 +80,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private boolean isAmsuB;
 
-    public AMSUB_MHS_L1C_Reader(GeometryFactory geometryFactory) {
+    AMSUB_MHS_L1C_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -140,8 +124,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
         final Geometries geometries = extractGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
-
-        setTimeAxes(acquisitionInfo, sensingStart, sensingStop, geometries);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
@@ -402,27 +385,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             throw new IOException("Global attribute '" + attributeName + "' not found.");
         }
         return attribute.getNumericValue().intValue();
-    }
-
-    // @todo 3 tb/tb duplicated code - refactor and move to common reader helper class 2016-04-12
-    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Date startDate, Date stopDate, Geometries geometries) {
-        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
-        if (timeAxesGeometry instanceof GeometryCollection) {
-            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
-            final Geometry[] axesGeometries = axesCollection.getGeometries();
-            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
-            final TimeInterval timeInterval = new TimeInterval(startDate, stopDate);
-            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
-            for (int i = 0; i < axesGeometries.length; i++) {
-                final LineString axisGeometry = (LineString) axesGeometries[i];
-                final TimeInterval currentTimeInterval = timeSplits[i];
-                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
-            }
-            acquisitionInfo.setTimeAxes(timeAxes);
-        } else {
-            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, startDate, stopDate);
-            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
-        }
     }
 
     private Geometries extractGeometries() throws IOException {

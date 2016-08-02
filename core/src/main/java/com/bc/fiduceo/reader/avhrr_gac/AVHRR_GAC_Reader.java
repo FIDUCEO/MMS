@@ -22,10 +22,11 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -56,7 +57,7 @@ public class AVHRR_GAC_Reader implements Reader {
     private TimeLocator timeLocator;
     private long startTimeMilliSecondsSince1970;
 
-    public AVHRR_GAC_Reader(GeometryFactory geometryFactory) {
+    AVHRR_GAC_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -91,8 +92,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
-
-        setTimeAxes(acquisitionInfo, startDate, stopDate, geometries);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
@@ -206,26 +206,6 @@ public class AVHRR_GAC_Reader implements Reader {
         geometries.setBoundingGeometry(boundingGeometry);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         return geometries;
-    }
-
-    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Date startDate, Date stopDate, Geometries geometries) {
-        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
-        if (timeAxesGeometry instanceof GeometryCollection) {
-            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
-            final Geometry[] axesGeometries = axesCollection.getGeometries();
-            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
-            final TimeInterval timeInterval = new TimeInterval(startDate, stopDate);
-            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
-            for (int i = 0; i < axesGeometries.length; i++) {
-                final LineString axisGeometry = (LineString) axesGeometries[i];
-                final TimeInterval currentTimeInterval = timeSplits[i];
-                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
-            }
-            acquisitionInfo.setTimeAxes(timeAxes);
-        } else {
-            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, startDate, stopDate);
-            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
-        }
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
