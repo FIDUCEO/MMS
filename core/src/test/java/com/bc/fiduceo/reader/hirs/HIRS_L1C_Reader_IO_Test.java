@@ -23,10 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,6 +91,15 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(-43.484375, coordinates[64].getLon(), 1e-8);
             assertEquals(67.3671875, coordinates[64].getLat(), 1e-8);
 
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1979, 10, 14, 16, 24, 1, 110, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1979, 10, 14, 17, 15, 46, 0, time);
         } finally {
             reader.close();
         }
@@ -140,6 +146,16 @@ public class HIRS_L1C_Reader_IO_Test {
 
             assertEquals(178.5625, coordinates[65].getLon(), 1e-8);
             assertEquals(56.78125, coordinates[65].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 52, 2, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 5, 23, 500, time);
         } finally {
             reader.close();
         }
@@ -186,6 +202,16 @@ public class HIRS_L1C_Reader_IO_Test {
 
             assertEquals(52.7125, coordinates[60].getLon(), 1e-8);
             assertEquals(76.5637, coordinates[60].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, time);
         } finally {
             reader.close();
         }

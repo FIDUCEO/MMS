@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -75,6 +76,8 @@ public class HIRS_L1C_Reader implements Reader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+
+        setTimeAxes(acquisitionInfo, acquisitionInfo.getSensingStart(), acquisitionInfo.getSensingStop(), geometries);
 
         return acquisitionInfo;
     }
@@ -142,15 +145,43 @@ public class HIRS_L1C_Reader implements Reader {
         final Array lon = arrayCache.get("lon");
         final Array lat = arrayCache.get("lat");
 
+        Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lon, lat);
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(lon, lat, 2, true);
             if (!boundingGeometry.isValid()) {
                 throw new RuntimeException("Invalid bounding geometry detected");
             }
+            final int height = lon.getShape()[0];
+            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, 2));
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(lon, lat, 2);
+        } else {
+            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lon, lat);
         }
+
         geometries.setBoundingGeometry(boundingGeometry);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Date startDate, Date stopDate, Geometries geometries) {
+        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
+        if (timeAxesGeometry instanceof GeometryCollection) {
+            final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+            final Geometry[] axesGeometries = axesCollection.getGeometries();
+            final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+            final TimeInterval timeInterval = new TimeInterval(startDate, stopDate);
+            final TimeInterval[] timeSplits = timeInterval.split(axesGeometries.length);
+            for (int i = 0; i < axesGeometries.length; i++) {
+                final LineString axisGeometry = (LineString) axesGeometries[i];
+                final TimeInterval currentTimeInterval = timeSplits[i];
+                timeAxes[i] = geometryFactory.createTimeAxis(axisGeometry, currentTimeInterval.getStartTime(), currentTimeInterval.getStopTime());
+            }
+            acquisitionInfo.setTimeAxes(timeAxes);
+        } else {
+            final TimeAxis timeAxis = geometryFactory.createTimeAxis((LineString) timeAxesGeometry, startDate, stopDate);
+            acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
+        }
     }
 }
