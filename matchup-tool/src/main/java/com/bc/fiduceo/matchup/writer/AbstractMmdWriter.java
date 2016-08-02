@@ -61,8 +61,9 @@ abstract class AbstractMmdWriter implements MmdWriter {
     private final int cacheSize;
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
-    NetcdfFileWriter netcdfFileWriter;
     private int flushCount = 0;
+
+    NetcdfFileWriter netcdfFileWriter;
 
     AbstractMmdWriter(int cacheSize) {
         this.cacheSize = cacheSize;
@@ -79,8 +80,8 @@ abstract class AbstractMmdWriter implements MmdWriter {
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
      *
-     * @throws IOException
-     * @throws InvalidRangeException
+     * @throws IOException on disk access errors
+     * @throws InvalidRangeException on dimension errors
      */
     public void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
@@ -108,8 +109,6 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
             final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
-
-
 
             final StopWatch stopWatch = new StopWatch();
             stopWatch.start();
