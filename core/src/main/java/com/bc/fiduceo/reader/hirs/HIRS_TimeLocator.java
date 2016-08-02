@@ -18,28 +18,23 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsu_mhs;
+package com.bc.fiduceo.reader.hirs;
+
 
 import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
 
-class AMSUB_MHS_TimeLocator implements TimeLocator {
+class HIRS_TimeLocator implements TimeLocator {
 
-    private final Array scnlinyr;
-    private final Array scnlindy;
-    private final Array scnlintime;
+    private final Array timeArray;
 
-    AMSUB_MHS_TimeLocator(Array scnlinyr, Array scnlindy, Array scnlintime) {
-        this.scnlinyr = scnlinyr;
-        this.scnlindy = scnlindy;
-        this.scnlintime = scnlintime;
+    HIRS_TimeLocator(Array timeArray) {
+        this.timeArray = timeArray;
     }
 
     @Override
     public long getTimeFor(int x, int y) {
-        final int year = scnlinyr.getInt(y);
-        final int dayOfYear = scnlindy.getInt(y);
-        final int millisInDay = scnlintime.getInt(y);
-        return AMSUB_MHS_L1C_Reader.getDate(year, dayOfYear, millisInDay).getTime();
+        final long timeInSecs = timeArray.getLong(y);
+        return 1000 * timeInSecs;
     }
 }

@@ -25,6 +25,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -212,6 +213,60 @@ public class HIRS_L1C_Reader_IO_Test {
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_TIROSN() throws IOException {
+        final File file = getTirosNFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(308766239000L, timeLocator.getTimeFor(10, 0));
+            assertEquals(308769746000L, timeLocator.getTimeFor(12, 548));
+            assertEquals(308772453000L, timeLocator.getTimeFor(14, 978));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_NOAA10() throws IOException {
+        final File file = getNOAA10File();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(606118125000L, timeLocator.getTimeFor(12, 0));
+            assertEquals(606121722000L, timeLocator.getTimeFor(14, 562));
+            assertEquals(606124922000L, timeLocator.getTimeFor(16, 1062));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_METOPA() throws IOException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1314117680000L, timeLocator.getTimeFor(14, 0));
+            assertEquals(1314120509000L, timeLocator.getTimeFor(16, 442));
+            assertEquals(1314123760000L, timeLocator.getTimeFor(18, 950));
         } finally {
             reader.close();
         }

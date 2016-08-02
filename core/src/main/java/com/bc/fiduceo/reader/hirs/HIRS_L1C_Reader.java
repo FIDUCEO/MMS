@@ -99,7 +99,8 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        final Array timeArray = arrayCache.get("time");
+        return new HIRS_TimeLocator(timeArray);
     }
 
     @Override
