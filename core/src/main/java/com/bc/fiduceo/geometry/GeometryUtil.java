@@ -66,4 +66,26 @@ public class GeometryUtil {
 
         return builder.toString();
     }
+
+    public static String toPointListWkt(Geometry geometry) {
+        final StringBuffer wkt = new StringBuffer();
+
+        wkt.append("MULTIPOINT(");
+
+        final Point[] coordinates = geometry.getCoordinates();
+        for (int i = 0; i < coordinates.length; i++) {
+            final Point coordinate = coordinates[i];
+
+            wkt.append(coordinate.getLon());
+            wkt.append(" ");
+            wkt.append(coordinate.getLat());
+
+            if (i < coordinates.length - 1) {
+                wkt.append(", ");
+            }
+        }
+
+        wkt.append(")");
+        return wkt.toString();
+    }
 }

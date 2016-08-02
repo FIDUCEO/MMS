@@ -23,15 +23,9 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -52,7 +46,7 @@ public class HIRS_L1C_Reader implements Reader {
 
     private ArrayCache arrayCache;
 
-    public HIRS_L1C_Reader(GeometryFactory geometryFactory) {
+    HIRS_L1C_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -79,12 +73,8 @@ public class HIRS_L1C_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        // @todo 1 tb/tb continue here 2016-08-01
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(4, 10), geometryFactory);
-        final Array lon = arrayCache.get("lon");
-        final Array lat = arrayCache.get("lat");
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lon, lat);
-
+        final Geometries geometries = calculateGeometries();
+        acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
 
         return acquisitionInfo;
     }
@@ -144,5 +134,23 @@ public class HIRS_L1C_Reader implements Reader {
         final long stopMillisSince1970 = time.getLong(shape[0] - 1) * 1000;
         final Date sensingStop = TimeUtils.create(stopMillisSince1970);
         acquisitionInfo.setSensingStop(sensingStop);
+    }
+
+    private Geometries calculateGeometries() throws IOException {
+        final Geometries geometries = new Geometries();
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(4, 10), geometryFactory);
+        final Array lon = arrayCache.get("lon");
+        final Array lat = arrayCache.get("lat");
+
+        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lon, lat);
+        if (!boundingGeometry.isValid()) {
+            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(lon, lat, 2, true);
+            if (!boundingGeometry.isValid()) {
+                throw new RuntimeException("Invalid bounding geometry detected");
+            }
+        }
+        geometries.setBoundingGeometry(boundingGeometry);
+
+        return geometries;
     }
 }
