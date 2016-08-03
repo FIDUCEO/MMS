@@ -27,20 +27,35 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class HIRS_L1C_Reader implements Reader {
+
+    private static final int CHANNEL_DIMENSION_INDEX = 2;
+    private static final int NUM_BT_CHANNELS = 19;
+    private static final int NUM_RADIANCE_CHANNELS = 20;
+    private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     private final GeometryFactory geometryFactory;
 
@@ -120,12 +135,43 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        final List<Variable> result = new ArrayList<>();
+        final List<Variable> fileVariables = netcdfFile.getVariables();
+        for (final Variable variable : fileVariables) {
+            final String variableName = variable.getFullName();
+            if (variableName.equals("bt")) {
+                addLayered3DVariables(result, variable, NUM_BT_CHANNELS);
+            } else if (variableName.equals("radiance")) {
+                addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+            } else if (variableName.equals("counts")) {
+                addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+            } else {
+                result.add(variable);
+            }
+        }
+        return result;
     }
 
     @Override
     public Dimension getProductSize() {
         throw new IllegalStateException("not implemented");
+    }
+
+    private void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels) throws InvalidRangeException {
+        final String variableName = variable.getFullName();
+        final int[] shape = variable.getShape();
+        shape[CHANNEL_DIMENSION_INDEX] = 1;
+        final int[] origin = {0, 0, 0};
+
+        final String variableBaseName = variableName + "_";
+        for (int channel = 0; channel < numChannels; channel++) {
+            final Section section = new Section(origin, shape);
+            final Variable channelVariable = variable.section(section);
+            final String channelVariableName = variableBaseName + CHANNEL_INDEX_FORMAT.format(channel + 1);
+            channelVariable.setName(channelVariableName);
+            result.add(channelVariable);
+            origin[CHANNEL_DIMENSION_INDEX]++;
+        }
     }
 
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {

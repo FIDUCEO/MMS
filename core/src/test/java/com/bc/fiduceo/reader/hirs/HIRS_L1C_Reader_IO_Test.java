@@ -29,10 +29,13 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -267,6 +270,147 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(1314117680000L, timeLocator.getTimeFor(14, 0));
             assertEquals(1314120509000L, timeLocator.getTimeFor(16, 442));
             assertEquals(1314123760000L, timeLocator.getTimeFor(18, 950));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_TIROSN() throws IOException, InvalidRangeException {
+        final File file = getTirosNFile();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(65, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("time", variable.getShortName());
+
+            variable = variables.get(1);
+            assertEquals("lat", variable.getShortName());
+
+            variable = variables.get(2);
+            assertEquals("lon", variable.getShortName());
+
+            variable = variables.get(3);
+            assertEquals("lza", variable.getShortName());
+
+            variable = variables.get(4);
+            assertEquals("bt_01", variable.getShortName());
+
+            variable = variables.get(14);
+            assertEquals("bt_11", variable.getShortName());
+
+            variable = variables.get(22);
+            assertEquals("bt_19", variable.getShortName());
+
+            variable = variables.get(23);
+            assertEquals("radiance_01", variable.getShortName());
+
+            variable = variables.get(34);
+            assertEquals("radiance_12", variable.getShortName());
+
+            variable = variables.get(42);
+            assertEquals("radiance_20", variable.getShortName());
+
+            variable = variables.get(43);
+            assertEquals("counts_01", variable.getShortName());
+
+            variable = variables.get(52);
+            assertEquals("counts_10", variable.getShortName());
+
+            variable = variables.get(62);
+            assertEquals("counts_20", variable.getShortName());
+
+            variable = variables.get(63);
+            assertEquals("scanline", variable.getShortName());
+
+            variable = variables.get(64);
+            assertEquals("scanpos", variable.getShortName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_NOAA10() throws IOException, InvalidRangeException {
+        final File file = getNOAA10File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(65, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("time", variable.getShortName());
+
+            variable = variables.get(4);
+            assertEquals("bt_01", variable.getShortName());
+
+            variable = variables.get(22);
+            assertEquals("bt_19", variable.getShortName());
+
+            variable = variables.get(23);
+            assertEquals("radiance_01", variable.getShortName());
+
+            variable = variables.get(42);
+            assertEquals("radiance_20", variable.getShortName());
+
+            variable = variables.get(43);
+            assertEquals("counts_01", variable.getShortName());
+
+            variable = variables.get(62);
+            assertEquals("counts_20", variable.getShortName());
+
+            variable = variables.get(63);
+            assertEquals("scanline", variable.getShortName());
+
+            variable = variables.get(64);
+            assertEquals("scanpos", variable.getShortName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_METOPA() throws IOException, InvalidRangeException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(65, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("time", variable.getShortName());
+
+            variable = variables.get(4);
+            assertEquals("bt_01", variable.getShortName());
+
+            variable = variables.get(22);
+            assertEquals("bt_19", variable.getShortName());
+
+            variable = variables.get(23);
+            assertEquals("radiance_01", variable.getShortName());
+
+            variable = variables.get(42);
+            assertEquals("radiance_20", variable.getShortName());
+
+            variable = variables.get(43);
+            assertEquals("counts_01", variable.getShortName());
+
+            variable = variables.get(62);
+            assertEquals("counts_20", variable.getShortName());
+
+            variable = variables.get(63);
+            assertEquals("scanline", variable.getShortName());
+
+            variable = variables.get(64);
+            assertEquals("scanpos", variable.getShortName());
         } finally {
             reader.close();
         }

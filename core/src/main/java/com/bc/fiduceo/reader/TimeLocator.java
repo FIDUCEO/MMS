@@ -23,5 +23,11 @@ package com.bc.fiduceo.reader;
 
 public interface TimeLocator {
 
+    /**
+     * Returns the acquisition time for the pixel (x,y) in milliseconds since 1970-01-01
+     * @param x the pixel x position
+     * @param y the pixel y position
+     * @return the acquisition time milliseconds
+     */
     long getTimeFor(int x, int y);
 }
