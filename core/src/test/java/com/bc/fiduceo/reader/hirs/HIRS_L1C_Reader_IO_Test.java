@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -30,6 +31,8 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -442,6 +445,37 @@ public class HIRS_L1C_Reader_IO_Test {
             final Dimension productSize = reader.getProductSize();
             assertEquals(56, productSize.getNx());
             assertEquals(1063, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_METOPA() throws IOException, InvalidRangeException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(22, 124, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
+
+            index.set(0, 0);
+            assertEquals(1314118461, acquisitionTime.getInt(index));
+
+            index.set(1, 1);
+            assertEquals(1314118467, acquisitionTime.getInt(index));
+
+            index.set(2, 2);
+            assertEquals(1314118474, acquisitionTime.getInt(index));
+
+            index.set(3, 1);
+            assertEquals(1314118480, acquisitionTime.getInt(index));
+
+            index.set(4, 0);
+            assertEquals(1314118486, acquisitionTime.getInt(index));
         } finally {
             reader.close();
         }

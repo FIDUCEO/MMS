@@ -31,6 +31,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -129,8 +130,12 @@ public class HIRS_L1C_Reader implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+    public ArrayInt.D2 readAcquisitionTime(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+        final Array timeArray = arrayCache.get("time");
+        final Number fillValue = ReaderUtils.getDefaultFillValue(timeArray);
+
+        final Dimension productSize = getProductSize();
+        return (ArrayInt.D2) RawDataReader.read(centerX, centerY, interval, fillValue, timeArray, productSize.getNx());
     }
 
     @Override
