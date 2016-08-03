@@ -20,13 +20,16 @@
 
 package com.bc.fiduceo.reader;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -146,10 +149,24 @@ public class ReaderUtilsTest {
 
     @Test
     public void testGetChannelIndex() {
-         assertEquals(17, ReaderUtils.getChannelIndex("btemps_ch18"));
-         assertEquals(4, ReaderUtils.getChannelIndex("chanqual_ch5"));
+        assertEquals(17, ReaderUtils.getChannelIndex("btemps_ch18"));
+        assertEquals(4, ReaderUtils.getChannelIndex("chanqual_ch5"));
 
         assertEquals(0, ReaderUtils.getChannelIndex("lon"));
         assertEquals(0, ReaderUtils.getChannelIndex("a_strange_channel"));
+    }
+
+    @Test
+    public void testToFloat() {
+        final int[] ints = {12, 23, 45, 67};
+        final Array intArray = Array.factory(ints);
+
+        final Array floatArray = ReaderUtils.toFloat(intArray);
+        assertNotNull(floatArray);
+        assertEquals(float.class, floatArray.getDataType().getPrimitiveClassType());
+        assertEquals(12.0, floatArray.getFloat(0), 1e-8);
+        assertEquals(23.0, floatArray.getFloat(1), 1e-8);
+        assertEquals(45.0, floatArray.getFloat(2), 1e-8);
+        assertEquals(67.0, floatArray.getFloat(3), 1e-8);
     }
 }

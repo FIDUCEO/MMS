@@ -27,6 +27,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
@@ -62,7 +63,7 @@ public class HIRS_L1C_Reader implements Reader {
     private final GeometryFactory geometryFactory;
 
     private NetcdfFile netcdfFile;
-
+    private PixelLocator pixelLocator;
     private ArrayCache arrayCache;
 
     HIRS_L1C_Reader(GeometryFactory geometryFactory) {
@@ -106,12 +107,28 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (pixelLocator == null) {
+            final Array lonArray = arrayCache.get("lon");
+            final Array latArray = arrayCache.get("lat");
+
+            final int[] shape = lonArray.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(ReaderUtils.toFloat(lonArray), ReaderUtils.toFloat(latArray), width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
-        throw new IllegalStateException("not implemented");
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+        final Array lonArray = arrayCache.get("lon");
+        final int[] shape = lonArray.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, 2);
+        final PixelLocator pixelLocator = getPixelLocator();
+
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
@@ -215,7 +232,7 @@ public class HIRS_L1C_Reader implements Reader {
 
     private Geometries calculateGeometries() throws IOException {
         final Geometries geometries = new Geometries();
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(4, 10), geometryFactory);
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Array lon = arrayCache.get("lon");
         final Array lat = arrayCache.get("lat");
 
@@ -237,6 +254,10 @@ public class HIRS_L1C_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    private BoundingPolygonCreator getBoundingPolygonCreator() {
+        return new BoundingPolygonCreator(new Interval(4, 10), geometryFactory);
     }
 
     private Array readScanPos(int centerX, int centerY, Interval interval) throws IOException {

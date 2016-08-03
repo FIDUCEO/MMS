@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import ucar.ma2.Array;
+import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.util.Date;
@@ -88,6 +89,12 @@ public class ReaderUtils {
             channelIndex = 0;   // fallback for names that contain an "_ch" but are not assembled like "bla_ch08"tb 2016-08-03
         }
         return channelIndex;
+    }
+
+    public static Array toFloat(Array original) {
+        final Array floatArray = Array.factory(Float.class, original.getShape());
+        MAMath.copyFloat(floatArray, original);
+        return floatArray;
     }
 
     private static Number getDefaultFillValue(Class type) {

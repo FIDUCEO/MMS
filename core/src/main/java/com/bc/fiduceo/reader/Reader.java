@@ -45,7 +45,7 @@ public interface Reader extends AutoCloseable {
 
     PixelLocator getPixelLocator() throws IOException;
 
-    PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException;
+    PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException;
 
     TimeLocator getTimeLocator() throws IOException;
 

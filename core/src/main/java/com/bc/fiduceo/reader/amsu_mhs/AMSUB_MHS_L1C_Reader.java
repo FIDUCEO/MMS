@@ -143,7 +143,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             final int[] shape = longitudes.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(toFloat(longitudes), toFloat(latitudes), width, height);
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(ReaderUtils.toFloat(longitudes), ReaderUtils.toFloat(latitudes), width, height);
         }
         return pixelLocator;
     }
@@ -414,13 +414,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             fillValue = ReaderUtils.getDefaultFillValue(array);
         }
         return fillValue;
-    }
-
-    // package access for testing only tb 2016-04-20
-    static Array toFloat(Array original) {
-        final Array floatArray = Array.factory(Float.class, original.getShape());
-        MAMath.copyFloat(floatArray, original);
-        return floatArray;
     }
 
     private double getScaleFactor(String variableName) throws IOException {

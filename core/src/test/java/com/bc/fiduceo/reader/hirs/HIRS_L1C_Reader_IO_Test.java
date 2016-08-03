@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -38,6 +39,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -45,6 +47,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
@@ -609,6 +612,68 @@ public class HIRS_L1C_Reader_IO_Test {
             array = reader.readRaw(36, 254, interval, "time");
             NCTestUtils.assertValueAt(606119757, 4, 3, array);
             NCTestUtils.assertValueAt(606119763, 0, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_MetopA() throws IOException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(1.253499984741211, geoLocation.getX(), 1e-8);
+            assertEquals(70.50540161132812, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(29.5, 696.5, null);
+            assertEquals(55.48429870605469, geoLocation.getX(), 1e-8);
+            assertEquals(-12.545900344848633, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(55.5, 782.5, null);
+            assertEquals(57.860198974609375, geoLocation.getX(), 1e-8);
+            assertEquals(21.78820037841797, geoLocation.getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+    @Test
+    public void testGetPixelLocator_Singleton_MetopA() throws IOException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator first = reader.getPixelLocator();
+            final PixelLocator second = reader.getPixelLocator();
+
+            assertSame(first, second);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testSubscenePixelLocator_TIROSN() throws IOException {
+        final File file = getTirosNFile();
+
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((-135.2109 68.8125, 150.625 80.695, 153.5 62.328, -167.132 56.39, -135.2109 68.8125))");
+
+        try {
+            reader.open(file);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(polygon);
+            assertNotNull(subScenePixelLocator);
+
+            Point2D geoLocation = subScenePixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(-50.6875, geoLocation.getX(), 1e-8);
+            assertEquals(55.8515625, geoLocation.getY(), 1e-8);
         } finally {
             reader.close();
         }
