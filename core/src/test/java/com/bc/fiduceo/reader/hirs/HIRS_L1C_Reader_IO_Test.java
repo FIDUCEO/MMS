@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -411,6 +412,36 @@ public class HIRS_L1C_Reader_IO_Test {
 
             variable = variables.get(64);
             assertEquals("scanpos", variable.getShortName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_TIROSN() throws IOException, InvalidRangeException {
+        final File file = getTirosNFile();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(56, productSize.getNx());
+            assertEquals(979, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_NOAA10() throws IOException, InvalidRangeException {
+        final File file = getNOAA10File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(56, productSize.getNx());
+            assertEquals(1063, productSize.getNy());
         } finally {
             reader.close();
         }

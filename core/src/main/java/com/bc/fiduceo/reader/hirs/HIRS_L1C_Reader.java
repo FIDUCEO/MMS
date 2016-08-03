@@ -153,8 +153,10 @@ public class HIRS_L1C_Reader implements Reader {
     }
 
     @Override
-    public Dimension getProductSize() {
-        throw new IllegalStateException("not implemented");
+    public Dimension getProductSize() throws IOException {
+        final Array lon = arrayCache.get("lon");
+        final int[] shape = lon.getShape();
+        return new Dimension("lon", shape[1], shape[0]);
     }
 
     private void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels) throws InvalidRangeException {

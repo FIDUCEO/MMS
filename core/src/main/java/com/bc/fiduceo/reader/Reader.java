@@ -101,5 +101,5 @@ public interface Reader extends AutoCloseable {
      *
      * @return the data Dimension
      */
-    Dimension getProductSize();
+    Dimension getProductSize() throws IOException;
 }
