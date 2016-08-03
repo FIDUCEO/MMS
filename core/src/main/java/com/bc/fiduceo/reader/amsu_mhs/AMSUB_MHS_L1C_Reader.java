@@ -174,7 +174,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        String rawVariableName = stripChannelSuffix(variableName);
+        String rawVariableName = ReaderUtils.stripChannelSuffix(variableName);
         if (rawVariableName.contains("azimuth")) {
             rawVariableName = falsifyAzimuth(rawVariableName);
         }
@@ -205,7 +205,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
-        final String strippedVariableName = stripChannelSuffix(variableName);
+        final String strippedVariableName = ReaderUtils.stripChannelSuffix(variableName);
 
         double scaleFactor = getScaleFactor(strippedVariableName);
         if (ReaderUtils.mustScale(scaleFactor, 0.0)) {
@@ -334,14 +334,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         }
 
         throw new RuntimeException("Requested invalid variable name: " + variableName);
-    }
-
-    static String stripChannelSuffix(String fullVariableName) {
-        final int splitIndex = fullVariableName.indexOf("_ch");
-        if (splitIndex > 0) {
-            return fullVariableName.substring(0, splitIndex);
-        }
-        return fullVariableName;
     }
 
     // package access for testing only tb 2016-04-15

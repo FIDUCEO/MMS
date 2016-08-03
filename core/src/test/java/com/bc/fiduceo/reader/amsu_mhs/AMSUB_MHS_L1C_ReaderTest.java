@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.ReaderUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
@@ -182,15 +183,6 @@ public class AMSUB_MHS_L1C_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-    }
-
-    @Test
-    public void testStripChannelSuffix() {
-        assertEquals("btemps", AMSUB_MHS_L1C_Reader.stripChannelSuffix("btemps_ch17"));
-        assertEquals("chanqual", AMSUB_MHS_L1C_Reader.stripChannelSuffix("chanqual_ch4"));
-
-        assertEquals("Latitude", AMSUB_MHS_L1C_Reader.stripChannelSuffix("Latitude"));
-        assertEquals("scnlindy", AMSUB_MHS_L1C_Reader.stripChannelSuffix("scnlindy"));
     }
 
     @Test

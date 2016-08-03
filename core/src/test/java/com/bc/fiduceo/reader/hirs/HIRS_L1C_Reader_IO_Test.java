@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -31,6 +32,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
@@ -302,31 +304,31 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals("lza", variable.getShortName());
 
             variable = variables.get(4);
-            assertEquals("bt_01", variable.getShortName());
+            assertEquals("bt_ch01", variable.getShortName());
 
             variable = variables.get(14);
-            assertEquals("bt_11", variable.getShortName());
+            assertEquals("bt_ch11", variable.getShortName());
 
             variable = variables.get(22);
-            assertEquals("bt_19", variable.getShortName());
+            assertEquals("bt_ch19", variable.getShortName());
 
             variable = variables.get(23);
-            assertEquals("radiance_01", variable.getShortName());
+            assertEquals("radiance_ch01", variable.getShortName());
 
             variable = variables.get(34);
-            assertEquals("radiance_12", variable.getShortName());
+            assertEquals("radiance_ch12", variable.getShortName());
 
             variable = variables.get(42);
-            assertEquals("radiance_20", variable.getShortName());
+            assertEquals("radiance_ch20", variable.getShortName());
 
             variable = variables.get(43);
-            assertEquals("counts_01", variable.getShortName());
+            assertEquals("counts_ch01", variable.getShortName());
 
             variable = variables.get(52);
-            assertEquals("counts_10", variable.getShortName());
+            assertEquals("counts_ch10", variable.getShortName());
 
             variable = variables.get(62);
-            assertEquals("counts_20", variable.getShortName());
+            assertEquals("counts_ch20", variable.getShortName());
 
             variable = variables.get(63);
             assertEquals("scanline", variable.getShortName());
@@ -352,22 +354,22 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals("time", variable.getShortName());
 
             variable = variables.get(4);
-            assertEquals("bt_01", variable.getShortName());
+            assertEquals("bt_ch01", variable.getShortName());
 
             variable = variables.get(22);
-            assertEquals("bt_19", variable.getShortName());
+            assertEquals("bt_ch19", variable.getShortName());
 
             variable = variables.get(23);
-            assertEquals("radiance_01", variable.getShortName());
+            assertEquals("radiance_ch01", variable.getShortName());
 
             variable = variables.get(42);
-            assertEquals("radiance_20", variable.getShortName());
+            assertEquals("radiance_ch20", variable.getShortName());
 
             variable = variables.get(43);
-            assertEquals("counts_01", variable.getShortName());
+            assertEquals("counts_ch01", variable.getShortName());
 
             variable = variables.get(62);
-            assertEquals("counts_20", variable.getShortName());
+            assertEquals("counts_ch20", variable.getShortName());
 
             variable = variables.get(63);
             assertEquals("scanline", variable.getShortName());
@@ -393,22 +395,22 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals("time", variable.getShortName());
 
             variable = variables.get(4);
-            assertEquals("bt_01", variable.getShortName());
+            assertEquals("bt_ch01", variable.getShortName());
 
             variable = variables.get(22);
-            assertEquals("bt_19", variable.getShortName());
+            assertEquals("bt_ch19", variable.getShortName());
 
             variable = variables.get(23);
-            assertEquals("radiance_01", variable.getShortName());
+            assertEquals("radiance_ch01", variable.getShortName());
 
             variable = variables.get(42);
-            assertEquals("radiance_20", variable.getShortName());
+            assertEquals("radiance_ch20", variable.getShortName());
 
             variable = variables.get(43);
-            assertEquals("counts_01", variable.getShortName());
+            assertEquals("counts_ch01", variable.getShortName());
 
             variable = variables.get(62);
-            assertEquals("counts_20", variable.getShortName());
+            assertEquals("counts_ch20", variable.getShortName());
 
             variable = variables.get(63);
             assertEquals("scanline", variable.getShortName());
@@ -476,6 +478,78 @@ public class HIRS_L1C_Reader_IO_Test {
 
             index.set(4, 0);
             assertEquals(1314118486, acquisitionTime.getInt(index));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_TIROSN() throws IOException, InvalidRangeException {
+        final File file = getTirosNFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(13, 231, interval, "bt_ch01");
+            NCTestUtils.assertValueAt(222.7375946044922, 0, 0, array);
+            NCTestUtils.assertValueAt(233.08966064453125, 1, 0, array);
+
+            array = reader.readScaled(14, 232, interval, "bt_ch02");
+            NCTestUtils.assertValueAt(216.99314880371094, 2, 0, array);
+            NCTestUtils.assertValueAt(215.75836181640625, 3, 0, array);
+
+            array = reader.readScaled(15, 233, interval, "counts_ch03");
+            NCTestUtils.assertValueAt(-863, 4, 0, array);
+            NCTestUtils.assertValueAt(-868, 0, 1, array);
+
+            array = reader.readScaled(16, 234, interval, "counts_ch04");
+            NCTestUtils.assertValueAt(-584, 1, 1, array);
+            NCTestUtils.assertValueAt(-588, 2, 1, array);
+
+            array = reader.readScaled(17, 235, interval, "lat");
+            NCTestUtils.assertValueAt(29.71875, 3, 1, array);
+            NCTestUtils.assertValueAt(29.765625, 4, 1, array);
+
+            array = reader.readScaled(18, 236, interval, "lon");
+            NCTestUtils.assertValueAt(164.796875, 0, 2, array);
+            NCTestUtils.assertValueAt(164.4765625, 1, 2, array);
+
+            array = reader.readScaled(19, 237, interval, "lza");
+            NCTestUtils.assertValueAt(17.467435836791992, 2, 2, array);
+            NCTestUtils.assertValueAt(15.402369499206543, 3, 2, array);
+
+            array = reader.readScaled(20, 238, interval, "radiance_ch05");
+            NCTestUtils.assertValueAt(70.4374771118164, 4, 2, array);
+            NCTestUtils.assertValueAt(69.71855163574219, 0, 3, array);
+
+            array = reader.readScaled(21, 239, interval, "radiance_ch06");
+            NCTestUtils.assertValueAt(-0.5326722860336304, 1, 3, array);
+            NCTestUtils.assertValueAt(0.2421426773071289, 2, 3, array);
+
+            array = reader.readScaled(22, 240, interval, "scanline");
+            NCTestUtils.assertValueAt(242, 3, 3, array);
+            NCTestUtils.assertValueAt(242, 4, 3, array);
+
+            final Interval nonSquareInterval = new Interval(3, 5);
+            array = reader.readScaled(23, 241, nonSquareInterval, "scanpos");
+            NCTestUtils.assertValueAt(22, 0, 2, array);
+            NCTestUtils.assertValueAt(23, 1, 2, array);
+
+            array = reader.readScaled(0, 242, nonSquareInterval, "scanpos");
+            NCTestUtils.assertValueAt(-128, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(1, 2, 2, array);
+
+            array = reader.readScaled(55, 242, nonSquareInterval, "scanpos");
+            NCTestUtils.assertValueAt(54, 0, 2, array);
+            NCTestUtils.assertValueAt(55, 1, 2, array);
+            NCTestUtils.assertValueAt(-128, 2, 2, array);
+
+            array = reader.readScaled(24, 242, interval, "time");
+            NCTestUtils.assertValueAt(308767794, 0, 3, array);
+            NCTestUtils.assertValueAt(308767801, 1, 4, array);
+
         } finally {
             reader.close();
         }

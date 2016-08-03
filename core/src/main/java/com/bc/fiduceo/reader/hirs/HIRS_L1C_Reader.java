@@ -38,6 +38,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
@@ -121,12 +122,31 @@ public class HIRS_L1C_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        if (variableName.equals("scanpos")) {
+            return readScanPos(centerX, centerY, interval);
+        }
+        final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+
+        Array array = arrayCache.get(fullVariableName);
+        final int rank = array.getRank();
+
+        if (rank == 3) {
+            final int channelIndex = getChannelIndex(variableName);
+            final int[] shape = array.getShape();
+            shape[2] = 1;   // we only want one z-layer
+            final int[] offsets = {0, 0, channelIndex};
+            array = array.section(offsets, shape);
+        }
+
+        final Number fillValue = ReaderUtils.getDefaultFillValue(array);
+
+        final Dimension productSize = getProductSize();
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize.getNx());
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        return readRaw(centerX, centerY, interval, variableName);   // all variables are already scaled tb 2016-08-03
     }
 
     @Override
@@ -170,7 +190,7 @@ public class HIRS_L1C_Reader implements Reader {
         shape[CHANNEL_DIMENSION_INDEX] = 1;
         final int[] origin = {0, 0, 0};
 
-        final String variableBaseName = variableName + "_";
+        final String variableBaseName = variableName + "_ch";
         for (int channel = 0; channel < numChannels; channel++) {
             final Section section = new Section(origin, shape);
             final Variable channelVariable = variable.section(section);
@@ -217,5 +237,45 @@ public class HIRS_L1C_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    // @todo 2 tb/tb move to reader utils and replace the duplicetad code in other readers 2016-08-03
+    private int getChannelIndex(String variableName) {
+        final int splitIndex = variableName.indexOf("_ch");
+        if (splitIndex < 0) {
+            return 0;
+        }
+        final String channelNumber = variableName.substring(splitIndex + 3);
+        return Integer.parseInt(channelNumber) - 1;
+    }
+
+    private Array readScanPos(int centerX, int centerY, Interval interval) throws IOException {
+        final Array scanpos = arrayCache.get("scanpos");
+        final int originalWidth = scanpos.getShape()[0];
+        final Number fillValue = ReaderUtils.getDefaultFillValue(scanpos);
+        final int width = interval.getX();
+        final int height = interval.getY();
+
+        final int[] shape = new int[2];
+        shape[0] = height;
+        shape[1] = width;
+        final Array result = Array.factory(scanpos.getDataType(), shape);
+
+        int originalX = centerX - width/2;
+
+        final Index index = result.getIndex();
+        for (int x = 0; x < width; x++) {
+            int value = fillValue.intValue();
+            if (originalX >= 0 && originalX < originalWidth ) {
+                value = scanpos.getInt(originalX);
+            }
+            for (int y = 0; y < height; y++) {
+                index.set(y, x);
+                result.setInt(index, value);
+            }
+            originalX++;
+        }
+
+        return result;
     }
 }

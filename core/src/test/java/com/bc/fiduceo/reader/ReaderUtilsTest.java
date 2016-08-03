@@ -133,4 +133,13 @@ public class ReaderUtilsTest {
 
         assertFalse(ReaderUtils.mustScale(1.0, 0.0));
     }
+
+    @Test
+    public void testStripChannelSuffix() {
+        assertEquals("btemps", ReaderUtils.stripChannelSuffix("btemps_ch17"));
+        assertEquals("chanqual", ReaderUtils.stripChannelSuffix("chanqual_ch4"));
+
+        assertEquals("Latitude", ReaderUtils.stripChannelSuffix("Latitude"));
+        assertEquals("scnlindy", ReaderUtils.stripChannelSuffix("scnlindy"));
+    }
 }

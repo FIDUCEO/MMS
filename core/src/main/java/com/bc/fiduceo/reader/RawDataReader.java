@@ -45,7 +45,6 @@ public class RawDataReader {
     }
 
     public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, final int defaultWidth) throws InvalidRangeException {
-
         int[] shape = rawArray.getShape();
         int rank = rawArray.getRank();
         final InputDimension inputDimension = getInputDimension(rank, shape);

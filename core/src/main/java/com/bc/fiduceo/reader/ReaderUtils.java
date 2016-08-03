@@ -66,6 +66,14 @@ public class ReaderUtils {
         }
     }
 
+    public static String stripChannelSuffix(String fullVariableName) {
+        final int splitIndex = fullVariableName.indexOf("_ch");
+        if (splitIndex > 0) {
+            return fullVariableName.substring(0, splitIndex);
+        }
+        return fullVariableName;
+    }
+
     private static Number getDefaultFillValue(Class type) {
         if (double.class == type) {
             return Double.MIN_VALUE;
