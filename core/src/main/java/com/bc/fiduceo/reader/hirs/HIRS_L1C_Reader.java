@@ -131,7 +131,7 @@ public class HIRS_L1C_Reader implements Reader {
         final int rank = array.getRank();
 
         if (rank == 3) {
-            final int channelIndex = getChannelIndex(variableName);
+            final int channelIndex = ReaderUtils.getChannelIndex(variableName);
             final int[] shape = array.getShape();
             shape[2] = 1;   // we only want one z-layer
             final int[] offsets = {0, 0, channelIndex};
@@ -237,16 +237,6 @@ public class HIRS_L1C_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
-    }
-
-    // @todo 2 tb/tb move to reader utils and replace the duplicetad code in other readers 2016-08-03
-    private int getChannelIndex(String variableName) {
-        final int splitIndex = variableName.indexOf("_ch");
-        if (splitIndex < 0) {
-            return 0;
-        }
-        final String channelNumber = variableName.substring(splitIndex + 3);
-        return Integer.parseInt(channelNumber) - 1;
     }
 
     private Array readScanPos(int centerX, int centerY, Interval interval) throws IOException {

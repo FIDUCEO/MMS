@@ -338,12 +338,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     // package access for testing only tb 2016-04-15
     static int getChannelLayer(String fullVariableName) {
-        final int splitIndex = fullVariableName.indexOf("_ch");
-        if (splitIndex < 0) {
-            return 0;
-        }
-        final String channelNumber = fullVariableName.substring(splitIndex + 3);
-        final int channelIndex = Integer.parseInt(channelNumber) - 1;
+        final int channelIndex = ReaderUtils.getChannelIndex(fullVariableName);
         return channelIndex > 5 ? channelIndex - 15 : channelIndex;
     }
 

@@ -74,6 +74,22 @@ public class ReaderUtils {
         return fullVariableName;
     }
 
+    public static int getChannelIndex(String variableName) {
+        final int splitIndex = variableName.lastIndexOf("_ch");
+        if (splitIndex < 0) {
+            return 0;
+        }
+        final String channelNumber = variableName.substring(splitIndex + 3);
+
+        int channelIndex;
+        try {
+            channelIndex = Integer.parseInt(channelNumber) - 1;
+        } catch (NumberFormatException e) {
+            channelIndex = 0;   // fallback for names that contain an "_ch" but are not assembled like "bla_ch08"tb 2016-08-03
+        }
+        return channelIndex;
+    }
+
     private static Number getDefaultFillValue(Class type) {
         if (double.class == type) {
             return Double.MIN_VALUE;

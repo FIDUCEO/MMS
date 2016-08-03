@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -141,5 +142,14 @@ public class ReaderUtilsTest {
 
         assertEquals("Latitude", ReaderUtils.stripChannelSuffix("Latitude"));
         assertEquals("scnlindy", ReaderUtils.stripChannelSuffix("scnlindy"));
+    }
+
+    @Test
+    public void testGetChannelIndex() {
+         assertEquals(17, ReaderUtils.getChannelIndex("btemps_ch18"));
+         assertEquals(4, ReaderUtils.getChannelIndex("chanqual_ch5"));
+
+        assertEquals(0, ReaderUtils.getChannelIndex("lon"));
+        assertEquals(0, ReaderUtils.getChannelIndex("a_strange_channel"));
     }
 }
