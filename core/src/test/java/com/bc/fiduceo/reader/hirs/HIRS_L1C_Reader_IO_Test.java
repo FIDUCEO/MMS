@@ -549,7 +549,66 @@ public class HIRS_L1C_Reader_IO_Test {
             array = reader.readScaled(24, 242, interval, "time");
             NCTestUtils.assertValueAt(308767794, 0, 3, array);
             NCTestUtils.assertValueAt(308767801, 1, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
 
+    @Test
+    public void testReadRaw_NOAA10() throws IOException, InvalidRangeException {
+        final File file = getNOAA10File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(25, 243, interval, "bt_ch07");
+            NCTestUtils.assertValueAt(252.1149139404297, 2, 4, array);
+            NCTestUtils.assertValueAt(252.6898193359375, 3, 4, array);
+
+            array = reader.readRaw(26, 244, interval, "bt_ch08");
+            NCTestUtils.assertValueAt(266.6014709472656, 4, 4, array);
+            NCTestUtils.assertValueAt(253.4669647216797, 0, 0, array);
+
+            array = reader.readRaw(27, 245, interval, "counts_ch09");
+            NCTestUtils.assertValueAt(266, 1, 0, array);
+            NCTestUtils.assertValueAt(285, 2, 0, array);
+
+            array = reader.readRaw(28, 246, interval, "counts_ch10");
+            NCTestUtils.assertValueAt(-654, 3, 0, array);
+            NCTestUtils.assertValueAt(-649, 4, 0, array);
+
+            array = reader.readRaw(29, 247, interval, "lat");
+            NCTestUtils.assertValueAt(60.84375, 0, 1, array);
+            NCTestUtils.assertValueAt(60.90625, 1, 1, array);
+
+            array = reader.readRaw(30, 248, interval, "lon");
+            NCTestUtils.assertValueAt(29.2421875, 2, 1, array);
+            NCTestUtils.assertValueAt(28.7890625, 3, 1, array);
+
+            array = reader.readRaw(31, 249, interval, "lza");
+            NCTestUtils.assertValueAt(11.521845817565918, 4, 1, array);
+            NCTestUtils.assertValueAt(3.1400468349456787, 0, 2, array);
+
+            array = reader.readRaw(32, 250, interval, "radiance_ch11");
+            NCTestUtils.assertValueAt(11.918828964233398, 1, 2, array);
+            NCTestUtils.assertValueAt(11.980561256408691, 2, 2, array);
+
+            array = reader.readRaw(33, 251, interval, "radiance_ch12");
+            NCTestUtils.assertValueAt(4.9098429679870605, 3, 2, array);
+            NCTestUtils.assertValueAt(4.83237886428833, 4, 2, array);
+
+            array = reader.readRaw(34, 252, interval, "scanline");
+            NCTestUtils.assertValueAt(254, 0, 3, array);
+            NCTestUtils.assertValueAt(254, 1, 3, array);
+
+            array = reader.readRaw(35, 253, interval, "scanpos");
+            NCTestUtils.assertValueAt(35, 2, 3, array);
+            NCTestUtils.assertValueAt(36, 3, 3, array);
+
+            array = reader.readRaw(36, 254, interval, "time");
+            NCTestUtils.assertValueAt(606119757, 4, 3, array);
+            NCTestUtils.assertValueAt(606119763, 0, 4, array);
         } finally {
             reader.close();
         }
