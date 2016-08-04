@@ -43,7 +43,6 @@ public class BuehlerCloudScreeningPluginTest {
 
     @Test
     public void testGetScreeningName() {
-
         assertEquals("buehler-cloud", plugin.getScreeningName());
     }
 
