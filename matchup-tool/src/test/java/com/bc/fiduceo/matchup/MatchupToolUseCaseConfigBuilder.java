@@ -45,7 +45,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
+    UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular");
 
@@ -70,7 +70,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public UseCaseConfigBuilder withAngularCosineScreening(String primaryVZAName, String secondaryVZAName, float threshold) {
+    UseCaseConfigBuilder withAngularCosineScreening(String primaryVZAName, String secondaryVZAName, float threshold) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular-cosine-proportion");
 
@@ -87,4 +87,14 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
+    UseCaseConfigBuilder withHIRS_LZA_Screening(float maxAngularDelta) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element lzaDelta = ensureChild(screenings, "hirs-lza-delta");
+
+        if (!Float.isNaN(maxAngularDelta)) {
+            addChild(lzaDelta, "max-lza-delta", maxAngularDelta);
+        }
+
+        return this;
+    }
 }

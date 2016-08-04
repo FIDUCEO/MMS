@@ -23,9 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -241,6 +239,10 @@ public class HIRS_L1C_Reader implements Reader {
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(lon, lat, 2, true);
             if (!boundingGeometry.isValid()) {
+                GeometryCollection collection = (GeometryCollection) boundingGeometry;
+                final Geometry[] collectionGeometries = collection.getGeometries();
+                System.out.println(GeometryUtil.toPointListWkt(collectionGeometries[0]));
+                System.out.println(GeometryUtil.toPointListWkt(collectionGeometries[1]));
                 throw new RuntimeException("Invalid bounding geometry detected");
             }
             final int height = lon.getShape()[0];

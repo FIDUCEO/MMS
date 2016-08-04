@@ -27,7 +27,11 @@ public class HIRS_LZADeltaScreeningPlugin implements ScreeningPlugin {
 
     @Override
     public Screening createScreening(Element element) {
-        return new HIRS_LZADeltaScreening();
+        final HIRS_LZADeltaScreening screening = new HIRS_LZADeltaScreening();
+
+        final HIRS_LZADeltaScreening.Configuration configuration = createConfiguration(element);
+        screening.configure(configuration);
+        return screening;
     }
 
     @Override
