@@ -102,73 +102,90 @@ public class MatchupToolIntegrationTest_useCase_05 {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1989-076", "-end", "1989-076"};
         MatchupToolMain.main(args);
 
-        // @todo 1 tb/tb continue here with assertions 2016-08-04
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig);
-//        assertTrue(mmdFile.isFile());
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            NCTestUtils.assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
-//            NCTestUtils.assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
-//            NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
-//
-//            NCTestUtils.assertScalarVariable("avhrr-n18_x", 3, 79.0, mmd);
-//            NCTestUtils.assertScalarVariable("avhrr-n18_y", 4, 2306.0, mmd);
-//            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_ch1", 1, 1, 28, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n17_ch2", 2, 1, 29, 5.0, mmd);
-//            // @todo 2 tb/** add more assertions here
-//        }
+
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("hirs-n10_acquisition_time", 0, 0, 0, 606122189, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch01", 2, 0, 2, Float.NaN, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch02", 4, 0, 4, 223.5828857421875, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch03", 1, 1, 6, 223.87351989746094, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n10_counts_ch01", 3, 1, 8, 1403, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_counts_ch02", 0, 2, 10, -1373, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_counts_ch03", 2, 2, 12, -1828, mmd);
+
+            NCTestUtils.assertStringVariable("hirs-n10_file_name", 14, "NSS.HIRX.NG.D89076.S0608.E0802.B1296162.WI.nc", mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n10_lat", 4, 2, 16, -81.4609375, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_lon", 1, 3, 18, -42.40625, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_lza", 3, 3, 20, 26.595956802368164, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n10_radiance_ch01", 0, 4, 22, -458.3385009765625, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_radiance_ch02", 2, 4, 24, 47.478275299072266, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_radiance_ch03", 4, 4, 26, 46.72418975830078, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n10_scanline", 1, 0, 27, 641, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_scanpos", 3, 0, 29, 11, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_time", 0, 1, 31, 606122227, mmd);
+
+            NCTestUtils.assertScalarVariable("hirs-n10_x", 33, 21, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n10_y", 35, 643, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n11_acquisition_time", 1, 0, 1, Integer.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_bt_ch01", 3, 0, 3, 230.6595001220703, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_bt_ch02", 0, 1, 5, Float.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_bt_ch03", 2, 1, 7, 223.0589141845703, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n11_counts_ch01", 4, 1, 9, -1599, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_counts_ch02", 1, 2, 11, Integer.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_counts_ch03", 3, 2, 13, -673, mmd);
+
+            NCTestUtils.assertStringVariable("hirs-n11_file_name", 15, "NSS.HIRX.NH.D89076.S0557.E0743.B0245152.WI.nc", mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n11_lat", 0, 3, 17, Double.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_lon", 2, 3, 19, -64.390625, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_lza", 4, 3, 21, 53.71925735473633, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n11_radiance_ch01", 1, 4, 23, 52.45464324951172, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_radiance_ch02", 3, 4, 25, 48.26007080078125, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_radiance_ch03", 0, 0, 26, 122.11962890625, mmd);
+
+            NCTestUtils.assert3DVariable("hirs-n11_scanline", 2, 0, 28, 447, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_scanpos", 4, 0, 30, 3, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_time", 1, 1, 32, 606120235, mmd);
+
+            NCTestUtils.assertScalarVariable("hirs-n11_x", 34, 2, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n11_y", 36, 451, mmd);
+        }
     }
 
-//    @Test
-//    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
-//        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-//        TestUtil.writeSystemProperties(configDir);
-//
-//        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-//                    .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval
-//                    .createConfig();
-//        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
-//
-//        insert_HIRS_NOAA10();
-//        insert_AVHRR_GAC_NOAA18();
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
-//
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig);
-//        assertFalse(mmdFile.isFile());
-//    }
+    @Test
+    public void testMatchup_overlappingSensingTimes_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(900)   // 15 minutes - we have no intersecting time intervals
+                .withMaxPixelDistanceKm(20)   // value in km
+                .withHIRS_LZA_Screening(10.f)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+
+        insert_HIRS_NOAA10();
+        insert_HIRS_NOAA11();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1989-076", "-end", "1989-076"};
+        MatchupToolMain.main(args);
+
+
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertFalse(mmdFile.isFile());
+    }
 
     private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
+        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("1989-076"), TimeUtils.parseDOYEndOfDay("1989-076"));
         return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 
