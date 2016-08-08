@@ -23,32 +23,17 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 
 import java.util.Date;
-import java.util.List;
 
 public class AcquisitionInfo {
 
     private Geometry boundingGeometry;
     private TimeAxis[] timeAxes;
-    private List<Point> coordinates;
     private Date sensingStart;
     private Date sensingStop;
     private NodeType nodeType;
-
-    // @todo tb/** remove this and use Geometry instead 2016-03-04
-    @Deprecated
-    public List<Point> getCoordinates() {
-        return coordinates;
-    }
-
-    // @todo tb/** remove this and use Geometry instead 2016-03-04
-    @Deprecated
-    public void setCoordinates(List<Point> coordinates) {
-        this.coordinates = coordinates;
-    }
 
     public Geometry getBoundingGeometry() {
         return boundingGeometry;

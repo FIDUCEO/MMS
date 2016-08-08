@@ -81,11 +81,6 @@ public class EumetsatIASIReader_IO_Test {
     }
 
     @Test
-    public void testGeoCoordinate() throws com.vividsolutions.jts.io.ParseException {
-        acquisitionInfo.getCoordinates();
-    }
-
-    @Test
     public void testDateTime() {
         Date date = acquisitionInfo.getSensingStart();
         TestUtil.assertCorrectUTCDate(2013, 5, 28, 17, 25, 43, date);

@@ -25,6 +25,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.collect.Lists;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
@@ -88,8 +89,10 @@ public class BoundingPolygonCreator {
             coordinates.add(geometryFactory.createPoint(lon, lat));
         }
         closePolygon(coordinates);
+
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        acquisitionInfo.setCoordinates(coordinates);
+        final Polygon polygon = geometryFactory.createPolygon(coordinates);
+        acquisitionInfo.setBoundingGeometry(polygon);
         return acquisitionInfo;
     }
 
