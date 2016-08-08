@@ -34,9 +34,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bc.fiduceo.util.JDomUtils.mandatory_getAttribute;
-import static com.bc.fiduceo.util.JDomUtils.mandatory_getChild;
-import static com.bc.fiduceo.util.JDomUtils.mandatory_getRootElement;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryAttribute;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryChild;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryRootElement;
 
 public class UseCaseConfig {
 
@@ -183,8 +183,8 @@ public class UseCaseConfig {
 
 
     private void init() {
-        final Element rootElement = mandatory_getRootElement(document);
-        setName(mandatory_getAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
+        final Element rootElement = getMandatoryRootElement(document);
+        setName(getMandatoryAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {
             setOutputPath(outputPath.getValue());
@@ -193,7 +193,7 @@ public class UseCaseConfig {
         if (sensors != null) {
             final List<Element> sensorList = sensors.getChildren(TAG_NAME_SENSOR);
             for (Element sensorElem : sensorList) {
-                final Element name = mandatory_getChild(sensorElem, TAG_NAME_NAME);
+                final Element name = getMandatoryChild(sensorElem, TAG_NAME_NAME);
                 final Sensor sensor = new Sensor(name.getValue());
                 final Element primary = sensorElem.getChild(TAG_NAME_PRIMARY);
                 if (primary != null) {
@@ -206,9 +206,9 @@ public class UseCaseConfig {
         if (dimensions != null) {
             final List<Element> dimensionList = dimensions.getChildren(TAG_NAME_DIMENSION);
             for (Element dimensionElem : dimensionList) {
-                final String name = mandatory_getAttribute(dimensionElem, ATTRIBUTE_NAME_NAME).getValue();
-                final int nx = Integer.valueOf(mandatory_getChild(dimensionElem, TAG_NAME_NX).getValue());
-                final int ny = Integer.valueOf(mandatory_getChild(dimensionElem, TAG_NAME_NY).getValue());
+                final String name = getMandatoryAttribute(dimensionElem, ATTRIBUTE_NAME_NAME).getValue();
+                final int nx = Integer.valueOf(getMandatoryChild(dimensionElem, TAG_NAME_NX).getValue());
+                final int ny = Integer.valueOf(getMandatoryChild(dimensionElem, TAG_NAME_NY).getValue());
                 getDimensions().add(new Dimension(name, nx, ny));
             }
         }

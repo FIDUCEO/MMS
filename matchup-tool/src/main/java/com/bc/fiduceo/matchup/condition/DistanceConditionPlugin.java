@@ -34,7 +34,7 @@ public class DistanceConditionPlugin implements ConditionPlugin {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
         }
 
-        final String trimmed = JDomUtils.mandatory_getChildTextTrim(element, TAG_NAME_MAX_PIXEL_DISTANCE_KM);
+        final String trimmed = JDomUtils.getMandatoryChildTextTrim(element, TAG_NAME_MAX_PIXEL_DISTANCE_KM);
         return new DistanceCondition(Double.valueOf(trimmed));
     }
 

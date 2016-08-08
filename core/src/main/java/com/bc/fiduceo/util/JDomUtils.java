@@ -23,7 +23,7 @@ import org.jdom.Element;
 
 public class JDomUtils {
 
-    public static Attribute mandatory_getAttribute(final Element element, final String name) {
+    public static Attribute getMandatoryAttribute(final Element element, final String name) {
         final Attribute attribute = element.getAttribute(name);
         if (attribute == null) {
             throw new RuntimeException("Attribute '" + name + "' expected");
@@ -31,7 +31,7 @@ public class JDomUtils {
         return attribute;
     }
 
-    public static Element mandatory_getChild(final Element element, final String name) {
+    public static Element getMandatoryChild(final Element element, final String name) {
         final Element child = element.getChild(name);
         if (child == null) {
             throw new RuntimeException("Children '" + name + "' expected");
@@ -39,12 +39,12 @@ public class JDomUtils {
         return child;
     }
 
-    public static String mandatory_getChildTextTrim(final Element element, final String name) {
-        final Element child = mandatory_getChild(element, name);
+    public static String getMandatoryChildTextTrim(final Element element, final String name) {
+        final Element child = getMandatoryChild(element, name);
         return child.getTextTrim();
     }
 
-    public static Element mandatory_getRootElement(Document document) {
+    public static Element getMandatoryRootElement(Document document) {
         final Element rootElement = document.getRootElement();
         final String name = rootElement.getName();
         if (!UseCaseConfig.TAG_NAME_ROOT.equals(name)) {

@@ -32,8 +32,8 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
         }
 
-        final String nx = JDomUtils.mandatory_getChildTextTrim(element, "nx");
-        final String ny = JDomUtils.mandatory_getChildTextTrim(element, "ny");
+        final String nx = JDomUtils.getMandatoryChildTextTrim(element, "nx");
+        final String ny = JDomUtils.getMandatoryChildTextTrim(element, "ny");
 
         return new BorderDistanceCondition(Integer.parseInt(nx), Integer.parseInt(ny));
     }

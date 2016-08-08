@@ -33,7 +33,7 @@ public class TimeDeltaConditionPlugin implements ConditionPlugin {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
         }
 
-        final String trimmed = JDomUtils.mandatory_getChildTextTrim(element, TAG_NAME_TIME_DELTA_SECONDS);
+        final String trimmed = JDomUtils.getMandatoryChildTextTrim(element, TAG_NAME_TIME_DELTA_SECONDS);
         return new TimeDeltaCondition(Long.valueOf(trimmed) * 1000);
     }
 
