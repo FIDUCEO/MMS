@@ -30,7 +30,7 @@ public class ATSR_L1B_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new ATSR_L1B_Reader();
+        return new ATSR_L1B_Reader(geometryFactory);
     }
 
     @Override

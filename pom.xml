@@ -26,6 +26,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-envisat-reader</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.13</version>
@@ -69,13 +75,13 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdf4</artifactId>
-                <version>4.6.5</version>
+                <version>4.6.6</version>
             </dependency>
 
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>cdm</artifactId>
-                <version>4.6.5</version>
+                <version>4.6.6</version>
             </dependency>
 
             <!-- test dependencies -->

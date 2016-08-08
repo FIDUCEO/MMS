@@ -22,7 +22,9 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
+import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
@@ -95,6 +97,39 @@ public class ReaderUtils {
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
+    }
+
+    /**
+     * Return the NetCDF equivalent to the given dataType.
+     *
+     * @param dataType must be one of {@code ProductData.TYPE_*}
+     *
+     * @return the NetCDF equivalent to the given dataType or {@code null} if not {@code dataType} is
+     *         not one of {@code ProductData.TYPE_*}
+     *
+     * @see ProductData
+     */
+    public static DataType getNetcdfDataType(int dataType) {
+        if (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_UINT8) {
+            return DataType.BYTE;
+        } else if (dataType == ProductData.TYPE_INT16 || dataType == ProductData.TYPE_UINT16) {
+            return DataType.SHORT;
+        } else if (dataType == ProductData.TYPE_INT32 || dataType == ProductData.TYPE_UINT32) {
+            return DataType.INT;
+        } else if (dataType == ProductData.TYPE_FLOAT32) {
+            return DataType.FLOAT;
+        } else if (dataType == ProductData.TYPE_FLOAT64) {
+            return DataType.DOUBLE;
+        } else if (dataType == ProductData.TYPE_ASCII) {
+            return DataType.STRING;
+        } else if (dataType == ProductData.TYPE_UTC) {
+            return DataType.STRING;
+        } else {
+            return null;
+        }
+
+        // @todo 2 tb/tb this method is copied from SNAP snap-netcdf org.esa.snap.dataio.netcdf.util.DataTypeUtils to avoid version
+        // conflicts. Snap uses netcdf version 4.3.22, fiduceoo is at version 4.6.5 2016-08-08
     }
 
     private static Number getDefaultFillValue(Class type) {

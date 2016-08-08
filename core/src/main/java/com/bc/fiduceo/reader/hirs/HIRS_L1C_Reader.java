@@ -56,6 +56,7 @@ public class HIRS_L1C_Reader implements Reader {
     private static final int CHANNEL_DIMENSION_INDEX = 2;
     private static final int NUM_BT_CHANNELS = 19;
     private static final int NUM_RADIANCE_CHANNELS = 20;
+    private static final Interval INTERVAL = new Interval(4, 10);
     private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     private final GeometryFactory geometryFactory;
@@ -259,7 +260,7 @@ public class HIRS_L1C_Reader implements Reader {
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {
-        return new BoundingPolygonCreator(new Interval(4, 10), geometryFactory);
+        return new BoundingPolygonCreator(INTERVAL, geometryFactory);
     }
 
     private Array readScanPos(int centerX, int centerY, Interval interval) throws IOException {
@@ -272,7 +273,7 @@ public class HIRS_L1C_Reader implements Reader {
         final int[] shape = new int[2];
         shape[0] = height;
         shape[1] = width;
-        final Array result = Array.factory(scanpos.getDataType(), shape);
+        final Array result = Array.factory(scanpos.getElementType(), shape);
 
         int originalX = centerX - width/2;
 

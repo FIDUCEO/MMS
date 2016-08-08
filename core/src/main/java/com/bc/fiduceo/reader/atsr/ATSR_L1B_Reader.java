@@ -22,13 +22,25 @@ package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.dataio.envisat.EnvisatConstants;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -38,19 +50,44 @@ import java.util.List;
 
 public class ATSR_L1B_Reader implements Reader {
 
+    private static final Interval INTERVAL = new Interval(5, 20);
+
+    private final GeometryFactory geometryFactory;
+
+    private Product product;
+
+    public ATSR_L1B_Reader(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
+
     @Override
     public void open(File file) throws IOException {
-        throw new RuntimeException("not implemented");
+        product = ProductIO.readProduct(file, EnvisatConstants.ENVISAT_FORMAT_NAME);
+        if (product == null) {
+            throw new IOException("Unable to read ATSR product: " + file.getAbsolutePath());
+        }
     }
 
     @Override
     public void close() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (product != null) {
+            product.dispose();
+            product = null;
+        }
     }
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new RuntimeException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        extractSensingTimes(acquisitionInfo);
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        final Geometries geometries = calculateGeometries();
+        acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -96,5 +133,43 @@ public class ATSR_L1B_Reader implements Reader {
     @Override
     public Dimension getProductSize() throws IOException {
         throw new RuntimeException("not implemented");
+    }
+
+    private void extractSensingTimes(AcquisitionInfo acquisitionInfo) {
+        final ProductData.UTC startTime = product.getStartTime();
+        acquisitionInfo.setSensingStart(startTime.getAsDate());
+
+        final ProductData.UTC endTime = product.getEndTime();
+        acquisitionInfo.setSensingStop(endTime.getAsDate());
+    }
+
+    private Geometries calculateGeometries() throws IOException {
+        final Geometries geometries = new Geometries();
+
+        final TiePointGrid longitude = product.getTiePointGrid("longitude");
+        final TiePointGrid latitude = product.getTiePointGrid("latitude");
+
+        final int[] shape = new int[2];
+        shape[0] = longitude.getGridHeight();
+        shape[1] = longitude.getGridWidth();
+
+        final DataType netcdfDataType = ReaderUtils.getNetcdfDataType(longitude.getDataType());
+        if (netcdfDataType == null) {
+            throw new IOException("Unsupported data type: " + longitude.getDataType());
+        }
+
+        final ProductData longitudeGridData = longitude.getGridData();
+        final ProductData latitudeGridData = latitude.getGridData();
+        final Array lonArray = Array.factory(netcdfDataType, shape, longitudeGridData.getElems());
+        final Array latArray = Array.factory(netcdfDataType, shape, latitudeGridData.getElems());
+
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(INTERVAL, geometryFactory);
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonArray, latArray);
+        if (!boundingGeometry.isValid()) {
+            throw new IOException("Invalid bounding geometry: implement splitted approach then");
+        }
+        geometries.setBoundingGeometry(boundingGeometry);
+
+        return geometries;
     }
 }
