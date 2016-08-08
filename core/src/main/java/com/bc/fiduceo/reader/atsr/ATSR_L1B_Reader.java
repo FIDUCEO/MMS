@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -86,6 +87,7 @@ public class ATSR_L1B_Reader implements Reader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
@@ -169,6 +171,9 @@ public class ATSR_L1B_Reader implements Reader {
             throw new IOException("Invalid bounding geometry: implement splitted approach then");
         }
         geometries.setBoundingGeometry(boundingGeometry);
+
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
     }

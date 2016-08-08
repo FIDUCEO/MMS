@@ -25,9 +25,9 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,6 +82,13 @@ public class ATSR_L1B_Reader_IO_Test {
 
             assertEquals(-5.181085109710694, coordinates[68].getLon(), 1e-8);
             assertEquals(-0.4404639899730683, coordinates[68].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 21, 0, 30, 365, time);
+            time = timeAxes[0].getTime(coordinates[68]);
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 22, 41, 8, 367, time);
         } finally {
             reader.close();
         }
@@ -116,6 +123,13 @@ public class ATSR_L1B_Reader_IO_Test {
 
             assertEquals(-138.29689025878906, coordinates[69].getLon(), 1e-8);
             assertEquals(-6.176464080810547, coordinates[69].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 5, 57, 54, 845, time);
+            time = timeAxes[0].getTime(coordinates[68]);
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 7, 38, 32, 846, time);
         } finally {
             reader.close();
         }
@@ -150,6 +164,13 @@ public class ATSR_L1B_Reader_IO_Test {
 
             assertEquals(-170.1296844482422, coordinates[73].getLon(), 1e-8);
             assertEquals(19.727405548095703, coordinates[73].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 7, 8, 52, 892, time);
+            time = timeAxes[0].getTime(coordinates[73]);
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 8, 57, 40, 644, time);
         } finally {
             reader.close();
         }

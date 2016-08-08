@@ -240,10 +240,6 @@ public class HIRS_L1C_Reader implements Reader {
         if (!boundingGeometry.isValid()) {
             boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(lon, lat, 2, true);
             if (!boundingGeometry.isValid()) {
-                GeometryCollection collection = (GeometryCollection) boundingGeometry;
-                final Geometry[] collectionGeometries = collection.getGeometries();
-                System.out.println(GeometryUtil.toPointListWkt(collectionGeometries[0]));
-                System.out.println(GeometryUtil.toPointListWkt(collectionGeometries[1]));
                 throw new RuntimeException("Invalid bounding geometry detected");
             }
             final int height = lon.getShape()[0];
