@@ -41,15 +41,16 @@ public class TimeRange {
         return stopDate;
     }
 
-    public boolean includes(long actualTime) {
-        final long startTime = startDate.getTime();
-        final long stopTime = stopDate.getTime();
-
-        return (startTime <= actualTime && actualTime < stopTime);
-    }
-
-    public boolean intersectsWith(TimeRange other) {
-        return includes(other.getStartDate().getTime()) || includes(other.getStopDate().getTime()) || other.includes(
-                startDate.getTime()) || other.includes(stopDate.getTime());
-    }
+    // @todo 3 tb/** these methods are unused - delete if no-one shouts :-) 2016-08-08
+//    public boolean includes(long actualTime) {
+//        final long startTime = startDate.getTime();
+//        final long stopTime = stopDate.getTime();
+//
+//        return (startTime <= actualTime && actualTime < stopTime);
+//    }
+//
+//    public boolean intersectsWith(TimeRange other) {
+//        return includes(other.getStartDate().getTime()) || includes(other.getStopDate().getTime()) || other.includes(
+//                startDate.getTime()) || other.includes(stopDate.getTime());
+//    }
 }
