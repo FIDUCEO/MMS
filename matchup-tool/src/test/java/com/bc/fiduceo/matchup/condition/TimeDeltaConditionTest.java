@@ -37,7 +37,7 @@ public class TimeDeltaConditionTest {
         final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(500);
         final MatchupSet matchupSet = new MatchupSet();
 
-        timeDeltaCondition.apply(matchupSet, new ConditionsContext());
+        timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -55,7 +55,7 @@ public class TimeDeltaConditionTest {
         matchupSet.setSampleSets(sampleSets);
 
         final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
-        timeDeltaCondition.apply(matchupSet, new ConditionsContext());
+        timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
 
         assertEquals(4, matchupSet.getNumObservations());
     }

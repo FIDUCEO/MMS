@@ -51,7 +51,7 @@ class BorderDistanceCondition implements Condition {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, ConditionsContext context) {
+    public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
         final int minX = deltaX;
         final int minY = deltaY;
 

@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.tool.ToolContext;
 import org.jdom.Element;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class ConditionEngine {
         conditionsList = new ArrayList<>();
     }
 
-    public void process(MatchupSet matchupSet, ConditionsContext context) {
+    public void process(MatchupSet matchupSet, ConditionEngineContext context) {
         for (final Condition condition : conditionsList) {
             condition.apply(matchupSet, context);
         }
@@ -64,5 +65,13 @@ public class ConditionEngine {
             }
         }
         return 0;
+    }
+
+    public static ConditionEngineContext createContext(ToolContext context) {
+        final ConditionEngineContext conditionEngineContext = new ConditionEngineContext();
+        conditionEngineContext.setStartDate(context.getStartDate());
+        conditionEngineContext.setEndDate(context.getEndDate());
+        conditionEngineContext.validateTime(); // don't remove this line!
+        return conditionEngineContext;
     }
 }

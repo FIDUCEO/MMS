@@ -38,7 +38,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
-import com.bc.fiduceo.matchup.condition.ConditionsContext;
+import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
@@ -241,17 +241,11 @@ class MatchupTool {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final ConditionEngine conditionEngine = new ConditionEngine();
-        final ConditionsContext conditionsContext = new ConditionsContext();
-        conditionsContext.setStartDate(context.getStartDate());
-        conditionsContext.setEndDate(context.getEndDate());
-        conditionsContext.validateTime(); // don't remove this line!
+        final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         conditionEngine.configure(useCaseConfig);
 
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
-
-        final ScreeningEngine screeningEngine = new ScreeningEngine();
-        screeningEngine.configure(useCaseConfig);
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
@@ -299,13 +293,16 @@ class MatchupTool {
 
                         if (matchupSet.getNumObservations() > 0) {
                             final Dimension primarySize = primaryReader.getProductSize();
-                            conditionsContext.setPrimarySize(primarySize);
+                            conditionEngineContext.setPrimarySize(primarySize);
                             final Dimension secondarySize = secondaryReader.getProductSize();
-                            conditionsContext.setSecondarySize(secondarySize);
+                            conditionEngineContext.setSecondarySize(secondarySize);
 
                             logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                            conditionEngine.process(matchupSet, conditionsContext);
+                            conditionEngine.process(matchupSet, conditionEngineContext);
                             logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+
+                            final ScreeningEngine screeningEngine = new ScreeningEngine();
+                            screeningEngine.configure(useCaseConfig);
 
                             screeningEngine.process(matchupSet, primaryReader, secondaryReader);
                             logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");

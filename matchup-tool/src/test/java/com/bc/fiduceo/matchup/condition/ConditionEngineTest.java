@@ -26,6 +26,7 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.tool.ToolContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,18 +36,20 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ConditionEngineTest {
 
     private ConditionEngine conditionEngine;
     private MatchupSet matchupSet;
-    private ConditionsContext context;
+    private ConditionEngineContext context;
 
     @Before
     public void setUp() {
         conditionEngine = new ConditionEngine();
         matchupSet = new MatchupSet();
-        context = new ConditionsContext();
+        context = new ConditionEngineContext();
         final Date startDate = new Date(Long.MIN_VALUE);
         final Date endDate = new Date(Long.MAX_VALUE);
         context.setStartDate(startDate);
@@ -185,6 +188,49 @@ public class ConditionEngineTest {
         conditionEngine.process(matchupSet, context);
 
         assertEquals(4, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testCreateContext() {
+        final ToolContext toolContext = new ToolContext();
+        toolContext.setStartDate(new Date(1000000000L));
+        toolContext.setEndDate(new Date(1100000000L));
+
+        final ConditionEngineContext engineContext = ConditionEngine.createContext(toolContext);
+        assertNotNull(engineContext);
+        assertEquals(1000000000L, engineContext.getStartDate().getTime());
+        assertEquals(1100000000L, engineContext.getEndDate().getTime());
+    }
+
+    @Test
+    public void testCreateContext_invalidEndDate() {
+        final ToolContext toolContext = new ToolContext();
+        toolContext.setStartDate(new Date(1000000000L));
+        toolContext.setEndDate(new Date(900000000L));
+
+        try {
+            ConditionEngine.createContext(toolContext);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        toolContext.setStartDate(null);
+        toolContext.setEndDate(new Date(900000000L));
+
+        try {
+            ConditionEngine.createContext(toolContext);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        toolContext.setStartDate(new Date(900000000L));
+        toolContext.setEndDate(null);
+
+        try {
+            ConditionEngine.createContext(toolContext);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     private SampleSet createSampleSet(long primaryTime, long secondaryTime) {

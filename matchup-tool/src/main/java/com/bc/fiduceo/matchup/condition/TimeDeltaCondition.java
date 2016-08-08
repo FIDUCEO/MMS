@@ -46,7 +46,7 @@ class TimeDeltaCondition implements Condition {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, ConditionsContext context) {
+    public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {

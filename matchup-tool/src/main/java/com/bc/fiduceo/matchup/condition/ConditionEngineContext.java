@@ -24,7 +24,7 @@ import com.bc.fiduceo.core.Dimension;
 
 import java.util.Date;
 
-public class ConditionsContext {
+public class ConditionEngineContext {
 
     private Date startDate;
     private Date endDate;

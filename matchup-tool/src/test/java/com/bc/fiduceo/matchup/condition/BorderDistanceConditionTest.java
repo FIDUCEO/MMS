@@ -37,7 +37,7 @@ public class BorderDistanceConditionTest {
         final BorderDistanceCondition condition = new BorderDistanceCondition(3, 6);
         final MatchupSet matchupSet = new MatchupSet();
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
         condition.apply(matchupSet, context);
 
         assertEquals(0, matchupSet.getNumObservations());
@@ -52,7 +52,7 @@ public class BorderDistanceConditionTest {
         sampleSets.add(createSampleSet(34, 81, 38, 2005));
         sampleSets.add(createSampleSet(23, 2, 55, 32));     // <- this one gets removed primary y too small
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
 
         condition.apply(matchupSet, context);
 
@@ -68,7 +68,7 @@ public class BorderDistanceConditionTest {
         sampleSets.add(createSampleSet(34, 81, 18, 2005));
         sampleSets.add(createSampleSet(23, 2996, 55, 32));     // <- this one gets removed primary y too large
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
 
         condition.apply(matchupSet, context);
 
@@ -84,7 +84,7 @@ public class BorderDistanceConditionTest {
         sampleSets.add(createSampleSet(34, 2996, 3, 205)); // <- this one gets removed primary y and secondary x too small
         sampleSets.add(createSampleSet(23, 108, 55, 32));
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
 
         condition.apply(matchupSet, context);
 
@@ -100,7 +100,7 @@ public class BorderDistanceConditionTest {
         sampleSets.add(createSampleSet(34, 81, 14, 1));  // <- this one gets removed y too small
         sampleSets.add(createSampleSet(23, 23, 55, 32));
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
 
         condition.apply(matchupSet, context);
 
@@ -116,15 +116,15 @@ public class BorderDistanceConditionTest {
         sampleSets.add(createSampleSet(34, 81, 108, 205));      // <- this one gets removed x too large
         sampleSets.add(createSampleSet(23, 435, 55, 2998));     // <- this one gets removed y too large
 
-        final ConditionsContext context = createContext();
+        final ConditionEngineContext context = createContext();
 
         condition.apply(matchupSet, context);
 
         assertEquals(1, matchupSet.getNumObservations());
     }
 
-    private ConditionsContext createContext() {
-        final ConditionsContext context = new ConditionsContext();
+    private ConditionEngineContext createContext() {
+        final ConditionEngineContext context = new ConditionEngineContext();
         context.setPrimarySize(new Dimension("", 100, 3000));
         context.setSecondarySize(new Dimension("", 100, 3000));
         return context;

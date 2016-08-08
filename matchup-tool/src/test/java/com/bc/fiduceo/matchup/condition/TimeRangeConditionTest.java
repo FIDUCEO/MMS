@@ -10,16 +10,13 @@ import org.junit.*;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Sabine on 04.04.2016.
- */
 public class TimeRangeConditionTest {
 
     private final int oneDayMillis = 1000 * 60 * 60 * 24;
     private Date startDate;
     private Date endDate;
     private TimeRangeCondition timeRangeCondition;
-    private ConditionsContext context;
+    private ConditionEngineContext context;
 
     @Before
     public void setUp() throws Exception {
@@ -28,7 +25,7 @@ public class TimeRangeConditionTest {
         final int twelveDays = 12 * oneDayMillis;
         endDate = new Date(startDate.getTime() + twelveDays);
 
-        context = new ConditionsContext();
+        context = new ConditionEngineContext();
         context.setStartDate(startDate);
         context.setEndDate(endDate);
         timeRangeCondition = new TimeRangeCondition();

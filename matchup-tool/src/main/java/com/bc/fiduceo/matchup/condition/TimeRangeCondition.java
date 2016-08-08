@@ -26,7 +26,7 @@ import java.util.List;
 class TimeRangeCondition implements Condition {
 
     @Override
-    public void apply(MatchupSet matchupSet, ConditionsContext context) {
+    public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
         final long endTime = context.getEndDate().getTime();
         final long startTime = context.getStartDate().getTime();
 
