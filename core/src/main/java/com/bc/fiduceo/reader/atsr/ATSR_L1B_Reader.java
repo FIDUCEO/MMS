@@ -147,7 +147,10 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final int width = product.getSceneRasterWidth();
+        final int height = product.getSceneRasterHeight();
+
+        return new Dimension("product_size", width, height);
     }
 
     private void extractSensingTimes(AcquisitionInfo acquisitionInfo) {

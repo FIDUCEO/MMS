@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -320,6 +321,36 @@ public class ATSR_L1B_Reader_IO_Test {
             variable = variables.get(32);
             assertEquals("view_azimuth_fward", variable.getShortName());
             assertEquals(DataType.FLOAT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_ATSR1() throws IOException, InvalidRangeException {
+        final File file = getAtsr1File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(512, productSize.getNx());
+            assertEquals(40256, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+   @Test
+    public void testGetProductSize_AATSR() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(512, productSize.getNx());
+            assertEquals(43520, productSize.getNy());
         } finally {
             reader.close();
         }
