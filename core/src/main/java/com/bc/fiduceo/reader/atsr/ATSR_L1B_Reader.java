@@ -38,6 +38,7 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.TimeCoding;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -49,7 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class ATSR_L1B_Reader implements Reader {
+class ATSR_L1B_Reader implements Reader {
 
     private static final Interval INTERVAL = new Interval(5, 20);
 
@@ -57,7 +58,7 @@ public class ATSR_L1B_Reader implements Reader {
 
     private Product product;
 
-    public ATSR_L1B_Reader(GeometryFactory geometryFactory) {
+    ATSR_L1B_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -109,7 +110,7 @@ public class ATSR_L1B_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        return new ATSR_TimeLocator(product);
     }
 
     @Override
