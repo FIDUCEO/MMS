@@ -28,12 +28,8 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
@@ -123,7 +119,41 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final int width = interval.getX();
+        final int height = interval.getY();
+        final int[] timeArray = new int[width * height];
+
+        final PixelPos pixelPos = new PixelPos();
+        final TimeCoding sceneTimeCoding = product.getSceneTimeCoding();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int halfHeight = height / 2;
+        final int halfWidth = width / 2;
+        int writeOffset = 0;
+        for (int yRead = y - halfHeight; yRead <= y + halfHeight; yRead++) {
+            int lineTimeSeconds = Integer.MIN_VALUE;
+            if (yRead >= 0 && yRead < sceneRasterHeight) {
+                pixelPos.setLocation(x, yRead + 0.5);
+                final double lineMjd = sceneTimeCoding.getMJD(pixelPos);
+                final long lineTime = TimeUtils.mjd2000ToDate(lineMjd).getTime();
+                lineTimeSeconds = (int) Math.round(lineTime / 1000.0);
+            }
+
+            for (int xRead = x - halfWidth; xRead <= x + halfWidth; xRead++) {
+                if (xRead >= 0 && xRead < sceneRasterWidth) {
+                    timeArray[writeOffset] = lineTimeSeconds;
+                } else {
+                    timeArray[writeOffset] = Integer.MIN_VALUE;
+                }
+                ++writeOffset;
+            }
+        }
+
+        final int[] shape = new int[2];
+        shape[0] = height;
+        shape[1] = width;
+
+        return (ArrayInt.D2) Array.factory(DataType.INT, shape, timeArray);
     }
 
     @Override
@@ -137,7 +167,7 @@ class ATSR_L1B_Reader implements Reader {
         }
 
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
-        for (final TiePointGrid tiePointGrid: tiePointGrids) {
+        for (final TiePointGrid tiePointGrid : tiePointGrids) {
             final VariableProxy variableProxy = new VariableProxy(tiePointGrid);
             result.add(variableProxy);
         }

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.atsr;
 
 
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TimeCoding;
@@ -29,9 +30,6 @@ import org.esa.snap.core.datamodel.TimeCoding;
 import java.util.Date;
 
 class ATSR_TimeLocator implements TimeLocator {
-
-    private static final double EPOCH_MJD2000 = 10957.0;
-    private static final double MILLIS_PER_DAY = 86400000.0;
 
     private final TimeCoding timeCoding;
     private final PixelPos pixelPos;
@@ -45,11 +43,8 @@ class ATSR_TimeLocator implements TimeLocator {
     public long getTimeFor(int x, int y) {
         pixelPos.setLocation(x + 0.5, y + 0.5);
         final double mjd = timeCoding.getMJD(pixelPos);
-        return mjd2000ToDate(mjd).getTime();
+        return TimeUtils.mjd2000ToDate(mjd).getTime();
     }
 
-    // package access for testing only tb 2016-08-09
-    static Date mjd2000ToDate(double mjd2000) {
-        return new Date(Math.round((EPOCH_MJD2000 + mjd2000) * MILLIS_PER_DAY));
-    }
+
 }

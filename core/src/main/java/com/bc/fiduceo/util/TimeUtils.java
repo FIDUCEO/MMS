@@ -32,6 +32,9 @@ public class TimeUtils {
 
     private static final String YEAR_DOY_PATTERN = "yyyy-DDD";
 
+    private static final double EPOCH_MJD2000 = 10957.0;
+    private static final double MILLIS_PER_DAY = 86400000.0;
+
     private static ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
 
     public static Date create(long millisSinceEpoch) {
@@ -136,6 +139,10 @@ public class TimeUtils {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         return calendar.getTime();
+    }
+
+    public static Date mjd2000ToDate(double mjd2000) {
+        return new Date(Math.round((EPOCH_MJD2000 + mjd2000) * MILLIS_PER_DAY));
     }
 
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {

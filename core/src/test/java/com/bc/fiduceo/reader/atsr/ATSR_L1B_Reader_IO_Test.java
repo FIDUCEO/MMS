@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.atsr;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -34,7 +35,9 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -351,6 +354,87 @@ public class ATSR_L1B_Reader_IO_Test {
             final Dimension productSize = reader.getProductSize();
             assertEquals(512, productSize.getNx());
             assertEquals(43520, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_ATSR2() throws IOException, InvalidRangeException {
+        final File file = getAtsr2File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(108, 2538, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
+
+            index.set(0, 0);
+            assertEquals(893397855, acquisitionTime.getInt(index));
+
+            index.set(1, 1);
+            assertEquals(893397855, acquisitionTime.getInt(index));
+
+            index.set(2, 2);
+            assertEquals(893397855, acquisitionTime.getInt(index));
+
+            index.set(3, 1);
+            assertEquals(893397856, acquisitionTime.getInt(index));
+
+            index.set(4, 0);
+            assertEquals(893397856, acquisitionTime.getInt(index));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_AATSR_borderPixel_X() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 268, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
+
+            index.set(0, 0);
+            assertEquals(-2147483648, acquisitionTime.getInt(index));
+
+            index.set(1, 1);
+            assertEquals(1139987373, acquisitionTime.getInt(index));
+
+            index.set(4, 3);
+            assertEquals(1139987373, acquisitionTime.getInt(index));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_AATSR_borderPixel_Y() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(278, 43519, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
+
+            index.set(0, 0);
+            assertEquals(1139993860, acquisitionTime.getInt(index));
+
+            index.set(1, 1);
+            assertEquals(1139993861, acquisitionTime.getInt(index));
+
+            index.set(4, 2);
+            assertEquals(-2147483648, acquisitionTime.getInt(index));
         } finally {
             reader.close();
         }

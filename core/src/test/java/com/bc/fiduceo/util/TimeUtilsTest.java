@@ -163,4 +163,11 @@ public class TimeUtilsTest {
         final Date begin = TimeUtils.getBeginOfMonth(date);
         TestUtil.assertCorrectUTCDate(2011, 8, 1, 0, 0, 0, begin);
     }
+
+    @Test
+    public void testMjd2000ToDate() {
+        assertEquals(946684800000L, TimeUtils.mjd2000ToDate(0.0).getTime());
+        assertEquals(946771200000L, TimeUtils.mjd2000ToDate(1.0).getTime());
+        assertEquals(955324800000L, TimeUtils.mjd2000ToDate(100.0).getTime());
+    }
 }

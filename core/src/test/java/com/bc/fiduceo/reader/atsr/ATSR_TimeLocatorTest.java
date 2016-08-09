@@ -33,13 +33,6 @@ import static org.mockito.Mockito.when;
 public class ATSR_TimeLocatorTest {
 
     @Test
-    public void testMjd2000ToDate() {
-        assertEquals(946684800000L, ATSR_TimeLocator.mjd2000ToDate(0.0).getTime());
-        assertEquals(946771200000L, ATSR_TimeLocator.mjd2000ToDate(1.0).getTime());
-        assertEquals(955324800000L, ATSR_TimeLocator.mjd2000ToDate(100.0).getTime());
-    }
-
-    @Test
     public void testGetTimeFor() {
         final Product product = mock(Product.class);
         final TimeCoding timeCoding = mock(TimeCoding.class);
