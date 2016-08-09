@@ -33,10 +33,14 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -226,6 +230,96 @@ public class ATSR_L1B_Reader_IO_Test {
             assertEquals(1139987332812L, timeLocator.getTimeFor(16, 0));
             assertEquals(1139990490912L, timeLocator.getTimeFor(198, 21054));
             assertEquals(1139993860662L, timeLocator.getTimeFor(22, 43519));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_ATSR1() throws IOException, InvalidRangeException {
+        final File file = getAtsr1File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(33, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("btemp_nadir_1200", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(12);
+            assertEquals("reflec_fward_0670", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(23);
+            assertEquals("lon_corr_fward", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(32);
+            assertEquals("view_azimuth_fward", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_ATSR2() throws IOException, InvalidRangeException {
+        final File file = getAtsr2File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(33, variables.size());
+
+            Variable variable = variables.get(1);
+            assertEquals("btemp_nadir_1100", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(13);
+            assertEquals("reflec_fward_0550", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(24);
+            assertEquals("altitude", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(32);
+            assertEquals("view_azimuth_fward", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_AATSR() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(33, variables.size());
+
+            Variable variable = variables.get(2);
+            assertEquals("btemp_nadir_0370", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(14);
+            assertEquals("confid_flags_nadir", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(25);
+            assertEquals("sun_elev_nadir", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(32);
+            assertEquals("view_azimuth_fward", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
         } finally {
             reader.close();
         }

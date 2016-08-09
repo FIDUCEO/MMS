@@ -35,10 +35,7 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.TimeCoding;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -48,6 +45,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 class ATSR_L1B_Reader implements Reader {
@@ -130,7 +128,21 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final List<Variable> result = new ArrayList<>();
+
+        final Band[] bands = product.getBands();
+        for (final Band band : bands) {
+            final VariableProxy variableProxy = new VariableProxy(band);
+            result.add(variableProxy);
+        }
+
+        final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
+        for (final TiePointGrid tiePointGrid: tiePointGrids) {
+            final VariableProxy variableProxy = new VariableProxy(tiePointGrid);
+            result.add(variableProxy);
+        }
+
+        return result;
     }
 
     @Override
