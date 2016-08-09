@@ -139,7 +139,7 @@ public class HIRS_L1C_Reader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (variableName.equals("scanpos")) {
-            return readScanPos(centerX, centerY, interval);
+            return readScanPos(centerX, interval);
         }
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
 
@@ -259,7 +259,7 @@ public class HIRS_L1C_Reader implements Reader {
         return new BoundingPolygonCreator(INTERVAL, geometryFactory);
     }
 
-    private Array readScanPos(int centerX, int centerY, Interval interval) throws IOException {
+    private Array readScanPos(int centerX, Interval interval) throws IOException {
         final Array scanpos = arrayCache.get("scanpos");
         final int originalWidth = scanpos.getShape()[0];
         final Number fillValue = ReaderUtils.getDefaultFillValue(scanpos);
