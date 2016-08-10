@@ -47,6 +47,7 @@ import java.util.List;
 class ATSR_L1B_Reader implements Reader {
 
     private static final Interval INTERVAL = new Interval(5, 20);
+    private static final String REG_EX = "AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)";
 
     private final GeometryFactory geometryFactory;
 
@@ -89,7 +90,7 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override
@@ -119,6 +120,7 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+        // @todo 3 tb/** this method should be combined with the functionality implemented in WindowReader classes. 2016-08-10
         final int width = interval.getX();
         final int height = interval.getY();
         final int[] timeArray = new int[width * height];

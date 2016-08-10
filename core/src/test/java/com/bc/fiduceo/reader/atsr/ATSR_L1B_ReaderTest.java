@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,8 +33,12 @@ public class ATSR_L1B_ReaderTest {
 
     @Test
     public void testGetRegEx() {
+        final String expected = "AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)";
 
-        final Pattern pattern = Pattern.compile("AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)");
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2016-08-10
+        assertEquals(expected, reader.getRegEx());
+
+        final Pattern pattern = Pattern.compile(expected);
 
         Matcher matcher = pattern.matcher("ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1");
         assertTrue(matcher.matches());
