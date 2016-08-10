@@ -207,7 +207,7 @@ class ATSR_L1B_Reader implements Reader {
                 pixelPos.setLocation(x, yRead + 0.5);
                 final double lineMjd = sceneTimeCoding.getMJD(pixelPos);
                 final long lineTime = TimeUtils.mjd2000ToDate(lineMjd).getTime();
-                lineTimeSeconds = (int) Math.round(lineTime / 1000.0);
+                lineTimeSeconds = (int) Math.round(lineTime * 0.001);
             }
 
             for (int xRead = x - halfWidth; xRead <= x + halfWidth; xRead++) {
