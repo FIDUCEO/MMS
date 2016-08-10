@@ -28,14 +28,26 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.TimeCoding;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -115,7 +127,64 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final RasterDataNode dataNode;
+        if (product.containsBand(variableName)) {
+            dataNode = product.getBand(variableName);
+        } else if (product.containsTiePointGrid(variableName)) {
+            dataNode = product.getTiePointGrid(variableName);
+        } else {
+            dataNode = product.getMaskGroup().get(variableName);
+        }
+        if (dataNode == null) {
+            throw new RuntimeException("Requested variable not contained in product: " + variableName);
+        }
+
+        final double noDataValue = dataNode.getGeophysicalNoDataValue();
+
+        final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
+        final int[] shape = getShape(interval);
+        final Array readArray = Array.factory(targetDataType, shape);
+        final Array targetArray = Array.factory(targetDataType, shape);
+
+        final int width = interval.getX();
+        final int height = interval.getY();
+
+        final int xOffset = centerX - width / 2;
+        final int yOffset = centerY - height / 2;
+
+        readProductData(dataNode, readArray, width, height, xOffset, yOffset);
+
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final Index index = targetArray.getIndex();
+        for (int x = 0; x < width; x++) {
+            final int currentX = xOffset + x;
+            for (int y = 0; y < height; y++) {
+                final int currentY = yOffset + y;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readArray.getObject(index));
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
+
+        return targetArray;
+    }
+
+    private void readProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final DataType dataType = readArray.getDataType();
+        if (dataType == DataType.FLOAT) {
+            dataNode.readPixels(xOffset, yOffset, width, height, (float[]) readArray.getStorage());
+        } else if (dataType == DataType.SHORT) {
+            final int size = (int) readArray.getSize();
+            final int[] tempBuffer = new int[size];
+            dataNode.readPixels(xOffset, yOffset, width, height, tempBuffer);
+            for (int i = 0; i < size; i++) {
+                readArray.setShort(i, (short) tempBuffer[i]);
+            }
+        }
     }
 
     @Override
@@ -151,10 +220,7 @@ class ATSR_L1B_Reader implements Reader {
             }
         }
 
-        final int[] shape = new int[2];
-        shape[0] = height;
-        shape[1] = width;
-
+        final int[] shape = getShape(interval);
         return (ArrayInt.D2) Array.factory(DataType.INT, shape, timeArray);
     }
 
@@ -224,5 +290,14 @@ class ATSR_L1B_Reader implements Reader {
         geometries.setTimeAxesGeometry(timeAxisGeometry);
 
         return geometries;
+    }
+
+    // package access for testing only tb 2016-08-10
+    static int[] getShape(Interval interval) {
+        final int[] shape = new int[2];
+        shape[0] = interval.getY();
+        shape[1] = interval.getX();
+
+        return shape;
     }
 }

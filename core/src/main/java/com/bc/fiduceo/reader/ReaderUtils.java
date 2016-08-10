@@ -125,7 +125,7 @@ public class ReaderUtils {
         } else if (dataType == ProductData.TYPE_UTC) {
             return DataType.STRING;
         } else {
-            return null;
+            throw new RuntimeException("Data type not supported: " + dataType);
         }
 
         // @todo 2 tb/tb this method is copied from SNAP snap-netcdf org.esa.snap.dataio.netcdf.util.DataTypeUtils to avoid version

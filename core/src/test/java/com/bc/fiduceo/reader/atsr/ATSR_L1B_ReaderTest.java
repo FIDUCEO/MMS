@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.atsr;
 
+import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -60,5 +61,15 @@ public class ATSR_L1B_ReaderTest {
 
         matcher = pattern.matcher("190583863.NSS.HIRX.M2.D11235.S1641.E1823.B2513233.SV.nc");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetShape() {
+        final Interval interval = new Interval(12, 23);
+
+        final int[] shape = ATSR_L1B_Reader.getShape(interval);
+        assertEquals(2, shape.length);
+        assertEquals(23, shape[0]);
+        assertEquals(12, shape[1]);
     }
 }
