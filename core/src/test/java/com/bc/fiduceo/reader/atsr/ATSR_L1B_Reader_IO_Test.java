@@ -501,6 +501,65 @@ public class ATSR_L1B_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScaled_ATSR2() throws IOException, InvalidRangeException {
+        final File file = getAtsr2File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(15, 233, interval, "btemp_nadir_1100");
+            NCTestUtils.assertValueAt(285.239990234375, 1, 0, array);
+            NCTestUtils.assertValueAt(286.5799865722656, 2, 0, array);
+
+            array = reader.readScaled(0, 234, interval, "reflec_nadir_0870");
+            NCTestUtils.assertValueAt(-0.019999999552965164, 3, 1, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 4, 1, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 0, 2, array);
+
+            array = reader.readScaled(511, 236, interval, "confid_flags_nadir");
+            NCTestUtils.assertValueAt(8, 1, 2, array);
+            NCTestUtils.assertValueAt(8, 2, 2, array);
+            NCTestUtils.assertValueAt(-2, 3, 2, array);
+            NCTestUtils.assertValueAt(-2, 4, 2, array);
+
+            array = reader.readScaled(146, 0, interval, "btemp_fward_0370");
+            NCTestUtils.assertValueAt(-0.019999999552965164, 4, 0, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 4, 1, array);
+            NCTestUtils.assertValueAt(283.92999267578125, 4, 2, array);
+            NCTestUtils.assertValueAt(284.70001220703125, 4, 3, array);
+
+            array = reader.readScaled(155, 40255, interval, "reflec_fward_0870");
+            NCTestUtils.assertValueAt(-0.019999999552965164, 2, 0, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 2, 1, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 2, 2, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 2, 3, array);
+
+            array = reader.readScaled(158, 4024, interval, "confid_flags_fward");
+            NCTestUtils.assertValueAt(2, 3, 0, array);
+            NCTestUtils.assertValueAt(12, 4, 0, array);
+
+            array = reader.readScaled(197, 4154, interval, "lat_corr_nadir");
+            NCTestUtils.assertValueAt(0.0, 0, 1, array);
+            NCTestUtils.assertValueAt(0.0, 1, 1, array);
+            NCTestUtils.assertValueAt(0.0, 2, 1, array);
+
+            array = reader.readScaled(199, 4156, interval, "lon_corr_nadir");
+            NCTestUtils.assertValueAt(0.0, 3, 1, array);
+            NCTestUtils.assertValueAt(0.0, 4, 1, array);
+
+            array = reader.readScaled(201, 4158, interval, "view_elev_nadir");
+            NCTestUtils.assertValueAt(85.33837127685547, 0, 2, array);
+            NCTestUtils.assertValueAt(85.42138671875, 1, 2, array);
+
+            array = reader.readScaled(203, 4160, interval, "longitude");
+            NCTestUtils.assertValueAt(-120.4134292602539, 2, 2, array);
+            NCTestUtils.assertValueAt(-120.42435455322266, 3, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File getAtsr1File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e1", "v3", "1993", "08", "05", "AT1_TOA_1PURAL19930805_210030_000000004015_00085_10751_0000.E1"}, false);
