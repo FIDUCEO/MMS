@@ -26,10 +26,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -442,6 +439,132 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, timeAxes[1].getEndTime());
             assertEquals(TestData.HIRS_MA_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_ATSR1() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e1", "-start", "1993-217", "-end", "1993-217", "-v", "v3"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("AT1_TOA_1PURAL19930805_210030_000000004015_00085_10751_0000.E1", satelliteObservations);
+
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 21, 0, 30, 240, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 22, 41, 8, 490, observation.getStopTime());
+            assertEquals("atsr-e1", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e1", "v3", "1993", "08", "05", "AT1_TOA_1PURAL19930805_210030_000000004015_00085_10751_0000.E1"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v3", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+
+            assertEquals(TestData.ATSR1_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 21, 0, 30, 240, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(1993, 8, 5, 22, 41, 8, 490, timeAxes[0].getEndTime());
+            assertEquals(TestData.ATSR1_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_ATSR2() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e2", "-start", "1998-114", "-end", "1998-114", "-v", "v3"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.E2", satelliteObservations);
+
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 5, 57, 54, 720, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 7, 38, 32, 970, observation.getStopTime());
+            assertEquals("atsr-e2", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e2", "v3", "1998", "04", "24", "AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.E2"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v3", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+
+            assertEquals(TestData.ATSR2_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 5, 57, 54, 720, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(1998, 4, 24, 7, 38, 32, 970, timeAxes[0].getEndTime());
+            assertEquals(TestData.ATSR2_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_AATSR() throws SQLException, IOException, ParseException {
+        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "aatsr-en", "-start", "2006-046", "-end", "2006-046", "-v", "v3"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1", satelliteObservations);
+
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 7, 8, 52, 812, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 8, 57, 40, 662, observation.getStopTime());
+            assertEquals("aatsr-en", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"aatsr-en", "v3", "2006", "02", "15", "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v3", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+
+            assertEquals(TestData.AATSR_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 7, 8, 52, 812, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2006, 2, 15, 8, 57, 40, 662, timeAxes[0].getEndTime());
+            assertEquals(TestData.AATSR_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
         } finally {
             storage.clear();
             storage.close();

@@ -3,3 +3,4 @@ com.bc.fiduceo.reader.airs.AIRS_L1B_ReaderPlugin
 com.bc.fiduceo.reader.hirs.HIRS_L1C_ReaderPlugin
 com.bc.fiduceo.reader.iasi.EumetsatIASIReaderPlugin
 com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_ReaderPlugin
+com.bc.fiduceo.reader.atsr.ATSR_L1B_ReaderPlugin
