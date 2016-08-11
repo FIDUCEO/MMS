@@ -31,6 +31,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -43,6 +44,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -606,6 +608,66 @@ public class ATSR_L1B_Reader_IO_Test {
             array = reader.readRaw(248, 21774, interval, "altitude");
             NCTestUtils.assertValueAt(757.2406005859375, 4, 2, array);
             NCTestUtils.assertValueAt(744.5018920898438, 0, 3, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_Atsr1() throws IOException {
+        final File file = getAtsr1File();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 20044.5, null);
+            assertEquals(-171.0328446073869, geoLocation.getX(), 1e-8);
+            assertEquals(0.6732450926862658, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(67.5, 25804.5, null);
+            assertEquals(173.32764437329226, geoLocation.getX(), 1e-8);
+            assertEquals(-49.92663087487221, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(29.54, -69.286);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(115.677216447776, pixelLocation[0].getX(), 1e-8);
+            assertEquals(32231.685107826648, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(172, -89);
+            assertEquals(0, pixelLocation.length);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetSubscenePixelLocator_Atsr2() throws IOException {
+        final File file = getAtsr2File();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getSubScenePixelLocator(null); // polygon is ignored, we do not split geometries tb 2016-08-11
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(446.5, 5794.5, null);
+            assertEquals(-128.86650544024937, geoLocation.getX(), 1e-8);
+            assertEquals(50.66542253494263, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(470.5, 21176.5, null);
+            assertEquals(55.2723475388128, geoLocation.getX(), 1e-8);
+            assertEquals(-9.990966130197048, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-112.569, -62.085);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(74.56849195800083, pixelLocation[0].getX(), 1e-8);
+            assertEquals(33108.49810468967, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(172, -89);
+            assertEquals(0, pixelLocation.length);
         } finally {
             reader.close();
         }

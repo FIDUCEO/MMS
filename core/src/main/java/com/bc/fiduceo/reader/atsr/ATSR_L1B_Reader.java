@@ -96,12 +96,15 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
+
+        return new ATSR_PixelLocator(geoCoding);
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        // subscene is only relevant for segmented geometries which we do not have tb 2016-08-11
+        return getPixelLocator();
     }
 
     @Override

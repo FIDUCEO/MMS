@@ -642,6 +642,7 @@ public class HIRS_L1C_Reader_IO_Test {
             reader.close();
         }
     }
+
     @Test
     public void testGetPixelLocator_Singleton_MetopA() throws IOException {
         final File file = getMetopAFile();
