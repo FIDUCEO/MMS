@@ -131,21 +131,7 @@ class ATSR_L1B_Reader implements Reader {
         final int yOffset = centerY - height / 2;
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
-        final Index index = targetArray.getIndex();
-        for (int x = 0; x < width; x++) {
-            final int currentX = xOffset + x;
-            for (int y = 0; y < height; y++) {
-                final int currentY = yOffset + y;
-                index.set(y, x);
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    targetArray.setObject(index, readArray.getObject(index));
-                } else {
-                    targetArray.setObject(index, noDataValue);
-                }
-            }
-        }
+        copyTargetData(readArray, targetArray, width, height, xOffset, yOffset, noDataValue);
 
         return targetArray;
     }
@@ -167,22 +153,8 @@ class ATSR_L1B_Reader implements Reader {
 
         readProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
         final double noDataValue = dataNode.getGeophysicalNoDataValue();
-        final Index index = targetArray.getIndex();
-        for (int x = 0; x < width; x++) {
-            final int currentX = xOffset + x;
-            for (int y = 0; y < height; y++) {
-                final int currentY = yOffset + y;
-                index.set(y, x);
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    targetArray.setObject(index, readArray.getObject(index));
-                } else {
-                    targetArray.setObject(index, noDataValue);
-                }
-            }
-        }
+        copyTargetData(readArray, targetArray, width, height, xOffset, yOffset, noDataValue);
 
         return targetArray;
     }
@@ -326,20 +298,24 @@ class ATSR_L1B_Reader implements Reader {
         final DataType dataType = readArray.getDataType();
 
         final int rasterSize = width * height;
-        final ProductData productData;
-        if (dataType == FLOAT) {
-            productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, rasterSize);
-            dataNode.readRasterData(xOffset, yOffset, width, height, productData);
-        } else if (dataType == SHORT) {
-            productData = ProductData.createInstance(ProductData.TYPE_INT16, rasterSize);
-            dataNode.readRasterData(xOffset, yOffset, width, height, productData);
-        } else {
-            throw new RuntimeException("Data type not supported");
-        }
+        final ProductData productData = createProductData(dataType, rasterSize);
 
+        dataNode.readRasterData(xOffset, yOffset, width, height, productData);
         for (int i = 0; i < rasterSize; i++) {
             readArray.setObject(i, productData.getElemDoubleAt(i));
         }
+    }
+
+    private ProductData createProductData(DataType dataType, int rasterSize) {
+        final ProductData productData;
+        if (dataType == FLOAT) {
+            productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, rasterSize);
+        } else if (dataType == SHORT) {
+            productData = ProductData.createInstance(ProductData.TYPE_INT16, rasterSize);
+        } else {
+            throw new RuntimeException("Data type not supported");
+        }
+        return productData;
     }
 
     private RasterDataNode getRasterDataNode(String variableName) {
@@ -355,5 +331,23 @@ class ATSR_L1B_Reader implements Reader {
             throw new RuntimeException("Requested variable not contained in product: " + variableName);
         }
         return dataNode;
+    }
+
+    private void copyTargetData(Array readArray, Array targetArray, int width, int height, int xOffset, int yOffset, double noDataValue) {
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final Index index = targetArray.getIndex();
+        for (int x = 0; x < width; x++) {
+            final int currentX = xOffset + x;
+            for (int y = 0; y < height; y++) {
+                final int currentY = yOffset + y;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readArray.getObject(index));
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
     }
 }
