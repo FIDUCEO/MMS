@@ -22,13 +22,13 @@ package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ATSR_L1B_ReaderTest {
 
@@ -71,5 +71,37 @@ public class ATSR_L1B_ReaderTest {
         assertEquals(2, shape.length);
         assertEquals(23, shape[0]);
         assertEquals(12, shape[1]);
+    }
+
+    @Test
+    public void testCreateReadingArray() {
+        final int[] shape = {2, 3};
+
+        Array array = ATSR_L1B_Reader.createReadingArray(DataType.FLOAT, shape);
+        assertNotNull(array);
+        assertEquals(DataType.FLOAT, array.getDataType());
+        assertArrayEquals(shape, array.getShape());
+
+        array = ATSR_L1B_Reader.createReadingArray(DataType.SHORT, shape);
+        assertNotNull(array);
+        assertEquals(DataType.INT, array.getDataType());
+        assertArrayEquals(shape, array.getShape());
+    }
+
+    @Test
+    public void testCreateReadingArray_unsupported() {
+        final int[] shape = {2, 3};
+
+        try {
+            ATSR_L1B_Reader.createReadingArray(DataType.DOUBLE, shape);
+            fail("RuntimeException expecetd");
+        } catch (RuntimeException expecetd) {
+        }
+
+        try {
+            ATSR_L1B_Reader.createReadingArray(DataType.LONG, shape);
+            fail("RuntimeException expecetd");
+        } catch (RuntimeException expecetd) {
+        }
     }
 }

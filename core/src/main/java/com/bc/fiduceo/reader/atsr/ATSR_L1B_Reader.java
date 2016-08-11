@@ -56,6 +56,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ucar.ma2.DataType.*;
+
 class ATSR_L1B_Reader implements Reader {
 
     private static final Interval INTERVAL = new Interval(5, 20);
@@ -143,7 +145,7 @@ class ATSR_L1B_Reader implements Reader {
 
         final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(interval);
-        final Array readArray = Array.factory(targetDataType, shape);
+        final Array readArray = createReadingArray(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
 
         final int width = interval.getX();
@@ -171,20 +173,6 @@ class ATSR_L1B_Reader implements Reader {
         }
 
         return targetArray;
-    }
-
-    private void readProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final DataType dataType = readArray.getDataType();
-        if (dataType == DataType.FLOAT) {
-            dataNode.readPixels(xOffset, yOffset, width, height, (float[]) readArray.getStorage());
-        } else if (dataType == DataType.SHORT) {
-            final int size = (int) readArray.getSize();
-            final int[] tempBuffer = new int[size];
-            dataNode.readPixels(xOffset, yOffset, width, height, tempBuffer);
-            for (int i = 0; i < size; i++) {
-                readArray.setShort(i, (short) tempBuffer[i]);
-            }
-        }
     }
 
     @Override
@@ -221,7 +209,7 @@ class ATSR_L1B_Reader implements Reader {
         }
 
         final int[] shape = getShape(interval);
-        return (ArrayInt.D2) Array.factory(DataType.INT, shape, timeArray);
+        return (ArrayInt.D2) Array.factory(INT, shape, timeArray);
     }
 
     @Override
@@ -299,5 +287,26 @@ class ATSR_L1B_Reader implements Reader {
         shape[1] = interval.getX();
 
         return shape;
+    }
+
+    // package access for testing only tb 2016-08-11
+    static Array createReadingArray(DataType targetDataType, int[] shape) {
+        switch (targetDataType) {
+            case FLOAT:
+                return Array.factory(DataType.FLOAT, shape);
+            case SHORT:
+                return Array.factory(DataType.INT, shape);
+            default:
+                throw new RuntimeException("unsupported data type: " + targetDataType);
+        }
+    }
+
+    private void readProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final DataType dataType = readArray.getDataType();
+        if (dataType == FLOAT) {
+            dataNode.readPixels(xOffset, yOffset, width, height, (float[]) readArray.getStorage());
+        } else if (dataType == INT) {
+            dataNode.readPixels(xOffset, yOffset, width, height, (int[]) readArray.getStorage());
+        }
     }
 }
