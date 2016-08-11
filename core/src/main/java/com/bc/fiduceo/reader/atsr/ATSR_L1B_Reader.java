@@ -28,27 +28,12 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.TimeCoding;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -56,7 +41,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ucar.ma2.DataType.*;
+import static ucar.ma2.DataType.FLOAT;
+import static ucar.ma2.DataType.INT;
+import static ucar.ma2.DataType.SHORT;
 
 class ATSR_L1B_Reader implements Reader {
 
@@ -124,24 +111,48 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        if (product.containsTiePointGrid(variableName)) {
+            // we do not want raw data access on tie-point grids tb 2016-08-11
+            return readScaled(centerX, centerY, interval, variableName);
+        }
+
+        final RasterDataNode dataNode = getRasterDataNode(variableName);
+
+        final double noDataValue = dataNode.getNoDataValue();
+        final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getDataType());
+        final int[] shape = getShape(interval);
+        final Array readArray = Array.factory(targetDataType, shape);
+        final Array targetArray = Array.factory(targetDataType, shape);
+
+        final int width = interval.getX();
+        final int height = interval.getY();
+
+        final int xOffset = centerX - width / 2;
+        final int yOffset = centerY - height / 2;
+
+        readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final Index index = targetArray.getIndex();
+        for (int x = 0; x < width; x++) {
+            final int currentX = xOffset + x;
+            for (int y = 0; y < height; y++) {
+                final int currentY = yOffset + y;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readArray.getObject(index));
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
+
+        return targetArray;
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final RasterDataNode dataNode;
-        if (product.containsBand(variableName)) {
-            dataNode = product.getBand(variableName);
-        } else if (product.containsTiePointGrid(variableName)) {
-            dataNode = product.getTiePointGrid(variableName);
-        } else {
-            dataNode = product.getMaskGroup().get(variableName);
-        }
-        if (dataNode == null) {
-            throw new RuntimeException("Requested variable not contained in product: " + variableName);
-        }
-
-        final double noDataValue = dataNode.getGeophysicalNoDataValue();
+        final RasterDataNode dataNode = getRasterDataNode(variableName);
 
         final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(interval);
@@ -158,6 +169,7 @@ class ATSR_L1B_Reader implements Reader {
 
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
+        final double noDataValue = dataNode.getGeophysicalNoDataValue();
         final Index index = targetArray.getIndex();
         for (int x = 0; x < width; x++) {
             final int currentX = xOffset + x;
@@ -308,5 +320,40 @@ class ATSR_L1B_Reader implements Reader {
         } else if (dataType == INT) {
             dataNode.readPixels(xOffset, yOffset, width, height, (int[]) readArray.getStorage());
         }
+    }
+
+    private void readRawProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final DataType dataType = readArray.getDataType();
+
+        final int rasterSize = width * height;
+        final ProductData productData;
+        if (dataType == FLOAT) {
+            productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, rasterSize);
+            dataNode.readRasterData(xOffset, yOffset, width, height, productData);
+        } else if (dataType == SHORT) {
+            productData = ProductData.createInstance(ProductData.TYPE_INT16, rasterSize);
+            dataNode.readRasterData(xOffset, yOffset, width, height, productData);
+        } else {
+            throw new RuntimeException("Data type not supported");
+        }
+
+        for (int i = 0; i < rasterSize; i++) {
+            readArray.setObject(i, productData.getElemDoubleAt(i));
+        }
+    }
+
+    private RasterDataNode getRasterDataNode(String variableName) {
+        final RasterDataNode dataNode;
+        if (product.containsBand(variableName)) {
+            dataNode = product.getBand(variableName);
+        } else if (product.containsTiePointGrid(variableName)) {
+            dataNode = product.getTiePointGrid(variableName);
+        } else {
+            dataNode = product.getMaskGroup().get(variableName);
+        }
+        if (dataNode == null) {
+            throw new RuntimeException("Requested variable not contained in product: " + variableName);
+        }
+        return dataNode;
     }
 }

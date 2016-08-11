@@ -561,6 +561,56 @@ public class ATSR_L1B_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_AATSR() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(25, 333, interval, "btemp_nadir_0370");
+            NCTestUtils.assertValueAt(29697, 3, 0, array);
+            NCTestUtils.assertValueAt(29698, 4, 0, array);
+
+            array = reader.readRaw(0, 335, interval, "reflec_nadir_0670");
+            NCTestUtils.assertValueAt(-2, 0, 1, array);
+            NCTestUtils.assertValueAt(-2, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+
+            array = reader.readRaw(511, 337, interval, "cloud_flags_nadir");
+            NCTestUtils.assertValueAt(98, 2, 1, array);
+            NCTestUtils.assertValueAt(-2, 3, 1, array);
+            NCTestUtils.assertValueAt(-2, 4, 1, array);
+
+            array = reader.readRaw(217, 0, interval, "btemp_fward_1100");
+            NCTestUtils.assertValueAt(-2, 2, 0, array);
+            NCTestUtils.assertValueAt(-2, 2, 1, array);
+            NCTestUtils.assertValueAt(-1, 2, 2, array);
+            NCTestUtils.assertValueAt(-1, 2, 3, array);
+
+            array = reader.readRaw(219, 43519, interval, "reflec_fward_0870");
+            NCTestUtils.assertValueAt(-1, 2, 0, array);
+            NCTestUtils.assertValueAt(-1, 2, 1, array);
+            NCTestUtils.assertValueAt(-1, 2, 2, array);
+            NCTestUtils.assertValueAt(-2, 2, 3, array);
+
+            array = reader.readRaw(244, 21770, interval, "reflec_fward_0550");
+            NCTestUtils.assertValueAt(3254, 0, 2, array);
+            NCTestUtils.assertValueAt(2581, 1, 2, array);
+
+            array = reader.readRaw(246, 21772, interval, "sun_elev_nadir");
+            NCTestUtils.assertValueAt(55.33750534057617, 2, 2, array);
+            NCTestUtils.assertValueAt(55.34658432006836, 3, 2, array);
+
+            array = reader.readRaw(248, 21774, interval, "altitude");
+            NCTestUtils.assertValueAt(757.2406005859375, 4, 2, array);
+            NCTestUtils.assertValueAt(744.5018920898438, 0, 3, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getAtsr1File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e1", "v3", "1993", "08", "05", "AT1_TOA_1PURAL19930805_210030_000000004015_00085_10751_0000.E1"}, false);
         return getFileAsserted(testFilePath);
