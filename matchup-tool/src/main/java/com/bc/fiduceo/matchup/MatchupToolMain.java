@@ -50,6 +50,7 @@ public class MatchupToolMain {
             matchupTool.run(commandLine);
         } catch (Throwable e) {
             System.err.println(e.getMessage());
+            e.printStackTrace();
             System.exit(-1);
         }
     }

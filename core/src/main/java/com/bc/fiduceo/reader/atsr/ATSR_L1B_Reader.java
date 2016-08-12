@@ -28,14 +28,31 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.TimeCoding;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,8 +150,27 @@ class ATSR_L1B_Reader implements Reader {
         final int xOffset = centerX - width / 2;
         final int yOffset = centerY - height / 2;
 
+        //System.out.println("node = " + dataNode.getName() + " x: " + xOffset + " y: " + yOffset + " w: " + width + " h: " + height);
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
-        copyTargetData(readArray, targetArray, width, height, xOffset, yOffset, noDataValue);
+
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+
+        final Index index = targetArray.getIndex();
+        int readIndex = 0;
+        for (int y = 0; y < width; y++) {
+            final int currentY = yOffset + y;
+            for (int x = 0; x < height; x++) {
+                final int currentX = xOffset + x;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readArray.getObject(readIndex));
+                    ++readIndex;
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
 
         return targetArray;
     }
@@ -300,10 +336,14 @@ class ATSR_L1B_Reader implements Reader {
     private void readRawProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
         final DataType dataType = readArray.getDataType();
 
-        final int rasterSize = width * height;
+        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
+        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
+
+        final int rasterSize = intersection.width * intersection.height;
         final ProductData productData = createProductData(dataType, rasterSize);
 
-        dataNode.readRasterData(xOffset, yOffset, width, height, productData);
+        dataNode.readRasterData(intersection.x, intersection.y, intersection.width, intersection.height, productData);
         for (int i = 0; i < rasterSize; i++) {
             readArray.setObject(i, productData.getElemDoubleAt(i));
         }

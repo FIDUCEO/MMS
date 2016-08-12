@@ -29,9 +29,10 @@ import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 import ucar.nc2.VariableSimpleIF;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class VariableProxy extends Variable {
+class VariableProxy extends Variable {
 
     private final RasterDataNode rasterDataNode;
 
@@ -82,7 +83,25 @@ public class VariableProxy extends Variable {
 
     @Override
     public List<Attribute> getAttributes() {
-        throw new RuntimeException("not implemented");
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+
+        if (rasterDataNode.isScalingApplied()) {
+            final double scalingFactor = rasterDataNode.getScalingFactor();
+            if (scalingFactor != 1.0) {
+                attributes.add(new Attribute("scale_factor", Double.toString(scalingFactor)));
+            }
+
+            final double scalingOffset = rasterDataNode.getScalingOffset();
+            if (scalingOffset != 0.0) {
+                attributes.add(new Attribute("add_offset", Double.toString(scalingOffset)));
+            }
+        }
+
+        if (rasterDataNode.isNoDataValueUsed()) {
+            final double noDataValue = rasterDataNode.getNoDataValue();
+            attributes.add(new Attribute("_FillValue", Double.toString(noDataValue)));
+        }
+        return attributes;
     }
 
     @Override
