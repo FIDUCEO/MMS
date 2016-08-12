@@ -95,8 +95,9 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
             final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
             extractPrototypes(variablesConfiguration, matchupCollection, context);
-            final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
             final Path mmdFile = createMmdFile(context);
+            final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
             initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
 
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
