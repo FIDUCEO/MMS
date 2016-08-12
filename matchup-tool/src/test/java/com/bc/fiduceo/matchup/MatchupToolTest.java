@@ -25,6 +25,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
+import com.bc.fiduceo.core.ValidationResult;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
@@ -282,16 +283,38 @@ public class MatchupToolTest {
         additionalSensors.add(new Sensor("the sensor"));
         when(config.getAdditionalSensors()).thenReturn(additionalSensors);
 
-//        final Geometry geometry = mock(Geometry.class);
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
 
         final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, startDate, endDate);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
-        // removed due to poor database performance tb 2016-05-02
-        //assertSame(geometry, parameter.getGeometry());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
+    }
+
+    @Test
+    public void testCreateErrorMessage_noErrors() {
+        final StringBuilder errorMessage = MatchupTool.createErrorMessage(new ValidationResult());
+        assertEquals("", errorMessage.toString());
+    }
+
+    @Test
+    public void testCreateErrorMessage_oneError() {
+        final ValidationResult validationResult = new ValidationResult();
+        validationResult.getMessages().add("error happened, woho");
+
+        final StringBuilder errorMessage = MatchupTool.createErrorMessage(validationResult);
+        assertEquals("error happened, woho\n", errorMessage.toString());
+    }
+
+    @Test
+    public void testCreateErrorMessage_twoErrors() {
+        final ValidationResult validationResult = new ValidationResult();
+        validationResult.getMessages().add("error happened, woho");
+        validationResult.getMessages().add("phew, another one");
+
+        final StringBuilder errorMessage = MatchupTool.createErrorMessage(validationResult);
+        assertEquals("error happened, woho\nphew, another one\n", errorMessage.toString());
     }
 }

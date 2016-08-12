@@ -153,7 +153,6 @@ public class UseCaseConfig {
         return false;
     }
 
-    // @todo 2 tb/** write test for this method tb 2016-08-01
     public ValidationResult checkValid() {
         final ValidationResult validationResult = new ValidationResult();
         if (StringUtils.isNullOrEmpty(name)) {

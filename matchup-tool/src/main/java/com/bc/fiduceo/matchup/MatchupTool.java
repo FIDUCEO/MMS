@@ -206,13 +206,7 @@ class MatchupTool {
         final UseCaseConfig useCaseConfig = loadUseCaseConfig(commandLine, configDirectory);
         final ValidationResult validationResult = useCaseConfig.checkValid();
         if (!validationResult.isValid()) {
-            // @todo 3 tb/tb clean up this mess and write test 2016-03-17
-            final StringBuilder builder = new StringBuilder();
-            final List<String> messages = validationResult.getMessages();
-            for (final String message : messages) {
-                builder.append(message);
-                builder.append("\n");
-            }
+            final StringBuilder builder = createErrorMessage(validationResult);
             throw new IllegalArgumentException("Use case configuration errors: " + builder.toString());
         }
         context.setUseCaseConfig(useCaseConfig);
@@ -224,6 +218,17 @@ class MatchupTool {
 
         logger.info("Success loading configuration.");
         return context;
+    }
+
+    // package access for testing only tb 2016-08-12
+    static StringBuilder createErrorMessage(ValidationResult validationResult) {
+        final StringBuilder builder = new StringBuilder();
+        final List<String> messages = validationResult.getMessages();
+        for (final String message : messages) {
+            builder.append(message);
+            builder.append("\n");
+        }
+        return builder;
     }
 
     private void runMatchupGeneration(ToolContext context) throws SQLException, IOException, InvalidRangeException {

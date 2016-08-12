@@ -53,7 +53,6 @@ class BuehlerCloudScreening implements Screening {
         }
     }
 
-    // @todo 2 tb/** move coefficients to config when algorithm has been approved 2016-05-10
     // package access for testing only tb 2016-05-10
     double calculateThreshold(double szaDegrees) {
         double accumulate = 0.0;
