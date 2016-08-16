@@ -70,6 +70,7 @@ class ATSR_L1B_Reader implements Reader {
     private final GeometryFactory geometryFactory;
 
     private Product product;
+    private ATSR_PixelLocator pixelLocator;
 
     ATSR_L1B_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -81,10 +82,12 @@ class ATSR_L1B_Reader implements Reader {
         if (product == null) {
             throw new IOException("Unable to read ATSR product: " + file.getAbsolutePath());
         }
+        pixelLocator = null;
     }
 
     @Override
     public void close() throws IOException {
+        pixelLocator = null;
         if (product != null) {
             product.dispose();
             product = null;
@@ -113,9 +116,12 @@ class ATSR_L1B_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        final GeoCoding geoCoding = product.getSceneGeoCoding();
+        if (pixelLocator == null) {
+            final GeoCoding geoCoding = product.getSceneGeoCoding();
 
-        return new ATSR_PixelLocator(geoCoding);
+            pixelLocator = new ATSR_PixelLocator(geoCoding);
+        }
+        return pixelLocator;
     }
 
     @Override
