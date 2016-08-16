@@ -57,6 +57,7 @@ public class UseCaseConfig {
     private List<Sensor> sensors;
     private List<Dimension> dimensions;
     private String outputPath;
+    private boolean writeDistance;
 
     private UseCaseConfig(Document document) {
         sensors = new ArrayList<>();
@@ -211,10 +212,24 @@ public class UseCaseConfig {
                 getDimensions().add(new Dimension(name, nx, ny));
             }
         }
+
+        final Element writeDistanceElement = rootElement.getChild("write-distance");
+        if (writeDistanceElement != null) {
+            final boolean writeDistance = Boolean.parseBoolean(writeDistanceElement.getValue());
+            setWriteDistance(writeDistance);
+        }
     }
 
     private void setInvalidWithMessage(String message, ValidationResult validationResult) {
         validationResult.setValid(false);
         validationResult.addMessage(message);
+    }
+
+    public boolean isWriteDistance() {
+        return writeDistance;
+    }
+
+    public void setWriteDistance(boolean writeDistance) {
+        this.writeDistance = writeDistance;
     }
 }

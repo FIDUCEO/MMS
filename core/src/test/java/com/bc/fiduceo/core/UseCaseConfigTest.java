@@ -20,20 +20,17 @@
 
 package com.bc.fiduceo.core;
 
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.*;
-
 import org.jdom.JDOMException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.*;
 
 public class UseCaseConfigTest {
 
@@ -57,12 +54,12 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__oneSensor() {
         final String useCaseXml = "<use-case-config name=\"use-case 18\">" +
-                                  "  <sensors>" +
-                                  "    <sensor>" +
-                                  "      <name>amsub-n16</name>" +
-                                  "    </sensor>" +
-                                  "  </sensors>" +
-                                  "</use-case-config>";
+                "  <sensors>" +
+                "    <sensor>" +
+                "      <name>amsub-n16</name>" +
+                "    </sensor>" +
+                "  </sensors>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -75,15 +72,15 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__twoSensors() {
         final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
-                                  "  <sensors>" +
-                                  "    <sensor>" +
-                                  "      <name>amsub-n16</name>" +
-                                  "    </sensor>" +
-                                  "    <sensor>" +
-                                  "      <name>mhs-n18</name>" +
-                                  "    </sensor>" +
-                                  "  </sensors>" +
-                                  "</use-case-config>";
+                "  <sensors>" +
+                "    <sensor>" +
+                "      <name>amsub-n16</name>" +
+                "    </sensor>" +
+                "    <sensor>" +
+                "      <name>mhs-n18</name>" +
+                "    </sensor>" +
+                "  </sensors>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -97,13 +94,13 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__oneSensor_primary() {
         final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
-                                  "  <sensors>" +
-                                  "    <sensor>" +
-                                  "      <name>amsub-n20</name>" +
-                                  "      <primary>true</primary>" +
-                                  "    </sensor>" +
-                                  "  </sensors>" +
-                                  "</use-case-config>";
+                "  <sensors>" +
+                "    <sensor>" +
+                "      <name>amsub-n20</name>" +
+                "      <primary>true</primary>" +
+                "    </sensor>" +
+                "  </sensors>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -117,8 +114,8 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__outputPath() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                                  "  <output-path>file/system/path</output-path>" +
-                                  "</use-case-config>";
+                "  <output-path>file/system/path</output-path>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -128,17 +125,17 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__dimensionList() {
         final String useCaseXml = "<use-case-config name=\"use-case 20\">" +
-                                  "  <dimensions>" +
-                                  "    <dimension name=\"avhrr-n08\">" +
-                                  "      <nx>7</nx>" +
-                                  "      <ny>8</ny>" +
-                                  "    </dimension>" +
-                                  "    <dimension name=\"avhrr-n09\">" +
-                                  "      <nx>9</nx>" +
-                                  "      <ny>10</ny>" +
-                                  "    </dimension>" +
-                                  "  </dimensions>" +
-                                  "</use-case-config>";
+                "  <dimensions>" +
+                "    <dimension name=\"avhrr-n08\">" +
+                "      <nx>7</nx>" +
+                "      <ny>8</ny>" +
+                "    </dimension>" +
+                "    <dimension name=\"avhrr-n09\">" +
+                "      <nx>9</nx>" +
+                "      <ny>10</ny>" +
+                "    </dimension>" +
+                "  </dimensions>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -161,14 +158,14 @@ public class UseCaseConfigTest {
     public void testStore() throws IOException {
 
         final UseCaseConfig useCaseConfig = new UseCaseConfigBuilder("test_use_case")
-                    .withSensors(Arrays.asList(
-                                new Sensor("first"),
-                                new Sensor("second")))
-                    .withDimensions(Arrays.asList(
-                                new Dimension("first", 11, 15),
-                                new Dimension("second", 3, 5)))
-                    .withOutputPath("wherever/you/want/it")
-                    .createConfig();
+                .withSensors(Arrays.asList(
+                        new Sensor("first"),
+                        new Sensor("second")))
+                .withDimensions(Arrays.asList(
+                        new Dimension("first", 11, 15),
+                        new Dimension("second", 3, 5)))
+                .withOutputPath("wherever/you/want/it")
+                .createConfig();
 
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -340,5 +337,24 @@ public class UseCaseConfigTest {
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         assertNotNull(dimensions);
         assertEquals(0, dimensions.size());
+    }
+
+    @Test
+    public void testSetIsWriteDistance() {
+        assertFalse(useCaseConfig.isWriteDistance());
+
+        useCaseConfig.setWriteDistance(true);
+        assertTrue(useCaseConfig.isWriteDistance());
+    }
+
+    @Test
+    public void testLoad__writeDistance() {
+        final String useCaseXml = "<use-case-config name=\"use-case 22\">" +
+                "  <write-distance>true</write-distance>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertTrue(useCaseConfig.isWriteDistance());
     }
 }
