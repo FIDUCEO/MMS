@@ -22,7 +22,10 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -34,7 +37,6 @@ import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -169,6 +171,34 @@ public class MatchupToolIntegrationTest_useCase_17 {
     }
 
     @Test
+    public void testMatchup_overlappingSensingTimes_additionalDistanceVariable() throws IOException, ParseException, SQLException, InvalidRangeException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(600)  // 10 minutes is large enough to get some matchups
+                .withMaxPixelDistanceKm(5)
+                .withAngularCosineScreening("Satellite_zenith_angle", "Satellite_zenith_angle", 0.01f)
+                .withSphericalDistanceVariable()
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+
+        insert_AMSUB_NOAA15();
+        insert_MHS_NOAA18();
+
+        // 2007-08-22 is equal to 2007-234, so we set the interval to the three days around the acquisition tb 2016-04-21
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-233", "-end", "2007-235"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assertScalarVariable("matchup_spherical_distance", 0, 3.3357553482055664, mmd);
+        }
+    }
+
+    @Test
     public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
@@ -189,6 +219,7 @@ public class MatchupToolIntegrationTest_useCase_17 {
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertFalse(mmdFile.isFile());
     }
+
 
     private File getMmdFilePath(UseCaseConfig useCaseConfig) {
         final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-233"), TimeUtils.parseDOYEndOfDay("2007-235"));
