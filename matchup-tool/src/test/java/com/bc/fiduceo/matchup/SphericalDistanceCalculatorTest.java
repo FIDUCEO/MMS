@@ -20,40 +20,23 @@
 
 package com.bc.fiduceo.matchup;
 
-public class SampleSet {
 
-    private static final int PRIMARY_INDEX = 0;
-    private static final int SECONDARY_INDEX = 1;
+import org.junit.Test;
 
-    final private Sample[] samples;
-    private float sphericalDistance;
+import static org.junit.Assert.assertEquals;
 
-    public SampleSet() {
-        samples = new Sample[2];
-        sphericalDistance = Float.MIN_VALUE;
-    }
+public class SphericalDistanceCalculatorTest {
 
-    public void setPrimary(Sample primary) {
-        samples[PRIMARY_INDEX] = primary;
-    }
+    @Test
+    public void testCalculate() {
+        final SampleSet sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(0, 1, 12.0876, 22.562, 3));
+        sampleSet.setSecondary(new Sample(4, 5, 12.0886, 22.572, 3));
 
-    public Sample getPrimary() {
-        return samples[PRIMARY_INDEX];
-    }
+        final SphericalDistanceCalculator calculator = new SphericalDistanceCalculator();
 
-    public void setSecondary(Sample secondary) {
-        samples[SECONDARY_INDEX] = secondary;
-    }
+        calculator.calculate(sampleSet);
 
-    public Sample getSecondary() {
-        return samples[SECONDARY_INDEX];
-    }
-
-    public float getSphericalDistance() {
-        return sphericalDistance;
-    }
-
-    public void setSphericalDistance(float sphericalDistance) {
-        this.sphericalDistance = sphericalDistance;
+        assertEquals(1.1166796684265137f, sampleSet.getSphericalDistance(), 1e-8);
     }
 }

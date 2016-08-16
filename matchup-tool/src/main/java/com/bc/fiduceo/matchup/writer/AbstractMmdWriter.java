@@ -57,6 +57,9 @@ import java.util.logging.Logger;
 
 abstract class AbstractMmdWriter implements MmdWriter {
 
+    private static final String UNIT_ATTRIBUTE_NAME = "unit";
+    private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
+
     private final Logger logger;
     private final int cacheSize;
     private final Map<String, Array> dataCacheMap;
@@ -79,8 +82,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
      *
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
-     *
-     * @throws IOException on disk access errors
+     * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
     public void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
@@ -127,6 +129,9 @@ abstract class AbstractMmdWriter implements MmdWriter {
                     for (SampleSet sampleSet : sampleSets) {
                         writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
                         writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
+                        if (useCaseConfig.isWriteDistance()) {
+                            write(sampleSet.getSphericalDistance(), "matchup_spherical_distance", zIndex);
+                        }
                         zIndex++;
                         if (zIndex > 0 && zIndex % cacheSize == 0) {
                             flush();
@@ -147,15 +152,15 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "comment",
+                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             useCaseConfig.store(outputStream);
             netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                        "use-case-configuration",
-                        outputStream.toString()
+                    "use-case-configuration",
+                    outputStream.toString()
             ));
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
@@ -218,12 +223,18 @@ abstract class AbstractMmdWriter implements MmdWriter {
         createDimensions(dimensions, numMatchups);
         createExtraMmdVariablesPerSensor(dimensions);
 
+        if (useCaseConfig.isWriteDistance()) {
+            final Variable variableDistance = netcdfFileWriter.addVariable(null, "matchup_spherical_distance", DataType.FLOAT, "matchup_count");
+            variableDistance.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
+            variableDistance.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
+        }
+
         for (final VariablePrototype variablePrototype : variablePrototypes) {
             ensureFillValue(variablePrototype);
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   variablePrototype.getTargetVariableName(),
-                                                                   DataType.getType(variablePrototype.getDataType()),
-                                                                   variablePrototype.getDimensionNames());
+                    variablePrototype.getTargetVariableName(),
+                    DataType.getType(variablePrototype.getDataType()),
+                    variablePrototype.getDimensionNames());
             final List<Attribute> attributes = variablePrototype.getAttributes();
             for (Attribute attribute : attributes) {
                 if (attribute.getFullName().startsWith("_Chunk")) {
@@ -301,6 +312,11 @@ abstract class AbstractMmdWriter implements MmdWriter {
         write(data, variableName, zIndex);
     }
 
+    private void write(float value, String variableName, int zIndex) throws IOException, InvalidRangeException {
+        final Array data = Array.factory(new float[][]{{value}});
+        write(data, variableName, zIndex);
+    }
+
     private void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
         final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
@@ -331,19 +347,19 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final String sensorName = dimension.getName();
 
             final Variable variableX = netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
-            variableX.addAttribute(new Attribute("description", "pixel original x location in satellite raster"));
+            variableX.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
 
             final Variable variableY = netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
-            variableY.addAttribute(new Attribute("description", "pixel original y location in satellite raster"));
+            variableY.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
 
             final Variable variableFileName = netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.CHAR, "matchup_count file_name");
-            variableFileName.addAttribute(new Attribute("description", "file name of the original data file"));
+            variableFileName.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
 
             final String yDimension = getDimensionNameNy(sensorName);
             final String xDimension = getDimensionNameNx(sensorName);
             final Variable variableAcqTime = netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
-            variableAcqTime.addAttribute(new Attribute("description", "acquisition time of original pixel"));
-            variableAcqTime.addAttribute(new Attribute("unit", "seconds since 1970-01-01"));
+            variableAcqTime.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
+            variableAcqTime.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
             variableAcqTime.addAttribute(new Attribute("_FillValue", -2147483648));
         }
     }

@@ -66,15 +66,15 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.1" + ls +
-                     ls +
-                     "usage: matchup-tool <options>" + ls +
-                     "Valid options are:" + ls +
-                     "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                     "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                     "   -h,--help                   Prints the tool usage." + ls +
-                     "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                     "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-                     "                               configuration directory." + ls, outputStream.toString());
+                ls +
+                "usage: matchup-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help                   Prints the tool usage." + ls +
+                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                "                               configuration directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -169,8 +169,8 @@ public class MatchupToolTest {
         sensor.setPrimary(true);
         sensorList.add(sensor);
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
-                    .withSensors(sensorList)
-                    .createConfig();
+                .withSensors(sensorList)
+                .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
@@ -189,8 +189,8 @@ public class MatchupToolTest {
         sensorList.add(sensor);
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
-                    .withSensors(sensorList)
-                    .createConfig();
+                .withSensors(sensorList)
+                .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         try {
@@ -316,5 +316,28 @@ public class MatchupToolTest {
 
         final StringBuilder errorMessage = MatchupTool.createErrorMessage(validationResult);
         assertEquals("error happened, woho\nphew, another one\n", errorMessage.toString());
+    }
+
+    @Test
+    public void testCalculateDistance() {
+        final MatchupSet matchupSet = new MatchupSet();
+        final SampleSet first = new SampleSet();
+        first.setPrimary(new Sample(3, 4, -128.446, -38.056, 5));
+        first.setSecondary(new Sample(6, 7, -128.438, -38.062, 8));
+
+        final SampleSet second = new SampleSet();
+        second.setPrimary(new Sample(9, 10, 55.306, 1.0887, 11));
+        second.setSecondary(new Sample(12, 13, 55.299, 1.092, 14));
+
+        matchupSet.getSampleSets().add(first);
+        matchupSet.getSampleSets().add(second);
+
+        MatchupTool.calculateDistance(matchupSet);
+
+        SampleSet sampleSet = matchupSet.getSampleSets().get(0);
+        assertEquals(0.9673157930374146f, sampleSet.getSphericalDistance(), 1e-8);
+
+        sampleSet = matchupSet.getSampleSets().get(1);
+        assertEquals(0.8603944182395935f, sampleSet.getSphericalDistance(), 1e-8);
     }
 }

@@ -313,6 +313,10 @@ class MatchupTool {
                             logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
 
                             if (matchupSet.getNumObservations() > 0) {
+                                if (useCaseConfig.isWriteDistance()) {
+                                    calculateDistance(matchupSet);
+                                }
+
                                 matchupCollection.add(matchupSet);
                             }
                         }
@@ -322,6 +326,15 @@ class MatchupTool {
         }
 
         return matchupCollection;
+    }
+
+    // package access for testing only tb 2016-08-16
+    static void calculateDistance(MatchupSet matchupSet) {
+        final SphericalDistanceCalculator sphericalDistanceCalculator = new SphericalDistanceCalculator();
+        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
+        for (final SampleSet sampleSet : sourceSamples) {
+            sphericalDistanceCalculator.calculate(sampleSet);
+        }
     }
 
     private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {

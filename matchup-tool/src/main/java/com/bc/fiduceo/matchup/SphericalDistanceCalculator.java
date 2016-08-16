@@ -20,40 +20,21 @@
 
 package com.bc.fiduceo.matchup;
 
-public class SampleSet {
 
-    private static final int PRIMARY_INDEX = 0;
-    private static final int SECONDARY_INDEX = 1;
+import org.esa.snap.core.util.math.RsMathUtils;
+import org.esa.snap.core.util.math.SphericalDistance;
 
-    final private Sample[] samples;
-    private float sphericalDistance;
+class SphericalDistanceCalculator {
 
-    public SampleSet() {
-        samples = new Sample[2];
-        sphericalDistance = Float.MIN_VALUE;
-    }
+    private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
-    public void setPrimary(Sample primary) {
-        samples[PRIMARY_INDEX] = primary;
-    }
+    void calculate(SampleSet sampleSet) {
+        final Sample primary = sampleSet.getPrimary();
+        final Sample secondary = sampleSet.getSecondary();
 
-    public Sample getPrimary() {
-        return samples[PRIMARY_INDEX];
-    }
-
-    public void setSecondary(Sample secondary) {
-        samples[SECONDARY_INDEX] = secondary;
-    }
-
-    public Sample getSecondary() {
-        return samples[SECONDARY_INDEX];
-    }
-
-    public float getSphericalDistance() {
-        return sphericalDistance;
-    }
-
-    public void setSphericalDistance(float sphericalDistance) {
-        this.sphericalDistance = sphericalDistance;
+        final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
+        final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
+        final double kmDistance = radDistance * MEAN_EARTH_RADIUS_IN_KM;
+        sampleSet.setSphericalDistance((float) kmDistance);
     }
 }
