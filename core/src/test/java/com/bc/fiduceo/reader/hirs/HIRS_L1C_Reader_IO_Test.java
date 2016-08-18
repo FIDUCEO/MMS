@@ -392,7 +392,7 @@ public class HIRS_L1C_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(65, variables.size());
+            assertEquals(66, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("time", variable.getShortName());
@@ -420,6 +420,9 @@ public class HIRS_L1C_Reader_IO_Test {
 
             variable = variables.get(64);
             assertEquals("scanpos", variable.getShortName());
+
+            variable = variables.get(65);
+            assertEquals("scanline_type", variable.getShortName());
         } finally {
             reader.close();
         }
@@ -612,6 +615,25 @@ public class HIRS_L1C_Reader_IO_Test {
             array = reader.readRaw(36, 254, interval, "time");
             NCTestUtils.assertValueAt(606119757, 4, 3, array);
             NCTestUtils.assertValueAt(606119763, 0, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_METOPA() throws IOException, InvalidRangeException {
+        final File file = getMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(37, 4, interval, "scanline_type");
+            NCTestUtils.assertValueAt(0, 1, 0, array);
+            NCTestUtils.assertValueAt(1, 1, 1, array);
+            NCTestUtils.assertValueAt(3, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 3, array);
+            NCTestUtils.assertValueAt(0, 1, 4, array);
         } finally {
             reader.close();
         }
