@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class PixelValueScreeningPluginTest {
 
@@ -52,5 +53,48 @@ public class PixelValueScreeningPluginTest {
 
         final Screening screening = plugin.createScreening(rootElement);
         assertNotNull(screening);
+    }
+
+    @Test
+    public void testCreateConfiguration() throws JDOMException, IOException {
+        final String XML = "<pixel-value>" +
+                "<primary_expression>radiance_10 > 13.678</primary_expression>" +
+                "<secondary_expression>flags != 26</secondary_expression>" +
+                "</pixel-value>";
+
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final PixelValueScreening.Configuration configuration = PixelValueScreeningPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertEquals("radiance_10 > 13.678", configuration.primaryExpression);
+        assertEquals("flags != 26", configuration.secondaryExpression);
+    }
+
+    @Test
+    public void testCreateConfiguration_missingPrimaryExpression() throws JDOMException, IOException {
+        final String XML = "<pixel-value>" +
+                "<secondary_expression>flags != 26</secondary_expression>" +
+                "</pixel-value>";
+
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final PixelValueScreening.Configuration configuration = PixelValueScreeningPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertNull(configuration.primaryExpression);
+        assertEquals("flags != 26", configuration.secondaryExpression);
+    }
+
+    @Test
+    public void testCreateConfiguration_missingSecondaryExpression() throws JDOMException, IOException {
+        final String XML = "<pixel-value>" +
+                "<primary_expression>radiance_10 > 13.678</primary_expression>" +
+                "</pixel-value>";
+
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final PixelValueScreening.Configuration configuration = PixelValueScreeningPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertEquals("radiance_10 > 13.678", configuration.primaryExpression);
+        assertNull(configuration.secondaryExpression);
     }
 }

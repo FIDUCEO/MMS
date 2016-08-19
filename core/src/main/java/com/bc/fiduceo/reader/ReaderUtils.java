@@ -129,7 +129,7 @@ public class ReaderUtils {
         }
 
         // @todo 2 tb/tb this method is copied from SNAP snap-netcdf org.esa.snap.dataio.netcdf.util.DataTypeUtils to avoid version
-        // conflicts. Snap uses netcdf version 4.3.22, fiduceoo is at version 4.6.5 2016-08-08
+        // conflicts. Snap uses netcdf version 4.3.22, fiduceo is at version 4.6.5 2016-08-08
     }
 
     private static Number getDefaultFillValue(Class type) {

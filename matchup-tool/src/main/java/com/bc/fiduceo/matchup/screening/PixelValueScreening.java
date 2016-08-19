@@ -22,15 +22,91 @@ package com.bc.fiduceo.matchup.screening;
 
 
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.matchup.screening.expression.ReaderEvalEnv;
+import com.bc.fiduceo.matchup.screening.expression.ReaderNamespace;
 import com.bc.fiduceo.reader.Reader;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class PixelValueScreening implements Screening {
 
+    private Configuration configuration;
+
     @Override
     public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+        if (configuration == null) {
+            return;
+        }
 
+        List<SampleSet> sampleSets = matchupSet.getSampleSets();
+
+        if (StringUtils.isNotNullAndNotEmpty(configuration.primaryExpression)) {
+            List<SampleSet> resultSet = new ArrayList<>();
+            final ReaderNamespace readerNamespace = new ReaderNamespace(primaryReader);
+            final ParserImpl parser = new ParserImpl(readerNamespace);
+            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(primaryReader);
+
+            try {
+                final Term term = parser.parse(configuration.primaryExpression);
+                for (final SampleSet sampleSet : sampleSets) {
+                    final Sample primary = sampleSet.getPrimary();
+                    readerEvalEnv.setLocation(primary.x, primary.y);
+                    final boolean keep = term.evalB(readerEvalEnv);
+                    if (!keep) {
+                        continue;
+                    }
+                    resultSet.add(sampleSet);
+                }
+
+            } catch (ParseException e) {
+                throw new IOException("Invalid expression: " + e.getMessage());
+            }
+
+            sampleSets = resultSet;
+        }
+
+        if (StringUtils.isNotNullAndNotEmpty(configuration.secondaryExpression)) {
+            List<SampleSet> resultSet = new ArrayList<>();
+            final ReaderNamespace readerNamespace = new ReaderNamespace(secondaryReader);
+            final ParserImpl parser = new ParserImpl(readerNamespace);
+            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(secondaryReader);
+
+            try {
+                final Term term = parser.parse(configuration.secondaryExpression);
+                for (final SampleSet sampleSet : sampleSets) {
+                    final Sample secondary = sampleSet.getSecondary();
+                    readerEvalEnv.setLocation(secondary.x, secondary.y);
+                    final boolean keep = term.evalB(readerEvalEnv);
+                    if (!keep) {
+                        continue;
+                    }
+                    resultSet.add(sampleSet);
+                }
+
+            } catch (ParseException e) {
+                throw new IOException("Invalid expression: " + e.getMessage());
+            }
+            sampleSets = resultSet;
+        }
+
+        matchupSet.setSampleSets(sampleSets);
+    }
+
+    public void configure(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    static class Configuration {
+        String primaryExpression;
+        String secondaryExpression;
     }
 }

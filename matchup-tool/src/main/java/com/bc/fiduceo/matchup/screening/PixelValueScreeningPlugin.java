@@ -34,4 +34,20 @@ public class PixelValueScreeningPlugin implements ScreeningPlugin {
     public String getScreeningName() {
         return "pixel-value";
     }
+
+    static PixelValueScreening.Configuration createConfiguration(Element rootElement) {
+        final PixelValueScreening.Configuration configuration = new PixelValueScreening.Configuration();
+
+        final Element primaryExpressionElement = rootElement.getChild("primary_expression");
+        if (primaryExpressionElement != null) {
+            configuration.primaryExpression = primaryExpressionElement.getValue();
+        }
+
+        final Element secondaryExpressionElement = rootElement.getChild("secondary_expression");
+        if (secondaryExpressionElement != null) {
+            configuration.secondaryExpression = secondaryExpressionElement.getValue();
+        }
+
+        return configuration;
+    }
 }
