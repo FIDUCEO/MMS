@@ -20,6 +20,7 @@ import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
 import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
 import static com.bc.fiduceo.matchup.condition.DistanceConditionPlugin.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
@@ -93,6 +94,21 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
         if (!Float.isNaN(maxAngularDelta)) {
             addChild(lzaDelta, "max-lza-delta", maxAngularDelta);
+        }
+
+        return this;
+    }
+
+    UseCaseConfigBuilder withPixelValueScreening(String primaryExpression, String secondaryExpression) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element pixelScreening = ensureChild(screenings, "pixel-value");
+
+        if (StringUtils.isNotNullAndNotEmpty(primaryExpression)) {
+            addChild(pixelScreening, "primary_expression", primaryExpression);
+        }
+
+        if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
+            addChild(pixelScreening, "secondary_expression", secondaryExpression);
         }
 
         return this;

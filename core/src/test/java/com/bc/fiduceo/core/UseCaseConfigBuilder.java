@@ -126,14 +126,14 @@ public class UseCaseConfigBuilder {
         return addChild(element, name, Integer.toString(value));
     }
 
-    private Element addChild(Element element, String name) {
-        return addChild(element, name, "");
-    }
-
-    private Element addChild(Element element, String name, String value) {
+    protected Element addChild(Element element, String name, String value) {
         final Element child = new Element(name);
         child.setText(value);
         element.addContent(child);
         return child;
+    }
+
+    private Element addChild(Element element, String name) {
+        return addChild(element, name, "");
     }
 }
