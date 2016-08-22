@@ -104,11 +104,11 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element pixelScreening = ensureChild(screenings, "pixel-value");
 
         if (StringUtils.isNotNullAndNotEmpty(primaryExpression)) {
-            addChild(pixelScreening, "primary_expression", primaryExpression);
+            addChild(pixelScreening, "primary-expression", primaryExpression);
         }
 
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
-            addChild(pixelScreening, "secondary_expression", secondaryExpression);
+            addChild(pixelScreening, "secondary-expression", secondaryExpression);
         }
 
         return this;

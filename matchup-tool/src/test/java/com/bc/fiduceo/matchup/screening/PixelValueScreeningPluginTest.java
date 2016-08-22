@@ -58,8 +58,8 @@ public class PixelValueScreeningPluginTest {
     @Test
     public void testCreateConfiguration() throws JDOMException, IOException {
         final String XML = "<pixel-value>" +
-                "<primary_expression>radiance_10 > 13.678</primary_expression>" +
-                "<secondary_expression>flags != 26</secondary_expression>" +
+                "<primary-expression>radiance_10 > 13.678</primary-expression>" +
+                "<secondary-expression>flags != 26</secondary-expression>" +
                 "</pixel-value>";
 
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -73,7 +73,7 @@ public class PixelValueScreeningPluginTest {
     @Test
     public void testCreateConfiguration_missingPrimaryExpression() throws JDOMException, IOException {
         final String XML = "<pixel-value>" +
-                "<secondary_expression>flags != 26</secondary_expression>" +
+                "<secondary-expression>flags != 26</secondary-expression>" +
                 "</pixel-value>";
 
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -87,7 +87,7 @@ public class PixelValueScreeningPluginTest {
     @Test
     public void testCreateConfiguration_missingSecondaryExpression() throws JDOMException, IOException {
         final String XML = "<pixel-value>" +
-                "<primary_expression>radiance_10 > 13.678</primary_expression>" +
+                "<primary-expression>radiance_10 > 13.678</primary-expression>" +
                 "</pixel-value>";
 
         final Element rootElement = TestUtil.createDomElement(XML);
