@@ -20,16 +20,69 @@
 
 package com.bc.fiduceo.matchup.screening;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
+import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AtsrAngularScreening implements Screening {
+class AtsrAngularScreening implements Screening {
+
+    private final Interval singlePixel = new Interval(1, 1);
+
+    private Configuration configuration;
+
+    AtsrAngularScreening() {
+        this.configuration = new Configuration();
+    }
 
     @Override
     public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+        final List<SampleSet> resultSet = new ArrayList<>();
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
+        for (final SampleSet sampleSet : sampleSets) {
+            final Sample primary = sampleSet.getPrimary();
+
+            final Array nadirElevArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "view_elev_nadir");
+            final Array fwardElevArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "view_elev_fward");
+
+            double nadirViewZenith = 90.0 - nadirElevArray.getDouble(0);
+            double fwardViewZenith = 90.0 - fwardElevArray.getDouble(0);
+            if (primary.x > 256) {
+                nadirViewZenith *= -1.0;
+                fwardViewZenith *= -1.0;
+            }
+
+            final Sample secondary = sampleSet.getSecondary();
+            final Array satelliteZenithAngleArray = secondaryReader.readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
+            double satZenithAngle = satelliteZenithAngleArray.getDouble(0);
+            if (secondary.x > 204) {
+                satZenithAngle *= -1.0;
+            }
+
+            final double nadirDelta = Math.abs(satZenithAngle - nadirViewZenith);
+            final double fwardDelta = Math.abs(satZenithAngle - fwardViewZenith);
+
+            if (nadirDelta <= configuration.angleDelta || fwardDelta <= configuration.angleDelta) {
+                resultSet.add(sampleSet);
+            }
+        }
+
+        matchupSet.setSampleSets(resultSet);
+    }
+
+    void configure(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    static class Configuration {
+        double angleDelta;
     }
 }

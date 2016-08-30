@@ -55,4 +55,27 @@ public class AtsrAngularScreeningPluginTest {
         assertNotNull(screening);
         assertTrue(screening instanceof AtsrAngularScreening);
     }
+
+    @Test
+    public void testCreateConfiguration() throws JDOMException, IOException {
+        final String XML = "<atsr-angular>" +
+                "<angle-delta>10.0</angle-delta>" +
+                "</atsr-angular>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        AtsrAngularScreening.Configuration configuration = AtsrAngularScreeningPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertEquals(10.0, configuration.angleDelta, 1e-8);
+    }
+
+    @Test
+    public void testCreateConfiguration_noValueSet() throws JDOMException, IOException {
+        final String XML = "<atsr-angular>" +
+                "</atsr-angular>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        AtsrAngularScreening.Configuration configuration = AtsrAngularScreeningPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertEquals(0.0, configuration.angleDelta, 1e-8);
+    }
 }

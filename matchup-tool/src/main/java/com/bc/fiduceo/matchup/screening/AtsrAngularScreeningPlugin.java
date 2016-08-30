@@ -20,17 +20,35 @@
 
 package com.bc.fiduceo.matchup.screening;
 
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
 public class AtsrAngularScreeningPlugin implements ScreeningPlugin {
 
     @Override
     public Screening createScreening(Element element) {
-        return new AtsrAngularScreening();
+        final AtsrAngularScreening.Configuration configuration = createConfiguration(element);
+        final AtsrAngularScreening screening = new AtsrAngularScreening();
+        screening.configure(configuration);
+        return screening;
     }
 
     @Override
     public String getScreeningName() {
         return "atsr-angular";
+    }
+
+    static AtsrAngularScreening.Configuration createConfiguration(Element rootElement) {
+        final AtsrAngularScreening.Configuration configuration = new AtsrAngularScreening.Configuration();
+
+        final Element angleDeltaElement = rootElement.getChild("angle-delta");
+        if (angleDeltaElement != null) {
+            final String value = angleDeltaElement.getValue();
+            if (StringUtils.isNotNullAndNotEmpty(value)) {
+                configuration.angleDelta = Double.parseDouble(value);
+            }
+
+        }
+        return configuration;
     }
 }
