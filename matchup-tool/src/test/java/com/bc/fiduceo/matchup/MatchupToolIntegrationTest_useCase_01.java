@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -28,15 +29,18 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,6 +49,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(DbAndIOTestRunner.class)
@@ -86,7 +91,7 @@ public class MatchupToolIntegrationTest_useCase_01 {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(900)
                 .withMaxPixelDistanceKm(1)   // value in km
-                //.withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
+                .withAtsrAngularScreening(10.0)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
 
@@ -95,6 +100,43 @@ public class MatchupToolIntegrationTest_useCase_01 {
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2006-046", "-end", "2006-046"};
         MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig);
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 0, 1139989007, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 1, -3148.56494140625, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 2, 24461, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_1100", 3, 0, 3, 24554, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_1200", 4, 0, 4, 24608, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_0370", 5, 0, 5, 24518, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_0370", 5, 0, 5, 24518, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_1100", 6, 0, 6, 24556, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_1200", 7, 0, 7, 24606, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_cloud_flags_fward", 8, 0, 8, 98, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_cloud_flags_nadir", 9, 0, 9, 2114, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_confid_flags_fward", 10, 0, 10, 128, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_confid_flags_nadir", 0, 1, 11, 25, mmd);
+            NCTestUtils.assertStringVariable("aatsr-en_file_name", 12, "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1", mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lat_corr_fward", 2, 1, 13, 0.0, mmd);
+
+            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 0, 0, 1400, 1139989478, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 1, 0, 1401, 8, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 2, 0, 1402, 4, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 3, 0, 1403, -32768, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 4, 0, 1404, -2756, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 5, 0, 1405, -2345, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 6, 0, 1406, -2098, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 7, 0, 1407, 7, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 8, 0, 1408, -128, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 9, 0, 1409, 5886.0009765625, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 1410, "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 0, 1, 1411, 1547, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 1, 1, 1412, 11821, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 1, 1413, 82.78500366210938, mmd);
+        }
+
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
@@ -153,5 +195,10 @@ public class MatchupToolIntegrationTest_useCase_01 {
 
             return satelliteObservation;
         }
+    }
+
+    private File getMmdFilePath(UseCaseConfig useCaseConfig) {
+        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2006-046"), TimeUtils.parseDOYEndOfDay("2006-046"));
+        return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 }

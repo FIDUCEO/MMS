@@ -41,7 +41,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
     public MatchupToolUseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
-        final Element sphericalDistance = ensureChild(conditions, DistanceConditionPlugin.TAG_NAME_CONDITION_NAME );
+        final Element sphericalDistance = ensureChild(conditions, DistanceConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
         return this;
     }
@@ -110,6 +110,15 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
             addChild(pixelScreening, "secondary-expression", secondaryExpression);
         }
+
+        return this;
+    }
+
+    UseCaseConfigBuilder withAtsrAngularScreening(double maxAngleDelta) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element angularScreening = ensureChild(screenings, "atsr-angular");
+
+        addChild(angularScreening, "angle-delta", Double.toString(maxAngleDelta));
 
         return this;
     }

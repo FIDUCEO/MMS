@@ -1,5 +1,6 @@
 com.bc.fiduceo.matchup.screening.AngularScreeningPlugin
 com.bc.fiduceo.matchup.screening.AngularCosineProportionScreeningPlugin
+com.bc.fiduceo.matchup.screening.AtsrAngularScreeningPlugin
 com.bc.fiduceo.matchup.screening.BuehlerCloudScreeningPlugin
 com.bc.fiduceo.matchup.screening.HIRS_LZADeltaScreeningPlugin
 com.bc.fiduceo.matchup.screening.PixelValueScreeningPlugin
