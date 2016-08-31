@@ -28,7 +28,6 @@ import org.esa.snap.core.datamodel.PixelPos;
 
 import java.awt.geom.Point2D;
 
-// @todo 2 tb/tb write tests for this class 2016-08-11
 class ATSR_PixelLocator implements PixelLocator {
 
     private final GeoCoding geoCoding;
