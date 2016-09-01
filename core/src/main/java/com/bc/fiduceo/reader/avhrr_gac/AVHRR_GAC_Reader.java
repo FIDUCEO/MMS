@@ -35,6 +35,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.IOException;
@@ -263,6 +264,7 @@ public class AVHRR_GAC_Reader implements Reader {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 final float v = rawData.get(i, j);
+
                 final float milliSeconds = v * 1000;
                 final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
                 times.set(i, j, secondsSince1970);

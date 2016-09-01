@@ -38,6 +38,7 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -543,14 +544,14 @@ public class HIRS_L1C_Reader_IO_Test {
             NCTestUtils.assertValueAt(23, 1, 2, array);
 
             array = reader.readScaled(0, 242, nonSquareInterval, "scanpos");
-            NCTestUtils.assertValueAt(-128, 0, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 0, 2, array);
             NCTestUtils.assertValueAt(0, 1, 2, array);
             NCTestUtils.assertValueAt(1, 2, 2, array);
 
             array = reader.readScaled(55, 242, nonSquareInterval, "scanpos");
             NCTestUtils.assertValueAt(54, 0, 2, array);
             NCTestUtils.assertValueAt(55, 1, 2, array);
-            NCTestUtils.assertValueAt(-128, 2, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 2, 2, array);
 
             array = reader.readScaled(24, 242, interval, "time");
             NCTestUtils.assertValueAt(308767794, 0, 3, array);

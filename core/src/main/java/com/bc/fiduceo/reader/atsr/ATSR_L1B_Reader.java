@@ -144,7 +144,7 @@ class ATSR_L1B_Reader implements Reader {
 
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
-        final double noDataValue = dataNode.getNoDataValue();
+        final double noDataValue = getNoDataValue(dataNode);
         final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getDataType());
         final int[] shape = getShape(interval);
         final Array readArray = Array.factory(targetDataType, shape);
@@ -181,6 +181,26 @@ class ATSR_L1B_Reader implements Reader {
         return targetArray;
     }
 
+    // @todo 2 tb/tb make static, add tests 2016-09-01
+    private double getNoDataValue(RasterDataNode dataNode) {
+        if (dataNode.isNoDataValueUsed()) {
+            return dataNode.getNoDataValue();
+        } else {
+            final int dataType = dataNode.getDataType();
+            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
+        }
+    }
+
+    // @todo 2 tb/tb make static, add tests 2016-09-01
+    private double getGeophysicalNoDataValue(RasterDataNode dataNode) {
+        if (dataNode.isNoDataValueUsed()) {
+            return dataNode.getGeophysicalNoDataValue();
+        } else {
+            final int dataType = dataNode.getDataType();
+            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
+        }
+    }
+
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
@@ -198,7 +218,7 @@ class ATSR_L1B_Reader implements Reader {
 
         readProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final double noDataValue = dataNode.getGeophysicalNoDataValue();
+        final double noDataValue = getGeophysicalNoDataValue(dataNode);
         copyTargetData(readArray, targetArray, width, height, xOffset, yOffset, noDataValue);
 
         return targetArray;

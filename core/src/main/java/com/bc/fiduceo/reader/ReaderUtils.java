@@ -27,6 +27,8 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
+import ucar.nc2.jni.netcdf.Nc4Iosp;
 
 import java.util.Date;
 
@@ -42,6 +44,28 @@ public class ReaderUtils {
         final Class type = array.getDataType().getPrimitiveClassType();
         return getDefaultFillValue(type);
     }
+
+    public static Number getDefaultFillValue(int productDataType) {
+        switch (productDataType) {
+            case ProductData.TYPE_FLOAT64:
+                return getDefaultFillValue(double.class);
+
+            case ProductData.TYPE_FLOAT32:
+                return getDefaultFillValue(float.class);
+
+            case ProductData.TYPE_INT32:
+                return getDefaultFillValue(int.class);
+
+            case ProductData.TYPE_INT16:
+                return getDefaultFillValue(short.class);
+
+            case ProductData.TYPE_INT8:
+                return getDefaultFillValue(byte.class);
+        }
+        throw new RuntimeException("getDefaultFillValue not implemented for type: " + productDataType);
+    }
+
+
 
     public static boolean mustScale(double scaleFactor, double offset) {
         return scaleFactor != 1.0 || offset != 0.0;
@@ -134,17 +158,17 @@ public class ReaderUtils {
 
     private static Number getDefaultFillValue(Class type) {
         if (double.class == type) {
-            return Double.MIN_VALUE;
+            return N3iosp.NC_FILL_DOUBLE;
         } else if (float.class == type) {
-            return Float.MIN_VALUE;
+            return N3iosp.NC_FILL_FLOAT;
         } else if (long.class == type) {
-            return Long.MIN_VALUE;
+            return N3iosp.NC_FILL_LONG;
         } else if (int.class == type) {
-            return Integer.MIN_VALUE;
+            return N3iosp.NC_FILL_INT;
         } else if (short.class == type) {
-            return Short.MIN_VALUE;
+            return N3iosp.NC_FILL_SHORT;
         } else if (byte.class == type) {
-            return Byte.MIN_VALUE;
+            return N3iosp.NC_FILL_BYTE;
         } else {
             throw new RuntimeException("not implemented for type " + type.getTypeName());
         }

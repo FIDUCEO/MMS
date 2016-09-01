@@ -56,6 +56,7 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -891,15 +892,15 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
             NCTestUtils.assertValueAt(2007.0, 0, 0, array);
             NCTestUtils.assertValueAt(2007.0, 1, 0, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 0, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 2, 0, array);
 
             NCTestUtils.assertValueAt(2007.0, 0, 1, array);
             NCTestUtils.assertValueAt(2007.0, 1, 1, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 1, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 2, 1, array);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 2, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 1, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -914,17 +915,17 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertNotNull(array);
             assertEquals(9, array.getSize());
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 0, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 0, array);
             NCTestUtils.assertValueAt(55089942.0, 1, 0, array);
             NCTestUtils.assertValueAt(55089942.0, 2, 0, array);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 1, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 1, array);
             NCTestUtils.assertValueAt(55092609.0, 1, 1, array);
             NCTestUtils.assertValueAt(55092609.0, 2, 1, array);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 2, array);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 1, 2, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -1025,15 +1026,15 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final int centerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60037120).getTime() / 1000);
             final int lowerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60039787).getTime() / 1000);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 1, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 2, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 2, 0, acquisitionTime);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 1, acquisitionTime);
             NCTestUtils.assertValueAt(centerLineTime, 1, 1, acquisitionTime);
             NCTestUtils.assertValueAt(centerLineTime, 2, 1, acquisitionTime);
 
-            NCTestUtils.assertValueAt(Integer.MIN_VALUE, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 2, acquisitionTime);
             NCTestUtils.assertValueAt(lowerLineTime, 1, 2, acquisitionTime);
             NCTestUtils.assertValueAt(lowerLineTime, 2, 2, acquisitionTime);
         } finally {

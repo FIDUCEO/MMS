@@ -44,6 +44,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.IOException;
@@ -349,7 +350,7 @@ public class MmdWriter_IO_Test {
             NCTestUtils.assertScalarVariable("avhrr-n10_x", 0, 0.0, netcdfFile);
             NCTestUtils.assertScalarVariable("avhrr-n10_y", 1, 8982.0, netcdfFile);
             NCTestUtils.assertStringVariable("avhrr-n10_file_name", 2, "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc", netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, 610066698.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, -1.0, netcdfFile);
 
             NCTestUtils.assertScalarVariable("avhrr-n11_x", 4, 408.0, netcdfFile);
             NCTestUtils.assertScalarVariable("avhrr-n11_y", 5, 824.0, netcdfFile);
@@ -358,7 +359,7 @@ public class MmdWriter_IO_Test {
 
             NCTestUtils.assert3DVariable("avhrr-n11_lat", 2, 0, 0, -67.18399810791016, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_lon", 3, 0, 1, -32768.0, netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 2, 1e-45, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 2, N3iosp.NC_FILL_FLOAT, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_ch1", 0, 1, 3, 0.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_ch2", 1, 1, 4, 0.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 2, 1, 5, -2968.0, netcdfFile);
@@ -375,7 +376,7 @@ public class MmdWriter_IO_Test {
 
             NCTestUtils.assert3DVariable("avhrr-n10_lat", 4, 3, 1, -67.66300201416016, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n10_lon", 0, 4, 2, -32768.0, netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n10_dtime", 1, 4, 3, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_dtime", 1, 4, 3, N3iosp.NC_FILL_FLOAT, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n10_ch1", 2, 4, 4, 0.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n10_ch2", 3, 4, 5, 46.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n10_ch3b", 4, 4, 6, -1197.0, netcdfFile);

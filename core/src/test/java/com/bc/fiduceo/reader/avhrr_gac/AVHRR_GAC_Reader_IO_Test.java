@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.IOException;
@@ -414,12 +415,12 @@ public class AVHRR_GAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(6118.99658203125, 5, 7, array);
             NCTestUtils.assertValueAt(6118.99658203125, 6, 7, array);
             NCTestUtils.assertValueAt(6118.99658203125, 7, 7, array);
-            NCTestUtils.assertValueAt(Float.MIN_VALUE, 8, 7, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_FLOAT, 8, 7, array);
 
-            NCTestUtils.assertValueAt(Float.MIN_VALUE, 5, 8, array);
-            NCTestUtils.assertValueAt(Float.MIN_VALUE, 6, 8, array);
-            NCTestUtils.assertValueAt(Float.MIN_VALUE, 7, 8, array);
-            NCTestUtils.assertValueAt(Float.MIN_VALUE, 8, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_FLOAT, 5, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_FLOAT, 6, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_FLOAT, 7, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_FLOAT, 8, 8, array);
         } finally {
             reader.close();
         }
@@ -434,20 +435,20 @@ public class AVHRR_GAC_Reader_IO_Test {
             final Array array = reader.readRaw(2, 12235, new Interval(9, 9), "qual_flags");
             assertNotNull(array);
 
-            NCTestUtils.assertValueAt(-128.0, 0, 0, array);
-            NCTestUtils.assertValueAt(-128.0, 1, 0, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 0, 0, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 1, 0, array);
             NCTestUtils.assertValueAt(17.0, 2, 0, array);
             NCTestUtils.assertValueAt(17.0, 3, 0, array);
 
-            NCTestUtils.assertValueAt(-128.0, 0, 7, array);
-            NCTestUtils.assertValueAt(-128.0, 1, 7, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 0, 7, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 1, 7, array);
             NCTestUtils.assertValueAt(18.0, 2, 7, array);
             NCTestUtils.assertValueAt(18.0, 3, 7, array);
 
-            NCTestUtils.assertValueAt(-128.0, 0, 8, array);
-            NCTestUtils.assertValueAt(-128.0, 1, 8, array);
-            NCTestUtils.assertValueAt(-128.0, 2, 8, array);
-            NCTestUtils.assertValueAt(-128.0, 3, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 0, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 1, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 2, 8, array);
+            NCTestUtils.assertValueAt(N3iosp.NC_FILL_BYTE, 3, 8, array);
         } finally {
             reader.close();
         }

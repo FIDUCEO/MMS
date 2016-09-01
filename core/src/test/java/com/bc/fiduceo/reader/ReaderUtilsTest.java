@@ -20,10 +20,12 @@
 
 package com.bc.fiduceo.reader;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,8 +43,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.DOUBLE);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Double.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_DOUBLE, value);
     }
 
     @Test
@@ -51,8 +52,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.FLOAT);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Float.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_FLOAT, value);
     }
 
     @Test
@@ -61,8 +61,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.LONG);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Long.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_LONG, value);
     }
 
     @Test
@@ -71,8 +70,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.INT);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Integer.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_INT, value);
     }
 
     @Test
@@ -81,8 +79,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.SHORT);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Short.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_SHORT, value);
     }
 
     @Test
@@ -91,8 +88,7 @@ public class ReaderUtilsTest {
         when(mock.getDataType()).thenReturn(DataType.BYTE);
 
         final Number value = ReaderUtils.getDefaultFillValue(mock);
-
-        assertEquals(Byte.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_BYTE, value);
     }
 
     @Test
@@ -115,8 +111,7 @@ public class ReaderUtilsTest {
         when(array.getDataType()).thenReturn(DataType.DOUBLE);
 
         final Number value = ReaderUtils.getDefaultFillValue(array);
-
-        assertEquals(Double.MIN_VALUE, value);
+        assertEquals(N3iosp.NC_FILL_DOUBLE, value);
     }
 
     @Test
@@ -125,8 +120,37 @@ public class ReaderUtilsTest {
         when(array.getDataType()).thenReturn(DataType.LONG);
 
         final Number value = ReaderUtils.getDefaultFillValue(array);
+        assertEquals(N3iosp.NC_FILL_LONG, value);
+    }
 
-        assertEquals(Long.MIN_VALUE, value);
+    @Test
+    public void testGetDefaultFillValue_ProductData_double() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_FLOAT64);
+        assertEquals(N3iosp.NC_FILL_DOUBLE, fillValue.doubleValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_ProductData_float() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_FLOAT32);
+        assertEquals(N3iosp.NC_FILL_FLOAT, fillValue.floatValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_ProductData_int() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_INT32);
+        assertEquals(N3iosp.NC_FILL_INT, fillValue.intValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_ProductData_short() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_INT16);
+        assertEquals(N3iosp.NC_FILL_SHORT, fillValue.shortValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_ProductData_byte() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_INT8);
+        assertEquals(N3iosp.NC_FILL_BYTE, fillValue.byteValue(), 1e-8);
     }
 
     @Test

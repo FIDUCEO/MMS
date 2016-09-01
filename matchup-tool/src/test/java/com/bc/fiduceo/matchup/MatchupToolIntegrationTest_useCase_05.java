@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -133,18 +134,18 @@ public class MatchupToolIntegrationTest_useCase_05 {
             NCTestUtils.assertScalarVariable("hirs-n10_x", 33, 21, mmd);
             NCTestUtils.assertScalarVariable("hirs-n10_y", 35, 643, mmd);
 
-            NCTestUtils.assert3DVariable("hirs-n11_acquisition_time", 1, 0, 1, Integer.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_acquisition_time", 1, 0, 1, N3iosp.NC_FILL_INT, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_bt_ch01", 3, 0, 3, 230.6595001220703, mmd);
-            NCTestUtils.assert3DVariable("hirs-n11_bt_ch02", 0, 1, 5, Float.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_bt_ch02", 0, 1, 5, N3iosp.NC_FILL_FLOAT, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_bt_ch03", 2, 1, 7, 223.0589141845703, mmd);
 
             NCTestUtils.assert3DVariable("hirs-n11_counts_ch01", 4, 1, 9, -1599, mmd);
-            NCTestUtils.assert3DVariable("hirs-n11_counts_ch02", 1, 2, 11, Integer.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_counts_ch02", 1, 2, 11, N3iosp.NC_FILL_INT, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_counts_ch03", 3, 2, 13, -673, mmd);
 
             NCTestUtils.assertStringVariable("hirs-n11_file_name", 15, "NSS.HIRX.NH.D89076.S0557.E0743.B0245152.WI.nc", mmd);
 
-            NCTestUtils.assert3DVariable("hirs-n11_lat", 0, 3, 17, Double.MIN_VALUE, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_lat", 0, 3, 17, N3iosp.NC_FILL_DOUBLE, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_lon", 2, 3, 19, -64.390625, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_lza", 4, 3, 21, 53.71925735473633, mmd);
 
