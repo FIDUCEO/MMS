@@ -35,7 +35,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
-import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.IOException;

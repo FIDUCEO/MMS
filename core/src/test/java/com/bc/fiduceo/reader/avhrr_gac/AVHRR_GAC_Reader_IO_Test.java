@@ -64,7 +64,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_NOAA17() throws IOException {
-        final File file = createAvhrrNOAA17Path();
+        final File file = createAvhrrNOAA17File();
 
         try {
             reader.open(file);
@@ -121,7 +121,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_NOAA18() throws IOException {
-        final File file = createAvhrrNOAA18Path();
+        final File file = createAvhrrNOAA18File();
 
         try {
             reader.open(file);
@@ -177,7 +177,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_NOAA17() throws IOException {
-        final File file = createAvhrrNOAA17Path();
+        final File file = createAvhrrNOAA17File();
 
         try {
             reader.open(file);
@@ -197,7 +197,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_NOAA17_callingTwiceReturnsTheSameObject() throws IOException {
-        final File file = createAvhrrNOAA17Path();
+        final File file = createAvhrrNOAA17File();
 
         try {
             reader.open(file);
@@ -217,7 +217,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_NOAA18() throws IOException {
-        final File file = createAvhrrNOAA18Path();
+        final File file = createAvhrrNOAA18File();
 
         try {
             reader.open(file);
@@ -237,7 +237,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetVariables_NOAA17() throws IOException {
-        final File file = createAvhrrNOAA17Path();
+        final File file = createAvhrrNOAA17File();
 
         try {
             reader.open(file);
@@ -259,7 +259,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_windowCenter() throws Exception {
-        final File file = createAvhrrNOAA18Path();
+        final File file = createAvhrrNOAA18File();
         reader.open(file);
         try {
             final Array array = reader.readRaw(4, 4, new Interval(3, 3), "lon");
@@ -282,7 +282,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_bottomWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -305,7 +305,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_topWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -327,7 +327,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_leftWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -353,7 +353,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_rightWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -379,7 +379,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_topLeftWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -405,7 +405,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_bottomRightWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -428,7 +428,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_bottomLeftWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -456,7 +456,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -481,7 +481,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadScaled_onlyScaling_onePixel() throws IOException, InvalidRangeException {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -497,7 +497,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -522,7 +522,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
         reader.open(avhrrNOAA18Path);
 
         try {
@@ -547,7 +547,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testReadRaw_topRightWindowOut() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
 
         try {
             reader.open(avhrrNOAA18Path);
@@ -578,7 +578,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetProductSize_NOAA18() throws Exception {
-        final File avhrrNOAA18Path = createAvhrrNOAA18Path();
+        final File avhrrNOAA18Path = createAvhrrNOAA18File();
 
         try {
             reader.open(avhrrNOAA18Path);
@@ -594,7 +594,7 @@ public class AVHRR_GAC_Reader_IO_Test {
 
     @Test
     public void testGetProductSize_NOAA17() throws Exception {
-        final File avhrrNOAA17Path = createAvhrrNOAA17Path();
+        final File avhrrNOAA17Path = createAvhrrNOAA17File();
 
         try {
             reader.open(avhrrNOAA17Path);
@@ -608,14 +608,14 @@ public class AVHRR_GAC_Reader_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA17Path() {
+    private File createAvhrrNOAA17File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
     }
 
-    private File createAvhrrNOAA18Path() {
+    private File createAvhrrNOAA18File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());

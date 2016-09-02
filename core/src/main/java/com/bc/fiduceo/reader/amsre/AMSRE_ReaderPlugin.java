@@ -29,7 +29,7 @@ public class AMSRE_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new AMSRE_Reader();
+        return new AMSRE_Reader(geometryFactory);
     }
 
     @Override
