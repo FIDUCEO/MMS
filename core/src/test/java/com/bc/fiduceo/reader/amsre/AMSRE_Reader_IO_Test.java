@@ -22,7 +22,8 @@ package com.bc.fiduceo.reader.amsre;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class AMSRE_Reader_IO_Test {
@@ -62,6 +62,30 @@ public class AMSRE_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 25, 56, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.DESCENDING, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+
+            Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(67, coordinates.length);
+
+            assertEquals(111.96620178222658, coordinates[0].getLon(), 1e-8);
+            assertEquals(83.54039001464844, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-159.9243621826172, coordinates[23].getLon(), 1e-8);
+            assertEquals(-77.13606262207031, coordinates[23].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+
+            final TimeAxis timeAxis = timeAxes[0];
+            coordinates = timeAxis.getGeometry().getCoordinates();
+            final Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 36, 6, time);
         } finally {
             reader.close();
         }
