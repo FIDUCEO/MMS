@@ -66,5 +66,4 @@ public class AVHRR_GAC_ReaderPluginTest {
 
         assertArrayEquals(expected, keys);
     }
-
 }
