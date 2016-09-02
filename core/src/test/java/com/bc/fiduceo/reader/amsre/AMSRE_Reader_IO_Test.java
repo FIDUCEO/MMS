@@ -25,6 +25,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,6 +87,23 @@ public class AMSRE_Reader_IO_Test {
             coordinates = timeAxis.getGeometry().getCoordinates();
             final Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 36, 6, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator() throws IOException {
+        final File file = createAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+            assertTrue(timeLocator instanceof AMSRE_TimeLocator);
+
+            // @todo 1 tb/tb continue here with assertions. Implement TAI to UTC conversion 206-09-02
         } finally {
             reader.close();
         }

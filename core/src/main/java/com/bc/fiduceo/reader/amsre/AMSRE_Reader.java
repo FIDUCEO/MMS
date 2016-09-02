@@ -95,7 +95,8 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemenetd");
+        final Array timeArray = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Time");
+        return new AMSRE_TimeLocator(timeArray);
     }
 
     @Override
