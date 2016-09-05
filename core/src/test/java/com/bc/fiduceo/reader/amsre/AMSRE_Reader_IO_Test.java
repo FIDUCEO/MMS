@@ -29,10 +29,14 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -113,6 +117,36 @@ public class AMSRE_Reader_IO_Test {
             time = timeLocator.getTimeFor(68, 1994);
             assertEquals(1108621529890L, time);
             TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 25, 29, new Date(time));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables() throws IOException, InvalidRangeException {
+        final File file = createAmsreFile();
+
+        try {
+            reader.open(file);
+
+//            final List<Variable> variables = reader.getVariables();
+//            assertEquals(33, variables.size());
+//
+//            Variable variable = variables.get(0);
+//            assertEquals("btemp_nadir_1200", variable.getShortName());
+//            assertEquals(DataType.SHORT, variable.getDataType());
+//
+//            variable = variables.get(12);
+//            assertEquals("reflec_fward_0670", variable.getShortName());
+//            assertEquals(DataType.SHORT, variable.getDataType());
+//
+//            variable = variables.get(23);
+//            assertEquals("lon_corr_fward", variable.getShortName());
+//            assertEquals(DataType.FLOAT, variable.getDataType());
+//
+//            variable = variables.get(32);
+//            assertEquals("view_azimuth_fward", variable.getShortName());
+//            assertEquals(DataType.FLOAT, variable.getDataType());
         } finally {
             reader.close();
         }
