@@ -103,7 +103,16 @@ public class AMSRE_Reader_IO_Test {
             assertNotNull(timeLocator);
             assertTrue(timeLocator instanceof AMSRE_TimeLocator);
 
-            // @todo 1 tb/tb continue here with assertions. Implement TAI to UTC conversion 206-09-02
+            long time = timeLocator.getTimeFor(67, 0);
+            assertEquals(1108618539107L, time);
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 35, 39, new Date(time));
+
+            time = timeLocator.getTimeFor(68, 1000);
+            assertEquals(1108620038998L, time);
+
+            time = timeLocator.getTimeFor(68, 1994);
+            assertEquals(1108621529890L, time);
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 25, 29, new Date(time));
         } finally {
             reader.close();
         }

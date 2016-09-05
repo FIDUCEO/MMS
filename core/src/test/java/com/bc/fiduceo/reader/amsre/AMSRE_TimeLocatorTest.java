@@ -20,22 +20,27 @@
 
 package com.bc.fiduceo.reader.amsre;
 
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.util.TimeUtils;
+import org.junit.Test;
 import ucar.ma2.Array;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class AMSRE_TimeLocator implements TimeLocator {
+public class AMSRE_TimeLocatorTest {
 
-    private final Array timeArray;
+    @Test
+    public void testGetTimeFor() {
+        final Array timeArray = mock(Array.class);
+        when(timeArray.getDouble(21)).thenReturn(3.827722026045922E8);
+        when(timeArray.getDouble(284)).thenReturn(3.827725970760162E8);
+        when(timeArray.getDouble(1570)).thenReturn(3.8277452593631935E8);
 
-    AMSRE_TimeLocator(Array timeArray) {
-        this.timeArray = timeArray;
-    }
+        final AMSRE_TimeLocator timeLocator = new AMSRE_TimeLocator(timeArray);
 
-    @Override
-    public long getTimeFor(int x, int y) {
-        final double lineTaiSeconds = timeArray.getDouble(y);
-        return TimeUtils.tai1993ToUtc(lineTaiSeconds).getTime();
+        assertEquals(1108618570604L, timeLocator.getTimeFor(23, 21));
+        assertEquals(1108618965076L, timeLocator.getTimeFor(24, 284));
+        assertEquals(1108620893936L, timeLocator.getTimeFor(25, 1570));
+
     }
 }
