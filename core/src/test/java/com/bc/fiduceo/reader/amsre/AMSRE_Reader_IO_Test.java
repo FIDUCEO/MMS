@@ -129,24 +129,65 @@ public class AMSRE_Reader_IO_Test {
         try {
             reader.open(file);
 
-//            final List<Variable> variables = reader.getVariables();
-//            assertEquals(33, variables.size());
-//
-//            Variable variable = variables.get(0);
-//            assertEquals("btemp_nadir_1200", variable.getShortName());
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(42, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("Time", variable.getShortName());
+            assertEquals(DataType.DOUBLE, variable.getDataType());
+
+            variable = variables.get(3);
+            assertEquals("Earth_Incidence", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(6);
+            assertEquals("Sun_Azimuth", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(7);
+            assertEquals("Land_Ocean_Flag_6", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(8);
+            assertEquals("6.9V_Res.1_TB", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(11);
+            assertEquals("10.7H_Res.1_TB", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(14);
+            assertEquals("23.8V_Res.1_TB", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(17);
+            assertEquals("36.5H_Res.1_TB", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(20);
+            assertEquals("Scan_Quality_Flag", variable.getShortName());
+            assertEquals(DataType.INT, variable.getDataType());
+
+            variable = variables.get(21);
+            assertEquals("Channel_Quality_Flag_6V", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(24);
+            assertEquals("Channel_Quality_Flag_10H", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(27);
+            assertEquals("Channel_Quality_Flag_23V", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(30);
+            assertEquals("Channel_Quality_Flag_36H", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            // @todo 1 tb/tb continue here 2016-09-05
+//            variable = variables.get(33);
+//            assertEquals("Channel_Quality_Flag_36H", variable.getShortName());
 //            assertEquals(DataType.SHORT, variable.getDataType());
-//
-//            variable = variables.get(12);
-//            assertEquals("reflec_fward_0670", variable.getShortName());
-//            assertEquals(DataType.SHORT, variable.getDataType());
-//
-//            variable = variables.get(23);
-//            assertEquals("lon_corr_fward", variable.getShortName());
-//            assertEquals(DataType.FLOAT, variable.getDataType());
-//
-//            variable = variables.get(32);
-//            assertEquals("view_azimuth_fward", variable.getShortName());
-//            assertEquals(DataType.FLOAT, variable.getDataType());
         } finally {
             reader.close();
         }

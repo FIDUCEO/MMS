@@ -24,25 +24,38 @@ package com.bc.fiduceo.reader.amsre;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 class AMSRE_Reader implements Reader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String[] CHANNEL_QUALITY_FLAG_EXTENSIONS = new String[]{"6V", "6H", "10V", "10H", "18V", "18H", "23V", "23H", "36V", "36H", "89V", "89H"};
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
@@ -116,7 +129,67 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException {
-        throw new RuntimeException("not implemenetd");
+        final List<Variable> variables = new ArrayList<>();
+
+        final Group lowResSwathGroup = netcdfFile.findGroup("Low_Res_Swath");
+        final Group geoLocationGroup = lowResSwathGroup.findGroup("Geolocation_Fields");
+        final List<Variable> geolocationVariables = geoLocationGroup.getVariables();
+        variables.addAll(geolocationVariables);
+
+        final Group dataGroup = lowResSwathGroup.findGroup("Data_Fields");
+        final List<Variable> dataGroupVariables = dataGroup.getVariables();
+        for (final Variable variable : dataGroupVariables) {
+            final String shortName = variable.getShortName();
+            if (shortName.contains("_Res.2_") ||
+                    shortName.contains("_Res.3_") ||
+                    shortName.contains("_Res.4_") ||
+                    shortName.contains("Antenna_Temp_") ||
+                    shortName.contains("Data_Quality") ||
+                    shortName.contains("SPS_Temperature") ||
+                    shortName.contains("Observation_Supplement") ||
+                    shortName.contains("Position_in_Orbit") ||
+                    shortName.contains("Navigation_Data") ||
+                    shortName.contains("Attitude_Data") ||
+                    shortName.contains("SPC_Temperature") ||
+                    shortName.contains("Interpolation_Flag") ||
+                    shortName.contains("Rx_Offset") ||
+                    shortName.contains("Cold_Sky_") ||
+                    shortName.contains("Hot_Load") ||
+                    shortName.contains("(not-resampled)")) {
+                continue;
+            }
+
+            if (shortName.contains("Land_Ocean_Flag")) {
+                // this is a three-d dataset where we currently just pick the lowest layer tb 2016-09-05
+                final int[] shape = variable.getShape();
+                shape[2] = 1;   // pick channel 6
+                final int[] origin = {0, 0, 0};
+                final Section section = new Section(origin, shape);
+                final Variable channelVariable = variable.section(section);
+                channelVariable.setName("Land_Ocean_Flag_6");
+                variables.add(channelVariable);
+                continue;
+            }
+
+            if (shortName.contains("Channel_Quality_Flag_")) {
+                final int[] shape = variable.getShape();
+                shape[1] = 1;   // pick a single layer
+                final int[] origin = {0, 0};
+                String variableNamePrefix = "Channel_Quality_Flag_";
+                for (int i = 0; i < CHANNEL_QUALITY_FLAG_EXTENSIONS.length; i++) {
+                    origin[1] = i;
+                    final Section section = new Section(origin, shape);
+                    final Variable channelVariable = variable.section(section);
+                    channelVariable.setName(variableNamePrefix + CHANNEL_QUALITY_FLAG_EXTENSIONS[i]);
+                    variables.add(channelVariable);
+                }
+                continue;
+            }
+
+            variables.add(variable);
+        }
+
+        return variables;
     }
 
     @Override
@@ -190,12 +263,12 @@ class AMSRE_Reader implements Reader {
     }
 
     private void setGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
-        final Array latitudes  = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Latitude");
-        final Array longitudes= arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Longitude");
+        final Array latitudes = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Latitude");
+        final Array longitudes = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Longitude");
 
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        if (!boundingGeometry.isValid()){
+        if (!boundingGeometry.isValid()) {
             // @todo 2 tb/tb implement splitted polygon approach if we encounter failures here 2016-09-02
             throw new RuntimeException("Detected invalid bounding geometry");
         }
