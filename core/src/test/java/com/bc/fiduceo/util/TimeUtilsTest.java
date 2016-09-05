@@ -170,4 +170,25 @@ public class TimeUtilsTest {
         assertEquals(946771200000L, TimeUtils.mjd2000ToDate(1.0).getTime());
         assertEquals(955324800000L, TimeUtils.mjd2000ToDate(100.0).getTime());
     }
+
+    @Test
+    public void testTai1993ToUtc() {
+        Date utc = TimeUtils.tai1993ToUtc(0.0);
+        TestUtil.assertCorrectUTCDate(1992, 12, 31, 23, 59, 33, 0, utc);
+
+        utc = TimeUtils.tai1993ToUtc(64533786.0);
+        TestUtil.assertCorrectUTCDate(1995, 1, 17, 22, 2, 37, 0, utc);
+
+        utc = TimeUtils.tai1993ToUtc(3.8277217110737616e8);
+        TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 35, 39, 107, utc);
+    }
+
+    @Test
+    public void testGetTaiToUtcOffset() {
+        assertEquals(27L, TimeUtils.getTaiToUtcOffset(709948804));
+        assertEquals(28L, TimeUtils.getTaiToUtcOffset(741484805));
+        assertEquals(29L, TimeUtils.getTaiToUtcOffset(773020806));
+        assertEquals(34L, TimeUtils.getTaiToUtcOffset(1230768007));
+        assertEquals(37L, TimeUtils.getTaiToUtcOffset(1483228808));
+    }
 }

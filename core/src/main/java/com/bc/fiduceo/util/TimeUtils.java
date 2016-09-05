@@ -26,7 +26,6 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class TimeUtils {
 
@@ -34,6 +33,7 @@ public class TimeUtils {
 
     private static final double EPOCH_MJD2000 = 10957.0;
     private static final double MILLIS_PER_DAY = 86400000.0;
+    private static final long TAI_REFERENCE_SECONDS = 725846400L;   // 1993-01-01T00:00:00 as UTC since Epoch
 
     private static ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
 
@@ -145,6 +145,12 @@ public class TimeUtils {
         return new Date(Math.round((EPOCH_MJD2000 + mjd2000) * MILLIS_PER_DAY));
     }
 
+    public static Date tai1993ToUtc(double taiSeconds) {
+        final double taiInstant = TAI_REFERENCE_SECONDS + taiSeconds;
+        final double utcInstant = taiInstant - getTaiToUtcOffset(taiInstant);
+        return new Date((long) (utcInstant * 1000L));
+    }
+
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {
         @Override
         protected Calendar initialValue() {
@@ -160,5 +166,33 @@ public class TimeUtils {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         return calendar;
+    }
+
+    static long getTaiToUtcOffset(double taiInstant) {
+        if (taiInstant > 1483228800) {
+            return 37L;
+        } else if (taiInstant > 1435708800) {
+            return 36L;
+        } else if (taiInstant > 1341100800) {
+            return 35L;
+        } else if (taiInstant > 1230768000) {
+            return 34L;
+        } else if (taiInstant > 1136073600) {
+            return 33L;
+        } else if (taiInstant > 915148800) {
+            return 32L;
+        } else if (taiInstant > 867715200) {
+            return 31L;
+        } else if (taiInstant > 820454400) {
+            return 30L;
+        } else if (taiInstant > 773020800) {
+            return 29L;
+        } else if (taiInstant > 741484800) {
+            return 28L;
+        } else if (taiInstant > 709948800) {
+            return 27L;
+        }
+
+        throw new RuntimeException("unsupported time range");
     }
 }
