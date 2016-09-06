@@ -31,10 +31,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -153,7 +150,19 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemenetd");
+        Array array = readRaw(centerX, centerY, interval, variableName);
+        if (variableName.equals("Land_Ocean_Flag_6") || variableName.contains("Channel_Quality_Flag_")) {
+            return array;
+        }
+
+        final String groupName = getGroupNameForVariable(variableName);
+        double scaleFactor = getScaleFactor(groupName, variableName);
+        double offset = getOffset(groupName, variableName);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 
     @Override
@@ -355,5 +364,23 @@ class AMSRE_Reader implements Reader {
             }
         }
         throw new RuntimeException("Invalid channel variable extension: " + channelQualityFlagName);
+    }
+
+    // @todo 3 tb/tb copied from AVHRR reader - move to common helper class 2016-09-06
+    private double getOffset(String groupName, String variableName) throws IOException {
+        final Number offsetValue = arrayCache.getNumberAttributeValue("OFFSET", groupName, variableName);
+        if (offsetValue != null) {
+            return offsetValue.doubleValue();
+        }
+        return 0.0;
+    }
+
+    // @todo 3 tb/tb copied from AVHRR reader - move to common helper class 2016-09-06
+    private double getScaleFactor(String groupName, String variableName) throws IOException {
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue("SCALE_FACTOR", groupName, variableName);
+        if (scaleFactorValue != null) {
+            return scaleFactorValue.doubleValue();
+        }
+        return 1.0;
     }
 }

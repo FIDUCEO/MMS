@@ -275,6 +275,53 @@ public class AMSRE_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScaled() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(7, 7);
+            Array array = reader.readScaled(156, 533, interval, "Latitude");
+            NCTestUtils.assertValueAt(42.16802215576172, 0, 0, array);
+            NCTestUtils.assertValueAt(42.17781066894531, 1, 0, array);
+            NCTestUtils.assertValueAt(42.18836975097656, 2, 0, array);
+
+            array = reader.readScaled(157, 534, interval, "Sun_Elevation");
+            NCTestUtils.assertValueAt(84.50000125914812, 3, 0, array);
+            NCTestUtils.assertValueAt(84.400001257658, 4, 0, array);
+            NCTestUtils.assertValueAt(84.400001257658, 5, 0, array);
+
+            array = reader.readScaled(158, 535, interval, "Land_Ocean_Flag_6");
+            NCTestUtils.assertValueAt(0, 6, 0, array);
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+
+            array = reader.readScaled(159, 536, interval, "10.7V_Res.1_TB");
+            NCTestUtils.assertValueAt(170.6299961861223, 2, 1, array);
+            NCTestUtils.assertValueAt(170.48999618925154, 3, 1, array);
+            NCTestUtils.assertValueAt(170.36999619193375, 4, 1, array);
+
+            array = reader.readScaled(160, 537, interval, "18.7H_Res.1_TB");
+            NCTestUtils.assertValueAt(123.63999723643064, 5, 1, array);
+            NCTestUtils.assertValueAt(123.36999724246562, 6, 1, array);
+            NCTestUtils.assertValueAt(125.73999718949199, 0, 2, array);
+
+            array = reader.readScaled(161, 538, interval, "Scan_Quality_Flag");
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+            NCTestUtils.assertValueAt(0, 3, 2, array);
+
+            array = reader.readScaled(162, 539, interval, "Channel_Quality_Flag_89H");
+            NCTestUtils.assertValueAt(11, 4, 2, array);
+            NCTestUtils.assertValueAt(11, 5, 2, array);
+            NCTestUtils.assertValueAt(11, 6, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
 //    @Test
 //    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
     // @todo 1 tb/tb uncomment and implement correctly 2016-09-06
