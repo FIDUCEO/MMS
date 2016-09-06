@@ -91,4 +91,30 @@ public class AMSRE_ReaderTest {
         AMSRE_Reader.assignNodeType(acquisitionInfo, "quer");
         assertEquals(NodeType.UNDEFINED, acquisitionInfo.getNodeType());
     }
+
+    @Test
+    public void testGetGroupNameForVariable() {
+        assertEquals("Low_Res_Swath/Geolocation_Fields", AMSRE_Reader.getGroupNameForVariable("Time"));
+        assertEquals("Low_Res_Swath/Geolocation_Fields", AMSRE_Reader.getGroupNameForVariable("Latitude"));
+        assertEquals("Low_Res_Swath/Geolocation_Fields", AMSRE_Reader.getGroupNameForVariable("Longitude"));
+
+        assertEquals("Low_Res_Swath/Data_Fields", AMSRE_Reader.getGroupNameForVariable("Earth_Incidence"));
+        assertEquals("Low_Res_Swath/Data_Fields", AMSRE_Reader.getGroupNameForVariable("36.5H_Res.1_TB"));
+    }
+
+    @Test
+    public void testGetLayerIndexFromChannelFlagName() {
+        assertEquals(0, AMSRE_Reader.getLayerIndexFromChannelFlagName("Channel_Quality_Flag_6V"));
+        assertEquals(3, AMSRE_Reader.getLayerIndexFromChannelFlagName("Channel_Quality_Flag_10H"));
+        assertEquals(11, AMSRE_Reader.getLayerIndexFromChannelFlagName("Channel_Quality_Flag_89H"));
+    }
+
+    @Test
+    public void testGetLayerIndexFromChannelFlagName_invalidExtension() {
+        try {
+            AMSRE_Reader.getLayerIndexFromChannelFlagName("Channel_Quality_Flag_made_up");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }

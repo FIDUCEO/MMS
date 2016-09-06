@@ -29,13 +29,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -56,6 +50,10 @@ class AMSRE_Reader implements Reader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String[] CHANNEL_QUALITY_FLAG_EXTENSIONS = new String[]{"6V", "6H", "10V", "10H", "18V", "18H", "23V", "23H", "36V", "36H", "89V", "89H"};
+    private static final String LO_RES_SWATH_GEO_GROUP = "Low_Res_Swath/Geolocation_Fields";
+    private static final String LO_RES_SWATH_DATA_GROUP = "Low_Res_Swath/Data_Fields";
+    private static final String LAND_OCEAN_FLAGS_NAME = "Land_Ocean_Flag_for_6_10_18_23_36_50_89A";
+    private static final String CHANNEL_QUALITY_FLAGS_NAME = "Channel_Quality_Flag_6_to_52";
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
@@ -108,13 +106,49 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        final Array timeArray = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Time");
+        final Array timeArray = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Time");
         return new AMSRE_TimeLocator(timeArray);
     }
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemenetd");
+        if (variableName.equals("Land_Ocean_Flag_6")) {
+            return readLandOceanFlag(centerX, centerY, interval);
+        }
+        if (variableName.contains("Channel_Quality_Flag_")) {
+            return readChannelQualityFlag(variableName, centerX, centerY, interval);
+        }
+        final String groupName = getGroupNameForVariable(variableName);
+        final Array rawArray = arrayCache.get(groupName, variableName);
+        final Number fillValue = getFillValue(groupName, variableName);
+
+        final Dimension productSize = getProductSize();
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
+    }
+
+    private Array readChannelQualityFlag(String variableName, int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+        final Array rawArray = arrayCache.get(LO_RES_SWATH_DATA_GROUP, CHANNEL_QUALITY_FLAGS_NAME);
+        final Number fillValue = getFillValue(LO_RES_SWATH_DATA_GROUP, CHANNEL_QUALITY_FLAGS_NAME);
+        final Dimension productSize = getProductSize();
+
+        final int layerIndex = getLayerIndexFromChannelFlagName(variableName);
+        final int[] shape = rawArray.getShape();
+        shape[1] = 1;
+        final int[] origins = {0, layerIndex};
+        final Array channelLayer = rawArray.section(origins, shape);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, channelLayer, productSize.getNx());
+    }
+
+    private Array readLandOceanFlag(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+        final Array rawArray = arrayCache.get(LO_RES_SWATH_DATA_GROUP, LAND_OCEAN_FLAGS_NAME);
+        final Number fillValue = getFillValue(LO_RES_SWATH_DATA_GROUP, LAND_OCEAN_FLAGS_NAME);
+        final Dimension productSize = getProductSize();
+
+        final int[] shape = rawArray.getShape();
+        shape[2] = 1;
+        final int[] origins = {0, 0, 0};
+        final Array channel6Layer = rawArray.section(origins, shape);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, channel6Layer, productSize.getNx());
     }
 
     @Override
@@ -131,12 +165,11 @@ class AMSRE_Reader implements Reader {
     public List<Variable> getVariables() throws InvalidRangeException {
         final List<Variable> variables = new ArrayList<>();
 
-        final Group lowResSwathGroup = netcdfFile.findGroup("Low_Res_Swath");
-        final Group geoLocationGroup = lowResSwathGroup.findGroup("Geolocation_Fields");
+        final Group geoLocationGroup = netcdfFile.findGroup(LO_RES_SWATH_GEO_GROUP);
         final List<Variable> geolocationVariables = geoLocationGroup.getVariables();
         variables.addAll(geolocationVariables);
 
-        final Group dataGroup = lowResSwathGroup.findGroup("Data_Fields");
+        final Group dataGroup = netcdfFile.findGroup(LO_RES_SWATH_DATA_GROUP);
         final List<Variable> dataGroupVariables = dataGroup.getVariables();
         for (final Variable variable : dataGroupVariables) {
             final String shortName = variable.getShortName();
@@ -155,19 +188,21 @@ class AMSRE_Reader implements Reader {
                     shortName.contains("Rx_Offset") ||
                     shortName.contains("Cold_Sky_") ||
                     shortName.contains("Hot_Load") ||
-                    shortName.contains("(not-resampled)")) {
+                    shortName.contains("(not-resampled)") ||
+                    shortName.contains("Resampled_Channel_Quality_Flag") ||
+                    shortName.contains("Effective_Cold_Space") ||
+                    shortName.contains("Effective_Hot_Load") ||
+                    shortName.contains("Res2_Surf") ||
+                    shortName.contains("Res3_Surf") ||
+                    shortName.contains("Res4_Surf") ||
+                    shortName.contains("Sun_Glint") ||
+                    shortName.contains("Geostationary")) {
                 continue;
             }
 
             if (shortName.contains("Land_Ocean_Flag")) {
                 // this is a three-d dataset where we currently just pick the lowest layer tb 2016-09-05
-                final int[] shape = variable.getShape();
-                shape[2] = 1;   // pick channel 6
-                final int[] origin = {0, 0, 0};
-                final Section section = new Section(origin, shape);
-                final Variable channelVariable = variable.section(section);
-                channelVariable.setName("Land_Ocean_Flag_6");
-                variables.add(channelVariable);
+                addLandOceanChannel6Layer(variables, variable);
                 continue;
             }
 
@@ -194,7 +229,9 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemenetd");
+        final Array latitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Latitude");
+        final int[] shape = latitudes.getShape();
+        return new Dimension("lat", shape[1], shape[0]);
     }
 
     // Package access for testing only tb 2016-09-02
@@ -224,6 +261,25 @@ class AMSRE_Reader implements Reader {
         } else {
             acquisitionInfo.setNodeType(NodeType.UNDEFINED);
         }
+    }
+
+    // Package access for testing only tb 2016-09-06
+    static String getGroupNameForVariable(String variableName) {
+        if (variableName.equals("Time") || variableName.equals("Longitude") || variableName.equals("Latitude")) {
+            return LO_RES_SWATH_GEO_GROUP;
+        }
+
+        return LO_RES_SWATH_DATA_GROUP;
+    }
+
+    private void addLandOceanChannel6Layer(List<Variable> variables, Variable variable) throws InvalidRangeException {
+        final int[] shape = variable.getShape();
+        shape[2] = 1;   // pick channel 6
+        final int[] origin = {0, 0, 0};
+        final Section section = new Section(origin, shape);
+        final Variable channelVariable = variable.section(section);
+        channelVariable.setName("Land_Ocean_Flag_6");
+        variables.add(channelVariable);
     }
 
     private Attribute getGlobalAttributeSafe(String attributeName) {
@@ -263,8 +319,8 @@ class AMSRE_Reader implements Reader {
     }
 
     private void setGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
-        final Array latitudes = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Latitude");
-        final Array longitudes = arrayCache.get("Low_Res_Swath/Geolocation_Fields", "Longitude");
+        final Array latitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Latitude");
+        final Array longitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Longitude");
 
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
@@ -279,5 +335,25 @@ class AMSRE_Reader implements Reader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+    }
+
+    private Number getFillValue(String groupName, String variableName) throws IOException {
+        final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", groupName, variableName);
+        if (fillValue != null) {
+            return fillValue;
+        }
+        final Array array = arrayCache.get(groupName, variableName);
+        return ReaderUtils.getDefaultFillValue(array);
+    }
+
+    static int getLayerIndexFromChannelFlagName(String channelQualityFlagName) {
+        final int extensionIndex = channelQualityFlagName.lastIndexOf("_") + 1;
+        final String extension = channelQualityFlagName.substring(extensionIndex, channelQualityFlagName.length());
+        for (int i = 0; i < CHANNEL_QUALITY_FLAG_EXTENSIONS.length; i++) {
+            if (CHANNEL_QUALITY_FLAG_EXTENSIONS[i].equals(extension)) {
+                return i;
+            }
+        }
+        throw new RuntimeException("Invalid channel variable extension: " + channelQualityFlagName);
     }
 }

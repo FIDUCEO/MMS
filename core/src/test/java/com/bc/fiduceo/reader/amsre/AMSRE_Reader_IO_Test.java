@@ -21,7 +21,10 @@
 package com.bc.fiduceo.reader.amsre;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -29,6 +32,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -54,7 +58,7 @@ public class AMSRE_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo() throws IOException {
-        final File file = createAmsreFile();
+        final File file = getAmsreFile();
 
         try {
             reader.open(file);
@@ -98,7 +102,7 @@ public class AMSRE_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator() throws IOException {
-        final File file = createAmsreFile();
+        final File file = getAmsreFile();
 
         try {
             reader.open(file);
@@ -124,13 +128,13 @@ public class AMSRE_Reader_IO_Test {
 
     @Test
     public void testGetVariables() throws IOException, InvalidRangeException {
-        final File file = createAmsreFile();
+        final File file = getAmsreFile();
 
         try {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(42, variables.size());
+            assertEquals(34, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("Time", variable.getShortName());
@@ -184,16 +188,116 @@ public class AMSRE_Reader_IO_Test {
             assertEquals("Channel_Quality_Flag_36H", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
 
-            // @todo 1 tb/tb continue here 2016-09-05
-//            variable = variables.get(33);
-//            assertEquals("Channel_Quality_Flag_36H", variable.getShortName());
-//            assertEquals(DataType.SHORT, variable.getDataType());
+            variable = variables.get(33);
+            assertEquals("Res1_Surf", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
         } finally {
             reader.close();
         }
     }
 
-    private File createAmsreFile() {
+    @Test
+    public void testGetProductSize() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(243, productSize.getNx());
+            assertEquals(1995, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(25, 333, interval, "Time");
+            NCTestUtils.assertValueAt(3.827726675720466E8, 0, 0, array);
+            NCTestUtils.assertValueAt(3.827726675720466E8, 1, 0, array);
+
+            array = reader.readRaw(26, 334, interval, "Longitude");
+            NCTestUtils.assertValueAt(-60.86850357055664, 2, 0, array);
+            NCTestUtils.assertValueAt(-60.78384017944336, 3, 0, array);
+            NCTestUtils.assertValueAt(-60.69780349731445, 4, 0, array);
+
+            array = reader.readRaw(27, 335, interval, "Earth_Azimuth");
+            NCTestUtils.assertValueAt(-11544, 0, 1, array);
+            NCTestUtils.assertValueAt(-11598, 1, 1, array);
+            NCTestUtils.assertValueAt(-11652, 2, 1, array);
+
+            array = reader.readRaw(28, 395, interval, "Land_Ocean_Flag_6");
+            NCTestUtils.assertValueAt(0, 2, 0, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+            NCTestUtils.assertValueAt(1, 2, 3, array);
+            NCTestUtils.assertValueAt(5, 2, 4, array);
+
+            array = reader.readRaw(28, 396, interval, "6.9H_Res.1_TB");
+            NCTestUtils.assertValueAt(-11083, 3, 1, array);
+            NCTestUtils.assertValueAt(-11132, 4, 1, array);
+            NCTestUtils.assertValueAt(-11213, 0, 2, array);
+
+            // check one px at the swath borders to check fill value handling tb 2016-09-06
+            array = reader.readRaw(241, 397, interval, "18.7V_Res.1_TB");
+            NCTestUtils.assertValueAt(-14200, 2, 2, array);
+            NCTestUtils.assertValueAt(-14182, 3, 2, array);
+            NCTestUtils.assertValueAt(-32767, 4, 2, array);
+
+            array = reader.readRaw(29, 398, interval, "Scan_Quality_Flag");
+            NCTestUtils.assertValueAt(0, 0, 3, array);
+            NCTestUtils.assertValueAt(0, 1, 3, array);
+            NCTestUtils.assertValueAt(0, 2, 3, array);
+
+            array = reader.readRaw(1, 1, interval, "Channel_Quality_Flag_10V");
+            NCTestUtils.assertValueAt(-32767, 2, 0, array);
+            NCTestUtils.assertValueAt(7, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+
+            array = reader.readRaw(2, 2, interval, "Channel_Quality_Flag_89V");
+            NCTestUtils.assertValueAt(7, 3, 0, array);
+            NCTestUtils.assertValueAt(11, 3, 1, array);
+            NCTestUtils.assertValueAt(11, 3, 2, array);
+
+            array = reader.readRaw(30, 399, interval, "Res1_Surf");
+            NCTestUtils.assertValueAt(75, 4, 1, array);
+            NCTestUtils.assertValueAt(94, 4, 2, array);
+            NCTestUtils.assertValueAt(130, 4, 3, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+//    @Test
+//    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+    // @todo 1 tb/tb uncomment and implement correctly 2016-09-06
+//        final File file = getAmsreFile();
+//
+//        try {
+//            reader.open(file);
+//
+//            final Interval interval = new Interval(3, 3);
+//            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(72, 1107, interval);
+//            assertNotNull(acquisitionTime);
+//            final Index index = acquisitionTime.getIndex();
+//
+//            index.set(0, 0);
+//            assertEquals(893397855, acquisitionTime.getInt(index));
+//
+//
+//        } finally {
+//            reader.close();
+//        }
+//    }
+
+    private File getAmsreFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsre-aq", "v12", "2005", "02", "17", "AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
