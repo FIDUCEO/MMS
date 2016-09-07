@@ -47,9 +47,10 @@ public class IngestionToolIntegrationTest {
 
     private File configDir;
     private GeometryFactory geometryFactory;
+    private Storage storage;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
@@ -57,6 +58,7 @@ public class IngestionToolIntegrationTest {
         }
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
     }
 
     @After
@@ -83,7 +85,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AVHRR_GAC_NOAA17() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n17", "-start", "2007-091", "-end", "2007-093", "-v", "1.01"};
 
         try {
@@ -132,7 +133,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AVHRR_GAC_NOAA18() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n18", "-start", "2007-090", "-end", "2007-092", "-v", "1.02"};
 
         try {
@@ -181,7 +181,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AMSUB_NOAA15() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
@@ -229,7 +228,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AMSUB_NOAA15_twice() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
@@ -249,7 +247,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_MHS_NOAA18() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mhs-n18", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
@@ -297,7 +294,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_HIRS_TIROSN() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-tn", "-start", "1979-286", "-end", "1979-288", "-v", "1.0"};
 
         try {
@@ -347,7 +343,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_HIRS_NOAA10() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-n10", "-start", "1989-076", "-end", "1989-077", "-v", "1.0"};
 
         try {
@@ -397,7 +392,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_HIRS_METOPA() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-ma", "-start", "2011-234", "-end", "2011-236", "-v", "1.0"};
 
         try {
@@ -447,7 +441,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_ATSR1() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e1", "-start", "1993-217", "-end", "1993-217", "-v", "v3"};
 
         try {
@@ -489,7 +482,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_ATSR2() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e2", "-start", "1998-114", "-end", "1998-114", "-v", "v3"};
 
         try {
@@ -531,7 +523,6 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AATSR() throws SQLException, IOException, ParseException {
-        final Storage storage = Storage.create(TestUtil.getdatasourceMongoDb(), new GeometryFactory(GeometryFactory.Type.S2));
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "aatsr-en", "-start", "2006-046", "-end", "2006-046", "-v", "v3"};
 
         try {
@@ -565,6 +556,47 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2006, 2, 15, 7, 8, 52, 812, timeAxes[0].getStartTime());
             TestUtil.assertCorrectUTCDate(2006, 2, 15, 8, 57, 40, 662, timeAxes[0].getEndTime());
             assertEquals(TestData.AATSR_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_AMSRE() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsre-aq", "-start", "2005-048", "-end", "2005-048", "-v", "v12"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf", satelliteObservations);
+
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 36, 6, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 25, 56, 0, observation.getStopTime());
+            assertEquals("amsre-aq", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsre-aq", "v12", "2005", "02", "17", "AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.DESCENDING, observation.getNodeType());
+            assertEquals("v12", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+
+            assertEquals(TestData.AMSRE_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 36, 6, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 25, 56, 0, timeAxes[0].getEndTime());
+            assertEquals(TestData.AMSRE_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
         } finally {
             storage.clear();
             storage.close();
