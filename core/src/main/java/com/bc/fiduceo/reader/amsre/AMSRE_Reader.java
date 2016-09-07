@@ -61,9 +61,11 @@ class AMSRE_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
+    private final VariableNamesConverter namesConverter;
 
     AMSRE_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+        namesConverter = new VariableNamesConverter();
     }
 
     @Override
@@ -129,9 +131,11 @@ class AMSRE_Reader implements Reader {
         if (variableName.contains("Channel_Quality_Flag_")) {
             return readChannelQualityFlag(variableName, centerX, centerY, interval);
         }
-        final String groupName = getGroupNameForVariable(variableName);
-        final Array rawArray = arrayCache.get(groupName, variableName);
-        final Number fillValue = getFillValue(groupName, variableName);
+
+        final String hdfVariableName = namesConverter.toHdf(variableName);
+        final String groupName = getGroupNameForVariable(hdfVariableName);
+        final Array rawArray = arrayCache.get(groupName, hdfVariableName);
+        final Number fillValue = getFillValue(groupName, hdfVariableName);
 
         final Dimension productSize = getProductSize();
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
@@ -169,9 +173,10 @@ class AMSRE_Reader implements Reader {
             return array;
         }
 
-        final String groupName = getGroupNameForVariable(variableName);
-        double scaleFactor = getScaleFactor(groupName, variableName);
-        double offset = getOffset(groupName, variableName);
+        final String hdfVariableName = namesConverter.toHdf(variableName);
+        final String groupName = getGroupNameForVariable(hdfVariableName);
+        double scaleFactor = getScaleFactor(groupName, hdfVariableName);
+        double offset = getOffset(groupName, hdfVariableName);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -252,6 +257,8 @@ class AMSRE_Reader implements Reader {
                 continue;
             }
 
+            final String mmsName = namesConverter.toMms(variable.getShortName());
+            variable.setName(mmsName);
             variables.add(variable);
         }
 

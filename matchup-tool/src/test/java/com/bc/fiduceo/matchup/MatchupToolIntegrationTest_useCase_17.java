@@ -256,12 +256,14 @@ public class MatchupToolIntegrationTest_useCase_17 {
             satelliteObservation.setDataFilePath(absolutePath);
             satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
             satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
+            satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
             satelliteObservation.setVersion("v1.0");
 
             return satelliteObservation;
         }
     }
 
+    // @todo 1 tb/tb move to generic base class 2016-09-07
     private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
         final File useCaseConfigFile = new File(configDir, "usecase-17.xml");
         final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);

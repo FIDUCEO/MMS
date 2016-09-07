@@ -157,19 +157,19 @@ public class AMSRE_Reader_IO_Test {
             assertEquals(DataType.BYTE, variable.getDataType());
 
             variable = variables.get(8);
-            assertEquals("6.9V_Res.1_TB", variable.getShortName());
+            assertEquals("6_9V_Res_1_TB", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
 
             variable = variables.get(11);
-            assertEquals("10.7H_Res.1_TB", variable.getShortName());
+            assertEquals("10_7H_Res_1_TB", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
 
             variable = variables.get(14);
-            assertEquals("23.8V_Res.1_TB", variable.getShortName());
+            assertEquals("23_8V_Res_1_TB", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
 
             variable = variables.get(17);
-            assertEquals("36.5H_Res.1_TB", variable.getShortName());
+            assertEquals("36_5H_Res_1_TB", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
 
             variable = variables.get(20);
@@ -244,13 +244,13 @@ public class AMSRE_Reader_IO_Test {
             NCTestUtils.assertValueAt(1, 2, 3, array);
             NCTestUtils.assertValueAt(5, 2, 4, array);
 
-            array = reader.readRaw(28, 396, interval, "6.9H_Res.1_TB");
+            array = reader.readRaw(28, 396, interval, "6_9H_Res_1_TB");
             NCTestUtils.assertValueAt(-11083, 3, 1, array);
             NCTestUtils.assertValueAt(-11132, 4, 1, array);
             NCTestUtils.assertValueAt(-11213, 0, 2, array);
 
             // check one px at the swath borders to check fill value handling tb 2016-09-06
-            array = reader.readRaw(241, 397, interval, "18.7V_Res.1_TB");
+            array = reader.readRaw(241, 397, interval, "18_7V_Res_1_TB");
             NCTestUtils.assertValueAt(-14200, 2, 2, array);
             NCTestUtils.assertValueAt(-14182, 3, 2, array);
             NCTestUtils.assertValueAt(-32767, 4, 2, array);
@@ -302,12 +302,12 @@ public class AMSRE_Reader_IO_Test {
             NCTestUtils.assertValueAt(0, 0, 1, array);
             NCTestUtils.assertValueAt(0, 1, 1, array);
 
-            array = reader.readScaled(159, 536, interval, "10.7V_Res.1_TB");
+            array = reader.readScaled(159, 536, interval, "10_7V_Res_1_TB");
             NCTestUtils.assertValueAt(170.6299961861223, 2, 1, array);
             NCTestUtils.assertValueAt(170.48999618925154, 3, 1, array);
             NCTestUtils.assertValueAt(170.36999619193375, 4, 1, array);
 
-            array = reader.readScaled(160, 537, interval, "18.7H_Res.1_TB");
+            array = reader.readScaled(160, 537, interval, "18_7H_Res_1_TB");
             NCTestUtils.assertValueAt(123.63999723643064, 5, 1, array);
             NCTestUtils.assertValueAt(123.36999724246562, 6, 1, array);
             NCTestUtils.assertValueAt(125.73999718949199, 0, 2, array);
