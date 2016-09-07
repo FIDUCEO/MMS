@@ -28,58 +28,24 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
-import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_useCase_02 {
-
-    private File configDir;
-    private Storage storage;
-    private GeometryFactory geometryFactory;
-
-    @Before
-    public void setUp() throws SQLException {
-        final File testDirectory = TestUtil.createTestDirectory();
-        configDir = new File(testDirectory, "config");
-        if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
-        }
-
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
-        storage.clear();
-        storage.initialize();
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        if (storage != null) {
-            storage.clear();
-            storage.close();
-        }
-
-        TestUtil.deleteTestDirectory();
-    }
+public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegrationTest {
 
     @Test
     public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException, InvalidRangeException {
@@ -87,9 +53,9 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(22)
-                    .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+                .withTimeDeltaSeconds(22)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -98,7 +64,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
         assertFalse(mmdFile.isFile());
     }
 
@@ -108,11 +74,11 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
-                    .withMaxPixelDistanceKm(3)   // value in km
-                    .withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
-                    .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+                .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
+                .withMaxPixelDistanceKm(3)   // value in km
+                .withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -120,7 +86,7 @@ public class MatchupToolIntegrationTest_useCase_02 {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
@@ -168,9 +134,9 @@ public class MatchupToolIntegrationTest_useCase_02 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval
-                    .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+                .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
         insert_AVHRR_GAC_NOAA17();
         insert_AVHRR_GAC_NOAA18();
@@ -179,13 +145,8 @@ public class MatchupToolIntegrationTest_useCase_02 {
 
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
         assertFalse(mmdFile.isFile());
-    }
-
-    private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
-        return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
@@ -202,15 +163,6 @@ public class MatchupToolIntegrationTest_useCase_02 {
         storage.insert(noaa17);
     }
 
-    private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
-        final File useCaseConfigFile = new File(configDir, "usecase-02.xml");
-        final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
-        useCaseConfig.store(outputStream);
-        outputStream.close();
-
-        return useCaseConfigFile;
-    }
-
     private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("avhrr-n17");
@@ -223,8 +175,8 @@ public class MatchupToolIntegrationTest_useCase_02 {
         dimensions.add(new Dimension("avhrr-n18", 5, 5));
 
         return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd02")
-                    .withSensors(sensorList)
-                    .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath())
-                    .withDimensions(dimensions);
+                .withSensors(sensorList)
+                .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-02").getPath())
+                .withDimensions(dimensions);
     }
 }

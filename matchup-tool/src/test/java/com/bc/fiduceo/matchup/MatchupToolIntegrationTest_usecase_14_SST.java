@@ -26,57 +26,19 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
-import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderFactory;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
-
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_usecase_14_SST {
-
-    private File configDir;
-    private Storage storage;
-    private GeometryFactory geometryFactory;
-
-    @Before
-    public void setUp() throws SQLException {
-        final File testDirectory = TestUtil.createTestDirectory();
-        configDir = new File(testDirectory, "config");
-        if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
-        }
-
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
-        storage.clear();
-        storage.initialize();
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        if (storage != null) {
-            storage.clear();
-            storage.close();
-        }
-
-        TestUtil.deleteTestDirectory();
-    }
+public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIntegrationTest {
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
@@ -86,8 +48,8 @@ public class MatchupToolIntegrationTest_usecase_14_SST {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(2100)
                 .withMaxPixelDistanceKm(1.41f).
-                createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+                        createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
 
         insert_AATSR();
         insert_AMSRE();
@@ -96,15 +58,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
         MatchupToolMain.main(args);
 
-    }
-
-    private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
-        final File useCaseConfigFile = new File(configDir, "usecase-14_sst.xml");
-        final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
-        useCaseConfig.store(outputStream);
-        outputStream.close();
-
-        return useCaseConfigFile;
+        // @todo 1 tb/tb assertions 2016-09-07
     }
 
     private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
@@ -143,24 +97,4 @@ public class MatchupToolIntegrationTest_usecase_14_SST {
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
         storage.insert(satelliteObservation);
     }
-
-    private SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
-        try (Reader reader = readerFactory.getReader(sensorKey)) {
-            reader.open(new File(absolutePath));
-            final AcquisitionInfo acquisitionInfo = reader.read();
-            final SatelliteObservation satelliteObservation = new SatelliteObservation();
-            satelliteObservation.setSensor(new Sensor(sensorKey));
-            satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
-            satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-            satelliteObservation.setDataFilePath(absolutePath);
-            satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
-            satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
-            satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
-            satelliteObservation.setVersion(version);
-
-            return satelliteObservation;
-        }
-    }
-
 }

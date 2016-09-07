@@ -21,23 +21,13 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.NCTestUtils;
-import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
-import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -45,45 +35,17 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_useCase_05 {
-
-    private File configDir;
-    private Storage storage;
-    private GeometryFactory geometryFactory;
-
-    @Before
-    public void setUp() throws SQLException {
-        final File testDirectory = TestUtil.createTestDirectory();
-        configDir = new File(testDirectory, "config");
-        if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
-        }
-
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
-        storage.clear();
-        storage.initialize();
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        if (storage != null) {
-            storage.clear();
-            storage.close();
-        }
-
-        TestUtil.deleteTestDirectory();
-    }
+public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegrationTest {
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
@@ -91,11 +53,11 @@ public class MatchupToolIntegrationTest_useCase_05 {
         TestUtil.writeSystemProperties(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(2700) // 45 minutes - we have one intersecting time interval
-                    .withMaxPixelDistanceKm(20)   // value in km
-                    .withHIRS_LZA_Screening(10.f)
-                    .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+                .withTimeDeltaSeconds(2700) // 45 minutes - we have one intersecting time interval
+                .withMaxPixelDistanceKm(20)   // value in km
+                .withHIRS_LZA_Screening(10.f)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-05.xml");
 
         insert_HIRS_NOAA10();
         insert_HIRS_NOAA11();
@@ -104,7 +66,7 @@ public class MatchupToolIntegrationTest_useCase_05 {
         MatchupToolMain.main(args);
 
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "1989-076", "1989-076");
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
@@ -174,7 +136,7 @@ public class MatchupToolIntegrationTest_useCase_05 {
                 .withMaxPixelDistanceKm(20)   // value in km
                 .withHIRS_LZA_Screening(10.f)
                 .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-05.xml");
 
         insert_HIRS_NOAA10();
         insert_HIRS_NOAA11();
@@ -183,36 +145,22 @@ public class MatchupToolIntegrationTest_useCase_05 {
         MatchupToolMain.main(args);
 
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "1989-076", "1989-076");
         assertFalse(mmdFile.isFile());
-    }
-
-    private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("1989-076"), TimeUtils.parseDOYEndOfDay("1989-076"));
-        return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 
     private void insert_HIRS_NOAA11() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n11", "1.0", "1989", "03", "17", "NSS.HIRX.NH.D89076.S0557.E0743.B0245152.WI.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa11 = readSatelliteObservation("hirs-n11", absolutePath);
+        final SatelliteObservation noaa11 = readSatelliteObservation("hirs-n11", absolutePath, "1.0");
         storage.insert(noaa11);
     }
 
     private void insert_HIRS_NOAA10() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n10", "1.0", "1989", "03", "17", "NSS.HIRX.NG.D89076.S0608.E0802.B1296162.WI.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa10 = readSatelliteObservation("hirs-n10", absolutePath);
+        final SatelliteObservation noaa10 = readSatelliteObservation("hirs-n10", absolutePath, "1.0");
         storage.insert(noaa10);
-    }
-
-    private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
-        final File useCaseConfigFile = new File(configDir, "usecase-05.xml");
-        final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
-        useCaseConfig.store(outputStream);
-        outputStream.close();
-
-        return useCaseConfigFile;
     }
 
     private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
@@ -227,26 +175,8 @@ public class MatchupToolIntegrationTest_useCase_05 {
         dimensions.add(new Dimension("hirs-n11", 5, 5));
 
         return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd05")
-                    .withSensors(sensorList)
-                    .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-05").getPath())
-                    .withDimensions(dimensions);
-    }
-
-    private SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
-        try (Reader reader = readerFactory.getReader(sensorKey)) {
-            reader.open(new File(absolutePath));
-            final AcquisitionInfo acquisitionInfo = reader.read();
-            final SatelliteObservation satelliteObservation = new SatelliteObservation();
-            satelliteObservation.setSensor(new Sensor(sensorKey));
-            satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
-            satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-            satelliteObservation.setDataFilePath(absolutePath);
-            satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
-            satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
-            satelliteObservation.setVersion("1.0");
-
-            return satelliteObservation;
-        }
+                .withSensors(sensorList)
+                .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-05").getPath())
+                .withDimensions(dimensions);
     }
 }

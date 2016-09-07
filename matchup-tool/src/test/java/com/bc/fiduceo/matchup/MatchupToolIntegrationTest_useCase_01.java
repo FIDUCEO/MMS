@@ -27,61 +27,22 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
-import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_useCase_01 {
-
-    private File configDir;
-    private Storage storage;
-    private GeometryFactory geometryFactory;
-
-    @Before
-    public void setUp() throws SQLException {
-        final File testDirectory = TestUtil.createTestDirectory();
-        configDir = new File(testDirectory, "config");
-        if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
-        }
-
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
-        storage.clear();
-        storage.initialize();
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        if (storage != null) {
-            storage.clear();
-            storage.close();
-        }
-
-        TestUtil.deleteTestDirectory();
-    }
+public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegrationTest {
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
@@ -93,7 +54,7 @@ public class MatchupToolIntegrationTest_useCase_01 {
                 .withMaxPixelDistanceKm(1)   // value in km
                 .withAtsrAngularScreening(10.0)
                 .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig);
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-01.xml");
 
         insert_AATSR();
         insert_AVHRR_GAC_NOAA18();
@@ -101,7 +62,7 @@ public class MatchupToolIntegrationTest_useCase_01 {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2006-046", "-end", "2006-046"};
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2006-046", "2006-046");
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
@@ -142,14 +103,14 @@ public class MatchupToolIntegrationTest_useCase_01 {
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", "1.02", absolutePath);
+        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, "1.02");
         storage.insert(noaa18);
     }
 
     private void insert_AATSR() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"aatsr-en", "v3", "2006", "02", "15", "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation aatsr = readSatelliteObservation("aatsr-en", "v3", absolutePath);
+        final SatelliteObservation aatsr = readSatelliteObservation("aatsr-en", absolutePath, "v3");
         storage.insert(aatsr);
     }
 
@@ -168,37 +129,5 @@ public class MatchupToolIntegrationTest_useCase_01 {
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-01").getPath())
                 .withDimensions(dimensions);
-    }
-
-    private File storeUseCaseConfig(UseCaseConfig useCaseConfig) throws IOException {
-        final File useCaseConfigFile = new File(configDir, "usecase-01.xml");
-        final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
-        useCaseConfig.store(outputStream);
-        outputStream.close();
-
-        return useCaseConfigFile;
-    }
-
-    private SatelliteObservation readSatelliteObservation(String sensorKey, String version, String absolutePath) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
-        try (Reader reader = readerFactory.getReader(sensorKey)) {
-            reader.open(new File(absolutePath));
-            final AcquisitionInfo acquisitionInfo = reader.read();
-            final SatelliteObservation satelliteObservation = new SatelliteObservation();
-            satelliteObservation.setSensor(new Sensor(sensorKey));
-            satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
-            satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-            satelliteObservation.setDataFilePath(absolutePath);
-            satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
-            satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
-            satelliteObservation.setVersion(version);
-
-            return satelliteObservation;
-        }
-    }
-
-    private File getMmdFilePath(UseCaseConfig useCaseConfig) {
-        final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2006-046"), TimeUtils.parseDOYEndOfDay("2006-046"));
-        return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }
 }
