@@ -28,6 +28,7 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -219,7 +220,6 @@ public class MatchupToolIntegrationTest_useCase_17 {
         final File mmdFile = getMmdFilePath(useCaseConfig);
         assertFalse(mmdFile.isFile());
     }
-
 
     private File getMmdFilePath(UseCaseConfig useCaseConfig) {
         final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-233"), TimeUtils.parseDOYEndOfDay("2007-235"));

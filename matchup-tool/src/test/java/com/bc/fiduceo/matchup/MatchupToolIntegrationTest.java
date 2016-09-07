@@ -21,63 +21,32 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class MatchupToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
     private final String expectedPrintUsage = "matchup-tool version 1.0.1" + ls +
-                                              ls +
-                                              "usage: matchup-tool <options>" + ls +
-                                              "Valid options are:" + ls +
-                                              "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                                              "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                                              "   -h,--help                   Prints the tool usage." + ls +
-                                              "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                                              "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-                                              "                               configuration directory." + ls;
-    private File configDir;
-
-    @Before
-    public void setUp() {
-        final File testDirectory = TestUtil.createTestDirectory();
-        configDir = new File(testDirectory, "config");
-        if (!configDir.mkdir()) {
-            fail("unable to create test directory: " + configDir.getAbsolutePath());
-        }
-    }
-
-    @After
-    public void tearDown() {
-        TestUtil.deleteTestDirectory();
-    }
+            ls +
+            "usage: matchup-tool <options>" + ls +
+            "Valid options are:" + ls +
+            "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+            "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+            "   -h,--help                   Prints the tool usage." + ls +
+            "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+            "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+            "                               configuration directory." + ls;
 
     @Test
     public void testRunMatchup_notInputParameter_printUsageExpected() throws ParseException, IOException, SQLException, InvalidRangeException {
@@ -97,122 +66,6 @@ public class MatchupToolIntegrationTest {
         assertEquals(expectedPrintUsage, errOutput);
     }
 
-//    @Test
-//    public void testRunMatchup_missingSystemProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
-//        final String configFileName = "use-case-config.xml";
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start-time", "1999-124", "-end", "1999-176", "-u", configFileName};
-//
-//        TestUtil.writeDatabaseProperties_H2(configDir);
-//        writeUseCaseConfig(configFileName);
-//
-//        try {
-//            MatchupToolMain.main(args);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//            final String path = new File(configDir, "system.properties").getAbsolutePath();
-//            assertEquals("Configuration file not found: " + path, expected.getMessage());
-//        }
-//    }
-
-//    @Test
-//    public void testRunMatchup_missingDatabaseProperties() throws ParseException, IOException, SQLException, InvalidRangeException {
-//        final String configFileName = "use-case-config.xml";
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "1999-124", "--end-time", "1999-176"};
-//
-//        TestUtil.writeSystemProperties(configDir);
-//        writeUseCaseConfig(configFileName);
-//
-//        try {
-//            MatchupToolMain.main(args);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//            final String path = new File(configDir, "database.properties").getAbsolutePath();
-//            assertEquals("Configuration file not found: " + path, expected.getMessage());
-//        }
-//    }
-
-//    @Test
-//    public void testRunMatchup_missingUseCaseConfig() throws ParseException, IOException, SQLException, InvalidRangeException {
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "1999-124", "-end", "1999-176"};
-//
-//        TestUtil.writeSystemProperties(configDir);
-//        TestUtil.writeDatabaseProperties_H2(configDir);
-//
-//        try {
-//            MatchupToolMain.main(args);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//            assertEquals("Use case configuration file not supplied", expected.getMessage());
-//        }
-//    }
-
-//    @Test
-//    public void testRunMatchup_missingStartDate() throws ParseException, IOException, SQLException, InvalidRangeException {
-//        final String configFileName = "use-case-config.xml";
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-end", "1999-176"};
-//
-//        TestUtil.writeSystemProperties(configDir);
-//        TestUtil.writeDatabaseProperties_H2(configDir);
-//        writeUseCaseConfig(configFileName);
-//
-//        try {
-//            MatchupToolMain.main(args);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//            assertEquals("cmd-line parameter `start` missing", expected.getMessage());
-//        }
-//    }
-//
-//    @Test
-//    public void testRunMatchup_missingEndDate() throws ParseException, IOException, SQLException, InvalidRangeException {
-//        final String configFileName = "use-case-config.xml";
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "1999-124"};
-//
-//        TestUtil.writeSystemProperties(configDir);
-//        TestUtil.writeDatabaseProperties_H2(configDir);
-//        writeUseCaseConfig(configFileName);
-//
-//        try {
-//            MatchupToolMain.main(args);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//            assertEquals("cmd-line parameter `end` missing", expected.getMessage());
-//        }
-//    }
-
-    @Test
-    public void testRunMatchup_AMSUB_MHS_noTimeOverlap() throws SQLException, IOException, ParseException, InvalidRangeException {
-        final String configFileName = "use-case-config.xml";
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Storage storage = Storage.create(TestUtil.getDatasource_H2(), geometryFactory);
-        storage.initialize();
-
-        try {
-            final Geometry geometry = geometryFactory.parse("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))");
-            final SatelliteObservation amsubObservation = createSatelliteObservation(geometry, "amsub-n15", "2010-07-21 16:34:19", "2010-07-21 16:55:07");
-            storage.insert(amsubObservation);
-
-            final SatelliteObservation mhsObservation = createSatelliteObservation(geometry, "mhs-n18", "2010-08-21 16:34:19", "2010-08-21 16:55:07");
-            storage.insert(mhsObservation);
-
-            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "--start", "2007-100", "--end", "2007-200", "-u", configFileName};
-
-            TestUtil.writeSystemProperties(configDir);
-            TestUtil.writeDatabaseProperties_H2(configDir);
-            final UseCaseConfig useCaseConfig = writeUseCaseConfig(configFileName);
-
-            MatchupToolMain.main(args);
-
-            final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay("2007-090"), TimeUtils.parseDOYEndOfDay("2007-092"));
-            final File mmdFile = new File(useCaseConfig.getOutputPath(), mmdFileName);
-            assertFalse(mmdFile.isFile());
-
-        } finally {
-            storage.clear();
-            storage.close();
-        }
-    }
-
     private String callMatchupToolMain_wrappedWithSystemErrSpy(String[] args) throws ParseException, IOException, SQLException, InvalidRangeException {
         final PrintStream err = System.err;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -227,41 +80,5 @@ public class MatchupToolIntegrationTest {
         }
         printStream.close();
         return out.toString();
-    }
-
-    private SatelliteObservation createSatelliteObservation(Geometry geometry, String sensorName, String startDate, String stopDate) {
-        final SatelliteObservation observation = new SatelliteObservation();
-        observation.setStartTime(TimeUtils.parse(startDate, "yyyy-MM-dd hh:mm:ss"));
-        observation.setStopTime(TimeUtils.parse(stopDate, "yyyy-MM-dd hh:mm:ss"));
-        observation.setGeoBounds(geometry);
-        final Sensor sensor = new Sensor();
-        sensor.setName(sensorName);
-        observation.setSensor(sensor);
-        observation.setDataFilePath(".");
-        return observation;
-    }
-
-    private UseCaseConfig writeUseCaseConfig(String configFileName) throws IOException {
-        final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor primary = new Sensor("avhrr-n17");
-        primary.setPrimary(true);
-        sensorList.add(primary);
-        sensorList.add(new Sensor("avhrr-n18"));
-
-        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("use-case-15")
-                    .withTimeDeltaSeconds(2)
-                    .withSensors(sensorList)
-                    .withDimensions(Arrays.asList(
-                                new Dimension("avhrr-n17", 2, 3),
-                                new Dimension("avhrr-n18", 2, 3)))
-                    .withOutputPath(new File(TestUtil.getTestDir(), "mmd-15").getPath())
-                    .createConfig();
-
-        final File file = new File(configDir, configFileName);
-        final FileOutputStream fileOutputStream = new FileOutputStream(file);
-        useCaseConfig.store(fileOutputStream);
-        fileOutputStream.close();
-
-        return useCaseConfig;
     }
 }
