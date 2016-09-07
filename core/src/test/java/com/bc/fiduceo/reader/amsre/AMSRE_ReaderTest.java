@@ -29,8 +29,12 @@ import org.junit.Test;
 import ucar.nc2.Attribute;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -116,5 +120,30 @@ public class AMSRE_ReaderTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testGetRegEx() {
+         final String expected = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z]{1}.hdf";
+
+        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2016-09-07
+        assertEquals(expected, reader.getRegEx());
+
+        final Pattern pattern = Pattern.compile(expected);
+
+        Matcher matcher = pattern.matcher("AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("AMSR_E_L2A_BrightnessTemperatures_V12_200607211944_A.hdf");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("AMSR_E_L2A_BrightnessTemperatures_V12_201011230036_D.hdf");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.E2");
+        assertFalse(matcher.matches());
     }
 }

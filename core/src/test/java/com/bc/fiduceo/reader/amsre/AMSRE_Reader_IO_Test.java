@@ -27,16 +27,20 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -322,27 +326,58 @@ public class AMSRE_Reader_IO_Test {
         }
     }
 
-//    @Test
-//    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
-    // @todo 1 tb/tb uncomment and implement correctly 2016-09-06
-//        final File file = getAmsreFile();
-//
-//        try {
-//            reader.open(file);
-//
-//            final Interval interval = new Interval(3, 3);
-//            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(72, 1107, interval);
-//            assertNotNull(acquisitionTime);
-//            final Index index = acquisitionTime.getIndex();
-//
-//            index.set(0, 0);
-//            assertEquals(893397855, acquisitionTime.getInt(index));
-//
-//
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @Test
+    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(3, 3);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(72, 1107, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();
+
+            index.set(0, 0);
+            assertEquals(1108620197, acquisitionTime.getInt(index));
+            index.set(1, 0);
+            assertEquals(1108620199, acquisitionTime.getInt(index));
+            index.set(2, 0);
+            assertEquals(1108620200, acquisitionTime.getInt(index));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator() throws IOException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 1401.5, null);
+            assertEquals(-73.31768035888672, geoLocation.getX(), 1e-8);
+            assertEquals(-36.6185188293457, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(67.5, 1862.5, null);
+            assertEquals(-117.21066284179688, geoLocation.getX(), 1e-8);
+            assertEquals(-72.551445, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-51.034195, 52.659184);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(132.51219668358698, pixelLocation[0].getX(), 1e-8);
+            assertEquals(411.4166814102514, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-4, 1176);
+            assertEquals(0, pixelLocation.length);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File getAmsreFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsre-aq", "v12", "2005", "02", "17", "AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf"}, false);

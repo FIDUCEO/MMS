@@ -29,7 +29,9 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.*;
 import ucar.nc2.Attribute;
@@ -41,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class AMSRE_Reader implements Reader {
@@ -51,11 +54,13 @@ class AMSRE_Reader implements Reader {
     private static final String LO_RES_SWATH_DATA_GROUP = "Low_Res_Swath/Data_Fields";
     private static final String LAND_OCEAN_FLAGS_NAME = "Land_Ocean_Flag_for_6_10_18_23_36_50_89A";
     private static final String CHANNEL_QUALITY_FLAGS_NAME = "Channel_Quality_Flag_6_to_52";
+    private static final String REG_EX = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z]{1}.hdf";
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
     private ArrayCache arrayCache;
+    private PixelLocator pixelLocator;
 
     AMSRE_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -88,17 +93,26 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemenetd");
+        return REG_EX;
     }
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemenetd");
+        if (pixelLocator == null) {
+            final Array latitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Latitude");
+            final Array longitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Longitude");
+
+            final int[] shape = longitudes.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(longitudes, latitudes, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemenetd");
+        return getPixelLocator();
     }
 
     @Override
@@ -167,7 +181,15 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemenetd");
+        final Array rawTimeTAI = readRaw(x, y, interval, "Time");
+        final Array acquisitionTimeUtc = Array.factory(DataType.INT, rawTimeTAI.getShape());
+
+        for (int i = 0; i < rawTimeTAI.getSize(); i++) {
+            final Date utcDate = TimeUtils.tai1993ToUtc(rawTimeTAI.getDouble(i));
+            acquisitionTimeUtc.setInt(i, (int) (utcDate.getTime() * 0.001));
+        }
+
+        return (ArrayInt.D2) acquisitionTimeUtc;
     }
 
     @Override
