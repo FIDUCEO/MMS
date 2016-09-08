@@ -59,7 +59,6 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         insert_AATSR();
         insert_AMSRE();
 
-
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
         MatchupToolMain.main(args);
 
