@@ -27,7 +27,10 @@ public class PixelValueScreeningPlugin implements ScreeningPlugin {
 
     @Override
     public Screening createScreening(Element element) {
-        return new PixelValueScreening();
+        final PixelValueScreening screening = new PixelValueScreening();
+        final PixelValueScreening.Configuration configuration = createConfiguration(element);
+        screening.configure(configuration);
+        return screening;
     }
 
     @Override

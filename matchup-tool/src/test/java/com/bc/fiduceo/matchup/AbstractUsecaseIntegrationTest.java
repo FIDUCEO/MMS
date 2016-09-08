@@ -43,9 +43,9 @@ import static org.junit.Assert.fail;
 
 abstract class AbstractUsecaseIntegrationTest {
 
-    protected File configDir;
-    protected GeometryFactory geometryFactory;
-    protected Storage storage;
+    File configDir;
+    GeometryFactory geometryFactory;
+    Storage storage;
 
     @Before
     public void setUp() throws SQLException {
@@ -72,7 +72,7 @@ abstract class AbstractUsecaseIntegrationTest {
         TestUtil.deleteTestDirectory();
     }
 
-    protected SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
+    SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
@@ -91,7 +91,7 @@ abstract class AbstractUsecaseIntegrationTest {
         }
     }
 
-    protected File storeUseCaseConfig(UseCaseConfig useCaseConfig, String fileName) throws IOException {
+    File storeUseCaseConfig(UseCaseConfig useCaseConfig, String fileName) throws IOException {
         final File useCaseConfigFile = new File(configDir, fileName);
         final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
         useCaseConfig.store(outputStream);
@@ -100,7 +100,7 @@ abstract class AbstractUsecaseIntegrationTest {
         return useCaseConfigFile;
     }
 
-    protected File getMmdFilePath(UseCaseConfig useCaseConfig, String startDateString, String endDateString) {
+    File getMmdFilePath(UseCaseConfig useCaseConfig, String startDateString, String endDateString) {
         final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, TimeUtils.parseDOYBeginOfDay(startDateString), TimeUtils.parseDOYEndOfDay(endDateString));
         return new File(useCaseConfig.getOutputPath(), mmdFileName);
     }

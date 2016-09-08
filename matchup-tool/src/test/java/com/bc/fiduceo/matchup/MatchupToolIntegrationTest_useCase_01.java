@@ -97,7 +97,6 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 1, 1, 1412, 11821, mmd);
             NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 1, 1413, 82.78500366210938, mmd);
         }
-
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {

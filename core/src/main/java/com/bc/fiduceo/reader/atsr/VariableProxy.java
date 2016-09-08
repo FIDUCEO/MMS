@@ -36,13 +36,13 @@ class VariableProxy extends Variable {
 
     private final RasterDataNode rasterDataNode;
 
-    public VariableProxy(RasterDataNode rasterDataNode) {
+    VariableProxy(RasterDataNode rasterDataNode) {
         this.rasterDataNode = rasterDataNode;
     }
 
     @Override
     public String getFullName() {
-        throw new RuntimeException("not implemented");
+        return rasterDataNode.getName();
     }
 
     @Override

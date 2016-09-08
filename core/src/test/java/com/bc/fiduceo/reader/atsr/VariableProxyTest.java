@@ -52,6 +52,13 @@ public class VariableProxyTest {
     }
 
     @Test
+    public void testGetFullName() {
+        when(rasterDataNode.getName()).thenReturn("The_full_node");
+
+        assertEquals("The_full_node", proxy.getFullName());
+    }
+
+    @Test
     public void testGetDataType() {
         when(rasterDataNode.getDataType()).thenReturn(ProductData.TYPE_FLOAT32);
 
