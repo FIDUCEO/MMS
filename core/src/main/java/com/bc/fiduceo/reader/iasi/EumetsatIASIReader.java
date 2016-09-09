@@ -49,6 +49,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
@@ -148,13 +149,8 @@ public class EumetsatIASIReader implements Reader {
     }
 
     static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
-        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(timeCoverage);
-        if (globalAttribute == null) {
-            throw new IOException("Requested attribute '" + timeCoverage + "' not found");
-        }
-
-        final String attributeValue = globalAttribute.getStringValue();
-        return TimeUtils.parse(attributeValue, DATE_FORMAT);
+        final String attributeString = NetCDFUtils.getGlobalAttributeString(timeCoverage, netcdfFile);
+        return TimeUtils.parse(attributeString, DATE_FORMAT);
     }
 
     @Override

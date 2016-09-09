@@ -49,6 +49,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.*;
@@ -143,7 +144,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             final int[] shape = longitudes.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(ReaderUtils.toFloat(longitudes), ReaderUtils.toFloat(latitudes), width, height);
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(NetCDFUtils.toFloat(longitudes), NetCDFUtils.toFloat(latitudes), width, height);
         }
         return pixelLocator;
     }
@@ -411,7 +412,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         if (StringUtils.isNotNullAndNotEmpty(fillValueString)) {
             fillValue = Double.parseDouble(fillValueString);
         } else {
-            fillValue = ReaderUtils.getDefaultFillValue(array);
+            fillValue = NetCDFUtils.getDefaultFillValue(array);
         }
         return fillValue;
     }

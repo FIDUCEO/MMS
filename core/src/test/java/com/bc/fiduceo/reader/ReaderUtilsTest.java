@@ -20,108 +20,18 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ReaderUtilsTest {
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeDouble() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.DOUBLE);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_DOUBLE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeFloat() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.FLOAT);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_FLOAT, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeLong() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.LONG);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_LONG, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeInt() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.INT);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_INT, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeShort() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.SHORT);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_SHORT, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forDataTypeByte() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.BYTE);
-
-        final Number value = ReaderUtils.getDefaultFillValue(mock);
-        assertEquals(N3iosp.NC_FILL_BYTE, value);
-    }
-
-    @Test
-    public void testFetchingTheDefaultFillValue_forUnknownType() throws Exception {
-        final Variable mock = mock(Variable.class);
-        when(mock.getDataType()).thenReturn(DataType.STRUCTURE);
-
-        try {
-            ReaderUtils.getDefaultFillValue(mock);
-            fail("RuntimeException expected");
-        } catch (NullPointerException notExpected) {
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
-    public void testGetDefaultFillValue_Array_Double() throws Exception {
-        final Array array = mock(Array.class);
-        when(array.getDataType()).thenReturn(DataType.DOUBLE);
-
-        final Number value = ReaderUtils.getDefaultFillValue(array);
-        assertEquals(N3iosp.NC_FILL_DOUBLE, value);
-    }
-
-    @Test
-    public void testGetDefaultFillValue_Aray_Long() throws Exception {
-        final Array array = mock(Array.class);
-        when(array.getDataType()).thenReturn(DataType.LONG);
-
-        final Number value = ReaderUtils.getDefaultFillValue(array);
-        assertEquals(N3iosp.NC_FILL_LONG, value);
-    }
 
     @Test
     public void testGetDefaultFillValue_ProductData_double() {
@@ -178,19 +88,5 @@ public class ReaderUtilsTest {
 
         assertEquals(0, ReaderUtils.getChannelIndex("lon"));
         assertEquals(0, ReaderUtils.getChannelIndex("a_strange_channel"));
-    }
-
-    @Test
-    public void testToFloat() {
-        final int[] ints = {12, 23, 45, 67};
-        final Array intArray = Array.factory(ints);
-
-        final Array floatArray = ReaderUtils.toFloat(intArray);
-        assertNotNull(floatArray);
-        assertEquals(float.class, floatArray.getDataType().getPrimitiveClassType());
-        assertEquals(12.0, floatArray.getFloat(0), 1e-8);
-        assertEquals(23.0, floatArray.getFloat(1), 1e-8);
-        assertEquals(45.0, floatArray.getFloat(2), 1e-8);
-        assertEquals(67.0, floatArray.getFloat(3), 1e-8);
     }
 }

@@ -31,6 +31,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.*;
@@ -381,7 +382,7 @@ class AMSRE_Reader implements Reader {
             return fillValue;
         }
         final Array array = arrayCache.get(groupName, variableName);
-        return ReaderUtils.getDefaultFillValue(array);
+        return NetCDFUtils.getDefaultFillValue(array);
     }
 
     static int getLayerIndexFromChannelFlagName(String channelQualityFlagName) {

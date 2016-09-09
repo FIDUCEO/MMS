@@ -21,7 +21,7 @@
 package com.bc.fiduceo.reader.atsr;
 
 
-import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -78,7 +78,7 @@ class VariableProxy extends Variable {
     @Override
     public DataType getDataType() {
         final int dataType = rasterDataNode.getDataType();
-        return ReaderUtils.getNetcdfDataType(dataType);
+        return NetCDFUtils.getNetcdfDataType(dataType);
     }
 
     @Override

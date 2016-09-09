@@ -34,6 +34,7 @@ import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
@@ -145,7 +146,7 @@ class ATSR_L1B_Reader implements Reader {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
         final double noDataValue = getNoDataValue(dataNode);
-        final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getDataType());
+        final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
         final int[] shape = getShape(interval);
         final Array readArray = Array.factory(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
@@ -205,7 +206,7 @@ class ATSR_L1B_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
-        final DataType targetDataType = ReaderUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
+        final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(interval);
         final Array readArray = createReadingArray(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
@@ -306,7 +307,7 @@ class ATSR_L1B_Reader implements Reader {
         shape[0] = longitude.getGridHeight();
         shape[1] = longitude.getGridWidth();
 
-        final DataType netcdfDataType = ReaderUtils.getNetcdfDataType(longitude.getDataType());
+        final DataType netcdfDataType = NetCDFUtils.getNetcdfDataType(longitude.getDataType());
         if (netcdfDataType == null) {
             throw new IOException("Unsupported data type: " + longitude.getDataType());
         }

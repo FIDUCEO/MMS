@@ -28,10 +28,10 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.*;
-import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -65,7 +65,8 @@ public class AVHRR_GAC_Reader implements Reader {
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
-        startTimeMilliSecondsSince1970 = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME)).getTime();
+        final String startTimeString = NetCDFUtils.getGlobalAttributeString(START_TIME_ATTRIBUTE_NAME, netcdfFile);
+        startTimeMilliSecondsSince1970 = parseDate(startTimeString).getTime();
         timeLocator = null;
     }
 
@@ -85,7 +86,9 @@ public class AVHRR_GAC_Reader implements Reader {
         final Date startDate = new Date(startTimeMilliSecondsSince1970);
         acquisitionInfo.setSensingStart(startDate);
 
-        final Date stopDate = parseDateAttribute(netcdfFile.findGlobalAttribute(STOP_TIME_ATTRIBUTE_NAME));
+        final String stopDateString = NetCDFUtils.getGlobalAttributeString(STOP_TIME_ATTRIBUTE_NAME, netcdfFile);
+        final Date stopDate = parseDate(stopDateString);
+
         acquisitionInfo.setSensingStop(stopDate);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
@@ -131,7 +134,8 @@ public class AVHRR_GAC_Reader implements Reader {
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
             final Array dTime = arrayCache.get("dtime");
-            final Date startDate = parseDateAttribute(netcdfFile.findGlobalAttribute(START_TIME_ATTRIBUTE_NAME));
+            final String startTimeString = NetCDFUtils.getGlobalAttributeString(START_TIME_ATTRIBUTE_NAME, netcdfFile);
+            final Date startDate = parseDate(startTimeString);
 
             timeLocator = new AVHRR_GAC_TimeLocator(dTime, startDate);
         }
@@ -223,7 +227,7 @@ public class AVHRR_GAC_Reader implements Reader {
             return fillValue;
         }
         final Array array = arrayCache.get(variableName);
-        return ReaderUtils.getDefaultFillValue(array);
+        return NetCDFUtils.getDefaultFillValue(array);
     }
 
     private double getOffset(String variableName) throws IOException {
@@ -243,15 +247,11 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     // package access for testing only tb 2016-03-02
-    static Date parseDateAttribute(Attribute timeAttribute) throws IOException {
-        if (timeAttribute == null) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' not present");
-        }
-        final String startTimeString = timeAttribute.getStringValue();
-        if (StringUtils.isNullOrEmpty(startTimeString)) {
+    static Date parseDate(String timeString) throws IOException {
+        if (StringUtils.isNullOrEmpty(timeString)) {
             throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
         }
-        return TimeUtils.parse(startTimeString, "yyyyMMdd'T'HHmmss'Z'");
+        return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
     static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {

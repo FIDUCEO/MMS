@@ -34,6 +34,7 @@ import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -113,7 +114,7 @@ public class HIRS_L1C_Reader implements Reader {
             final int[] shape = lonArray.getShape();
             final int width = shape[1];
             final int height = shape[0];
-            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(ReaderUtils.toFloat(lonArray), ReaderUtils.toFloat(latArray), width, height);
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(NetCDFUtils.toFloat(lonArray), NetCDFUtils.toFloat(latArray), width, height);
         }
         return pixelLocator;
     }
@@ -154,7 +155,7 @@ public class HIRS_L1C_Reader implements Reader {
             array = array.section(offsets, shape);
         }
 
-        final Number fillValue = ReaderUtils.getDefaultFillValue(array);
+        final Number fillValue = NetCDFUtils.getDefaultFillValue(array);
 
         final Dimension productSize = getProductSize();
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize.getNx());
@@ -168,7 +169,7 @@ public class HIRS_L1C_Reader implements Reader {
     @Override
     public ArrayInt.D2 readAcquisitionTime(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
         final Array timeArray = arrayCache.get("time");
-        final Number fillValue = ReaderUtils.getDefaultFillValue(timeArray);
+        final Number fillValue = NetCDFUtils.getDefaultFillValue(timeArray);
 
         final Dimension productSize = getProductSize();
         return (ArrayInt.D2) RawDataReader.read(centerX, centerY, interval, fillValue, timeArray, productSize.getNx());
@@ -262,7 +263,7 @@ public class HIRS_L1C_Reader implements Reader {
     private Array readScanPos(int centerX, Interval interval) throws IOException {
         final Array scanpos = arrayCache.get("scanpos");
         final int originalWidth = scanpos.getShape()[0];
-        final Number fillValue = ReaderUtils.getDefaultFillValue(scanpos);
+        final Number fillValue = NetCDFUtils.getDefaultFillValue(scanpos);
         final int width = interval.getX();
         final int height = interval.getY();
 

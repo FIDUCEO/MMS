@@ -23,7 +23,6 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.ReaderUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,17 +73,14 @@ public class AVHRR_GAC_ReaderTest {
 
     @Test
     public void testParseDateAttribute() throws Exception {
-        final Attribute timeAttribute = mock(Attribute.class);
-        when(timeAttribute.getStringValue()).thenReturn("20060526T054530Z");
-
-        final Date date = AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+        final Date date = AVHRR_GAC_Reader.parseDate("20060526T054530Z");
         TestUtil.assertCorrectUTCDate(2006, 5, 26, 5, 45, 30, date);
     }
 
     @Test
     public void testParseDateAttribute_NullAttribute() throws Exception {
         try {
-            AVHRR_GAC_Reader.parseDateAttribute(null);
+            AVHRR_GAC_Reader.parseDate(null);
             fail("IO Exception expected");
         } catch (IOException e) {
         }
@@ -92,11 +88,8 @@ public class AVHRR_GAC_ReaderTest {
 
     @Test
     public void testParseDateAttribute_Return_Null_Value() throws Exception {
-        final Attribute timeAttribute = mock(Attribute.class);
-        when(timeAttribute.getStringValue()).thenReturn("");
-
         try {
-            AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+            AVHRR_GAC_Reader.parseDate("");
             fail("IO Exception expected");
         } catch (IOException e) {
         }
@@ -104,11 +97,8 @@ public class AVHRR_GAC_ReaderTest {
 
     @Test
     public void testParseDateAttribute_Unparseable_Attribute() throws Exception {
-        final Attribute timeAttribute = mock(Attribute.class);
-        when(timeAttribute.getStringValue()).thenReturn("234390123T77");
-
         try {
-            AVHRR_GAC_Reader.parseDateAttribute(timeAttribute);
+            AVHRR_GAC_Reader.parseDate("234390123T77");
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
         }
