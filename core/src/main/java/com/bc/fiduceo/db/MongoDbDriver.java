@@ -23,7 +23,14 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.MultiPolygon;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -316,12 +323,6 @@ public class MongoDbDriver extends AbstractDriver {
         final String sensorName = parameter.getSensorName();
         if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
             queryConstraints.append(SENSOR_KEY + ".name", new Document("$eq", sensorName));
-        }
-
-        final Geometry geometry = parameter.getGeometry();
-        if (geometry != null) {
-            queryConstraints.append(GEO_BOUNDS_KEY, new Document("$geoIntersects",
-                    new Document("$geometry", convertToGeoJSON(geometry))));
         }
 
         final String version = parameter.getVersion();

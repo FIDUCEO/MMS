@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,15 +62,6 @@ public class QueryParameterTest {
 
         parameter.setSensorName(sensor_name_2);
         assertEquals(sensor_name_2, parameter.getSensorName());
-    }
-
-    @Test
-    public void testSetGetGeometry() {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Geometry point = geometryFactory.createPoint(12, 34);
-
-        parameter.setGeometry(point);
-        assertEquals("POINT(12.000000000000002 34.0)", parameter.getGeometry().toString());
     }
 
     @Test

@@ -28,7 +28,6 @@ public class QueryParameter {
     private Date startTime;
     private Date stopTime;
     private String sensorName;
-    private Geometry geometry;
     private String version;
     private String path;
 
@@ -54,14 +53,6 @@ public class QueryParameter {
 
     public void setSensorName(String sensorName) {
         this.sensorName = sensorName;
-    }
-
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
-    }
-
-    public Geometry getGeometry() {
-        return geometry;
     }
 
     public void setVersion(String version) {

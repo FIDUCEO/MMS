@@ -327,7 +327,6 @@ public class MongoDbDriverTest {
     @Test
     public void testCreateQueryDocument() throws Exception {
         QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setGeometry(geometryFactory.parse("POLYGON((-8 -2, -8 -1, -6 -1, -6 -2, -8 -2))"));
         queryParameter.setSensorName("amsub_n15");
         queryParameter.setStartTime(TimeUtils.parseDOYBeginOfDay("2015-300"));
         queryParameter.setStopTime(TimeUtils.parseDOYBeginOfDay("2015-302"));
@@ -349,14 +348,6 @@ public class MongoDbDriverTest {
         final Document sensorDoc = (Document) queryDocument.get("sensor.name");
         final String sensorType = sensorDoc.getString("$eq");
         assertEquals(queryParameter.getSensorName(), sensorType);
-
-        final Document geoDoc = (Document) ((Document) queryDocument.get("geoBounds")).get("$geoIntersects");
-        assertNotNull(geoDoc);
-
-        com.mongodb.client.model.geojson.Polygon polygon = (com.mongodb.client.model.geojson.Polygon) geoDoc.get("$geometry");
-        assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, " +
-                        "Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
-                polygon.toString());
 
         final Document versionDoc = (Document) queryDocument.get("version");
         final String version = versionDoc.getString("$eq");

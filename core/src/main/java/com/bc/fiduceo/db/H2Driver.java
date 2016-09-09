@@ -177,20 +177,7 @@ public class H2Driver extends AbstractDriver {
             sql.append("sen.Name = '");
             sql.append(sensorName);
             sql.append("'");
-            appendAnd = true;
         }
-
-        final com.bc.fiduceo.geometry.Geometry geometry = parameter.getGeometry();
-        if (geometry != null) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-//            sql.append("ST_Intersects(obs.GeoBounds, ");
-//            sql.append(geometryFactory.)
-
-        }
-
 
         return sql.toString();
     }
