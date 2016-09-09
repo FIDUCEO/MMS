@@ -22,9 +22,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.reader.ReaderUtils;
 import org.junit.Test;
-import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -33,7 +31,10 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

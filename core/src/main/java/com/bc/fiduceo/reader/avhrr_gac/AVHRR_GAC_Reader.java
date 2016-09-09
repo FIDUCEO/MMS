@@ -88,7 +88,6 @@ public class AVHRR_GAC_Reader implements Reader {
 
         final String stopDateString = NetCDFUtils.getGlobalAttributeString(STOP_TIME_ATTRIBUTE_NAME, netcdfFile);
         final Date stopDate = parseDate(stopDateString);
-
         acquisitionInfo.setSensingStop(stopDate);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);

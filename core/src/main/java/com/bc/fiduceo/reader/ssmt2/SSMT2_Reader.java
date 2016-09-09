@@ -23,11 +23,17 @@ package com.bc.fiduceo.reader.ssmt2;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
@@ -51,15 +57,20 @@ public class SSMT2_Reader implements Reader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 
+    private final GeometryFactory geometryFactory;
+
     private NetcdfFile netcdfFile;
+    private ArrayCache arrayCache;
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     public SSMT2_Reader(GeometryFactory geometryFactory) {
-
+        this.geometryFactory = geometryFactory;
     }
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
     }
 
     @Override
@@ -76,6 +87,10 @@ public class SSMT2_Reader implements Reader {
 
         setSensingTimes(acquisitionInfo);
         setNodeType(acquisitionInfo);
+        setGeometries(acquisitionInfo);
+
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+
 
         return acquisitionInfo;
     }
@@ -150,12 +165,40 @@ public class SSMT2_Reader implements Reader {
 
     private void setNodeType(AcquisitionInfo acquisitionInfo) throws IOException {
         final String startDirection = NetCDFUtils.getGlobalAttributeString("start_direction", netcdfFile);
-        if ("ascending".equals(startDirection)){
+        if ("ascending".equals(startDirection)) {
             acquisitionInfo.setNodeType(NodeType.ASCENDING);
         } else if ("descending".equals(startDirection)) {
             acquisitionInfo.setNodeType(NodeType.DESCENDING);
         } else {
             acquisitionInfo.setNodeType(NodeType.UNDEFINED);
         }
+    }
+
+    private void setGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
+        final Array lonArray = arrayCache.get("lon");
+        final Array latArray = arrayCache.get("lat");
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonArray, latArray);
+        if (!boundingGeometry.isValid()) {
+            throw new RuntimeException("Must split geometries");
+        }
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
+        final Geometries geometries = new Geometries();
+        geometries.setBoundingGeometry(boundingGeometry);
+
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
+
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+    }
+
+    private BoundingPolygonCreator getBoundingPolygonCreator() {
+        if (boundingPolygonCreator == null) {
+            // @todo 2 tb/tb move intervals to config 2016-03-02
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(5, 25), geometryFactory);
+        }
+
+        return boundingPolygonCreator;
     }
 }
