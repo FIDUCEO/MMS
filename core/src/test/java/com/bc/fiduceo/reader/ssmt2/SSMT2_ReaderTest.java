@@ -22,13 +22,38 @@ package com.bc.fiduceo.reader.ssmt2;
 
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SSMT2_ReaderTest {
 
     @Test
     public void testAssembleDateString() {
-         assertEquals("2006-08-22T14:22:45", SSMT2_Reader.assembleDateString("2006-08-22", "14:22:45.012345"));
-         assertEquals("1993-11-02T03:39:22", SSMT2_Reader.assembleDateString("1993-11-02", "03:39:22.654321"));
+        assertEquals("2006-08-22T14:22:45", SSMT2_Reader.assembleDateString("2006-08-22", "14:22:45.012345"));
+        assertEquals("1993-11-02T03:39:22", SSMT2_Reader.assembleDateString("1993-11-02", "03:39:22.654321"));
+    }
+
+    @Test
+    public void testGetRegEx() {
+        final String expected = "F(11|12|14|15)[0-9]{12}.nc";
+
+        assertEquals(expected, new SSMT2_Reader(null).getRegEx());
+        final Pattern pattern = java.util.regex.Pattern.compile(expected);
+
+        Matcher matcher = pattern.matcher("F11199401280412.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("F14200106141229.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
+        assertFalse(matcher.matches());
     }
 }

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.ssmt2;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -32,6 +33,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,6 +135,21 @@ public class SSMT2_Reader_IO_Test {
             coordinates = timeAxes[0].getGeometry().getCoordinates();
             final Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2001, 6, 14, 12, 29, 4, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(28, productSize.getNx());
+            assertEquals(763, productSize.getNy());
         } finally {
             reader.close();
         }

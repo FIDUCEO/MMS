@@ -57,6 +57,8 @@ public class SSMT2_Reader implements Reader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
 
+    private static final String REG_EX = "F(11|12|14|15)[0-9]{12}.nc";
+
     private final GeometryFactory geometryFactory;
 
     private NetcdfFile netcdfFile;
@@ -89,15 +91,12 @@ public class SSMT2_Reader implements Reader {
         setNodeType(acquisitionInfo);
         setGeometries(acquisitionInfo);
 
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-
-
         return acquisitionInfo;
     }
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override
@@ -137,7 +136,9 @@ public class SSMT2_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array lonArray = arrayCache.get("lon");
+        final int[] shape = lonArray.getShape();
+        return new Dimension("lon", shape[1], shape[0]);
     }
 
     // package access for testing only tb 2016-09-09
