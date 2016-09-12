@@ -21,6 +21,8 @@
 package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.core.Interval;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -29,6 +31,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ATSR_L1B_ReaderTest {
 
@@ -103,5 +107,49 @@ public class ATSR_L1B_ReaderTest {
             fail("RuntimeException expecetd");
         } catch (RuntimeException expecetd) {
         }
+    }
+
+    @Test
+    public void testGetNoDataValue_fromNode() {
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+
+        when(dataNode.isNoDataValueUsed()).thenReturn(true);
+        when(dataNode.getNoDataValue()).thenReturn(23.987);
+
+        final double noDataValue = ATSR_L1B_Reader.getNoDataValue(dataNode);
+        assertEquals(23.987, noDataValue, 1e-8);
+    }
+
+    @Test
+    public void testGetNoDataValue_fromDefault() {
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+
+        when(dataNode.isNoDataValueUsed()).thenReturn(false);
+        when(dataNode.getDataType()).thenReturn(ProductData.TYPE_INT32);
+
+        final double noDataValue = ATSR_L1B_Reader.getNoDataValue(dataNode);
+        assertEquals(-2.147483647E9, noDataValue, 1e-8);
+    }
+
+    @Test
+    public void testGetGeophysicalNoDataValue_fromNode() {
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+
+        when(dataNode.isNoDataValueUsed()).thenReturn(true);
+        when(dataNode.getGeophysicalNoDataValue()).thenReturn(-12.7);
+
+        final double noDataValue = ATSR_L1B_Reader.getGeophysicalNoDataValue(dataNode);
+        assertEquals(-12.7, noDataValue, 1e-8);
+    }
+
+    @Test
+    public void testGetGeophysicalNoDataValue_fromDefault() {
+        final RasterDataNode dataNode = mock(RasterDataNode.class);
+
+        when(dataNode.isNoDataValueUsed()).thenReturn(false);
+        when(dataNode.getDataType()).thenReturn(ProductData.TYPE_INT16);
+
+        final double noDataValue = ATSR_L1B_Reader.getGeophysicalNoDataValue(dataNode);
+        assertEquals(-32767.0, noDataValue, 1e-8);
     }
 }

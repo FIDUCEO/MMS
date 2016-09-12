@@ -182,26 +182,6 @@ class ATSR_L1B_Reader implements Reader {
         return targetArray;
     }
 
-    // @todo 2 tb/tb make static, add tests 2016-09-01
-    private double getNoDataValue(RasterDataNode dataNode) {
-        if (dataNode.isNoDataValueUsed()) {
-            return dataNode.getNoDataValue();
-        } else {
-            final int dataType = dataNode.getDataType();
-            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
-        }
-    }
-
-    // @todo 2 tb/tb make static, add tests 2016-09-01
-    private double getGeophysicalNoDataValue(RasterDataNode dataNode) {
-        if (dataNode.isNoDataValueUsed()) {
-            return dataNode.getGeophysicalNoDataValue();
-        } else {
-            final int dataType = dataNode.getDataType();
-            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
-        }
-    }
-
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
@@ -348,6 +328,26 @@ class ATSR_L1B_Reader implements Reader {
                 return Array.factory(DataType.INT, shape);
             default:
                 throw new RuntimeException("unsupported data type: " + targetDataType);
+        }
+    }
+
+    // package access for testing only tb 2016-09-12
+    static double getNoDataValue(RasterDataNode dataNode) {
+        if (dataNode.isNoDataValueUsed()) {
+            return dataNode.getNoDataValue();
+        } else {
+            final int dataType = dataNode.getDataType();
+            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
+        }
+    }
+
+    // package access for testing only tb 2016-09-12
+    static double getGeophysicalNoDataValue(RasterDataNode dataNode) {
+        if (dataNode.isNoDataValueUsed()) {
+            return dataNode.getGeophysicalNoDataValue();
+        } else {
+            final int dataType = dataNode.getDataType();
+            return ReaderUtils.getDefaultFillValue(dataType).doubleValue();
         }
     }
 
