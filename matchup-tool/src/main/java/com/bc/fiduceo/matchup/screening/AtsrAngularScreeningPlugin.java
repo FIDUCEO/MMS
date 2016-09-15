@@ -41,13 +41,20 @@ public class AtsrAngularScreeningPlugin implements ScreeningPlugin {
     static AtsrAngularScreening.Configuration createConfiguration(Element rootElement) {
         final AtsrAngularScreening.Configuration configuration = new AtsrAngularScreening.Configuration();
 
-        final Element angleDeltaElement = rootElement.getChild("angle-delta");
-        if (angleDeltaElement != null) {
-            final String value = angleDeltaElement.getValue();
+        final Element angleFwardDeltaElement = rootElement.getChild("angle-delta-fward");
+        if (angleFwardDeltaElement != null) {
+            final String value = angleFwardDeltaElement.getValue();
             if (StringUtils.isNotNullAndNotEmpty(value)) {
-                configuration.angleDelta = Double.parseDouble(value);
+                configuration.angleDeltaFward = Double.parseDouble(value);
             }
+        }
 
+        final Element angleNadirDeltaElement = rootElement.getChild("angle-delta-nadir");
+        if (angleNadirDeltaElement != null) {
+            final String value = angleNadirDeltaElement.getValue();
+            if (StringUtils.isNotNullAndNotEmpty(value)) {
+                configuration.angleDeltaNadir = Double.parseDouble(value);
+            }
         }
         return configuration;
     }

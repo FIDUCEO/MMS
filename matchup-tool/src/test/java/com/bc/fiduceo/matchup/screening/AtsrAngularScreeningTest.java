@@ -93,7 +93,8 @@ public class AtsrAngularScreeningTest {
         when(secondaryReader.readScaled(eq(219), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(220), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
 
-        configuration.angleDelta = 10.0;
+        configuration.angleDeltaNadir = 10.0;
+        configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
         screening.apply(matchupSet, primaryReader, secondaryReader);
 
@@ -131,7 +132,7 @@ public class AtsrAngularScreeningTest {
         when(secondaryReader.readScaled(eq(119), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(120), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
 
-        configuration.angleDelta = 10.0;
+        configuration.angleDeltaNadir = 10.0;
         screening.configure(configuration);
         screening.apply(matchupSet, primaryReader, secondaryReader);
 
@@ -169,7 +170,8 @@ public class AtsrAngularScreeningTest {
         when(secondaryReader.readScaled(eq(19), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(20), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
 
-        configuration.angleDelta = 10.0;
+        configuration.angleDeltaNadir = 10.0;
+        configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
         screening.apply(matchupSet, primaryReader, secondaryReader);
 

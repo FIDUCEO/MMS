@@ -114,11 +114,12 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withAtsrAngularScreening(double maxAngleDelta) {
+    UseCaseConfigBuilder withAtsrAngularScreening(double nadirAngleDelta, double fwardAngleDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angularScreening = ensureChild(screenings, "atsr-angular");
 
-        addChild(angularScreening, "angle-delta", Double.toString(maxAngleDelta));
+        addChild(angularScreening, "angle-delta-nadir", Double.toString(nadirAngleDelta));
+        addChild(angularScreening, "angle-delta-fward", Double.toString(fwardAngleDelta));
 
         return this;
     }

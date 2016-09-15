@@ -70,7 +70,7 @@ class AtsrAngularScreening implements Screening {
             final double nadirDelta = Math.abs(satZenithAngle - nadirViewZenith);
             final double fwardDelta = Math.abs(satZenithAngle - fwardViewZenith);
 
-            if (nadirDelta <= configuration.angleDelta || fwardDelta <= configuration.angleDelta) {
+            if (nadirDelta <= configuration.angleDeltaNadir || fwardDelta <= configuration.angleDeltaFward) {
                 resultSet.add(sampleSet);
             }
         }
@@ -83,6 +83,7 @@ class AtsrAngularScreening implements Screening {
     }
 
     static class Configuration {
-        double angleDelta;
+        double angleDeltaNadir;
+        double angleDeltaFward;
     }
 }

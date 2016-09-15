@@ -59,13 +59,15 @@ public class AtsrAngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration() throws JDOMException, IOException {
         final String XML = "<atsr-angular>" +
-                "<angle-delta>10.0</angle-delta>" +
+                "<angle-delta-nadir>10.0</angle-delta-nadir>" +
+                "<angle-delta-fward>1.0</angle-delta-fward>" +
                 "</atsr-angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
         AtsrAngularScreening.Configuration configuration = AtsrAngularScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
-        assertEquals(10.0, configuration.angleDelta, 1e-8);
+        assertEquals(10.0, configuration.angleDeltaNadir, 1e-8);
+        assertEquals(1.0, configuration.angleDeltaFward, 1e-8);
     }
 
     @Test
@@ -76,6 +78,7 @@ public class AtsrAngularScreeningPluginTest {
 
         AtsrAngularScreening.Configuration configuration = AtsrAngularScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
-        assertEquals(0.0, configuration.angleDelta, 1e-8);
+        assertEquals(0.0, configuration.angleDeltaNadir, 1e-8);
+        assertEquals(0.0, configuration.angleDeltaFward, 1e-8);
     }
 }
