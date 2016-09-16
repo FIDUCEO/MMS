@@ -37,16 +37,14 @@ class SampleCollector {
         for (final SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
-            if (pixelLocations.length > 0) {
-                for (Point2D pixelLocation : pixelLocations) {
-                    final int x = (int) pixelLocation.getX();
-                    final int y = (int) pixelLocation.getY();
-                    geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                    final long time = timeLocator.getTimeFor(x, y);
-                    final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
-                    sampleSet.setSecondary(sample);
-                    toKeep.add(sampleSet);
-                }
+            for (Point2D pixelLocation : pixelLocations) {
+                final int x = (int) pixelLocation.getX();
+                final int y = (int) pixelLocation.getY();
+                geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
+                final long time = timeLocator.getTimeFor(x, y);
+                final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
+                sampleSet.setSecondary(sample);
+                toKeep.add(sampleSet);
             }
         }
 
