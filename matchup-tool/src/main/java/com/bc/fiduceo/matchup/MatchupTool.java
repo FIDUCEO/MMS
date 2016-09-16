@@ -105,8 +105,6 @@ class MatchupTool {
         parameter.setSensorName(secondarySensor.getName());
         parameter.setStartTime(searchTimeStart);
         parameter.setStopTime(searchTimeEnd);
-        // removed due to poor database performance tb 2016-05-02
-        //parameter.setGeometry(geoBounds);
         return parameter;
     }
 
