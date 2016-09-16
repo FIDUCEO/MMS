@@ -23,6 +23,8 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.TestUtil;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
+
 
 @Ignore
 public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteObservation {

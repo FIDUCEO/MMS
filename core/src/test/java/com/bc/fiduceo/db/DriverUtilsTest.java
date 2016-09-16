@@ -22,17 +22,18 @@ package com.bc.fiduceo.db;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author muhammad.bc
  */
 public class DriverUtilsTest {
-    @Test
-    public void getReaderTest() {
-        Driver driver;
-        DriverUtils driverUtils = new DriverUtils();
 
-        driver = driverUtils.getDriver("jdbc:h2:mem:fiduceo");
+    @Test
+    public void testGetDriver() {
+        final DriverUtils driverUtils = new DriverUtils();
+
+        Driver driver = driverUtils.getDriver("jdbc:h2:mem:fiduceo");
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:h2"));
 
 
@@ -44,4 +45,14 @@ public class DriverUtilsTest {
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:postgresql"));
     }
 
+    @Test
+    public void testGetDriver_invalidDriverName() {
+        final DriverUtils driverUtils = new DriverUtils();
+
+        try {
+            driverUtils.getDriver("windows_10_is_shitty");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }

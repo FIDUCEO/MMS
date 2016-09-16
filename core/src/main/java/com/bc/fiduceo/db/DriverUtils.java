@@ -32,12 +32,15 @@ public class DriverUtils {
 
     public Driver getDriver(String searchTerm) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        ServiceRegistry<Driver> readerRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
+        final ServiceRegistry<Driver> readerRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
+
         SnapCoreActivator.loadServices(readerRegistry);
+
         final Set<Driver> driverSet = readerRegistry.getServices();
         if (driverSet.isEmpty()) {
-            throw new RuntimeException("No database drivers");
+            throw new RuntimeException("No database drivers available");
         }
+
         for (Driver driver : driverSet) {
             final String content = driver.getUrlPattern().toLowerCase();
             if (searchTerm.contains(content)) {
