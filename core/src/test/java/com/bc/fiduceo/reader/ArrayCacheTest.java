@@ -149,6 +149,50 @@ public class ArrayCacheTest {
     }
 
     @Test
+    public void testRequestedArrayIsReadScaled_scaleIsNotAvailable_RuntimeException() throws IOException {
+//        final Attribute scaleAttribute = new Attribute("scale", 0.5);
+        final Attribute offsetAttribute = new Attribute("offset", 1.4);
+        final List<Attribute> attributeList = new ArrayList<>();
+//        attributeList.add(scaleAttribute);
+        attributeList.add(offsetAttribute);
+        when(variable.getAttributes()).thenReturn(attributeList);
+
+        try {
+            arrayCache.getScaled("a_variable", "scale", "offset");
+            fail("should not come here.");
+        } catch (RuntimeException e) {
+            assertEquals("Scale attribute with name 'scale' is not available.", e.getMessage());
+        }
+
+        verify(netcdfFile, times(1)).findVariable(null, "a_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testRequestedArrayIsReadScaled_offsetIsNotAvailable_RuntionException() throws IOException {
+        final Attribute scaleAttribute = new Attribute("scale", 0.5);
+//        final Attribute offsetAttribute = new Attribute("offset", 1.4);
+        final List<Attribute> attributeList = new ArrayList<>();
+        attributeList.add(scaleAttribute);
+//        attributeList.add(offsetAttribute);
+        when(variable.getAttributes()).thenReturn(attributeList);
+
+        try {
+            arrayCache.getScaled("a_variable", "scale", "offset");
+            fail("should not come here.");
+        } catch (RuntimeException e) {
+            assertEquals("Offset attribute with name 'offset' is not available.", e.getMessage());
+        }
+
+        verify(netcdfFile, times(1)).findVariable(null, "a_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).getAttributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
     public void testRequestedArrayIsReadScaled_fromCacheIfRequestedTwice() throws IOException {
         final Attribute attribute = new Attribute("scaleFac", 2.1);
         final List<Attribute> attributeList = new ArrayList<>();

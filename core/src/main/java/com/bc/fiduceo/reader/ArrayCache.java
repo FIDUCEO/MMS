@@ -122,14 +122,18 @@ public class ArrayCache {
 
             if (StringUtils.isNotNullAndNotEmpty(scaleAttributeName)) {
                 final Attribute scaleAttribute = arrayContainer.get(scaleAttributeName);
-                if (scaleAttribute != null) {
+                if (scaleAttribute == null) {
+                    throw new RuntimeException("Scale attribute with name '" + scaleAttributeName + "' is not available.");
+                } else {
                     scale = scaleAttribute.getNumericValue().floatValue();
                 }
             }
 
             if (StringUtils.isNotNullAndNotEmpty(offsetAttributeName)) {
                 final Attribute offsetAttribute = arrayContainer.get(offsetAttributeName);
-                if (offsetAttribute != null) {
+                if (offsetAttribute == null) {
+                    throw new RuntimeException("Offset attribute with name '" + offsetAttributeName + "' is not available.");
+                } else {
                     offset = offsetAttribute.getNumericValue().floatValue();
                 }
             }
