@@ -76,5 +76,7 @@ public class SystemConfigTest {
         final SystemConfig systemConfig = new SystemConfig();
 
         assertEquals(2048, systemConfig.getMmdWriterCacheSize());
+        assertEquals("S2", systemConfig.getGeometryLibraryType());
+        assertEquals("N4", systemConfig.getNetcdfFormat());
     }
 }
