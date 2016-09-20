@@ -176,8 +176,29 @@ public class MatchupToolTest {
         final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
         assertNotNull(parameter);
         assertEquals("amsub-n16", parameter.getSensorName());
+        assertNull(parameter.getVersion());
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 0, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(2002, 1, 23, 23, 59, 59, 999, parameter.getStopTime());
+    }
+
+    @Test
+    public void testGetPrimarySensorParameter_withDataVersion() {
+        final ToolContext context = new ToolContext();
+
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensor.setPrimary(true);
+        sensor.setDataVersion("v23.5");
+        sensorList.add(sensor);
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
+                .withSensors(sensorList)
+                .createConfig();
+        context.setUseCaseConfig(useCaseConfig);
+
+        final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
+        assertNotNull(parameter);
+        assertEquals("amsub-n16", parameter.getSensorName());
+        assertEquals("v23.5", parameter.getVersion());
     }
 
     @Test
@@ -289,8 +310,28 @@ public class MatchupToolTest {
         final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, startDate, endDate);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
+        assertNull(parameter.getVersion());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
+    }
+
+    @Test
+    public void testGetSecondarySensorParameter_withDataVersion() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("the sensor", "version_string"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-35");
+        final Date endDate = TimeUtils.parseDOYEndOfDay("1997-35");
+
+        final QueryParameter parameter = MatchupTool.getSecondarySensorParameter(config, startDate, endDate);
+        assertNotNull(parameter);
+        assertEquals("the sensor", parameter.getSensorName());
+        assertEquals("version_string", parameter.getVersion());
+        TestUtil.assertCorrectUTCDate(1997, 2, 4, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(1997, 2, 4, 23, 59, 59, parameter.getStopTime());
     }
 
     @Test

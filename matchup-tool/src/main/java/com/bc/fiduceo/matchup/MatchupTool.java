@@ -20,14 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
-import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.core.ValidationResult;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
@@ -56,15 +49,13 @@ import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class MatchupTool {
 
@@ -102,10 +93,18 @@ class MatchupTool {
     static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        parameter.setSensorName(secondarySensor.getName());
+        assignSensor(parameter, secondarySensor);
         parameter.setStartTime(searchTimeStart);
         parameter.setStopTime(searchTimeEnd);
         return parameter;
+    }
+
+    private static void assignSensor(QueryParameter parameter, Sensor secondarySensor) {
+        parameter.setSensorName(secondarySensor.getName());
+        final String dataVersion = secondarySensor.getDataVersion();
+        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
+            parameter.setVersion(dataVersion);
+        }
     }
 
     // package access for testing only tb 2016-03-14
@@ -125,7 +124,8 @@ class MatchupTool {
         if (primarySensor == null) {
             throw new RuntimeException("primary sensor not present in configuration file");
         }
-        parameter.setSensorName(primarySensor.getName());
+
+        assignSensor(parameter, primarySensor);
         parameter.setStartTime(context.getStartDate());
         parameter.setStopTime(context.getEndDate());
         return parameter;
