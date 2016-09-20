@@ -64,7 +64,8 @@ public class ConditionEngine {
                 return tdc.getMaxTimeDeltaInMillis();
             }
         }
-        return 0;
+        return 0;   // @todo 2 tb /** should'nt we return a large number here? If no time condition is set,
+        // the user does not want to check time differences, return 0 does the opposite 2016-09-20
     }
 
     public static ConditionEngineContext createContext(ToolContext context) {
