@@ -21,8 +21,6 @@
 package com.bc.fiduceo.geometry;
 
 
-import java.util.List;
-
 public class GeometryUtil {
 
     public static String toKml(Polygon polygon) {

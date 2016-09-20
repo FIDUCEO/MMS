@@ -614,7 +614,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetPixelLocator_Atsr1() throws IOException {
+    public void testGetPixelLocator_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -644,7 +644,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetSubscenePixelLocator_Atsr2() throws IOException {
+    public void testGetSubscenePixelLocator_ATSR2() throws IOException {
         final File file = getAtsr2File();
 
         try {

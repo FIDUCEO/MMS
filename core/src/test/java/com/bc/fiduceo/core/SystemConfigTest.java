@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class SystemConfigTest {
@@ -69,6 +70,16 @@ public class SystemConfigTest {
         assertEquals("S2", systemConfig.getGeometryLibraryType());
         assertEquals("N3", systemConfig.getNetcdfFormat());
         assertEquals(1234, systemConfig.getMmdWriterCacheSize());
+    }
+
+    @Test
+    public void testLoadFileNotPresent() throws IOException {
+        final SystemConfig systemConfig = new SystemConfig();
+        try {
+            systemConfig.loadFrom(testDirectory);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @Test

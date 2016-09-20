@@ -41,7 +41,7 @@ public class MatchupCollection {
 
     public int getNumMatchups() {
         int numMatchups = 0;
-        for(final MatchupSet set : matchupSets) {
+        for (final MatchupSet set : matchupSets) {
             numMatchups += set.getNumObservations();
         }
         return numMatchups;
