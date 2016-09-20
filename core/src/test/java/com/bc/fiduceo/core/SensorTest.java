@@ -55,9 +55,30 @@ public class SensorTest {
     }
 
     @Test
+    public void testSetGetDataVersion() {
+        final String v_1 = "a version";
+        final String v_2 = "v2.34";
+
+        sensor.setDataVersion(v_1);
+        assertEquals(v_1, sensor.getDataVersion());
+
+        sensor.setDataVersion(v_2);
+        assertEquals(v_2, sensor.getDataVersion());
+    }
+
+    @Test
     public void testParameterConstructor() {
         final Sensor sensor = new Sensor("wirbelwind");
 
         assertEquals("wirbelwind", sensor.getName());
+        assertNull(sensor.getDataVersion());
+    }
+
+    @Test
+    public void testTwoParameterConstructor() {
+        final Sensor sensor = new Sensor("thermo", "v17");
+
+        assertEquals("thermo", sensor.getName());
+        assertEquals("v17", sensor.getDataVersion());
     }
 }

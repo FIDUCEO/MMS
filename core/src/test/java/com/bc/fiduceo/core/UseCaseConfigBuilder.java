@@ -29,6 +29,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.core.UseCaseConfig.*;
 
+// @todo 2 tb/** write tests for this class 2016-09-20
 public class UseCaseConfigBuilder {
 
     private Document document;
@@ -73,6 +74,10 @@ public class UseCaseConfigBuilder {
                 final Element sensorElem = addChild(sensors, TAG_NAME_SENSOR);
                 addChild(sensorElem, TAG_NAME_NAME, sensor.getName());
                 addChild(sensorElem, TAG_NAME_PRIMARY, sensor.isPrimary());
+                final String dataVersion = sensor.getDataVersion();
+                if (dataVersion != null) {
+                    addChild(sensorElem, TAG_NAME_DATA_VERSION, dataVersion);
+                }
             }
         }
         return this;

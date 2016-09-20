@@ -85,10 +85,38 @@ public class UseCaseConfigTest {
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertEquals("use-case 19", useCaseConfig.getName());
+
         final List<Sensor> sensors = useCaseConfig.getSensors();
         assertEquals(2, sensors.size());
         assertEquals("amsub-n16", sensors.get(0).getName());
         assertEquals("mhs-n18", sensors.get(1).getName());
+    }
+
+    @Test
+    public void testLoad__twoSensors_withVersion() {
+        final String useCaseXml = "<use-case-config name=\"use-case 19\">" +
+                "  <sensors>" +
+                "    <sensor>" +
+                "      <name>amsub-n16</name>" +
+                "      <data-version>version_2</data-version>" +
+                "    </sensor>" +
+                "    <sensor>" +
+                "      <name>mhs-n18</name>" +
+                "      <data-version>3.1-a</data-version>" +
+                "    </sensor>" +
+                "  </sensors>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertEquals("use-case 19", useCaseConfig.getName());
+
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        assertEquals(2, sensors.size());
+        assertEquals("amsub-n16", sensors.get(0).getName());
+        assertEquals("version_2", sensors.get(0).getDataVersion());
+        assertEquals("mhs-n18", sensors.get(1).getName());
+        assertEquals("3.1-a", sensors.get(1).getDataVersion());
     }
 
     @Test
@@ -160,7 +188,7 @@ public class UseCaseConfigTest {
         final UseCaseConfig useCaseConfig = new UseCaseConfigBuilder("test_use_case")
                 .withSensors(Arrays.asList(
                         new Sensor("first"),
-                        new Sensor("second")))
+                        new Sensor("second", "v18")))
                 .withDimensions(Arrays.asList(
                         new Dimension("first", 11, 15),
                         new Dimension("second", 3, 5)))
@@ -183,6 +211,7 @@ public class UseCaseConfigTest {
         pw.println("    <sensor>");
         pw.println("      <name>second</name>");
         pw.println("      <primary>false</primary>");
+        pw.println("      <data-version>v18</data-version>");
         pw.println("    </sensor>");
         pw.println("  </sensors>");
         pw.println("  <dimensions>");

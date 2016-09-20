@@ -46,6 +46,7 @@ public class UseCaseConfig {
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
     public static final String TAG_NAME_PRIMARY = "primary";
+    public static final String TAG_NAME_DATA_VERSION = "data-version";
     public static final String TAG_NAME_DIMENSIONS = "dimensions";
     public static final String TAG_NAME_DIMENSION = "dimension";
     public static final String TAG_NAME_NX = "nx";
@@ -199,6 +200,10 @@ public class UseCaseConfig {
                 final Element primary = sensorElem.getChild(TAG_NAME_PRIMARY);
                 if (primary != null) {
                     sensor.setPrimary(Boolean.valueOf(primary.getValue()));
+                }
+                final Element dataVersionElement = sensorElem.getChild(TAG_NAME_DATA_VERSION);
+                if (dataVersionElement != null) {
+                    sensor.setDataVersion(dataVersionElement.getValue());
                 }
                 getSensors().add(sensor);
             }

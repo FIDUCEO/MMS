@@ -25,12 +25,18 @@ public class Sensor {
 
     private String name;
     private boolean primary;
+    private String dataVersion;
+
+    public Sensor() {
+    }
 
     public Sensor(String name) {
         this.name = name;
     }
 
-    public Sensor() {
+    public Sensor(String name, String dataVersion) {
+        this.name = name;
+        this.dataVersion = dataVersion;
     }
 
     public String getName() {
@@ -47,5 +53,13 @@ public class Sensor {
 
     public void setPrimary(boolean primary) {
         this.primary = primary;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
     }
 }
