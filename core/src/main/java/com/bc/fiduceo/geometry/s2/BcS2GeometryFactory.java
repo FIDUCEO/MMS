@@ -20,20 +20,10 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.AbstractGeometryFactory;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
+import com.google.common.geometry.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,9 +32,11 @@ import java.util.List;
 public class BcS2GeometryFactory extends AbstractGeometryFactory {
 
     private final S2WKTReader s2WKTReader;
+    private final S2WKTWriter s2WKTWriter;
 
     public BcS2GeometryFactory() {
         s2WKTReader = new S2WKTReader();
+        s2WKTWriter = new S2WKTWriter();
     }
 
     public static List<S2Point> extractS2Points(List<Point> points) {
@@ -85,14 +77,14 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
 
     @Override
     public byte[] toStorageFormat(Geometry geometry) {
-        // @todo 1 tb/tb do it 2015-12-22
-        throw new RuntimeException("not implemented");
+        final String wkt = S2WKTWriter.write(geometry.getInner());
+        return wkt.getBytes();
     }
 
     @Override
     public Geometry fromStorageFormat(byte[] rawData) {
-        // @todo 1 tb/tb do it 2015-12-22
-        throw new RuntimeException("not implemented");
+        final String geometryWkt = new String(rawData);
+        return parse(geometryWkt);
     }
 
     @Override

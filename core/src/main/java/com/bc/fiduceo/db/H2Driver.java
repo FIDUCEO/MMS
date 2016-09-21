@@ -26,14 +26,10 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKBWriter;
+import com.vividsolutions.jts.io.WKTWriter;
 import org.esa.snap.core.util.StringUtils;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +41,7 @@ public class H2Driver extends AbstractDriver {
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     private GeometryFactory geometryFactory;
-    private WKBWriter wkbWriter;
+    private WKTWriter wktWriter;
 
     @Override
     public String getUrlPattern() {
@@ -55,7 +51,7 @@ public class H2Driver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
-        wkbWriter = new WKBWriter();
+        wktWriter = new WKTWriter();
     }
 
     @Override
@@ -72,14 +68,15 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?,?)");
+        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
         final String wkt = geometryFactory.format(observation.getGeoBounds());
         preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
-        preparedStatement.setString(6, observation.getDataFilePath().toString());
+        preparedStatement.setString(6, observation.getVersion());
+        preparedStatement.setString(7, observation.getDataFilePath().toString());
         // @todo 2 tb/tb insert TimeAxes here 2013-03-07
 
         preparedStatement.executeUpdate();
@@ -117,13 +114,16 @@ public class H2Driver extends AbstractDriver {
 
             // @todo 2 tb/tb remove this when H2GIS is working properly 2015-12-22
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
-            final byte[] geoBoundsWkb = wkbWriter.write(geoBounds);
-            final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkb);
+            final String geoBoundsWkt = wktWriter.write(geoBounds);
+            final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
             observation.setGeoBounds(geometry);
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);
             observation.setSensor(sensor);
+
+            final String version = resultSet.getString("Version");
+            observation.setVersion(version);
 
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFilePath(dataFile);
@@ -137,6 +137,7 @@ public class H2Driver extends AbstractDriver {
         return resultList;
     }
 
+    // package access for testing only tb 2016-09-21
     String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID");
@@ -176,6 +177,18 @@ public class H2Driver extends AbstractDriver {
 
             sql.append("sen.Name = '");
             sql.append(sensorName);
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String path = parameter.getPath();
+        if (StringUtils.isNotNullAndNotEmpty(path)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("obs.DataFile = '");
+            sql.append(path);
             sql.append("'");
         }
 

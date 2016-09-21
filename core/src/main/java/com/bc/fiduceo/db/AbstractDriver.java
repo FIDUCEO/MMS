@@ -32,9 +32,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public abstract class AbstractDriver implements Driver {
+abstract class AbstractDriver implements Driver {
 
-    protected Connection connection;
+    Connection connection;
 
     @Override
     public void open(BasicDataSource dataSource) throws SQLException {
@@ -58,11 +58,20 @@ public abstract class AbstractDriver implements Driver {
                 "NodeType TINYINT," +
                 "GeoBounds GEOMETRY, " +
                 "SensorId INT," +
+                "Version VARCHAR(16)," +
                 "DataFile VARCHAR(256))");
 
         statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE SENSOR (ID INT AUTO_INCREMENT PRIMARY KEY, " +
                 "Name VARCHAR(64))");
+
+        statement = connection.createStatement();
+        statement.executeUpdate("CREATE TABLE TIMEAXIS (ID INT AUTO_INCREMENT PRIMARY KEY, " +
+                "ObservationId INT," +
+                "Axis GEOMETRY," +
+                "StartTime TIMESTAMP, " +
+                "StopTime TIMESTAMP, " +
+                "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID))");
     }
 
     @Override
@@ -72,6 +81,9 @@ public abstract class AbstractDriver implements Driver {
 
         connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS SENSOR");
+
+        connection.createStatement();
+        statement.execute("DROP TABLE IF EXISTS TIMEAXIS");
     }
 
     @Override

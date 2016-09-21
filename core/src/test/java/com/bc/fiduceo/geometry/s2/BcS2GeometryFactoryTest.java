@@ -228,4 +228,73 @@ public class BcS2GeometryFactoryTest {
         final Date time = timeAxis.getTime(factory.createPoint(0.5, 1.0));
         assertEquals(100500025387L, time.getTime());
     }
+
+    @Test
+    public void testToStorageFormat_point() {
+        final Geometry point = factory.parse("POINT(-22.5 67.23)");
+
+        final byte[] storageFormat = factory.toStorageFormat(point);
+        assertEquals("POINT(-22.500000000000004,67.23)", new String(storageFormat));
+    }
+
+    @Test
+    public void testToStorageFormat_lineString() {
+        final Geometry point = factory.parse("LINESTRING(1 8, 2 8.5, 3 8.7)");
+
+        final byte[] storageFormat = factory.toStorageFormat(point);
+        assertEquals("LINESTRING(1.0 7.999999999999998,2.0 8.5,3.0000000000000004 8.700000000000001)", new String(storageFormat));
+    }
+
+    @Test
+    public void testToStorageFormat_polygon() {
+        final Geometry point = factory.parse("POLYGON((1 8, 2 8.5, 3 8.2, 1 8))");
+
+        final byte[] storageFormat = factory.toStorageFormat(point);
+        assertEquals("POLYGON((3.0000000000000004 8.2,2.0 8.5,1.0 7.999999999999998,3.0000000000000004 8.2))", new String(storageFormat));
+    }
+
+    @Test
+    public void testFromStorageFormat_point() {
+        final String pointWkt = "POINT(-22.5 67.23)";
+
+        final Geometry pointGeometry = factory.fromStorageFormat(pointWkt.getBytes());
+        assertTrue(pointGeometry instanceof Point);
+
+        final Point[] coordinates = pointGeometry.getCoordinates();
+        assertEquals(1, coordinates.length);
+        assertEquals(-22.5, coordinates[0].getLon(), 1e-8);
+        assertEquals(67.23, coordinates[0].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testFromStorageFormat_lineString() {
+        final String lineStringWkt = "LINESTRING(1 8, 2 8.5, 3 8.7)";
+
+        final Geometry lineStringGeometry = factory.fromStorageFormat(lineStringWkt.getBytes());
+        assertTrue(lineStringGeometry instanceof LineString);
+
+        final Point[] coordinates = lineStringGeometry.getCoordinates();
+        assertEquals(3, coordinates.length);
+        assertEquals(1, coordinates[0].getLon(), 1e-8);
+        assertEquals(8, coordinates[0].getLat(), 1e-8);
+        assertEquals(3, coordinates[2].getLon(), 1e-8);
+        assertEquals(8.7, coordinates[2].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testFromStorageFormat_polygon() {
+        final String polygonWkt = "POLYGON((1 8, 2 8.5, 3 8.2, 1 8))";
+
+        final Geometry polygonGeometry = factory.fromStorageFormat(polygonWkt.getBytes());
+        assertTrue(polygonGeometry instanceof Polygon);
+
+        final Point[] coordinates = polygonGeometry.getCoordinates();
+        assertEquals(4, coordinates.length);
+        assertEquals(3, coordinates[0].getLon(), 1e-8);
+        assertEquals(8.2, coordinates[0].getLat(), 1e-8);
+        assertEquals(1, coordinates[2].getLon(), 1e-8);
+        assertEquals(8, coordinates[2].getLat(), 1e-8);
+        assertEquals(3, coordinates[3].getLon(), 1e-8);
+        assertEquals(8.2, coordinates[3].getLat(), 1e-8);
+    }
 }
