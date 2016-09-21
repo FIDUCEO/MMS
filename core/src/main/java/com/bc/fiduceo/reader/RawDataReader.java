@@ -20,6 +20,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.window_reader.WindowReader;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayDouble;
