@@ -133,7 +133,7 @@ public abstract class WindowReader {
             int yRaw = y + offsetY;
             for (int x = 0; x < width; x++) {
                 int xRaw = x + offsetX;
-                if (yRaw >= 0 && yRaw < rawHeight && xRaw >= 0 && xRaw < rawWidth) {
+                if ((rawHeight == 0 || (yRaw >= 0 && yRaw < rawHeight)) && (rawWidth == 0 || (xRaw >= 0 && xRaw < rawWidth))) {
                     rawSetter.set(y, x, yRaw, xRaw);
                 } else {
                     fillSetter.set(y, x);

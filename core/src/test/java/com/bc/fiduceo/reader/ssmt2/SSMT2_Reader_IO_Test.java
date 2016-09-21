@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.ssmt2;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -30,12 +31,11 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -43,7 +43,6 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +50,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -160,6 +160,31 @@ public class SSMT2_Reader_IO_Test {
             assertEquals(763, productSize.getNy());
         }
     }
+
+    @Test
+    public void testReadFrom1dVariable() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Array array = r.readRaw(2, 197, new Interval(5, 5), "thermal_reference");
+            assertNotNull(array);
+            assertTrue(array instanceof ArrayFloat.D2);
+            final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+            float[] f = (float[]) d2.get1DJavaArray(Float.class);
+            final float[] expected = new float[]{
+                        0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0,
+                        2575, 2575, 2575, 2575, 2575,
+                        2575, 2575, 2575, 2575, 2575,
+                        2575, 2575, 2575, 2575, 2575
+            };
+            assertArrayEquals(f, expected, 1e-8f);
+        }
+    }
+
+    // @todo implement test for reading of 1dFrom2d, 2dFrom2d, 1dFrom3d, 2dFrom3d
+    // use SSMT2_Reader_usage.java to fetch the expected values for
 
     @Test
     public void testGetVariables() throws Exception {
