@@ -24,6 +24,7 @@
     <id>MMS</id>
 
     <formats>
+        <format>dir</format>
         <format>zip</format>
     </formats>
 
@@ -32,7 +33,7 @@
     <fileSets>
         <fileSet>
             <directory>cems/src/main/bin</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory/>
             <directoryMode>0770</directoryMode>
             <includes>
                 <include>*.sh</include>
@@ -43,7 +44,7 @@
 
         <fileSet>
             <directory>cems/src/main/python</directory>
-            <outputDirectory>/python</outputDirectory>
+            <outputDirectory>python</outputDirectory>
             <directoryMode>0774</directoryMode>
             <includes>
                 <include>*.py</include>
@@ -54,7 +55,7 @@
 
         <fileSet>
             <directory>cems/src/main/python/archive</directory>
-            <outputDirectory>/python/archive</outputDirectory>
+            <outputDirectory>python/archive</outputDirectory>
             <directoryMode>0774</directoryMode>
             <includes>
                 <include>*.py</include>
@@ -65,7 +66,7 @@
 
         <fileSet>
             <directory>ingestion-tool/src/main/bin</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory/>
             <directoryMode>0774</directoryMode>
             <includes>
                 <include>*.sh</include>
@@ -77,7 +78,7 @@
 
         <fileSet>
             <directory>matchup-tool/src/main/bin</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory/>
             <directoryMode>0774</directoryMode>
             <includes>
                 <include>*.sh</include>
@@ -89,7 +90,7 @@
 
         <fileSet>
             <directory>src/main/config</directory>
-            <outputDirectory>/config</outputDirectory>
+            <outputDirectory>config</outputDirectory>
             <directoryMode>0774</directoryMode>
             <includes>
                 <include>*.properties</include>
@@ -104,8 +105,8 @@
         <moduleSet>
 
             <!-- Enable access to all projects in the current multimodule build! -->
-            <useAllReactorProjects>true</useAllReactorProjects>
-
+            <!--<useAllReactorProjects>true</useAllReactorProjects>-->
+            <includes/>
             <binaries>
                 <outputDirectory>lib</outputDirectory>
                 <unpack>false</unpack>
