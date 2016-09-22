@@ -34,6 +34,7 @@ import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -103,6 +104,34 @@ public abstract class StorageTest_SatelliteObservation {
         TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 13, 20, 0, timeAxes[0].getStartTime());
         TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 30, 0, 0, timeAxes[0].getEndTime());
         final Geometry geometry = timeAxes[0].getGeometry();
+        assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
+    }
+
+    // @todo 1 tb/tb reanimate ASAP 2016-09-22
+    @Ignore
+    public void testInsert_andGet_twoTimeAxes() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation();
+
+        final TimeAxis[] timeAxes = new TimeAxis[2];
+        final TimeAxis timeAxis = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", TimeUtils.create(1440000000000L), TimeUtils.create(1450000000000L));
+        timeAxes[0] = observation.getTimeAxes()[0];
+        timeAxes[1] = timeAxis;
+        observation.setTimeAxes(timeAxes);
+
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final SatelliteObservation observationFromDb = result.get(0);
+
+        final TimeAxis[] timeAxesFromDb = observationFromDb.getTimeAxes();
+        assertEquals(2, timeAxesFromDb.length);
+
+        TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 13, 20, 0, timeAxesFromDb[0].getStartTime());
+        TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 30, 0, 0, timeAxesFromDb[0].getEndTime());
+        final Geometry geometry = timeAxesFromDb[0].getGeometry();
         assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
     }
 
@@ -385,8 +414,7 @@ public abstract class StorageTest_SatelliteObservation {
 
         observation.setDataFilePath(DATA_FILE_PATH);
 
-        final LineString timeAxisGeometry = (LineString) geometryFactory.parse("LINESTRING(1 5, 1 6, 1 7)");
-        final TimeAxis timeAxis = geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);
+        final TimeAxis timeAxis = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", startTime, stopTime);
         observation.setTimeAxes(new TimeAxis[]{timeAxis});
 
         observation.setSensor(new Sensor(SENSOR_NAME));
@@ -394,6 +422,11 @@ public abstract class StorageTest_SatelliteObservation {
         observation.setVersion(VERSION);
 
         return observation;
+    }
+
+    private TimeAxis createTimeAxis(String geometry, Date startTime, Date stopTime) {
+        final LineString timeAxisGeometry = (LineString) geometryFactory.parse(geometry);
+        return geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);
     }
 
     private SatelliteObservation createSatelliteObservation() throws ParseException {
