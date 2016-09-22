@@ -183,8 +183,93 @@ public class SSMT2_Reader_IO_Test {
         }
     }
 
-    // @todo implement test for reading of 1dFrom2d, 2dFrom2d, 1dFrom3d, 2dFrom3d
-    // use SSMT2_Reader_usage.java to fetch the expected values for
+    @Test
+    public void testReadFrom2dVariable() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Array array = r.readRaw(2, 2, new Interval(5, 5), "lon");
+            assertNotNull(array);
+            assertTrue(array instanceof ArrayFloat.D2);
+            final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+            float[] f = (float[]) d2.get1DJavaArray(Float.class);
+            final float[] expected = new float[]{
+                        128.38298f, 127.622314f, 126.94211f, 126.32476f, 125.757286f,
+                        128.2796f, 127.518654f, 126.83821f, 126.22068f, 125.65306f,
+                        128.1766f, 127.41533f, 126.73462f, 126.11687f, 125.54906f,
+                        128.07399f, 127.31234f, 126.63133f, 126.01331f, 125.44529f,
+                        127.97173f, 127.20968f, 126.52832f, 125.91001f, 125.34173f
+            };
+            assertArrayEquals(f, expected, 1e-8f);
+        }
+    }
+
+    @Test
+    public void testRead1dFrom2dVariable_with_channel() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Array array = r.readRaw(0, 4, new Interval(5, 5), "counts_to_tb_gain_ch2");
+            assertNotNull(array);
+            assertTrue(array instanceof ArrayFloat.D2);
+            final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+            float[] f = (float[]) d2.get1DJavaArray(Float.class);
+            final float[] expected = new float[]{
+                        0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f,
+                        0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f,
+                        0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f,
+                        0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f,
+                        0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f
+            };
+            assertArrayEquals(f, expected, 1e-8f);
+        }
+    }
+
+    @Test
+    public void testRead2dFrom3dVariable_with_channel() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Array array = r.readRaw(4, 4, new Interval(5, 5), "tb_ch3");
+            assertNotNull(array);
+            assertTrue(array instanceof ArrayFloat.D2);
+            final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+            float[] f = (float[]) d2.get1DJavaArray(Float.class);
+            final float[] expected = new float[]{
+                        267.4799f, 267.72684f, 268.34415f, 268.71454f, 268.59106f,
+                        268.293f, 268.293f, 270.27148f, 270.5188f, 270.5188f,
+                        268.7834f, 268.04242f, 270.01834f, 270.01834f, 269.77136f,
+                        267.58524f, 267.58524f, 268.69617f, 268.94305f, 268.4493f,
+                        268.0838f, 267.8365f, 268.20746f, 268.20746f, 268.82574f
+            };
+            assertArrayEquals(f, expected, 1e-8f);
+        }
+    }
+
+    @Test
+    public void testRead1dFrom3dVariable_with_channel_and_calibrations() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Array array = r.readRaw(4, 4, new Interval(5, 5), "warm_counts_ch3_cal3");
+            assertNotNull(array);
+            assertTrue(array instanceof ArrayFloat.D2);
+            final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+            float[] f = (float[]) d2.get1DJavaArray(Float.class);
+            final float[] expected = new float[]{
+                        3532.0f, 3532.0f, 3532.0f, 3532.0f, 3532.0f,
+                        3527.0f, 3527.0f, 3527.0f, 3527.0f, 3527.0f,
+                        3526.0f, 3526.0f, 3526.0f, 3526.0f, 3526.0f,
+                        3543.0f, 3543.0f, 3543.0f, 3543.0f, 3543.0f,
+                        3534.0f, 3534.0f, 3534.0f, 3534.0f, 3534.0f
+            };
+            assertArrayEquals(f, expected, 1e-8f);
+        }
+    }
 
     @Test
     public void testGetVariables() throws Exception {
