@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (C) 2016 Brockmann Consult GmbH
+  ~ This code was developed for the EC project "Fidelity and Uncertainty in
+  ~ Climate Data Records from Earth Observations (FIDUCEO)".
+  ~ Grant Agreement: 638822
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ A copy of the GNU General Public License should have been supplied along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  ~
+  -->
+
+<use-case-config name="mmd05">
+    <sensors>
+        <sensor>
+            <name>hirs-n17</name>
+            <primary>true</primary>
+        </sensor>
+        <sensor>
+            <name>hirs-n16</name>
+            <primary>false</primary>
+        </sensor>
+    </sensors>
+    <dimensions>
+        <dimension name="hirs-n17">
+            <nx>7</nx>
+            <ny>7</ny>
+        </dimension>
+        <dimension name="hirs-n16">
+            <nx>7</nx>
+            <ny>7</ny>
+        </dimension>
+    </dimensions>
+
+    <write-distance>true</write-distance>
+    <output-path>/group_workspaces/cems2/fiduceo/Data/mms/mmd/mmd05/hirs_n17_n16</output-path>
+
+    <conditions>
+        <time-delta>
+            <time-delta-seconds>900</time-delta-seconds>
+        </time-delta>
+
+        <spherical-distance>
+            <max-pixel-distance-km>20.0</max-pixel-distance-km>
+        </spherical-distance>
+    </conditions>
+
+    <screenings>
+        <pixel-value>
+            <primary_expression>scanline_type == 0</primary_expression>
+            <secondary_expression>scanline_type == 0</secondary_expression>
+        </pixel-value>
+
+        <hirs-lza-delta>
+            <max-lza-delta>10.0</max-lza-delta>
+        </hirs-lza-delta>
+    </screenings>
+</use-case-config>
