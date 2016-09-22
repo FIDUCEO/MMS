@@ -1,24 +1,18 @@
-package com.bc.fiduceo.reader.window_reader;
+package com.bc.fiduceo.reader;
 
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.reader.ArrayCache;
 import org.junit.*;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.ArrayLong;
-import ucar.ma2.ArrayShort;
+import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class TestRead1dFrom3dAndExpandTo2d {
+public class Read1dFrom3dAndExpandTo2d_Test {
 
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
@@ -49,7 +43,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readDouble(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Double3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -67,21 +61,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readDouble(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
-    }
-
-    public void readDouble(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, double[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dDouble.ArraySourceDouble arraySource = () -> (ArrayDouble.D3) arrayCache.get("Double3D");
-        final String[] offsetMapping = {"y", column, layer};
-        final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dDouble(arraySource, offsetMapping, fillValue);
-
-        final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
-        assertNotNull(array);
-        assertTrue(array instanceof ArrayDouble.D2);
-        final ArrayDouble.D2 arrayDouble = (ArrayDouble.D2) array;
-        final double[] storage = (double[]) arrayDouble.getStorage();
-        assertArrayEquals(expected, storage, 1e-8);
+        read("Double3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -97,7 +77,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readFloat(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Float3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -115,21 +95,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readFloat(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
-    }
-
-    public void readFloat(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, float[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dFloat.ArraySourceFloat arraySource = () -> (ArrayFloat.D3) arrayCache.get("Float3D");
-        final String[] offsetMapping = {"y", column, layer};
-        final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dFloat(arraySource, offsetMapping, fillValue);
-
-        final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
-        assertNotNull(array);
-        assertTrue(array instanceof ArrayFloat.D2);
-        final ArrayFloat.D2 arrayFloat = (ArrayFloat.D2) array;
-        final float[] storage = (float[]) arrayFloat.getStorage();
-        assertArrayEquals(expected, storage, 1e-8f);
+        read("Float3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -145,7 +111,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readLong(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Long3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -163,21 +129,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readLong(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
-    }
-
-    public void readLong(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, long[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dLong.ArraySourceLong arraySource = () -> (ArrayLong.D3) arrayCache.get("Long3D");
-        final String[] offsetMapping = {"y", column, layer};
-        final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dLong(arraySource, offsetMapping, fillValue);
-
-        final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
-        assertNotNull(array);
-        assertTrue(array instanceof ArrayLong.D2);
-        final ArrayLong.D2 arrayLong = (ArrayLong.D2) array;
-        final long[] storage = (long[]) arrayLong.getStorage();
-        assertArrayEquals(expected, storage);
+        read("Long3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -193,7 +145,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readInt(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Int3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -211,21 +163,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readInt(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
-    }
-
-    public void readInt(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, int[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dInt.ArraySourceInt arraySource = () -> (ArrayInt.D3) arrayCache.get("Int3D");
-        final String[] offsetMapping = {"y", column, layer};
-        final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dInt(arraySource, offsetMapping, fillValue);
-
-        final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
-        assertNotNull(array);
-        assertTrue(array instanceof ArrayInt.D2);
-        final ArrayInt.D2 arrayInt = (ArrayInt.D2) array;
-        final int[] storage = (int[]) arrayInt.getStorage();
-        assertArrayEquals(expected, storage);
+        read("Int3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -241,7 +179,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readShort(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Short3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -259,21 +197,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readShort(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
-    }
-
-    public void readShort(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, short[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dShort.ArraySourceShort arraySource = () -> (ArrayShort.D3) arrayCache.get("Short3D");
-        final String[] offsetMapping = {"y", column, layer};
-        final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dShort(arraySource, offsetMapping, fillValue);
-
-        final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
-        assertNotNull(array);
-        assertTrue(array instanceof ArrayShort.D2);
-        final ArrayShort.D2 arrayShort = (ArrayShort.D2) array;
-        final short[] storage = (short[]) arrayShort.getStorage();
-        assertArrayEquals(expected, storage);
+        read("Short3D",layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -289,7 +213,7 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 1;
         final int windowWidth = 3;
         final int windowHeight = 3;
-        readByte(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Byte3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
     @Test
@@ -307,21 +231,34 @@ public class TestRead1dFrom3dAndExpandTo2d {
         final int centerY = 7;
         final int windowWidth = 5;
         final int windowHeight = 5;
-        readByte(layer, column, centerX, centerY, windowWidth, windowHeight, expected);
+        read("Byte3D", layer, column, centerX, centerY, windowWidth, windowHeight, expected);
     }
 
-    public void readByte(String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, byte[] expected) throws IOException {
-        final Read1dFrom3dAndExpandTo2dByte.ArraySourceByte arraySource = () -> (ArrayByte.D3) arrayCache.get("Byte3D");
+    private void read(final String variableName, String layer, String column, final int centerX, final int centerY, final int windowWidth, final int windowHeight, Object expected) throws IOException {
+        final Read1dFrom3dAndExpandTo2d.ArraySource arraySource = () -> arrayCache.get(variableName);
         final String[] offsetMapping = {"y", column, layer};
         final int fillValue = -1;
-        final WindowReader reader = new Read1dFrom3dAndExpandTo2dByte(arraySource, offsetMapping, fillValue);
+        final WindowReader reader = new Read1dFrom3dAndExpandTo2d(arraySource, offsetMapping, fillValue);
 
         final Array array = reader.read(centerX, centerY, new Interval(windowWidth, windowHeight));
         assertNotNull(array);
-        assertTrue(array instanceof ArrayByte.D2);
-        final ArrayByte.D2 arrayByte = (ArrayByte.D2) array;
-        final byte[] storage = (byte[]) arrayByte.getStorage();
-        assertArrayEquals(expected, storage);
+        assertEquals(2, array.getRank());
+        final DataType dataType = array.getDataType();
+        if (DataType.DOUBLE.equals(dataType)) {
+            assertArrayEquals((double[]) expected, (double[]) array.getStorage(), 1e-128);
+        } else if (DataType.FLOAT.equals(dataType)) {
+            assertArrayEquals((float[]) expected, (float[]) array.getStorage(), 1e-45f);
+        } else if (DataType.LONG.equals(dataType)) {
+            assertArrayEquals((long[]) expected, (long[]) array.getStorage());
+        } else if (DataType.INT.equals(dataType)) {
+            assertArrayEquals((int[]) expected, (int[]) array.getStorage());
+        } else if (DataType.SHORT.equals(dataType)) {
+            assertArrayEquals((short[]) expected, (short[]) array.getStorage());
+        } else if (DataType.BYTE.equals(dataType)) {
+            assertArrayEquals((byte[]) expected, (byte[]) array.getStorage());
+        } else {
+            fail();
+        }
     }
 
 }

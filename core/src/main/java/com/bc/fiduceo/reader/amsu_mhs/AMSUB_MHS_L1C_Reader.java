@@ -60,7 +60,6 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -115,10 +114,10 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         final int endDay = getGlobalAttributeAsInteger("enddatady");
         final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
 
-        final Date sensingStart = getDate(startYear, startDay, startTime);
+        final Date sensingStart = TimeUtils.getDate(startYear, startDay, startTime);
         acquisitionInfo.setSensingStart(sensingStart);
 
-        final Date sensingStop = getDate(endYear, endDay, endTime);
+        final Date sensingStop = TimeUtils.getDate(endYear, endDay, endTime);
         acquisitionInfo.setSensingStop(sensingStop);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
@@ -168,7 +167,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
             final Array scnlindy = arrayCache.get(DATA_GROUP_NAME, "scnlindy");
             final Array scnlintime = arrayCache.get(DATA_GROUP_NAME, "scnlintime");
 
-            timeLocator = new AMSUB_MHS_TimeLocator(scnlinyr, scnlindy, scnlintime);
+            timeLocator = new TimeLocator_YearDoyMs(scnlinyr, scnlindy, scnlintime);
         }
         return timeLocator;
     }
@@ -283,21 +282,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     // package access for testing only tb 2016-04-19
     static String correctAzimuth(String shortName) {
         return shortName.replace("azimith", "azimuth");
-    }
-
-    // package access for testing only tb 2016-04-12
-    static Date getDate(int year, int dayOfYear, int millisecsInDay) {
-        final Calendar calendar = TimeUtils.getUTCCalendar();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
-
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        calendar.add(Calendar.MILLISECOND, millisecsInDay);
-        return calendar.getTime();
     }
 
     // package access for testing only tb 2016-04-14

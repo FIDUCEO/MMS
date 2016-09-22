@@ -191,4 +191,22 @@ public class TimeUtilsTest {
         assertEquals(34L, TimeUtils.getTaiToUtcOffset(1230768007));
         assertEquals(37L, TimeUtils.getTaiToUtcOffset(1483228808));
     }
+
+    @Test
+    public void testGetDate() {
+        Date date = TimeUtils.getDate(2002, 125, 0);
+        TestUtil.assertCorrectUTCDate(2002, 5, 5, 0, 0, 0, 0, date);
+
+        date = TimeUtils.getDate(2002, 126, 0);
+        TestUtil.assertCorrectUTCDate(2002, 5, 6, 0, 0, 0, 0, date);
+
+        date = TimeUtils.getDate(2008, 217, 1000);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 1, 0, date);
+
+        date = TimeUtils.getDate(2008, 217, 22567);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 22, 567, date);
+
+        date = TimeUtils.getDate(2008, 217, 82022567);
+        TestUtil.assertCorrectUTCDate(2008, 8, 4, 22, 47, 2, 567, date);
+    }
 }

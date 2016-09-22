@@ -49,11 +49,11 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
@@ -992,9 +992,9 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertNotNull(acquisitionTime);
             assertEquals(9, acquisitionTime.getSize());
 
-            final int upperLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63031787).getTime() / 1000);
-            final int centerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63034454).getTime() / 1000);
-            final int lowerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 63037121).getTime() / 1000);
+            final int upperLineTime = (int) (TimeUtils.getDate(2007, 234, 63031787).getTime() / 1000);
+            final int centerLineTime = (int) (TimeUtils.getDate(2007, 234, 63034454).getTime() / 1000);
+            final int lowerLineTime = (int) (TimeUtils.getDate(2007, 234, 63037121).getTime() / 1000);
 
             NCTestUtils.assertValueAt(upperLineTime, 0, 0, acquisitionTime);
             NCTestUtils.assertValueAt(upperLineTime, 1, 0, acquisitionTime);
@@ -1023,8 +1023,8 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             assertNotNull(acquisitionTime);
             assertEquals(9, acquisitionTime.getSize());
 
-            final int centerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60037120).getTime() / 1000);
-            final int lowerLineTime = (int) (AMSUB_MHS_L1C_Reader.getDate(2007, 234, 60039787).getTime() / 1000);
+            final int centerLineTime = (int) (TimeUtils.getDate(2007, 234, 60037120).getTime() / 1000);
+            final int lowerLineTime = (int) (TimeUtils.getDate(2007, 234, 60039787).getTime() / 1000);
 
             NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 0, 0, acquisitionTime);
             NCTestUtils.assertValueAt(N3iosp.NC_FILL_INT, 1, 0, acquisitionTime);

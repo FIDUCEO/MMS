@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -566,6 +568,31 @@ public class SSMT2_Reader_IO_Test {
             variable = variables.get(67);
             assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+        }
+    }
+
+    @Test
+    public void testGetPixellocator() throws Exception {
+        final File file = createSSMT2_F14_File();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+
+            final PixelLocator pixelLocator = r.getPixelLocator();
+
+            assertNotNull(pixelLocator);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(2.5, 4.5, null);
+            final double lonVal = geoLocation.getX();
+            final double latVal = geoLocation.getY();
+            assertEquals(126.52832f, lonVal, 1e-128);
+            assertEquals(3.2110612f, latVal, 1e-128);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(lonVal, latVal);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(2.5, pixelLocation[0].getX(), 0.2);
+            assertEquals(4.5, pixelLocation[0].getY(), 0.1);
         }
     }
 

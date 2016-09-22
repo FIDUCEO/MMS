@@ -28,39 +28,28 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
+import com.bc.fiduceo.reader.Read2dFrom3d;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dByte;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dDouble;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dFloat;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dInt;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dLong;
-import com.bc.fiduceo.reader.window_reader.Read1dFrom3dAndExpandTo2dShort;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dByte;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dDouble;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dFloat;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dInt;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dLong;
-import com.bc.fiduceo.reader.window_reader.Read2dFrom3dShort;
-import com.bc.fiduceo.reader.window_reader.WindowReader;
+import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayDouble;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.ArrayLong;
-import ucar.ma2.ArrayShort;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -73,6 +62,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SSMT2_Reader implements Reader {
+
+    private static final int NUM_SPLITS = 2;
 
     private static final String DIM_NAME_TIME_STEP = "time_step";
     private static final String DIM_NAME_SCAN_POSITION = "scan_position";
@@ -94,6 +85,7 @@ public class SSMT2_Reader implements Reader {
     private boolean needVariablesInitialisation = true;
     private ArrayList<Variable> variablesList;
     private HashMap<String, WindowReader> readersMap;
+    private PixelLocator pixelLocator;
 
     public SSMT2_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -131,17 +123,46 @@ public class SSMT2_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
+            final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
+            final int[] shape = lonStorage.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array longitudes = arrayCache.get("lon");
+        final int[] shape = longitudes.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
+        final PixelLocator pixelLocator = getPixelLocator();
+
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Variable ancil_data = netcdfFile.findVariable("ancil_data");
+        final ucar.nc2.Dimension time_step = netcdfFile.findDimension("time_step");
+        final int[] yearOrigin = {0, 0};
+        final int[] doyOrigin = {0, 1};
+        final int[] milliesOrigin = {0, 2};
+        final int[] shape = {time_step.getLength(), 1};
+        try {
+            final Array yearPerScanline = ancil_data.read(yearOrigin, shape).reduce();
+            final Array doyPerScanline = ancil_data.read(doyOrigin, shape).reduce();
+            final Array secondsPerScanline = ancil_data.read(milliesOrigin, shape).reduce();
+            final Array milliesPerScanline = MAMath.convert2Unpacked(secondsPerScanline, new MAMath.ScaleOffset(1000, 0));
+            return new TimeLocator_YearDoyMs(yearPerScanline, doyPerScanline, milliesPerScanline);
+        } catch (InvalidRangeException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -283,21 +304,7 @@ public class SSMT2_Reader implements Reader {
             channelVariable.setName(channelName);
             result.add(channelVariable);
             final String[] offsetMapping = {"y", "x", "" + channel};
-            if (DataType.DOUBLE.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dDouble(() -> (ArrayDouble.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else if (DataType.FLOAT.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dFloat(() -> (ArrayFloat.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else if (DataType.LONG.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dLong(() -> (ArrayLong.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else if (DataType.INT.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dInt(() -> (ArrayInt.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else if (DataType.SHORT.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dShort(() -> (ArrayShort.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else if (DataType.BYTE.equals(dataType)) {
-                readersMap.put(channelName, new Read2dFrom3dByte(() -> (ArrayByte.D3) arrayCache.get(shortName), offsetMapping, fillValue));
-            } else {
-                throw new RuntimeException("Data type '" + dataType.name() + "' not supported");
-            }
+            readersMap.put(channelName, new Read2dFrom3d(() -> arrayCache.get(shortName), offsetMapping, fillValue));
         }
     }
 
@@ -321,10 +328,10 @@ public class SSMT2_Reader implements Reader {
     }
 
     private void collect1dCalibrationsPerChannelFrom3dVariable(Variable variable, ArrayList<Variable> result) throws InvalidRangeException {
+        final int chanels = getNumChannels();
+        final int calibrations = getNumCalibrations();
         final int[] origin = {0, 0, 0};
         final int[] shape = variable.getShape();
-        final int chanels = shape[1];
-        final int calibrations = shape[2];
         shape[1] = 1;
         shape[2] = 1;
         final String channelPrefix = "_ch";
@@ -342,22 +349,8 @@ public class SSMT2_Reader implements Reader {
                 final String varName = baseName + channelPrefix + (channel + 1) + calibPrefix + (calib + 1);
                 channelVariable.setName(varName);
                 result.add(channelVariable);
-                final String[] offsetMapping = {"y", "" + channel, "" + calib};
-                if (DataType.DOUBLE.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dDouble(() -> (ArrayDouble.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else if (DataType.FLOAT.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dFloat(() -> (ArrayFloat.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else if (DataType.LONG.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dLong(() -> (ArrayLong.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else if (DataType.INT.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dInt(() -> (ArrayInt.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else if (DataType.SHORT.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dShort(() -> (ArrayShort.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else if (DataType.BYTE.equals(dataType)) {
-                    readersMap.put(varName, new Read1dFrom3dAndExpandTo2dByte(() -> (ArrayByte.D3) arrayCache.get(baseName), offsetMapping, fillValue));
-                } else {
-                    throw new RuntimeException("Data type '" + dataType.name() + "' not supported");
-                }
+                final String[] offsetMapping = {"y", String.valueOf(channel), String.valueOf(calib)};
+                readersMap.put(varName, new Read1dFrom3dAndExpandTo2d(() -> arrayCache.get(baseName), offsetMapping, fillValue));
             }
         }
     }
@@ -520,7 +513,6 @@ public class SSMT2_Reader implements Reader {
             final Index targetIdx = targetArray.getIndex();
             final int[] sourceShape = dataArray.getShape();
             final Index sourceIdx = dataArray.getIndex();
-            final int srcWidth = sourceShape[1];
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
                       targetWidth, targetHeight,

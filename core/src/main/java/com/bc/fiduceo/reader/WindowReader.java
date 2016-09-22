@@ -14,10 +14,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.fiduceo.reader.window_reader;
+package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.reader.WindowArrayFactory;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayDouble;

@@ -18,24 +18,27 @@
  *
  */
 
-package com.bc.fiduceo.reader.window_reader;
+package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.reader.WindowArrayFactory;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.Index3D;
+import ucar.ma2.Index;
 
 import java.io.IOException;
 
-public class Read1dFrom3dAndExpandTo2dByte extends Read1dFrom3d {
+public class Read1dFrom3dAndExpandTo2d extends WindowReader {
 
-    private final ArraySourceByte arraySource;
-    private ArrayByte.D2 windowArray;
-    private ArrayByte.D3 sourceArray;
+    protected final Number fillValue;
+    protected final int[] initialIndexPos;
+    private final ArraySource arraySource;
+    protected int yIndex;
+    private Array windowArray;
+    private Array sourceArray;
 
-    public Read1dFrom3dAndExpandTo2dByte(ArraySourceByte arraySource, String[] offsetMapping, Number fillValue) {
-        super(fillValue, offsetMapping);
+    public Read1dFrom3dAndExpandTo2d(ArraySource arraySource, String[] offsetMapping, Number fillValue) {
+        this.fillValue = fillValue;
+        initialIndexPos = new int[3];
+        initializeIndex(offsetMapping);
         this.arraySource = arraySource;
     }
 
@@ -45,11 +48,12 @@ public class Read1dFrom3dAndExpandTo2dByte extends Read1dFrom3d {
         final int windowHeight = interval.getY();
 
         sourceArray = arraySource.getSource();
-        windowArray = WindowArrayFactory.createByteArray(windowWidth, windowHeight);
+        windowArray = Array.factory(sourceArray.getDataType(), new int[]{windowWidth, windowHeight});
+        final Index tarIndex = windowArray.getIndex();
 
         final int[] shape = sourceArray.getShape();
-        final Index3D index3D = new Index3D(shape);
-        index3D.set(initialIndexPos);
+        final Index srcIndex = sourceArray.getIndex();
+        srcIndex.set(initialIndexPos);
 
         fillArray(centerX,
                   centerY - windowHeight / 2,
@@ -57,18 +61,33 @@ public class Read1dFrom3dAndExpandTo2dByte extends Read1dFrom3d {
                   windowHeight,
                   Integer.MAX_VALUE,
                   shape[yIndex],
-                  (y1, x1) -> windowArray.set(y1, x1, fillValue.byteValue()),
+                  (y1, x1) -> {
+                      tarIndex.set(y1, x1);
+                      windowArray.setObject(tarIndex, fillValue);
+                  },
                   (y, x, yRaw, xRaw) -> {
-                      index3D.setDim(yIndex, yRaw);
-                      windowArray.set(y, x, sourceArray.get(index3D));
+                      srcIndex.setDim(yIndex, yRaw);
+                      tarIndex.set(y, x);
+                      windowArray.setObject(tarIndex, sourceArray.getObject(srcIndex));
                   }
         );
         return windowArray;
     }
 
-    public interface ArraySourceByte {
+    private void initializeIndex(String[] offsetMapping) {
+        for (int i = 0; i < offsetMapping.length; i++) {
+            String s = offsetMapping[i];
+            if ("y".equalsIgnoreCase(s)) {
+                yIndex = i;
+            } else {
+                initialIndexPos[i] = Integer.parseInt(s);
+            }
+        }
+    }
 
-        ArrayByte.D3 getSource() throws IOException;
+    public interface ArraySource {
+
+        Array getSource() throws IOException;
     }
 }
 

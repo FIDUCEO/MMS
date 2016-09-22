@@ -27,8 +27,6 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TimeCoding;
 
-import java.util.Date;
-
 class ATSR_TimeLocator implements TimeLocator {
 
     private final TimeCoding timeCoding;
@@ -45,6 +43,4 @@ class ATSR_TimeLocator implements TimeLocator {
         final double mjd = timeCoding.getMJD(pixelPos);
         return TimeUtils.mjd2000ToDate(mjd).getTime();
     }
-
-
 }

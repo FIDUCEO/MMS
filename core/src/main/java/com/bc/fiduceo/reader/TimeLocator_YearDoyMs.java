@@ -18,28 +18,28 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsu_mhs;
+package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 
-class AMSUB_MHS_TimeLocator implements TimeLocator {
+public class TimeLocator_YearDoyMs implements TimeLocator {
 
-    private final Array scnlinyr;
-    private final Array scnlindy;
-    private final Array scnlintime;
+    private final Array yearPerScanline;
+    private final Array doyPerScanline;
+    private final Array millisecondsPerScanline;
 
-    AMSUB_MHS_TimeLocator(Array scnlinyr, Array scnlindy, Array scnlintime) {
-        this.scnlinyr = scnlinyr;
-        this.scnlindy = scnlindy;
-        this.scnlintime = scnlintime;
+    public TimeLocator_YearDoyMs(Array yearPerScanline, Array doyPerScanline, Array millisecondsPerScanline) {
+        this.yearPerScanline = yearPerScanline;
+        this.doyPerScanline = doyPerScanline;
+        this.millisecondsPerScanline = millisecondsPerScanline;
     }
 
     @Override
     public long getTimeFor(int x, int y) {
-        final int year = scnlinyr.getInt(y);
-        final int dayOfYear = scnlindy.getInt(y);
-        final int millisInDay = scnlintime.getInt(y);
-        return AMSUB_MHS_L1C_Reader.getDate(year, dayOfYear, millisInDay).getTime();
+        final int year = yearPerScanline.getInt(y);
+        final int dayOfYear = doyPerScanline.getInt(y);
+        final int millisInDay = millisecondsPerScanline.getInt(y);
+        return TimeUtils.getDate(year, dayOfYear, millisInDay).getTime();
     }
 }

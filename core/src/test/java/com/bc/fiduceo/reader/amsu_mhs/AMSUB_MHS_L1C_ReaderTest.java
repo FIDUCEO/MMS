@@ -21,13 +21,11 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 
-import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,24 +37,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_L1C_ReaderTest {
-
-    @Test
-    public void testGetDate() {
-        Date date = AMSUB_MHS_L1C_Reader.getDate(2002, 125, 0);
-        TestUtil.assertCorrectUTCDate(2002, 5, 5, 0, 0, 0, 0, date);
-
-        date = AMSUB_MHS_L1C_Reader.getDate(2002, 126, 0);
-        TestUtil.assertCorrectUTCDate(2002, 5, 6, 0, 0, 0, 0, date);
-
-        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 1000);
-        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 1, 0, date);
-
-        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 22567);
-        TestUtil.assertCorrectUTCDate(2008, 8, 4, 0, 0, 22, 567, date);
-
-        date = AMSUB_MHS_L1C_Reader.getDate(2008, 217, 82022567);
-        TestUtil.assertCorrectUTCDate(2008, 8, 4, 22, 47, 2, 567, date);
-    }
 
     @Test
     public void testGetRegEx() {

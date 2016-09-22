@@ -151,6 +151,20 @@ public class TimeUtils {
         return new Date((long) (utcInstant * 1000L));
     }
 
+    public static Date getDate(int year, int dayOfYear, int millisecsInDay) {
+        final Calendar calendar = getUTCCalendar();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.MILLISECOND, millisecsInDay);
+        return calendar.getTime();
+    }
+
     private static class CalendarThreadLocal extends ThreadLocal<Calendar> {
         @Override
         protected Calendar initialValue() {

@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsu_mhs;
+package com.bc.fiduceo.reader;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +27,13 @@ import ucar.ma2.Array;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class AMUSB_MHS_TimeLocatorTest {
+public class TimeLocator_YearDoyMs_Test {
 
     private final int[] YEARS = new int[]{2007, 2007, 2007, 2007, 2007, 2007};
     private final int[] DAYS = new int[]{234, 234, 234, 234, 234, 234};
     private final int[] MILLIS = new int[]{23429119, 23431786, 23434452, 23437119, 23439786, 23442452};
 
-    private AMSUB_MHS_TimeLocator timeLocator;
+    private TimeLocator_YearDoyMs timeLocator;
 
     @Before
     public void setUp(){
@@ -41,7 +41,7 @@ public class AMUSB_MHS_TimeLocatorTest {
         final Array scnlindy = Array.factory(DAYS);
         final Array scnlintime = Array.factory(MILLIS);
 
-        timeLocator = new AMSUB_MHS_TimeLocator(scnlinyr, scnlindy, scnlintime);
+        timeLocator = new TimeLocator_YearDoyMs(scnlinyr, scnlindy, scnlintime);
     }
 
     @Test
