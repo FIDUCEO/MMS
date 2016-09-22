@@ -26,8 +26,8 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 
-//@RunWith(DatabaseTestRunner.class)
-@Ignore
+@RunWith(DatabaseTestRunner.class)
+//@Ignore
 public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteObservation {
 
     public StorageTest_SatelliteObservation_H2() {

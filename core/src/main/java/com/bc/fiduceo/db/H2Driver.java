@@ -24,6 +24,8 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -68,18 +70,35 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)");
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        final String wkt = geometryFactory.format(observation.getGeoBounds());
+        String wkt = geometryFactory.format(observation.getGeoBounds());
         preparedStatement.setString(4, wkt);
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getVersion());
         preparedStatement.setString(7, observation.getDataFilePath().toString());
-        // @todo 2 tb/tb insert TimeAxes here 2013-03-07
-
         preparedStatement.executeUpdate();
+
+        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+        final int observationId;
+        if(generatedKeys.next()) {
+            observationId = generatedKeys.getInt(1);
+        } else {
+            throw new SQLException("Internal driver error: no ID generated for SATELLITE_OBSERVATION");
+        }
+
+        final TimeAxis[] timeAxes = observation.getTimeAxes();
+        for (final TimeAxis timeAxis : timeAxes) {
+            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?,)");
+            preparedStatement.setInt(1, observationId);
+            wkt = geometryFactory.format(timeAxis.getGeometry());
+            preparedStatement.setString(2, wkt);
+            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(timeAxis.getStartTime()));
+            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(timeAxis.getEndTime()));
+            preparedStatement.executeUpdate();
+        }
     }
 
     @Override
@@ -112,7 +131,6 @@ public class H2Driver extends AbstractDriver {
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
-            // @todo 2 tb/tb remove this when H2GIS is working properly 2015-12-22
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
             final String geoBoundsWkt = wktWriter.write(geoBounds);
             final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
@@ -128,7 +146,20 @@ public class H2Driver extends AbstractDriver {
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFilePath(dataFile);
 
-            // @todo 2 tb/tb fetch TimeAxes here 2013-03-07
+            // @todo 1 tb/tb extend to support multiple time axea 2016-09-22
+
+            final Geometry axis = (Geometry) resultSet.getObject("Axis");
+            final String axisWkt = wktWriter.write(axis);
+            final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
+
+            final Timestamp startTime = resultSet.getTimestamp("StartTime");
+            final Date axisStartTime = TimeUtils.toDate(startTime);
+            final Timestamp endTime = resultSet.getTimestamp("StopTime");
+            final Date axisEndTime = TimeUtils.toDate(endTime);
+            final TimeAxis timeAxis = geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
+
+            observation.setTimeAxes(new TimeAxis[]{timeAxis});
+
             resultList.add(observation);
         }
 
@@ -139,8 +170,9 @@ public class H2Driver extends AbstractDriver {
 
     // package access for testing only tb 2016-09-21
     String createSql(QueryParameter parameter) {
+        // @todo 2 tb/** refactor this method 2016-09-22
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs JOIN SENSOR sen ON obs.SensorId = sen.ID");
+        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
         if (parameter == null) {
             return sql.toString();
         }
@@ -189,6 +221,18 @@ public class H2Driver extends AbstractDriver {
 
             sql.append("obs.DataFile = '");
             sql.append(path);
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String version = parameter.getVersion();
+        if (StringUtils.isNotNullAndNotEmpty(version)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("obs.Version = '");
+            sql.append(version);
             sql.append("'");
         }
 
