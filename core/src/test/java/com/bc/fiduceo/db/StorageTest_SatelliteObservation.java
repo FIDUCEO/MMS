@@ -107,8 +107,7 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
     }
 
-    // @todo 1 tb/tb reanimate ASAP 2016-09-22
-    @Ignore
+    @Test
     public void testInsert_andGet_twoTimeAxes() throws SQLException, ParseException {
         final SatelliteObservation observation = createSatelliteObservation();
 

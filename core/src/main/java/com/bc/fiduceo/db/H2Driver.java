@@ -122,6 +122,8 @@ public class H2Driver extends AbstractDriver {
         while (resultSet.next()) {
             final SatelliteObservation observation = new SatelliteObservation();
 
+            final int observationId = resultSet.getInt("id");
+
             final Timestamp startDate = resultSet.getTimestamp("StartDate");
             observation.setStartTime(TimeUtils.toDate(startDate));
 
@@ -146,19 +148,18 @@ public class H2Driver extends AbstractDriver {
             final String dataFile = resultSet.getString("DataFile");
             observation.setDataFilePath(dataFile);
 
-            // @todo 1 tb/tb extend to support multiple time axea 2016-09-22
+            final List<TimeAxis> timeAxesList = new ArrayList<>();
+            while (observationId == resultSet.getInt("id")) {
+                final TimeAxis timeAxis = getTimeAxis(resultSet);
+                timeAxesList.add(timeAxis);
 
-            final Geometry axis = (Geometry) resultSet.getObject("Axis");
-            final String axisWkt = wktWriter.write(axis);
-            final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
+                if (!resultSet.next()) {
+                    break;
+                }
+            }
+            resultSet.previous();   // need to rewind one result because the while loop runs one result too far tb 2016-09-23
 
-            final Timestamp startTime = resultSet.getTimestamp("StartTime");
-            final Date axisStartTime = TimeUtils.toDate(startTime);
-            final Timestamp endTime = resultSet.getTimestamp("StopTime");
-            final Date axisEndTime = TimeUtils.toDate(endTime);
-            final TimeAxis timeAxis = geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
-
-            observation.setTimeAxes(new TimeAxis[]{timeAxis});
+            observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[timeAxesList.size()]));
 
             resultList.add(observation);
         }
@@ -237,5 +238,17 @@ public class H2Driver extends AbstractDriver {
         }
 
         return sql.toString();
+    }
+
+    private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
+        final Geometry axis = (Geometry) resultSet.getObject("Axis");
+        final String axisWkt = wktWriter.write(axis);
+        final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
+
+        final Timestamp startTime = resultSet.getTimestamp("StartTime");
+        final Date axisStartTime = TimeUtils.toDate(startTime);
+        final Timestamp endTime = resultSet.getTimestamp("StopTime");
+        final Date axisEndTime = TimeUtils.toDate(endTime);
+        return geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
     }
 }
