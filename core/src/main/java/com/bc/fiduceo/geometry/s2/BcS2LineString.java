@@ -25,7 +25,6 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTWriter;
-import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 

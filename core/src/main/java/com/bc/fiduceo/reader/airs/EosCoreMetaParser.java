@@ -43,13 +43,12 @@ package com.bc.fiduceo.reader.airs;
 
 import org.jdom2.Element;
 
-import java.io.IOException;
 import java.util.StringTokenizer;
 
 
 class EosCoreMetaParser {
 
-    Element parseFromString(String text) throws IOException {
+    Element parseFromString(String text) {
 
         Element rootElem = new Element("odl");
         Element current = rootElem;

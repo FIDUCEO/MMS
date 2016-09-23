@@ -104,7 +104,7 @@ abstract class AbstractDriver implements Driver {
         return -1;
     }
 
-    protected Sensor getSensor(int id) throws SQLException {
+    Sensor getSensor(int id) throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final ResultSet resultSet = statement.executeQuery("SELECT * FROM SENSOR where ID = " + id);
         if (resultSet.next()) {
@@ -116,7 +116,7 @@ abstract class AbstractDriver implements Driver {
         }
     }
 
-    protected Integer getSensorId(String sensorName) throws SQLException {
+    Integer getSensorId(String sensorName) throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
 

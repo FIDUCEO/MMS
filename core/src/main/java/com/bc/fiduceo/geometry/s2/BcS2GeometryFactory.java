@@ -32,21 +32,9 @@ import java.util.List;
 public class BcS2GeometryFactory extends AbstractGeometryFactory {
 
     private final S2WKTReader s2WKTReader;
-    private final S2WKTWriter s2WKTWriter;
 
     public BcS2GeometryFactory() {
         s2WKTReader = new S2WKTReader();
-        s2WKTWriter = new S2WKTWriter();
-    }
-
-    public static List<S2Point> extractS2Points(List<Point> points) {
-        final ArrayList<S2Point> loopPoints = new ArrayList<>();
-
-        for (final Point point : points) {
-            final S2LatLng s2LatLng = (S2LatLng) point.getInner();
-            loopPoints.add(s2LatLng.toPoint());
-        }
-        return loopPoints;
     }
 
     @SuppressWarnings("unchecked")
@@ -127,5 +115,16 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {
         return new BcS2TimeAxis(lineString, startTime, endTime);
+    }
+
+    // @todo 2 tb/** write tests 2016-09-23
+    static List<S2Point> extractS2Points(List<Point> points) {
+        final ArrayList<S2Point> loopPoints = new ArrayList<>();
+
+        for (final Point point : points) {
+            final S2LatLng s2LatLng = (S2LatLng) point.getInner();
+            loopPoints.add(s2LatLng.toPoint());
+        }
+        return loopPoints;
     }
 }

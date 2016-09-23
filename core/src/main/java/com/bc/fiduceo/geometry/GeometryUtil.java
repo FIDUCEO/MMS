@@ -65,6 +65,7 @@ public class GeometryUtil {
         return builder.toString();
     }
 
+    // don't remove this, we occasionally need it to dump debug WKT in casese where JTS can not display the polygon tb 2016-09-23
     public static String toPointListWkt(Geometry geometry) {
         final StringBuffer wkt = new StringBuffer();
 

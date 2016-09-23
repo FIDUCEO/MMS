@@ -22,10 +22,10 @@ import java.util.Properties;
 
 public class FiduceoConstants {
 
+    private static final String TIME_STAMP;
 
     public static final String VERSION;
     public static final String VERSION_NUMBER;
-    public static final String TIME_STAMP;
 
     static {
         InputStream in = FiduceoConstants.class.getResourceAsStream("/fiduceo-version.properties");

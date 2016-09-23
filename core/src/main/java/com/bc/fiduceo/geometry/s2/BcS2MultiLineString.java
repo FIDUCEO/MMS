@@ -22,7 +22,6 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
@@ -37,7 +36,7 @@ class BcS2MultiLineString implements LineString {
     private List<S2Polyline> s2PolylineList;
 
 
-    public BcS2MultiLineString(List<S2Polyline> s2Polylines) {
+    BcS2MultiLineString(List<S2Polyline> s2Polylines) {
         this.s2PolylineList = s2Polylines;
     }
 
@@ -72,7 +71,7 @@ class BcS2MultiLineString implements LineString {
                 for (int i = 0; i < numVertices; i++) {
                     S2Point vertex = s2Polyline.vertex(i);
                     isInitialPointsZero = vertex.getX() == 0 && vertex.getY() == 0 && vertex.getZ() == 0;
-                    if (!isInitialPointsZero){
+                    if (!isInitialPointsZero) {
                         return false;
                     }
                 }

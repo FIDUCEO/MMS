@@ -43,6 +43,7 @@ public class ConditionEngine {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void configure(UseCaseConfig useCaseConfig) {
         final Element conditionsElem = useCaseConfig.getDomElement(TAG_NAME_CONDITIONS);
         if (conditionsElem != null) {

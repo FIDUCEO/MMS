@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.db;
 
-import com.bc.fiduceo.geometry.Geometry;
-
 import java.util.Date;
 
 public class QueryParameter {

@@ -25,7 +25,6 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.MultiPolygon;
 
 class JTSPolygon implements Polygon {
 

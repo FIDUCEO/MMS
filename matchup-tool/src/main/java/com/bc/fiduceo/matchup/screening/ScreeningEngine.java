@@ -46,6 +46,7 @@ public class ScreeningEngine {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void configure(UseCaseConfig useCaseConfig) {
         final Element screeningsElem = useCaseConfig.getDomElement("screenings");
         if (screeningsElem != null) {

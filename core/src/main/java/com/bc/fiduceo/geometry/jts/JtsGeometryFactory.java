@@ -60,6 +60,7 @@ public class JtsGeometryFactory extends AbstractGeometryFactory {
         westShiftedGlobe = createWestShiftedGlobe();
     }
 
+    // @todo 3 tb/** write tests 2016-09-23
     static void ensureClosedPolygon(List<Point> points) {
         final Point first = points.get(0);
         final int lastIndex = points.size() - 1;

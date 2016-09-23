@@ -42,7 +42,6 @@ package com.bc.fiduceo.matchup.screening.expression;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
 import org.esa.snap.core.jexp.EvalEnv;
 import org.esa.snap.core.jexp.EvalException;
 import org.esa.snap.core.jexp.Symbol;
@@ -54,12 +53,12 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class VariableSymbol implements Symbol {
+class VariableSymbol implements Symbol {
 
     private final Variable variable;
     private final Interval singlePixel = new Interval(1, 1);
 
-    public VariableSymbol(Variable variable) {
+    VariableSymbol(Variable variable) {
         this.variable = variable;
     }
 

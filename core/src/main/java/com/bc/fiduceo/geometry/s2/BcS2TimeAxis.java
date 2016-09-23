@@ -20,15 +20,10 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.TimeUtils;
 import com.google.common.geometry.*;
-import com.google.common.geometry.S2Point;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,7 +37,7 @@ class BcS2TimeAxis implements TimeAxis {
     private final Date startTime;
     private final long timeInterval;
 
-    public BcS2TimeAxis(LineString lineString, Date startTime, Date endTime) {
+    BcS2TimeAxis(LineString lineString, Date startTime, Date endTime) {
         originalGeometry = lineString;
         this.polyline = (S2Polyline) lineString.getInner();
 
@@ -84,7 +79,7 @@ class BcS2TimeAxis implements TimeAxis {
         final Point[] coordinates = polygonSide.getCoordinates();
         final Date projectionStartTime = getTime(coordinates[0]);
         final Date projectionStopTime = getTime(coordinates[coordinates.length - 1]);
-        if (projectionStopTime.before(projectionStartTime))  {
+        if (projectionStopTime.before(projectionStartTime)) {
             return new TimeInterval(projectionStopTime, projectionStartTime);
         }
         return new TimeInterval(projectionStartTime, projectionStopTime);

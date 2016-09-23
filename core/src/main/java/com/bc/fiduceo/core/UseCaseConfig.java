@@ -184,6 +184,7 @@ public class UseCaseConfig {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void init() {
         final Element rootElement = getMandatoryRootElement(document);
         setName(getMandatoryAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());

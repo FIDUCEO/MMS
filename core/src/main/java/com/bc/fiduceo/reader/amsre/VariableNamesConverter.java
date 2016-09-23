@@ -21,14 +21,13 @@
 package com.bc.fiduceo.reader.amsre;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 class VariableNamesConverter {
 
     private final HashMap<String, String> namesMap;
 
-    public VariableNamesConverter() {
+    VariableNamesConverter() {
         namesMap = new HashMap<>();
         namesMap.put("6.9V_Res.1_TB", "6_9V_Res_1_TB");
         namesMap.put("6.9H_Res.1_TB", "6_9H_Res_1_TB");
@@ -53,7 +52,7 @@ class VariableNamesConverter {
         return variableName;
     }
 
-    public String toHdf(String variableName) {
+    String toHdf(String variableName) {
         if (!namesMap.containsValue(variableName)) {
             return variableName;
         }

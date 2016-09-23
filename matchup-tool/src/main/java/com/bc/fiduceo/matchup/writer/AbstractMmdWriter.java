@@ -300,7 +300,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    private void write(Array data, String variableName, int stackIndex) throws IOException, InvalidRangeException {
+    private void write(Array data, String variableName, int stackIndex) {
         final Array target = getTarget(variableName);
         final Index index = target.getIndex();
         index.set(stackIndex % cacheSize);

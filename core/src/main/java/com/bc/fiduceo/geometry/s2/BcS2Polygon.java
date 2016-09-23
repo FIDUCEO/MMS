@@ -24,12 +24,7 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.google.common.geometry.S1Angle;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
+import com.google.common.geometry.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,23 +37,7 @@ class BcS2Polygon implements Polygon {
         this.googlePolygon = (S2Polygon) geometry;
     }
 
-    public static ArrayList<Point> createS2Points(int numLoops, S2Polygon googlePolygon) {
-        final ArrayList<Point> coordinates = new ArrayList<>();
-        for (int i = 0; i < numLoops; i++) {
-            final S2Loop loop = googlePolygon.loop(i);
-            final int numVertices = loop.numVertices();
-            for (int k = 0; k < numVertices; k++) {
-                final S2Point googlePoint = loop.vertex(k);
-                coordinates.add(BcS2Point.createFrom(googlePoint));
-            }
-
-            // close loop - outside world expects this tb 2016-03-03
-            final S2Point googlePoint = loop.vertex(0);
-            coordinates.add(BcS2Point.createFrom(googlePoint));
-        }
-        return coordinates;
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     public Geometry getIntersection(Geometry other) {
         if (other instanceof BcS2Polygon) {
@@ -150,4 +129,23 @@ class BcS2Polygon implements Polygon {
     public Object getInner() {
         return googlePolygon;
     }
+
+    // @todo 2 tb/** write tests for this method 2016-09-23
+    static ArrayList<Point> createS2Points(int numLoops, S2Polygon googlePolygon) {
+        final ArrayList<Point> coordinates = new ArrayList<>();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = googlePolygon.loop(i);
+            final int numVertices = loop.numVertices();
+            for (int k = 0; k < numVertices; k++) {
+                final S2Point googlePoint = loop.vertex(k);
+                coordinates.add(BcS2Point.createFrom(googlePoint));
+            }
+
+            // close loop - outside world expects this tb 2016-03-03
+            final S2Point googlePoint = loop.vertex(0);
+            coordinates.add(BcS2Point.createFrom(googlePoint));
+        }
+        return coordinates;
+    }
+
 }

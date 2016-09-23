@@ -24,10 +24,6 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.MAMath;
-import ucar.nc2.Variable;
 
 import java.util.Date;
 
