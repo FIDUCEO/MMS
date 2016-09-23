@@ -29,10 +29,28 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
+import com.bc.fiduceo.reader.Read2dFrom3d;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -211,29 +229,29 @@ public class SSMT2_Reader implements Reader {
         return startDateString + "T" + startTimeString.substring(0, startTimeString.length() - 7);
     }
 
-    private void splitAndCollect2DVariables(ArrayList<Variable> result, Variable variable) throws InvalidRangeException {
+    private void splitAndCollect2DVariables(Variable variable) throws InvalidRangeException {
         final int[] shape = variable.getShape();
         final int lenX = getNumX();
         final int chanels = getNumChannels();
         final String shortName = variable.getShortName();
 
         if (shape[1] == lenX) {
-            result.add(variable);
+            variablesList.add(variable);
             readersMap.put(shortName, new Read2dFrom2d(arrayCache, lenX, shortName));
         } else if (shape[1] == chanels) {
-            collect1dChannelsFrom2dVariable(variable, result);
+            collect1dChannelsFrom2dVariable(variable);
         }
     }
 
-    private void splitAndCollect3DVariables(ArrayList<Variable> result, Variable variable) throws InvalidRangeException {
+    private void splitAndCollect3DVariables(Variable variable) throws InvalidRangeException {
         final int scanIdx = variable.findDimensionIndex(DIM_NAME_SCAN_POSITION);
         final int channelIdx = variable.findDimensionIndex(DIM_NAME_CHANNEL);
         final int calibIdx = variable.findDimensionIndex(DIM_NAME_CALIBRATION_NUMBER);
 
         if (scanIdx == 1 && channelIdx == 2) {
-            collect2dChannelsFrom3dVariable(variable, result);
+            collect2dChannelsFrom3dVariable(variable);
         } else if (channelIdx == 1 && calibIdx == 2) {
-            collect1dCalibrationsPerChannelFrom3dVariable(variable, result);
+            collect1dCalibrationsPerChannelFrom3dVariable(variable);
         } else {
             throw new RuntimeException("State scanIndex = " + scanIdx + ", channelIndex = " + channelIdx + ", calibrationIndex = " + calibIdx + " is not supported.");
         }
@@ -255,19 +273,19 @@ public class SSMT2_Reader implements Reader {
         final List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
             String shortName = variable.getShortName();
-            if (shortName.equalsIgnoreCase("ancil_data")
-                    || shortName.equalsIgnoreCase("Temperature_misc_housekeeping")) {
-                continue;
-            }
             int[] shape = variable.getShape();
             if (shape[0] != lenY
-                    || shape.length > 3) {
+                || shape.length > 3) {
                 continue;
             }
-            if (shape.length == 3) {
-                splitAndCollect3DVariables(this.variablesList, variable);
+            if (shortName.equalsIgnoreCase("ancil_data")) {
+                collectAncilDataVariables(variable);
+            } else if (shortName.equalsIgnoreCase("Temperature_misc_housekeeping")) {
+                collectHousekeepingVariables(variable);
+            } else if (shape.length == 3) {
+                splitAndCollect3DVariables(variable);
             } else if (shape.length == 2) {
-                splitAndCollect2DVariables(this.variablesList, variable);
+                splitAndCollect2DVariables(variable);
             } else {
                 this.variablesList.add(variable);
                 readersMap.put(shortName, new Read2dFrom1d(arrayCache, shortName, lenX));
@@ -296,7 +314,7 @@ public class SSMT2_Reader implements Reader {
         return netcdfFile.findDimension(name).getLength();
     }
 
-    private void collect2dChannelsFrom3dVariable(Variable variable, ArrayList<Variable> result) throws InvalidRangeException {
+    private void collect2dChannelsFrom3dVariable(Variable variable) throws InvalidRangeException {
         final int[] origin = {0, 0, 0};
         final int[] shape = variable.getShape();
         final int chanels = shape[2];
@@ -313,32 +331,84 @@ public class SSMT2_Reader implements Reader {
             final Variable channelVariable = variable.section(section);
             final String channelName = baseName + (channel + 1);
             channelVariable.setName(channelName);
-            result.add(channelVariable);
+            variablesList.add(channelVariable);
             final String[] offsetMapping = {"y", "x", "" + channel};
             readersMap.put(channelName, new Read2dFrom3d(() -> arrayCache.get(shortName), offsetMapping, fillValue));
         }
     }
 
-    private void collect1dChannelsFrom2dVariable(Variable variable, ArrayList<Variable> result) throws InvalidRangeException {
+    private void collectHousekeepingVariables(Variable variable) throws InvalidRangeException {
+        final String baseName = variable.getShortName();
+        final ucar.nc2.Dimension dimension = variable.getDimension(1);
+        final int numHousekeeping = dimension.getLength();
         final int[] origin = {0, 0};
         final int[] shape = variable.getShape();
-        final int chanels = shape[1];
+        shape[1] = 1;
+
+        for (int i = 0; i < numHousekeeping; i++) {
+            origin[1] = i;
+            final Section section = new Section(origin, shape);
+            final Variable ancilVariable = variable.section(section);
+            final String vName = baseName + "_thermistorcount" + String.format("%02d", i+1);
+            ancilVariable.setName(vName);
+            variablesList.add(ancilVariable);
+            readersMap.put(vName, new Read1dFrom2d(arrayCache, baseName, i));
+        }
+    }
+
+    private void collectAncilDataVariables(Variable variable) throws InvalidRangeException {
+        final String baseName = variable.getShortName();
+        final ucar.nc2.Dimension dimension = variable.getDimension(1);
+        final int numAncilData = dimension.getLength();
+        final String dimName = dimension.getShortName();
+        final String substring = dimName.substring(dimName.indexOf(":")+1);
+        final String[] names = substring.split("_");
+        for (int i = 0; i < names.length; i++) {
+            String name1 = names[i];
+            for (int j = i+1; j < names.length; j++) {
+                String name2 = names[j];
+                if (name1.equals(name2)) {
+                    names[i] = name1 + "_1";
+                    names[j] = name1 + "_2";
+                }
+            }
+            names[i] = baseName + "_" + names[i];
+        }
+        final int[] origin = {0, 0};
+        final int[] shape = variable.getShape();
+        shape[1] = 1;
+
+        for (int i = 0; i < numAncilData; i++) {
+            origin[1] = i;
+            final Section section = new Section(origin, shape);
+            final Variable ancilVariable = variable.section(section);
+            final String vName = names[i];
+            ancilVariable.setName(vName);
+            variablesList.add(ancilVariable);
+            readersMap.put(vName, new Read1dFrom2d(arrayCache, baseName, i));
+        }
+    }
+
+    private void collect1dChannelsFrom2dVariable(Variable variable) throws InvalidRangeException {
+        final int channels = getNumChannels();
+        final int[] origin = {0, 0};
+        final int[] shape = variable.getShape();
         shape[1] = 1;
         final String channelPrefix = "_ch";
         final String baseName = variable.getShortName();
 
-        for (int channel = 0; channel < chanels; channel++) {
+        for (int channel = 0; channel < channels; channel++) {
             origin[1] = channel;
             final Section section = new Section(origin, shape);
             final Variable channelVariable = variable.section(section);
             final String shortName = baseName + channelPrefix + (channel + 1);
             channelVariable.setName(shortName);
-            result.add(channelVariable);
+            variablesList.add(channelVariable);
             readersMap.put(shortName, new Read1dFrom2d(arrayCache, baseName, channel));
         }
     }
 
-    private void collect1dCalibrationsPerChannelFrom3dVariable(Variable variable, ArrayList<Variable> result) throws InvalidRangeException {
+    private void collect1dCalibrationsPerChannelFrom3dVariable(Variable variable) throws InvalidRangeException {
         final int chanels = getNumChannels();
         final int calibrations = getNumCalibrations();
         final int[] origin = {0, 0, 0};
@@ -359,7 +429,7 @@ public class SSMT2_Reader implements Reader {
                 final Variable channelVariable = variable.section(section);
                 final String varName = baseName + channelPrefix + (channel + 1) + calibPrefix + (calib + 1);
                 channelVariable.setName(varName);
-                result.add(channelVariable);
+                variablesList.add(channelVariable);
                 final String[] offsetMapping = {"y", String.valueOf(channel), String.valueOf(calib)};
                 readersMap.put(varName, new Read1dFrom3dAndExpandTo2d(() -> arrayCache.get(baseName), offsetMapping, fillValue));
             }
@@ -526,17 +596,17 @@ public class SSMT2_Reader implements Reader {
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                    targetWidth, targetHeight,
-                    0, srcHeight,
-                    (y, x) -> {
-                        targetIdx.set(y, x);
-                        targetArray.setDouble(targetIdx, fillValue);
-                    },
-                    (y, x, yRaw, xRaw) -> {
-                        targetIdx.set(y, x);
-                        sourceIdx.set(yRaw, sourceChannel);
-                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                    }
+                      targetWidth, targetHeight,
+                      0, srcHeight,
+                      (y, x) -> {
+                          targetIdx.set(y, x);
+                          targetArray.setDouble(targetIdx, fillValue);
+                      },
+                      (y, x, yRaw, xRaw) -> {
+                          targetIdx.set(y, x);
+                          sourceIdx.set(yRaw, sourceChannel);
+                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                      }
             );
             return targetArray;
         }

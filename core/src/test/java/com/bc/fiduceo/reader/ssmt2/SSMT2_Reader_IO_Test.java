@@ -286,7 +286,7 @@ public class SSMT2_Reader_IO_Test {
             final List<Variable> variables = r.getVariables();
 
             assertThat(variables, is(not(nullValue())));
-            assertThat(variables.size(), is(68));
+            assertThat(variables.size(), is(96));
 
 //            System.out.println("Variable variable;");
 //            for (int i = 0; i < variables.size(); i++) {
@@ -302,274 +302,386 @@ public class SSMT2_Reader_IO_Test {
             Variable variable;
 
             variable = variables.get(0);
+            assertThat(variable.getShortName(), equalTo("ancil_data_Year_1"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(1);
+            assertThat(variable.getShortName(), equalTo("ancil_data_DayofYear_1"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(2);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SecondsofDay_1"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(3);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SatLat"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(4);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SatLong"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(5);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SatAlt"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(6);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SatHeading"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(7);
+            assertThat(variable.getShortName(), equalTo("ancil_data_Year_2"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(8);
+            assertThat(variable.getShortName(), equalTo("ancil_data_DayofYear_2"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(9);
+            assertThat(variable.getShortName(), equalTo("ancil_data_SecondsofDay_2"));
+            assertThat(variable.getDataType(), equalTo(DataType.DOUBLE));
+
+            variable = variables.get(10);
             assertThat(variable.getShortName(), equalTo("tb_ch1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(1);
+            variable = variables.get(11);
             assertThat(variable.getShortName(), equalTo("tb_ch2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(2);
+            variable = variables.get(12);
             assertThat(variable.getShortName(), equalTo("tb_ch3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(3);
+            variable = variables.get(13);
             assertThat(variable.getShortName(), equalTo("tb_ch4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(4);
+            variable = variables.get(14);
             assertThat(variable.getShortName(), equalTo("tb_ch5"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(5);
+            variable = variables.get(15);
             assertThat(variable.getShortName(), equalTo("lon"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(6);
+            variable = variables.get(16);
             assertThat(variable.getShortName(), equalTo("lat"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(7);
+            variable = variables.get(17);
             assertThat(variable.getShortName(), equalTo("channel_quality_flag_ch1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(8);
+            variable = variables.get(18);
             assertThat(variable.getShortName(), equalTo("channel_quality_flag_ch2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(9);
+            variable = variables.get(19);
             assertThat(variable.getShortName(), equalTo("channel_quality_flag_ch3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(10);
+            variable = variables.get(20);
             assertThat(variable.getShortName(), equalTo("channel_quality_flag_ch4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(11);
+            variable = variables.get(21);
             assertThat(variable.getShortName(), equalTo("channel_quality_flag_ch5"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(12);
+            variable = variables.get(22);
             assertThat(variable.getShortName(), equalTo("gain_control_ch1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(13);
+            variable = variables.get(23);
             assertThat(variable.getShortName(), equalTo("gain_control_ch2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(14);
+            variable = variables.get(24);
             assertThat(variable.getShortName(), equalTo("gain_control_ch3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(15);
+            variable = variables.get(25);
             assertThat(variable.getShortName(), equalTo("gain_control_ch4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(16);
+            variable = variables.get(26);
             assertThat(variable.getShortName(), equalTo("gain_control_ch5"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(17);
+            variable = variables.get(27);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_gain_ch1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(18);
+            variable = variables.get(28);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_gain_ch2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(19);
+            variable = variables.get(29);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_gain_ch3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(20);
+            variable = variables.get(30);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_gain_ch4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(21);
+            variable = variables.get(31);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_gain_ch5"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(22);
+            variable = variables.get(32);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_offset_ch1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(23);
+            variable = variables.get(33);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_offset_ch2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(24);
+            variable = variables.get(34);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_offset_ch3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(25);
+            variable = variables.get(35);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_offset_ch4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(26);
+            variable = variables.get(36);
             assertThat(variable.getShortName(), equalTo("counts_to_tb_offset_ch5"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(27);
+            variable = variables.get(37);
             assertThat(variable.getShortName(), equalTo("thermal_reference"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
-            variable = variables.get(28);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal1"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(29);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal2"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(30);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal3"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(31);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal4"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(32);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal1"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(33);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal2"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(34);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal3"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(35);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal4"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(36);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal1"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
-            variable = variables.get(37);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal2"));
-            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
-
             variable = variables.get(38);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal3"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount01"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(39);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal4"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount02"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(40);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal1"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount03"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(41);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal2"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount04"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(42);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal3"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount05"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(43);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal4"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount06"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(44);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal1"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount07"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(45);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal2"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount08"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(46);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal3"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount09"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(47);
-            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal4"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount10"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(48);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal1"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount11"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(49);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal2"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount12"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(50);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal3"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount13"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(51);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal4"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount14"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(52);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal1"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount15"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(53);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal2"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount16"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(54);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal3"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount17"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(55);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal4"));
+            assertThat(variable.getShortName(), equalTo("Temperature_misc_housekeeping_thermistorcount18"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(56);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal1"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(57);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal2"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(58);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal3"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(59);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal4"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch1_cal4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(60);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal1"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(61);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal2"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(62);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal3"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(63);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal4"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch2_cal4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(64);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal1"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal1"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(65);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal2"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal2"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(66);
-            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal3"));
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal3"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
 
             variable = variables.get(67);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch3_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(68);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(69);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(70);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(71);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch4_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(72);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(73);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(74);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(75);
+            assertThat(variable.getShortName(), equalTo("warm_counts_ch5_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(76);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(77);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(78);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(79);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch1_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(80);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(81);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(82);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(83);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch2_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(84);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(85);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(86);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(87);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch3_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(88);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(89);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(90);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(91);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch4_cal4"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(92);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal1"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(93);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal2"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(94);
+            assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal3"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(95);
             assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
         }
