@@ -49,7 +49,6 @@ class BcS2Polygon implements Polygon {
             List<S2Polyline> intersectionResult = new ArrayList<>();
             for (final S2Polyline s2Polyline : s2PolylineList) {
                 intersectionResult.addAll(googlePolygon.intersectWithPolyLine(s2Polyline));
-
             }
             return new BcS2MultiLineString(intersectionResult);
         }
@@ -113,11 +112,10 @@ class BcS2Polygon implements Polygon {
 
     @Override
     public Point[] getCoordinates() {
-        final int numLoops = googlePolygon.numLoops();
-        ArrayList<Point> pointArrayList = createS2Points(numLoops, googlePolygon);
+        final List<Point> pointList = extractPoints(googlePolygon);
         // @todo 2 tb/** the S2 loops do not contain the closing point. Check if we need to add this point here.
         // check what happens when the polygon contains more than one loop tb 2016-01-27
-        return pointArrayList.toArray(new Point[pointArrayList.size()]);
+        return pointList.toArray(new Point[pointList.size()]);
     }
 
     @Override
@@ -130,9 +128,9 @@ class BcS2Polygon implements Polygon {
         return googlePolygon;
     }
 
-    // @todo 2 tb/** write tests for this method 2016-09-23
-    static ArrayList<Point> createS2Points(int numLoops, S2Polygon googlePolygon) {
+    static ArrayList<Point> extractPoints(S2Polygon googlePolygon) {
         final ArrayList<Point> coordinates = new ArrayList<>();
+        final int numLoops = googlePolygon.numLoops();
         for (int i = 0; i < numLoops; i++) {
             final S2Loop loop = googlePolygon.loop(i);
             final int numVertices = loop.numVertices();
