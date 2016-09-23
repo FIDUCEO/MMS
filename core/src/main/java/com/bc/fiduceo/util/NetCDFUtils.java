@@ -27,7 +27,6 @@ import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.netcdf3.N3iosp;
-import ucar.nc2.jni.netcdf.Nc4Iosp;
 
 import java.io.IOException;
 
