@@ -39,6 +39,7 @@ import com.bc.fiduceo.reader.Read2dFrom3d;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.WindowArrayFactory;
 import com.bc.fiduceo.reader.WindowReader;
 import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -86,6 +87,7 @@ public class SSMT2_Reader implements Reader {
     private ArrayList<Variable> variablesList;
     private HashMap<String, WindowReader> readersMap;
     private PixelLocator pixelLocator;
+    private TimeLocator_YearDoyMs timeLocator;
 
     public SSMT2_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -148,21 +150,24 @@ public class SSMT2_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        final Variable ancil_data = netcdfFile.findVariable("ancil_data");
-        final ucar.nc2.Dimension time_step = netcdfFile.findDimension("time_step");
-        final int[] yearOrigin = {0, 0};
-        final int[] doyOrigin = {0, 1};
-        final int[] milliesOrigin = {0, 2};
-        final int[] shape = {time_step.getLength(), 1};
-        try {
-            final Array yearPerScanline = ancil_data.read(yearOrigin, shape).reduce();
-            final Array doyPerScanline = ancil_data.read(doyOrigin, shape).reduce();
-            final Array secondsPerScanline = ancil_data.read(milliesOrigin, shape).reduce();
-            final Array milliesPerScanline = MAMath.convert2Unpacked(secondsPerScanline, new MAMath.ScaleOffset(1000, 0));
-            return new TimeLocator_YearDoyMs(yearPerScanline, doyPerScanline, milliesPerScanline);
-        } catch (InvalidRangeException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        if (timeLocator == null) {
+            final Variable ancil_data = netcdfFile.findVariable("ancil_data");
+            final ucar.nc2.Dimension time_step = netcdfFile.findDimension("time_step");
+            final int[] yearOrigin = {0, 0};
+            final int[] doyOrigin = {0, 1};
+            final int[] milliesOrigin = {0, 2};
+            final int[] shape = {time_step.getLength(), 1};
+            try {
+                final Array yearPerScanline = ancil_data.read(yearOrigin, shape).reduce();
+                final Array doyPerScanline = ancil_data.read(doyOrigin, shape).reduce();
+                final Array secondsPerScanline = ancil_data.read(milliesOrigin, shape).reduce();
+                final Array milliesPerScanline = MAMath.convert2Unpacked(secondsPerScanline, new MAMath.ScaleOffset(1000, 0));
+                timeLocator = new TimeLocator_YearDoyMs(yearPerScanline, doyPerScanline, milliesPerScanline);
+            } catch (InvalidRangeException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
+        return timeLocator;
     }
 
     @Override
@@ -179,7 +184,32 @@ public class SSMT2_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Dimension productSize = getProductSize();
+        final int maxX = productSize.getNx() - 1;
+        final int maxY = productSize.getNy() - 1;
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final ArrayInt.D2 arrayInt = new ArrayInt.D2(height, width);
+        final TimeLocator timeLocator = getTimeLocator();
+        final int originX = x - width / 2;
+        final int originY = y - height / 2;
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        for (int ya = 0; ya < height; ya++) {
+            for (int xa = 0; xa < width; xa++) {
+                final int productX = xa + originX;
+                final int productY = ya + originY;
+                final int value;
+                if (productX<0 || productX > maxX||productY<0||productY>maxY) {
+                    value = fillValue;
+                } else {
+                    final long milliesSince1970 = timeLocator.getTimeFor(productX, productY);
+                    final long secondsSince1970 = milliesSince1970 / 1000;
+                    value = Math.toIntExact(secondsSince1970);
+                }
+                arrayInt.set(ya, xa, value);
+            }
+        }
+        return arrayInt;
     }
 
     @Override

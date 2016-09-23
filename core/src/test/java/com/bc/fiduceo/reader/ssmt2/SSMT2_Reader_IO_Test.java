@@ -32,11 +32,13 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -45,6 +47,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +55,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hsqldb.HsqlDateTime.e;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -593,6 +597,88 @@ public class SSMT2_Reader_IO_Test {
             assertEquals(1, pixelLocation.length);
             assertEquals(2.5, pixelLocation[0].getX(), 0.2);
             assertEquals(4.5, pixelLocation[0].getY(), 0.1);
+        }
+    }
+
+    @Test
+    public void testGetAquisitionTime() throws Exception {
+        final File file = createSSMT2_F14_File();
+        final Interval win5_5 = new Interval(5, 5);
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+            final Dimension productSize = r.getProductSize();
+            final int width = productSize.getNx();
+            final int height = productSize.getNy();
+            final int minX = 0;
+            final int minY = 0;
+            final int maxX = width - 1;
+            final int maxY = height - 1;
+
+            ArrayInt.D2 times;
+            int[] storage;
+            int[] expecteds;
+
+            // at the upper left border
+            times = r.readAcquisitionTime(minX, minY, win5_5);
+            storage = (int[]) times.getStorage();
+            expecteds = new int[]{
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        fillValue, fillValue, 992521749, 992521749, 992521749,
+                        fillValue, fillValue, 992521757, 992521757, 992521757,
+                        fillValue, fillValue, 992521765, 992521765, 992521765
+            };
+            assertArrayEquals(expecteds, storage);
+
+            // at the upper right border
+            times = r.readAcquisitionTime(maxX, minY, win5_5);
+            storage = (int[]) times.getStorage();
+            expecteds = new int[]{
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        992521749, 992521749, 992521749, fillValue, fillValue,
+                        992521757, 992521757, 992521757, fillValue, fillValue,
+                        992521765, 992521765, 992521765, fillValue, fillValue
+            };
+            assertArrayEquals(expecteds, storage);
+
+            // at the lower right border
+            times = r.readAcquisitionTime(maxX, maxY, win5_5);
+            storage = (int[]) times.getStorage();
+            expecteds = new int[]{
+                        992527835, 992527835, 992527835, fillValue, fillValue,
+                        992527843, 992527843, 992527843, fillValue, fillValue,
+                        992527851, 992527851, 992527851, fillValue, fillValue,
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        fillValue, fillValue, fillValue, fillValue, fillValue
+            };
+            assertArrayEquals(expecteds, storage);
+
+            // at the lower left border
+            times = r.readAcquisitionTime(minX, maxY, win5_5);
+            storage = (int[]) times.getStorage();
+            expecteds = new int[]{
+                        fillValue, fillValue, 992527835, 992527835, 992527835,
+                        fillValue, fillValue, 992527843, 992527843, 992527843,
+                        fillValue, fillValue, 992527851, 992527851, 992527851,
+                        fillValue, fillValue, fillValue, fillValue, fillValue,
+                        fillValue, fillValue, fillValue, fillValue, fillValue
+            };
+            assertArrayEquals(expecteds, storage);
+
+            // entirely inside of the product
+            times = r.readAcquisitionTime(9, 11, win5_5);
+            storage = (int[]) times.getStorage();
+            expecteds = new int[]{
+                        992521822, 992521822, 992521822, 992521822, 992521822,
+                        992521830, 992521830, 992521830, 992521830, 992521830,
+                        992521838, 992521838, 992521838, 992521838, 992521838,
+                        992521846, 992521846, 992521846, 992521846, 992521846,
+                        992521854, 992521854, 992521854, 992521854, 992521854
+            };
+            assertArrayEquals(expecteds, storage);
         }
     }
 
