@@ -118,7 +118,7 @@ public class BcS2PolygonTest {
 //    public void testGetIntersection_multiLineString_noIntersection() {
 //        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
 //    }
-//    
+//
 //    @Test
 //    public void testGetIntersection_multiLineString_oneIntersection() {
 //
