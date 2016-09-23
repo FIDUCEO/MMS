@@ -349,7 +349,7 @@ public class SSMT2_Reader implements Reader {
             origin[1] = i;
             final Section section = new Section(origin, shape);
             final Variable ancilVariable = variable.section(section);
-            final String vName = baseName + "_thermistorcount" + String.format("%02d", i+1);
+            final String vName = baseName + "_thermistorcount" + String.format("%02d", i + 1);
             ancilVariable.setName(vName);
             variablesList.add(ancilVariable);
             readersMap.put(vName, new Read1dFrom2d(arrayCache, baseName, i));
@@ -361,11 +361,11 @@ public class SSMT2_Reader implements Reader {
         final ucar.nc2.Dimension dimension = variable.getDimension(1);
         final int numAncilData = dimension.getLength();
         final String dimName = dimension.getShortName();
-        final String substring = dimName.substring(dimName.indexOf(":")+1);
+        final String substring = dimName.substring(dimName.indexOf(":") + 1);
         final String[] names = substring.split("_");
         for (int i = 0; i < names.length; i++) {
             String name1 = names[i];
-            for (int j = i+1; j < names.length; j++) {
+            for (int j = i + 1; j < names.length; j++) {
                 String name2 = names[j];
                 if (name1.equals(name2)) {
                     names[i] = name1 + "_1";
@@ -435,7 +435,6 @@ public class SSMT2_Reader implements Reader {
             }
         }
     }
-
 
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
         final String startDateString = NetCDFUtils.getGlobalAttributeString(START_DATE_UTC_NAME, netcdfFile);
