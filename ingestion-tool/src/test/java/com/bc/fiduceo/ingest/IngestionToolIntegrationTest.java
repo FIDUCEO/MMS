@@ -603,6 +603,46 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_SSMT2() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "ssmt2-f14", "-start", "2001-165", "-end", "2001-165", "-v", "v01"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("F14200106141229.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2001, 6, 14, 12, 29, 4, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2001, 6, 14, 14, 10, 58, 0, observation.getStopTime());
+
+            assertEquals("ssmt2-f14", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"ssmt2-f14", "v01", "2001", "06", "14", "F14200106141229.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.ASCENDING, observation.getNodeType());
+            assertEquals("v01", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+            assertEquals(TestData.SSMT2_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2001, 6, 14, 12, 29, 4, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2001, 6, 14, 14, 10, 58, 0, timeAxes[0].getEndTime());
+            assertEquals(TestData.SSMT2_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void writeSystemProperties() throws IOException {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
