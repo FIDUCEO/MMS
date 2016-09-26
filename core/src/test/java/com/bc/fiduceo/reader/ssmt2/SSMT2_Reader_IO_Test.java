@@ -47,7 +47,6 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,7 +54,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.hsqldb.HsqlDateTime.e;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -179,11 +177,11 @@ public class SSMT2_Reader_IO_Test {
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
             float[] f = (float[]) d2.get1DJavaArray(Float.class);
             final float[] expected = new float[]{
-                        0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0,
-                        2575, 2575, 2575, 2575, 2575,
-                        2575, 2575, 2575, 2575, 2575,
-                        2575, 2575, 2575, 2575, 2575
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0,
+                    2575, 2575, 2575, 2575, 2575,
+                    2575, 2575, 2575, 2575, 2575,
+                    2575, 2575, 2575, 2575, 2575
             };
             assertArrayEquals(f, expected, 1e-8f);
         }
@@ -201,11 +199,11 @@ public class SSMT2_Reader_IO_Test {
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
             float[] f = (float[]) d2.get1DJavaArray(Float.class);
             final float[] expected = new float[]{
-                        128.38298f, 127.622314f, 126.94211f, 126.32476f, 125.757286f,
-                        128.2796f, 127.518654f, 126.83821f, 126.22068f, 125.65306f,
-                        128.1766f, 127.41533f, 126.73462f, 126.11687f, 125.54906f,
-                        128.07399f, 127.31234f, 126.63133f, 126.01331f, 125.44529f,
-                        127.97173f, 127.20968f, 126.52832f, 125.91001f, 125.34173f
+                    128.38298f, 127.622314f, 126.94211f, 126.32476f, 125.757286f,
+                    128.2796f, 127.518654f, 126.83821f, 126.22068f, 125.65306f,
+                    128.1766f, 127.41533f, 126.73462f, 126.11687f, 125.54906f,
+                    128.07399f, 127.31234f, 126.63133f, 126.01331f, 125.44529f,
+                    127.97173f, 127.20968f, 126.52832f, 125.91001f, 125.34173f
             };
             assertArrayEquals(f, expected, 1e-8f);
         }
@@ -223,11 +221,11 @@ public class SSMT2_Reader_IO_Test {
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
             float[] f = (float[]) d2.get1DJavaArray(Float.class);
             final float[] expected = new float[]{
-                        0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f,
-                        0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f,
-                        0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f,
-                        0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f,
-                        0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f
+                    0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f, 0.12364213f,
+                    0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f, 0.12347869f,
+                    0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f, 0.123529024f,
+                    0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f, 0.12290908f,
+                    0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f, 0.12332391f
             };
             assertArrayEquals(f, expected, 1e-8f);
         }
@@ -245,11 +243,11 @@ public class SSMT2_Reader_IO_Test {
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
             float[] f = (float[]) d2.get1DJavaArray(Float.class);
             final float[] expected = new float[]{
-                        267.4799f, 267.72684f, 268.34415f, 268.71454f, 268.59106f,
-                        268.293f, 268.293f, 270.27148f, 270.5188f, 270.5188f,
-                        268.7834f, 268.04242f, 270.01834f, 270.01834f, 269.77136f,
-                        267.58524f, 267.58524f, 268.69617f, 268.94305f, 268.4493f,
-                        268.0838f, 267.8365f, 268.20746f, 268.20746f, 268.82574f
+                    267.4799f, 267.72684f, 268.34415f, 268.71454f, 268.59106f,
+                    268.293f, 268.293f, 270.27148f, 270.5188f, 270.5188f,
+                    268.7834f, 268.04242f, 270.01834f, 270.01834f, 269.77136f,
+                    267.58524f, 267.58524f, 268.69617f, 268.94305f, 268.4493f,
+                    268.0838f, 267.8365f, 268.20746f, 268.20746f, 268.82574f
             };
             assertArrayEquals(f, expected, 1e-8f);
         }
@@ -267,11 +265,11 @@ public class SSMT2_Reader_IO_Test {
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
             float[] f = (float[]) d2.get1DJavaArray(Float.class);
             final float[] expected = new float[]{
-                        3532.0f, 3532.0f, 3532.0f, 3532.0f, 3532.0f,
-                        3527.0f, 3527.0f, 3527.0f, 3527.0f, 3527.0f,
-                        3526.0f, 3526.0f, 3526.0f, 3526.0f, 3526.0f,
-                        3543.0f, 3543.0f, 3543.0f, 3543.0f, 3543.0f,
-                        3534.0f, 3534.0f, 3534.0f, 3534.0f, 3534.0f
+                    3532.0f, 3532.0f, 3532.0f, 3532.0f, 3532.0f,
+                    3527.0f, 3527.0f, 3527.0f, 3527.0f, 3527.0f,
+                    3526.0f, 3526.0f, 3526.0f, 3526.0f, 3526.0f,
+                    3543.0f, 3543.0f, 3543.0f, 3543.0f, 3543.0f,
+                    3534.0f, 3534.0f, 3534.0f, 3534.0f, 3534.0f
             };
             assertArrayEquals(f, expected, 1e-8f);
         }
@@ -736,11 +734,11 @@ public class SSMT2_Reader_IO_Test {
             times = r.readAcquisitionTime(minX, minY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        fillValue, fillValue, 992521749, 992521749, 992521749,
-                        fillValue, fillValue, 992521757, 992521757, 992521757,
-                        fillValue, fillValue, 992521765, 992521765, 992521765
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    fillValue, fillValue, 992521749, 992521749, 992521749,
+                    fillValue, fillValue, 992521757, 992521757, 992521757,
+                    fillValue, fillValue, 992521765, 992521765, 992521765
             };
             assertArrayEquals(expecteds, storage);
 
@@ -748,11 +746,11 @@ public class SSMT2_Reader_IO_Test {
             times = r.readAcquisitionTime(maxX, minY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        992521749, 992521749, 992521749, fillValue, fillValue,
-                        992521757, 992521757, 992521757, fillValue, fillValue,
-                        992521765, 992521765, 992521765, fillValue, fillValue
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    992521749, 992521749, 992521749, fillValue, fillValue,
+                    992521757, 992521757, 992521757, fillValue, fillValue,
+                    992521765, 992521765, 992521765, fillValue, fillValue
             };
             assertArrayEquals(expecteds, storage);
 
@@ -760,11 +758,11 @@ public class SSMT2_Reader_IO_Test {
             times = r.readAcquisitionTime(maxX, maxY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
-                        992527835, 992527835, 992527835, fillValue, fillValue,
-                        992527843, 992527843, 992527843, fillValue, fillValue,
-                        992527851, 992527851, 992527851, fillValue, fillValue,
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        fillValue, fillValue, fillValue, fillValue, fillValue
+                    992527835, 992527835, 992527835, fillValue, fillValue,
+                    992527843, 992527843, 992527843, fillValue, fillValue,
+                    992527851, 992527851, 992527851, fillValue, fillValue,
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    fillValue, fillValue, fillValue, fillValue, fillValue
             };
             assertArrayEquals(expecteds, storage);
 
@@ -772,11 +770,11 @@ public class SSMT2_Reader_IO_Test {
             times = r.readAcquisitionTime(minX, maxY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
-                        fillValue, fillValue, 992527835, 992527835, 992527835,
-                        fillValue, fillValue, 992527843, 992527843, 992527843,
-                        fillValue, fillValue, 992527851, 992527851, 992527851,
-                        fillValue, fillValue, fillValue, fillValue, fillValue,
-                        fillValue, fillValue, fillValue, fillValue, fillValue
+                    fillValue, fillValue, 992527835, 992527835, 992527835,
+                    fillValue, fillValue, 992527843, 992527843, 992527843,
+                    fillValue, fillValue, 992527851, 992527851, 992527851,
+                    fillValue, fillValue, fillValue, fillValue, fillValue,
+                    fillValue, fillValue, fillValue, fillValue, fillValue
             };
             assertArrayEquals(expecteds, storage);
 
@@ -784,11 +782,11 @@ public class SSMT2_Reader_IO_Test {
             times = r.readAcquisitionTime(9, 11, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
-                        992521822, 992521822, 992521822, 992521822, 992521822,
-                        992521830, 992521830, 992521830, 992521830, 992521830,
-                        992521838, 992521838, 992521838, 992521838, 992521838,
-                        992521846, 992521846, 992521846, 992521846, 992521846,
-                        992521854, 992521854, 992521854, 992521854, 992521854
+                    992521822, 992521822, 992521822, 992521822, 992521822,
+                    992521830, 992521830, 992521830, 992521830, 992521830,
+                    992521838, 992521838, 992521838, 992521838, 992521838,
+                    992521846, 992521846, 992521846, 992521846, 992521846,
+                    992521854, 992521854, 992521854, 992521854, 992521854
             };
             assertArrayEquals(expecteds, storage);
         }

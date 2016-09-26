@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.atsr;
 
 
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.VariablePrototype;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -32,7 +33,10 @@ import ucar.nc2.VariableSimpleIF;
 import java.util.ArrayList;
 import java.util.List;
 
-class VariableProxy extends Variable {
+// This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
+// all methods with a throws implementation ensures that methods that should be overridden are really overridden;
+// calls into the not completely initialized base class are not possible this was tb 2016-09-26
+class VariableProxy extends VariablePrototype {
 
     private final RasterDataNode rasterDataNode;
 
@@ -48,31 +52,6 @@ class VariableProxy extends Variable {
     @Override
     public String getShortName() {
         return rasterDataNode.getName();
-    }
-
-    @Override
-    public String getDescription() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public String getUnitsString() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public int getRank() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public int[] getShape() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public List<Dimension> getDimensions() {
-        throw new RuntimeException("not implemented");
     }
 
     @Override
@@ -102,15 +81,5 @@ class VariableProxy extends Variable {
             attributes.add(new Attribute("_FillValue", Double.toString(noDataValue)));
         }
         return attributes;
-    }
-
-    @Override
-    public Attribute findAttributeIgnoreCase(String s) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public int compareTo(VariableSimpleIF o) {
-        throw new RuntimeException("not implemented");
     }
 }
