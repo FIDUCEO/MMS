@@ -161,4 +161,11 @@ public class ZenithAngleVariableTest {
         index.set(10, 21);
         assertEquals(25.709999084472656, array.getFloat(index), 1e-8);
     }
+
+    @Test
+    public void testGetShortName() {
+        final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F11, 17);
+
+        assertEquals("Satellite_zenith_angle", variable.getShortName());
+    }
 }

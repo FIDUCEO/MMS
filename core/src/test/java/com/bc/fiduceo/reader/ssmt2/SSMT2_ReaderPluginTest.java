@@ -21,13 +21,10 @@
 package com.bc.fiduceo.reader.ssmt2;
 
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SSMT2_ReaderPluginTest {
 
@@ -42,7 +39,7 @@ public class SSMT2_ReaderPluginTest {
     public void testGetSupportedSensorKey() throws Exception {
         final String[] expected = {"ssmt2-f11", "ssmt2-f12", "ssmt2-f14", "ssmt2-f15"};
 
-        final String[] sensorKeys= plugin.getSupportedSensorKeys();
+        final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
     }
 

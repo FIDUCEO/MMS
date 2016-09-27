@@ -61,7 +61,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SSMT2_Reader implements Reader {
+ class SSMT2_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
 
@@ -88,7 +88,7 @@ public class SSMT2_Reader implements Reader {
     private PixelLocator pixelLocator;
     private TimeLocator_YearDoyMs timeLocator;
 
-    public SSMT2_Reader(GeometryFactory geometryFactory) {
+    SSMT2_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -237,7 +237,7 @@ public class SSMT2_Reader implements Reader {
 
         if (shape[1] == lenX) {
             variablesList.add(variable);
-            readersMap.put(shortName, new Read2dFrom2d(arrayCache, lenX, shortName));
+            readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, lenX));
         } else if (shape[1] == chanels) {
             collect1dChannelsFrom2dVariable(variable);
         }
@@ -267,14 +267,14 @@ public class SSMT2_Reader implements Reader {
         variablesList = new ArrayList<>();
         readersMap = new HashMap<>();
 
-        final int lenY = getNumY();
-        final int lenX = getNumX();
+        final int height = getNumY();
+        final int width = getNumX();
 
         final List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
-            if (shape[0] != lenY
+            if (shape[0] != height
                 || shape.length > 3) {
                 continue;
             }
@@ -287,10 +287,15 @@ public class SSMT2_Reader implements Reader {
             } else if (shape.length == 2) {
                 splitAndCollect2DVariables(variable);
             } else {
-                this.variablesList.add(variable);
-                readersMap.put(shortName, new Read2dFrom1d(arrayCache, shortName, lenX));
+                variablesList.add(variable);
+                readersMap.put(shortName, new Read2dFrom1d(arrayCache, shortName, width));
             }
         }
+
+        final ZenithAngleVariable zenithVariable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F11, height);
+        variablesList.add(zenithVariable);
+        final String shortName = zenithVariable.getShortName();
+        readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
         needVariablesInitialisation = false;
     }
 
@@ -536,7 +541,7 @@ public class SSMT2_Reader implements Reader {
         private Number fillValue;
         private boolean needData = true;
 
-        public Read2dFrom2d(ArrayCache arrayCache, int defaultWidth, String shortName) {
+        public Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth) {
             this.arrayCache = arrayCache;
             this.defaultWidth = defaultWidth;
             this.shortName = shortName;

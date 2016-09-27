@@ -25,14 +25,15 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
+import ucar.nc2.CDMSort;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZenithAngleVariable extends VariablePrototype {
+class ZenithAngleVariable extends VariablePrototype {
 
-    public enum SensorType {
+    enum SensorType {
         F11,
         F12,
         F14,
@@ -49,7 +50,7 @@ public class ZenithAngleVariable extends VariablePrototype {
     private int height;
     private Array dataArray;
 
-    public ZenithAngleVariable(SensorType sensorType, int height) {
+    ZenithAngleVariable(SensorType sensorType, int height) {
         this.sensorType = sensorType;
         this.height = height;
         dataArray = null;
@@ -74,6 +75,11 @@ public class ZenithAngleVariable extends VariablePrototype {
         }
 
         throw new RuntimeException("Invalid shape index: " + index);
+    }
+
+    @Override
+    public String getShortName() {
+        return "Satellite_zenith_angle";
     }
 
     @Override

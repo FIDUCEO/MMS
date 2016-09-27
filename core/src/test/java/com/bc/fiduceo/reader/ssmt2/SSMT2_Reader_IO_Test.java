@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.ssmt2;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -284,18 +285,7 @@ public class SSMT2_Reader_IO_Test {
             final List<Variable> variables = r.getVariables();
 
             assertThat(variables, is(not(nullValue())));
-            assertThat(variables.size(), is(96));
-
-//            System.out.println("Variable variable;");
-//            for (int i = 0; i < variables.size(); i++) {
-//                Variable variable = variables.get(i);
-//                final String shortName = variable.getShortName();
-//                final DataType dataType = variable.getDataType();
-//                System.out.println();
-//                System.out.println("variable = variables.get(" + i + ");");
-//                System.out.println("assertThat(variable.getShortName(), equalTo(\"" + shortName + "\"));");
-//                System.out.println("assertThat(variable.getDataType(), equalTo(DataType." + dataType.name() + "));");
-//            }
+            assertThat(variables.size(), is(97));
 
             Variable variable;
 
@@ -682,11 +672,15 @@ public class SSMT2_Reader_IO_Test {
             variable = variables.get(95);
             assertThat(variable.getShortName(), equalTo("cold_counts_ch5_cal4"));
             assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
+
+            variable = variables.get(96);
+            assertThat(variable.getShortName(), equalTo("Satellite_zenith_angle"));
+            assertThat(variable.getDataType(), equalTo(DataType.FLOAT));
         }
     }
 
     @Test
-    public void testGetPixellocator() throws Exception {
+    public void testGetPixelLocator() throws Exception {
         final File file = createSSMT2_F14_File();
 
         try (SSMT2_Reader r = reader) {
@@ -711,7 +705,7 @@ public class SSMT2_Reader_IO_Test {
     }
 
     @Test
-    public void testGetAquisitionTime() throws Exception {
+    public void testGetAcquisitionTime() throws Exception {
         final File file = createSSMT2_F14_File();
         final Interval win5_5 = new Interval(5, 5);
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
@@ -791,6 +785,20 @@ public class SSMT2_Reader_IO_Test {
             assertArrayEquals(expecteds, storage);
         }
     }
+
+    // @todo 1 tb/tb continue here 2016-09-27
+//    @Test
+//    public void testReadRaw_zenithAngle() throws IOException, InvalidRangeException {
+//        final File file = createSSMT2_F14_File();
+//        final Interval interval = new Interval(3, 3);
+//
+//        try (SSMT2_Reader r = reader) {
+//            r.open(file);
+//
+//            final Array array = r.readRaw(5, 178, interval, "Satellite_zenith_angle");
+//            NCTestUtils.assertValueAt(222.7375946044922, 0, 0, array);
+//        }
+//    }
 
     private File createSSMT2_F11_File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"ssmt2-f11", "v01", "1994", "01", "28", "F11199401280412.nc"}, false);
