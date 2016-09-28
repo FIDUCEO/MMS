@@ -308,17 +308,7 @@ class SSMT2_Reader implements Reader {
 
     private ZenithAngleVariable.SensorType getSensorType() throws IOException {
         final String spacecraftId = NetCDFUtils.getGlobalAttributeString("spacecraft_ID", netcdfFile);
-        if ("F11".equalsIgnoreCase(spacecraftId)) {
-            return ZenithAngleVariable.SensorType.F11;
-        } else if ("F12".equalsIgnoreCase(spacecraftId)) {
-            return ZenithAngleVariable.SensorType.F12;
-        } else if ("F14".equalsIgnoreCase(spacecraftId)) {
-            return ZenithAngleVariable.SensorType.F14;
-        } else if ("F15".equalsIgnoreCase(spacecraftId)) {
-            return ZenithAngleVariable.SensorType.F15;
-        }
-
-        throw new RuntimeException("Unsupported spacecraft: " + spacecraftId);
+        return ZenithAngleVariable.SensorType.fromString(spacecraftId);
     }
 
     private int getNumX() {

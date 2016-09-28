@@ -25,7 +25,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
-import ucar.nc2.CDMSort;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +36,11 @@ class ZenithAngleVariable extends VariablePrototype {
         F11,
         F12,
         F14,
-        F15
+        F15;
+
+        public static SensorType fromString(String value) {
+            return SensorType.valueOf(value);
+        }
     }
 
     private static final float[] F11_ANGLES = {47.43f, 43.65f, 39.96f, 36.33f, 32.75f, 29.22f, 25.72f, 22.24f, 18.79f, 15.35f, 11.93f, 8.51f, 5.10f, 1.70f, 1.70f, 5.10f, 8.51f, 11.93f, 15.35f, 18.79f, 22.24f, 25.72f, 29.22f, 32.75f, 36.33f, 39.96f, 43.65f, 47.43f};

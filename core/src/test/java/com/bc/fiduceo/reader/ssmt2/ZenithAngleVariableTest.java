@@ -42,6 +42,23 @@ public class ZenithAngleVariableTest {
     }
 
     @Test
+    public void testSensorTapeFromString() {
+        assertEquals(ZenithAngleVariable.SensorType.F11, ZenithAngleVariable.SensorType.fromString("F11"));
+        assertEquals(ZenithAngleVariable.SensorType.F12, ZenithAngleVariable.SensorType.fromString("F12"));
+        assertEquals(ZenithAngleVariable.SensorType.F14, ZenithAngleVariable.SensorType.fromString("F14"));
+        assertEquals(ZenithAngleVariable.SensorType.F15, ZenithAngleVariable.SensorType.fromString("F15"));
+    }
+
+    @Test
+    public void testSensorTapeFromString_invalidType() {
+        try {
+            ZenithAngleVariable.SensorType.fromString("My Car");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
     public void testGetDataType() {
         final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F12, 34);
 
