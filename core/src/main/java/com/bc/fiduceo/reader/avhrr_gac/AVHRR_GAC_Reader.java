@@ -65,14 +65,17 @@ public class AVHRR_GAC_Reader implements Reader {
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
+
         final String startTimeString = NetCDFUtils.getGlobalAttributeString(START_TIME_ATTRIBUTE_NAME, netcdfFile);
         startTimeMilliSecondsSince1970 = parseDate(startTimeString).getTime();
+
         timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
         timeLocator = null;
+        pixelLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -154,8 +157,8 @@ public class AVHRR_GAC_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
-        double scaleFactor = getScaleFactor(variableName);
-        double offset = getOffset(variableName);
+        final double scaleFactor = getScaleFactor(variableName);
+        final double offset = getOffset(variableName);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -166,7 +169,7 @@ public class AVHRR_GAC_Reader implements Reader {
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         final ArrayFloat.D2 raw = (ArrayFloat.D2) readRaw(x, y, interval, "dtime");
-        return convertToAquisitionTime(raw, startTimeMilliSecondsSince1970);
+        return convertToAcquisitionTime(raw, startTimeMilliSecondsSince1970);
     }
 
     @Override
@@ -253,17 +256,17 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
-    static ArrayInt.D2 convertToAquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
+    static ArrayInt.D2 convertToAcquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
         final int[] shape = rawData.getShape();
         final int height = shape[0];
         final int width = shape[1];
         final ArrayInt.D2 times = new ArrayInt.D2(height, width);
-        // @todo 1 se/** take care about no (data value) fill value
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                final float v = rawData.get(i, j);
+                final float seconds = rawData.get(i, j);
 
-                final float milliSeconds = v * 1000;
+                final float milliSeconds = seconds * 1000.f;
                 final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
                 times.set(i, j, secondsSince1970);
             }

@@ -796,13 +796,13 @@ public class SSMT2_Reader_IO_Test {
 
             Array array = r.readRaw(5, 178, interval, "Satellite_zenith_angle");
             NCTestUtils.assertValueAt(32.75, 0, 0, array);
-            NCTestUtils.assertValueAt(29.219999313354492, 1, 1, array);
-            NCTestUtils.assertValueAt(25.719999313354492, 2, 2, array);
+            NCTestUtils.assertValueAt(29.209999084472656, 1, 1, array);
+            NCTestUtils.assertValueAt(25.709999084472656, 2, 2, array);
 
 
             array = r.readRaw(27, 179, interval, "Satellite_zenith_angle");
-            NCTestUtils.assertValueAt(43.650001525878906, 0, 0, array);
-            NCTestUtils.assertValueAt(47.43000030517578, 1, 1, array);
+            NCTestUtils.assertValueAt(43.63999938964844, 0, 0, array);
+            NCTestUtils.assertValueAt(47.41999816894531, 1, 1, array);
             NCTestUtils.assertValueAt(9.969209968386869E36, 2, 2, array);
         }
     }

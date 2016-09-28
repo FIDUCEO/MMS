@@ -39,8 +39,8 @@ import com.bc.fiduceo.reader.Read2dFrom3d;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.WindowReader;
 import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
+import com.bc.fiduceo.reader.WindowReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -61,7 +61,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
- class SSMT2_Reader implements Reader {
+class SSMT2_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
 
@@ -212,7 +212,7 @@ import java.util.List;
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException {
+    public List<Variable> getVariables() throws InvalidRangeException, IOException {
         ensureInitialisation();
         return variablesList;
     }
@@ -257,13 +257,13 @@ import java.util.List;
         }
     }
 
-    private void ensureInitialisation() throws InvalidRangeException {
+    private void ensureInitialisation() throws InvalidRangeException, IOException {
         if (needVariablesInitialisation) {
             initializeVariables();
         }
     }
 
-    private void initializeVariables() throws InvalidRangeException {
+    private void initializeVariables() throws InvalidRangeException, IOException {
         variablesList = new ArrayList<>();
         readersMap = new HashMap<>();
 
@@ -275,7 +275,7 @@ import java.util.List;
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
             if (shape[0] != height
-                || shape.length > 3) {
+                    || shape.length > 3) {
                 continue;
             }
             if (shortName.equalsIgnoreCase("ancil_data")) {
@@ -292,20 +292,36 @@ import java.util.List;
             }
         }
 
-        addTenithAngleVariable(height, width);
+        addZenithAngleVariable(height, width);
 
         needVariablesInitialisation = false;
     }
 
-     private void addTenithAngleVariable(int height, int width) {
-         final ZenithAngleVariable zenithVariable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F11, height);
-         variablesList.add(zenithVariable);
-         arrayCache.inject(zenithVariable);
-         final String shortName = zenithVariable.getShortName();
-         readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
-     }
+    private void addZenithAngleVariable(int height, int width) throws IOException {
+        ZenithAngleVariable.SensorType sensorType = getSensorType();
+        final ZenithAngleVariable zenithVariable = new ZenithAngleVariable(sensorType, height);
+        variablesList.add(zenithVariable);
+        arrayCache.inject(zenithVariable);
+        final String shortName = zenithVariable.getShortName();
+        readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
+    }
 
-     private int getNumX() {
+    private ZenithAngleVariable.SensorType getSensorType() throws IOException {
+        final String spacecraftId = NetCDFUtils.getGlobalAttributeString("spacecraft_ID", netcdfFile);
+        if ("F11".equalsIgnoreCase(spacecraftId)) {
+            return ZenithAngleVariable.SensorType.F11;
+        } else if ("F12".equalsIgnoreCase(spacecraftId)) {
+            return ZenithAngleVariable.SensorType.F12;
+        } else if ("F14".equalsIgnoreCase(spacecraftId)) {
+            return ZenithAngleVariable.SensorType.F14;
+        } else if ("F15".equalsIgnoreCase(spacecraftId)) {
+            return ZenithAngleVariable.SensorType.F15;
+        }
+
+        throw new RuntimeException("Unsupported spacecraft: " + spacecraftId);
+    }
+
+    private int getNumX() {
         return getDimLen(DIM_NAME_SCAN_POSITION);
     }
 
@@ -606,17 +622,17 @@ import java.util.List;
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                      targetWidth, targetHeight,
-                      0, srcHeight,
-                      (y, x) -> {
-                          targetIdx.set(y, x);
-                          targetArray.setDouble(targetIdx, fillValue);
-                      },
-                      (y, x, yRaw, xRaw) -> {
-                          targetIdx.set(y, x);
-                          sourceIdx.set(yRaw, sourceChannel);
-                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                      }
+                    targetWidth, targetHeight,
+                    0, srcHeight,
+                    (y, x) -> {
+                        targetIdx.set(y, x);
+                        targetArray.setDouble(targetIdx, fillValue);
+                    },
+                    (y, x, yRaw, xRaw) -> {
+                        targetIdx.set(y, x);
+                        sourceIdx.set(yRaw, sourceChannel);
+                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                    }
             );
             return targetArray;
         }

@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
-import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 
@@ -114,7 +113,7 @@ public class AVHRR_GAC_ReaderTest {
         final int[] expectedSeconds = {1, 2, 3, 4, 6, 7};
 
         // test
-        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
+        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970);
 
         // verifiying
         assertNotNull(acquisitionTime);
@@ -133,7 +132,7 @@ public class AVHRR_GAC_ReaderTest {
         final int[] expectedSeconds = {1 + v, 2 + v, 3 + v, 4 + v, 6 + v, 7 + v};
 
         // test
-        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAquisitionTime(rawData, startTimeMilliSecondsSince1970);
+        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970);
 
         // verifiying
         assertEquals(1427114096000L, startTimeMilliSecondsSince1970);

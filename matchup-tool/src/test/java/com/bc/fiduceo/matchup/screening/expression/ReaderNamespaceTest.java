@@ -50,6 +50,7 @@ import org.junit.Test;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
@@ -68,7 +69,7 @@ public class ReaderNamespaceTest {
     }
 
     @Test
-    public void testResolveFunction_onlyFromDefaultNamespace() throws InvalidRangeException {
+    public void testResolveFunction_onlyFromDefaultNamespace() throws InvalidRangeException, IOException {
         when(reader.getVariables()).thenReturn(new ArrayList<>());
         final ReaderNamespace namespace = new ReaderNamespace(reader);
 
@@ -78,7 +79,7 @@ public class ReaderNamespaceTest {
     }
 
     @Test
-    public void testResolveSymbol() throws InvalidRangeException {
+    public void testResolveSymbol() throws InvalidRangeException, IOException {
         final ArrayList<Variable> variables = new ArrayList<>();
         final Variable first = mock(Variable.class);
         when(first.getShortName()).thenReturn("first_name");
@@ -103,7 +104,7 @@ public class ReaderNamespaceTest {
     }
 
     @Test
-    public void testResolveSymbol_fromDefaultNamespace() throws InvalidRangeException {
+    public void testResolveSymbol_fromDefaultNamespace() throws InvalidRangeException, IOException {
         when(reader.getVariables()).thenReturn(new ArrayList<>());
         final ReaderNamespace namespace = new ReaderNamespace(reader);
 

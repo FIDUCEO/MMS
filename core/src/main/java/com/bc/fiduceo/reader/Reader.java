@@ -94,7 +94,7 @@ public interface Reader extends AutoCloseable {
      */
     ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 
-    List<Variable> getVariables() throws InvalidRangeException;
+    List<Variable> getVariables() throws InvalidRangeException, IOException;
 
     /**
      * Retieves the width and height of the product measurement data.

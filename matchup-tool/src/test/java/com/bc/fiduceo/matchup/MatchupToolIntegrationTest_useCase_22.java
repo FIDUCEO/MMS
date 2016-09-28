@@ -110,7 +110,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
 
             NCTestUtils.assert3DVariable("ssmt2-f14_channel_quality_flag_ch1", 2, 2, 237, 1.0, mmd);
 
-            NCTestUtils.assert3DVariable("ssmt2-f14_Satellite_zenith_angle", 0, 0, 238, 47.43000030517578, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_Satellite_zenith_angle", 0, 0, 238, 47.41999816894531, mmd);
         }
     }
 

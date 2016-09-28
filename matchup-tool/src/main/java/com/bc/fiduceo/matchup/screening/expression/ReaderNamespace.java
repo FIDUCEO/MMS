@@ -49,6 +49,7 @@ import org.esa.snap.core.jexp.impl.DefaultNamespace;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class ReaderNamespace implements Namespace {
     private final HashMap<String, Symbol> symbols = new HashMap<>();
     private final DefaultNamespace defaultNamespace;
 
-    public ReaderNamespace(Reader reader) throws InvalidRangeException {
+    public ReaderNamespace(Reader reader) throws InvalidRangeException, IOException {
         defaultNamespace = new DefaultNamespace();
 
         final List<Variable> variables = reader.getVariables();
