@@ -23,6 +23,17 @@ package com.bc.fiduceo.matchup.screening;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
+/* The XML template for this screening class looks like:
+
+    <angular-cosine-proportion>
+        <primary-variable name="blabla" />
+
+        <secondary-variable name="blabla" />
+
+        <threshold>0.01</threshold>
+    </angular-cosine-proportion>
+ */
+
 public class AngularCosineProportionScreeningPlugin implements ScreeningPlugin {
 
     @Override

@@ -41,7 +41,6 @@ import org.jdom.Element;
          <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA delta screening off -->
         <max-angle-delta>10.0</max-angle-delta>
     </angular>
-
  */
 
 public class AngularScreeningPlugin implements ScreeningPlugin {
