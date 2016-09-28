@@ -54,7 +54,7 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration_primaryName() throws JDOMException, IOException {
         final String XML = "<angular>" +
-                "  <primaryVZAVariable name=\"zenith_angle\" />" +
+                "  <primary-vza-variable name=\"zenith_angle\" />" +
                 "</angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -66,7 +66,7 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration_secondaryName() throws JDOMException, IOException {
         final String XML = "<angular>" +
-                "  <secondaryVZAVariable name=\"2nd_angle\" />" +
+                "  <secondary-vza-variable name=\"2nd_angle\" />" +
                 "</angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -78,9 +78,9 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration_primaryThreshold() throws JDOMException, IOException {
         final String XML = "<angular>" +
-                "  <maxPrimaryVZA>" +
+                "  <max-primary-vza>" +
                 "    11.3" +
-                "  </maxPrimaryVZA>" +
+                "  </max-primary-vza>" +
                 "</angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -92,9 +92,9 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration_secondaryThreshold() throws JDOMException, IOException {
         final String XML = "<angular>" +
-                "  <maxSecondaryVZA>" +
+                "  <max-secondary-vza>" +
                 "    12.4" +
-                "  </maxSecondaryVZA>" +
+                "  </max-secondary-vza>" +
                 "</angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -106,9 +106,9 @@ public class AngularScreeningPluginTest {
     @Test
     public void testCreateConfiguration_angularDifference() throws JDOMException, IOException {
         final String XML = "<angular>" +
-                "  <maxAngleDelta>" +
+                "  <max-angle-delta>" +
                 "    13.5" +
-                "  </maxAngleDelta>" +
+                "  </max-angle-delta>" +
                 "</angular>";
         final Element rootElement = TestUtil.createDomElement(XML);
 

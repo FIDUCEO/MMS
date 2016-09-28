@@ -50,22 +50,22 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular");
 
-        final Element primaryVariable = ensureChild(angular, "primaryVZAVariable");
+        final Element primaryVariable = ensureChild(angular, "primary-vza-variable");
         addAttribute(primaryVariable, "name", primaryVariableName);
 
-        final Element secondaryVariable = ensureChild(angular, "secondaryVZAVariable");
+        final Element secondaryVariable = ensureChild(angular, "secondary-vza-variable");
         addAttribute(secondaryVariable, "name", secondaryVariableName);
 
         if (!Float.isNaN(maxPrimaryVza)) {
-            addChild(angular, "maxPrimaryVZA", maxPrimaryVza);
+            addChild(angular, "max-primary-vza", maxPrimaryVza);
         }
 
         if (!Float.isNaN(maxSecondaryVza)) {
-            addChild(angular, "maxSecondaryVZA", maxSecondaryVza);
+            addChild(angular, "max-secondary-vza", maxSecondaryVza);
         }
 
         if (!Float.isNaN(maxDelta)) {
-            addChild(angular, "maxAngleDelta", maxDelta);
+            addChild(angular, "max-angle-delta", maxDelta);
         }
 
         return this;

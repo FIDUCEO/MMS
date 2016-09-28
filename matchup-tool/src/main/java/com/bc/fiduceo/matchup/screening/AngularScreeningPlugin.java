@@ -27,25 +27,19 @@ import org.jdom.Element;
 
     <angular>
         <!-- omit of no screening using the primary sensor is required -->
-        <primaryVZAVariable name="blabla" />
+        <primary-vza-variable name="blabla" />
 
         <!-- omit of no screening using the secondary sensor is required -->
-        <secondaryVZAVariable name="blabla" />
+        <secondary-vza-variable name="blabla" />
 
         <!-- set max threshold in degrees for the primary sensor VZA. Removing this tag switches primary VZA screening off. -->
-        <maxPrimaryVZA>
-            10.0
-        </maxPrimaryVZA>
+        <max-primary-vza>10.0</max-primary-vza>
 
         <!-- set max threshold in degrees for the secondary sensor VZA. Removing this tag switches secondary VZA screening off-->
-        <maxSecondaryVZA>
-            10.0
-        </maxSecondaryVZA>
+        <max-secondary-vza>10.0</max-secondary-vza>
 
-         <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA selta screening off -->
-        <maxAngleDelta>
-            10.0
-        </maxAngleDelta>
+         <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA delta screening off -->
+        <max-angle-delta>10.0</max-angle-delta>
     </angular>
 
  */
@@ -69,7 +63,7 @@ public class AngularScreeningPlugin implements ScreeningPlugin {
     static AngularScreening.Configuration createConfiguration(Element element) {
         final AngularScreening.Configuration configuration = new AngularScreening.Configuration();
 
-        final Element primaryVZAVariable = element.getChild("primaryVZAVariable");
+        final Element primaryVZAVariable = element.getChild("primary-vza-variable");
         if (primaryVZAVariable != null) {
             final Attribute name = primaryVZAVariable.getAttribute("name");
             if (name != null) {
@@ -77,7 +71,7 @@ public class AngularScreeningPlugin implements ScreeningPlugin {
             }
         }
 
-        final Element secondaryVZAVariable = element.getChild("secondaryVZAVariable");
+        final Element secondaryVZAVariable = element.getChild("secondary-vza-variable");
         if (secondaryVZAVariable != null) {
             final Attribute name = secondaryVZAVariable.getAttribute("name");
             if (name != null) {
@@ -85,21 +79,21 @@ public class AngularScreeningPlugin implements ScreeningPlugin {
             }
         }
 
-        final Element maxPrimaryVZA = element.getChild("maxPrimaryVZA");
+        final Element maxPrimaryVZA = element.getChild("max-primary-vza");
         if (maxPrimaryVZA != null) {
             final String maxPrimaryVZAValue = maxPrimaryVZA.getValue();
             configuration.maxPrimaryVZA = Double.parseDouble(maxPrimaryVZAValue);
             configuration.usePrimary = true;
         }
 
-        final Element maxSecondaryVZA = element.getChild("maxSecondaryVZA");
+        final Element maxSecondaryVZA = element.getChild("max-secondary-vza");
         if (maxSecondaryVZA != null) {
             final String maxSecondaryVZAValue = maxSecondaryVZA.getValue();
             configuration.maxSecondaryVZA = Double.parseDouble(maxSecondaryVZAValue);
             configuration.useSecondary = true;
         }
 
-        final Element maxAngleDelta = element.getChild("maxAngleDelta");
+        final Element maxAngleDelta = element.getChild("max-angle-delta");
         if (maxAngleDelta != null) {
             final String maxAngleDeltaValue = maxAngleDelta.getValue();
             configuration.maxAngleDelta = Double.parseDouble(maxAngleDeltaValue);
