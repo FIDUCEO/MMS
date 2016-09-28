@@ -982,6 +982,23 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
+    public void testReadScaled_azimuthAngle() throws Exception {
+        final File mhsFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
+        try {
+            reader.open(mhsFile);
+            final Array array = reader.readScaled(34, 234, new Interval(3, 3), "Satellite_azimuth_angle");
+            assertNotNull(array);
+            assertEquals(9, array.getSize());
+
+            NCTestUtils.assertValueAt(193.48999567516148, 0, 0, array);
+            NCTestUtils.assertValueAt(193.5399956740439, 1, 1, array);
+            NCTestUtils.assertValueAt(193.57999567314982, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadAcquisitionTime_AMSUB_NOAA15_centerWindow() throws IOException, InvalidRangeException {
         final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
 

@@ -203,9 +203,14 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final Array array = readRaw(centerX, centerY, interval, variableName);
+        String rawVariableName = variableName;
+        if (rawVariableName.contains("azimuth")) {
+            rawVariableName = falsifyAzimuth(rawVariableName);
+        }
 
-        final String strippedVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        final Array array = readRaw(centerX, centerY, interval, rawVariableName);
+
+        final String strippedVariableName = ReaderUtils.stripChannelSuffix(rawVariableName);
 
         double scaleFactor = getScaleFactor(strippedVariableName);
         if (ReaderUtils.mustScale(scaleFactor, 0.0)) {
