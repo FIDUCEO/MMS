@@ -136,26 +136,27 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
         assertFalse(mmdFile.isFile());  // no matchups remain tb 2016-09-28
     }
 
-//    @Test
-//    public void testMatchup_overlappingSensingTimes_withCloudScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
-//        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-//        TestUtil.writeSystemProperties(configDir);
-//
-//        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-//                .withTimeDeltaSeconds(1200)  // 5 minutes
-//                .withMaxPixelDistanceKm(5)
-//                .createConfig();
-//        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-22.xml");
-//
-//        insert_AMSUB_NOAA15();
-//        insert_SSMT2_F14();
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2001-165", "-end", "2001-165"};
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2001-165", "2001-165");
-//        assertFalse(mmdFile.isFile());  // no matchups remain tb 2016-09-28
-//    }
+    @Test
+    public void testMatchup_overlappingSensingTimes_withCloudScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(1200)  // 5 minutes
+                .withMaxPixelDistanceKm(5)
+                .withBuehlerCloudScreening("btemps_ch3", "btemps_ch4", "Satellite_zenith_angle", "tb_ch3", "tb_ch4", "Satellite_zenith_angle")
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-22.xml");
+
+        insert_AMSUB_NOAA15();
+        insert_SSMT2_F14();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2001-165", "-end", "2001-165"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2001-165", "2001-165");
+        assertFalse(mmdFile.isFile());  // no matchups remain tb 2016-09-28
+    }
 
     private void insert_AMSUB_NOAA15() throws IOException, SQLException {
         final String sensorKey = "amsub-n15";

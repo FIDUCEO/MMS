@@ -123,4 +123,29 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
         return this;
     }
+
+    UseCaseConfigBuilder withBuehlerCloudScreening(String primaryNarrow, String primaryWide, String primaryVza, String secondaryNarrow, String secondaryWide, String secondaryVza) {
+        final Element screenings = ensureChild(getRootElement(), "screenings");
+        final Element angularScreening = ensureChild(screenings, "buehler-cloud");
+
+        Element element = addChild(angularScreening, "primary-narrow-channel");
+        addAttribute(element, "name", primaryNarrow);
+
+        element = addChild(angularScreening, "primary-wide-channel");
+        addAttribute(element, "name", primaryWide);
+
+        element = addChild(angularScreening, "primary-vza");
+        addAttribute(element, "name", primaryVza);
+
+        element = addChild(angularScreening, "secondary-narrow-channel");
+        addAttribute(element, "name", secondaryNarrow);
+
+        element = addChild(angularScreening, "secondary-wide-channel");
+        addAttribute(element, "name", secondaryWide);
+
+        element = addChild(angularScreening, "secondary-vza");
+        addAttribute(element, "name", secondaryVza);
+
+        return this;
+    }
 }

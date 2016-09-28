@@ -138,7 +138,7 @@ public class UseCaseConfigBuilder {
         return child;
     }
 
-    private Element addChild(Element element, String name) {
+    protected Element addChild(Element element, String name) {
         return addChild(element, name, "");
     }
 }
