@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.plot;
 import com.bc.fiduceo.core.SamplingPoint;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
@@ -53,7 +54,8 @@ public class MapPlotTool {
             offsets[1] = shape[1]/2;
             offsets[2] = shape[2]/2;
 
-            final Array lonArray = readScaledIfRequired(lonVariable,offsets, shape);
+            Array lonArray = readScaledIfRequired(lonVariable,offsets, shape);
+            lonArray = shiftIfRequired(lonArray);
             final Array latArray = readScaledIfRequired(latVariable, offsets, shape);
             final Array timeArray = timeVariable.read(offsets, shape);
 
@@ -78,6 +80,26 @@ public class MapPlotTool {
             if (netcdfFile != null) {
                 netcdfFile.close();
             }
+        }
+    }
+
+    private static Array shiftIfRequired(Array lonArray) {
+        final IndexIterator indexIterator = lonArray.getIndexIterator();
+
+        boolean mustShift = false ;
+        while(indexIterator.hasNext())  {
+            final float lonVal = indexIterator.getFloatNext();
+            if (lonVal > 180.0) {
+                mustShift = true;
+                break;
+            }
+        }
+
+        if (mustShift) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(1.0, -180.0);
+            return MAMath.convert2Unpacked(lonArray, scaleOffset);
+        } else {
+            return lonArray;
         }
     }
 
