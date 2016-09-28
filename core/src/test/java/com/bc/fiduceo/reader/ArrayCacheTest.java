@@ -150,10 +150,8 @@ public class ArrayCacheTest {
 
     @Test
     public void testRequestedArrayIsReadScaled_scaleIsNotAvailable_RuntimeException() throws IOException {
-//        final Attribute scaleAttribute = new Attribute("scale", 0.5);
         final Attribute offsetAttribute = new Attribute("offset", 1.4);
         final List<Attribute> attributeList = new ArrayList<>();
-//        attributeList.add(scaleAttribute);
         attributeList.add(offsetAttribute);
         when(variable.getAttributes()).thenReturn(attributeList);
 
@@ -173,10 +171,8 @@ public class ArrayCacheTest {
     @Test
     public void testRequestedArrayIsReadScaled_offsetIsNotAvailable_RuntionException() throws IOException {
         final Attribute scaleAttribute = new Attribute("scale", 0.5);
-//        final Attribute offsetAttribute = new Attribute("offset", 1.4);
         final List<Attribute> attributeList = new ArrayList<>();
         attributeList.add(scaleAttribute);
-//        attributeList.add(offsetAttribute);
         when(variable.getAttributes()).thenReturn(attributeList);
 
         try {
@@ -445,5 +441,20 @@ public class ArrayCacheTest {
         verify(variable, times(1)).read();
         verify(variable, times(1)).getAttributes();
         verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testInjectVariable() throws IOException {
+        final Variable variable = mock(Variable.class);
+        when(variable.getShortName()).thenReturn("injected");
+
+        final Array array = Array.factory(new int[]{2, 3, 4, 5});
+        when(variable.read()).thenReturn(array);
+
+        arrayCache.inject(variable);
+
+        final Array injectedArray = arrayCache.get("injected");
+        assertNotNull(injectedArray);
+        assertEquals(2, injectedArray.getInt(0));
     }
 }

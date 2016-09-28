@@ -292,14 +292,20 @@ import java.util.List;
             }
         }
 
-        final ZenithAngleVariable zenithVariable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F11, height);
-        variablesList.add(zenithVariable);
-        final String shortName = zenithVariable.getShortName();
-        readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
+        addTenithAngleVariable(height, width);
+
         needVariablesInitialisation = false;
     }
 
-    private int getNumX() {
+     private void addTenithAngleVariable(int height, int width) {
+         final ZenithAngleVariable zenithVariable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F11, height);
+         variablesList.add(zenithVariable);
+         arrayCache.inject(zenithVariable);
+         final String shortName = zenithVariable.getShortName();
+         readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
+     }
+
+     private int getNumX() {
         return getDimLen(DIM_NAME_SCAN_POSITION);
     }
 

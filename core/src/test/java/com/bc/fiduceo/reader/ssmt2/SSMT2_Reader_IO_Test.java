@@ -786,19 +786,26 @@ public class SSMT2_Reader_IO_Test {
         }
     }
 
-    // @todo 1 tb/tb continue here 2016-09-27
-//    @Test
-//    public void testReadRaw_zenithAngle() throws IOException, InvalidRangeException {
-//        final File file = createSSMT2_F14_File();
-//        final Interval interval = new Interval(3, 3);
-//
-//        try (SSMT2_Reader r = reader) {
-//            r.open(file);
-//
-//            final Array array = r.readRaw(5, 178, interval, "Satellite_zenith_angle");
-//            NCTestUtils.assertValueAt(222.7375946044922, 0, 0, array);
-//        }
-//    }
+    @Test
+    public void testReadRaw_zenithAngle() throws IOException, InvalidRangeException {
+        final File file = createSSMT2_F14_File();
+        final Interval interval = new Interval(3, 3);
+
+        try (SSMT2_Reader r = reader) {
+            r.open(file);
+
+            Array array = r.readRaw(5, 178, interval, "Satellite_zenith_angle");
+            NCTestUtils.assertValueAt(32.75, 0, 0, array);
+            NCTestUtils.assertValueAt(29.219999313354492, 1, 1, array);
+            NCTestUtils.assertValueAt(25.719999313354492, 2, 2, array);
+
+
+            array = r.readRaw(27, 179, interval, "Satellite_zenith_angle");
+            NCTestUtils.assertValueAt(43.650001525878906, 0, 0, array);
+            NCTestUtils.assertValueAt(47.43000030517578, 1, 1, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 2, 2, array);
+        }
+    }
 
     private File createSSMT2_F11_File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"ssmt2-f11", "v01", "1994", "01", "28", "F11199401280412.nc"}, false);

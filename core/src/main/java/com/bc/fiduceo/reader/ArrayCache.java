@@ -38,12 +38,14 @@ public class ArrayCache {
     private final NetcdfFile netcdfFile;
     private final HashMap<String, ArrayContainer> cache;
     private final HashMap<String, ArrayContainer> scaledCache;
+    private final HashMap<String, Variable> injectedVariables;
 
     public ArrayCache(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
 
         cache = new HashMap<>();
         scaledCache = new HashMap<>();
+        injectedVariables = new HashMap<>();
     }
 
     public Array get(String variableName) throws IOException {
@@ -218,6 +220,10 @@ public class ArrayCache {
         return null;
     }
 
+    public void inject(Variable variable) {
+        injectedVariables.put(variable.getShortName(), variable);
+    }
+
     private String getAttributeStringValue(String attributeName, String variableKey) {
         final ArrayContainer arrayContainer = cache.get(variableKey);
         final Attribute attribute = arrayContainer.get(attributeName);
@@ -249,9 +255,12 @@ public class ArrayCache {
 
     private ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
         ArrayContainer container;
-        final Variable variable = netcdfFile.findVariable(group, variableName);
+        Variable variable = netcdfFile.findVariable(group, variableName);
         if (variable == null) {
-            throw new IOException("requested variable '" + variableName + "' not present in file");
+            variable = injectedVariables.get(variableName);
+            if(variable == null) {
+                throw new IOException("requested variable '" + variableName + "' not present in file");
+            }
         }
         container = new ArrayContainer();
         container.array = variable.read();
