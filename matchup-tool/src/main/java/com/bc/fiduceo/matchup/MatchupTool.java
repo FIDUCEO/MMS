@@ -34,6 +34,7 @@ import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
+import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
@@ -69,10 +70,11 @@ class MatchupTool {
 
     void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
 
         readerFactory = ReaderFactory.get(context.getGeometryFactory());
 
-        runMatchupGeneration(context);
+        runMatchupGeneration(context, mmdWriterConfig);
     }
 
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
@@ -211,11 +213,30 @@ class MatchupTool {
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
+
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
 
         logger.info("Success loading configuration.");
         return context;
+    }
+
+    // @todo 2 tb/tb ad test 2016-09-29
+    static MmdWriterConfig loadWriterConfig(CommandLine commandLine) throws IOException {
+        final String configValue = commandLine.getOptionValue("config", "./config");
+        final File configDirectory = new File(configValue);
+
+        final File useCaseConfigFile = new File(configDirectory, "mmd-writer-config.xml");
+        if (!useCaseConfigFile.isFile()) {
+            throw new RuntimeException("Use case config file does not exist: '" + "mmd-writer-config.xml" + "'");
+        }
+
+        final MmdWriterConfig mmdWriterConfig;
+        try (FileInputStream inputStream = new FileInputStream(useCaseConfigFile)) {
+            mmdWriterConfig = MmdWriterConfig.load(inputStream);
+        }
+
+        return mmdWriterConfig;
     }
 
     // package access for testing only tb 2016-08-12
@@ -229,7 +250,7 @@ class MatchupTool {
         return builder;
     }
 
-    private void runMatchupGeneration(ToolContext context) throws SQLException, IOException, InvalidRangeException {
+    private void runMatchupGeneration(ToolContext context, MmdWriterConfig writerConfig) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = createMatchupCollection(context);
 
         final SystemConfig systemConfig = context.getSystemConfig();

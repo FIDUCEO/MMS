@@ -76,7 +76,7 @@ public class MmdWriterFactory {
         return nameBuilder.toString();
     }
 
-    public enum NetcdfType {
+    enum NetcdfType {
         N3,
         N4
     }

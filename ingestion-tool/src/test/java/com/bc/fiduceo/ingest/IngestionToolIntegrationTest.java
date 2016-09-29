@@ -647,7 +647,7 @@ public class IngestionToolIntegrationTest {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
-        TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
+        TestUtil.storeProperties(properties, configDir, "system.properties");
     }
 
     private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {

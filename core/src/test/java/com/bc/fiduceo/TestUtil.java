@@ -65,15 +65,15 @@ public class TestUtil {
         return dataDirectory;
     }
 
-    public static void storePropertiesToTemp(Properties properties, File configDir, String child) throws IOException {
-        final File dataSourcePropertiesFile = new File(configDir, child);
-        if (!dataSourcePropertiesFile.createNewFile()) {
-            fail("unable to create test file: " + dataSourcePropertiesFile.getAbsolutePath());
+    public static void storeProperties(Properties properties, File configDir, String child) throws IOException {
+        final File propertiesFile = new File(configDir, child);
+        if (!propertiesFile.createNewFile()) {
+            fail("unable to create test file: " + propertiesFile.getAbsolutePath());
         }
 
         FileOutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(dataSourcePropertiesFile);
+            outputStream = new FileOutputStream(propertiesFile);
             properties.store(outputStream, "");
         } finally {
             if (outputStream != null) {
@@ -87,7 +87,7 @@ public class TestUtil {
         final BasicDataSource datasource = TestUtil.getdatasourceMongoDb();
         convertToProperties(properties, datasource);
 
-        TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
+        TestUtil.storeProperties(properties, configDir, "database.properties");
     }
 
     public static void writeDatabaseProperties_H2(File configDir) throws IOException {
@@ -95,7 +95,7 @@ public class TestUtil {
         final BasicDataSource datasource = TestUtil.getDatasource_H2();
         convertToProperties(properties, datasource);
 
-        TestUtil.storePropertiesToTemp(properties, configDir, "database.properties");
+        TestUtil.storeProperties(properties, configDir, "database.properties");
     }
 
     public static BasicDataSource getDatasource_H2() {
@@ -124,7 +124,28 @@ public class TestUtil {
         properties.setProperty("geometry-library-type", "S2");
         properties.setProperty("netcdf-format", "N4");
 
-        TestUtil.storePropertiesToTemp(properties, configDir, "system.properties");
+        TestUtil.storeProperties(properties, configDir, "system.properties");
+    }
+
+    public static void writeMmdWriterConfig(File configDir) throws IOException {
+        final String config = "<mmd-writer-config>" +
+                "</mmd-writer-config>";
+
+        final File propertiesFile = new File(configDir, "mmd-writer-config.xml");
+        if (!propertiesFile.createNewFile()) {
+            fail("unable to create test file: " + propertiesFile.getAbsolutePath());
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(propertiesFile);
+            outputStream.write(config.getBytes());
+            outputStream.flush();
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
     }
 
     public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, Date utcDate) {

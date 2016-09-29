@@ -48,6 +48,7 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(300)

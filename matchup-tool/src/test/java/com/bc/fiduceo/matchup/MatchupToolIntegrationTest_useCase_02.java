@@ -51,6 +51,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(22)
@@ -72,6 +73,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
@@ -132,6 +134,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval

@@ -50,6 +50,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(1200)  // 5 minutes
@@ -118,6 +119,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes_withAngularScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(1200)  // 5 minutes
@@ -140,6 +142,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     public void testMatchup_overlappingSensingTimes_withCloudScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(1200)  // 5 minutes
