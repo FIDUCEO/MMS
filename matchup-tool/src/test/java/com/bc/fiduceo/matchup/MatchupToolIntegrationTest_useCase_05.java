@@ -49,10 +49,6 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
-
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(2700) // 45 minutes - we have one intersecting time interval
                 .withMaxPixelDistanceKm(20)   // value in km
@@ -129,10 +125,6 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
 
     @Test
     public void testMatchup_overlappingSensingTimes_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
-
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(900)   // 15 minutes - we have no intersecting time intervals
                 .withMaxPixelDistanceKm(20)   // value in km

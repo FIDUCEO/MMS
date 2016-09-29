@@ -48,7 +48,7 @@ abstract class AbstractUsecaseIntegrationTest {
     Storage storage;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, IOException {
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
@@ -60,6 +60,10 @@ abstract class AbstractUsecaseIntegrationTest {
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
         storage.clear();
         storage.initialize();
+
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeMmdWriterConfig(configDir);
     }
 
     @After

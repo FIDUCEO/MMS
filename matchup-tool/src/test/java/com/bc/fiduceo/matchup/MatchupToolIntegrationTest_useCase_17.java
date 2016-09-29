@@ -48,10 +48,6 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
-
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(600)  // 10 minutes is large enough to get some matchups
                 .withMaxPixelDistanceKm(5)
@@ -136,10 +132,6 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
     @Test
     public void testMatchup_overlappingSensingTimes_additionalDistanceVariable() throws IOException, ParseException, SQLException, InvalidRangeException {
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
-
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(600)  // 10 minutes is large enough to get some matchups
                 .withMaxPixelDistanceKm(5)
@@ -165,10 +157,6 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
     @Test
     public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
-        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
-
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(30)   // 30 seconds, just too small to have an overlapping time interval
                 .createConfig();
