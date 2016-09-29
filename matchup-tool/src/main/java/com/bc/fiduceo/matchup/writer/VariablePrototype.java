@@ -25,7 +25,7 @@ import ucar.nc2.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VariablePrototype {
+class VariablePrototype {
 
     private String targetVariableName;
     private String sourceVariableName;
@@ -33,19 +33,19 @@ public class VariablePrototype {
     private String dataType;
     private List<Attribute> attributes;
 
-    public VariablePrototype() {
+    VariablePrototype() {
         attributes = new ArrayList<>();
     }
 
-    public String getTargetVariableName() {
+    String getTargetVariableName() {
         return targetVariableName;
     }
 
-    public void setTargetVariableName(String name) {
+    void setTargetVariableName(String name) {
         this.targetVariableName = name;
     }
 
-    public String getDimensionNames() {
+    String getDimensionNames() {
         return dimensionNames;
     }
 
@@ -55,31 +55,31 @@ public class VariablePrototype {
      *
      * @param dimensionNames the zero separated dimension names
      */
-    public void setDimensionNames(String dimensionNames) {
+    void setDimensionNames(String dimensionNames) {
         this.dimensionNames = dimensionNames;
     }
 
-    public String getDataType() {
+    String getDataType() {
         return dataType;
     }
 
-    public void setDataType(String dataType) {
+    void setDataType(String dataType) {
         this.dataType = dataType;
     }
 
-    public List<Attribute> getAttributes() {
+    List<Attribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(List<Attribute> attributes) {
+    void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
     }
 
-    public String getSourceVariableName() {
+    String getSourceVariableName() {
         return sourceVariableName;
     }
 
-    public void setSourceVariableName(String sourceVariableName) {
+    void setSourceVariableName(String sourceVariableName) {
         this.sourceVariableName = sourceVariableName;
     }
 }

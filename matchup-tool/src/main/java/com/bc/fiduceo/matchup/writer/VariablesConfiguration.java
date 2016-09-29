@@ -35,17 +35,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class VariablesConfiguration {
+class VariablesConfiguration {
 
     private final HashMap<String, List<VariablePrototype>> prototypesMap;
     private final ReaderFactory readerFactory;
 
-    public VariablesConfiguration(ReaderFactory readerFactory) {
+    VariablesConfiguration(ReaderFactory readerFactory) {
         prototypesMap = new HashMap<>();
         this.readerFactory = readerFactory;
     }
 
-    public void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
+    void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
         final String sensorName = sensor.getName();
 
         final List<VariablePrototype> prototypes;
@@ -86,7 +86,7 @@ public class VariablesConfiguration {
         return newAttributes;
     }
 
-    public List<VariablePrototype> get() {
+    List<VariablePrototype> get() {
         final ArrayList<VariablePrototype> allPrototypes = new ArrayList<>();
         for (List<VariablePrototype> prototypes : prototypesMap.values()) {
             allPrototypes.addAll(prototypes);
@@ -101,13 +101,12 @@ public class VariablesConfiguration {
      * @param sensorName the name of the sensor
      * @return a list of {@link VariablePrototype}
      */
-    public List<VariablePrototype> getPrototypesFor(String sensorName) {
+    List<VariablePrototype> getPrototypesFor(String sensorName) {
         if (prototypesMap.containsKey(sensorName)) {
             return prototypesMap.get(sensorName);
         }
         return new ArrayList<>();
     }
-
 
     // package access for testing only tb 2016-04-12
     static String createDimensionNames(Dimension dimension) {
