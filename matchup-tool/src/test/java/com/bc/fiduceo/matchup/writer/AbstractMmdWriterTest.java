@@ -21,21 +21,16 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
 import com.bc.fiduceo.tool.ToolContext;
-import org.junit.*;
-import ucar.ma2.Array;
+import org.junit.Test;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
@@ -47,40 +42,44 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class MmdWriterTest {
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.*;
 
-    private final String fillValueName = "_FillValue";
+public class AbstractMmdWriterTest {
+
+    private static final String fillValueName = "_FillValue";
 
     @Test
     public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
         final Sensor primarySensor = new Sensor("SensorName1");
         primarySensor.setPrimary(true);
         final List<Sensor> sensorList = Arrays.asList(
-                    primarySensor,
-                    new Sensor("SensorName2"),
-                    new Sensor("SensorName3")
+                primarySensor,
+                new Sensor("SensorName2"),
+                new Sensor("SensorName3")
         );
 
         final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("NameOfTheUseCase")
-                    .withTimeDeltaSeconds(234)
-                    .withMaxPixelDistanceKm(12.34f)
-                    .withSensors(sensorList)
-                    .withDimensions(Arrays.asList(
-                                new Dimension("SensorName1", 1, 2),
-                                new Dimension("SensorName2", 3, 4),
-                                new Dimension("SensorName3", 5, 6)
-                    ))
-                    .createConfig();
+                .withTimeDeltaSeconds(234)
+                .withMaxPixelDistanceKm(12.34f)
+                .withSensors(sensorList)
+                .withDimensions(Arrays.asList(
+                        new Dimension("SensorName1", 1, 2),
+                        new Dimension("SensorName2", 3, 4),
+                        new Dimension("SensorName3", 5, 6)
+                ))
+                .createConfig();
 
         final NetcdfFileWriter mockWriter = mock(NetcdfFileWriter.class);
 
         //test
-        MmdWriterNC3.createUseCaseAttributes(mockWriter, useCaseConfig);
+        AbstractMmdWriter.createUseCaseAttributes(mockWriter, useCaseConfig);
 
         //verification
         final String useCaseAttributeName = "use-case-configuration";
         final String expectedCommentText = "This MMD file is created based on the use case configuration " +
-                                           "documented in the attribute '" + useCaseAttributeName + "'.";
+                "documented in the attribute '" + useCaseAttributeName + "'.";
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("comment", expectedCommentText)));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);
@@ -88,32 +87,14 @@ public class MmdWriterTest {
         verifyNoMoreInteractions(mockWriter);
     }
 
-    @Test
-    public void testThrowAway() throws Exception {
-        final Array stack = Array.factory(DataType.INT, new int[]{4, 3, 3});
-        final Array dataToBeWritten = Array.factory(new int[][]{
-                    new int[]{1, 2, 3},
-                    new int[]{4, 5, 6},
-                    new int[]{7, 8, 9}
-        });
-        final Index index = stack.getIndex().set(1);
-        Array.arraycopy(dataToBeWritten, 0, stack, index.currentElement(), (int) dataToBeWritten.getSize());
-        final int[] storage = (int[]) stack.getStorage();
-        final int[] expecteds = new int[]{
-                    0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    1, 2, 3, 4, 5, 6, 7, 8, 9,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0
-        };
-        assertArrayEquals(expecteds, storage);
-    }
+
 
     @Test
     public void testGetFirstMatchupSet_emptyList() {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
         try {
-            MmdWriterNC3.getFirstMatchupSet(matchupCollection);
+            AbstractMmdWriter.getFirstMatchupSet(matchupCollection);
             fail("IllegalStateException expected");
         } catch (IllegalStateException expected) {
         }
@@ -127,7 +108,7 @@ public class MmdWriterTest {
         collection.add(first);
         collection.add(second);
 
-        final MatchupSet set = MmdWriterNC3.getFirstMatchupSet(collection);
+        final MatchupSet set = AbstractMmdWriter.getFirstMatchupSet(collection);
 
         assertSame(first, set);
     }
@@ -137,7 +118,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.DOUBLE.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -152,7 +133,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.FLOAT.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -167,7 +148,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.LONG.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -182,7 +163,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.INT.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -197,7 +178,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.SHORT.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -212,7 +193,7 @@ public class MmdWriterTest {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setDataType(DataType.BYTE.name());
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -229,7 +210,7 @@ public class MmdWriterTest {
         final double fillValue = 1234.5678;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -246,7 +227,7 @@ public class MmdWriterTest {
         final float fillValue = 1234.5678f;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -263,7 +244,7 @@ public class MmdWriterTest {
         final long fillValue = 12345678912345678L;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -280,7 +261,7 @@ public class MmdWriterTest {
         final int fillValue = 123456789;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -297,7 +278,7 @@ public class MmdWriterTest {
         final short fillValue = 12345;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -314,7 +295,7 @@ public class MmdWriterTest {
         final byte fillValue = 123;
         prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        MmdWriterNC3.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(prototype);
 
         final List<Attribute> attributes = prototype.getAttributes();
         assertNotNull(attributes);
@@ -335,9 +316,9 @@ public class MmdWriterTest {
         final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
-                    .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
-                    .withSensors(Arrays.asList(primarySensor, secondarySensor))
-                    .createConfig();
+                .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
+                .withSensors(Arrays.asList(primarySensor, secondarySensor))
+                .createConfig();
 
         final ToolContext toolContext = mock(ToolContext.class);
         when(toolContext.getUseCaseConfig()).thenReturn(useCaseConfig);
@@ -352,7 +333,7 @@ public class MmdWriterTest {
         final VariablesConfiguration configuration = mock(VariablesConfiguration.class);
 
         // test execution
-        MmdWriterNC3.extractPrototypes(configuration, matchupCollection, toolContext);
+        AbstractMmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);
 
         // validation
         verify(configuration).extractPrototypes(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
@@ -367,4 +348,3 @@ public class MmdWriterTest {
         return primarySensor;
     }
 }
-

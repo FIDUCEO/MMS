@@ -64,17 +64,10 @@ abstract class AbstractMmdWriter implements MmdWriter {
     private final int cacheSize;
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
+    private final MmdWriterConfig writerConfig;
     private int flushCount = 0;
 
     NetcdfFileWriter netcdfFileWriter;
-
-    AbstractMmdWriter(int cacheSize) {
-        this.cacheSize = cacheSize;
-        logger = FiduceoLogger.getLogger();
-
-        dataCacheMap = new HashMap<>();
-        variableMap = new HashMap<>();
-    }
 
     /**
      * Writes the complete MatchupCollection matchup data to the MD file.
@@ -98,7 +91,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
             extractPrototypes(variablesConfiguration, matchupCollection, context);
 
-            final Path mmdFile = createMmdFile(context);
+            final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
             initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
 
@@ -148,6 +141,15 @@ abstract class AbstractMmdWriter implements MmdWriter {
         } finally {
             close();
         }
+    }
+
+    AbstractMmdWriter(int cacheSize, MmdWriterConfig writerConfig) {
+        this.cacheSize = cacheSize;
+        this.writerConfig = writerConfig;
+        logger = FiduceoLogger.getLogger();
+
+        dataCacheMap = new HashMap<>();
+        variableMap = new HashMap<>();
     }
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
@@ -256,7 +258,8 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    private Path createMmdFile(ToolContext context) throws IOException {
+    // package access for testing only tb 2016-09-29
+    static Path createMmdFile(ToolContext context, MmdWriterConfig writerConfig) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
@@ -270,10 +273,14 @@ abstract class AbstractMmdWriter implements MmdWriter {
             }
         }
 
-        // @todo 3 tb/tb we might set an overwrite property to the system config later, if requested 2016-03-16
         if (Files.exists(mmdFile)) {
-            throw new IOException("Mmd output file already exists '" + mmdFile.toAbsolutePath().toString() + "'");
+            if (!writerConfig.isOverwrite()) {
+                throw new IOException("Mmd output file already exists '" + mmdFile.toAbsolutePath().toString() + "'");
+            } else {
+                Files.delete(mmdFile);
+            }
         }
+
         try {
             return Files.createFile(mmdFile);
         } catch (IOException e) {

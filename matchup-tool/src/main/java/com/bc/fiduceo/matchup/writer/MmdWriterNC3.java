@@ -27,8 +27,8 @@ import java.nio.file.Path;
 
 class MmdWriterNC3 extends AbstractMmdWriter {
 
-    MmdWriterNC3(int cacheSize) {
-        super(cacheSize);
+    MmdWriterNC3(int cacheSize, MmdWriterConfig writerConfig) {
+        super(cacheSize, writerConfig);
     }
 
     void createNetCdfFileWriter(Path mmdFile) throws IOException {

@@ -255,7 +255,7 @@ class MatchupTool {
 
         final SystemConfig systemConfig = context.getSystemConfig();
         final int cacheSize = systemConfig.getMmdWriterCacheSize();
-        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(systemConfig.getNetcdfFormat(), cacheSize);
+        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(systemConfig.getNetcdfFormat(), cacheSize, writerConfig);
         mmdWriter.writeMMD(matchupCollection, context);
     }
 

@@ -64,22 +64,22 @@ public class MmdWriterFactoryTest {
 
     @Test
     public void testCreateFileWriter_fromEnum() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter(N3, 128);
+        MmdWriter writer = MmdWriterFactory.createFileWriter(N3, 128, new MmdWriterConfig());
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC3);
 
-        writer = MmdWriterFactory.createFileWriter(N4, 128);
+        writer = MmdWriterFactory.createFileWriter(N4, 128, new MmdWriterConfig());
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC4);
     }
 
     @Test
     public void testCreateFileWriter_fromString() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter("N3", 128);
+        MmdWriter writer = MmdWriterFactory.createFileWriter("N3", 128, new MmdWriterConfig());
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC3);
 
-        writer = MmdWriterFactory.createFileWriter("N4", 128);
+        writer = MmdWriterFactory.createFileWriter("N4", 128, new MmdWriterConfig());
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC4);
     }
@@ -87,7 +87,7 @@ public class MmdWriterFactoryTest {
     @Test
     public void testCreateFileWriter_fromString_invalidString() {
         try {
-            MmdWriterFactory.createFileWriter("Hanswurst", 128);
+            MmdWriterFactory.createFileWriter("Hanswurst", 128, new MmdWriterConfig());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }

@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
-public class VariablesConfigurationTest_IO {
+public class VariablesConfiguration_IO_Test {
 
     @Test
     public void testExtractPrototypes_AVHRR_NOAA_17() throws IOException {
