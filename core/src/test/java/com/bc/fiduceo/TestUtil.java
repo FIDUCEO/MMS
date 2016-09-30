@@ -130,6 +130,7 @@ public class TestUtil {
     public static void writeMmdWriterConfig(File configDir) throws IOException {
         final String config = "<mmd-writer-config>" +
                 "    <overwrite>false</overwrite>" +
+                "    <cache-size>2048</cache-size>" +
                 "</mmd-writer-config>";
 
         final File propertiesFile = new File(configDir, "mmd-writer-config.xml");

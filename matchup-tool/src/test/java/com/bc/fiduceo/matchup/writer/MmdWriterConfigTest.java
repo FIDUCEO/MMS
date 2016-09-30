@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,8 +49,21 @@ public class MmdWriterConfigTest {
     }
 
     @Test
-    public void testIsOverwriteDefaultValue() {
+    public void testSetGetCacheSize() {
+        final int size_1 = 125;
+        final int size_2 = 1098;
+
+        config.setCacheSize(size_1);
+        assertEquals(size_1, config.getCacheSize());
+
+        config.setCacheSize(size_2);
+        assertEquals(size_2, config.getCacheSize());
+    }
+
+    @Test
+    public void testDefaultValues() {
         assertFalse(config.isOverwrite());
+        assertEquals(2048, config.getCacheSize());
     }
 
     @Test
@@ -61,5 +75,20 @@ public class MmdWriterConfigTest {
 
         final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
         assertTrue(loadedConfig.isOverwrite());
+
+        assertEquals(2048, loadedConfig.getCacheSize());
+    }
+
+    @Test
+    public void testLoad_cacheSize() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <cache-size>119</cache-size>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        assertEquals(119, loadedConfig.getCacheSize());
+
+        assertFalse(loadedConfig.isOverwrite());
     }
 }

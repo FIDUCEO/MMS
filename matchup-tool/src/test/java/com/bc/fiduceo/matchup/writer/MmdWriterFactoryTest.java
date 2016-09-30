@@ -20,37 +20,41 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NAME;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_PRIMARY;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_ROOT;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSOR;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.Date;
 
+import static com.bc.fiduceo.core.UseCaseConfig.*;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
+import static org.junit.Assert.*;
+
 public class MmdWriterFactoryTest {
+
+    private MmdWriterConfig writerConfig;
+
+    @Before
+    public void setUp() {
+        writerConfig = new MmdWriterConfig();
+    }
 
     @Test
     public void testCreateMMDFileName() {
         final String config = "<" + TAG_NAME_ROOT + " name=\"mmd-12\">" +
-                              "  <" + TAG_NAME_SENSORS + ">" +
-                              "    <" + TAG_NAME_SENSOR + ">" +
-                              "      <" + TAG_NAME_NAME + ">avhrr-n07</" + TAG_NAME_NAME + ">" +
-                              "    </" + TAG_NAME_SENSOR + ">" +
-                              "    <" + TAG_NAME_SENSOR + ">" +
-                              "      <" + TAG_NAME_NAME + ">avhrr-n08</" + TAG_NAME_NAME + ">" +
-                              "      <" + TAG_NAME_PRIMARY + ">true</" + TAG_NAME_PRIMARY + ">" +
-                              "    </" + TAG_NAME_SENSOR + ">" +
-                              "  </" + TAG_NAME_SENSORS + ">" +
-                              "</" + TAG_NAME_ROOT + ">";
+                "  <" + TAG_NAME_SENSORS + ">" +
+                "    <" + TAG_NAME_SENSOR + ">" +
+                "      <" + TAG_NAME_NAME + ">avhrr-n07</" + TAG_NAME_NAME + ">" +
+                "    </" + TAG_NAME_SENSOR + ">" +
+                "    <" + TAG_NAME_SENSOR + ">" +
+                "      <" + TAG_NAME_NAME + ">avhrr-n08</" + TAG_NAME_NAME + ">" +
+                "      <" + TAG_NAME_PRIMARY + ">true</" + TAG_NAME_PRIMARY + ">" +
+                "    </" + TAG_NAME_SENSOR + ">" +
+                "  </" + TAG_NAME_SENSORS + ">" +
+                "</" + TAG_NAME_ROOT + ">";
 
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(new ByteArrayInputStream(config.getBytes()));
@@ -64,22 +68,22 @@ public class MmdWriterFactoryTest {
 
     @Test
     public void testCreateFileWriter_fromEnum() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter(N3, 128, new MmdWriterConfig());
+        MmdWriter writer = MmdWriterFactory.createFileWriter(N3, writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC3);
 
-        writer = MmdWriterFactory.createFileWriter(N4, 128, new MmdWriterConfig());
+        writer = MmdWriterFactory.createFileWriter(N4, writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC4);
     }
 
     @Test
     public void testCreateFileWriter_fromString() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter("N3", 128, new MmdWriterConfig());
+        MmdWriter writer = MmdWriterFactory.createFileWriter("N3", writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC3);
 
-        writer = MmdWriterFactory.createFileWriter("N4", 128, new MmdWriterConfig());
+        writer = MmdWriterFactory.createFileWriter("N4", writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC4);
     }
@@ -87,7 +91,7 @@ public class MmdWriterFactoryTest {
     @Test
     public void testCreateFileWriter_fromString_invalidString() {
         try {
-            MmdWriterFactory.createFileWriter("Hanswurst", 128, new MmdWriterConfig());
+            MmdWriterFactory.createFileWriter("Hanswurst", writerConfig);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }

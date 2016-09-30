@@ -62,10 +62,12 @@ import java.util.List;
 public class MmdWriter_IO_Test {
 
     private File testDir;
+    private MmdWriterConfig writerConfig;
 
     @Before
     public void setUp() throws Exception {
         testDir = TestUtil.createTestDirectory();
+        writerConfig = new MmdWriterConfig();
     }
 
     @After
@@ -75,8 +77,7 @@ public class MmdWriter_IO_Test {
 
     @Test
     public void testCreate() throws IOException, InvalidRangeException {
-//        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(10000);
-        final MmdWriterNC3 mmdWriter = new MmdWriterNC3(10000, new MmdWriterConfig());
+        final MmdWriterNC3 mmdWriter = new MmdWriterNC3(writerConfig);
 
         final List<VariablePrototype> variablePrototypes = new ArrayList<>();
         VariablePrototype variablePrototype = new VariablePrototype();
@@ -303,13 +304,13 @@ public class MmdWriter_IO_Test {
 
     @Test
     public void testWrite_usecase02_AVHRR_NC3() throws IOException, InvalidRangeException {
-        final MmdWriter mmdWriter = new MmdWriterNC3(6, new MmdWriterConfig());
+        final MmdWriter mmdWriter = new MmdWriterNC3(writerConfig);
         execute_usecase_02(mmdWriter);
     }
 
     @Test
     public void testWrite_usecase02_AVHRR_NC4() throws IOException, InvalidRangeException {
-        final MmdWriter mmdWriter = new MmdWriterNC4(6, new MmdWriterConfig());
+        final MmdWriter mmdWriter = new MmdWriterNC4(writerConfig);
         execute_usecase_02(mmdWriter);
     }
 

@@ -254,8 +254,7 @@ class MatchupTool {
         final MatchupCollection matchupCollection = createMatchupCollection(context);
 
         final SystemConfig systemConfig = context.getSystemConfig();
-        final int cacheSize = systemConfig.getMmdWriterCacheSize();
-        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(systemConfig.getNetcdfFormat(), cacheSize, writerConfig);
+        final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(systemConfig.getNetcdfFormat(), writerConfig);
         mmdWriter.writeMMD(matchupCollection, context);
     }
 

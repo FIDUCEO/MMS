@@ -33,16 +33,16 @@ import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 
 public class MmdWriterFactory {
 
-    public static MmdWriter createFileWriter(String typeString, int cacheSize, MmdWriterConfig writerConfig) {
+    public static MmdWriter createFileWriter(String typeString, MmdWriterConfig writerConfig) {
         final NetcdfType netcdfType = NetcdfType.valueOf(typeString);
-        return createFileWriter(netcdfType, cacheSize, writerConfig);
+        return createFileWriter(netcdfType, writerConfig);
     }
 
-    static MmdWriter createFileWriter(NetcdfType type, int cacheSize, MmdWriterConfig writerConfig) {
+    static MmdWriter createFileWriter(NetcdfType type, MmdWriterConfig writerConfig) {
         if (type == N3) {
-            return new MmdWriterNC3(cacheSize, writerConfig);
+            return new MmdWriterNC3(writerConfig);
         } else if (type == N4) {
-            return new MmdWriterNC4(cacheSize, writerConfig);
+            return new MmdWriterNC4(writerConfig);
         }
 
         throw new IllegalStateException("Unsupported writer type requested");

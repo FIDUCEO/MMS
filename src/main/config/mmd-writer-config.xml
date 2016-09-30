@@ -19,5 +19,14 @@
   -->
 
 <mmd-writer-config>
+    <!-- Defines the behaviour when the target file is already existing.
+         When set to "true", the target file is deleted and the new file is written to the target location
+         When set to "false", the MMDWriter throws an exception when the target file already exists
+    -->
     <overwrite>false</overwrite>
+
+    <!-- Defines the writer cachee size in "number of matchups"
+         The default value is 2048. Reduce this number when experiencing OutOfMemory errors on large subset window sizes
+    -->
+    <cache-size>2048</cache-size>
 </mmd-writer-config>

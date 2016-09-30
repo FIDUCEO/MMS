@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import com.bc.fiduceo.core.UseCaseConfig;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -34,10 +33,12 @@ public class MmdWriterConfig {
 
     private static final String ROOT_ELEMENT_TAG = "mmd-writer-config";
     private static final String OVERWRITE_TAG = "overwrite";
+    private static final String CACHE_SIZE_TAG = "cache-size";
 
     private boolean overwrite;
+    private int cacheSize;
 
-   public static MmdWriterConfig load(InputStream inputStream) {
+    public static MmdWriterConfig load(InputStream inputStream) {
         final SAXBuilder saxBuilder = new SAXBuilder();
         try {
             final Document document = saxBuilder.build(inputStream);
@@ -48,6 +49,7 @@ public class MmdWriterConfig {
     }
 
     MmdWriterConfig() {
+        cacheSize = 2048;
     }
 
     void setOverwrite(boolean overwrite) {
@@ -58,7 +60,16 @@ public class MmdWriterConfig {
         return overwrite;
     }
 
+    void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    int getCacheSize() {
+        return cacheSize;
+    }
+
     private MmdWriterConfig(Document document) {
+        this();
         init(document);
     }
 
@@ -75,5 +86,10 @@ public class MmdWriterConfig {
             overwrite = Boolean.valueOf(overwriteValue);
         }
 
+        final Element cacheSizeElement = rootElement.getChild(CACHE_SIZE_TAG);
+        if (cacheSizeElement != null) {
+            final String cacheSizeValue = cacheSizeElement.getValue();
+            cacheSize = Integer.valueOf(cacheSizeValue);
+        }
     }
 }

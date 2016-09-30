@@ -61,7 +61,6 @@ abstract class AbstractMmdWriter implements MmdWriter {
     private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
     private final Logger logger;
-    private final int cacheSize;
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
     private final MmdWriterConfig writerConfig;
@@ -111,6 +110,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
             final List<MatchupSet> sets = matchupCollection.getSets();
             int zIndex = 0;
+            final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
@@ -143,8 +143,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    AbstractMmdWriter(int cacheSize, MmdWriterConfig writerConfig) {
-        this.cacheSize = cacheSize;
+    AbstractMmdWriter(MmdWriterConfig writerConfig) {
         this.writerConfig = writerConfig;
         logger = FiduceoLogger.getLogger();
 
@@ -310,7 +309,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
     private void write(Array data, String variableName, int stackIndex) {
         final Array target = getTarget(variableName);
         final Index index = target.getIndex();
-        index.set(stackIndex % cacheSize);
+        index.set(stackIndex % writerConfig.getCacheSize());
         Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
     }
 
@@ -336,7 +335,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         if (!dataCacheMap.containsKey(variableName)) {
             Variable variable = getVariable(variableName);
             final int[] shape = variable.getShape();
-            shape[0] = cacheSize;
+            shape[0] = writerConfig.getCacheSize();
             dataCacheMap.put(variableName, Array.factory(variable.getDataType(), shape));
         }
         return dataCacheMap.get(variableName);
@@ -402,6 +401,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
     }
 
     private void flush() throws IOException, InvalidRangeException {
+        final int cacheSize = writerConfig.getCacheSize();
         for (Map.Entry<String, Array> entry : dataCacheMap.entrySet()) {
             final String variableName = entry.getKey();
             final Variable variable = variableMap.get(variableName);
