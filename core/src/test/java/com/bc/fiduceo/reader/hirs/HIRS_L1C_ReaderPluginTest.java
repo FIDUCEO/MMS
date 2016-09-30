@@ -39,7 +39,7 @@ public class HIRS_L1C_ReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys(){
-        final String[] expected = {"hirs-ma", "hirs-mb", "hirs-n06", "hirs-n07", "hirs-n08", "hirs-n09", "hirs-n10", "hirs-n11", "hirs-n12", "hirs-n14", "hirs-n15", "hirs-n16", "hirs-n17", "nirs-n18", "hirs-n19", "hirs-tn"};
+        final String[] expected = {"hirs-ma", "hirs-mb", "hirs-n06", "hirs-n07", "hirs-n08", "hirs-n09", "hirs-n10", "hirs-n11", "hirs-n12", "hirs-n14", "hirs-n15", "hirs-n16", "hirs-n17", "hirs-n18", "hirs-n19", "hirs-tn"};
         final String[] keys = plugin.getSupportedSensorKeys();
 
         assertArrayEquals(expected, keys);
