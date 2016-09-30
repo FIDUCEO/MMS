@@ -54,7 +54,7 @@ public class MmdWriterConfig {
         this.overwrite = overwrite;
     }
 
-    boolean isOverwrite() {
+    public boolean isOverwrite() {
         return overwrite;
     }
 

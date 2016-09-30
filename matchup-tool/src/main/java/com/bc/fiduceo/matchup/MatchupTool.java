@@ -221,7 +221,7 @@ class MatchupTool {
         return context;
     }
 
-    // @todo 2 tb/tb ad test 2016-09-29
+    // package access for testing only tb 2016-09-30
     static MmdWriterConfig loadWriterConfig(CommandLine commandLine) throws IOException {
         final String configValue = commandLine.getOptionValue("config", "./config");
         final File configDirectory = new File(configValue);
