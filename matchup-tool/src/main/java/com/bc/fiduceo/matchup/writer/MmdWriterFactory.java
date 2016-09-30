@@ -33,15 +33,11 @@ import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 
 public class MmdWriterFactory {
 
-    public static MmdWriter createFileWriter(String typeString, MmdWriterConfig writerConfig) {
-        final NetcdfType netcdfType = NetcdfType.valueOf(typeString);
-        return createFileWriter(netcdfType, writerConfig);
-    }
-
-    static MmdWriter createFileWriter(NetcdfType type, MmdWriterConfig writerConfig) {
-        if (type == N3) {
+    public static MmdWriter createFileWriter(MmdWriterConfig writerConfig) {
+        final NetcdfType format = writerConfig.getNetcdfFormat();
+        if (format == N3) {
             return new MmdWriterNC3(writerConfig);
-        } else if (type == N4) {
+        } else if (format == N4) {
             return new MmdWriterNC4(writerConfig);
         }
 

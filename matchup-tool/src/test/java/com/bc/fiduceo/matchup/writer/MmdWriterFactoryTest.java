@@ -67,33 +67,20 @@ public class MmdWriterFactoryTest {
     }
 
     @Test
-    public void testCreateFileWriter_fromEnum() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter(N3, writerConfig);
+    public void testCreateFileWriter_N3() {
+        writerConfig.setNetcdfFormat("N3");
+
+        final MmdWriter writer = MmdWriterFactory.createFileWriter(writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC3);
-
-        writer = MmdWriterFactory.createFileWriter(N4, writerConfig);
-        assertNotNull(writer);
-        assertTrue(writer instanceof MmdWriterNC4);
     }
 
     @Test
-    public void testCreateFileWriter_fromString() {
-        MmdWriter writer = MmdWriterFactory.createFileWriter("N3", writerConfig);
-        assertNotNull(writer);
-        assertTrue(writer instanceof MmdWriterNC3);
+    public void testCreateFileWriter_N4() {
+        writerConfig.setNetcdfFormat("N4");
 
-        writer = MmdWriterFactory.createFileWriter("N4", writerConfig);
+        final MmdWriter writer = MmdWriterFactory.createFileWriter(writerConfig);
         assertNotNull(writer);
         assertTrue(writer instanceof MmdWriterNC4);
-    }
-
-    @Test
-    public void testCreateFileWriter_fromString_invalidString() {
-        try {
-            MmdWriterFactory.createFileWriter("Hanswurst", writerConfig);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
     }
 }

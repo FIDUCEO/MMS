@@ -26,9 +26,9 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
+import static org.junit.Assert.*;
 
 public class MmdWriterConfigTest {
 
@@ -61,9 +61,28 @@ public class MmdWriterConfigTest {
     }
 
     @Test
+    public void testSetGetNetcdfFormat() {
+        config.setNetcdfFormat("N3");
+        assertEquals(N3, config.getNetcdfFormat());
+
+        config.setNetcdfFormat("N4");
+        assertEquals(N4, config.getNetcdfFormat());
+    }
+
+    @Test
+    public void setNetcdfFormat_illegalString() {
+        try {
+            config.setNetcdfFormat("nasenmann");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
     public void testDefaultValues() {
         assertFalse(config.isOverwrite());
         assertEquals(2048, config.getCacheSize());
+        assertEquals(N4, config.getNetcdfFormat());
     }
 
     @Test
@@ -77,6 +96,7 @@ public class MmdWriterConfigTest {
         assertTrue(loadedConfig.isOverwrite());
 
         assertEquals(2048, loadedConfig.getCacheSize());
+        assertEquals(N4, loadedConfig.getNetcdfFormat());
     }
 
     @Test
@@ -90,5 +110,17 @@ public class MmdWriterConfigTest {
         assertEquals(119, loadedConfig.getCacheSize());
 
         assertFalse(loadedConfig.isOverwrite());
+        assertEquals(N4, loadedConfig.getNetcdfFormat());
+    }
+
+    @Test
+    public void testLoad_netcdfFormat() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <netcdf-format>N3</netcdf-format>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        assertEquals(N3, loadedConfig.getNetcdfFormat());
     }
 }

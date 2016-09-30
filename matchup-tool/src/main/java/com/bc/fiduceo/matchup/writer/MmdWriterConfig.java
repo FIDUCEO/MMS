@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -34,9 +35,11 @@ public class MmdWriterConfig {
     private static final String ROOT_ELEMENT_TAG = "mmd-writer-config";
     private static final String OVERWRITE_TAG = "overwrite";
     private static final String CACHE_SIZE_TAG = "cache-size";
+    private static final String NETCDF_FORMAT_TAG = "netcdf-format";
 
     private boolean overwrite;
     private int cacheSize;
+    private NetcdfType netcdfFormat;
 
     public static MmdWriterConfig load(InputStream inputStream) {
         final SAXBuilder saxBuilder = new SAXBuilder();
@@ -50,6 +53,7 @@ public class MmdWriterConfig {
 
     MmdWriterConfig() {
         cacheSize = 2048;
+        netcdfFormat = NetcdfType.N4;
     }
 
     void setOverwrite(boolean overwrite) {
@@ -66,6 +70,14 @@ public class MmdWriterConfig {
 
     int getCacheSize() {
         return cacheSize;
+    }
+
+    void setNetcdfFormat(String netcdfFormat) {
+        this.netcdfFormat = NetcdfType.valueOf(netcdfFormat);
+    }
+
+    NetcdfType getNetcdfFormat() {
+        return netcdfFormat;
     }
 
     private MmdWriterConfig(Document document) {
@@ -90,6 +102,12 @@ public class MmdWriterConfig {
         if (cacheSizeElement != null) {
             final String cacheSizeValue = cacheSizeElement.getValue();
             cacheSize = Integer.valueOf(cacheSizeValue);
+        }
+
+        final Element netcdfFormatElement = rootElement.getChild(NETCDF_FORMAT_TAG);
+        if (netcdfFormatElement != null) {
+            final String netcdfFormatValue = netcdfFormatElement.getValue();
+            setNetcdfFormat(netcdfFormatValue);
         }
     }
 }

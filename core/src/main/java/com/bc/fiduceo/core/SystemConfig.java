@@ -53,8 +53,4 @@ public class SystemConfig {
     public String getGeometryLibraryType() {
         return properties.getProperty("geometry-library-type", "S2").trim();
     }
-
-    public String getNetcdfFormat() {
-        return properties.getProperty("netcdf-format", "N4").trim();
-    }
 }

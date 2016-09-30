@@ -25,8 +25,14 @@
     -->
     <overwrite>false</overwrite>
 
-    <!-- Defines the writer cachee size in "number of matchups"
+    <!-- Defines the writer cache size in "number of matchups"
          The default value is 2048. Reduce this number when experiencing OutOfMemory errors on large subset window sizes
     -->
     <cache-size>2048</cache-size>
+
+    <!-- Defines the NetCDF format version of the MMD file
+         "N3" - write in NetCDF 3 format
+         "N4" - write in NetCDF 4 format
+    -->
+    <netcdf-format>N4</netcdf-format>
 </mmd-writer-config>
