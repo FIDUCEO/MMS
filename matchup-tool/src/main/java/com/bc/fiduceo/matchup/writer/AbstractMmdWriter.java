@@ -87,19 +87,19 @@ abstract class AbstractMmdWriter implements MmdWriter {
             logger.info("Start writing mmd-file ...");
 
             final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
-            final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
-            extractPrototypes(variablesConfiguration, matchupCollection, context);
+            final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
+            extractPrototypes(variablePrototypeList, matchupCollection, context);
 
             final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-            initializeNetcdfFile(mmdFile, useCaseConfig, variablesConfiguration.get(), matchupCollection.getNumMatchups());
+            initializeNetcdfFile(mmdFile, useCaseConfig, variablePrototypeList.get(), matchupCollection.getNumMatchups());
 
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
             final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
             final String primarySensorName = primarySensor.getName();
             final String secondarySensorName = secondarySensor.getName();
-            final List<VariablePrototype> primaryVariables = variablesConfiguration.getPrototypesFor(primarySensorName);
-            final List<VariablePrototype> secondaryVariables = variablesConfiguration.getPrototypesFor(secondarySensorName);
+            final List<VariablePrototype> primaryVariables = variablePrototypeList.getPrototypesFor(primarySensorName);
+            final List<VariablePrototype> secondaryVariables = variablePrototypeList.getPrototypesFor(secondarySensorName);
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
@@ -168,7 +168,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    static void extractPrototypes(VariablesConfiguration variablesConfiguration, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+    static void extractPrototypes(VariablePrototypeList variablePrototypeList, MatchupCollection matchupCollection, ToolContext context) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
@@ -177,8 +177,8 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
 
-        variablesConfiguration.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablesConfiguration.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+        variablePrototypeList.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        variablePrototypeList.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
     }
 
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {

@@ -44,7 +44,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class VariablesConfigurationTest {
+public class VariablePrototypeListTest {
 
     @Test
     public void testCloneAllTheAttributesFromAVariable() throws Exception {
@@ -72,7 +72,7 @@ public class VariablesConfigurationTest {
         when(mock.getAttributes()).thenReturn(attributes);
 
         //test
-        final List<Attribute> attributeClones = VariablesConfiguration.getAttributeClones(mock);
+        final List<Attribute> attributeClones = VariablePrototypeList.getAttributeClones(mock);
 
         //validation
         assertNotNull(attributeClones);
@@ -236,7 +236,7 @@ public class VariablesConfigurationTest {
     public void testCreateDimensionNames() {
         final Dimension dimension = new Dimension("mhs-ma", 7, 9);
 
-        final String dimensionNames = VariablesConfiguration.createDimensionNames(dimension);
+        final String dimensionNames = VariablePrototypeList.createDimensionNames(dimension);
         assertEquals("matchup_count mhs-ma_ny mhs-ma_nx", dimensionNames);
     }
 }

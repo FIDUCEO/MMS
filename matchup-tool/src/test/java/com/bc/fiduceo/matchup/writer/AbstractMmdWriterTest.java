@@ -330,7 +330,7 @@ public class AbstractMmdWriterTest {
         final MatchupCollection matchupCollection = new MatchupCollection();
         matchupCollection.add(matchupSet);
 
-        final VariablesConfiguration configuration = mock(VariablesConfiguration.class);
+        final VariablePrototypeList configuration = mock(VariablePrototypeList.class);
 
         // test execution
         AbstractMmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);

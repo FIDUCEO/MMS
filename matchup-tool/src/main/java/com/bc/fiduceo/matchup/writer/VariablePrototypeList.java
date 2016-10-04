@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class VariablesConfiguration {
+class VariablePrototypeList {
 
     private final HashMap<String, List<VariablePrototype>> prototypesMap;
     private final ReaderFactory readerFactory;
 
-    VariablesConfiguration(ReaderFactory readerFactory) {
+    VariablePrototypeList(ReaderFactory readerFactory) {
         prototypesMap = new HashMap<>();
         this.readerFactory = readerFactory;
     }

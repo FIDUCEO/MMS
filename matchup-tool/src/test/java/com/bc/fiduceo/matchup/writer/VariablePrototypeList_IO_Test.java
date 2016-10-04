@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
-public class VariablesConfiguration_IO_Test {
+public class VariablePrototypeList_IO_Test {
 
     @Test
     public void testExtractPrototypes_AVHRR_NOAA_17() throws IOException {
@@ -49,10 +49,10 @@ public class VariablesConfiguration_IO_Test {
         final Path noaa17Path = Paths.get(absolutePath);
 
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
-        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration(readerFactory);
-        variablesConfiguration.extractPrototypes(sensor, noaa17Path, new Dimension("avhrr-n17", 5, 5));
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
+        variablePrototypeList.extractPrototypes(sensor, noaa17Path, new Dimension("avhrr-n17", 5, 5));
 
-        final List<VariablePrototype> variablePrototypes = variablesConfiguration.get();
+        final List<VariablePrototype> variablePrototypes = variablePrototypeList.get();
         assertEquals(17, variablePrototypes.size());
 
         VariablePrototype prototype = variablePrototypes.get(0);
