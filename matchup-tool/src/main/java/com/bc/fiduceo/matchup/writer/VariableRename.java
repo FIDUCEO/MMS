@@ -20,31 +20,31 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+class VariableRename {
+    private String sourceName;
+    private String targetName;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
-public class VariableExcludeTest {
-
-    @Test
-    public void testSetGetSourceName() {
-        final VariableExclude variableExclude = new VariableExclude();
-
-        final String source_1 = "nasenmann";
-        final String source_2 = "dot-org";
-
-        variableExclude.setSourceName(source_1);
-        assertEquals(source_1, variableExclude.getSourceName());
-
-        variableExclude.setSourceName(source_2);
-        assertEquals(source_2, variableExclude.getSourceName());
+    VariableRename(String sourceName, String targetName) {
+        this.sourceName = sourceName;
+        this.targetName = targetName;
     }
 
-    @Test
-    public void testParameterConstruction() {
-        final VariableExclude variableExclude = new VariableExclude("schlappi");
+    VariableRename() {
+    }
 
-        assertEquals("schlappi", variableExclude.getSourceName());
+    void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    String getSourceName() {
+        return sourceName;
+    }
+
+    void setTargetName(String targetName) {
+        this.targetName = targetName;
+    }
+
+    String getTargetName() {
+        return targetName;
     }
 }

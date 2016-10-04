@@ -22,7 +22,15 @@ package com.bc.fiduceo.matchup.writer;
 
 
 class VariableExclude {
+
     private String sourceName;
+
+    VariableExclude(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    VariableExclude() {
+    }
 
     void setSourceName(String sourceName) {
         this.sourceName = sourceName;

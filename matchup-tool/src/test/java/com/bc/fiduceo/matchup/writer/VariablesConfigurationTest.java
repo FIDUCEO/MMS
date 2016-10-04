@@ -21,5 +21,82 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 public class VariablesConfigurationTest {
+
+    private VariablesConfiguration configuration;
+
+    @Before
+    public void setUp() {
+        configuration = new VariablesConfiguration();
+    }
+
+    @Test
+    public void testGetRenames_emptyConfiguration() {
+        final List<VariableRename> renames = configuration.getRenames("hirs-n18");
+        assertEquals(0, renames.size());
+    }
+
+    @Test
+    public void testGetExcludes_emptyConfiguration() {
+        final List<VariableExclude> excludes = configuration.getExcludes("atsr-e2");
+        assertEquals(0, excludes.size());
+    }
+
+    @Test
+    public void testAddGetRenames() {
+        final List<VariableRename> renames = new ArrayList<>();
+        renames.add(new VariableRename("bla", "blabla"));
+        renames.add(new VariableRename("sülz", "schwafel"));
+
+        configuration.addRenames("atsr-e1, atsr-e2", renames);
+
+        final List<VariableRename> renamesForSensor = configuration.getRenames("atsr-e2");
+        assertEquals(2, renamesForSensor.size());
+        assertEquals("bla", renamesForSensor.get(0).getSourceName());
+        assertEquals("sülz", renamesForSensor.get(1).getSourceName());
+    }
+
+    @Test
+    public void testAddGetRenames_sensorNotPresent() {
+        final List<VariableRename> renames = new ArrayList<>();
+        renames.add(new VariableRename("schnick", "schnack"));
+
+        configuration.addRenames("atsr-e1, atsr-e2", renames);
+
+        final List<VariableRename> renamesForSensor = configuration.getRenames("avhrr-n17");
+        assertEquals(0, renamesForSensor.size());
+    }
+
+    @Test
+    public void testAddGetExcludes() {
+        final List<VariableExclude> excludes = new ArrayList<>();
+        excludes.add(new VariableExclude("trump"));
+        excludes.add(new VariableExclude("assad"));
+
+        configuration.addExcludes("avhrr-n14, avhrr-n15, avhrr-n16", excludes);
+
+        final List<VariableExclude> excludesForSensor = configuration.getExcludes("avhrr-n15");
+        assertEquals(2, excludesForSensor.size());
+        assertEquals("trump", excludesForSensor.get(0).getSourceName());
+        assertEquals("assad", excludesForSensor.get(1).getSourceName());
+    }
+
+    @Test
+    public void testAddGetExcludes_sensorNotPresent() {
+        final List<VariableExclude> excludes = new ArrayList<>();
+        excludes.add(new VariableExclude("seehofer"));
+
+        configuration.addExcludes("avhrr-n14, avhrr-n15, avhrr-n16", excludes);
+
+        final List<VariableExclude> excludesForSensor = configuration.getExcludes("aatsr-en");
+        assertEquals(0, excludesForSensor.size());
+    }
 }
