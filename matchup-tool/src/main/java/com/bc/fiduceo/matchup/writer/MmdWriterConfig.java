@@ -22,6 +22,8 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType;
+import org.geotools.xml.Configuration;
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -29,17 +31,28 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class MmdWriterConfig {
 
     private static final String ROOT_ELEMENT_TAG = "mmd-writer-config";
     private static final String OVERWRITE_TAG = "overwrite";
     private static final String CACHE_SIZE_TAG = "cache-size";
     private static final String NETCDF_FORMAT_TAG = "netcdf-format";
+    private static final String VARIABLES_CONFIGURATION_TAG = "variables-configuration";
+    private static final String SENSORS_TAG = "sensors";
+    private static final String RENAME_TAG = "rename";
+    private static final String EXCLUDE_TAG = "exclude";
+    private static final String NAMES_ATTRIBUTE = "names";
+    private static final String SOURCE_NAME_ATTRIBUTE = "source-name";
+    private static final String TARGET_NAME_ATTRIBUTE = "target-name";
 
     private boolean overwrite;
     private int cacheSize;
     private NetcdfType netcdfFormat;
+    private VariablesConfiguration variablesConfiguration;
 
     public static MmdWriterConfig load(InputStream inputStream) {
         final SAXBuilder saxBuilder = new SAXBuilder();
@@ -54,6 +67,7 @@ public class MmdWriterConfig {
     MmdWriterConfig() {
         cacheSize = 2048;
         netcdfFormat = NetcdfType.N4;
+        variablesConfiguration = new VariablesConfiguration();
     }
 
     void setOverwrite(boolean overwrite) {
@@ -78,6 +92,10 @@ public class MmdWriterConfig {
 
     NetcdfType getNetcdfFormat() {
         return netcdfFormat;
+    }
+
+    VariablesConfiguration getVariablesConfiguration() {
+        return variablesConfiguration;
     }
 
     private MmdWriterConfig(Document document) {
@@ -108,6 +126,32 @@ public class MmdWriterConfig {
         if (netcdfFormatElement != null) {
             final String netcdfFormatValue = netcdfFormatElement.getValue();
             setNetcdfFormat(netcdfFormatValue);
+        }
+
+        final Element variablesConfigurationElement = rootElement.getChild(VARIABLES_CONFIGURATION_TAG);
+        if (variablesConfigurationElement != null) {
+            final List<Element> sensorElements = variablesConfigurationElement.getChildren(SENSORS_TAG);
+            for (final Element sensorElement : sensorElements) {
+                final Attribute namesAttribute = sensorElement.getAttribute(NAMES_ATTRIBUTE);
+                final String sensorKeys = namesAttribute.getValue();
+
+                final ArrayList<VariableRename> variableRenames = new ArrayList<>();
+                final List<Element> renameElements = sensorElement.getChildren(RENAME_TAG);
+                for (final Element renameElement : renameElements) {
+                    final String sourceName = renameElement.getAttribute(SOURCE_NAME_ATTRIBUTE).getValue();
+                    final String targetName = renameElement.getAttribute(TARGET_NAME_ATTRIBUTE).getValue();
+                    variableRenames.add(new VariableRename(sourceName, targetName));
+                }
+                variablesConfiguration.addRenames(sensorKeys, variableRenames);
+
+                final ArrayList<VariableExclude> variableExcludes = new ArrayList<>();
+                final List<Element> excludeElements = sensorElement.getChildren(EXCLUDE_TAG);
+                for (final Element excludeElement : excludeElements) {
+                    final String sourceName = excludeElement.getAttribute(SOURCE_NAME_ATTRIBUTE).getValue();
+                    variableExcludes.add(new VariableExclude(sourceName));
+                }
+                variablesConfiguration.addExcludes(sensorKeys, variableExcludes);
+            }
         }
     }
 }
