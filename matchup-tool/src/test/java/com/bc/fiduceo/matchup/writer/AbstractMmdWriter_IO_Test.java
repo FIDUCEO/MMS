@@ -87,7 +87,7 @@ public class AbstractMmdWriter_IO_Test {
     }
 
     @Test
-    public void testCreateMmdFile_overwriteExisting() throws IOException {
+    public void testCreateMmdFile_overwriteExisting() throws IOException, InterruptedException {
         final UseCaseConfig useCaseConfig = createUseCaseConfig(testDirectory.getAbsolutePath());
         context.setUseCaseConfig(useCaseConfig);
 
@@ -98,6 +98,8 @@ public class AbstractMmdWriter_IO_Test {
             fail("unable to create test file");
         }
         final long lastModified = expected.lastModified();
+
+        Thread.sleep(1000);
 
         final Path mmdFile = AbstractMmdWriter.createMmdFile(context, writerConfig);
         assertEquals(expected.getAbsolutePath(), mmdFile.toString());

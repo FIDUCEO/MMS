@@ -22,7 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType;
-import org.geotools.xml.Configuration;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -132,26 +132,44 @@ public class MmdWriterConfig {
         if (variablesConfigurationElement != null) {
             final List<Element> sensorElements = variablesConfigurationElement.getChildren(SENSORS_TAG);
             for (final Element sensorElement : sensorElements) {
-                final Attribute namesAttribute = sensorElement.getAttribute(NAMES_ATTRIBUTE);
-                final String sensorKeys = namesAttribute.getValue();
+                final String sensorKeys = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
 
-                final ArrayList<VariableRename> variableRenames = new ArrayList<>();
-                final List<Element> renameElements = sensorElement.getChildren(RENAME_TAG);
-                for (final Element renameElement : renameElements) {
-                    final String sourceName = renameElement.getAttribute(SOURCE_NAME_ATTRIBUTE).getValue();
-                    final String targetName = renameElement.getAttribute(TARGET_NAME_ATTRIBUTE).getValue();
-                    variableRenames.add(new VariableRename(sourceName, targetName));
-                }
-                variablesConfiguration.addRenames(sensorKeys, variableRenames);
-
-                final ArrayList<VariableExclude> variableExcludes = new ArrayList<>();
-                final List<Element> excludeElements = sensorElement.getChildren(EXCLUDE_TAG);
-                for (final Element excludeElement : excludeElements) {
-                    final String sourceName = excludeElement.getAttribute(SOURCE_NAME_ATTRIBUTE).getValue();
-                    variableExcludes.add(new VariableExclude(sourceName));
-                }
-                variablesConfiguration.addExcludes(sensorKeys, variableExcludes);
+                addVariableRenames(sensorElement, sensorKeys);
+                addVariableExcludes(sensorElement, sensorKeys);
             }
         }
+    }
+
+    private void addVariableExcludes(Element sensorElement, String sensorKeys) {
+        final ArrayList<VariableExclude> variableExcludes = new ArrayList<>();
+        final List<Element> excludeElements = sensorElement.getChildren(EXCLUDE_TAG);
+        for (final Element excludeElement : excludeElements) {
+            final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, excludeElement);
+            variableExcludes.add(new VariableExclude(sourceName));
+        }
+        variablesConfiguration.addExcludes(sensorKeys, variableExcludes);
+    }
+
+    private void addVariableRenames(Element sensorElement, String sensorKeys) {
+        final ArrayList<VariableRename> variableRenames = new ArrayList<>();
+        final List<Element> renameElements = sensorElement.getChildren(RENAME_TAG);
+        for (final Element renameElement : renameElements) {
+            final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, renameElement);
+            final String targetName = getAttributeString(TARGET_NAME_ATTRIBUTE, renameElement);
+            variableRenames.add(new VariableRename(sourceName, targetName));
+        }
+        variablesConfiguration.addRenames(sensorKeys, variableRenames);
+    }
+
+    private String getAttributeString(String attributeName, Element sensorElement) {
+        final Attribute namesAttribute = sensorElement.getAttribute(attributeName);
+        if (namesAttribute == null) {
+            throw new RuntimeException("Missing attribute: " + attributeName);
+        }
+        final String sensorKeys = namesAttribute.getValue();
+        if (StringUtils.isNullOrEmpty(sensorKeys)) {
+            throw new RuntimeException("Empty attribute: " + attributeName);
+        }
+        return sensorKeys;
     }
 }

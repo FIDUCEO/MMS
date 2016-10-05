@@ -168,6 +168,39 @@ public class MmdWriterConfigTest {
     }
 
     @Test
+    public void testLoad_variables_oneSensorSet_threeSensors_excludes_and_renames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"avhrr-m01, avhrr-m02, avhrr-n19\">" +
+                "            <exclude source-name = \"dont_need\" />"  +
+                "            <exclude source-name = \"ignore\" />"  +
+                "            <rename source-name = \"stupid\" target-name = \"cool\" />"  +
+                "            <rename source-name = \"boring\" target-name = \"exciting\" />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+
+        final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
+        assertNotNull(variablesConfiguration);
+
+        final List<VariableExclude> excludes = variablesConfiguration.getExcludes("avhrr-m01");
+        assertEquals(2, excludes.size());
+        assertEquals("dont_need", excludes.get(0).getSourceName());
+        assertEquals("ignore", excludes.get(1).getSourceName());
+
+        final List<VariableRename> renames = variablesConfiguration.getRenames("avhrr-n19");
+        assertEquals(2, renames.size());
+        assertEquals("stupid", renames.get(0).getSourceName());
+        assertEquals("cool", renames.get(0).getTargetName());
+
+        assertEquals("boring", renames.get(1).getSourceName());
+        assertEquals("exciting", renames.get(1).getTargetName());
+    }
+
+    @Test
     public void testLoad_variables_oneSensorSet_excludes() {
         final String configXml = "<mmd-writer-config>" +
                 "    <variables-configuration>" +
@@ -190,6 +223,148 @@ public class MmdWriterConfigTest {
         assertEquals("boring", excludes.get(1).getSourceName());
     }
 
-    // @todo 1 tb/tb add more tests 2016-10-04
-    // @todo 1 tb/tb add test with misconfigured XML and check meaningful excetion messages 2016-10-04
+    @Test
+    public void testLoad_variables_twoSensorSet_excludes() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"hirs-n17\">" +
+                "            <exclude source-name = \"useless\" />"  +
+                "        </sensors>" +
+                "        <sensors names = \"aatsr-en\">" +
+                "            <exclude source-name = \"whatever\" />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+
+        final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
+        assertNotNull(variablesConfiguration);
+
+        List<VariableExclude> excludes = variablesConfiguration.getExcludes("hirs-n17");
+        assertEquals(1, excludes.size());
+        assertEquals("useless", excludes.get(0).getSourceName());
+
+        excludes = variablesConfiguration.getExcludes("aatsr-en");
+        assertEquals(1, excludes.size());
+        assertEquals("whatever", excludes.get(0).getSourceName());
+    }
+
+    @Test
+    public void testLoad_variables_missingSensorNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"hirs-n17\">" +
+                "            <exclude source-name = \"useless\" />"  +
+                "        </sensors>" +
+                "        <sensors>" +
+                "            <exclude source-name = \"whatever\" />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Missing attribute: names", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testLoad_variables_emptySensorNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"\">" +
+                "            <exclude source-name = \"useless\" />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Empty attribute: names", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testLoad_variables_exclude_missingNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"a_sensor\">" +
+                "            <exclude />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Missing attribute: source-name", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testLoad_variables_exclude_emptyNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"a_sensor\">" +
+                "            <exclude source-name = \"\"/>"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Empty attribute: source-name", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testLoad_variables_rename_missingNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"a_sensor\">" +
+                "            <rename />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Missing attribute: source-name", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testLoad_variables_rename_emptyNames() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"a_sensor\">" +
+                "            <rename source-name = \"bla\" target-name = \"\" />"  +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: Empty attribute: target-name", expected.getMessage());
+        }
+    }
 }
