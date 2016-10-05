@@ -122,7 +122,6 @@ public class TestUtil {
         final Properties properties = new Properties();
         properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
         properties.setProperty("geometry-library-type", "S2");
-        properties.setProperty("netcdf-format", "N4");
 
         TestUtil.storeProperties(properties, configDir, "system.properties");
     }
@@ -131,8 +130,13 @@ public class TestUtil {
         final String config = "<mmd-writer-config>" +
                 "    <overwrite>false</overwrite>" +
                 "    <cache-size>2048</cache-size>" +
+                "    <netcdf-format>N4</netcdf-format>" +
                 "</mmd-writer-config>";
 
+        writeMmdWriterConfig(configDir, config);
+    }
+
+    public static void writeMmdWriterConfig(File configDir, String xml) throws IOException {
         final File propertiesFile = new File(configDir, "mmd-writer-config.xml");
         if (!propertiesFile.createNewFile()) {
             fail("unable to create test file: " + propertiesFile.getAbsolutePath());
@@ -141,7 +145,7 @@ public class TestUtil {
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(propertiesFile);
-            outputStream.write(config.getBytes());
+            outputStream.write(xml.getBytes());
             outputStream.flush();
         } finally {
             if (outputStream != null) {
