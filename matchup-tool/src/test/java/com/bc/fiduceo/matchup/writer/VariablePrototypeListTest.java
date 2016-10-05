@@ -41,6 +41,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -238,5 +239,34 @@ public class VariablePrototypeListTest {
 
         final String dimensionNames = VariablePrototypeList.createDimensionNames(dimension);
         assertEquals("matchup_count mhs-ma_ny mhs-ma_nx", dimensionNames);
+    }
+
+    @Test
+    public void testAdd_newSensor() {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("Yo!");
+
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        variablePrototypeList.add(prototype, "sensor_name");
+
+        final List<VariablePrototype> prototypeList = variablePrototypeList.getPrototypesFor("sensor_name");
+        assertNotNull(prototypeList);
+        assertEquals(1, prototypeList.size());
+        assertEquals("Yo!", prototypeList.get(0).getSourceVariableName());
+    }
+
+    @Test
+    public void testGetSensorNames() {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("what?");
+
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        variablePrototypeList.add(prototype, "sensor_name_1");
+        variablePrototypeList.add(prototype, "sensor_name_2");
+
+        final List<String> sensorNames = variablePrototypeList.getSensorNames();
+        assertEquals(2, sensorNames.size());
+        assertTrue(sensorNames.contains("sensor_name_1"));
+        assertTrue(sensorNames.contains("sensor_name_2"));
     }
 }

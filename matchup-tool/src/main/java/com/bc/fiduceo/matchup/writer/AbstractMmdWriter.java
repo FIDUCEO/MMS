@@ -89,6 +89,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
             final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
             final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
             extractPrototypes(variablePrototypeList, matchupCollection, context);
+            applyExcludesAndRenames(variablePrototypeList, writerConfig.getVariablesConfiguration());
 
             final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -285,6 +286,42 @@ abstract class AbstractMmdWriter implements MmdWriter {
         } catch (IOException e) {
             throw new IOException("unable to create mmd output file '" + mmdFile.toAbsolutePath().toString() + "'");
         }
+    }
+
+    // package access for testing only tb 2016-10-05
+    static void applyExcludesAndRenames(VariablePrototypeList variablePrototypeList, VariablesConfiguration variablesConfiguration) {
+        final List<String> sensorNames = variablePrototypeList.getSensorNames();
+
+        for (final String sensorName : sensorNames) {
+            final List<VariablePrototype> variablePrototypes = variablePrototypeList.getPrototypesFor(sensorName);
+            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
+            for (final VariableRename rename : renames) {
+                final String sourceName = rename.getSourceName();
+                final VariablePrototype prototype = getPrototype(sourceName, variablePrototypes);
+                if (prototype != null) {
+                    prototype.setTargetVariableName(rename.getTargetName());
+                }
+            }
+
+            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
+            for (final VariableExclude exclude : excludes) {
+                final String sourceName = exclude.getSourceName();
+                final VariablePrototype prototype = getPrototype(sourceName, variablePrototypes);
+                if (prototype != null) {
+                    variablePrototypes.remove(prototype);
+                }
+            }
+        }
+    }
+
+    // @todo 1 tb/tb add tests 2016-10-05
+    static VariablePrototype getPrototype(String sourceName, List<VariablePrototype> variablePrototypes) {
+        for (final VariablePrototype prototype : variablePrototypes) {
+            if (sourceName.equals(prototype.getSourceVariableName())) {
+                return prototype;
+            }
+        }
+        return null;
     }
 
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {

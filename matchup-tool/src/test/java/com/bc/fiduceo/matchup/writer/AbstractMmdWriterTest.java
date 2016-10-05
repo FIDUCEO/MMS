@@ -38,6 +38,7 @@ import ucar.nc2.NetcdfFileWriter;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -306,7 +307,7 @@ public class AbstractMmdWriterTest {
     }
 
     @Test
-    public void testVariableConfiguration() throws Exception {
+    public void testExtractPrototypes() throws Exception {
         //preparation
         final Sensor primarySensor = createSensor("avhrr-n17", true);
         final Sensor secondarySensor = createSensor("avhrr-n18", false);
@@ -339,6 +340,71 @@ public class AbstractMmdWriterTest {
         verify(configuration).extractPrototypes(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
         verify(configuration).extractPrototypes(refEq(secondarySensor), refEq(mockingSecondaryPath), refEq(secondaryWindowDimension));
         verifyNoMoreInteractions(configuration);
+    }
+
+    @Test
+    public void testApplyExcludesAndRenames_emptyConfig() {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("the_source_name");
+        prototype.setTargetVariableName("the_wrong_name");
+
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        variablePrototypeList.add(prototype, "a_sensor");
+
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+
+        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+
+        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("a_sensor");
+        assertEquals(1, prototypes.size());
+        assertEquals("the_wrong_name", prototypes.get(0).getTargetVariableName());
+    }
+
+    @Test
+    public void testApplyExcludesAndRenames_rename() {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("the_source_name");
+        prototype.setTargetVariableName("the_wrong_name");
+
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        variablePrototypeList.add(prototype, "another_sensor");
+
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final ArrayList<VariableRename> renamesList = new ArrayList<>();
+        renamesList.add(new VariableRename("the_source_name", "correct_name"));
+        variablesConfiguration.addRenames("another_sensor", renamesList);
+
+        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+
+        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("another_sensor");
+        assertEquals(1, prototypes.size());
+        assertEquals("correct_name", prototypes.get(0).getTargetVariableName());
+    }
+
+    @Test
+    public void testApplyExcludesAndRenames_exclude() {
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("the_source_name");
+        prototype.setTargetVariableName("we_don_t_care");
+
+        final VariablePrototype remove_prototype = new VariablePrototype();
+        remove_prototype.setSourceVariableName("kick_me_off");
+        remove_prototype.setTargetVariableName("we_don_t_care");
+
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        variablePrototypeList.add(remove_prototype, "the_sensor");
+        variablePrototypeList.add(prototype, "the_sensor");
+
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final ArrayList<VariableExclude> excludeList = new ArrayList<>();
+        excludeList.add(new VariableExclude("kick_me_off"));
+        variablesConfiguration.addExcludes("the_sensor", excludeList);
+
+        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+
+        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("the_sensor");
+        assertEquals(1, prototypes.size());
+        assertEquals("the_source_name", prototypes.get(0).getSourceVariableName());
     }
 
     private Sensor createSensor(String name, boolean isPrimary) {

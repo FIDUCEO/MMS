@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 class VariablePrototypeList {
 
@@ -106,6 +107,23 @@ class VariablePrototypeList {
             return prototypesMap.get(sensorName);
         }
         return new ArrayList<>();
+    }
+
+    void add(VariablePrototype prototype, String sensorName) {
+        List<VariablePrototype> sensorPrototypes = prototypesMap.get(sensorName);
+        if (sensorPrototypes == null) {
+            sensorPrototypes = new ArrayList<>();
+            prototypesMap.put(sensorName, sensorPrototypes);
+        }
+
+        sensorPrototypes.add(prototype);
+    }
+
+    List<String> getSensorNames() {
+        final ArrayList<String> sensorNamesList = new ArrayList<>();
+        final Set<String> keySet = prototypesMap.keySet();
+        sensorNamesList.addAll(keySet);
+        return sensorNamesList;
     }
 
     // package access for testing only tb 2016-04-12
