@@ -89,7 +89,6 @@ public class AbstractMmdWriterTest {
     }
 
 
-
     @Test
     public void testGetFirstMatchupSet_emptyList() {
         final MatchupCollection matchupCollection = new MatchupCollection();
@@ -408,12 +407,12 @@ public class AbstractMmdWriterTest {
     }
 
     @Test
-    public void testGetPrototype(){
+    public void testGetPrototype() {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setSourceVariableName("the_source_name");
         prototype.setTargetVariableName("we_don_t_care");
 
-       final List<VariablePrototype> prototypeList = new ArrayList<>();
+        final List<VariablePrototype> prototypeList = new ArrayList<>();
         prototypeList.add(prototype);
 
         final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("the_source_name", prototypeList);
@@ -422,7 +421,7 @@ public class AbstractMmdWriterTest {
     }
 
     @Test
-    public void testGetPrototype_notPresentInList(){
+    public void testGetPrototype_notPresentInList() {
         final VariablePrototype prototype = new VariablePrototype();
         prototype.setSourceVariableName("the_source_name");
         prototype.setTargetVariableName("we_don_t_care");
@@ -432,6 +431,48 @@ public class AbstractMmdWriterTest {
 
         final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("this-does-not-exist", prototypeList);
         assertNull(resultPrototype);
+    }
+
+    @Test
+    public void testGetExclude() {
+        final List<VariableExclude> excludes = new ArrayList<>();
+        excludes.add(new VariableExclude("wrong"));
+        excludes.add(new VariableExclude("remove"));
+
+        final VariableExclude exclude = AbstractMmdWriter.getExclude("wrong", excludes);
+        assertNotNull(exclude);
+        assertEquals("wrong", exclude.getSourceName());
+    }
+
+    @Test
+    public void testGetExclude_notPresent() {
+        final List<VariableExclude> excludes = new ArrayList<>();
+        excludes.add(new VariableExclude("yo"));
+        excludes.add(new VariableExclude("man"));
+
+        final VariableExclude exclude = AbstractMmdWriter.getExclude("not-there", excludes);
+        assertNull(exclude);
+    }
+
+    @Test
+    public void tstGetRename() {
+        final List<VariableRename> renames = new ArrayList<>();
+        renames.add(new VariableRename("bla", "blubb"));
+        renames.add(new VariableRename("schnick", "schnack"));
+
+        final VariableRename rename = AbstractMmdWriter.getRename("schnick", renames);
+        assertNotNull(rename);
+        assertEquals("schnick", rename.getSourceName());
+    }
+
+    @Test
+    public void tstGetRename_notPresent() {
+        final List<VariableRename> renames = new ArrayList<>();
+        renames.add(new VariableRename("jekyll", "hyde"));
+        renames.add(new VariableRename("dit", "dat"));
+
+        final VariableRename rename = AbstractMmdWriter.getRename("herman", renames);
+        assertNull(rename);
     }
 
     private Sensor createSensor(String name, boolean isPrimary) {

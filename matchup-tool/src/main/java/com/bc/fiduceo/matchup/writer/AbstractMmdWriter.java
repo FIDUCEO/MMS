@@ -323,19 +323,80 @@ abstract class AbstractMmdWriter implements MmdWriter {
         return null;
     }
 
-    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
-        final int x = sample.x;
-        final int y = sample.y;
-        writeMmdValues(x, y, zIndex, variables, interval, reader);
 
-
-        write(x, sensorName + "_x", zIndex);
-        write(y, sensorName + "_y", zIndex);
-        write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
-        write(reader.readAcquisitionTime(x, y, interval), sensorName + "_acquisition_time", zIndex);
+    static VariableExclude getExclude(String sourceVariableName, List<VariableExclude> excludes) {
+        for (final VariableExclude exclude : excludes) {
+            if (sourceVariableName.equals(exclude.getSourceName())) {
+                return exclude;
+            }
+        }
+        return null;
     }
 
-    private void writeMmdValues(int x, int y, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+    static VariableRename getRename(String sourceVariableName, List<VariableRename> renames) {
+        for (final VariableRename rename : renames) {
+            if (sourceVariableName.equals(rename.getSourceName())) {
+                return rename;
+            }
+        }
+        return null;
+    }
+
+    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+        writeMmdValues(sample, zIndex, variables, interval, reader);
+
+        writeMMSStandardVariables(sensorName, observationPath, zIndex, interval, reader, sample);
+    }
+
+    private void writeMMSStandardVariables(String sensorName, Path observationPath, int zIndex, Interval interval, Reader reader, Sample sample) throws IOException, InvalidRangeException {
+        final int x = sample.x;
+        final int y = sample.y;
+
+        final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
+        final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
+        final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
+
+        writeIntWithExcludeAndRename(zIndex, x, excludes, renames, sensorName + "_x");
+        writeIntWithExcludeAndRename(zIndex, y, excludes, renames, sensorName + "_y");
+
+        final String fileVariableName = sensorName + "_file_name";
+        if (getExclude(fileVariableName, excludes) == null) {
+            final VariableRename rename = getRename(fileVariableName, renames);
+            if (rename != null) {
+                final String targetName = rename.getTargetName();
+                write(observationPath.getFileName().toString(), targetName, zIndex);
+            } else {
+                write(observationPath.getFileName().toString(), fileVariableName, zIndex);
+            }
+        }
+        final String acTimeVariableName = sensorName + "_acquisition_time";
+        if (getExclude(acTimeVariableName, excludes) == null) {
+            final VariableRename rename = getRename(fileVariableName, renames);
+            if (rename != null) {
+                final String targetName = rename.getTargetName();
+                write(reader.readAcquisitionTime(x, y, interval), targetName, zIndex);
+            } else {
+                write(reader.readAcquisitionTime(x, y, interval), acTimeVariableName, zIndex);
+            }
+        }
+    }
+
+    private void writeIntWithExcludeAndRename(int zIndex, int value, List<VariableExclude> excludes, List<VariableRename> renames, String variableName) throws IOException, InvalidRangeException {
+        if (getExclude(variableName, excludes) == null) {
+            final VariableRename rename = getRename(variableName, renames);
+            if (rename != null) {
+                final String targetName = rename.getTargetName();
+                write(value, targetName, zIndex);
+            } else {
+                write(value, variableName, zIndex);
+            }
+        }
+    }
+
+    private void writeMmdValues(Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+        final int x = sample.x;
+        final int y = sample.y;
+
         for (VariablePrototype variable : variables) {
             final String sourceVariableName = variable.getSourceVariableName();
             final String targetVariableName = variable.getTargetVariableName();
