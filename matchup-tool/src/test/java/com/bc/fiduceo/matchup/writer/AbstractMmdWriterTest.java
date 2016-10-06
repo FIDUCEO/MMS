@@ -407,6 +407,33 @@ public class AbstractMmdWriterTest {
         assertEquals("the_source_name", prototypes.get(0).getSourceVariableName());
     }
 
+    @Test
+    public void testGetPrototype(){
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("the_source_name");
+        prototype.setTargetVariableName("we_don_t_care");
+
+       final List<VariablePrototype> prototypeList = new ArrayList<>();
+        prototypeList.add(prototype);
+
+        final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("the_source_name", prototypeList);
+        assertNotNull(resultPrototype);
+        assertEquals("the_source_name", resultPrototype.getSourceVariableName());
+    }
+
+    @Test
+    public void testGetPrototype_notPresentInList(){
+        final VariablePrototype prototype = new VariablePrototype();
+        prototype.setSourceVariableName("the_source_name");
+        prototype.setTargetVariableName("we_don_t_care");
+
+        final List<VariablePrototype> prototypeList = new ArrayList<>();
+        prototypeList.add(prototype);
+
+        final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("this-does-not-exist", prototypeList);
+        assertNull(resultPrototype);
+    }
+
     private Sensor createSensor(String name, boolean isPrimary) {
         final Sensor primarySensor = new Sensor();
         primarySensor.setPrimary(isPrimary);

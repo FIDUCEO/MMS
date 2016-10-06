@@ -314,7 +314,6 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    // @todo 1 tb/tb add tests 2016-10-05
     static VariablePrototype getPrototype(String sourceName, List<VariablePrototype> variablePrototypes) {
         for (final VariablePrototype prototype : variablePrototypes) {
             if (sourceName.equals(prototype.getSourceVariableName())) {
@@ -328,6 +327,8 @@ abstract class AbstractMmdWriter implements MmdWriter {
         final int x = sample.x;
         final int y = sample.y;
         writeMmdValues(x, y, zIndex, variables, interval, reader);
+
+
         write(x, sensorName + "_x", zIndex);
         write(y, sensorName + "_y", zIndex);
         write(observationPath.getFileName().toString(), sensorName + "_file_name", zIndex);
