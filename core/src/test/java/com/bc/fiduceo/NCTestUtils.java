@@ -34,14 +34,16 @@ import static org.junit.Assert.assertNotNull;
 public class NCTestUtils {
 
     public static void assertScalarVariable(String variableName, int index, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
-        final Variable variable = netcdfFile.findVariable(variableName);
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Variable variable = netcdfFile.findVariable(escapedName);
         assertNotNull(variable);
         final Array data = variable.read(new int[]{index}, new int[]{1});
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
     public static void assertStringVariable(String variableName, int index, String expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
-        final Variable variable = netcdfFile.findVariable(variableName);
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Variable variable = netcdfFile.findVariable(escapedName);
         assertNotNull(variable);
         final Array data = variable.read(new int[]{index, 0}, new int[]{1, 128});
         final char[] valueAsArray = (char[]) data.get1DJavaArray(char.class);
@@ -49,7 +51,8 @@ public class NCTestUtils {
     }
 
     public static void assert3DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final Variable variable = mmd.findVariable(variableName);
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Variable variable = mmd.findVariable(escapedName);
         assertNotNull(variable);
         final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);

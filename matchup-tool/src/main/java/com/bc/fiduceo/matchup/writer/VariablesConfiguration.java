@@ -21,10 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 class VariablesConfiguration {
 
@@ -41,7 +38,7 @@ class VariablesConfiguration {
         if (variableRenames == null) {
             return new ArrayList<>();
         }
-        return variableRenames;
+        return Collections.unmodifiableList(variableRenames);
     }
 
     List<VariableExclude> getExcludes(String sensorKey) {
@@ -49,7 +46,7 @@ class VariablesConfiguration {
         if (variableExcludes == null) {
             return new ArrayList<>();
         }
-        return variableExcludes;
+        return Collections.unmodifiableList(variableExcludes);
     }
 
     void addRenames(String sensorKeys, List<VariableRename> renames) {

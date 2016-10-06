@@ -99,49 +99,51 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
             NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
         }
     }
-      // @todo 1 tb/tb continue here 2016-10-05
-//    @Test
-//    public void testMatchup_overlappingSensingTimes_withVariablesRenamed() throws IOException, ParseException, SQLException, InvalidRangeException {
-//        TestUtil.writeDatabaseProperties_MongoDb(configDir);
-//        TestUtil.writeSystemProperties(configDir);
-//        final String writerConfigXml = "<mmd-writer-config>" +
-//                "    <overwrite>false</overwrite>" +
-//                "    <cache-size>2048</cache-size>" +
-//                "    <netcdf-format>N4</netcdf-format>" +
-//                "    <variables-configuration>"  +
-//                "        <sensors names = \"aatsr-en\">" +
-//                "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
-//                "        </sensors>" +
-//                "    </variables-configuration>" +
-//                "</mmd-writer-config>";
-//        TestUtil.writeMmdWriterConfig(configDir, writerConfigXml);
-//
-//        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-//                .withTimeDeltaSeconds(2100)
-//                .withMaxPixelDistanceKm(1.41f)
-//                .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
-//                .createConfig();
-//        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
-//
-//        insert_AATSR();
-//        insert_AMSRE();
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
-//        assertTrue(mmdFile.isFile());
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            NCTestUtils.assert3DVariable("atsr.3.time", 0, 0, 0, 1108623419, mmd);
-//            NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 1, 239.0496826171875, mmd);
-//            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 2, 23927, mmd);
-//
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
-//        }
-//    }
+
+    @Test
+    public void testMatchup_overlappingSensingTimes_withVariablesRenamed() throws IOException, ParseException, SQLException, InvalidRangeException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemProperties(configDir);
+        final String writerConfigXml = "<mmd-writer-config>" +
+                "    <overwrite>false</overwrite>" +
+                "    <cache-size>2048</cache-size>" +
+                "    <netcdf-format>N3</netcdf-format>" +
+                "    <variables-configuration>"  +
+                "        <sensors names = \"aatsr-en\">" +
+                "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
+                "            <rename source-name = \"altitude\" target-name = \"atsr.3.altitude\" />" +
+                "            <rename source-name = \"btemp_fward_0370\" target-name = \"atsr.3.btemp_fward_0370\" />" +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        TestUtil.writeMmdWriterConfig(configDir, writerConfigXml);
+
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(2100)
+                .withMaxPixelDistanceKm(1.41f)
+                .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
+
+        insert_AATSR();
+        insert_AMSRE();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("atsr.3.time", 0, 0, 0, 1108623419, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.altitude", 1, 0, 1, 239.0496826171875, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.btemp_fward_0370", 2, 0, 2, 23927, mmd);
+
+            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
+        }
+    }
 
     private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();

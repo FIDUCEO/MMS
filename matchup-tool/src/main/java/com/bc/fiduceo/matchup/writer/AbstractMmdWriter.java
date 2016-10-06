@@ -41,6 +41,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
@@ -264,6 +265,9 @@ abstract class AbstractMmdWriter implements MmdWriter {
         final String mmdFileName = MmdWriterFactory.createMMDFileName(useCaseConfig, context.getStartDate(), context.getEndDate());
         final Path mmdFile = Paths.get(useCaseConfig.getOutputPath(), mmdFileName);
         final Path targetDir = mmdFile.getParent();
+        if (targetDir == null) {
+            throw new RuntimeException("Target directory does not exist for: " + mmdFile.toString());
+        }
 
         if (!Files.isDirectory(targetDir)) {
             try {
@@ -371,7 +375,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
         final String acTimeVariableName = sensorName + "_acquisition_time";
         if (getExclude(acTimeVariableName, excludes) == null) {
-            final VariableRename rename = getRename(fileVariableName, renames);
+            final VariableRename rename = getRename(acTimeVariableName, renames);
             if (rename != null) {
                 final String targetName = rename.getTargetName();
                 write(reader.readAcquisitionTime(x, y, interval), targetName, zIndex);
@@ -442,31 +446,61 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
     private Variable getVariable(String variableName) {
         if (!variableMap.containsKey(variableName)) {
-            variableMap.put(variableName, netcdfFileWriter.findVariable(variableName));
+            final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+            variableMap.put(variableName, netcdfFileWriter.findVariable(escapedName));
         }
         return variableMap.get(variableName);
     }
 
     private void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
+        final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
+
         for (Dimension dimension : dimensions) {
             final String sensorName = dimension.getName();
+            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
+            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
 
-            final Variable variableX = netcdfFileWriter.addVariable(null, sensorName + "_x", DataType.INT, "matchup_count");
-            variableX.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
+            final String xVariableName = sensorName + "_x";
+            if (getExclude(xVariableName, excludes) == null) {
+                final String targetName = getTargetName(renames, xVariableName);
+                final Variable variableX = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
+                variableX.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
+            }
 
-            final Variable variableY = netcdfFileWriter.addVariable(null, sensorName + "_y", DataType.INT, "matchup_count");
-            variableY.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
+            final String yVariableName = sensorName + "_y";
+            if (getExclude(yVariableName, excludes) == null) {
+                final String targetName = getTargetName(renames, yVariableName);
+                final Variable variableY = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
+                variableY.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
+            }
 
-            final Variable variableFileName = netcdfFileWriter.addVariable(null, sensorName + "_file_name", DataType.CHAR, "matchup_count file_name");
-            variableFileName.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
+            final String fileNameVariableName = sensorName + "_file_name";
+            if (getExclude(fileNameVariableName, excludes) == null) {
+                final String targetName = getTargetName(renames, fileNameVariableName);
+                final Variable variableFileName = netcdfFileWriter.addVariable(null, targetName, DataType.CHAR, "matchup_count file_name");
+                variableFileName.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
+            }
 
-            final String yDimension = getDimensionNameNy(sensorName);
-            final String xDimension = getDimensionNameNx(sensorName);
-            final Variable variableAcqTime = netcdfFileWriter.addVariable(null, sensorName + "_acquisition_time", DataType.INT, "matchup_count " + yDimension + " " + xDimension);
-            variableAcqTime.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
-            variableAcqTime.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
-            variableAcqTime.addAttribute(new Attribute("_FillValue", -2147483648));
+            final String acTimeVariableName = sensorName + "_acquisition_time";
+            if (getExclude(acTimeVariableName, excludes) == null) {
+                final String targetName = getTargetName(renames, acTimeVariableName);
+                final String yDimension = getDimensionNameNy(sensorName);
+                final String xDimension = getDimensionNameNx(sensorName);
+                final Variable variableAcqTime = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count " + yDimension + " " + xDimension);
+                variableAcqTime.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
+                variableAcqTime.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
+                variableAcqTime.addAttribute(new Attribute("_FillValue", -2147483648));
+            }
         }
+    }
+
+    private String getTargetName(List<VariableRename> renames, String originalVariableName) {
+        String targetName = originalVariableName;
+        final VariableRename rename = getRename(originalVariableName, renames);
+        if (rename != null) {
+            targetName = rename.getTargetName();
+        }
+        return targetName;
     }
 
     private void createGlobalAttributes() {
