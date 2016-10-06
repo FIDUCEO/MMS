@@ -173,7 +173,6 @@ public class MongoDbDriverTest {
                 ">\n", geometry.toString());
     }
 
-    // @todo 3 tb/** make this test method operate on Fiduceo geometries 2016-03-06
     @Test
     public void testConvertToGeometry_multiPolygon() {
         final S2WKTReader s2WKTReader = new S2WKTReader();
