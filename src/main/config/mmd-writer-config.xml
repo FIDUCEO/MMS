@@ -35,4 +35,75 @@
          "N4" - write in NetCDF 4 format
     -->
     <netcdf-format>N4</netcdf-format>
+
+    <!-- Defines renaming or excluding configuration for the target MMD for specific sensors -->
+    <variables-configuration>
+
+        <sensors names = "atsr-e1">
+            <rename source-name = "aatsr-en_acquisition_time" target-name = "atsr.1.time" />    <!-- @todo 2 tb/** unify this naming convention 2016-10-10 -->
+            <rename source-name = "altitude" target-name = "atsr.1.altitude" />
+            <rename source-name = "btemp_fward_0370" target-name = "atsr.1.brightness_temperature_37_forward" />
+            <rename source-name = "btemp_nadir_0370" target-name = "atsr.1.brightness_temperature_37_nadir" />
+            <rename source-name = "btemp_fward_1100" target-name = "atsr.1.brightness_temperature_11_forward" />
+            <rename source-name = "btemp_nadir_1100" target-name = "atsr.1.brightness_temperature_11_nadir" />
+            <rename source-name = "btemp_fward_1200" target-name = "atsr.1.brightness_temperature_12_forward" />
+            <rename source-name = "reflec_fward_0550" target-name = "atsr.1.reflectance_55_forward" />
+            <rename source-name = "reflec_nadir_0550" target-name = "atsr.1.reflectance_55_nadir" />
+            <rename source-name = "reflec_fward_0670" target-name = "atsr.1.reflectance_66_forward" />
+            <rename source-name = "reflec_nadir_0670" target-name = "atsr.1.reflectance_66_nadir" />
+            <rename source-name = "reflec_fward_0870" target-name = "atsr.1.reflectance_87_forward" />
+            <rename source-name = "reflec_nadir_0870" target-name = "atsr.1.reflectance_87_nadir" />
+            <rename source-name = "reflec_fward_1600" target-name = "atsr.1.reflectance_16_forward" />
+            <rename source-name = "reflec_nadir_1600" target-name = "atsr.1.reflectance_16_nadir" />
+            <rename source-name = "confid_flags_nadir" target-name = "atsr.1.confidence_word_nadir" />
+            <rename source-name = "confid_flags_fward" target-name = "atsr.1.confidence_word_forward" />
+            <rename source-name = "cloud_flags_nadir" target-name = "atsr.1.cloud_flags_nadir" />
+            <rename source-name = "cloud_flags_fward" target-name = "atsr.1.cloud_flags_forward" />
+        </sensors>
+
+        <sensors names = "atsr-e2">
+            <rename source-name = "aatsr-en_acquisition_time" target-name = "atsr.2.time" />    <!-- @todo 2 tb/** unify this naming convention 2016-10-10 -->
+            <rename source-name = "altitude" target-name = "atsr.2.altitude" />
+            <rename source-name = "btemp_fward_0370" target-name = "atsr.2.brightness_temperature_37_forward" />
+            <rename source-name = "btemp_nadir_0370" target-name = "atsr.2.brightness_temperature_37_nadir" />
+            <rename source-name = "btemp_fward_1100" target-name = "atsr.2.brightness_temperature_11_forward" />
+            <rename source-name = "btemp_nadir_1100" target-name = "atsr.2.brightness_temperature_11_nadir" />
+            <rename source-name = "btemp_fward_1200" target-name = "atsr.2.brightness_temperature_12_forward" />
+            <rename source-name = "reflec_fward_0550" target-name = "atsr.2.reflectance_55_forward" />
+            <rename source-name = "reflec_nadir_0550" target-name = "atsr.2.reflectance_55_nadir" />
+            <rename source-name = "reflec_fward_0670" target-name = "atsr.2.reflectance_66_forward" />
+            <rename source-name = "reflec_nadir_0670" target-name = "atsr.2.reflectance_66_nadir" />
+            <rename source-name = "reflec_fward_0870" target-name = "atsr.2.reflectance_87_forward" />
+            <rename source-name = "reflec_nadir_0870" target-name = "atsr.2.reflectance_87_nadir" />
+            <rename source-name = "reflec_fward_1600" target-name = "atsr.2.reflectance_16_forward" />
+            <rename source-name = "reflec_nadir_1600" target-name = "atsr.2.reflectance_16_nadir" />
+            <rename source-name = "confid_flags_nadir" target-name = "atsr.2.confidence_word_nadir" />
+            <rename source-name = "confid_flags_fward" target-name = "atsr.2.confidence_word_forward" />
+            <rename source-name = "cloud_flags_nadir" target-name = "atsr.2.cloud_flags_nadir" />
+            <rename source-name = "cloud_flags_fward" target-name = "atsr.2.cloud_flags_forward" />
+        </sensors>
+
+        <sensors names = "aatsr-en">
+            <rename source-name = "aatsr-en_acquisition_time" target-name = "atsr.3.time" />    <!-- @todo 2 tb/** unify this naming convention 2016-10-10 -->
+            <rename source-name = "altitude" target-name = "atsr.3.altitude" />
+            <rename source-name = "btemp_fward_0370" target-name = "atsr.3.brightness_temperature_37_forward" />
+            <rename source-name = "btemp_nadir_0370" target-name = "atsr.3.brightness_temperature_37_nadir" />
+            <rename source-name = "btemp_fward_1100" target-name = "atsr.3.brightness_temperature_11_forward" />
+            <rename source-name = "btemp_nadir_1100" target-name = "atsr.3.brightness_temperature_11_nadir" />
+            <rename source-name = "btemp_fward_1200" target-name = "atsr.3.brightness_temperature_12_forward" />
+            <rename source-name = "reflec_fward_0550" target-name = "atsr.3.reflectance_55_forward" />
+            <rename source-name = "reflec_nadir_0550" target-name = "atsr.3.reflectance_55_nadir" />
+            <rename source-name = "reflec_fward_0670" target-name = "atsr.3.reflectance_66_forward" />
+            <rename source-name = "reflec_nadir_0670" target-name = "atsr.3.reflectance_66_nadir" />
+            <rename source-name = "reflec_fward_0870" target-name = "atsr.3.reflectance_87_forward" />
+            <rename source-name = "reflec_nadir_0870" target-name = "atsr.3.reflectance_87_nadir" />
+            <rename source-name = "reflec_fward_1600" target-name = "atsr.3.reflectance_16_forward" />
+            <rename source-name = "reflec_nadir_1600" target-name = "atsr.3.reflectance_16_nadir" />
+            <rename source-name = "confid_flags_nadir" target-name = "atsr.3.confidence_word_nadir" />
+            <rename source-name = "confid_flags_fward" target-name = "atsr.3.confidence_word_forward" />
+            <rename source-name = "cloud_flags_nadir" target-name = "atsr.3.cloud_flags_nadir" />
+            <rename source-name = "cloud_flags_fward" target-name = "atsr.3.cloud_flags_forward" />
+        </sensors>
+
+    </variables-configuration>
 </mmd-writer-config>

@@ -112,7 +112,24 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
                 "        <sensors names = \"aatsr-en\">" +
                 "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
                 "            <rename source-name = \"altitude\" target-name = \"atsr.3.altitude\" />" +
-                "            <rename source-name = \"btemp_fward_0370\" target-name = \"atsr.3.btemp_fward_0370\" />" +
+                "            <rename source-name = \"btemp_fward_0370\" target-name = \"atsr.3.brightness_temperature_37_forward\" />" +
+                "            <rename source-name = \"btemp_nadir_0370\" target-name = \"atsr.3.brightness_temperature_37_nadir\" />" +
+                "            <rename source-name = \"btemp_fward_1100\" target-name = \"atsr.3.brightness_temperature_11_forward\" />" +
+                "            <rename source-name = \"btemp_nadir_1100\" target-name = \"atsr.3.brightness_temperature_11_nadir\" />" +
+                "            <rename source-name = \"btemp_fward_1200\" target-name = \"atsr.3.brightness_temperature_12_forward\" />" +
+                "            <rename source-name = \"btemp_nadir_1200\" target-name = \"atsr.3.brightness_temperature_12_nadir\" />" +
+                "            <rename source-name = \"reflec_fward_0550\" target-name = \"atsr.3.reflectance_55_forward\" />" +
+                "            <rename source-name = \"reflec_nadir_0550\" target-name = \"atsr.3.reflectance_55_nadir\" />" +
+                "            <rename source-name = \"reflec_fward_0670\" target-name = \"atsr.3.reflectance_66_forward\" />" +
+                "            <rename source-name = \"reflec_nadir_0670\" target-name = \"atsr.3.reflectance_66_nadir\" />" +
+                "            <rename source-name = \"reflec_fward_0870\" target-name = \"atsr.3.reflectance_87_forward\" />" +
+                "            <rename source-name = \"reflec_nadir_0870\" target-name = \"atsr.3.reflectance_87_nadir\" />" +
+                "            <rename source-name = \"reflec_fward_1600\" target-name = \"atsr.3.reflectance_16_forward\" />" +
+                "            <rename source-name = \"reflec_nadir_1600\" target-name = \"atsr.3.reflectance_16_nadir\" />" +
+                "            <rename source-name = \"confid_flags_nadir\" target-name = \"atsr.3.confidence_word_nadir\" />" +
+                "            <rename source-name = \"confid_flags_fward\" target-name = \"atsr.3.confidence_word_forward\" />" +
+                "            <rename source-name = \"cloud_flags_nadir\" target-name = \"atsr.3.cloud_flags_nadir\" />" +
+                "            <rename source-name = \"cloud_flags_fward\" target-name = \"atsr.3.cloud_flags_forward\" />" +
                 "        </sensors>" +
                 "    </variables-configuration>" +
                 "</mmd-writer-config>";
@@ -137,7 +154,27 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             NCTestUtils.assert3DVariable("atsr.3.time", 0, 0, 0, 1108623419, mmd);
             NCTestUtils.assert3DVariable("atsr.3.altitude", 1, 0, 1, 239.0496826171875, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.btemp_fward_0370", 2, 0, 2, 23927, mmd);
+
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_forward", 2, 0, 2, 23927, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_nadir", 3, 0, 3, 24187, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_forward", 4, 0, 4, 24240, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_nadir", 5, 0, 5, 23729, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_forward", 6, 0, 6, 23945, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_nadir", 7, 0, 7, 24068, mmd);
+
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_forward", 8, 0, 8, 214, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_nadir", 9, 0, 9, 131, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_forward", 10, 0, 10, 238, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_nadir", 0, 1, 11, 183, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_forward", 1, 1, 12, 469, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_nadir", 2, 1, 13, 440, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_forward", 3, 1, 14, 107, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_nadir", 4, 1, 15, 73, mmd);
+
+            NCTestUtils.assert3DVariable("atsr.3.confidence_word_nadir", 5, 1, 16, 0, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.confidence_word_forward", 6, 1, 17, 2, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_nadir", 7, 1, 18, 2402, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_forward", 8, 1, 19, 354, mmd);
 
             NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
