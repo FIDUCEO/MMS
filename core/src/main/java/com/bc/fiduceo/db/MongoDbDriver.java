@@ -115,7 +115,9 @@ public class MongoDbDriver extends AbstractDriver {
     @Override
     public void initialize() throws SQLException {
         final MongoCollection<Document> satelliteObservations = database.getCollection(SATELLITE_DATA_COLLECTION);
-        satelliteObservations.createIndex(new BasicDBObject(GEO_BOUNDS_KEY, "2dsphere"));
+        satelliteObservations.createIndex(new BasicDBObject(START_TIME_KEY, 1));
+        satelliteObservations.createIndex(new BasicDBObject(STOP_TIME_KEY, 1));
+        satelliteObservations.createIndex(new BasicDBObject(SENSOR_KEY + ".name", 1));
     }
 
     @Override
