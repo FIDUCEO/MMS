@@ -252,6 +252,8 @@ class MatchupTool {
 
     private void runMatchupGeneration(ToolContext context, MmdWriterConfig writerConfig) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = createMatchupCollection(context);
+        // extract variable prototypes
+        // apply renaming and exclude
 
         final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(writerConfig);
         mmdWriter.writeMMD(matchupCollection, context);

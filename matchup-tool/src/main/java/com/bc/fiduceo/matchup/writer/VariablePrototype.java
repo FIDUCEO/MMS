@@ -20,21 +20,33 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.RawDataSource;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-class VariablePrototype {
+class VariablePrototype implements RawDataSource {
 
+    private final RawDataSourceContainer rawDataSourceContainer;
+    private List<Attribute> attributes;
     private String targetVariableName;
     private String sourceVariableName;
     private String dimensionNames;
     private String dataType;
-    private List<Attribute> attributes;
 
     VariablePrototype() {
+        this(null);
+    }
+
+    VariablePrototype(RawDataSourceContainer rawDataSourceContainer) {
         attributes = new ArrayList<>();
+        this.rawDataSourceContainer = rawDataSourceContainer;
     }
 
     String getTargetVariableName() {
@@ -81,5 +93,20 @@ class VariablePrototype {
 
     void setSourceVariableName(String sourceVariableName) {
         this.sourceVariableName = sourceVariableName;
+    }
+
+    @Override
+    public void close() throws IOException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void open(File file) throws IOException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        throw new RuntimeException("not implemented");
     }
 }

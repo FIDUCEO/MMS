@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.reader.Reader;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -41,7 +42,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -268,5 +271,52 @@ public class VariablePrototypeListTest {
         assertEquals(2, sensorNames.size());
         assertTrue(sensorNames.contains("sensor_name_1"));
         assertTrue(sensorNames.contains("sensor_name_2"));
+    }
+
+    @Test
+    public void testAddGetProcessingReader() {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+
+        final RawDataSourceContainer container = new RawDataSourceContainer();
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+
+        final RawDataSourceContainer resultCont = variablePrototypeList.getRawDataSourceContainer("theFirst");
+        assertNotNull(resultCont);
+        assertSame(resultCont, container);
+    }
+
+    @Test
+    public void testAddGetProcessingReader_twoReader() {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final RawDataSourceContainer container_1 = new RawDataSourceContainer();
+        final RawDataSourceContainer container_2 = new RawDataSourceContainer();
+
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container_1);
+        variablePrototypeList.setRawDataSourceContainer("theSecond", container_2);
+
+        RawDataSourceContainer container;
+
+        container = variablePrototypeList.getRawDataSourceContainer("theFirst");
+        assertNotNull(container);
+        assertSame(container, container_1);
+
+        container = variablePrototypeList.getRawDataSourceContainer("theSecond");
+        assertNotNull(container);
+        assertSame(container, container_2);
+    }
+
+    @Test
+    public void testAddGetProcessingReader_notPresent() {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final RawDataSourceContainer container = new RawDataSourceContainer();
+
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+
+        try {
+            variablePrototypeList.getRawDataSourceContainer("stupid");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
+
     }
 }

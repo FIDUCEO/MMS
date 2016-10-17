@@ -39,11 +39,25 @@ import java.util.Set;
 class VariablePrototypeList {
 
     private final HashMap<String, List<VariablePrototype>> prototypesMap;
+    private final HashMap<String, RawDataSourceContainer> sourceContainerMap;
     private final ReaderFactory readerFactory;
 
     VariablePrototypeList(ReaderFactory readerFactory) {
         prototypesMap = new HashMap<>();
+        sourceContainerMap = new HashMap<>();
         this.readerFactory = readerFactory;
+    }
+
+    public void setRawDataSourceContainer(String sensorName, RawDataSourceContainer container) {
+        sourceContainerMap.put(sensorName, container);
+    }
+
+    public RawDataSourceContainer getRawDataSourceContainer(String sensorName) {
+        final RawDataSourceContainer container = sourceContainerMap.get(sensorName);
+        if (container == null) {
+            throw new RuntimeException("Requested RawDataSourceContainer of unconfigured type: " + sensorName);
+        }
+        return container;
     }
 
     void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
@@ -54,14 +68,16 @@ class VariablePrototypeList {
             prototypesMap.put(sensorName, new ArrayList<>());
         }
         prototypes = prototypesMap.get(sensorName);
+        final RawDataSourceContainer rawDataSourceContainer = new RawDataSourceContainer();
+        setRawDataSourceContainer(sensorName, rawDataSourceContainer);
 
         try (final Reader reader = readerFactory.getReader(sensorName)) {
             reader.open(filePath.toFile());
-
+            rawDataSourceContainer.setSource(reader);
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
-                final VariablePrototype prototype = new VariablePrototype();
+                final VariablePrototype prototype = new VariablePrototype(rawDataSourceContainer);
                 prototype.setSourceVariableName(variable.getShortName());
                 prototype.setTargetVariableName(sensorName + "_" + variable.getShortName());
                 prototype.setDataType(variable.getDataType().toString());

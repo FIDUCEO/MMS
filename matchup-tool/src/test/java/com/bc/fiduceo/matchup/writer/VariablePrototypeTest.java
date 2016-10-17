@@ -76,4 +76,6 @@ public class VariablePrototypeTest {
         assertNotNull(attributes);
         assertEquals(0, attributes.size());
     }
+
+
 }
