@@ -100,6 +100,9 @@ class SSMT2_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
+        needVariablesInitialisation = true;
+        pixelLocator = null;
+        timeLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -275,7 +278,7 @@ class SSMT2_Reader implements Reader {
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
             if (shape[0] != height
-                    || shape.length > 3) {
+                || shape.length > 3) {
                 continue;
             }
             if (shortName.equalsIgnoreCase("ancil_data")) {
@@ -612,17 +615,17 @@ class SSMT2_Reader implements Reader {
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                    targetWidth, targetHeight,
-                    0, srcHeight,
-                    (y, x) -> {
-                        targetIdx.set(y, x);
-                        targetArray.setDouble(targetIdx, fillValue);
-                    },
-                    (y, x, yRaw, xRaw) -> {
-                        targetIdx.set(y, x);
-                        sourceIdx.set(yRaw, sourceChannel);
-                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                    }
+                      targetWidth, targetHeight,
+                      0, srcHeight,
+                      (y, x) -> {
+                          targetIdx.set(y, x);
+                          targetArray.setDouble(targetIdx, fillValue);
+                      },
+                      (y, x, yRaw, xRaw) -> {
+                          targetIdx.set(y, x);
+                          sourceIdx.set(yRaw, sourceChannel);
+                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                      }
             );
             return targetArray;
         }
