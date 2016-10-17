@@ -33,6 +33,8 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.WindowReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -58,6 +61,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -701,6 +705,44 @@ public class SSMT2_Reader_IO_Test {
             assertEquals(1, pixelLocation.length);
             assertEquals(2.5, pixelLocation[0].getX(), 0.2);
             assertEquals(4.5, pixelLocation[0].getY(), 0.1);
+        }
+    }
+
+    @Test
+    public void testNewObjectsAfterClose() throws Exception {
+        final File file = createSSMT2_F14_File();
+
+        SSMT2_Reader r = reader;
+        try {
+            r.open(file);
+
+            final PixelLocator pixelLocator1 = r.getPixelLocator();
+            assertNotNull(pixelLocator1);
+            final TimeLocator timeLocator1 = r.getTimeLocator();
+            assertNotNull(timeLocator1);
+            final List<Variable> variables1 = r.getVariables();
+            assertNotNull(variables1);
+            final HashMap<String, WindowReader> readersMap1 = r.getReadersMap();
+            assertNotNull(readersMap1);
+
+            r.close();
+            r.open(file);
+
+            final PixelLocator pixelLocator2 = r.getPixelLocator();
+            assertNotNull(pixelLocator2);
+            final TimeLocator timeLocator2 = r.getTimeLocator();
+            assertNotNull(timeLocator2);
+            final List<Variable> variables2 = r.getVariables();
+            assertNotNull(variables2);
+            final HashMap<String, WindowReader> readersMap2 = r.getReadersMap();
+            assertNotNull(readersMap2);
+
+            assertNotSame(pixelLocator1, pixelLocator2);
+            assertNotSame(timeLocator1, timeLocator2);
+            assertNotSame(variables1, variables2);
+            assertNotSame(readersMap1, readersMap2);
+        } finally {
+            r.close();
         }
     }
 

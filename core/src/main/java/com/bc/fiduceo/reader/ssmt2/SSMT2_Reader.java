@@ -101,6 +101,8 @@ class SSMT2_Reader implements Reader {
     @Override
     public void close() throws IOException {
         needVariablesInitialisation = true;
+        readersMap = null;
+        variablesList = null;
         pixelLocator = null;
         timeLocator = null;
         if (netcdfFile != null) {
@@ -225,6 +227,11 @@ class SSMT2_Reader implements Reader {
         final Array lonArray = arrayCache.get("lon");
         final int[] shape = lonArray.getShape();
         return new Dimension("lon", shape[1], shape[0]);
+    }
+
+    public HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
+        ensureInitialisation();
+        return readersMap;
     }
 
     // package access for testing only tb 2016-09-09
