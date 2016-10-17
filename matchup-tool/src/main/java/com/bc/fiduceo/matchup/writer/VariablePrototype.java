@@ -107,6 +107,6 @@ class VariablePrototype implements RawDataSource {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return rawDataSourceContainer.getSource().readRaw(centerX, centerY, interval, variableName);
     }
 }

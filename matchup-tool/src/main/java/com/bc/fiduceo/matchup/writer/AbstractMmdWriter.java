@@ -65,9 +65,16 @@ abstract class AbstractMmdWriter implements MmdWriter {
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
     private final MmdWriterConfig writerConfig;
+    NetcdfFileWriter netcdfFileWriter;
     private int flushCount = 0;
 
-    NetcdfFileWriter netcdfFileWriter;
+    AbstractMmdWriter(MmdWriterConfig writerConfig) {
+        this.writerConfig = writerConfig;
+        logger = FiduceoLogger.getLogger();
+
+        dataCacheMap = new HashMap<>();
+        variableMap = new HashMap<>();
+    }
 
     /**
      * Writes the complete MatchupCollection matchup data to the MD file.
@@ -75,6 +82,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
      *
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
+     *
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
@@ -84,11 +92,12 @@ abstract class AbstractMmdWriter implements MmdWriter {
             return;
         }
 
+        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
+
         try {
             logger.info("Start writing mmd-file ...");
 
-            final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
-            final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
             extractPrototypes(variablePrototypeList, matchupCollection, context);
             applyExcludesAndRenames(variablePrototypeList, writerConfig.getVariablesConfiguration());
 
@@ -114,8 +123,12 @@ abstract class AbstractMmdWriter implements MmdWriter {
             int zIndex = 0;
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
+
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
+                variablePrototypeList.setDataSourcePath(primarySensorName, primaryObservationPath);
+                variablePrototypeList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
+
                 try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
                      final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
                     primaryReader.open(primaryObservationPath.toFile());
@@ -141,29 +154,22 @@ abstract class AbstractMmdWriter implements MmdWriter {
             logger.info("Writing time: '" + stopWatch.getTimeDiffString());
 
         } finally {
+            variablePrototypeList.close();
             close();
         }
     }
 
-    AbstractMmdWriter(MmdWriterConfig writerConfig) {
-        this.writerConfig = writerConfig;
-        logger = FiduceoLogger.getLogger();
-
-        dataCacheMap = new HashMap<>();
-        variableMap = new HashMap<>();
-    }
-
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "comment",
-                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                    "comment",
+                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             useCaseConfig.store(outputStream);
             netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "use-case-configuration",
-                    outputStream.toString()
+                        "use-case-configuration",
+                        outputStream.toString()
             ));
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
@@ -212,50 +218,6 @@ abstract class AbstractMmdWriter implements MmdWriter {
             attributes.add(new Attribute(name, Short.MIN_VALUE));
         } else if (DataType.BYTE.equals(dataType)) {
             attributes.add(new Attribute(name, Byte.MIN_VALUE));
-        }
-    }
-
-    abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
-
-    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
-        createNetCdfFileWriter(mmdFile);
-
-        createGlobalAttributes();
-        createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        createDimensions(dimensions, numMatchups);
-        createExtraMmdVariablesPerSensor(dimensions);
-
-        if (useCaseConfig.isWriteDistance()) {
-            final Variable variableDistance = netcdfFileWriter.addVariable(null, "matchup_spherical_distance", DataType.FLOAT, "matchup_count");
-            variableDistance.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
-            variableDistance.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
-        }
-
-        for (final VariablePrototype variablePrototype : variablePrototypes) {
-            ensureFillValue(variablePrototype);
-            final Variable variable = netcdfFileWriter.addVariable(null,
-                    variablePrototype.getTargetVariableName(),
-                    DataType.getType(variablePrototype.getDataType()),
-                    variablePrototype.getDimensionNames());
-            final List<Attribute> attributes = variablePrototype.getAttributes();
-            for (Attribute attribute : attributes) {
-                if (attribute.getFullName().startsWith("_Chunk")) {
-                    continue;
-                }
-                variable.addAttribute(attribute);
-            }
-        }
-        netcdfFileWriter.create();
-    }
-
-    void close() throws IOException, InvalidRangeException {
-        flush();
-        variableMap.clear();
-        dataCacheMap.clear();
-        if (netcdfFileWriter != null) {
-            netcdfFileWriter.close();
-            netcdfFileWriter = null;
         }
     }
 
@@ -327,7 +289,6 @@ abstract class AbstractMmdWriter implements MmdWriter {
         return null;
     }
 
-
     static VariableExclude getExclude(String sourceVariableName, List<VariableExclude> excludes) {
         for (final VariableExclude exclude : excludes) {
             if (sourceVariableName.equals(exclude.getSourceName())) {
@@ -346,8 +307,52 @@ abstract class AbstractMmdWriter implements MmdWriter {
         return null;
     }
 
+    abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
+
+    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+        createNetCdfFileWriter(mmdFile);
+
+        createGlobalAttributes();
+        createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        createDimensions(dimensions, numMatchups);
+        createExtraMmdVariablesPerSensor(dimensions);
+
+        if (useCaseConfig.isWriteDistance()) {
+            final Variable variableDistance = netcdfFileWriter.addVariable(null, "matchup_spherical_distance", DataType.FLOAT, "matchup_count");
+            variableDistance.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
+            variableDistance.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
+        }
+
+        for (final VariablePrototype variablePrototype : variablePrototypes) {
+            ensureFillValue(variablePrototype);
+            final Variable variable = netcdfFileWriter.addVariable(null,
+                                                                   variablePrototype.getTargetVariableName(),
+                                                                   DataType.getType(variablePrototype.getDataType()),
+                                                                   variablePrototype.getDimensionNames());
+            final List<Attribute> attributes = variablePrototype.getAttributes();
+            for (Attribute attribute : attributes) {
+                if (attribute.getFullName().startsWith("_Chunk")) {
+                    continue;
+                }
+                variable.addAttribute(attribute);
+            }
+        }
+        netcdfFileWriter.create();
+    }
+
+    void close() throws IOException, InvalidRangeException {
+        flush();
+        variableMap.clear();
+        dataCacheMap.clear();
+        if (netcdfFileWriter != null) {
+            netcdfFileWriter.close();
+            netcdfFileWriter = null;
+        }
+    }
+
     private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
-        writeMmdValues(sample, zIndex, variables, interval, reader);
+        writeMmdValues(sample, zIndex, variables, interval);
 
         writeMMSStandardVariables(sensorName, observationPath, zIndex, interval, reader, sample);
     }
@@ -397,14 +402,14 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    private void writeMmdValues(Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+    private void writeMmdValues(Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval) throws IOException, InvalidRangeException {
         final int x = sample.x;
         final int y = sample.y;
 
         for (VariablePrototype variable : variables) {
             final String sourceVariableName = variable.getSourceVariableName();
             final String targetVariableName = variable.getTargetVariableName();
-            final Array window = reader.readRaw(x, y, interval, sourceVariableName);
+            final Array window = variable.readRaw(x, y, interval, sourceVariableName);
             write(window, targetVariableName, zIndex);
         }
     }

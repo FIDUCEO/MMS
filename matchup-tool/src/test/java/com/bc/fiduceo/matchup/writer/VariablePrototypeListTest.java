@@ -21,9 +21,15 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
+import static org.hsqldb.HsqlDateTime.e;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.reader.Reader;
-import org.junit.Test;
+import com.bc.fiduceo.reader.RawDataSource;
+import org.esa.snap.core.util.Debug;
+import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayDouble;
@@ -36,17 +42,11 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class VariablePrototypeListTest {
 
@@ -315,8 +315,53 @@ public class VariablePrototypeListTest {
         try {
             variablePrototypeList.getRawDataSourceContainer("stupid");
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
+    }
 
+    @Test
+    public void testSetDataSourcePath() throws IOException {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final RawDataSourceContainer container = new RawDataSourceContainer();
+        final RawDataSource dataSourceMock = mock(RawDataSource.class);
+        container.setSource(dataSourceMock);
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        final Path path = Paths.get("hallo path");
+
+        variablePrototypeList.setDataSourcePath("theFirst", path);
+
+        verify(dataSourceMock, times(1)).close();
+        verify(dataSourceMock, times(1)).open(path.toFile());
+        verifyNoMoreInteractions(dataSourceMock);
+    }
+
+    @Test
+    public void testSetDataSourcePath_invalidSensorName() throws IOException {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final RawDataSourceContainer container = new RawDataSourceContainer();
+        final RawDataSource dataSourceMock = mock(RawDataSource.class);
+        container.setSource(dataSourceMock);
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        final Path path = Paths.get("hallo path");
+
+        try {
+            variablePrototypeList.setDataSourcePath("invalid Name", path);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testClose() throws IOException {
+        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final RawDataSourceContainer container = new RawDataSourceContainer();
+        final RawDataSource dataSourceMock = mock(RawDataSource.class);
+        container.setSource(dataSourceMock);
+        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+
+        variablePrototypeList.close();
+
+        verify(dataSourceMock, times(1)).close();
+        verifyNoMoreInteractions(dataSourceMock);
     }
 }

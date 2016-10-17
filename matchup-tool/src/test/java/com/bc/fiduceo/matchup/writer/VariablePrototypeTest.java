@@ -21,10 +21,23 @@
 package com.bc.fiduceo.matchup.writer;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.RawDataSource;
 import org.junit.*;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,5 +90,22 @@ public class VariablePrototypeTest {
         assertEquals(0, attributes.size());
     }
 
+    @Test
+    public void testReadRaw() throws IOException, InvalidRangeException {
+        final Array data = Array.factory(new int[]{1, 2, 3, 4});
+        final RawDataSource rawDataSource = mock(RawDataSource.class);
+        when(rawDataSource.readRaw(anyInt(), anyInt(), anyObject(), anyString())).thenReturn(data);
+        final RawDataSourceContainer sourceContainer = new RawDataSourceContainer();
+        sourceContainer.setSource(rawDataSource);
+
+        final VariablePrototype variablePrototype = new VariablePrototype(sourceContainer);
+
+        final Interval interval = new Interval(3, 3);
+        final Array hans_wurst = variablePrototype.readRaw(3, 4, interval, "hans_wurst");
+        assertNotNull(hans_wurst);
+
+        verify(rawDataSource, times(1)).readRaw(3, 4, interval, "hans_wurst");
+        verifyNoMoreInteractions(rawDataSource);
+    }
 
 }

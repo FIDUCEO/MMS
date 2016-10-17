@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.reader.RawDataSource;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.ma2.Array;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 class VariablePrototypeList {
@@ -58,6 +60,25 @@ class VariablePrototypeList {
             throw new RuntimeException("Requested RawDataSourceContainer of unconfigured type: " + sensorName);
         }
         return container;
+    }
+
+    public void setDataSourcePath(String sensorName, Path path) throws IOException {
+        final RawDataSourceContainer container = sourceContainerMap.get(sensorName);
+        if (container == null) {
+            throw new RuntimeException("Invalid sensor name requested: " + sensorName);
+        }
+
+        final RawDataSource source = container.getSource();
+        source.close();
+        source.open(path.toFile());
+    }
+
+    public void close() throws IOException {
+        final Set<Map.Entry<String, RawDataSourceContainer>> entrySet = sourceContainerMap.entrySet();
+        for(final Map.Entry<String, RawDataSourceContainer> entry : entrySet) {
+            final RawDataSourceContainer container = entry.getValue();
+            container.getSource().close();
+        }
     }
 
     void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
