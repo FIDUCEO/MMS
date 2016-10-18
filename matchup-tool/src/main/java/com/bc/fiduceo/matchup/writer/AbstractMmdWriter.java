@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-abstract class AbstractMmdWriter implements MmdWriter {
+abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     private static final String UNIT_ATTRIBUTE_NAME = "unit";
     private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
@@ -93,24 +93,24 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
 
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(readerFactory);
+        final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
         try {
             logger.info("Start writing mmd-file ...");
 
-            extractPrototypes(variablePrototypeList, matchupCollection, context);
-            applyExcludesAndRenames(variablePrototypeList, writerConfig.getVariablesConfiguration());
+            extractPrototypes(ioVariablesList, matchupCollection, context, this);
+            applyExcludesAndRenames(ioVariablesList, writerConfig.getVariablesConfiguration());
 
             final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-            initializeNetcdfFile(mmdFile, useCaseConfig, variablePrototypeList.get(), matchupCollection.getNumMatchups());
+            initializeNetcdfFile(mmdFile, useCaseConfig, ioVariablesList.get(), matchupCollection.getNumMatchups());
 
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
             final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
             final String primarySensorName = primarySensor.getName();
             final String secondarySensorName = secondarySensor.getName();
-            final List<VariablePrototype> primaryVariables = variablePrototypeList.getPrototypesFor(primarySensorName);
-            final List<VariablePrototype> secondaryVariables = variablePrototypeList.getPrototypesFor(secondarySensorName);
+            final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
+            final List<IOVariable> secondaryVariables = ioVariablesList.getVariablesFor(secondarySensorName);
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
@@ -123,12 +123,10 @@ abstract class AbstractMmdWriter implements MmdWriter {
             int zIndex = 0;
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
-
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
-                variablePrototypeList.setDataSourcePath(primarySensorName, primaryObservationPath);
-                variablePrototypeList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
-
+                ioVariablesList.setDataSourcePath(primarySensorName, primaryObservationPath);
+                ioVariablesList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
                 try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
                      final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
                     primaryReader.open(primaryObservationPath.toFile());
@@ -141,7 +139,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
                             write(sampleSet.getSphericalDistance(), "matchup_spherical_distance", zIndex);
                         }
                         zIndex++;
-                        if (zIndex > 0 && zIndex % cacheSize == 0) {
+                        if (zIndex % cacheSize == 0) {
                             flush();
                         }
                     }
@@ -154,9 +152,38 @@ abstract class AbstractMmdWriter implements MmdWriter {
             logger.info("Writing time: '" + stopWatch.getTimeDiffString());
 
         } finally {
-            variablePrototypeList.close();
+            ioVariablesList.close();
             close();
         }
+    }
+
+    @Override
+    public void write(Array data, String variableName, int zIndex) {
+        final Array target = getTarget(variableName);
+        final Index index = target.getIndex();
+        index.set(zIndex % writerConfig.getCacheSize());
+        Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
+    }
+
+    @Override
+    public void write(int v, String variableName, int zIndex) {
+        final Array data = Array.factory(new int[][]{{v}});
+        write(data, variableName, zIndex);
+    }
+
+    @Override
+    public void write(float value, String variableName, int zIndex) {
+        final Array data = Array.factory(new float[][]{{value}});
+        write(data, variableName, zIndex);
+    }
+
+    @Override
+    public void write(String v, String variableName, int zIndex) {
+        final int[] shape = getVariable(variableName).getShape();
+        final char[] chars = new char[shape[1]];
+        v.getChars(0, v.length(), chars, 0);
+        final Array data = Array.factory(new char[][]{chars});
+        write(data, variableName, zIndex);
     }
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
@@ -176,7 +203,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    static void extractPrototypes(VariablePrototypeList variablePrototypeList, MatchupCollection matchupCollection, ToolContext context) throws IOException {
+    static void extractPrototypes(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target target) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
@@ -185,8 +212,13 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
 
-        variablePrototypeList.extractPrototypes(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        variablePrototypeList.extractPrototypes(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+        ioVariablesList.extractVariables(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        ioVariablesList.extractVariables(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        for (IOVariable variable : ioVariables) {
+            variable.setTarget(target);
+        }
     }
 
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
@@ -197,15 +229,15 @@ abstract class AbstractMmdWriter implements MmdWriter {
         throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
     }
 
-    static void ensureFillValue(VariablePrototype prototype) {
+    static void ensureFillValue(IOVariable variable) {
         final String name = "_FillValue";
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = variable.getAttributes();
         for (Attribute attribute : attributes) {
             if (name.equals(attribute.getShortName())) {
                 return;
             }
         }
-        final DataType dataType = DataType.getType(prototype.getDataType());
+        final DataType dataType = DataType.getType(variable.getDataType());
         if (DataType.DOUBLE.equals(dataType)) {
             attributes.add(new Attribute(name, Double.MIN_VALUE));
         } else if (DataType.FLOAT.equals(dataType)) {
@@ -255,35 +287,35 @@ abstract class AbstractMmdWriter implements MmdWriter {
     }
 
     // package access for testing only tb 2016-10-05
-    static void applyExcludesAndRenames(VariablePrototypeList variablePrototypeList, VariablesConfiguration variablesConfiguration) {
-        final List<String> sensorNames = variablePrototypeList.getSensorNames();
+    static void applyExcludesAndRenames(IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
+        final List<String> sensorNames = ioVariablesList.getSensorNames();
 
         for (final String sensorName : sensorNames) {
-            final List<VariablePrototype> variablePrototypes = variablePrototypeList.getPrototypesFor(sensorName);
+            final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
             final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
             for (final VariableRename rename : renames) {
                 final String sourceName = rename.getSourceName();
-                final VariablePrototype prototype = getPrototype(sourceName, variablePrototypes);
-                if (prototype != null) {
-                    prototype.setTargetVariableName(rename.getTargetName());
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    variable.setTargetVariableName(rename.getTargetName());
                 }
             }
 
             final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
             for (final VariableExclude exclude : excludes) {
                 final String sourceName = exclude.getSourceName();
-                final VariablePrototype prototype = getPrototype(sourceName, variablePrototypes);
-                if (prototype != null) {
-                    variablePrototypes.remove(prototype);
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    ioVariables.remove(variable);
                 }
             }
         }
     }
 
-    static VariablePrototype getPrototype(String sourceName, List<VariablePrototype> variablePrototypes) {
-        for (final VariablePrototype prototype : variablePrototypes) {
-            if (sourceName.equals(prototype.getSourceVariableName())) {
-                return prototype;
+    static IOVariable getVariable(String sourceName, List<IOVariable> ioVariables) {
+        for (final IOVariable variable : ioVariables) {
+            if (sourceName.equals(variable.getSourceVariableName())) {
+                return variable;
             }
         }
         return null;
@@ -309,7 +341,7 @@ abstract class AbstractMmdWriter implements MmdWriter {
 
     abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
 
-    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<VariablePrototype> variablePrototypes, int numMatchups) throws IOException {
+    void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<IOVariable> ioVariables, int numMatchups) throws IOException {
         createNetCdfFileWriter(mmdFile);
 
         createGlobalAttributes();
@@ -324,17 +356,14 @@ abstract class AbstractMmdWriter implements MmdWriter {
             variableDistance.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
         }
 
-        for (final VariablePrototype variablePrototype : variablePrototypes) {
-            ensureFillValue(variablePrototype);
+        for (final IOVariable ioVariable : ioVariables) {
+            ensureFillValue(ioVariable);
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   variablePrototype.getTargetVariableName(),
-                                                                   DataType.getType(variablePrototype.getDataType()),
-                                                                   variablePrototype.getDimensionNames());
-            final List<Attribute> attributes = variablePrototype.getAttributes();
+                                                                   ioVariable.getTargetVariableName(),
+                                                                   DataType.getType(ioVariable.getDataType()),
+                                                                   ioVariable.getDimensionNames());
+            final List<Attribute> attributes = ioVariable.getAttributes();
             for (Attribute attribute : attributes) {
-                if (attribute.getFullName().startsWith("_Chunk")) {
-                    continue;
-                }
                 variable.addAttribute(attribute);
             }
         }
@@ -351,13 +380,13 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
+    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<IOVariable> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
         writeMmdValues(sample, zIndex, variables, interval);
 
-        writeMMSStandardVariables(sensorName, observationPath, zIndex, interval, reader, sample);
+        writeExtraMmdVariables(sensorName, observationPath, zIndex, interval, reader, sample);
     }
 
-    private void writeMMSStandardVariables(String sensorName, Path observationPath, int zIndex, Interval interval, Reader reader, Sample sample) throws IOException, InvalidRangeException {
+    private void writeExtraMmdVariables(String sensorName, Path observationPath, int zIndex, Interval interval, Reader reader, Sample sample) throws IOException, InvalidRangeException {
         final int x = sample.x;
         final int y = sample.y;
 
@@ -402,41 +431,13 @@ abstract class AbstractMmdWriter implements MmdWriter {
         }
     }
 
-    private void writeMmdValues(Sample sample, int zIndex, List<VariablePrototype> variables, Interval interval) throws IOException, InvalidRangeException {
+    private void writeMmdValues(Sample sample, int zIndex, List<IOVariable> variables, Interval interval) throws IOException, InvalidRangeException {
         final int x = sample.x;
         final int y = sample.y;
 
-        for (VariablePrototype variable : variables) {
-            final String sourceVariableName = variable.getSourceVariableName();
-            final String targetVariableName = variable.getTargetVariableName();
-            final Array window = variable.readRaw(x, y, interval, sourceVariableName);
-            write(window, targetVariableName, zIndex);
+        for (IOVariable variable : variables) {
+            variable.writeData(x, y, interval, zIndex);
         }
-    }
-
-    private void write(Array data, String variableName, int stackIndex) {
-        final Array target = getTarget(variableName);
-        final Index index = target.getIndex();
-        index.set(stackIndex % writerConfig.getCacheSize());
-        Array.arraycopy(data, 0, target, index.currentElement(), (int) data.getSize());
-    }
-
-    private void write(int v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Array data = Array.factory(new int[][]{{v}});
-        write(data, variableName, zIndex);
-    }
-
-    private void write(float value, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final Array data = Array.factory(new float[][]{{value}});
-        write(data, variableName, zIndex);
-    }
-
-    private void write(String v, String variableName, int zIndex) throws IOException, InvalidRangeException {
-        final int[] shape = getVariable(variableName).getShape();
-        final char[] chars = new char[shape[1]];
-        v.getChars(0, v.length(), chars, 0);
-        final Array data = Array.factory(new char[][]{chars});
-        write(data, variableName, zIndex);
     }
 
     private Array getTarget(String variableName) {

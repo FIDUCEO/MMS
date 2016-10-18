@@ -41,71 +41,78 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VariablePrototypeTest {
+public class IOVariableTest {
 
-    private VariablePrototype prototype;
+    private IOVariable ioVariable;
 
     @Before
     public void setUp() throws Exception {
-        prototype = new VariablePrototype();
+        ioVariable = new IOVariable();
     }
 
     @Test
     public void testSetGetName() {
         final String name = "the_variable_name";
 
-        prototype.setTargetVariableName(name);
-        assertEquals(name, prototype.getTargetVariableName());
+        ioVariable.setTargetVariableName(name);
+        assertEquals(name, ioVariable.getTargetVariableName());
     }
 
     @Test
     public void testSetGetDimensionNames() {
         final String dimensionNames = "matchup ny ny";
 
-        prototype.setDimensionNames(dimensionNames);
-        assertEquals(dimensionNames, prototype.getDimensionNames());
+        ioVariable.setDimensionNames(dimensionNames);
+        assertEquals(dimensionNames, ioVariable.getDimensionNames());
     }
 
     @Test
     public void testSetGetDataType() {
         final String dataType = "float";
 
-        prototype.setDataType(dataType);
-        assertEquals(dataType, prototype.getDataType());
+        ioVariable.setDataType(dataType);
+        assertEquals(dataType, ioVariable.getDataType());
     }
 
     @Test
     public void testSetGetAttributes() throws Exception {
         final ArrayList<Attribute> attributes = new ArrayList<>();
 
-        prototype.setAttributes(attributes);
+        ioVariable.setAttributes(attributes);
 
-        assertSame(attributes, prototype.getAttributes());
+        assertSame(attributes, ioVariable.getAttributes());
     }
 
     @Test
     public void testGetEmptyListAfterInitialisation() throws Exception {
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(0, attributes.size());
     }
 
     @Test
-    public void testReadRaw() throws IOException, InvalidRangeException {
-        final Array data = Array.factory(new int[]{1, 2, 3, 4});
+    public void testWriteData() throws IOException, InvalidRangeException {
+        final Target target = mock(Target.class);
         final RawDataSource rawDataSource = mock(RawDataSource.class);
+
+        final Array data = Array.factory(new int[]{1, 2, 3, 4});
         when(rawDataSource.readRaw(anyInt(), anyInt(), anyObject(), anyString())).thenReturn(data);
         final RawDataSourceContainer sourceContainer = new RawDataSourceContainer();
         sourceContainer.setSource(rawDataSource);
 
-        final VariablePrototype variablePrototype = new VariablePrototype(sourceContainer);
+        final IOVariable ioVariable = new IOVariable(sourceContainer);
+        ioVariable.setTarget(target);
+        ioVariable.setSourceVariableName("hans_wurst");
+        ioVariable.setTargetVariableName("target_hans_wurst");
 
         final Interval interval = new Interval(3, 3);
-        final Array hans_wurst = variablePrototype.readRaw(3, 4, interval, "hans_wurst");
-        assertNotNull(hans_wurst);
+        ioVariable.writeData(3, 4, interval, 4);
 
         verify(rawDataSource, times(1)).readRaw(3, 4, interval, "hans_wurst");
+        verify(target,times(1)).write(data, "target_hans_wurst", 4);
+
         verifyNoMoreInteractions(rawDataSource);
+        verifyNoMoreInteractions(target);
     }
 
 }

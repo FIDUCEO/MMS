@@ -79,34 +79,34 @@ public class MmdWriter_IO_Test {
     public void testCreate() throws IOException, InvalidRangeException {
         final MmdWriterNC3 mmdWriter = new MmdWriterNC3(writerConfig);
 
-        final List<VariablePrototype> variablePrototypes = new ArrayList<>();
-        VariablePrototype variablePrototype = new VariablePrototype();
-        variablePrototype.setTargetVariableName("avhrr-n11_ch3b");
-        variablePrototype.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
-        variablePrototype.setDataType("short");
-        variablePrototype.setAttributes(new ArrayList<>());
-        variablePrototypes.add(variablePrototype);
+        final List<IOVariable> ioVariables = new ArrayList<>();
+        IOVariable ioVariable = new IOVariable();
+        ioVariable.setTargetVariableName("avhrr-n11_ch3b");
+        ioVariable.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
+        ioVariable.setDataType("short");
+        ioVariable.setAttributes(new ArrayList<>());
+        ioVariables.add(ioVariable);
 
-        variablePrototype = new VariablePrototype();
-        variablePrototype.setTargetVariableName("avhrr-n12_ch4");
-        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variablePrototype.setDataType("int");
-        variablePrototype.setAttributes(new ArrayList<>());
-        variablePrototypes.add(variablePrototype);
+        ioVariable = new IOVariable();
+        ioVariable.setTargetVariableName("avhrr-n12_ch4");
+        ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        ioVariable.setDataType("int");
+        ioVariable.setAttributes(new ArrayList<>());
+        ioVariables.add(ioVariable);
 
-        variablePrototype = new VariablePrototype();
-        variablePrototype.setTargetVariableName("avhrr-n12_cloud_mask");
-        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variablePrototype.setDataType("byte");
-        variablePrototype.setAttributes(new ArrayList<>());
-        variablePrototypes.add(variablePrototype);
+        ioVariable = new IOVariable();
+        ioVariable.setTargetVariableName("avhrr-n12_cloud_mask");
+        ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        ioVariable.setDataType("byte");
+        ioVariable.setAttributes(new ArrayList<>());
+        ioVariables.add(ioVariable);
 
-        variablePrototype = new VariablePrototype();
-        variablePrototype.setTargetVariableName("avhrr-n12_dtime");
-        variablePrototype.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
-        variablePrototype.setDataType("float");
-        variablePrototype.setAttributes(new ArrayList<>());
-        variablePrototypes.add(variablePrototype);
+        ioVariable = new IOVariable();
+        ioVariable.setTargetVariableName("avhrr-n12_dtime");
+        ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
+        ioVariable.setDataType("float");
+        ioVariable.setAttributes(new ArrayList<>());
+        ioVariables.add(ioVariable);
 
         final Sensor primarySensor = new Sensor("avhrr-n11");
         primarySensor.setPrimary(true);
@@ -124,7 +124,7 @@ public class MmdWriter_IO_Test {
         final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
 
         try {
-            mmdWriter.initializeNetcdfFile(mmdFile, useCaseConfig, variablePrototypes, 2346);
+            mmdWriter.initializeNetcdfFile(mmdFile, useCaseConfig, ioVariables, 2346);
         } finally {
             mmdWriter.close();
         }

@@ -29,8 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Date;
 
 import static com.bc.fiduceo.core.UseCaseConfig.*;
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 import static org.junit.Assert.*;
 
 public class MmdWriterFactoryTest {

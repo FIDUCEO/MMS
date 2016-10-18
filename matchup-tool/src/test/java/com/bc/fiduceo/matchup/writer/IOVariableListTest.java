@@ -21,14 +21,11 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
-import static org.hsqldb.HsqlDateTime.e;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.reader.RawDataSource;
-import org.esa.snap.core.util.Debug;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -48,7 +45,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VariablePrototypeListTest {
+public class IOVariableListTest {
 
     @Test
     public void testCloneAllTheAttributesFromAVariable() throws Exception {
@@ -70,13 +67,14 @@ public class VariablePrototypeListTest {
         attributes.add(new Attribute("name3", expectedLong));
         attributes.add(new Attribute("name4", expectedInt));
         attributes.add(new Attribute("name5", expectedShort));
+        attributes.add(new Attribute("_Chunk_and_so_on", expectedInt)); // Attribute "_Chunk" should be ignored
         attributes.add(new Attribute("name6", expectedByte));
         attributes.add(new Attribute("name7", expectedString));
         attributes.add(new Attribute("name8", expectedFloats));
         when(mock.getAttributes()).thenReturn(attributes);
 
         //test
-        final List<Attribute> attributeClones = VariablePrototypeList.getAttributeClones(mock);
+        final List<Attribute> attributeClones = IOVariablesList.getAttributeClones(mock);
 
         //validation
         assertNotNull(attributeClones);
@@ -181,7 +179,7 @@ public class VariablePrototypeListTest {
 
 
         attribIndex = 5;
-        expectedAttrib = attributes.get(attribIndex);
+        expectedAttrib = attributes.get(attribIndex + 1);
         actualAttrib = attributeClones.get(attribIndex);
 
         assertEquals(expectedAttrib, actualAttrib);
@@ -199,7 +197,7 @@ public class VariablePrototypeListTest {
 
 
         attribIndex = 6;
-        expectedAttrib = attributes.get(attribIndex);
+        expectedAttrib = attributes.get(attribIndex +1);
         actualAttrib = attributeClones.get(attribIndex);
 
         assertEquals(expectedAttrib, actualAttrib);
@@ -217,7 +215,7 @@ public class VariablePrototypeListTest {
 
 
         attribIndex = 7;
-        expectedAttrib = attributes.get(attribIndex);
+        expectedAttrib = attributes.get(attribIndex + 1);
         actualAttrib = attributeClones.get(attribIndex);
 
         assertEquals(expectedAttrib, actualAttrib);
@@ -240,34 +238,34 @@ public class VariablePrototypeListTest {
     public void testCreateDimensionNames() {
         final Dimension dimension = new Dimension("mhs-ma", 7, 9);
 
-        final String dimensionNames = VariablePrototypeList.createDimensionNames(dimension);
+        final String dimensionNames = IOVariablesList.createDimensionNames(dimension);
         assertEquals("matchup_count mhs-ma_ny mhs-ma_nx", dimensionNames);
     }
 
     @Test
     public void testAdd_newSensor() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("Yo!");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("Yo!");
 
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        variablePrototypeList.add(prototype, "sensor_name");
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        ioVariablesList.add(ioVariable, "sensor_name");
 
-        final List<VariablePrototype> prototypeList = variablePrototypeList.getPrototypesFor("sensor_name");
-        assertNotNull(prototypeList);
-        assertEquals(1, prototypeList.size());
-        assertEquals("Yo!", prototypeList.get(0).getSourceVariableName());
+        final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor("sensor_name");
+        assertNotNull(ioVariables);
+        assertEquals(1, ioVariables.size());
+        assertEquals("Yo!", ioVariables.get(0).getSourceVariableName());
     }
 
     @Test
     public void testGetSensorNames() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("what?");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("what?");
 
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        variablePrototypeList.add(prototype, "sensor_name_1");
-        variablePrototypeList.add(prototype, "sensor_name_2");
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        ioVariablesList.add(ioVariable, "sensor_name_1");
+        ioVariablesList.add(ioVariable, "sensor_name_2");
 
-        final List<String> sensorNames = variablePrototypeList.getSensorNames();
+        final List<String> sensorNames = ioVariablesList.getSensorNames();
         assertEquals(2, sensorNames.size());
         assertTrue(sensorNames.contains("sensor_name_1"));
         assertTrue(sensorNames.contains("sensor_name_2"));
@@ -275,45 +273,45 @@ public class VariablePrototypeListTest {
 
     @Test
     public void testAddGetProcessingReader() {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
 
         final RawDataSourceContainer container = new RawDataSourceContainer();
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container);
 
-        final RawDataSourceContainer resultCont = variablePrototypeList.getRawDataSourceContainer("theFirst");
+        final RawDataSourceContainer resultCont = ioVariablesList.getRawDataSourceContainer("theFirst");
         assertNotNull(resultCont);
         assertSame(resultCont, container);
     }
 
     @Test
     public void testAddGetProcessingReader_twoReader() {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
         final RawDataSourceContainer container_1 = new RawDataSourceContainer();
         final RawDataSourceContainer container_2 = new RawDataSourceContainer();
 
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container_1);
-        variablePrototypeList.setRawDataSourceContainer("theSecond", container_2);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container_1);
+        ioVariablesList.setRawDataSourceContainer("theSecond", container_2);
 
         RawDataSourceContainer container;
 
-        container = variablePrototypeList.getRawDataSourceContainer("theFirst");
+        container = ioVariablesList.getRawDataSourceContainer("theFirst");
         assertNotNull(container);
         assertSame(container, container_1);
 
-        container = variablePrototypeList.getRawDataSourceContainer("theSecond");
+        container = ioVariablesList.getRawDataSourceContainer("theSecond");
         assertNotNull(container);
         assertSame(container, container_2);
     }
 
     @Test
     public void testAddGetProcessingReader_notPresent() {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
         final RawDataSourceContainer container = new RawDataSourceContainer();
 
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container);
 
         try {
-            variablePrototypeList.getRawDataSourceContainer("stupid");
+            ioVariablesList.getRawDataSourceContainer("stupid");
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -321,14 +319,14 @@ public class VariablePrototypeListTest {
 
     @Test
     public void testSetDataSourcePath() throws IOException {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
         final RawDataSourceContainer container = new RawDataSourceContainer();
         final RawDataSource dataSourceMock = mock(RawDataSource.class);
         container.setSource(dataSourceMock);
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container);
         final Path path = Paths.get("hallo path");
 
-        variablePrototypeList.setDataSourcePath("theFirst", path);
+        ioVariablesList.setDataSourcePath("theFirst", path);
 
         verify(dataSourceMock, times(1)).close();
         verify(dataSourceMock, times(1)).open(path.toFile());
@@ -337,15 +335,15 @@ public class VariablePrototypeListTest {
 
     @Test
     public void testSetDataSourcePath_invalidSensorName() throws IOException {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
         final RawDataSourceContainer container = new RawDataSourceContainer();
         final RawDataSource dataSourceMock = mock(RawDataSource.class);
         container.setSource(dataSourceMock);
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container);
         final Path path = Paths.get("hallo path");
 
         try {
-            variablePrototypeList.setDataSourcePath("invalid Name", path);
+            ioVariablesList.setDataSourcePath("invalid Name", path);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -353,13 +351,13 @@ public class VariablePrototypeListTest {
 
     @Test
     public void testClose() throws IOException {
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
         final RawDataSourceContainer container = new RawDataSourceContainer();
         final RawDataSource dataSourceMock = mock(RawDataSource.class);
         container.setSource(dataSourceMock);
-        variablePrototypeList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setRawDataSourceContainer("theFirst", container);
 
-        variablePrototypeList.close();
+        ioVariablesList.close();
 
         verify(dataSourceMock, times(1)).close();
         verifyNoMoreInteractions(dataSourceMock);

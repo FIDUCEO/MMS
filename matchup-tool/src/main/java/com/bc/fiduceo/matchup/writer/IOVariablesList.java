@@ -38,14 +38,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class VariablePrototypeList {
+class IOVariablesList {
 
-    private final HashMap<String, List<VariablePrototype>> prototypesMap;
+    private final HashMap<String, List<IOVariable>> ioVariablesMap;
     private final HashMap<String, RawDataSourceContainer> sourceContainerMap;
     private final ReaderFactory readerFactory;
 
-    VariablePrototypeList(ReaderFactory readerFactory) {
-        prototypesMap = new HashMap<>();
+    IOVariablesList(ReaderFactory readerFactory) {
+        ioVariablesMap = new HashMap<>();
         sourceContainerMap = new HashMap<>();
         this.readerFactory = readerFactory;
     }
@@ -75,20 +75,41 @@ class VariablePrototypeList {
 
     public void close() throws IOException {
         final Set<Map.Entry<String, RawDataSourceContainer>> entrySet = sourceContainerMap.entrySet();
-        for(final Map.Entry<String, RawDataSourceContainer> entry : entrySet) {
+        for (final Map.Entry<String, RawDataSourceContainer> entry : entrySet) {
             final RawDataSourceContainer container = entry.getValue();
             container.getSource().close();
         }
     }
 
-    void extractPrototypes(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
+    static List<Attribute> getAttributeClones(Variable variable) {
+        final List<Attribute> attributes = variable.getAttributes();
+        final ArrayList<Attribute> newAttributes = new ArrayList<>();
+        for (Attribute attribute : attributes) {
+            final String attName = attribute.getShortName();
+            if (attribute.getFullName().startsWith("_Chunk")) {
+                continue;
+            }
+            final Array attVals = attribute.getValues().copy();
+            final Attribute newAttribute = new Attribute(attName, attVals);
+            newAttributes.add(newAttribute);
+        }
+        return newAttributes;
+    }
+
+    // package access for testing only tb 2016-04-12
+    static String createDimensionNames(Dimension dimension) {
+        final String dimensionName = dimension.getName();
+        return "matchup_count " + dimensionName + "_ny " + dimensionName + "_nx";
+    }
+
+    void extractVariables(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
         final String sensorName = sensor.getName();
 
-        final List<VariablePrototype> prototypes;
-        if (!prototypesMap.containsKey(sensorName)) {
-            prototypesMap.put(sensorName, new ArrayList<>());
+        final List<IOVariable> ioVariables;
+        if (!ioVariablesMap.containsKey(sensorName)) {
+            ioVariablesMap.put(sensorName, new ArrayList<>());
         }
-        prototypes = prototypesMap.get(sensorName);
+        ioVariables = ioVariablesMap.get(sensorName);
         final RawDataSourceContainer rawDataSourceContainer = new RawDataSourceContainer();
         setRawDataSourceContainer(sensorName, rawDataSourceContainer);
 
@@ -98,74 +119,56 @@ class VariablePrototypeList {
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
-                final VariablePrototype prototype = new VariablePrototype(rawDataSourceContainer);
-                prototype.setSourceVariableName(variable.getShortName());
-                prototype.setTargetVariableName(sensorName + "_" + variable.getShortName());
-                prototype.setDataType(variable.getDataType().toString());
-                prototype.setDimensionNames(dimensionNames);
-                prototype.setAttributes(getAttributeClones(variable));
+                final IOVariable ioVariable = new IOVariable(rawDataSourceContainer);
+                ioVariable.setSourceVariableName(variable.getShortName());
+                ioVariable.setTargetVariableName(sensorName + "_" + variable.getShortName());
+                ioVariable.setDataType(variable.getDataType().toString());
+                ioVariable.setDimensionNames(dimensionNames);
+                ioVariable.setAttributes(getAttributeClones(variable));
 
-                prototypes.add(prototype);
+                ioVariables.add(ioVariable);
             }
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }
     }
 
-    static List<Attribute> getAttributeClones(Variable variable) {
-        final List<Attribute> attributes = variable.getAttributes();
-        final ArrayList<Attribute> newAttributes = new ArrayList<>();
-        for (Attribute attribute : attributes) {
-            final String attName = attribute.getShortName();
-            final Array attVals = attribute.getValues().copy();
-            final Attribute newAttribute = new Attribute(attName, attVals);
-            newAttributes.add(newAttribute);
+    List<IOVariable> get() {
+        final ArrayList<IOVariable> allVariables = new ArrayList<>();
+        for (List<IOVariable> ioVariables : ioVariablesMap.values()) {
+            allVariables.addAll(ioVariables);
         }
-        return newAttributes;
-    }
-
-    List<VariablePrototype> get() {
-        final ArrayList<VariablePrototype> allPrototypes = new ArrayList<>();
-        for (List<VariablePrototype> prototypes : prototypesMap.values()) {
-            allPrototypes.addAll(prototypes);
-        }
-        return allPrototypes;
+        return allVariables;
     }
 
     /**
-     * Returns a list of {@link VariablePrototype} associated with the given sensor name.
-     * If there are no associated {@link VariablePrototype}s, an empty list will be returned.
+     * Returns a list of {@link IOVariable} associated with the given sensor name.
+     * If there are no associated {@link IOVariable}s, an empty list will be returned.
      *
      * @param sensorName the name of the sensor
-     * @return a list of {@link VariablePrototype}
+     *
+     * @return a list of {@link IOVariable}
      */
-    List<VariablePrototype> getPrototypesFor(String sensorName) {
-        if (prototypesMap.containsKey(sensorName)) {
-            return prototypesMap.get(sensorName);
+    List<IOVariable> getVariablesFor(String sensorName) {
+        if (ioVariablesMap.containsKey(sensorName)) {
+            return ioVariablesMap.get(sensorName);
         }
         return new ArrayList<>();
     }
 
-    void add(VariablePrototype prototype, String sensorName) {
-        List<VariablePrototype> sensorPrototypes = prototypesMap.get(sensorName);
-        if (sensorPrototypes == null) {
-            sensorPrototypes = new ArrayList<>();
-            prototypesMap.put(sensorName, sensorPrototypes);
+    void add(IOVariable ioVariable, String sensorName) {
+        List<IOVariable> sensorVariables = ioVariablesMap.get(sensorName);
+        if (sensorVariables == null) {
+            sensorVariables = new ArrayList<>();
+            ioVariablesMap.put(sensorName, sensorVariables);
         }
-
-        sensorPrototypes.add(prototype);
+        sensorVariables.add(ioVariable);
     }
 
     List<String> getSensorNames() {
         final ArrayList<String> sensorNamesList = new ArrayList<>();
-        final Set<String> keySet = prototypesMap.keySet();
+        final Set<String> keySet = ioVariablesMap.keySet();
         sensorNamesList.addAll(keySet);
         return sensorNamesList;
-    }
-
-    // package access for testing only tb 2016-04-12
-    static String createDimensionNames(Dimension dimension) {
-        final String dimensionName = dimension.getName();
-        return "matchup_count " + dimensionName + "_ny " + dimensionName + "_nx";
     }
 }

@@ -115,12 +115,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Double() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.DOUBLE.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.DOUBLE.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -130,12 +130,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Float() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.FLOAT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.FLOAT.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -145,12 +145,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Long() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.LONG.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.LONG.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -160,12 +160,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Integer() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.INT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.INT.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -175,12 +175,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Short() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.SHORT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.SHORT.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -190,12 +190,12 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Byte() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.BYTE.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.BYTE.name());
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -205,14 +205,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Double_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.DOUBLE.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.DOUBLE.name());
         final double fillValue = 1234.5678;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -222,14 +222,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Float_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.FLOAT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.FLOAT.name());
         final float fillValue = 1234.5678f;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -239,14 +239,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Long_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.LONG.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.LONG.name());
         final long fillValue = 12345678912345678L;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -256,14 +256,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Integer_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.INT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.INT.name());
         final int fillValue = 123456789;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -273,14 +273,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Short_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.SHORT.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.SHORT.name());
         final short fillValue = 12345;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -290,14 +290,14 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Byte_existing() throws Exception {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setDataType(DataType.BYTE.name());
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setDataType(DataType.BYTE.name());
         final byte fillValue = 123;
-        prototype.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
+        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
 
-        AbstractMmdWriter.ensureFillValue(prototype);
+        AbstractMmdWriter.ensureFillValue(ioVariable);
 
-        final List<Attribute> attributes = prototype.getAttributes();
+        final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
@@ -330,107 +330,121 @@ public class AbstractMmdWriterTest {
         final MatchupCollection matchupCollection = new MatchupCollection();
         matchupCollection.add(matchupSet);
 
-        final VariablePrototypeList configuration = mock(VariablePrototypeList.class);
+        final IOVariable ioVariable = mock(IOVariable.class);
+        final List<IOVariable> ioVariables = Arrays.asList(ioVariable, ioVariable);
 
+        final IOVariablesList configuration = mock(IOVariablesList.class);
+        when(configuration.get()).thenReturn(ioVariables);
+
+        final Target target = mock(Target.class);
         // test execution
-        AbstractMmdWriter.extractPrototypes(configuration, matchupCollection, toolContext);
+        AbstractMmdWriter.extractPrototypes(configuration, matchupCollection, toolContext, target);
 
         // validation
-        verify(configuration).extractPrototypes(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
-        verify(configuration).extractPrototypes(refEq(secondarySensor), refEq(mockingSecondaryPath), refEq(secondaryWindowDimension));
+        verify(configuration, times(1)).extractVariables(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
+        verify(configuration, times(1)).extractVariables(refEq(secondarySensor), refEq(mockingSecondaryPath), refEq(secondaryWindowDimension));
+        verify(configuration, times(1)).get();
         verifyNoMoreInteractions(configuration);
+
+        verify(ioVariable, times(2)).setTarget(target);
+        verifyNoMoreInteractions(ioVariable);
+
+        verify(toolContext, times(1)).getUseCaseConfig();
+        verifyNoMoreInteractions(toolContext);
+
+        verifyNoMoreInteractions(target);
     }
 
     @Test
     public void testApplyExcludesAndRenames_emptyConfig() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("the_source_name");
-        prototype.setTargetVariableName("the_wrong_name");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("the_source_name");
+        ioVariable.setTargetVariableName("the_wrong_name");
 
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        variablePrototypeList.add(prototype, "a_sensor");
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        ioVariablesList.add(ioVariable, "a_sensor");
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
 
-        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+        AbstractMmdWriter.applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
 
-        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("a_sensor");
-        assertEquals(1, prototypes.size());
-        assertEquals("the_wrong_name", prototypes.get(0).getTargetVariableName());
+        final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor("a_sensor");
+        assertEquals(1, ioVariables.size());
+        assertEquals("the_wrong_name", ioVariables.get(0).getTargetVariableName());
     }
 
     @Test
     public void testApplyExcludesAndRenames_rename() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("the_source_name");
-        prototype.setTargetVariableName("the_wrong_name");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("the_source_name");
+        ioVariable.setTargetVariableName("the_wrong_name");
 
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        variablePrototypeList.add(prototype, "another_sensor");
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        ioVariablesList.add(ioVariable, "another_sensor");
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         final ArrayList<VariableRename> renamesList = new ArrayList<>();
         renamesList.add(new VariableRename("the_source_name", "correct_name"));
         variablesConfiguration.addRenames("another_sensor", renamesList);
 
-        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+        AbstractMmdWriter.applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
 
-        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("another_sensor");
-        assertEquals(1, prototypes.size());
-        assertEquals("correct_name", prototypes.get(0).getTargetVariableName());
+        final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor("another_sensor");
+        assertEquals(1, ioVariables.size());
+        assertEquals("correct_name", ioVariables.get(0).getTargetVariableName());
     }
 
     @Test
     public void testApplyExcludesAndRenames_exclude() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("the_source_name");
-        prototype.setTargetVariableName("we_don_t_care");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("the_source_name");
+        ioVariable.setTargetVariableName("we_don_t_care");
 
-        final VariablePrototype remove_prototype = new VariablePrototype();
-        remove_prototype.setSourceVariableName("kick_me_off");
-        remove_prototype.setTargetVariableName("we_don_t_care");
+        final IOVariable remove_ioVariable = new IOVariable();
+        remove_ioVariable.setSourceVariableName("kick_me_off");
+        remove_ioVariable.setTargetVariableName("we_don_t_care");
 
-        final VariablePrototypeList variablePrototypeList = new VariablePrototypeList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        variablePrototypeList.add(remove_prototype, "the_sensor");
-        variablePrototypeList.add(prototype, "the_sensor");
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
+        ioVariablesList.add(remove_ioVariable, "the_sensor");
+        ioVariablesList.add(ioVariable, "the_sensor");
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
         final ArrayList<VariableExclude> excludeList = new ArrayList<>();
         excludeList.add(new VariableExclude("kick_me_off"));
         variablesConfiguration.addExcludes("the_sensor", excludeList);
 
-        AbstractMmdWriter.applyExcludesAndRenames(variablePrototypeList, variablesConfiguration);
+        AbstractMmdWriter.applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
 
-        final List<VariablePrototype> prototypes = variablePrototypeList.getPrototypesFor("the_sensor");
-        assertEquals(1, prototypes.size());
-        assertEquals("the_source_name", prototypes.get(0).getSourceVariableName());
+        final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor("the_sensor");
+        assertEquals(1, ioVariables.size());
+        assertEquals("the_source_name", ioVariables.get(0).getSourceVariableName());
     }
 
     @Test
     public void testGetPrototype() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("the_source_name");
-        prototype.setTargetVariableName("we_don_t_care");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("the_source_name");
+        ioVariable.setTargetVariableName("we_don_t_care");
 
-        final List<VariablePrototype> prototypeList = new ArrayList<>();
-        prototypeList.add(prototype);
+        final List<IOVariable> ioVariables = new ArrayList<>();
+        ioVariables.add(ioVariable);
 
-        final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("the_source_name", prototypeList);
-        assertNotNull(resultPrototype);
-        assertEquals("the_source_name", resultPrototype.getSourceVariableName());
+        final IOVariable resultVariable = AbstractMmdWriter.getVariable("the_source_name", ioVariables);
+        assertNotNull(resultVariable);
+        assertEquals("the_source_name", resultVariable.getSourceVariableName());
     }
 
     @Test
     public void testGetPrototype_notPresentInList() {
-        final VariablePrototype prototype = new VariablePrototype();
-        prototype.setSourceVariableName("the_source_name");
-        prototype.setTargetVariableName("we_don_t_care");
+        final IOVariable ioVariable = new IOVariable();
+        ioVariable.setSourceVariableName("the_source_name");
+        ioVariable.setTargetVariableName("we_don_t_care");
 
-        final List<VariablePrototype> prototypeList = new ArrayList<>();
-        prototypeList.add(prototype);
+        final List<IOVariable> ioVariables = new ArrayList<>();
+        ioVariables.add(ioVariable);
 
-        final VariablePrototype resultPrototype = AbstractMmdWriter.getPrototype("this-does-not-exist", prototypeList);
-        assertNull(resultPrototype);
+        final IOVariable resultVariable = AbstractMmdWriter.getVariable("this-does-not-exist", ioVariables);
+        assertNull(resultVariable);
     }
 
     @Test
