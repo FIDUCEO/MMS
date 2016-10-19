@@ -23,17 +23,17 @@ package com.bc.fiduceo.matchup.writer;
 
 import java.util.*;
 
-class VariablesConfiguration {
+public class VariablesConfiguration {
 
     private final HashMap<String, List<VariableRename>> renamesMap;
     private final HashMap<String, List<VariableExclude>> excludesMap;
 
-    VariablesConfiguration() {
+    public VariablesConfiguration() {
         renamesMap = new HashMap<>();
         excludesMap = new HashMap<>();
     }
 
-    List<VariableRename> getRenames(String sensorKey) {
+    public List<VariableRename> getRenames(String sensorKey) {
         final List<VariableRename> variableRenames = renamesMap.get(sensorKey);
         if (variableRenames == null) {
             return new ArrayList<>();
@@ -41,7 +41,7 @@ class VariablesConfiguration {
         return Collections.unmodifiableList(variableRenames);
     }
 
-    List<VariableExclude> getExcludes(String sensorKey) {
+    public List<VariableExclude> getExcludes(String sensorKey) {
         final List<VariableExclude> variableExcludes = excludesMap.get(sensorKey);
         if (variableExcludes == null) {
             return new ArrayList<>();
@@ -49,7 +49,7 @@ class VariablesConfiguration {
         return Collections.unmodifiableList(variableExcludes);
     }
 
-    void addRenames(String sensorKeys, List<VariableRename> renames) {
+    public void addRenames(String sensorKeys, List<VariableRename> renames) {
         final StringTokenizer stringTokenizer = new StringTokenizer(sensorKeys, ",");
         while (stringTokenizer.hasMoreTokens()) {
             final String sensorKey = stringTokenizer.nextToken().trim();
@@ -57,7 +57,7 @@ class VariablesConfiguration {
         }
     }
 
-    void addExcludes(String sensorKeys, List<VariableExclude> excludes) {
+    public void addExcludes(String sensorKeys, List<VariableExclude> excludes) {
         final StringTokenizer stringTokenizer = new StringTokenizer(sensorKeys, ",");
         while (stringTokenizer.hasMoreTokens()) {
             final String sensorKey = stringTokenizer.nextToken().trim();

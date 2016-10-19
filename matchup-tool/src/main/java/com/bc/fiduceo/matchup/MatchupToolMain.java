@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -49,7 +50,7 @@ public class MatchupToolMain {
         try {
             matchupTool.run(commandLine);
         } catch (Throwable e) {
-            System.err.println(e.getMessage());
+            FiduceoLogger.getLogger().severe(e.getMessage());
             e.printStackTrace();
             System.exit(-1);
         }

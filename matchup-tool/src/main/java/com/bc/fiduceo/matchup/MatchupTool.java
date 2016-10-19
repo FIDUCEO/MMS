@@ -33,9 +33,15 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
+import com.bc.fiduceo.matchup.writer.IOVariable;
+import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
+import com.bc.fiduceo.matchup.writer.Target;
+import com.bc.fiduceo.matchup.writer.VariableExclude;
+import com.bc.fiduceo.matchup.writer.VariableRename;
+import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
@@ -68,15 +74,6 @@ class MatchupTool {
         logger = FiduceoLogger.getLogger();
     }
 
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        readerFactory = ReaderFactory.get(context.getGeometryFactory());
-
-        runMatchupGeneration(context, mmdWriterConfig);
-    }
-
     static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
         final PixelLocator pixelLocator;
         if (isSegmented) {
@@ -99,14 +96,6 @@ class MatchupTool {
         parameter.setStartTime(searchTimeStart);
         parameter.setStopTime(searchTimeEnd);
         return parameter;
-    }
-
-    private static void assignSensor(QueryParameter parameter, Sensor secondarySensor) {
-        parameter.setSensorName(secondarySensor.getName());
-        final String dataVersion = secondarySensor.getDataVersion();
-        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
-            parameter.setVersion(dataVersion);
-        }
     }
 
     // package access for testing only tb 2016-03-14
@@ -173,6 +162,114 @@ class MatchupTool {
         return TimeUtils.parseDOYBeginOfDay(startDateString);
     }
 
+    // package access for testing only tb 2016-09-30
+    static MmdWriterConfig loadWriterConfig(CommandLine commandLine) throws IOException {
+        final String configValue = commandLine.getOptionValue("config", "./config");
+        final File configDirectory = new File(configValue);
+
+        final File useCaseConfigFile = new File(configDirectory, "mmd-writer-config.xml");
+        if (!useCaseConfigFile.isFile()) {
+            throw new RuntimeException("Use case config file does not exist: '" + "mmd-writer-config.xml" + "'");
+        }
+
+        final MmdWriterConfig mmdWriterConfig;
+        try (FileInputStream inputStream = new FileInputStream(useCaseConfigFile)) {
+            mmdWriterConfig = MmdWriterConfig.load(inputStream);
+        }
+
+        return mmdWriterConfig;
+    }
+
+    // package access for testing only tb 2016-08-12
+    static StringBuilder createErrorMessage(ValidationResult validationResult) {
+        final StringBuilder builder = new StringBuilder();
+        final List<String> messages = validationResult.getMessages();
+        for (final String message : messages) {
+            builder.append(message);
+            builder.append("\n");
+        }
+        return builder;
+    }
+
+    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target target) throws IOException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final List<Dimension> dimensions = useCaseConfig.getDimensions();
+        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        ioVariablesList.extractVariables(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
+        ioVariablesList.extractVariables(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        for (IOVariable variable : ioVariables) {
+            variable.setTarget(target);
+        }
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
+        }
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
+    }
+
+    // package access for testing only tb 2016-10-05
+    static void applyExcludesAndRenames(IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
+        final List<String> sensorNames = ioVariablesList.getSensorNames();
+
+        for (final String sensorName : sensorNames) {
+            final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
+            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
+            for (final VariableRename rename : renames) {
+                final String sourceName = rename.getSourceName();
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    variable.setTargetVariableName(rename.getTargetName());
+                }
+            }
+
+            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
+            for (final VariableExclude exclude : excludes) {
+                final String sourceName = exclude.getSourceName();
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    ioVariables.remove(variable);
+                }
+            }
+        }
+    }
+
+    static IOVariable getVariable(String sourceName, List<IOVariable> ioVariables) {
+        for (final IOVariable variable : ioVariables) {
+            if (sourceName.equals(variable.getSourceVariableName())) {
+                return variable;
+            }
+        }
+        return null;
+    }
+
+    // package access for testing only tb 2016-08-16
+    static void calculateDistance(MatchupSet matchupSet) {
+        final SphericalDistanceCalculator sphericalDistanceCalculator = new SphericalDistanceCalculator();
+        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
+        for (final SampleSet sampleSet : sourceSamples) {
+            sphericalDistanceCalculator.calculate(sampleSet);
+        }
+    }
+
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
+
+        readerFactory = ReaderFactory.get(context.getGeometryFactory());
+
+        runMatchupGeneration(context, mmdWriterConfig);
+    }
+
     // package access for testing only tb 2016-02-18
     void printUsageTo(OutputStream outputStream) {
         final String ls = System.lineSeparator();
@@ -184,6 +281,14 @@ class MatchupTool {
         helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
+    }
+
+    private static void assignSensor(QueryParameter parameter, Sensor secondarySensor) {
+        parameter.setSensorName(secondarySensor.getName());
+        final String dataVersion = secondarySensor.getDataVersion();
+        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
+            parameter.setVersion(dataVersion);
+        }
     }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
@@ -221,42 +326,27 @@ class MatchupTool {
         return context;
     }
 
-    // package access for testing only tb 2016-09-30
-    static MmdWriterConfig loadWriterConfig(CommandLine commandLine) throws IOException {
-        final String configValue = commandLine.getOptionValue("config", "./config");
-        final File configDirectory = new File(configValue);
-
-        final File useCaseConfigFile = new File(configDirectory, "mmd-writer-config.xml");
-        if (!useCaseConfigFile.isFile()) {
-            throw new RuntimeException("Use case config file does not exist: '" + "mmd-writer-config.xml" + "'");
-        }
-
-        final MmdWriterConfig mmdWriterConfig;
-        try (FileInputStream inputStream = new FileInputStream(useCaseConfigFile)) {
-            mmdWriterConfig = MmdWriterConfig.load(inputStream);
-        }
-
-        return mmdWriterConfig;
-    }
-
-    // package access for testing only tb 2016-08-12
-    static StringBuilder createErrorMessage(ValidationResult validationResult) {
-        final StringBuilder builder = new StringBuilder();
-        final List<String> messages = validationResult.getMessages();
-        for (final String message : messages) {
-            builder.append(message);
-            builder.append("\n");
-        }
-        return builder;
-    }
-
     private void runMatchupGeneration(ToolContext context, MmdWriterConfig writerConfig) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = createMatchupCollection(context);
-        // extract variable prototypes
-        // apply renaming and exclude
+
+        if (matchupCollection.getNumMatchups() == 0) {
+            logger.warning("No matchups in time interval, creation of MMD file skipped.");
+            return;
+        }
 
         final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(writerConfig);
-        mmdWriter.writeMMD(matchupCollection, context);
+
+        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
+
+        extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter);
+        applyExcludesAndRenames(ioVariablesList, writerConfig.getVariablesConfiguration());
+
+        try {
+            mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
+        } finally {
+            ioVariablesList.close();
+        }
     }
 
     // @todo 2 tb/** this method wants to be refactured 2016-05-11
@@ -345,15 +435,6 @@ class MatchupTool {
         }
 
         return matchupCollection;
-    }
-
-    // package access for testing only tb 2016-08-16
-    static void calculateDistance(MatchupSet matchupSet) {
-        final SphericalDistanceCalculator sphericalDistanceCalculator = new SphericalDistanceCalculator();
-        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
-        for (final SampleSet sampleSet : sourceSamples) {
-            sphericalDistanceCalculator.calculate(sampleSet);
-        }
     }
 
     private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {

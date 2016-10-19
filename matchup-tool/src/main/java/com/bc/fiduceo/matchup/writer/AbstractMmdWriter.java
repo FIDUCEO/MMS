@@ -82,24 +82,21 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      *
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
+     * @param ioVariablesList   the variables which has to be part of the mmd file
      *
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
-    public void writeMMD(MatchupCollection matchupCollection, ToolContext context) throws IOException, InvalidRangeException {
+    public void writeMMD(MatchupCollection matchupCollection, ToolContext context, IOVariablesList ioVariablesList) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
             return;
         }
 
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
-        final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
         try {
             logger.info("Start writing mmd-file ...");
-
-            extractPrototypes(ioVariablesList, matchupCollection, context, this);
-            applyExcludesAndRenames(ioVariablesList, writerConfig.getVariablesConfiguration());
 
             final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -152,7 +149,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             logger.info("Writing time: '" + stopWatch.getTimeDiffString());
 
         } finally {
-            ioVariablesList.close();
             close();
         }
     }
@@ -201,32 +197,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
         }
-    }
-
-    static void extractPrototypes(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target target) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        ioVariablesList.extractVariables(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        ioVariablesList.extractVariables(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
-
-        final List<IOVariable> ioVariables = ioVariablesList.get();
-        for (IOVariable variable : ioVariables) {
-            variable.setTarget(target);
-        }
-    }
-
-    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        if (sets.size() > 0) {
-            return sets.get(0);
-        }
-        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
     }
 
     static void ensureFillValue(IOVariable variable) {
@@ -284,41 +254,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         } catch (IOException e) {
             throw new IOException("unable to create mmd output file '" + mmdFile.toAbsolutePath().toString() + "'");
         }
-    }
-
-    // package access for testing only tb 2016-10-05
-    static void applyExcludesAndRenames(IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
-        final List<String> sensorNames = ioVariablesList.getSensorNames();
-
-        for (final String sensorName : sensorNames) {
-            final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
-            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
-            for (final VariableRename rename : renames) {
-                final String sourceName = rename.getSourceName();
-                final IOVariable variable = getVariable(sourceName, ioVariables);
-                if (variable != null) {
-                    variable.setTargetVariableName(rename.getTargetName());
-                }
-            }
-
-            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
-            for (final VariableExclude exclude : excludes) {
-                final String sourceName = exclude.getSourceName();
-                final IOVariable variable = getVariable(sourceName, ioVariables);
-                if (variable != null) {
-                    ioVariables.remove(variable);
-                }
-            }
-        }
-    }
-
-    static IOVariable getVariable(String sourceName, List<IOVariable> ioVariables) {
-        for (final IOVariable variable : ioVariables) {
-            if (sourceName.equals(variable.getSourceVariableName())) {
-                return variable;
-            }
-        }
-        return null;
     }
 
     static VariableExclude getExclude(String sourceVariableName, List<VariableExclude> excludes) {

@@ -94,7 +94,7 @@ public class MmdWriterConfig {
         return netcdfFormat;
     }
 
-    VariablesConfiguration getVariablesConfiguration() {
+    public VariablesConfiguration getVariablesConfiguration() {
         return variablesConfiguration;
     }
 

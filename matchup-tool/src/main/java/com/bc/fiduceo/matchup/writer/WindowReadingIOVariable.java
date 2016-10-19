@@ -20,14 +20,25 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-
-import com.bc.fiduceo.matchup.MatchupCollection;
-import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.core.Interval;
+import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-public interface MmdWriter {
+public class WindowReadingIOVariable extends AbstractIOVariable {
 
-    void writeMMD(MatchupCollection matchupCollection, ToolContext context, IOVariablesList ioVariablesList) throws IOException, InvalidRangeException;
+    public WindowReadingIOVariable() {
+        this(null);
+    }
+
+    WindowReadingIOVariable(RawDataSourceContainer rawDataSourceContainer) {
+        super(rawDataSourceContainer);
+    }
+
+    @Override
+    public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
+        final Array array = rawDataSourceContainer.getSource().readRaw(centerX, centerY, interval, sourceVariableName);
+        target.write(array, targetVariableName, zIndex);
+    }
 }

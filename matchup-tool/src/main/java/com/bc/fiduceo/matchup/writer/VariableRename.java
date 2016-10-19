@@ -20,11 +20,11 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-class VariableRename {
+public class VariableRename {
     private String sourceName;
     private String targetName;
 
-    VariableRename(String sourceName, String targetName) {
+    public VariableRename(String sourceName, String targetName) {
         this.sourceName = sourceName;
         this.targetName = targetName;
     }
@@ -36,7 +36,7 @@ class VariableRename {
         this.sourceName = sourceName;
     }
 
-    String getSourceName() {
+    public String getSourceName() {
         return sourceName;
     }
 
@@ -44,7 +44,7 @@ class VariableRename {
         this.targetName = targetName;
     }
 
-    String getTargetName() {
+    public String getTargetName() {
         return targetName;
     }
 }

@@ -21,11 +21,11 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-class VariableExclude {
+public class VariableExclude {
 
     private String sourceName;
 
-    VariableExclude(String sourceName) {
+    public VariableExclude(String sourceName) {
         this.sourceName = sourceName;
     }
 
@@ -36,7 +36,7 @@ class VariableExclude {
         this.sourceName = sourceName;
     }
 
-    String getSourceName() {
+    public String getSourceName() {
         return sourceName;
     }
 }

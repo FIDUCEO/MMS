@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractIOVariable {
+public abstract class AbstractIOVariable implements IOVariable {
 
     protected final RawDataSourceContainer rawDataSourceContainer;
 
@@ -41,21 +41,39 @@ public abstract class AbstractIOVariable {
         this.rawDataSourceContainer = rawDataSourceContainer;
     }
 
+    @Override
     public void setTarget(Target target) {
         this.target = target;
     }
 
-    public abstract void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException;
-
-    String getTargetVariableName() {
-        return targetVariableName;
+    @Override
+    public String getSourceVariableName() {
+        return sourceVariableName;
     }
 
-    void setTargetVariableName(String name) {
-        this.targetVariableName = name;
+    public void setSourceVariableName(String sourceVariableName) {
+        this.sourceVariableName = sourceVariableName;
     }
 
-    String getDimensionNames() {
+    @Override
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String getDataType() {
+        return dataType;
+    }
+
+    void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDimensionNames() {
         return dimensionNames;
     }
 
@@ -69,25 +87,12 @@ public abstract class AbstractIOVariable {
         this.dimensionNames = dimensionNames;
     }
 
-    String getDataType() {
-        return dataType;
+    @Override
+    public String getTargetVariableName() {
+        return targetVariableName;
     }
 
-    void setDataType(String dataType) {
-        this.dataType = dataType;
-    }List<Attribute> getAttributes() {
-        return attributes;
-    }
-
-    void setAttributes(List<Attribute> attributes) {
-        this.attributes = attributes;
-    }
-
-    String getSourceVariableName() {
-        return sourceVariableName;
-    }
-
-    void setSourceVariableName(String sourceVariableName) {
-        this.sourceVariableName = sourceVariableName;
+    public void setTargetVariableName(String name) {
+        this.targetVariableName = name;
     }
 }

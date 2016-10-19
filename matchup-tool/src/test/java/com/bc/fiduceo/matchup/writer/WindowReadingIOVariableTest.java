@@ -41,13 +41,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IOVariableTest {
+public class WindowReadingIOVariableTest {
 
-    private IOVariable ioVariable;
+    private WindowReadingIOVariable ioVariable;
 
     @Before
     public void setUp() throws Exception {
-        ioVariable = new IOVariable();
+        ioVariable = new WindowReadingIOVariable();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class IOVariableTest {
         final RawDataSourceContainer sourceContainer = new RawDataSourceContainer();
         sourceContainer.setSource(rawDataSource);
 
-        final IOVariable ioVariable = new IOVariable(sourceContainer);
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(sourceContainer);
         ioVariable.setTarget(target);
         ioVariable.setSourceVariableName("hans_wurst");
         ioVariable.setTargetVariableName("target_hans_wurst");

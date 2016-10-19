@@ -38,13 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class IOVariablesList {
+public class IOVariablesList {
 
     private final HashMap<String, List<IOVariable>> ioVariablesMap;
     private final HashMap<String, RawDataSourceContainer> sourceContainerMap;
     private final ReaderFactory readerFactory;
 
-    IOVariablesList(ReaderFactory readerFactory) {
+    public IOVariablesList(ReaderFactory readerFactory) {
         ioVariablesMap = new HashMap<>();
         sourceContainerMap = new HashMap<>();
         this.readerFactory = readerFactory;
@@ -102,7 +102,7 @@ class IOVariablesList {
         return "matchup_count " + dimensionName + "_ny " + dimensionName + "_nx";
     }
 
-    void extractVariables(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
+    public void extractVariables(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
         final String sensorName = sensor.getName();
 
         final List<IOVariable> ioVariables;
@@ -119,7 +119,7 @@ class IOVariablesList {
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
             for (final Variable variable : variables) {
-                final IOVariable ioVariable = new IOVariable(rawDataSourceContainer);
+                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(rawDataSourceContainer);
                 ioVariable.setSourceVariableName(variable.getShortName());
                 ioVariable.setTargetVariableName(sensorName + "_" + variable.getShortName());
                 ioVariable.setDataType(variable.getDataType().toString());
@@ -133,7 +133,7 @@ class IOVariablesList {
         }
     }
 
-    List<IOVariable> get() {
+    public List<IOVariable> get() {
         final ArrayList<IOVariable> allVariables = new ArrayList<>();
         for (List<IOVariable> ioVariables : ioVariablesMap.values()) {
             allVariables.addAll(ioVariables);
@@ -149,14 +149,14 @@ class IOVariablesList {
      *
      * @return a list of {@link IOVariable}
      */
-    List<IOVariable> getVariablesFor(String sensorName) {
+    public List<IOVariable> getVariablesFor(String sensorName) {
         if (ioVariablesMap.containsKey(sensorName)) {
             return ioVariablesMap.get(sensorName);
         }
         return new ArrayList<>();
     }
 
-    void add(IOVariable ioVariable, String sensorName) {
+    public void add(IOVariable ioVariable, String sensorName) {
         List<IOVariable> sensorVariables = ioVariablesMap.get(sensorName);
         if (sensorVariables == null) {
             sensorVariables = new ArrayList<>();
@@ -165,7 +165,7 @@ class IOVariablesList {
         sensorVariables.add(ioVariable);
     }
 
-    List<String> getSensorNames() {
+    public List<String> getSensorNames() {
         final ArrayList<String> sensorNamesList = new ArrayList<>();
         final Set<String> keySet = ioVariablesMap.keySet();
         sensorNamesList.addAll(keySet);

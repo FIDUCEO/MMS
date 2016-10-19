@@ -41,7 +41,7 @@ import java.util.List;
 public class IOVariableList_IO_Test {
 
     @Test
-    public void testExtractPrototypes_AVHRR_NOAA_17() throws IOException {
+    public void testExtractVariables_AVHRR_NOAA_17() throws IOException {
         final Sensor sensor = new Sensor("avhrr-n17");
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;

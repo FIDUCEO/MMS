@@ -30,11 +30,13 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.matchup.Delegator_MatchupTool;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
@@ -80,28 +82,28 @@ public class MmdWriter_IO_Test {
         final MmdWriterNC3 mmdWriter = new MmdWriterNC3(writerConfig);
 
         final List<IOVariable> ioVariables = new ArrayList<>();
-        IOVariable ioVariable = new IOVariable();
+        WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
         ioVariable.setTargetVariableName("avhrr-n11_ch3b");
         ioVariable.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
         ioVariable.setDataType("short");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new IOVariable();
+        ioVariable = new WindowReadingIOVariable();
         ioVariable.setTargetVariableName("avhrr-n12_ch4");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("int");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new IOVariable();
+        ioVariable = new WindowReadingIOVariable();
         ioVariable.setTargetVariableName("avhrr-n12_cloud_mask");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("byte");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new IOVariable();
+        ioVariable = new WindowReadingIOVariable();
         ioVariable.setTargetVariableName("avhrr-n12_dtime");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("float");
@@ -342,7 +344,11 @@ public class MmdWriter_IO_Test {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
-        mmdWriter.writeMMD(matchupCollection, context);
+        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
+
+        Delegator_MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter);
+        mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
 
         NetcdfFile netcdfFile = null;
         try {

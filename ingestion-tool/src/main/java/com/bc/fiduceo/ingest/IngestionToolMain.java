@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.ingest;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -27,6 +28,7 @@ import org.apache.commons.cli.PosixParser;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 /**
  * @todo 2 se/** add class description  2016-02-25
@@ -51,7 +53,7 @@ public class IngestionToolMain {
         try {
             ingestionTool.run(commandLine);
         } catch (Throwable e) {
-            System.err.println(e.getMessage());
+            FiduceoLogger.getLogger().severe(e.getMessage());
             System.exit(-1);
         }
     }

@@ -244,7 +244,7 @@ public class IOVariableListTest {
 
     @Test
     public void testAdd_newSensor() {
-        final IOVariable ioVariable = new IOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
         ioVariable.setSourceVariableName("Yo!");
 
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
@@ -258,7 +258,7 @@ public class IOVariableListTest {
 
     @Test
     public void testGetSensorNames() {
-        final IOVariable ioVariable = new IOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
         ioVariable.setSourceVariableName("what?");
 
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
