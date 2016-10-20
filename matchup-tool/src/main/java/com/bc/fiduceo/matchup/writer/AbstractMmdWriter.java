@@ -93,6 +93,11 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             return;
         }
 
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        for (IOVariable variable : ioVariables) {
+            variable.setTarget(this);
+        }
+
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
 
         try {
@@ -108,6 +113,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final String secondarySensorName = secondarySensor.getName();
             final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
             final List<IOVariable> secondaryVariables = ioVariablesList.getVariablesFor(secondarySensorName);
+            final List<SampleSetSourceIOVariable> sampleSetVariables = ioVariablesList.getSampleSetSourceIOVariables();
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
@@ -132,9 +138,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                     for (SampleSet sampleSet : sampleSets) {
                         writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
                         writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
-                        if (useCaseConfig.isWriteDistance()) {
-                            write(sampleSet.getSphericalDistance(), "matchup_spherical_distance", zIndex);
-                        }
+                        writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
                         zIndex++;
                         if (zIndex % cacheSize == 0) {
                             flush();
@@ -150,6 +154,14 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
         } finally {
             close();
+        }
+    }
+
+    private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetSourceIOVariable> sampleSetVariables, int zIndex)
+                throws IOException, InvalidRangeException {
+        for (SampleSetSourceIOVariable variable : sampleSetVariables) {
+            variable.setSampleSet(sampleSet);
+            variable.writeData(0,0,null, zIndex);
         }
     }
 
@@ -266,12 +278,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         createDimensions(dimensions, numMatchups);
         createExtraMmdVariablesPerSensor(dimensions);
-
-        if (useCaseConfig.isWriteDistance()) {
-            final Variable variableDistance = netcdfFileWriter.addVariable(null, "matchup_spherical_distance", DataType.FLOAT, "matchup_count");
-            variableDistance.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
-            variableDistance.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
-        }
 
         for (final IOVariable ioVariable : ioVariables) {
             ensureFillValue(ioVariable);

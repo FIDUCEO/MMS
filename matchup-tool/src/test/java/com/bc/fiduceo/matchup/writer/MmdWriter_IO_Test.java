@@ -84,7 +84,9 @@ public class MmdWriter_IO_Test {
         final MmdWriterNC3 mmdWriter = new MmdWriterNC3(writerConfig);
 
         final List<IOVariable> ioVariables = new ArrayList<>();
-        WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        WindowReadingIOVariable ioVariable;
+
+        ioVariable = new WindowReadingIOVariable();
         ioVariable.setTargetVariableName("avhrr-n11_ch3b");
         ioVariable.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
         ioVariable.setDataType("short");
@@ -351,7 +353,7 @@ public class MmdWriter_IO_Test {
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
 
-        Delegator_MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter, variablesConfiguration);
+        Delegator_MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, useCaseConfig, (Target) mmdWriter, variablesConfiguration);
         mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
 
         NetcdfFile netcdfFile = null;

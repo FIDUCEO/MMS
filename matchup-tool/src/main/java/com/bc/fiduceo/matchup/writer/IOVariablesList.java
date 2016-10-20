@@ -20,10 +20,7 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static org.hsqldb.HsqlDateTime.e;
-
 import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.reader.RawDataSource;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.ma2.Array;
@@ -34,6 +31,7 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +39,10 @@ import java.util.Set;
 
 public class IOVariablesList {
 
-    private final HashMap<String, List<IOVariable>> ioVariablesMap;
-    private final HashMap<String, RawDataSourceContainer> sourceContainerMap;
+    public static final String SAMPLE_SET_SOURCE_IO_VARIABLES = "SampleSetSourceIOVariables";
+
+    private final Map<String, List<IOVariable>> ioVariablesMap;
+    private final Map<String, RawDataSourceContainer> sourceContainerMap;
     private final ReaderFactory readerFactory;
 
     public IOVariablesList(ReaderFactory readerFactory) {
@@ -68,10 +68,7 @@ public class IOVariablesList {
         if (container == null) {
             throw new RuntimeException("Invalid sensor name requested: " + sensorName);
         }
-
-        final RawDataSource source = container.getSource();
-        source.close();
-        source.open(path.toFile());
+        container.setSourcePath(path);
     }
 
     public void close() throws IOException {
@@ -80,6 +77,15 @@ public class IOVariablesList {
             final RawDataSourceContainer container = entry.getValue();
             container.getSource().close();
         }
+    }
+
+    public void addSampleSetSourceVariable(SampleSetSourceIOVariable variable) {
+        add(variable, SAMPLE_SET_SOURCE_IO_VARIABLES);
+    }
+
+    public List<SampleSetSourceIOVariable> getSampleSetSourceIOVariables() {
+        final List<SampleSetSourceIOVariable> sssVariables = (List) getVariablesFor(SAMPLE_SET_SOURCE_IO_VARIABLES);
+        return Collections.unmodifiableList(sssVariables);
     }
 
     static List<Attribute> getAttributeClones(Variable variable) {

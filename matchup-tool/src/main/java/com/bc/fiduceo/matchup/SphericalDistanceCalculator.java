@@ -28,13 +28,12 @@ class SphericalDistanceCalculator {
 
     private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
-    void calculate(SampleSet sampleSet) {
+    static double calculateKm(SampleSet sampleSet) {
         final Sample primary = sampleSet.getPrimary();
         final Sample secondary = sampleSet.getSecondary();
 
         final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
         final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
-        final double kmDistance = radDistance * MEAN_EARTH_RADIUS_IN_KM;
-        sampleSet.setSphericalDistance((float) kmDistance);
+        return radDistance * MEAN_EARTH_RADIUS_IN_KM;
     }
 }

@@ -498,9 +498,6 @@ public class MatchupToolTest {
                 .withSensors(Arrays.asList(primarySensor, secondarySensor))
                 .createConfig();
 
-        final ToolContext toolContext = mock(ToolContext.class);
-        when(toolContext.getUseCaseConfig()).thenReturn(useCaseConfig);
-
         final MatchupSet matchupSet = new MatchupSet();
         matchupSet.setPrimaryObservationPath(mockingPrimaryPath);
         matchupSet.setSecondaryObservationPath(mockingSecondaryPath);
@@ -511,26 +508,21 @@ public class MatchupToolTest {
         final WindowReadingIOVariable ioVariable = mock(WindowReadingIOVariable.class);
         final List<IOVariable> ioVariables = Arrays.asList(ioVariable, ioVariable);
 
-        final IOVariablesList configuration = mock(IOVariablesList.class);
-        when(configuration.get()).thenReturn(ioVariables);
+        final IOVariablesList ioVariablesList = mock(IOVariablesList.class);
+        when(ioVariablesList.get()).thenReturn(ioVariables);
 
         final Target target = mock(Target.class);
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
 
         // test execution
-        MatchupTool.extractIOVariables(configuration, matchupCollection, toolContext, target, variablesConfiguration);
+        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, target, useCaseConfig, variablesConfiguration);
 
         // validation
-        verify(configuration, times(1)).extractVariables(eq(primarySensor.getName()), eq(mockingPrimaryPath), eq(primaryWindowDimension), eq(variablesConfiguration));
-        verify(configuration, times(1)).extractVariables(eq(secondarySensor.getName()), eq(mockingSecondaryPath), eq(secondaryWindowDimension), eq(variablesConfiguration));
-        verify(configuration, times(1)).get();
-        verifyNoMoreInteractions(configuration);
+        verify(ioVariablesList, times(1)).extractVariables(eq(primarySensor.getName()), eq(mockingPrimaryPath), eq(primaryWindowDimension), eq(variablesConfiguration));
+        verify(ioVariablesList, times(1)).extractVariables(eq(secondarySensor.getName()), eq(mockingSecondaryPath), eq(secondaryWindowDimension), eq(variablesConfiguration));
+        verifyNoMoreInteractions(ioVariablesList);
 
-        verify(ioVariable, times(2)).setTarget(target);
         verifyNoMoreInteractions(ioVariable);
-
-        verify(toolContext, times(1)).getUseCaseConfig();
-        verifyNoMoreInteractions(toolContext);
 
         verifyNoMoreInteractions(target);
     }

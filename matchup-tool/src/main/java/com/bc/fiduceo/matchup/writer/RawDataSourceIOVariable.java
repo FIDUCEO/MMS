@@ -20,25 +20,11 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
+public abstract class RawDataSourceIOVariable extends AbstractIOVariable {
 
-import java.io.IOException;
+    protected final RawDataSourceContainer rawDataSourceContainer;
 
-public class WindowReadingIOVariable extends RawDataSourceIOVariable {
-
-    public WindowReadingIOVariable() {
-        this(null);
-    }
-
-    WindowReadingIOVariable(RawDataSourceContainer rawDataSourceContainer) {
-        super(rawDataSourceContainer);
-    }
-
-    @Override
-    public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
-        final Array array = rawDataSourceContainer.getSource().readRaw(centerX, centerY, interval, sourceVariableName);
-        target.write(array, targetVariableName, zIndex);
+    public RawDataSourceIOVariable(RawDataSourceContainer rawDataSourceContainer) {
+        this.rawDataSourceContainer = rawDataSourceContainer;
     }
 }

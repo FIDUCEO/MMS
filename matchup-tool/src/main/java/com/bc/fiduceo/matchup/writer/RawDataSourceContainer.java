@@ -18,16 +18,32 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.reader.RawDataSource;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 class RawDataSourceContainer {
 
     private RawDataSource source;
+    private Path sourcePath;
 
     public void setSource(RawDataSource source) {
         this.source = source;
     }
 
-    // todo 3 se/** 2016-10-17 this class should implement RawDataSource ... this method can should replaced
     public RawDataSource getSource() {
         return source;
+    }
+
+    public Path getSourcePath() {
+        return sourcePath;
+    }
+
+    public void setSourcePath(Path sourcePath) throws IOException {
+        this.sourcePath = sourcePath;
+        final RawDataSource source = getSource();
+        if (source != null) {
+            source.close();
+            source.open(sourcePath.toFile());
+        }
     }
 }

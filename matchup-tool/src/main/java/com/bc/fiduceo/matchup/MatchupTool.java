@@ -52,7 +52,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -62,9 +64,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-import static ucar.nc2.FileWriter2.N3StructureStrategy.exclude;
 
 class MatchupTool {
+
+    private static final String UNIT_ATTRIBUTE_NAME = "unit";
+    private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
     private final Logger logger;
 
@@ -82,6 +86,21 @@ class MatchupTool {
             pixelLocator = reader.getPixelLocator();
         }
         return pixelLocator;
+    }
+
+    static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
+                                   Target target, final UseCaseConfig useCaseConfig,
+                                   VariablesConfiguration variablesConfiguration) throws IOException {
+
+        final String primSensorName = useCaseConfig.getPrimarySensor().getName();
+        final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
+        final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
+        final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);
+
+        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+
+        ioVariablesList.extractVariables(primSensorName, matchupSet.getPrimaryObservationPath(), primDim, variablesConfiguration);
+        ioVariablesList.extractVariables(secoSensorName, matchupSet.getSecondaryObservationPath(), secoDim, variablesConfiguration);
     }
 
     static boolean isSegmented(Geometry primaryGeoBounds) {
@@ -191,27 +210,6 @@ class MatchupTool {
         return builder;
     }
 
-    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
-                                          ToolContext context, Target target,
-                                          VariablesConfiguration variablesConfiguration) throws IOException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final String primSensorName = useCaseConfig.getPrimarySensor().getName();
-        final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
-        final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
-        final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);
-
-        final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
-
-        ioVariablesList.extractVariables(primSensorName, matchupSet.getPrimaryObservationPath(), primDim, variablesConfiguration);
-        ioVariablesList.extractVariables(secoSensorName, matchupSet.getSecondaryObservationPath(), secoDim, variablesConfiguration);
-
-        final List<IOVariable> ioVariables = ioVariablesList.get();
-        for (IOVariable variable : ioVariables) {
-            variable.setTarget(target);
-        }
-    }
-
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
         final List<MatchupSet> sets = matchupCollection.getSets();
         if (sets.size() > 0) {
@@ -256,10 +254,10 @@ class MatchupTool {
 
     // package access for testing only tb 2016-08-16
     static void calculateDistance(MatchupSet matchupSet) {
-        final SphericalDistanceCalculator sphericalDistanceCalculator = new SphericalDistanceCalculator();
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         for (final SampleSet sampleSet : sourceSamples) {
-            sphericalDistanceCalculator.calculate(sampleSet);
+            final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
+            sampleSet.setSphericalDistance((float) km);
         }
     }
 
@@ -341,15 +339,29 @@ class MatchupTool {
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
-        extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter, variablesConfiguration);
-//        applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
-
+        extractIOVariables(ioVariablesList, matchupCollection, (Target) mmdWriter, useCaseConfig, variablesConfiguration);
+        if (useCaseConfig.isWriteDistance()) {
+            ioVariablesList.addSampleSetSourceVariable(createSphericalDistanceVariable());
+        }
         try {
             mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
         } finally {
             ioVariablesList.close();
         }
+    }
+
+    private SphericalDistanceIOVariable createSphericalDistanceVariable() {
+        final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable();
+        variable.setTargetVariableName("matchup_spherical_distance");
+        variable.setDataType(DataType.FLOAT.toString());
+        variable.setDimensionNames("matchup_count");
+
+        final List<Attribute> attributes = variable.getAttributes();
+        attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
+        attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
+        return variable;
     }
 
     // @todo 2 tb/** this method wants to be refactured 2016-05-11
@@ -425,10 +437,6 @@ class MatchupTool {
                             logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
 
                             if (matchupSet.getNumObservations() > 0) {
-                                if (useCaseConfig.isWriteDistance()) {
-                                    calculateDistance(matchupSet);
-                                }
-
                                 matchupCollection.add(matchupSet);
                             }
                         }

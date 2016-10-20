@@ -16,17 +16,17 @@
  */
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.Target;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
-import com.bc.fiduceo.tool.ToolContext;
 
 import java.io.IOException;
 
 public class Delegator_MatchupTool {
 
 
-    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target mmdWriter, final VariablesConfiguration variablesConfiguration) throws IOException {
-        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, mmdWriter, variablesConfiguration);
+    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, UseCaseConfig useCaseConfig, Target mmdWriter, final VariablesConfiguration variablesConfiguration) throws IOException {
+        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, mmdWriter, useCaseConfig, variablesConfiguration);
     }
 }
