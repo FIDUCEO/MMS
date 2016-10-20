@@ -20,8 +20,9 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import static org.hsqldb.HsqlDateTime.e;
+
 import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.reader.RawDataSource;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
@@ -99,11 +100,15 @@ public class IOVariablesList {
     // package access for testing only tb 2016-04-12
     static String createDimensionNames(Dimension dimension) {
         final String dimensionName = dimension.getName();
-        return "matchup_count " + dimensionName + "_ny " + dimensionName + "_nx";
+        final String separator = " ";
+        return "matchup_count" + separator + dimensionName + "_ny" + separator + dimensionName + "_nx";
     }
 
-    public void extractVariables(Sensor sensor, Path filePath, Dimension dimension) throws IOException {
-        final String sensorName = sensor.getName();
+    public void extractVariables(String sensorName, Path filePath, Dimension dimension, VariablesConfiguration variablesConfiguration) throws IOException {
+        final Map<String, String> renamings = variablesConfiguration.getRenames(sensorName);
+        final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+        final String separator = variablesConfiguration.getSeparator(sensorName);
 
         final List<IOVariable> ioVariables;
         if (!ioVariablesMap.containsKey(sensorName)) {
@@ -118,10 +123,23 @@ public class IOVariablesList {
             rawDataSourceContainer.setSource(reader);
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
+            if (sensorRenames.containsKey(sensorName)) {
+                sensorName = sensorRenames.get(sensorName);
+            }
             for (final Variable variable : variables) {
+                final String shortName = variable.getShortName();
+                if (excludes.contains(shortName)) {
+                    continue;
+                }
                 final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(rawDataSourceContainer);
-                ioVariable.setSourceVariableName(variable.getShortName());
-                ioVariable.setTargetVariableName(sensorName + "_" + variable.getShortName());
+                ioVariable.setSourceVariableName(shortName);
+                final String targetVariableName;
+                if (renamings.containsKey(shortName)) {
+                    targetVariableName = sensorName + separator + renamings.get(shortName);
+                } else {
+                    targetVariableName = sensorName + separator + shortName;
+                }
+                ioVariable.setTargetVariableName(targetVariableName);
                 ioVariable.setDataType(variable.getDataType().toString());
                 ioVariable.setDimensionNames(dimensionNames);
                 ioVariable.setAttributes(getAttributeClones(variable));

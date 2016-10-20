@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class AbstractMmdWriterTest {
 
@@ -271,47 +272,5 @@ public class AbstractMmdWriterTest {
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
         assertEquals(fillValue, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testGetExclude() {
-        final List<VariableExclude> excludes = new ArrayList<>();
-        excludes.add(new VariableExclude("wrong"));
-        excludes.add(new VariableExclude("remove"));
-
-        final VariableExclude exclude = AbstractMmdWriter.getExclude("wrong", excludes);
-        assertNotNull(exclude);
-        assertEquals("wrong", exclude.getSourceName());
-    }
-
-    @Test
-    public void testGetExclude_notPresent() {
-        final List<VariableExclude> excludes = new ArrayList<>();
-        excludes.add(new VariableExclude("yo"));
-        excludes.add(new VariableExclude("man"));
-
-        final VariableExclude exclude = AbstractMmdWriter.getExclude("not-there", excludes);
-        assertNull(exclude);
-    }
-
-    @Test
-    public void testGetRename() {
-        final List<VariableRename> renames = new ArrayList<>();
-        renames.add(new VariableRename("bla", "blubb"));
-        renames.add(new VariableRename("schnick", "schnack"));
-
-        final VariableRename rename = AbstractMmdWriter.getRename("schnick", renames);
-        assertNotNull(rename);
-        assertEquals("schnick", rename.getSourceName());
-    }
-
-    @Test
-    public void testGetRename_notPresent() {
-        final List<VariableRename> renames = new ArrayList<>();
-        renames.add(new VariableRename("jekyll", "hyde"));
-        renames.add(new VariableRename("dit", "dat"));
-
-        final VariableRename rename = AbstractMmdWriter.getRename("herman", renames);
-        assertNull(rename);
     }
 }

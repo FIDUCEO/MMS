@@ -21,6 +21,8 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import static java.io.File.separator;
+
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
@@ -32,7 +34,9 @@ import org.jdom.input.SAXBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class MmdWriterConfig {
@@ -42,9 +46,14 @@ public class MmdWriterConfig {
     private static final String CACHE_SIZE_TAG = "cache-size";
     private static final String NETCDF_FORMAT_TAG = "netcdf-format";
     private static final String VARIABLES_CONFIGURATION_TAG = "variables-configuration";
+    private static final String SENSOR_RENAME_TAG = "sensor-rename";
+    private static final String SEPARATOR = "separator";
     private static final String SENSORS_TAG = "sensors";
     private static final String RENAME_TAG = "rename";
     private static final String EXCLUDE_TAG = "exclude";
+
+    private static final String SEPARATOR_ATTRIBUTE = "separator";
+    private static final String SENSOR_NAME_ATTRIBUTE = "sensor-name";
     private static final String NAMES_ATTRIBUTE = "names";
     private static final String SOURCE_NAME_ATTRIBUTE = "source-name";
     private static final String TARGET_NAME_ATTRIBUTE = "target-name";
@@ -53,6 +62,17 @@ public class MmdWriterConfig {
     private int cacheSize;
     private NetcdfType netcdfFormat;
     private VariablesConfiguration variablesConfiguration;
+
+    MmdWriterConfig() {
+        cacheSize = 2048;
+        netcdfFormat = NetcdfType.N4;
+        variablesConfiguration = new VariablesConfiguration();
+    }
+
+    private MmdWriterConfig(Document document) {
+        this();
+        init(document);
+    }
 
     public static MmdWriterConfig load(InputStream inputStream) {
         final SAXBuilder saxBuilder = new SAXBuilder();
@@ -64,43 +84,32 @@ public class MmdWriterConfig {
         }
     }
 
-    MmdWriterConfig() {
-        cacheSize = 2048;
-        netcdfFormat = NetcdfType.N4;
-        variablesConfiguration = new VariablesConfiguration();
+    public boolean isOverwrite() {
+        return overwrite;
     }
 
     void setOverwrite(boolean overwrite) {
         this.overwrite = overwrite;
     }
 
-    public boolean isOverwrite() {
-        return overwrite;
-    }
-
-    void setCacheSize(int cacheSize) {
-        this.cacheSize = cacheSize;
+    public VariablesConfiguration getVariablesConfiguration() {
+        return variablesConfiguration;
     }
 
     int getCacheSize() {
         return cacheSize;
     }
 
-    void setNetcdfFormat(String netcdfFormat) {
-        this.netcdfFormat = NetcdfType.valueOf(netcdfFormat);
+    void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
     }
 
     NetcdfType getNetcdfFormat() {
         return netcdfFormat;
     }
 
-    public VariablesConfiguration getVariablesConfiguration() {
-        return variablesConfiguration;
-    }
-
-    private MmdWriterConfig(Document document) {
-        this();
-        init(document);
+    void setNetcdfFormat(String netcdfFormat) {
+        this.netcdfFormat = NetcdfType.valueOf(netcdfFormat);
     }
 
     private void init(Document document) {
@@ -130,34 +139,65 @@ public class MmdWriterConfig {
 
         final Element variablesConfigurationElement = rootElement.getChild(VARIABLES_CONFIGURATION_TAG);
         if (variablesConfigurationElement != null) {
+            addSensorRenames(variablesConfigurationElement);
+            configureSeparator(variablesConfigurationElement);
             final List<Element> sensorElements = variablesConfigurationElement.getChildren(SENSORS_TAG);
             for (final Element sensorElement : sensorElements) {
-                final String sensorKeys = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
-
-                addVariableRenames(sensorElement, sensorKeys);
-                addVariableExcludes(sensorElement, sensorKeys);
+                addVariableRenames(sensorElement);
+                addVariableExcludes(sensorElement);
             }
         }
     }
 
-    private void addVariableExcludes(Element sensorElement, String sensorKeys) {
-        final ArrayList<VariableExclude> variableExcludes = new ArrayList<>();
+    private void configureSeparator(Element variablesConfigurationElement) {
+        final List<Element> separatorElems = variablesConfigurationElement.getChildren(SEPARATOR);
+        if (separatorElems == null || separatorElems.size() == 0) {
+            return;
+        }
+        final String defaultSeparator = VariablesConfiguration.DEFAULT_SEPARATOR;
+        for (Element separatorElem : separatorElems) {
+            final String sensorName = getAttributeString(SENSOR_NAME_ATTRIBUTE, separatorElem);
+            final String separator = getAttributeString(SEPARATOR_ATTRIBUTE, separatorElem);
+            if (defaultSeparator.equals(variablesConfiguration.getSeparator(sensorName))) {
+                variablesConfiguration.setSeparator(sensorName, separator);
+            } else {
+                throw new RuntimeException("Separator for sensor '" + sensorName + "' is already set.");
+            }
+        }
+    }
+
+    private void addSensorRenames(Element variablesConfigurationElement) {
+        final List<Element> sensorRenames = variablesConfigurationElement.getChildren(SENSOR_RENAME_TAG);
+        for (Element element : sensorRenames) {
+            final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, element);
+            final String targetName = getAttributeString(TARGET_NAME_ATTRIBUTE, element);
+            variablesConfiguration.addSensorRename(sourceName, targetName);
+        }
+    }
+
+    private void addVariableExcludes(Element sensorElement) {
+        final String sensorKeys = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
+
+        final ArrayList<String> variableExcludes = new ArrayList<>();
         final List<Element> excludeElements = sensorElement.getChildren(EXCLUDE_TAG);
         for (final Element excludeElement : excludeElements) {
             final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, excludeElement);
-            variableExcludes.add(new VariableExclude(sourceName));
+            variableExcludes.add(sourceName);
         }
         variablesConfiguration.addExcludes(sensorKeys, variableExcludes);
     }
 
-    private void addVariableRenames(Element sensorElement, String sensorKeys) {
-        final ArrayList<VariableRename> variableRenames = new ArrayList<>();
+    private void addVariableRenames(Element sensorElement) {
+        final String sensorKeys = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
+
+        final Map<String, String> variableRenames = new HashMap<>();
         final List<Element> renameElements = sensorElement.getChildren(RENAME_TAG);
         for (final Element renameElement : renameElements) {
             final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, renameElement);
             final String targetName = getAttributeString(TARGET_NAME_ATTRIBUTE, renameElement);
-            variableRenames.add(new VariableRename(sourceName, targetName));
+            variableRenames.put(sourceName, targetName);
         }
+
         variablesConfiguration.addRenames(sensorKeys, variableRenames);
     }
 

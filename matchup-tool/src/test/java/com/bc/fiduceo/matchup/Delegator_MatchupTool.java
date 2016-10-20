@@ -18,6 +18,7 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.Target;
+import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.io.IOException;
 public class Delegator_MatchupTool {
 
 
-    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target mmdWriter) throws IOException {
-        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, mmdWriter);
+    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target mmdWriter, final VariablesConfiguration variablesConfiguration) throws IOException {
+        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, mmdWriter, variablesConfiguration);
     }
 }

@@ -256,24 +256,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    static VariableExclude getExclude(String sourceVariableName, List<VariableExclude> excludes) {
-        for (final VariableExclude exclude : excludes) {
-            if (sourceVariableName.equals(exclude.getSourceName())) {
-                return exclude;
-            }
-        }
-        return null;
-    }
-
-    static VariableRename getRename(String sourceVariableName, List<VariableRename> renames) {
-        for (final VariableRename rename : renames) {
-            if (sourceVariableName.equals(rename.getSourceName())) {
-                return rename;
-            }
-        }
-        return null;
-    }
-
     abstract void createNetCdfFileWriter(Path mmdFile) throws IOException;
 
     void initializeNetcdfFile(Path mmdFile, UseCaseConfig useCaseConfig, List<IOVariable> ioVariables, int numMatchups) throws IOException {
@@ -326,27 +308,25 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         final int y = sample.y;
 
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
-        final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
-        final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
+        final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+        final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
 
         writeIntWithExcludeAndRename(zIndex, x, excludes, renames, sensorName + "_x");
         writeIntWithExcludeAndRename(zIndex, y, excludes, renames, sensorName + "_y");
 
         final String fileVariableName = sensorName + "_file_name";
-        if (getExclude(fileVariableName, excludes) == null) {
-            final VariableRename rename = getRename(fileVariableName, renames);
-            if (rename != null) {
-                final String targetName = rename.getTargetName();
+        if (!excludes.contains(fileVariableName)) {
+            if (renames.containsKey(fileVariableName)) {
+                final String targetName = renames.get(fileVariableName);
                 write(observationPath.getFileName().toString(), targetName, zIndex);
             } else {
                 write(observationPath.getFileName().toString(), fileVariableName, zIndex);
             }
         }
         final String acTimeVariableName = sensorName + "_acquisition_time";
-        if (getExclude(acTimeVariableName, excludes) == null) {
-            final VariableRename rename = getRename(acTimeVariableName, renames);
-            if (rename != null) {
-                final String targetName = rename.getTargetName();
+        if (!excludes.contains(acTimeVariableName)) {
+            if (renames.containsKey(acTimeVariableName)) {
+                final String targetName = renames.get(acTimeVariableName);
                 write(reader.readAcquisitionTime(x, y, interval), targetName, zIndex);
             } else {
                 write(reader.readAcquisitionTime(x, y, interval), acTimeVariableName, zIndex);
@@ -354,11 +334,10 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private void writeIntWithExcludeAndRename(int zIndex, int value, List<VariableExclude> excludes, List<VariableRename> renames, String variableName) throws IOException, InvalidRangeException {
-        if (getExclude(variableName, excludes) == null) {
-            final VariableRename rename = getRename(variableName, renames);
-            if (rename != null) {
-                final String targetName = rename.getTargetName();
+    private void writeIntWithExcludeAndRename(int zIndex, int value, List<String> excludes, Map<String, String> renames, String variableName) throws IOException, InvalidRangeException {
+        if (!excludes.contains(variableName)) {
+            if (renames.containsKey(variableName)) {
+                final String targetName = renames.get(variableName);
                 write(value, targetName, zIndex);
             } else {
                 write(value, variableName, zIndex);
@@ -398,32 +377,32 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
         for (Dimension dimension : dimensions) {
             final String sensorName = dimension.getName();
-            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
-            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
+            final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+            final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
 
             final String xVariableName = sensorName + "_x";
-            if (getExclude(xVariableName, excludes) == null) {
+            if (! excludes.contains(xVariableName)) {
                 final String targetName = getTargetName(renames, xVariableName);
                 final Variable variableX = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
                 variableX.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
             }
 
             final String yVariableName = sensorName + "_y";
-            if (getExclude(yVariableName, excludes) == null) {
+            if (!excludes.contains(yVariableName)) {
                 final String targetName = getTargetName(renames, yVariableName);
                 final Variable variableY = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
                 variableY.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
             }
 
             final String fileNameVariableName = sensorName + "_file_name";
-            if (getExclude(fileNameVariableName, excludes) == null) {
+            if (!excludes.contains(fileNameVariableName)) {
                 final String targetName = getTargetName(renames, fileNameVariableName);
                 final Variable variableFileName = netcdfFileWriter.addVariable(null, targetName, DataType.CHAR, "matchup_count file_name");
                 variableFileName.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
             }
 
             final String acTimeVariableName = sensorName + "_acquisition_time";
-            if (getExclude(acTimeVariableName, excludes) == null) {
+            if (!excludes.contains(acTimeVariableName)) {
                 final String targetName = getTargetName(renames, acTimeVariableName);
                 final String yDimension = getDimensionNameNy(sensorName);
                 final String xDimension = getDimensionNameNx(sensorName);
@@ -435,13 +414,12 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private String getTargetName(List<VariableRename> renames, String originalVariableName) {
-        String targetName = originalVariableName;
-        final VariableRename rename = getRename(originalVariableName, renames);
-        if (rename != null) {
-            targetName = rename.getTargetName();
+    private String getTargetName(Map<String, String> renames, String originalVariableName) {
+        if (renames.containsKey(originalVariableName)) {
+            return renames.get(originalVariableName);
+        } else {
+            return originalVariableName;
         }
-        return targetName;
     }
 
     private void createGlobalAttributes() {

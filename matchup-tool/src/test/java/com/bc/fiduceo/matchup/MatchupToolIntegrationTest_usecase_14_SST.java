@@ -74,10 +74,10 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(2100)
-                .withMaxPixelDistanceKm(1.41f)
-                .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
-                .createConfig();
+                    .withTimeDeltaSeconds(2100)
+                    .withMaxPixelDistanceKm(1.41f)
+                    .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
+                    .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
 
         insert_AATSR();
@@ -105,41 +105,43 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemProperties(configDir);
         final String writerConfigXml = "<mmd-writer-config>" +
-                "    <overwrite>false</overwrite>" +
-                "    <cache-size>2048</cache-size>" +
-                "    <netcdf-format>N3</netcdf-format>" +
-                "    <variables-configuration>"  +
-                "        <sensors names = \"aatsr-en\">" +
-                "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
-                "            <rename source-name = \"altitude\" target-name = \"atsr.3.altitude\" />" +
-                "            <rename source-name = \"btemp_fward_0370\" target-name = \"atsr.3.brightness_temperature_37_forward\" />" +
-                "            <rename source-name = \"btemp_nadir_0370\" target-name = \"atsr.3.brightness_temperature_37_nadir\" />" +
-                "            <rename source-name = \"btemp_fward_1100\" target-name = \"atsr.3.brightness_temperature_11_forward\" />" +
-                "            <rename source-name = \"btemp_nadir_1100\" target-name = \"atsr.3.brightness_temperature_11_nadir\" />" +
-                "            <rename source-name = \"btemp_fward_1200\" target-name = \"atsr.3.brightness_temperature_12_forward\" />" +
-                "            <rename source-name = \"btemp_nadir_1200\" target-name = \"atsr.3.brightness_temperature_12_nadir\" />" +
-                "            <rename source-name = \"reflec_fward_0550\" target-name = \"atsr.3.reflectance_55_forward\" />" +
-                "            <rename source-name = \"reflec_nadir_0550\" target-name = \"atsr.3.reflectance_55_nadir\" />" +
-                "            <rename source-name = \"reflec_fward_0670\" target-name = \"atsr.3.reflectance_66_forward\" />" +
-                "            <rename source-name = \"reflec_nadir_0670\" target-name = \"atsr.3.reflectance_66_nadir\" />" +
-                "            <rename source-name = \"reflec_fward_0870\" target-name = \"atsr.3.reflectance_87_forward\" />" +
-                "            <rename source-name = \"reflec_nadir_0870\" target-name = \"atsr.3.reflectance_87_nadir\" />" +
-                "            <rename source-name = \"reflec_fward_1600\" target-name = \"atsr.3.reflectance_16_forward\" />" +
-                "            <rename source-name = \"reflec_nadir_1600\" target-name = \"atsr.3.reflectance_16_nadir\" />" +
-                "            <rename source-name = \"confid_flags_nadir\" target-name = \"atsr.3.confidence_word_nadir\" />" +
-                "            <rename source-name = \"confid_flags_fward\" target-name = \"atsr.3.confidence_word_forward\" />" +
-                "            <rename source-name = \"cloud_flags_nadir\" target-name = \"atsr.3.cloud_flags_nadir\" />" +
-                "            <rename source-name = \"cloud_flags_fward\" target-name = \"atsr.3.cloud_flags_forward\" />" +
-                "        </sensors>" +
-                "    </variables-configuration>" +
-                "</mmd-writer-config>";
+                                       "    <overwrite>false</overwrite>" +
+                                       "    <cache-size>2048</cache-size>" +
+                                       "    <netcdf-format>N3</netcdf-format>" +
+                                       "    <variables-configuration>" +
+                                       "        <sensor-rename source-name = \"aatsr-en\" target-name = \"atsr.3\" />" +
+                                       "        <separator sensor-name=\"aatsr-en\" separator = \".\" />" +
+                                       "        <sensors names = \"aatsr-en\">" +
+                                       "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
+                                       "            <rename source-name = \"altitude\" target-name = \"altitude\" />" +
+                                       "            <rename source-name = \"btemp_fward_0370\" target-name = \"brightness_temperature_37_forward\" />" +
+                                       "            <rename source-name = \"btemp_nadir_0370\" target-name = \"brightness_temperature_37_nadir\" />" +
+                                       "            <rename source-name = \"btemp_fward_1100\" target-name = \"brightness_temperature_11_forward\" />" +
+                                       "            <rename source-name = \"btemp_nadir_1100\" target-name = \"brightness_temperature_11_nadir\" />" +
+                                       "            <rename source-name = \"btemp_fward_1200\" target-name = \"brightness_temperature_12_forward\" />" +
+                                       "            <rename source-name = \"btemp_nadir_1200\" target-name = \"brightness_temperature_12_nadir\" />" +
+                                       "            <rename source-name = \"reflec_fward_0550\" target-name = \"reflectance_55_forward\" />" +
+                                       "            <rename source-name = \"reflec_nadir_0550\" target-name = \"reflectance_55_nadir\" />" +
+                                       "            <rename source-name = \"reflec_fward_0670\" target-name = \"reflectance_66_forward\" />" +
+                                       "            <rename source-name = \"reflec_nadir_0670\" target-name = \"reflectance_66_nadir\" />" +
+                                       "            <rename source-name = \"reflec_fward_0870\" target-name = \"reflectance_87_forward\" />" +
+                                       "            <rename source-name = \"reflec_nadir_0870\" target-name = \"reflectance_87_nadir\" />" +
+                                       "            <rename source-name = \"reflec_fward_1600\" target-name = \"reflectance_16_forward\" />" +
+                                       "            <rename source-name = \"reflec_nadir_1600\" target-name = \"reflectance_16_nadir\" />" +
+                                       "            <rename source-name = \"confid_flags_nadir\" target-name = \"confidence_word_nadir\" />" +
+                                       "            <rename source-name = \"confid_flags_fward\" target-name = \"confidence_word_forward\" />" +
+                                       "            <rename source-name = \"cloud_flags_nadir\" target-name = \"cloud_flags_nadir\" />" +
+                                       "            <rename source-name = \"cloud_flags_fward\" target-name = \"cloud_flags_forward\" />" +
+                                       "        </sensors>" +
+                                       "    </variables-configuration>" +
+                                       "</mmd-writer-config>";
         TestUtil.writeMmdWriterConfig(configDir, writerConfigXml);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(2100)
-                .withMaxPixelDistanceKm(1.41f)
-                .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
-                .createConfig();
+                    .withTimeDeltaSeconds(2100)
+                    .withMaxPixelDistanceKm(1.41f)
+                    .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
+                    .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
 
         insert_AATSR();
@@ -194,9 +196,9 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         dimensions.add(new Dimension("aatsr-en", 11, 11));
 
         return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd14_sst")
-                .withSensors(sensorList)
-                .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-14_sst").getPath())
-                .withDimensions(dimensions);
+                    .withSensors(sensorList)
+                    .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-14_sst").getPath())
+                    .withDimensions(dimensions);
     }
 
     private void insert_AATSR() throws IOException, SQLException {

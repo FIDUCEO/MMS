@@ -20,8 +20,9 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
@@ -30,12 +31,12 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.Delegator_MatchupTool;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
@@ -58,6 +59,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
@@ -347,7 +349,9 @@ public class MmdWriter_IO_Test {
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
-        Delegator_MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter);
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+
+        Delegator_MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter, variablesConfiguration);
         mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
 
         NetcdfFile netcdfFile = null;

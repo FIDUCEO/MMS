@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.core;
 
+import java.util.Objects;
+
 public class Dimension {
 
     private String name;
@@ -59,5 +61,24 @@ public class Dimension {
 
     public void setNy(int ny) {
         this.ny = ny;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Dimension)) {
+            return false;
+        }
+        Dimension dimension = (Dimension) o;
+        return nx == dimension.nx &&
+               ny == dimension.ny &&
+               Objects.equals(name, dimension.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, nx, ny);
     }
 }

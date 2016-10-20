@@ -39,8 +39,6 @@ import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.matchup.writer.Target;
-import com.bc.fiduceo.matchup.writer.VariableExclude;
-import com.bc.fiduceo.matchup.writer.VariableRename;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
@@ -60,9 +58,11 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+import static ucar.nc2.FileWriter2.N3StructureStrategy.exclude;
 
 class MatchupTool {
 
@@ -191,17 +191,20 @@ class MatchupTool {
         return builder;
     }
 
-    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, ToolContext context, Target target) throws IOException {
+    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
+                                          ToolContext context, Target target,
+                                          VariablesConfiguration variablesConfiguration) throws IOException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        final List<Dimension> dimensions = useCaseConfig.getDimensions();
-        final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+        final String primSensorName = useCaseConfig.getPrimarySensor().getName();
+        final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
+        final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
+        final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
 
-        ioVariablesList.extractVariables(primarySensor, matchupSet.getPrimaryObservationPath(), dimensions.get(0));
-        ioVariablesList.extractVariables(secondarySensor, matchupSet.getSecondaryObservationPath(), dimensions.get(1));
+        ioVariablesList.extractVariables(primSensorName, matchupSet.getPrimaryObservationPath(), primDim, variablesConfiguration);
+        ioVariablesList.extractVariables(secoSensorName, matchupSet.getSecondaryObservationPath(), secoDim, variablesConfiguration);
 
         final List<IOVariable> ioVariables = ioVariablesList.get();
         for (IOVariable variable : ioVariables) {
@@ -223,18 +226,17 @@ class MatchupTool {
 
         for (final String sensorName : sensorNames) {
             final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
-            final List<VariableRename> renames = variablesConfiguration.getRenames(sensorName);
-            for (final VariableRename rename : renames) {
-                final String sourceName = rename.getSourceName();
+            final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
+            for (Map.Entry<String, String> rename : renames.entrySet()) {
+                final String sourceName = rename.getKey();
                 final IOVariable variable = getVariable(sourceName, ioVariables);
                 if (variable != null) {
-                    variable.setTargetVariableName(rename.getTargetName());
+                    variable.setTargetVariableName(rename.getValue());
                 }
             }
 
-            final List<VariableExclude> excludes = variablesConfiguration.getExcludes(sensorName);
-            for (final VariableExclude exclude : excludes) {
-                final String sourceName = exclude.getSourceName();
+            final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+            for (final String sourceName : excludes) {
                 final IOVariable variable = getVariable(sourceName, ioVariables);
                 if (variable != null) {
                     ioVariables.remove(variable);
@@ -339,8 +341,9 @@ class MatchupTool {
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
-        extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter);
-        applyExcludesAndRenames(ioVariablesList, writerConfig.getVariablesConfiguration());
+        final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
+        extractIOVariables(ioVariablesList, matchupCollection, context, (Target) mmdWriter, variablesConfiguration);
+//        applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
 
         try {
             mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);

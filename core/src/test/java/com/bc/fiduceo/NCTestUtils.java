@@ -53,7 +53,7 @@ public class NCTestUtils {
     public static void assert3DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
         final String escapedName = NetcdfFile.makeValidCDLName(variableName);
         final Variable variable = mmd.findVariable(escapedName);
-        assertNotNull(variable);
+        assertNotNull("NetCDF Variable '"+variableName+"' expected", variable);
         final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);
     }

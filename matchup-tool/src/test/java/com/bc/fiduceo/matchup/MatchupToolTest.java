@@ -35,8 +35,6 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.writer.IOVariable;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.Target;
-import com.bc.fiduceo.matchup.writer.VariableExclude;
-import com.bc.fiduceo.matchup.writer.VariableRename;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.matchup.writer.WindowReadingIOVariable;
 import com.bc.fiduceo.reader.Reader;
@@ -54,10 +52,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.same;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 public class MatchupToolTest {
@@ -446,9 +446,9 @@ public class MatchupToolTest {
         ioVariablesList.add(ioVariable, "another_sensor");
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        final ArrayList<VariableRename> renamesList = new ArrayList<>();
-        renamesList.add(new VariableRename("the_source_name", "correct_name"));
-        variablesConfiguration.addRenames("another_sensor", renamesList);
+        final Map<String, String> renamesMap = new HashMap<>();
+        renamesMap.put("the_source_name", "correct_name");
+        variablesConfiguration.addRenames("another_sensor", renamesMap);
 
         MatchupTool.applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
 
@@ -472,8 +472,8 @@ public class MatchupToolTest {
         ioVariablesList.add(ioVariable, "the_sensor");
 
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
-        final ArrayList<VariableExclude> excludeList = new ArrayList<>();
-        excludeList.add(new VariableExclude("kick_me_off"));
+        final ArrayList<String> excludeList = new ArrayList<>();
+        excludeList.add("kick_me_off");
         variablesConfiguration.addExcludes("the_sensor", excludeList);
 
         MatchupTool.applyExcludesAndRenames(ioVariablesList, variablesConfiguration);
@@ -515,12 +515,14 @@ public class MatchupToolTest {
         when(configuration.get()).thenReturn(ioVariables);
 
         final Target target = mock(Target.class);
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+
         // test execution
-        MatchupTool.extractIOVariables(configuration, matchupCollection, toolContext, target);
+        MatchupTool.extractIOVariables(configuration, matchupCollection, toolContext, target, variablesConfiguration);
 
         // validation
-        verify(configuration, times(1)).extractVariables(refEq(primarySensor), refEq(mockingPrimaryPath), refEq(primaryWindowDimension));
-        verify(configuration, times(1)).extractVariables(refEq(secondarySensor), refEq(mockingSecondaryPath), refEq(secondaryWindowDimension));
+        verify(configuration, times(1)).extractVariables(eq(primarySensor.getName()), eq(mockingPrimaryPath), eq(primaryWindowDimension), eq(variablesConfiguration));
+        verify(configuration, times(1)).extractVariables(eq(secondarySensor.getName()), eq(mockingSecondaryPath), eq(secondaryWindowDimension), eq(variablesConfiguration));
         verify(configuration, times(1)).get();
         verifyNoMoreInteractions(configuration);
 
