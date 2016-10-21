@@ -394,7 +394,7 @@ public class MatchupToolTest {
     }
     @Test
     public void testGetVariable() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");
         ioVariable.setTargetVariableName("we_don_t_care");
 
@@ -408,7 +408,7 @@ public class MatchupToolTest {
 
     @Test
     public void testGetVariable_notPresentInList() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");
         ioVariable.setTargetVariableName("we_don_t_care");
 
@@ -420,7 +420,7 @@ public class MatchupToolTest {
     }
     @Test
     public void testApplyExcludesAndRenames_emptyConfig() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");
         ioVariable.setTargetVariableName("the_wrong_name");
 
@@ -438,7 +438,7 @@ public class MatchupToolTest {
 
     @Test
     public void testApplyExcludesAndRenames_rename() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");
         ioVariable.setTargetVariableName("the_wrong_name");
 
@@ -459,11 +459,11 @@ public class MatchupToolTest {
 
     @Test
     public void testApplyExcludesAndRenames_exclude() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");
         ioVariable.setTargetVariableName("we_don_t_care");
 
-        final WindowReadingIOVariable remove_ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable remove_ioVariable = new WindowReadingIOVariable(null);
         remove_ioVariable.setSourceVariableName("kick_me_off");
         remove_ioVariable.setTargetVariableName("we_don_t_care");
 

@@ -22,7 +22,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.matchup.SampleSet;
 
-public abstract class SampleSetSourceIOVariable extends AbstractIOVariable {
+public abstract class SampleSetIOVariable extends AbstractIOVariable {
 
     protected SampleSet sampleSet;
 

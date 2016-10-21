@@ -20,11 +20,11 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-public abstract class RawDataSourceIOVariable extends AbstractIOVariable {
+public abstract class ReaderIOVariable extends AbstractIOVariable {
 
-    protected final RawDataSourceContainer rawDataSourceContainer;
+    protected final ReaderContainer readerContainer;
 
-    public RawDataSourceIOVariable(RawDataSourceContainer rawDataSourceContainer) {
-        this.rawDataSourceContainer = rawDataSourceContainer;
+    public ReaderIOVariable(ReaderContainer readerContainer) {
+        this.readerContainer = readerContainer;
     }
 }

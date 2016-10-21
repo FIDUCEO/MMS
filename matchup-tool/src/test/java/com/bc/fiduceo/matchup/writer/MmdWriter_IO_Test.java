@@ -22,7 +22,6 @@ package com.bc.fiduceo.matchup.writer;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
@@ -59,7 +58,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
@@ -86,28 +84,28 @@ public class MmdWriter_IO_Test {
         final List<IOVariable> ioVariables = new ArrayList<>();
         WindowReadingIOVariable ioVariable;
 
-        ioVariable = new WindowReadingIOVariable();
+        ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setTargetVariableName("avhrr-n11_ch3b");
         ioVariable.setDimensionNames("matchup_count avhrr-n11_ny avhrr-n11_nx");
         ioVariable.setDataType("short");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new WindowReadingIOVariable();
+        ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setTargetVariableName("avhrr-n12_ch4");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("int");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new WindowReadingIOVariable();
+        ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setTargetVariableName("avhrr-n12_cloud_mask");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("byte");
         ioVariable.setAttributes(new ArrayList<>());
         ioVariables.add(ioVariable);
 
-        ioVariable = new WindowReadingIOVariable();
+        ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setTargetVariableName("avhrr-n12_dtime");
         ioVariable.setDimensionNames("matchup_count avhrr-n12_ny avhrr-n12_nx");
         ioVariable.setDataType("float");

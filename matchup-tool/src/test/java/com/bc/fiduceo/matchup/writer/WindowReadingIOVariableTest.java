@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.reader.RawDataSource;
+import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -47,7 +47,7 @@ public class WindowReadingIOVariableTest {
 
     @Before
     public void setUp() throws Exception {
-        ioVariable = new WindowReadingIOVariable();
+        ioVariable = new WindowReadingIOVariable(null);
     }
 
     @Test
@@ -93,12 +93,12 @@ public class WindowReadingIOVariableTest {
     @Test
     public void testWriteData() throws IOException, InvalidRangeException {
         final Target target = mock(Target.class);
-        final RawDataSource rawDataSource = mock(RawDataSource.class);
+        final Reader readerMock = mock(Reader.class);
 
         final Array data = Array.factory(new int[]{1, 2, 3, 4});
-        when(rawDataSource.readRaw(anyInt(), anyInt(), anyObject(), anyString())).thenReturn(data);
-        final RawDataSourceContainer sourceContainer = new RawDataSourceContainer();
-        sourceContainer.setSource(rawDataSource);
+        when(readerMock.readRaw(anyInt(), anyInt(), anyObject(), anyString())).thenReturn(data);
+        final ReaderContainer sourceContainer = new ReaderContainer();
+        sourceContainer.setReader(readerMock);
 
         final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(sourceContainer);
         ioVariable.setTarget(target);
@@ -108,10 +108,10 @@ public class WindowReadingIOVariableTest {
         final Interval interval = new Interval(3, 3);
         ioVariable.writeData(3, 4, interval, 4);
 
-        verify(rawDataSource, times(1)).readRaw(3, 4, interval, "hans_wurst");
+        verify(readerMock, times(1)).readRaw(3, 4, interval, "hans_wurst");
         verify(target,times(1)).write(data, "target_hans_wurst", 4);
 
-        verifyNoMoreInteractions(rawDataSource);
+        verifyNoMoreInteractions(readerMock);
         verifyNoMoreInteractions(target);
     }
 

@@ -343,7 +343,7 @@ class MatchupTool {
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         extractIOVariables(ioVariablesList, matchupCollection, (Target) mmdWriter, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {
-            ioVariablesList.addSampleSetSourceVariable(createSphericalDistanceVariable());
+            ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable());
         }
         try {
             mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);

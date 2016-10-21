@@ -26,19 +26,15 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-public class WindowReadingIOVariable extends RawDataSourceIOVariable {
+public class WindowReadingIOVariable extends ReaderIOVariable {
 
-    public WindowReadingIOVariable() {
-        this(null);
-    }
-
-    WindowReadingIOVariable(RawDataSourceContainer rawDataSourceContainer) {
-        super(rawDataSourceContainer);
+    public WindowReadingIOVariable(ReaderContainer readerContainer) {
+        super(readerContainer);
     }
 
     @Override
     public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
-        final Array array = rawDataSourceContainer.getSource().readRaw(centerX, centerY, interval, sourceVariableName);
+        final Array array = readerContainer.getReader().readRaw(centerX, centerY, interval, sourceVariableName);
         target.write(array, targetVariableName, zIndex);
     }
 }

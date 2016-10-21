@@ -113,7 +113,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final String secondarySensorName = secondarySensor.getName();
             final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
             final List<IOVariable> secondaryVariables = ioVariablesList.getVariablesFor(secondarySensorName);
-            final List<SampleSetSourceIOVariable> sampleSetVariables = ioVariablesList.getSampleSetSourceIOVariables();
+            final List<SampleSetIOVariable> sampleSetVariables = ioVariablesList.getSampleSetIOVariables();
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
@@ -157,9 +157,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetSourceIOVariable> sampleSetVariables, int zIndex)
+    private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
                 throws IOException, InvalidRangeException {
-        for (SampleSetSourceIOVariable variable : sampleSetVariables) {
+        for (SampleSetIOVariable variable : sampleSetVariables) {
             variable.setSampleSet(sampleSet);
             variable.writeData(0,0,null, zIndex);
         }

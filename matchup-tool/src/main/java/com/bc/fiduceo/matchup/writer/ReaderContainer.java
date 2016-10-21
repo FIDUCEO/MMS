@@ -16,22 +16,22 @@
  */
 package com.bc.fiduceo.matchup.writer;
 
-import com.bc.fiduceo.reader.RawDataSource;
+import com.bc.fiduceo.reader.Reader;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-class RawDataSourceContainer {
+class ReaderContainer {
 
-    private RawDataSource source;
+    private Reader reader;
     private Path sourcePath;
 
-    public void setSource(RawDataSource source) {
-        this.source = source;
+    public void setReader(Reader reader) {
+        this.reader = reader;
     }
 
-    public RawDataSource getSource() {
-        return source;
+    public Reader getReader() {
+        return reader;
     }
 
     public Path getSourcePath() {
@@ -40,10 +40,9 @@ class RawDataSourceContainer {
 
     public void setSourcePath(Path sourcePath) throws IOException {
         this.sourcePath = sourcePath;
-        final RawDataSource source = getSource();
-        if (source != null) {
-            source.close();
-            source.open(sourcePath.toFile());
+        if (reader != null) {
+            reader.close();
+            reader.open(sourcePath.toFile());
         }
     }
 }

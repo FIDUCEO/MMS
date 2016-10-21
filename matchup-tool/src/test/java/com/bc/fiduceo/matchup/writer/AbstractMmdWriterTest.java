@@ -35,11 +35,9 @@ import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class AbstractMmdWriterTest {
 
@@ -84,7 +82,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Double() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.DOUBLE.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -99,7 +97,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Float() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.FLOAT.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -114,7 +112,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Long() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.LONG.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -129,7 +127,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Integer() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.INT.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -144,7 +142,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Short() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.SHORT.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -159,7 +157,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Byte() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.BYTE.name());
 
         AbstractMmdWriter.ensureFillValue(ioVariable);
@@ -174,7 +172,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Double_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.DOUBLE.name());
         final double fillValue = 1234.5678;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
@@ -191,7 +189,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Float_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.FLOAT.name());
         final float fillValue = 1234.5678f;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
@@ -208,7 +206,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Long_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.LONG.name());
         final long fillValue = 12345678912345678L;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
@@ -225,7 +223,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Integer_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.INT.name());
         final int fillValue = 123456789;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
@@ -242,7 +240,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Short_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.SHORT.name());
         final short fillValue = 12345;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
@@ -259,7 +257,7 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testEnsureFillValue_Byte_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setDataType(DataType.BYTE.name());
         final byte fillValue = 123;
         ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));

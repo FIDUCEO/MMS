@@ -21,12 +21,12 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.matchup.writer.SampleSetSourceIOVariable;
+import com.bc.fiduceo.matchup.writer.SampleSetIOVariable;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-class SphericalDistanceIOVariable extends SampleSetSourceIOVariable {
+class SphericalDistanceIOVariable extends SampleSetIOVariable {
 
     @Override
     public void writeData(int centerX, int centerY, Interval interval, int zIndex)

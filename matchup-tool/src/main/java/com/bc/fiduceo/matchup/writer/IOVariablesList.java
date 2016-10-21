@@ -39,32 +39,32 @@ import java.util.Set;
 
 public class IOVariablesList {
 
-    public static final String SAMPLE_SET_SOURCE_IO_VARIABLES = "SampleSetSourceIOVariables";
+    public static final String SAMPLE_SET_IO_VARIABLES = "SampleSetIOVariables";
 
     private final Map<String, List<IOVariable>> ioVariablesMap;
-    private final Map<String, RawDataSourceContainer> sourceContainerMap;
+    private final Map<String, ReaderContainer> readerContainerMap;
     private final ReaderFactory readerFactory;
 
     public IOVariablesList(ReaderFactory readerFactory) {
         ioVariablesMap = new HashMap<>();
-        sourceContainerMap = new HashMap<>();
+        readerContainerMap = new HashMap<>();
         this.readerFactory = readerFactory;
     }
 
-    public void setRawDataSourceContainer(String sensorName, RawDataSourceContainer container) {
-        sourceContainerMap.put(sensorName, container);
+    public void setReaderContainer(String sensorName, ReaderContainer container) {
+        readerContainerMap.put(sensorName, container);
     }
 
-    public RawDataSourceContainer getRawDataSourceContainer(String sensorName) {
-        final RawDataSourceContainer container = sourceContainerMap.get(sensorName);
+    public ReaderContainer getReaderContainer(String sensorName) {
+        final ReaderContainer container = readerContainerMap.get(sensorName);
         if (container == null) {
-            throw new RuntimeException("Requested RawDataSourceContainer of unconfigured type: " + sensorName);
+            throw new RuntimeException("Requested ReaderContainer of unconfigured type: " + sensorName);
         }
         return container;
     }
 
     public void setDataSourcePath(String sensorName, Path path) throws IOException {
-        final RawDataSourceContainer container = sourceContainerMap.get(sensorName);
+        final ReaderContainer container = readerContainerMap.get(sensorName);
         if (container == null) {
             throw new RuntimeException("Invalid sensor name requested: " + sensorName);
         }
@@ -72,20 +72,20 @@ public class IOVariablesList {
     }
 
     public void close() throws IOException {
-        final Set<Map.Entry<String, RawDataSourceContainer>> entrySet = sourceContainerMap.entrySet();
-        for (final Map.Entry<String, RawDataSourceContainer> entry : entrySet) {
-            final RawDataSourceContainer container = entry.getValue();
-            container.getSource().close();
+        final Set<Map.Entry<String, ReaderContainer>> entrySet = readerContainerMap.entrySet();
+        for (final Map.Entry<String, ReaderContainer> entry : entrySet) {
+            final ReaderContainer container = entry.getValue();
+            container.getReader().close();
         }
     }
 
-    public void addSampleSetSourceVariable(SampleSetSourceIOVariable variable) {
-        add(variable, SAMPLE_SET_SOURCE_IO_VARIABLES);
+    public void addSampleSetVariable(SampleSetIOVariable variable) {
+        add(variable, SAMPLE_SET_IO_VARIABLES);
     }
 
-    public List<SampleSetSourceIOVariable> getSampleSetSourceIOVariables() {
-        final List<SampleSetSourceIOVariable> sssVariables = (List) getVariablesFor(SAMPLE_SET_SOURCE_IO_VARIABLES);
-        return Collections.unmodifiableList(sssVariables);
+    public List<SampleSetIOVariable> getSampleSetIOVariables() {
+        final List<SampleSetIOVariable> sampleSetVariables = (List) getVariablesFor(SAMPLE_SET_IO_VARIABLES);
+        return Collections.unmodifiableList(sampleSetVariables);
     }
 
     static List<Attribute> getAttributeClones(Variable variable) {
@@ -121,12 +121,12 @@ public class IOVariablesList {
             ioVariablesMap.put(sensorName, new ArrayList<>());
         }
         ioVariables = ioVariablesMap.get(sensorName);
-        final RawDataSourceContainer rawDataSourceContainer = new RawDataSourceContainer();
-        setRawDataSourceContainer(sensorName, rawDataSourceContainer);
+        final ReaderContainer readerContainer = new ReaderContainer();
+        setReaderContainer(sensorName, readerContainer);
 
         try (final Reader reader = readerFactory.getReader(sensorName)) {
             reader.open(filePath.toFile());
-            rawDataSourceContainer.setSource(reader);
+            readerContainer.setReader(reader);
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
             if (sensorRenames.containsKey(sensorName)) {
@@ -137,7 +137,7 @@ public class IOVariablesList {
                 if (excludes.contains(shortName)) {
                     continue;
                 }
-                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(rawDataSourceContainer);
+                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(readerContainer);
                 ioVariable.setSourceVariableName(shortName);
                 final String targetVariableName;
                 if (renamings.containsKey(shortName)) {

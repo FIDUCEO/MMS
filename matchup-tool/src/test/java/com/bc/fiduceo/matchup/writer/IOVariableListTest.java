@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.reader.RawDataSource;
+import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -244,7 +244,7 @@ public class IOVariableListTest {
 
     @Test
     public void testAdd_newSensor() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("Yo!");
 
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
@@ -258,7 +258,7 @@ public class IOVariableListTest {
 
     @Test
     public void testGetSensorNames() {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable();
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("what?");
 
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
@@ -275,10 +275,10 @@ public class IOVariableListTest {
     public void testAddGetProcessingReader() {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
 
-        final RawDataSourceContainer container = new RawDataSourceContainer();
-        ioVariablesList.setRawDataSourceContainer("theFirst", container);
+        final ReaderContainer container = new ReaderContainer();
+        ioVariablesList.setReaderContainer("theFirst", container);
 
-        final RawDataSourceContainer resultCont = ioVariablesList.getRawDataSourceContainer("theFirst");
+        final ReaderContainer resultCont = ioVariablesList.getReaderContainer("theFirst");
         assertNotNull(resultCont);
         assertSame(resultCont, container);
     }
@@ -286,19 +286,19 @@ public class IOVariableListTest {
     @Test
     public void testAddGetProcessingReader_twoReader() {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final RawDataSourceContainer container_1 = new RawDataSourceContainer();
-        final RawDataSourceContainer container_2 = new RawDataSourceContainer();
+        final ReaderContainer container_1 = new ReaderContainer();
+        final ReaderContainer container_2 = new ReaderContainer();
 
-        ioVariablesList.setRawDataSourceContainer("theFirst", container_1);
-        ioVariablesList.setRawDataSourceContainer("theSecond", container_2);
+        ioVariablesList.setReaderContainer("theFirst", container_1);
+        ioVariablesList.setReaderContainer("theSecond", container_2);
 
-        RawDataSourceContainer container;
+        ReaderContainer container;
 
-        container = ioVariablesList.getRawDataSourceContainer("theFirst");
+        container = ioVariablesList.getReaderContainer("theFirst");
         assertNotNull(container);
         assertSame(container, container_1);
 
-        container = ioVariablesList.getRawDataSourceContainer("theSecond");
+        container = ioVariablesList.getReaderContainer("theSecond");
         assertNotNull(container);
         assertSame(container, container_2);
     }
@@ -306,12 +306,12 @@ public class IOVariableListTest {
     @Test
     public void testAddGetProcessingReader_notPresent() {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final RawDataSourceContainer container = new RawDataSourceContainer();
+        final ReaderContainer container = new ReaderContainer();
 
-        ioVariablesList.setRawDataSourceContainer("theFirst", container);
+        ioVariablesList.setReaderContainer("theFirst", container);
 
         try {
-            ioVariablesList.getRawDataSourceContainer("stupid");
+            ioVariablesList.getReaderContainer("stupid");
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -320,26 +320,26 @@ public class IOVariableListTest {
     @Test
     public void testSetDataSourcePath() throws IOException {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final RawDataSourceContainer container = new RawDataSourceContainer();
-        final RawDataSource dataSourceMock = mock(RawDataSource.class);
-        container.setSource(dataSourceMock);
-        ioVariablesList.setRawDataSourceContainer("theFirst", container);
+        final ReaderContainer container = new ReaderContainer();
+        final Reader readerMock = mock(Reader.class);
+        container.setReader(readerMock);
+        ioVariablesList.setReaderContainer("theFirst", container);
         final Path path = Paths.get("hallo path");
 
         ioVariablesList.setDataSourcePath("theFirst", path);
 
-        verify(dataSourceMock, times(1)).close();
-        verify(dataSourceMock, times(1)).open(path.toFile());
-        verifyNoMoreInteractions(dataSourceMock);
+        verify(readerMock, times(1)).close();
+        verify(readerMock, times(1)).open(path.toFile());
+        verifyNoMoreInteractions(readerMock);
     }
 
     @Test
     public void testSetDataSourcePath_invalidSensorName() throws IOException {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final RawDataSourceContainer container = new RawDataSourceContainer();
-        final RawDataSource dataSourceMock = mock(RawDataSource.class);
-        container.setSource(dataSourceMock);
-        ioVariablesList.setRawDataSourceContainer("theFirst", container);
+        final ReaderContainer container = new ReaderContainer();
+        final Reader readerMock = mock(Reader.class);
+        container.setReader(readerMock);
+        ioVariablesList.setReaderContainer("theFirst", container);
         final Path path = Paths.get("hallo path");
 
         try {
@@ -352,14 +352,14 @@ public class IOVariableListTest {
     @Test
     public void testClose() throws IOException {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final RawDataSourceContainer container = new RawDataSourceContainer();
-        final RawDataSource dataSourceMock = mock(RawDataSource.class);
-        container.setSource(dataSourceMock);
-        ioVariablesList.setRawDataSourceContainer("theFirst", container);
+        final ReaderContainer container = new ReaderContainer();
+        final Reader readerMock = mock(Reader.class);
+        container.setReader(readerMock);
+        ioVariablesList.setReaderContainer("theFirst", container);
 
         ioVariablesList.close();
 
-        verify(dataSourceMock, times(1)).close();
-        verifyNoMoreInteractions(dataSourceMock);
+        verify(readerMock, times(1)).close();
+        verifyNoMoreInteractions(readerMock);
     }
 }
