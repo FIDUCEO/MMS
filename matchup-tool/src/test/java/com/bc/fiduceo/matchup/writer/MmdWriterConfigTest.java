@@ -386,7 +386,7 @@ public class MmdWriterConfigTest {
     public void testLoad_separator() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
-                                 "        <separator sensor-name = \"sensor\" separator = \"._.\" />" +
+                                 "        <separator sensor-names = \"sensor\" separator = \"._.\" />" +
                                  "    </variables-configuration>" +
                                  "</mmd-writer-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
@@ -399,11 +399,31 @@ public class MmdWriterConfigTest {
     }
 
     @Test
+    public void testLoad_separator_moreSensors() {
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <variables-configuration>" +
+                                 "        <separator sensor-names = \"sensor1, sensor2, sensor3\" separator = \"_1_\" />" +
+                                 "        <separator sensor-names = \"sensor4\" separator = \"_2_\" />" +
+                                 "    </variables-configuration>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig config = MmdWriterConfig.load(inputStream);
+        final VariablesConfiguration variablesConfiguration = config.getVariablesConfiguration();
+        assertEquals("_", variablesConfiguration.getSeparator("sensor0"));
+        assertEquals("_1_", variablesConfiguration.getSeparator("sensor1"));
+        assertEquals("_1_", variablesConfiguration.getSeparator("sensor2"));
+        assertEquals("_1_", variablesConfiguration.getSeparator("sensor3"));
+        assertEquals("_2_", variablesConfiguration.getSeparator("sensor4"));
+        assertEquals("_", variablesConfiguration.getSeparator("sensor5"));
+    }
+
+    @Test
     public void testLoad_separator_for_sensor_already_set() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
-                                 "        <separator sensor-name = \"sensor\" separator = \"._.\" />" +
-                                 "        <separator sensor-name = \"sensor\" separator = \"o^_^o\" />" +
+                                 "        <separator sensor-names = \"sensor\" separator = \"._.\" />" +
+                                 "        <separator sensor-names = \"sensor\" separator = \"o^_^o\" />" +
                                  "    </variables-configuration>" +
                                  "</mmd-writer-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
@@ -420,7 +440,7 @@ public class MmdWriterConfigTest {
     public void testLoad_separator_missingSeparatorAttribute() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
-                                 "        <separator sensor-name = \"sensor\"  />" +
+                                 "        <separator sensor-names = \"sensor\"  />" +
                                  "    </variables-configuration>" +
                                  "</mmd-writer-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
@@ -446,7 +466,7 @@ public class MmdWriterConfigTest {
             MmdWriterConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Unable to initialize use case configuration: Missing attribute: sensor-name", expected.getMessage());
+            assertEquals("Unable to initialize use case configuration: Missing attribute: sensor-names", expected.getMessage());
         }
     }
 
@@ -454,7 +474,7 @@ public class MmdWriterConfigTest {
     public void testLoad_separator_missingSeparatorValue() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
-                                 "        <separator sensor-name = \"sensor\" separator = \"\" />" +
+                                 "        <separator sensor-names = \"sensor\" separator = \"\" />" +
                                  "    </variables-configuration>" +
                                  "</mmd-writer-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
@@ -471,7 +491,7 @@ public class MmdWriterConfigTest {
     public void testLoad_separator_missingSensorNameValue() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
-                                 "        <separator sensor-name = \"\" separator = \"o^_^o\" />" +
+                                 "        <separator sensor-names = \"\" separator = \"o^_^o\" />" +
                                  "    </variables-configuration>" +
                                  "</mmd-writer-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
@@ -480,7 +500,7 @@ public class MmdWriterConfigTest {
             MmdWriterConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Unable to initialize use case configuration: Empty attribute: sensor-name", expected.getMessage());
+            assertEquals("Unable to initialize use case configuration: Empty attribute: sensor-names", expected.getMessage());
         }
     }
 }

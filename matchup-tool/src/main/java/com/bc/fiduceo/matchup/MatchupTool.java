@@ -98,6 +98,7 @@ class MatchupTool {
                 throws IOException {
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
+        // todo 3 se/** 2016-10-21 adopt when multiple secondary sensors are needed
         final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
         final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
         final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);

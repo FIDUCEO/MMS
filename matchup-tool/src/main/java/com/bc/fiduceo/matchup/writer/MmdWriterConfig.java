@@ -21,8 +21,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static java.io.File.separator;
-
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
@@ -37,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 @SuppressWarnings("unchecked")
 public class MmdWriterConfig {
@@ -53,7 +52,7 @@ public class MmdWriterConfig {
     private static final String EXCLUDE_TAG = "exclude";
 
     private static final String SEPARATOR_ATTRIBUTE = "separator";
-    private static final String SENSOR_NAME_ATTRIBUTE = "sensor-name";
+    private static final String SENSOR_NAMES_ATTRIBUTE = "sensor-names";
     private static final String NAMES_ATTRIBUTE = "names";
     private static final String SOURCE_NAME_ATTRIBUTE = "source-name";
     private static final String TARGET_NAME_ATTRIBUTE = "target-name";
@@ -156,12 +155,17 @@ public class MmdWriterConfig {
         }
         final String defaultSeparator = VariablesConfiguration.DEFAULT_SEPARATOR;
         for (Element separatorElem : separatorElems) {
-            final String sensorName = getAttributeString(SENSOR_NAME_ATTRIBUTE, separatorElem);
+            final String sensorNames = getAttributeString(SENSOR_NAMES_ATTRIBUTE, separatorElem);
+
             final String separator = getAttributeString(SEPARATOR_ATTRIBUTE, separatorElem);
-            if (defaultSeparator.equals(variablesConfiguration.getSeparator(sensorName))) {
-                variablesConfiguration.setSeparator(sensorName, separator);
-            } else {
-                throw new RuntimeException("Separator for sensor '" + sensorName + "' is already set.");
+            final StringTokenizer stringTokenizer = new StringTokenizer(sensorNames, ",");
+            while (stringTokenizer.hasMoreTokens()) {
+                final String sensorName = stringTokenizer.nextToken().trim();
+                if (defaultSeparator.equals(variablesConfiguration.getSeparator(sensorName))) {
+                    variablesConfiguration.setSeparator(sensorName, separator);
+                } else {
+                    throw new RuntimeException("Separator for sensor '" + sensorName + "' is already set.");
+                }
             }
         }
     }

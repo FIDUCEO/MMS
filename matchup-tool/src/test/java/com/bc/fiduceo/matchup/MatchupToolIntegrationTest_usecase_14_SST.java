@@ -110,7 +110,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
                                        "    <netcdf-format>N3</netcdf-format>" +
                                        "    <variables-configuration>" +
                                        "        <sensor-rename source-name = \"aatsr-en\" target-name = \"atsr.3\" />" +
-                                       "        <separator sensor-name=\"aatsr-en\" separator = \".\" />" +
+                                       "        <separator sensor-names = \"aatsr-en\" separator = \".\" />" +
                                        "        <sensors names = \"aatsr-en\">" +
                                        "            <rename source-name = \"acquisition_time\" target-name = \"time\" />" +
                                        "            <rename source-name = \"altitude\" target-name = \"altitude\" />" +
