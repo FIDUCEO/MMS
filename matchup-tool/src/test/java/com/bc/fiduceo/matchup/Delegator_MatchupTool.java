@@ -26,7 +26,10 @@ import java.io.IOException;
 public class Delegator_MatchupTool {
 
 
-    public static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection, UseCaseConfig useCaseConfig, Target mmdWriter, final VariablesConfiguration variablesConfiguration) throws IOException {
-        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, mmdWriter, useCaseConfig, variablesConfiguration);
+    public static void createIOVariablesPerSensor(IOVariablesList ioVariablesList,
+                                                  MatchupCollection matchupCollection,
+                                                  UseCaseConfig useCaseConfig,
+                                                  final VariablesConfiguration variablesConfiguration) throws IOException {
+        MatchupTool.createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
     }
 }

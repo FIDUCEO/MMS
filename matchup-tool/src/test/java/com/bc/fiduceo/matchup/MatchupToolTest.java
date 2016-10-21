@@ -34,7 +34,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.writer.IOVariable;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
-import com.bc.fiduceo.matchup.writer.Target;
+import com.bc.fiduceo.matchup.writer.ReaderContainer;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.matchup.writer.WindowReadingIOVariable;
 import com.bc.fiduceo.reader.Reader;
@@ -45,6 +45,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
@@ -77,15 +79,15 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.0.4-SNAPSHOT" + ls +
-                ls +
-                "usage: matchup-tool <options>" + ls +
-                "Valid options are:" + ls +
-                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                "   -h,--help                   Prints the tool usage." + ls +
-                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-                "                               configuration directory." + ls, outputStream.toString());
+                     ls +
+                     "usage: matchup-tool <options>" + ls +
+                     "Valid options are:" + ls +
+                     "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                     "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                     "   -h,--help                   Prints the tool usage." + ls +
+                     "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                     "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                     "                               configuration directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -180,8 +182,8 @@ public class MatchupToolTest {
         sensor.setPrimary(true);
         sensorList.add(sensor);
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
-                .withSensors(sensorList)
-                .createConfig();
+                    .withSensors(sensorList)
+                    .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
@@ -202,8 +204,8 @@ public class MatchupToolTest {
         sensor.setDataVersion("v23.5");
         sensorList.add(sensor);
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
-                .withSensors(sensorList)
-                .createConfig();
+                    .withSensors(sensorList)
+                    .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         final QueryParameter parameter = MatchupTool.getPrimarySensorParameter(context);
@@ -221,8 +223,8 @@ public class MatchupToolTest {
         sensorList.add(sensor);
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
-                .withSensors(sensorList)
-                .createConfig();
+                    .withSensors(sensorList)
+                    .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
         try {
@@ -392,6 +394,7 @@ public class MatchupToolTest {
         sampleSet = matchupSet.getSampleSets().get(1);
         assertEquals(0.8603944182395935f, sampleSet.getSphericalDistance(), 1e-8);
     }
+
     @Test
     public void testGetVariable() {
         final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
@@ -418,6 +421,7 @@ public class MatchupToolTest {
         final IOVariable resultVariable = MatchupTool.getVariable("this-does-not-exist", ioVariables);
         assertNull(resultVariable);
     }
+
     @Test
     public void testApplyExcludesAndRenames_emptyConfig() {
         final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
@@ -484,19 +488,21 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testExtractIOVariables() throws Exception {
+    public void testCreateIOVariablesPerSensor() throws Exception {
         //preparation
-        final Sensor primarySensor = createSensor("avhrr-n17", true);
-        final Sensor secondarySensor = createSensor("avhrr-n18", false);
-        final Dimension primaryWindowDimension = new Dimension("avhrr-n17", 5, 4);
-        final Dimension secondaryWindowDimension = new Dimension("avhrr-n18", 5, 4);
+        final String primarySensorName = "avhrr-n17";
+        final String secondarySensorName = "avhrr-n18";
+        final Sensor primarySensor = createSensor(primarySensorName, true);
+        final Sensor secondarySensor = createSensor(secondarySensorName, false);
+        final Dimension primaryWindowDimension = new Dimension(primarySensorName, 5, 4);
+        final Dimension secondaryWindowDimension = new Dimension(secondarySensorName, 5, 4);
         final Path mockingPrimaryPath = Paths.get("mockingPrimaryPath");
         final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
-                .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
-                .withSensors(Arrays.asList(primarySensor, secondarySensor))
-                .createConfig();
+                    .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
+                    .withSensors(Arrays.asList(primarySensor, secondarySensor))
+                    .createConfig();
 
         final MatchupSet matchupSet = new MatchupSet();
         matchupSet.setPrimaryObservationPath(mockingPrimaryPath);
@@ -511,27 +517,156 @@ public class MatchupToolTest {
         final IOVariablesList ioVariablesList = mock(IOVariablesList.class);
         when(ioVariablesList.get()).thenReturn(ioVariables);
 
-        final Target target = mock(Target.class);
         final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
 
         // test execution
-        MatchupTool.extractIOVariables(ioVariablesList, matchupCollection, target, useCaseConfig, variablesConfiguration);
+        MatchupTool.createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
 
         // validation
-        verify(ioVariablesList, times(1)).extractVariables(eq(primarySensor.getName()), eq(mockingPrimaryPath), eq(primaryWindowDimension), eq(variablesConfiguration));
-        verify(ioVariablesList, times(1)).extractVariables(eq(secondarySensor.getName()), eq(mockingSecondaryPath), eq(secondaryWindowDimension), eq(variablesConfiguration));
+        verify(ioVariablesList, times(1)).extractVariables(eq(primarySensorName), eq(mockingPrimaryPath), eq(primaryWindowDimension), eq(variablesConfiguration));
+        verify(ioVariablesList, times(1)).extractVariables(eq(secondarySensorName), eq(mockingSecondaryPath), eq(secondaryWindowDimension), eq(variablesConfiguration));
+        verify(ioVariablesList, times(4)).add(any(IOVariable.class), eq(primarySensorName));
+        verify(ioVariablesList, times(4)).add(any(IOVariable.class), eq(secondarySensorName));
+        verify(ioVariablesList, times(1)).getReaderContainer(primarySensorName);
+        verify(ioVariablesList, times(1)).getReaderContainer(secondarySensorName);
         verifyNoMoreInteractions(ioVariablesList);
 
         verifyNoMoreInteractions(ioVariable);
-
-        verifyNoMoreInteractions(target);
     }
 
-    private Sensor createSensor(String name, boolean isPrimary) {
-        final Sensor primarySensor = new Sensor();
-        primarySensor.setPrimary(isPrimary);
-        primarySensor.setName(name);
-        return primarySensor;
+    @Test
+    public void testCreateExtraVariables() throws Exception {
+        final String sensorName = "sensorName";
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);
+        ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
+
+        MatchupTool.createExtraVariables(sensorName, ioVariablesList, new VariablesConfiguration());
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(4, ioVariables.size());
+
+        IOVariable variable;
+        List<Attribute> attributes;
+        Attribute attribute;
+
+        variable = ioVariables.get(0);
+        assertEquals("sensorName_x", variable.getTargetVariableName());
+        assertEquals("int", variable.getDataType());
+        assertEquals("matchup_count", variable.getDimensionNames());
+        attributes = variable.getAttributes();
+        assertEquals(1, attributes.size());
+        attribute = attributes.get(0);
+        assertEquals("description", attribute.getShortName());
+        assertEquals("pixel original x location in satellite raster", attribute.getStringValue());
+
+        variable = ioVariables.get(1);
+        assertEquals("sensorName_y", variable.getTargetVariableName());
+        assertEquals("int", variable.getDataType());
+        assertEquals("matchup_count", variable.getDimensionNames());
+        attributes = variable.getAttributes();
+        assertEquals(1, attributes.size());
+        attribute = attributes.get(0);
+        assertEquals("description", attribute.getShortName());
+        assertEquals("pixel original y location in satellite raster", attribute.getStringValue());
+
+        variable = ioVariables.get(2);
+        assertEquals("sensorName_file_name", variable.getTargetVariableName());
+        assertEquals("char", variable.getDataType());
+        assertEquals("matchup_count file_name", variable.getDimensionNames());
+        attributes = variable.getAttributes();
+        assertEquals(1, attributes.size());
+        attribute = attributes.get(0);
+        assertEquals("description", attribute.getShortName());
+        assertEquals("file name of the original data file", attribute.getStringValue());
+
+        variable = ioVariables.get(3);
+        assertEquals("sensorName_acquisition_time", variable.getTargetVariableName());
+        assertEquals("int", variable.getDataType());
+        assertEquals("matchup_count sensorName_ny sensorName_nx", variable.getDimensionNames());
+        attributes = variable.getAttributes();
+        assertEquals(3, attributes.size());
+        attribute = attributes.get(0);
+        assertEquals("description", attribute.getShortName());
+        assertEquals("acquisition time of original pixel", attribute.getStringValue());
+        attribute = attributes.get(1);
+        assertEquals("unit", attribute.getShortName());
+        assertEquals("seconds since 1970-01-01", attribute.getStringValue());
+        attribute = attributes.get(2);
+        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(DataType.INT, attribute.getDataType());
+        assertEquals(1, attribute.getValues().getSize());
+        assertEquals(-2147483648, attribute.getValues().getInt(0));
+    }
+
+    @Test
+    public void testCreateExtraVariables_sensorRename() throws Exception {
+        final String sensorName = "sensorName";
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);
+        ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
+        final VariablesConfiguration configuration = new VariablesConfiguration();
+        configuration.addSensorRename(sensorName, "renamed");
+
+        MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(4, ioVariables.size());
+
+        final IOVariable xVariable = ioVariables.get(0);
+        assertEquals("renamed_x", xVariable.getTargetVariableName());
+
+        final IOVariable yVariable = ioVariables.get(1);
+        assertEquals("renamed_y", yVariable.getTargetVariableName());
+
+        final IOVariable pathVariable = ioVariables.get(2);
+        assertEquals("renamed_file_name", pathVariable.getTargetVariableName());
+
+        final IOVariable timeVariable = ioVariables.get(3);
+        assertEquals("renamed_acquisition_time", timeVariable.getTargetVariableName());
+    }
+
+    @Test
+    public void testCreateExtraVariables_variableRenaming() throws Exception {
+        final String sensorName = "sensorName";
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);
+        ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
+        final VariablesConfiguration configuration = new VariablesConfiguration();
+        final HashMap<String, String> renames = new HashMap<>();
+        renames.put("x", "XcenterX");
+        renames.put("y", "YcenterY");
+        renames.put("file_name", "SourceProductFileName");
+        renames.put("acquisition_time", "time");
+        configuration.addRenames(sensorName, renames);
+
+        MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(4, ioVariables.size());
+
+        final IOVariable xVariable = ioVariables.get(0);
+        assertEquals("sensorName_XcenterX", xVariable.getTargetVariableName());
+
+        final IOVariable yVariable = ioVariables.get(1);
+        assertEquals("sensorName_YcenterY", yVariable.getTargetVariableName());
+
+        final IOVariable pathVariable = ioVariables.get(2);
+        assertEquals("sensorName_SourceProductFileName", pathVariable.getTargetVariableName());
+
+        final IOVariable timeVariable = ioVariables.get(3);
+        assertEquals("sensorName_time", timeVariable.getTargetVariableName());
+    }
+
+    @Test
+    public void testCreateExtraVariables_excludes___x_y_fileName_aquisitionTime() throws Exception {
+        final String sensorName = "sensorName";
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);
+        ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
+        final VariablesConfiguration configuration = new VariablesConfiguration();
+        configuration.addExcludes(sensorName, Arrays.asList("x", "y", "file_name", "acquisition_time"));
+
+        MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(0, ioVariables.size());
     }
 
     @Test
@@ -556,5 +691,12 @@ public class MatchupToolTest {
         final MatchupSet set = MatchupTool.getFirstMatchupSet(collection);
 
         assertSame(first, set);
+    }
+
+    private Sensor createSensor(String name, boolean isPrimary) {
+        final Sensor primarySensor = new Sensor();
+        primarySensor.setPrimary(isPrimary);
+        primarySensor.setName(name);
+        return primarySensor;
     }
 }

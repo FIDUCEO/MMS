@@ -112,7 +112,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
                                        "        <sensor-rename source-name = \"aatsr-en\" target-name = \"atsr.3\" />" +
                                        "        <separator sensor-name=\"aatsr-en\" separator = \".\" />" +
                                        "        <sensors names = \"aatsr-en\">" +
-                                       "            <rename source-name = \"aatsr-en_acquisition_time\" target-name = \"atsr.3.time\" />" +
+                                       "            <rename source-name = \"acquisition_time\" target-name = \"time\" />" +
                                        "            <rename source-name = \"altitude\" target-name = \"altitude\" />" +
                                        "            <rename source-name = \"btemp_fward_0370\" target-name = \"brightness_temperature_37_forward\" />" +
                                        "            <rename source-name = \"btemp_nadir_0370\" target-name = \"brightness_temperature_37_nadir\" />" +

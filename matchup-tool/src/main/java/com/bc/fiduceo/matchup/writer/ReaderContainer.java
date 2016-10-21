@@ -21,7 +21,7 @@ import com.bc.fiduceo.reader.Reader;
 import java.io.IOException;
 import java.nio.file.Path;
 
-class ReaderContainer {
+public class ReaderContainer {
 
     private Reader reader;
     private Path sourcePath;

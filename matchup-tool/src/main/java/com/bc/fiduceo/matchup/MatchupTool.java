@@ -33,12 +33,16 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
+import com.bc.fiduceo.matchup.writer.AcquisitionTimeReadingIOVariable;
+import com.bc.fiduceo.matchup.writer.CenterXWritingIOVariable;
+import com.bc.fiduceo.matchup.writer.CenterYWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.IOVariable;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.matchup.writer.Target;
+import com.bc.fiduceo.matchup.writer.ReaderContainer;
+import com.bc.fiduceo.matchup.writer.SourcePathWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.math.IntersectionEngine;
@@ -57,6 +61,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -88,9 +93,9 @@ class MatchupTool {
         return pixelLocator;
     }
 
-    static void extractIOVariables(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
-                                   Target target, final UseCaseConfig useCaseConfig,
-                                   VariablesConfiguration variablesConfiguration) throws IOException {
+    static void createIOVariablesPerSensor(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
+                                           final UseCaseConfig useCaseConfig, VariablesConfiguration variablesConfiguration)
+                throws IOException {
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
         final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
@@ -98,9 +103,82 @@ class MatchupTool {
         final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
+        final Path primaryPath = matchupSet.getPrimaryObservationPath();
+        final Path secondaryPath = matchupSet.getSecondaryObservationPath();
 
-        ioVariablesList.extractVariables(primSensorName, matchupSet.getPrimaryObservationPath(), primDim, variablesConfiguration);
-        ioVariablesList.extractVariables(secoSensorName, matchupSet.getSecondaryObservationPath(), secoDim, variablesConfiguration);
+        ioVariablesList.extractVariables(primSensorName, primaryPath, primDim, variablesConfiguration);
+        createExtraVariables(primSensorName, ioVariablesList, variablesConfiguration);
+
+        ioVariablesList.extractVariables(secoSensorName, secondaryPath, secoDim, variablesConfiguration);
+        createExtraVariables(secoSensorName, ioVariablesList, variablesConfiguration);
+    }
+
+    static void createExtraVariables(String sensorName, IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
+        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+        final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
+        final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+        final String separator = variablesConfiguration.getSeparator(sensorName);
+
+        final ReaderContainer readerContainer = ioVariablesList.getReaderContainer(sensorName);
+
+        final String targetSensorName;
+        if (sensorRenames.containsKey(sensorName)) {
+            targetSensorName = sensorRenames.get(sensorName);
+        } else {
+            targetSensorName = sensorName;
+        }
+
+        String varName;
+
+        varName = "x";
+        if (!excludes.contains(varName)) {
+            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            final CenterXWritingIOVariable ioVariable = new CenterXWritingIOVariable();
+            ioVariable.setTargetVariableName(targetSensorName + separator + varName);
+            ioVariable.setDataType(DataType.INT.toString());
+            ioVariable.setDimensionNames("matchup_count");
+            final List<Attribute> attributes = ioVariable.getAttributes();
+            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
+            ioVariablesList.add(ioVariable, sensorName);
+        }
+
+        varName = "y";
+        if (!excludes.contains(varName)) {
+            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            final CenterYWritingIOVariable ioVariable = new CenterYWritingIOVariable();
+            ioVariable.setTargetVariableName(targetSensorName + separator + varName);
+            ioVariable.setDataType(DataType.INT.toString());
+            ioVariable.setDimensionNames("matchup_count");
+            final List<Attribute> attributes = ioVariable.getAttributes();
+            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
+            ioVariablesList.add(ioVariable, sensorName);
+        }
+
+        varName = "file_name";
+        if (!excludes.contains(varName)) {
+            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            final SourcePathWritingIOVariable ioVariable = new SourcePathWritingIOVariable(readerContainer);
+            ioVariable.setTargetVariableName(targetSensorName + separator + varName);
+            ioVariable.setDataType(DataType.CHAR.toString());
+            ioVariable.setDimensionNames("matchup_count file_name");
+            final List<Attribute> attributes = ioVariable.getAttributes();
+            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
+            ioVariablesList.add(ioVariable, sensorName);
+        }
+
+        varName = "acquisition_time";
+        if (!excludes.contains(varName)) {
+            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            final AcquisitionTimeReadingIOVariable ioVariable = new AcquisitionTimeReadingIOVariable(readerContainer);
+            ioVariable.setTargetVariableName(targetSensorName + separator + varName);
+            ioVariable.setDataType(DataType.INT.toString());
+            ioVariable.setDimensionNames("matchup_count " + sensorName + "_ny " + sensorName + "_nx");
+            final List<Attribute> attributes = ioVariable.getAttributes();
+            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
+            attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
+            attributes.add(new Attribute("_FillValue", -2147483648));
+            ioVariablesList.add(ioVariable, sensorName);
+        }
     }
 
     static boolean isSegmented(Geometry primaryGeoBounds) {
@@ -341,7 +419,7 @@ class MatchupTool {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
-        extractIOVariables(ioVariablesList, matchupCollection, (Target) mmdWriter, useCaseConfig, variablesConfiguration);
+        createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {
             ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable());
         }

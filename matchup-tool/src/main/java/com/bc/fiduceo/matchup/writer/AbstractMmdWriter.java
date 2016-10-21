@@ -31,8 +31,6 @@ import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StopWatch;
@@ -57,9 +55,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 abstract class AbstractMmdWriter implements MmdWriter, Target {
-
-    private static final String UNIT_ATTRIBUTE_NAME = "unit";
-    private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
     private final Logger logger;
     private final Map<String, Array> dataCacheMap;
@@ -98,8 +93,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             variable.setTarget(this);
         }
 
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
-
         try {
             logger.info("Start writing mmd-file ...");
 
@@ -130,19 +123,14 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
                 ioVariablesList.setDataSourcePath(primarySensorName, primaryObservationPath);
                 ioVariablesList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
-                try (final Reader primaryReader = readerFactory.getReader(primarySensorName);
-                     final Reader secondaryReader = readerFactory.getReader(secondarySensorName)) {
-                    primaryReader.open(primaryObservationPath.toFile());
-                    secondaryReader.open(secondaryObservationPath.toFile());
-                    final List<SampleSet> sampleSets = set.getSampleSets();
-                    for (SampleSet sampleSet : sampleSets) {
-                        writeMmdValues(primarySensorName, primaryObservationPath, sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval, primaryReader);
-                        writeMmdValues(secondarySensorName, secondaryObservationPath, sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval, secondaryReader);
-                        writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
-                        zIndex++;
-                        if (zIndex % cacheSize == 0) {
-                            flush();
-                        }
+                final List<SampleSet> sampleSets = set.getSampleSets();
+                for (SampleSet sampleSet : sampleSets) {
+                    writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
+                    writeMmdValues(sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval);
+                    writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
+                    zIndex++;
+                    if (zIndex % cacheSize == 0) {
+                        flush();
                     }
                 }
             }
@@ -154,14 +142,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
         } finally {
             close();
-        }
-    }
-
-    private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
-                throws IOException, InvalidRangeException {
-        for (SampleSetIOVariable variable : sampleSetVariables) {
-            variable.setSampleSet(sampleSet);
-            variable.writeData(0,0,null, zIndex);
         }
     }
 
@@ -277,7 +257,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         createDimensions(dimensions, numMatchups);
-        createExtraMmdVariablesPerSensor(dimensions);
 
         for (final IOVariable ioVariable : ioVariables) {
             ensureFillValue(ioVariable);
@@ -303,51 +282,11 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private void writeMmdValues(String sensorName, Path observationPath, Sample sample, int zIndex, List<IOVariable> variables, Interval interval, Reader reader) throws IOException, InvalidRangeException {
-        writeMmdValues(sample, zIndex, variables, interval);
-
-        writeExtraMmdVariables(sensorName, observationPath, zIndex, interval, reader, sample);
-    }
-
-    private void writeExtraMmdVariables(String sensorName, Path observationPath, int zIndex, Interval interval, Reader reader, Sample sample) throws IOException, InvalidRangeException {
-        final int x = sample.x;
-        final int y = sample.y;
-
-        final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
-        final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
-        final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
-
-        writeIntWithExcludeAndRename(zIndex, x, excludes, renames, sensorName + "_x");
-        writeIntWithExcludeAndRename(zIndex, y, excludes, renames, sensorName + "_y");
-
-        final String fileVariableName = sensorName + "_file_name";
-        if (!excludes.contains(fileVariableName)) {
-            if (renames.containsKey(fileVariableName)) {
-                final String targetName = renames.get(fileVariableName);
-                write(observationPath.getFileName().toString(), targetName, zIndex);
-            } else {
-                write(observationPath.getFileName().toString(), fileVariableName, zIndex);
-            }
-        }
-        final String acTimeVariableName = sensorName + "_acquisition_time";
-        if (!excludes.contains(acTimeVariableName)) {
-            if (renames.containsKey(acTimeVariableName)) {
-                final String targetName = renames.get(acTimeVariableName);
-                write(reader.readAcquisitionTime(x, y, interval), targetName, zIndex);
-            } else {
-                write(reader.readAcquisitionTime(x, y, interval), acTimeVariableName, zIndex);
-            }
-        }
-    }
-
-    private void writeIntWithExcludeAndRename(int zIndex, int value, List<String> excludes, Map<String, String> renames, String variableName) throws IOException, InvalidRangeException {
-        if (!excludes.contains(variableName)) {
-            if (renames.containsKey(variableName)) {
-                final String targetName = renames.get(variableName);
-                write(value, targetName, zIndex);
-            } else {
-                write(value, variableName, zIndex);
-            }
+    private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
+                throws IOException, InvalidRangeException {
+        for (SampleSetIOVariable variable : sampleSetVariables) {
+            variable.setSampleSet(sampleSet);
+            variable.writeData(0, 0, null, zIndex);
         }
     }
 
@@ -376,56 +315,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             variableMap.put(variableName, netcdfFileWriter.findVariable(escapedName));
         }
         return variableMap.get(variableName);
-    }
-
-    private void createExtraMmdVariablesPerSensor(List<Dimension> dimensions) {
-        final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
-
-        for (Dimension dimension : dimensions) {
-            final String sensorName = dimension.getName();
-            final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
-            final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
-
-            final String xVariableName = sensorName + "_x";
-            if (! excludes.contains(xVariableName)) {
-                final String targetName = getTargetName(renames, xVariableName);
-                final Variable variableX = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
-                variableX.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
-            }
-
-            final String yVariableName = sensorName + "_y";
-            if (!excludes.contains(yVariableName)) {
-                final String targetName = getTargetName(renames, yVariableName);
-                final Variable variableY = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count");
-                variableY.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
-            }
-
-            final String fileNameVariableName = sensorName + "_file_name";
-            if (!excludes.contains(fileNameVariableName)) {
-                final String targetName = getTargetName(renames, fileNameVariableName);
-                final Variable variableFileName = netcdfFileWriter.addVariable(null, targetName, DataType.CHAR, "matchup_count file_name");
-                variableFileName.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
-            }
-
-            final String acTimeVariableName = sensorName + "_acquisition_time";
-            if (!excludes.contains(acTimeVariableName)) {
-                final String targetName = getTargetName(renames, acTimeVariableName);
-                final String yDimension = getDimensionNameNy(sensorName);
-                final String xDimension = getDimensionNameNx(sensorName);
-                final Variable variableAcqTime = netcdfFileWriter.addVariable(null, targetName, DataType.INT, "matchup_count " + yDimension + " " + xDimension);
-                variableAcqTime.addAttribute(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
-                variableAcqTime.addAttribute(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
-                variableAcqTime.addAttribute(new Attribute("_FillValue", -2147483648));
-            }
-        }
-    }
-
-    private String getTargetName(Map<String, String> renames, String originalVariableName) {
-        if (renames.containsKey(originalVariableName)) {
-            return renames.get(originalVariableName);
-        } else {
-            return originalVariableName;
-        }
     }
 
     private void createGlobalAttributes() {
