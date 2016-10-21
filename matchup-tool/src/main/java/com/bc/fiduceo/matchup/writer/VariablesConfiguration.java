@@ -33,13 +33,14 @@ public class VariablesConfiguration {
     private final HashMap<String, List<String>> excludesMap;
     private final Map<String, String> sensorRenames;
     private final Map<String, String> sensorSeparator;
-
+    private final List<AttributeRename> attributeRenameList;
 
     public VariablesConfiguration() {
         renamesMap = new HashMap<>();
         excludesMap = new HashMap<>();
         sensorRenames = new HashMap<>();
         sensorSeparator = new HashMap<>();
+        attributeRenameList = new ArrayList<>();
     }
 
     public Map<String, String> getRenames(String sensorKey) {
@@ -96,5 +97,66 @@ public class VariablesConfiguration {
 
     public void setSeparator(String sensorName, String separator) {
         sensorSeparator.put(sensorName, separator);
+    }
+
+    public void setAttributeRename(String sensorName, String variableName, String srcName, String rename) {
+        attributeRenameList.add(new AttributeRename(sensorName, variableName, srcName, rename));
+    }
+
+    public String getRenamedAttributeName(String sensorName, String variableName, String attributeName) {
+        final LinkedList<AttributeRename> renamer = new LinkedList<>();
+        for (AttributeRename attributeRename : attributeRenameList) {
+            if (attributeRename.srcName.equals(attributeName)) {
+                renamer.add(attributeRename);
+            }
+        }
+        for (int i = renamer.size() - 1; i >= 0; i--) {
+            AttributeRename attributeRename = renamer.get(i);
+            if (!attributeRename.isSensorName(sensorName)) {
+                renamer.remove(attributeRename);
+            }
+        }
+        for (int i = renamer.size() - 1; i >= 0; i--) {
+            AttributeRename attributeRename = renamer.get(i);
+            if (!attributeRename.acceptVariableName(variableName)) {
+                renamer.remove(attributeRename);
+            }
+        }
+        for (AttributeRename attributeRename : renamer) {
+            if (attributeRename.isVariableName(variableName)) {
+                return attributeRename.rename;
+            }
+        }
+        if (renamer.size() >= 1) {
+            return renamer.get(0).rename;
+        }
+        return attributeName;
+    }
+
+    private static class AttributeRename {
+
+        public final String sensorName;
+        public final String variableName;
+        public final String srcName;
+        public final String rename;
+
+        public AttributeRename(String sensorName, String variableName, String srcName, String rename) {
+            this.sensorName = sensorName;
+            this.variableName = variableName;
+            this.srcName = srcName;
+            this.rename = rename;
+        }
+
+        public boolean isSensorName(String sensorName) {
+            return Objects.equals(this.sensorName, sensorName);
+        }
+
+        public boolean isVariableName(String variableName) {
+            return Objects.equals(this.variableName, variableName);
+        }
+
+        public boolean acceptVariableName(String variableName) {
+            return this.variableName == null || isVariableName(variableName);
+        }
     }
 }

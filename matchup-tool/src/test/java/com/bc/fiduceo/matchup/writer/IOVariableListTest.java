@@ -50,7 +50,12 @@ public class IOVariableListTest {
     @Test
     public void testCloneAllTheAttributesFromAVariable() throws Exception {
         //preparation
+        final String sensorName = "sensorName";
+        final String variableName = "varName";
+
         final Variable mock = mock(Variable.class);
+        when(mock.getShortName()).thenReturn(variableName);
+
         final ArrayList<Attribute> attributes = new ArrayList<>();
         final ArrayDouble.D1 expectedDouble = (ArrayDouble.D1) Array.factory(new double[]{1});
         final ArrayFloat.D1 expectedFloat = (ArrayFloat.D1) Array.factory(new float[]{2});
@@ -63,7 +68,7 @@ public class IOVariableListTest {
         final ArrayFloat.D1 expectedFloats = (ArrayFloat.D1) Array.factory(new float[]{8, 9, 10});
 
         attributes.add(new Attribute("name1", expectedDouble));
-        attributes.add(new Attribute("name2", expectedFloat));
+        attributes.add(new Attribute("name2", expectedFloat));  // Attribute to be renamed
         attributes.add(new Attribute("name3", expectedLong));
         attributes.add(new Attribute("name4", expectedInt));
         attributes.add(new Attribute("name5", expectedShort));
@@ -73,8 +78,11 @@ public class IOVariableListTest {
         attributes.add(new Attribute("name8", expectedFloats));
         when(mock.getAttributes()).thenReturn(attributes);
 
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        variablesConfiguration.setAttributeRename(sensorName, variableName, "name2", "renamed");
+
         //test
-        final List<Attribute> attributeClones = IOVariablesList.getAttributeClones(mock);
+        final List<Attribute> attributeClones = IOVariablesList.getAttributeClones(mock, sensorName, variablesConfiguration);
 
         //validation
         assertNotNull(attributeClones);
@@ -110,9 +118,8 @@ public class IOVariableListTest {
         expectedAttrib = attributes.get(attribIndex);
         actualAttrib = attributeClones.get(attribIndex);
 
-        assertEquals(expectedAttrib, actualAttrib);
         assertNotSame(expectedAttrib, actualAttrib);
-        assertEquals(expectedAttrib.getShortName(), actualAttrib.getShortName());
+        assertEquals("renamed", actualAttrib.getShortName());
 
         expectedAttribValues = expectedAttrib.getValues();
         actualAttribValues = actualAttrib.getValues();

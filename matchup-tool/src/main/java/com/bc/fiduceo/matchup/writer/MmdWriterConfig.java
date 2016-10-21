@@ -49,11 +49,13 @@ public class MmdWriterConfig {
     private static final String SEPARATOR = "separator";
     private static final String SENSORS_TAG = "sensors";
     private static final String RENAME_TAG = "rename";
+    private static final String RENAME_ATTRIBUTE_TAG = "rename-attribute";
     private static final String EXCLUDE_TAG = "exclude";
 
     private static final String SEPARATOR_ATTRIBUTE = "separator";
     private static final String SENSOR_NAMES_ATTRIBUTE = "sensor-names";
     private static final String NAMES_ATTRIBUTE = "names";
+    private static final String VARIABLE_NAMES_ATTRIBUTE = "variable-names";
     private static final String SOURCE_NAME_ATTRIBUTE = "source-name";
     private static final String TARGET_NAME_ATTRIBUTE = "target-name";
 
@@ -142,6 +144,7 @@ public class MmdWriterConfig {
             configureSeparator(variablesConfigurationElement);
             final List<Element> sensorElements = variablesConfigurationElement.getChildren(SENSORS_TAG);
             for (final Element sensorElement : sensorElements) {
+                addAttributeRenames(sensorElement);
                 addVariableRenames(sensorElement);
                 addVariableExcludes(sensorElement);
             }
@@ -205,12 +208,34 @@ public class MmdWriterConfig {
         variablesConfiguration.addRenames(sensorKeys, variableRenames);
     }
 
+    private void addAttributeRenames(Element sensorElement) {
+        String sensorNames = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
+        final String[] sensorName = sensorNames.replaceAll(" ", "").split(",");
+        final List<Element> renameAttributes = sensorElement.getChildren(RENAME_ATTRIBUTE_TAG);
+        for (Element renameAttribute : renameAttributes) {
+            final Attribute varNamesAttr = renameAttribute.getAttribute(VARIABLE_NAMES_ATTRIBUTE);
+            final String[] varNames;
+            if (varNamesAttr == null) {
+                varNames = new String[]{null};
+            } else {
+                varNames = varNamesAttr.getValue().replaceAll(" ", "").split(",");
+            }
+            final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, renameAttribute);
+            final String targetName = getAttributeString(TARGET_NAME_ATTRIBUTE, renameAttribute);
+            for (String sensor : sensorName) {
+                for (String varName : varNames) {
+                    variablesConfiguration.setAttributeRename(sensor, varName, sourceName, targetName);
+                }
+            }
+        }
+    }
+
     private String getAttributeString(String attributeName, Element sensorElement) {
-        final Attribute namesAttribute = sensorElement.getAttribute(attributeName);
-        if (namesAttribute == null) {
+        final Attribute attribute = sensorElement.getAttribute(attributeName);
+        if (attribute == null) {
             throw new RuntimeException("Missing attribute: " + attributeName);
         }
-        final String sensorKeys = namesAttribute.getValue();
+        final String sensorKeys = attribute.getValue();
         if (StringUtils.isNullOrEmpty(sensorKeys)) {
             throw new RuntimeException("Empty attribute: " + attributeName);
         }

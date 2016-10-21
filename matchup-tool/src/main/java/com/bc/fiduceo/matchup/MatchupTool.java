@@ -139,7 +139,8 @@ class MatchupTool {
             ioVariable.setDataType(DataType.INT.toString());
             ioVariable.setDimensionNames("matchup_count");
             final List<Attribute> attributes = ioVariable.getAttributes();
-            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original x location in satellite raster"));
+            final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "pixel original x location in satellite raster"));
             ioVariablesList.add(ioVariable, sensorName);
         }
 
@@ -151,7 +152,8 @@ class MatchupTool {
             ioVariable.setDataType(DataType.INT.toString());
             ioVariable.setDimensionNames("matchup_count");
             final List<Attribute> attributes = ioVariable.getAttributes();
-            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "pixel original y location in satellite raster"));
+            final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "pixel original y location in satellite raster"));
             ioVariablesList.add(ioVariable, sensorName);
         }
 
@@ -163,7 +165,8 @@ class MatchupTool {
             ioVariable.setDataType(DataType.CHAR.toString());
             ioVariable.setDimensionNames("matchup_count file_name");
             final List<Attribute> attributes = ioVariable.getAttributes();
-            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "file name of the original data file"));
+            final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "file name of the original data file"));
             ioVariablesList.add(ioVariable, sensorName);
         }
 
@@ -175,9 +178,13 @@ class MatchupTool {
             ioVariable.setDataType(DataType.INT.toString());
             ioVariable.setDimensionNames("matchup_count " + sensorName + "_ny " + sensorName + "_nx");
             final List<Attribute> attributes = ioVariable.getAttributes();
-            attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "acquisition time of original pixel"));
-            attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "seconds since 1970-01-01"));
-            attributes.add(new Attribute("_FillValue", -2147483648));
+            String attName;
+            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "acquisition time of original pixel"));
+            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, UNIT_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "seconds since 1970-01-01"));
+            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, "_FillValue");
+            attributes.add(new Attribute(attName, -2147483648));
             ioVariablesList.add(ioVariable, sensorName);
         }
     }

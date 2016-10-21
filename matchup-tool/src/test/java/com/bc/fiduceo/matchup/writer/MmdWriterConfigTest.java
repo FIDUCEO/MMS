@@ -143,6 +143,53 @@ public class MmdWriterConfigTest {
     }
 
     @Test
+    public void testLoad_AttribureRename() {
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <variables-configuration>" +
+                                 "        <sensors names = \"sen1, sen2\">" +
+                                 "            <rename-attribute source-name = \"attN1\" target-name = \"attN1_r\" />" +
+                                 "            <rename-attribute variable-names = \"var1\" source-name = \"attN2\" target-name = \"attN2_r\" />" +
+                                 "            <rename-attribute variable-names = \"var1, var2\" source-name = \"attN3\" target-name = \"attN3_r\" />" +
+                                 "        </sensors>" +
+                                 "    </variables-configuration>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+
+        final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
+        assertNotNull(variablesConfiguration);
+
+        assertEquals("attN1", variablesConfiguration.getRenamedAttributeName(null, null, "attN1"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName(null, null, "attN2"));
+        assertEquals("attN3", variablesConfiguration.getRenamedAttributeName(null, null, "attN3"));
+        assertEquals("attN4", variablesConfiguration.getRenamedAttributeName(null, null, "attN4"));
+
+        assertEquals("attN1_r", variablesConfiguration.getRenamedAttributeName("sen1", null, "attN1"));
+        assertEquals("attN1_r", variablesConfiguration.getRenamedAttributeName("sen1", "anyVar", "attN1"));
+        assertEquals("attN1_r", variablesConfiguration.getRenamedAttributeName("sen2", null, "attN1"));
+        assertEquals("attN1_r", variablesConfiguration.getRenamedAttributeName("sen2", "anyVar", "attN1"));
+
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen1", null, "attN2"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen2", null, "attN2"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen1", "anyVar", "attN2"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen2", "anyVar", "attN2"));
+        assertEquals("attN2_r", variablesConfiguration.getRenamedAttributeName("sen1", "var1", "attN2"));
+        assertEquals("attN2_r", variablesConfiguration.getRenamedAttributeName("sen2", "var1", "attN2"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen1", "var2", "attN2"));
+        assertEquals("attN2", variablesConfiguration.getRenamedAttributeName("sen2", "var2", "attN2"));
+
+        assertEquals("attN3", variablesConfiguration.getRenamedAttributeName("sen1", null, "attN3"));
+        assertEquals("attN3", variablesConfiguration.getRenamedAttributeName("sen2", null, "attN3"));
+        assertEquals("attN3", variablesConfiguration.getRenamedAttributeName("sen1", "anyVar", "attN3"));
+        assertEquals("attN3", variablesConfiguration.getRenamedAttributeName("sen2", "anyVar", "attN3"));
+        assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen1", "var1", "attN3"));
+        assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen2", "var1", "attN3"));
+        assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen1", "var2", "attN3"));
+        assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen2", "var2", "attN3"));
+    }
+
+    @Test
     public void testLoad_variables_oneSensorSet_renames() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +

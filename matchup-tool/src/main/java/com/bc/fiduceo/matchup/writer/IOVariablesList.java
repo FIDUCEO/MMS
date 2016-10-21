@@ -88,29 +88,7 @@ public class IOVariablesList {
         return Collections.unmodifiableList(sampleSetVariables);
     }
 
-    static List<Attribute> getAttributeClones(Variable variable) {
-        final List<Attribute> attributes = variable.getAttributes();
-        final ArrayList<Attribute> newAttributes = new ArrayList<>();
-        for (Attribute attribute : attributes) {
-            final String attName = attribute.getShortName();
-            if (attribute.getFullName().startsWith("_Chunk")) {
-                continue;
-            }
-            final Array attVals = attribute.getValues().copy();
-            final Attribute newAttribute = new Attribute(attName, attVals);
-            newAttributes.add(newAttribute);
-        }
-        return newAttributes;
-    }
-
-    // package access for testing only tb 2016-04-12
-    static String createDimensionNames(Dimension dimension) {
-        final String dimensionName = dimension.getName();
-        final String separator = " ";
-        return "matchup_count" + separator + dimensionName + "_ny" + separator + dimensionName + "_nx";
-    }
-
-    public void extractVariables(String sensorName, Path filePath, Dimension dimension, VariablesConfiguration variablesConfiguration) throws IOException {
+    public void extractVariables(final String sensorName, Path filePath, Dimension dimension, VariablesConfiguration variablesConfiguration) throws IOException {
         final Map<String, String> renamings = variablesConfiguration.getRenames(sensorName);
         final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
         final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
@@ -129,8 +107,11 @@ public class IOVariablesList {
             readerContainer.setReader(reader);
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
+            final String targetSensorName;
             if (sensorRenames.containsKey(sensorName)) {
-                sensorName = sensorRenames.get(sensorName);
+                targetSensorName = sensorRenames.get(sensorName);
+            } else {
+                targetSensorName = sensorName;
             }
             for (final Variable variable : variables) {
                 final String shortName = variable.getShortName();
@@ -141,14 +122,14 @@ public class IOVariablesList {
                 ioVariable.setSourceVariableName(shortName);
                 final String targetVariableName;
                 if (renamings.containsKey(shortName)) {
-                    targetVariableName = sensorName + separator + renamings.get(shortName);
+                    targetVariableName = targetSensorName + separator + renamings.get(shortName);
                 } else {
-                    targetVariableName = sensorName + separator + shortName;
+                    targetVariableName = targetSensorName + separator + shortName;
                 }
                 ioVariable.setTargetVariableName(targetVariableName);
                 ioVariable.setDataType(variable.getDataType().toString());
                 ioVariable.setDimensionNames(dimensionNames);
-                ioVariable.setAttributes(getAttributeClones(variable));
+                ioVariable.setAttributes(getAttributeClones(variable, sensorName, variablesConfiguration));
 
                 ioVariables.add(ioVariable);
             }
@@ -194,5 +175,29 @@ public class IOVariablesList {
         final Set<String> keySet = ioVariablesMap.keySet();
         sensorNamesList.addAll(keySet);
         return sensorNamesList;
+    }
+
+    static List<Attribute> getAttributeClones(Variable variable, String sensorName, VariablesConfiguration variablesConfiguration) {
+        final String variableName = variable.getShortName();
+        final List<Attribute> attributes = variable.getAttributes();
+        final ArrayList<Attribute> newAttributes = new ArrayList<>();
+        for (Attribute attribute : attributes) {
+            final String attName = attribute.getShortName();
+            if (attribute.getFullName().startsWith("_Chunk")) {
+                continue;
+            }
+            final Array attVals = attribute.getValues().copy();
+            final String cloneAttName = variablesConfiguration.getRenamedAttributeName(sensorName, variableName, attName);
+            final Attribute newAttribute = new Attribute(cloneAttName, attVals);
+            newAttributes.add(newAttribute);
+        }
+        return newAttributes;
+    }
+
+    // package access for testing only tb 2016-04-12
+    static String createDimensionNames(Dimension dimension) {
+        final String dimensionName = dimension.getName();
+        final String separator = " ";
+        return "matchup_count" + separator + dimensionName + "_ny" + separator + dimensionName + "_nx";
     }
 }

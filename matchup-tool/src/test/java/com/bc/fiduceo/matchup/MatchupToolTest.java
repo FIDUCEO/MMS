@@ -656,6 +656,41 @@ public class MatchupToolTest {
     }
 
     @Test
+    public void testCreateExtraVariables_AttibuteRenaming() throws Exception {
+        final String sensorName = "sensorName";
+        final IOVariablesList ioVariablesList = new IOVariablesList(null);
+        ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
+        final VariablesConfiguration configuration = new VariablesConfiguration();
+        configuration.setAttributeRename(sensorName, "x", "description", "desc_r");
+        configuration.setAttributeRename(sensorName, "file_name", "description", "desc_r");
+        configuration.setAttributeRename(sensorName, "acquisition_time", "unit", "unit_r");
+        configuration.setAttributeRename(sensorName, null, "_FillValue", "_fill_value");
+
+        MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(4, ioVariables.size());
+
+        final IOVariable xVariable = ioVariables.get(0);
+        assertEquals(1, xVariable.getAttributes().size());
+        assertEquals("desc_r", xVariable.getAttributes().get(0).getShortName());
+
+        final IOVariable yVariable = ioVariables.get(1);
+        assertEquals(1, yVariable.getAttributes().size());
+        assertEquals("description", yVariable.getAttributes().get(0).getShortName());
+
+        final IOVariable pathVariable = ioVariables.get(2);
+        assertEquals(1, pathVariable.getAttributes().size());
+        assertEquals("desc_r", pathVariable.getAttributes().get(0).getShortName());
+
+        final IOVariable timeVariable = ioVariables.get(3);
+        assertEquals(3, timeVariable.getAttributes().size());
+        assertEquals("description", timeVariable.getAttributes().get(0).getShortName());
+        assertEquals("unit_r", timeVariable.getAttributes().get(1).getShortName());
+        assertEquals("_fill_value", timeVariable.getAttributes().get(2).getShortName());
+    }
+
+    @Test
     public void testCreateExtraVariables_excludes___x_y_fileName_aquisitionTime() throws Exception {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
