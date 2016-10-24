@@ -125,10 +125,14 @@ class IngestionTool {
                 satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
                 satelliteObservation.setVersion(processingVersion);
                 storage.insert(satelliteObservation);
+            } catch (Exception e) {
+                logger.severe("Unable to register the file '" + dataFilePath + "'");
+                logger.severe("Cause: " + e.getMessage());
+                e.printStackTrace();
+                continue;
             } finally {
                 reader.close();
             }
-
             logger.info("success");
         }
     }
