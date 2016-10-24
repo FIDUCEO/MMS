@@ -21,8 +21,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static java.io.File.separator;
-
 import java.util.*;
 
 public class VariablesConfiguration {
@@ -99,14 +97,21 @@ public class VariablesConfiguration {
         sensorSeparator.put(sensorName, separator);
     }
 
-    public void setAttributeRename(String sensorName, String variableName, String srcName, String rename) {
-        attributeRenameList.add(new AttributeRename(sensorName, variableName, srcName, rename));
+    public void setAttributeRename(String sensorName, String variableName, String attributeName, String rename) {
+        final AttributeRename newRename = new AttributeRename(sensorName, variableName, attributeName, rename);
+        for (AttributeRename attributeRename : attributeRenameList) {
+            if (newRename.isSameRulePath(attributeRename)){
+                throw new RuntimeException("The same rule path is not allowed to be defined twice. " +
+                                           "Rulepath: sensorName, variableName, attributeName = " + sensorName + ", " + variableName+", "+attributeName+"'");
+            }
+        }
+        attributeRenameList.add(newRename);
     }
 
     public String getRenamedAttributeName(String sensorName, String variableName, String attributeName) {
         final LinkedList<AttributeRename> renamer = new LinkedList<>();
         for (AttributeRename attributeRename : attributeRenameList) {
-            if (attributeRename.srcName.equals(attributeName)) {
+            if (attributeRename.attributeName.equals(attributeName)) {
                 renamer.add(attributeRename);
             }
         }
@@ -137,13 +142,13 @@ public class VariablesConfiguration {
 
         public final String sensorName;
         public final String variableName;
-        public final String srcName;
+        public final String attributeName;
         public final String rename;
 
-        public AttributeRename(String sensorName, String variableName, String srcName, String rename) {
+        public AttributeRename(String sensorName, String variableName, String attributeName, String rename) {
             this.sensorName = sensorName;
             this.variableName = variableName;
-            this.srcName = srcName;
+            this.attributeName = attributeName;
             this.rename = rename;
         }
 
@@ -157,6 +162,12 @@ public class VariablesConfiguration {
 
         public boolean acceptVariableName(String variableName) {
             return this.variableName == null || isVariableName(variableName);
+        }
+
+        public boolean isSameRulePath(AttributeRename rename){
+            return Objects.equals(this.sensorName, rename.sensorName)
+                   && Objects.equals(this.variableName, rename.variableName)
+                   && Objects.equals(this.attributeName, rename.attributeName);
         }
     }
 }

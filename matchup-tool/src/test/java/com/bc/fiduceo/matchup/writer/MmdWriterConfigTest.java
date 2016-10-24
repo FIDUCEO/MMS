@@ -21,16 +21,15 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import org.junit.Before;
-import org.junit.Test;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
+import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
-
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
-import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
-import static org.junit.Assert.*;
 
 public class MmdWriterConfigTest {
 
@@ -187,6 +186,52 @@ public class MmdWriterConfigTest {
         assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen2", "var1", "attN3"));
         assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen1", "var2", "attN3"));
         assertEquals("attN3_r", variablesConfiguration.getRenamedAttributeName("sen2", "var2", "attN3"));
+    }
+
+    @Test
+    public void testLoad_AttribureRename_twiceDefinitionNotAllowed() {
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <variables-configuration>" +
+                                 "        <sensors names = \"sen1, sen2\">" +
+                                 "            <rename-attribute source-name = \"attN1\" target-name = \"rename1\" />" +
+                                 "            <rename-attribute source-name = \"attN1\" target-name = \"rename2\" />" +
+                                 "        </sensors>" +
+                                 "    </variables-configuration>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: The same rule path is not allowed to be defined twice. " +
+                         "Rulepath: sensorName, variableName, attributeName = sen1, null, attN1'", expected.getMessage());
+        } catch (Exception e) {
+            fail("RuntimeException expected");
+        }
+    }
+
+    @Test
+    public void testLoad_AttribureRename_twiceDefinitionNotAllowed_withVarName() {
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <variables-configuration>" +
+                                 "        <sensors names = \"sen1, sen2\">" +
+                                 "            <rename-attribute variable-names = \"var1, var2\" source-name = \"attN1\" target-name = \"rename1\" />" +
+                                 "            <rename-attribute variable-names = \"var2, var3\" source-name = \"attN1\" target-name = \"rename2\" />" +
+                                 "        </sensors>" +
+                                 "    </variables-configuration>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        try {
+            MmdWriterConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Unable to initialize use case configuration: The same rule path is not allowed to be defined twice. " +
+                         "Rulepath: sensorName, variableName, attributeName = sen1, var2, attN1'", expected.getMessage());
+        } catch (Exception e) {
+            fail("RuntimeException expected");
+        }
     }
 
     @Test

@@ -144,9 +144,9 @@ public class MmdWriterConfig {
             configureSeparator(variablesConfigurationElement);
             final List<Element> sensorElements = variablesConfigurationElement.getChildren(SENSORS_TAG);
             for (final Element sensorElement : sensorElements) {
-                addAttributeRenames(sensorElement);
                 addVariableRenames(sensorElement);
                 addVariableExcludes(sensorElement);
+                addAttributeRenames(sensorElement);
             }
         }
     }
@@ -209,8 +209,8 @@ public class MmdWriterConfig {
     }
 
     private void addAttributeRenames(Element sensorElement) {
-        String sensorNames = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
-        final String[] sensorName = sensorNames.replaceAll(" ", "").split(",");
+        String sensorNamesStr = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
+        final String[] sensorNames = trim(sensorNamesStr.split(","));
         final List<Element> renameAttributes = sensorElement.getChildren(RENAME_ATTRIBUTE_TAG);
         for (Element renameAttribute : renameAttributes) {
             final Attribute varNamesAttr = renameAttribute.getAttribute(VARIABLE_NAMES_ATTRIBUTE);
@@ -218,16 +218,23 @@ public class MmdWriterConfig {
             if (varNamesAttr == null) {
                 varNames = new String[]{null};
             } else {
-                varNames = varNamesAttr.getValue().replaceAll(" ", "").split(",");
+                varNames = trim(varNamesAttr.getValue().split(","));
             }
             final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, renameAttribute);
             final String targetName = getAttributeString(TARGET_NAME_ATTRIBUTE, renameAttribute);
-            for (String sensor : sensorName) {
+            for (String sensor : sensorNames) {
                 for (String varName : varNames) {
                     variablesConfiguration.setAttributeRename(sensor, varName, sourceName, targetName);
                 }
             }
         }
+    }
+
+    private String[] trim(String[] strings) {
+        for (int i = 0; i < strings.length; i++) {
+            strings[i] = strings[i].trim();
+        }
+        return strings;
     }
 
     private String getAttributeString(String attributeName, Element sensorElement) {
