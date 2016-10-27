@@ -65,6 +65,53 @@ public class GeometryUtil {
         return builder.toString();
     }
 
+    public static String toKml(float[] lats, float[] lons) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        builder.append("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n");
+        builder.append("<Document>\n");
+        builder.append("  <Style id=\"polygonStyle\">\n");
+        builder.append("    <LineStyle>\n");
+        builder.append("      <color>7f00ffff</color>\n");
+        builder.append("      <width>1</width>\n");
+        builder.append("    </LineStyle>\n");
+        builder.append("    <PolyStyle>\n");
+        builder.append("      <color>7f00ff00</color>\n");
+        builder.append("    </PolyStyle>\n");
+        builder.append("  </Style>\n");
+
+        float latBefore = 0;
+        float lonBefore = 0;
+        latBefore = lats[0];
+        lonBefore = lons[0];
+        int count = 1;
+        for (int i = 0; i < lats.length; i++) {
+            final float lat = lats[i];
+            final float lon = lons[i];
+            if (lat != latBefore || lon != lonBefore || i == lats.length -1 ) {
+                builder.append("  <Placemark>\n");
+                builder.append("    <name>"+count+"</name>\n");
+                builder.append("    <Point><coordinates>");
+                builder.append(lonBefore);
+                builder.append(",");
+                builder.append(latBefore);
+    //            builder.append(",0");
+                builder.append("</coordinates>");
+                builder.append("</Point>\n");
+                builder.append("  </Placemark>\n");
+                latBefore = lat;
+                lonBefore = lon;
+                count = 1;
+            } else {
+                count++;
+            }
+        }
+        builder.append("</Document>\n");
+        builder.append("</kml>");
+
+        return builder.toString();
+    }
+
     // don't remove this, we occasionally need it to dump debug WKT in casese where JTS can not display the polygon tb 2016-09-23
     public static String toPointListWkt(Geometry geometry) {
         final StringBuffer wkt = new StringBuffer();
