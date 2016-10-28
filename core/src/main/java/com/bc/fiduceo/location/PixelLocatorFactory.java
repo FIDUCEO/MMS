@@ -48,6 +48,10 @@ public class PixelLocatorFactory {
 
         final Point2D g1 = pixelLocator.getGeoLocation(centerX, sh2 + 0.5, null);
         final Point2D g2 = pixelLocator.getGeoLocation(centerX, sh2 + subsetHeight + 0.5, null);
+        if (g1 == null || g2 == null) {
+            return null;
+        }
+
         final CosineDistance cd1 = new CosineDistance(g1.getX(), g1.getY());
         final CosineDistance cd2 = new CosineDistance(g2.getX(), g2.getY());
         final double d1 = cd1.distance(cLon, cLat);

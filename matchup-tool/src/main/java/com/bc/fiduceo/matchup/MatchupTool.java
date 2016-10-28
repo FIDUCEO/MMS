@@ -494,11 +494,14 @@ class MatchupTool {
                             final TimeInfo timeInfo = intersection.getTimeInfo();
                             if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
                                 final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
+                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
+                                if (primaryPixelLocator == null || secondaryPixelLocator == null) {
+                                    logger.warning("Unable to create valid pixel locators. Skipping intersection segment.");
+                                    continue;
+                                }
 
                                 SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
                                 sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
-
-                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 
                                 sampleCollector = new SampleCollector(context, secondaryPixelLocator);
                                 final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());

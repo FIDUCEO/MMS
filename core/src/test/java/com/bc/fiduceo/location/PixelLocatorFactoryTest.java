@@ -30,6 +30,7 @@ import java.awt.geom.Point2D;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("ConstantConditions")
 public class PixelLocatorFactoryTest {
 
     private GeometryFactory geometryFactory;
@@ -114,4 +116,27 @@ public class PixelLocatorFactoryTest {
         assertSame(locator, clipping.pixelLocator);
     }
 
+    @Test
+    public void testGetSubScenePixelLocator_invalidGeolocation_firstLine() throws Exception {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(17, -40));
+        final PixelLocator locator = mock(PixelLocator.class);
+        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(null);
+        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(new Point2D.Double(15, -45));
+
+        final PixelLocator pixelLocator = PixelLocatorFactory.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
+        assertNull(pixelLocator);
+    }
+
+    @Test
+    public void testGetSubScenePixelLocator_invalidGeolocation_lastLine() throws Exception {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.getCentroid()).thenReturn(geometryFactory.createPoint(17, -40));
+        final PixelLocator locator = mock(PixelLocator.class);
+        when(locator.getGeoLocation(100.5, 2500.5, null)).thenReturn(new Point2D.Double(30, 45));
+        when(locator.getGeoLocation(100.5, 7500.5, null)).thenReturn(null);
+
+        final PixelLocator pixelLocator = PixelLocatorFactory.getSubScenePixelLocator(polygon, 200, 9000, 5000, locator);
+        assertNull(pixelLocator);
+    }
 }
