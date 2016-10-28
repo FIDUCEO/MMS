@@ -274,6 +274,7 @@ public class ArrayCacheTest {
         }
 
         verify(netcdfFile, times(1)).findVariable(null, "not_present_variable");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -287,6 +288,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "not_present_variable");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -299,6 +301,7 @@ public class ArrayCacheTest {
         }
 
         verify(netcdfFile, times(1)).findGroup("a_shitty_group");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -316,6 +319,7 @@ public class ArrayCacheTest {
         }
 
         verify(netcdfFile, times(1)).findVariable(null, "not_present_variable");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -360,6 +364,7 @@ public class ArrayCacheTest {
         }
 
         verify(netcdfFile, times(1)).findGroup("a_mean_group");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -373,6 +378,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "not_present_variable");
+        verify(netcdfFile, times(1)).getLocation();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 

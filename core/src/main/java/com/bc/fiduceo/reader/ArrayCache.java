@@ -258,8 +258,8 @@ public class ArrayCache {
         Variable variable = netcdfFile.findVariable(group, variableName);
         if (variable == null) {
             variable = injectedVariables.get(variableName);
-            if(variable == null) {
-                throw new IOException("requested variable '" + variableName + "' not present in file");
+            if (variable == null) {
+                throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
             }
         }
         container = new ArrayContainer();
@@ -276,7 +276,7 @@ public class ArrayCache {
         ArrayContainer container;
         final Group group = netcdfFile.findGroup(groupName);
         if (group == null) {
-            throw new IOException("requested group '" + groupName + "' not present in file");
+            throw new IOException("requested group '" + groupName + "' not present in file: " + netcdfFile.getLocation());
         }
         container = readArrayAndAttributes(variableName, group);
         return container;
