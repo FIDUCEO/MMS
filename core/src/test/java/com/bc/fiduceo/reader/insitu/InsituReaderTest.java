@@ -19,54 +19,66 @@
 
 package com.bc.fiduceo.reader.insitu;
 
-import static org.junit.Assert.*;
-
+import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.datamodel.ProductData;
-import org.junit.*;
-import org.opengis.geometry.Geometry;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
-import java.nio.file.Paths;
+import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by Sabine on 27.10.2016.
- */
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+
+@RunWith(IOTestRunner.class)
 public class InsituReaderTest {
 
-    public static final Interval _3x3 = new Interval(3, 3);
-    private InsituReader ir;
+    private static final Interval _3x3 = new Interval(3, 3);
+
+    private InsituReader insituReader;
 
     @Before
     public void setUp() throws Exception {
-        ir = new InsituReader();
-        ir.open(Paths.get("D:\\testData\\sst-cci\\insitu\\insitu_0_WMOID_51993_20040402_20060207.nc").toFile());
-//        ir.open(Paths.get("D:\\testData\\sst-cci\\insitu\\insitu_3_WMOID_13001_20060608_20131126.nc").toFile());
+        insituReader = new InsituReader();
+
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v03.3", "insitu_0_WMOID_51993_20040402_20060207.nc"}, false);
+        final File insituDataFile = new File(testDataDirectory, testFilePath);
+        assertTrue(insituDataFile.isFile());
+
+        insituReader.open(insituDataFile);
     }
 
     @After
     public void tearDown() throws Exception {
-        ir.close();
+        insituReader.close();
     }
 
     @Test
     public void testReadAcquisitionInfo() throws Exception {
-        final AcquisitionInfo info = ir.read();
+        final AcquisitionInfo info = insituReader.read();
 
         assertNotNull(info);
         final DateFormat utc = ProductData.UTC.createDateFormat();
@@ -76,7 +88,7 @@ public class InsituReaderTest {
 
     @Test
     public void testGetVariables() throws Exception {
-        final List<Variable> variables = ir.getVariables();
+        final List<Variable> variables = insituReader.getVariables();
 
         assertNotNull(variables);
         assertEquals(9, variables.size());
@@ -94,19 +106,19 @@ public class InsituReaderTest {
 
     @Test
     public void testInsituType() throws Exception {
-        assertEquals("drifter", ir.getInsituType());
+        assertEquals("drifter", insituReader.getInsituType());
     }
 
     @Test
     public void testGetTime() throws Exception {
-        final int numObservations = ir.getNumObservations();
+        final int numObservations = insituReader.getNumObservations();
 
         assertEquals(8969, numObservations);
-        assertEquals(828470627, ir.getTime(0));
-        assertEquals(828701820, ir.getTime(24));
-        assertEquals(886828679, ir.getTime(numObservations - 1));
+        assertEquals(828470627, insituReader.getTime(0));
+        assertEquals(828701820, insituReader.getTime(24));
+        assertEquals(886828679, insituReader.getTime(numObservations - 1));
         try {
-            ir.getTime(numObservations);
+            insituReader.getTime(numObservations);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch (ArrayIndexOutOfBoundsException expected) {
         }
@@ -114,7 +126,7 @@ public class InsituReaderTest {
 
     @Test
     public void testReadRaw_0() throws Exception {
-        final Array array = ir.readRaw(0, 0, new Interval(1, 1), "insitu.lat");
+        final Array array = insituReader.readRaw(0, 0, new Interval(1, 1), "insitu.lat");
 
         assertNotNull(array);
         assertEquals(2, array.getShape().length);
@@ -127,7 +139,7 @@ public class InsituReaderTest {
 
     @Test
     public void testReadRaw_1() throws Exception {
-        final Array array = ir.readRaw(0, 1, new Interval(1, 1), "insitu.lat");
+        final Array array = insituReader.readRaw(0, 1, new Interval(1, 1), "insitu.lat");
 
         assertNotNull(array);
         assertEquals(2, array.getShape().length);
@@ -140,7 +152,7 @@ public class InsituReaderTest {
 
     @Test
     public void testReadRaw_1_3x3() throws Exception {
-        final Array array = ir.readRaw(0, 1, _3x3, "insitu.lat");
+        final Array array = insituReader.readRaw(0, 1, _3x3, "insitu.lat");
 
         assertNotNull(array);
         assertEquals(2, array.getShape().length);
@@ -160,7 +172,7 @@ public class InsituReaderTest {
 
     @Test
     public void testReadScaled_1_3x3() throws Exception {
-        final Array array = ir.readScaled(0, 24, _3x3, "insitu.sea_surface_temperature");
+        final Array array = insituReader.readScaled(0, 24, _3x3, "insitu.sea_surface_temperature");
 
         assertNotNull(array);
         assertEquals(2, array.getShape().length);
@@ -180,7 +192,7 @@ public class InsituReaderTest {
 
     @Test
     public void testReadAcquisitionTime() throws Exception {
-        final ArrayInt.D2 array = ir.readAcquisitionTime(0, 3, _3x3);
+        final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 3, _3x3);
 
         assertNotNull(array);
         assertEquals(2, array.getShape().length);
@@ -200,7 +212,7 @@ public class InsituReaderTest {
 
     @Test
     public void testGetProductSize() throws Exception {
-        final Dimension productSize = ir.getProductSize();
+        final Dimension productSize = insituReader.getProductSize();
 
         assertNotNull(productSize);
         assertEquals("product_size", productSize.getName());
@@ -210,7 +222,7 @@ public class InsituReaderTest {
 
     @Test
     public void testGetTimeLocator() throws Exception {
-        final TimeLocator timeLocator = ir.getTimeLocator();
+        final TimeLocator timeLocator = insituReader.getTimeLocator();
 
         assertNotNull(timeLocator);
         assertEquals(1080943451000L, timeLocator.getTimeFor(2, 2));
@@ -219,7 +231,7 @@ public class InsituReaderTest {
     @Test
     public void testGetPixelLocator() throws Exception {
         try {
-            ir.getPixelLocator();
+            insituReader.getPixelLocator();
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -230,13 +242,13 @@ public class InsituReaderTest {
     public void testGetSubScenePixelLocator() throws Exception {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Polygon polygon = geometryFactory.createPolygon(Arrays.asList(
-                    geometryFactory.createPoint(4, 5),
-                    geometryFactory.createPoint(5, 6),
-                    geometryFactory.createPoint(6, 5)
+                geometryFactory.createPoint(4, 5),
+                geometryFactory.createPoint(5, 6),
+                geometryFactory.createPoint(6, 5)
         ));
 
         try {
-            ir.getSubScenePixelLocator(polygon);
+            insituReader.getSubScenePixelLocator(polygon);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -246,7 +258,7 @@ public class InsituReaderTest {
     public void testGetRegEx() {
         final String expected = "insitu_[0-9][0-9]?_WMOID_[^_]+_[12][09]\\d{2}[01]\\d[0123]\\d_[12][09]\\d{2}[01]\\d[0123]\\d.nc";
 
-        assertEquals(expected, ir.getRegEx());
+        assertEquals(expected, insituReader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
         Matcher matcher = pattern.matcher("insitu_0_WMOID_51993_20040402_20060207.nc");
@@ -289,5 +301,4 @@ public class InsituReaderTest {
         matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
         assertFalse(matcher.matches());
     }
-
 }
