@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.*;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -637,6 +638,22 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2001, 6, 14, 12, 29, 4, 0, timeAxes[0].getStartTime());
             TestUtil.assertCorrectUTCDate(2001, 6, 14, 14, 10, 58, 0, timeAxes[0].getEndTime());
             assertEquals(TestData.SSMT2_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testIngest_insitu_SST_Drifter() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst"   , "-v", "v03.3"};
+
+        try {
+            writeSystemProperties();
+            TestUtil.writeDatabaseProperties_MongoDb(configDir);
+
+            IngestionToolMain.main(args);
         } finally {
             storage.clear();
             storage.close();

@@ -34,33 +34,27 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InsituReader implements Reader {
+public class SSTInsituReader implements Reader {
 
-    private static final Date _1978;
-    private static final Date _1970;
-    private static final Interval _1x1 = new Interval(1, 1);
-
-    static {
-        final Calendar c = ProductData.UTC.createCalendar();
-        c.clear();
-        c.set(1978, Calendar.JANUARY, 1);
-        _1978 = c.getTime();
-        c.clear();
-        c.set(1970, Calendar.JANUARY, 1);
-        _1970 = c.getTime();
-    }
+    private final long millisSince1978;
 
     private NetcdfFile netcdfFile;
     private String insituType;
     private Map<String, Number> fillValueMap = new HashMap<>();
     private Map<String, Array> arrayMap = new HashMap<>();
+
+    SSTInsituReader() {
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.clear();
+        calendar.set(1978, Calendar.JANUARY, 1);
+        millisSince1978 = calendar.getTime().getTime();
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -80,6 +74,7 @@ public class InsituReader implements Reader {
     public void close() throws IOException {
         netcdfFile.close();
         netcdfFile = null;
+
         arrayMap.clear();
         fillValueMap.clear();
     }
@@ -95,8 +90,8 @@ public class InsituReader implements Reader {
             min = Math.min(anInt, min);
             max = Math.max(anInt, max);
         }
-        info.setSensingStart(new Date(_1978.getTime() + (long) min * 1000));
-        info.setSensingStop(new Date(_1978.getTime() + (long) max * 1000));
+        info.setSensingStart(new Date(millisSince1978 + (long) min * 1000));
+        info.setSensingStop(new Date(millisSince1978 + (long) max * 1000));
         return info;
     }
 
@@ -110,12 +105,12 @@ public class InsituReader implements Reader {
     /**
      * Returns the time in seconds since 1978-01-01
      *
-     * @param pos
-     *
+     * @param y the y index
      * @return the time in seconds since 1978-01-01
      */
-    public int getTime(int pos) {
-        return arrayMap.get("insitu.time").getInt(pos);
+    int getTime(int y) {
+        // package access for testing only tb 2016-10-31
+        return arrayMap.get("insitu.time").getInt(y);
     }
 
     @Override
@@ -144,7 +139,7 @@ public class InsituReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        return (x, y) -> _1978.getTime() + ((long) getTime(y)) * 1000L;
+        return (x, y) -> millisSince1978 + ((long) getTime(y)) * 1000L;
     }
 
     @Override

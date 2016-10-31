@@ -25,6 +25,8 @@ import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
+import com.bc.fiduceo.reader.insitu.SSTInsituReader;
+import com.bc.fiduceo.reader.insitu.SSTInsituReaderTest;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -77,6 +79,14 @@ public class ReaderFactoryTest {
 
         assertNotNull(reader);
         assertTrue(reader instanceof HIRS_L1C_Reader);
+    }
+
+    @Test
+    public void testGetSstInsituReader() throws Exception {
+        final Reader reader = readerFactory.getReader("xbt-sst");
+
+        assertNotNull(reader);
+        assertTrue(reader instanceof SSTInsituReader);
     }
 
     @Test

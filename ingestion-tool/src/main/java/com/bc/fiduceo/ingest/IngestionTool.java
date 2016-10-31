@@ -39,6 +39,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -192,12 +193,16 @@ class IngestionTool {
         final ToolContext context = new ToolContext();
 
         final String startTime = commandLine.getOptionValue("start");
-        final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
-        context.setStartDate(startDate);
+        if (StringUtils.isNotNullAndNotEmpty(startTime)) {
+            final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
+            context.setStartDate(startDate);
+        }
 
         final String endTime = commandLine.getOptionValue("end");
-        final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
-        context.setEndDate(endDate);
+        if (StringUtils.isNotNullAndNotEmpty(endTime)) {
+            final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
+            context.setEndDate(endDate);
+        }
 
         final SystemConfig systemConfig = new SystemConfig();
         systemConfig.loadFrom(confDirPath.toFile());
