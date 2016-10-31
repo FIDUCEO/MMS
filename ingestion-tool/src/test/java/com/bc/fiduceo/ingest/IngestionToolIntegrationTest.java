@@ -647,6 +647,7 @@ public class IngestionToolIntegrationTest {
     @Test
     @Ignore
     public void testIngest_insitu_SST_Drifter() throws SQLException, IOException, ParseException {
+        // @todo tb/tb continue here 2016-10-31
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst"   , "-v", "v03.3"};
 
         try {
