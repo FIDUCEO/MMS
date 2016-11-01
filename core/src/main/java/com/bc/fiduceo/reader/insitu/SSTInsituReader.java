@@ -72,8 +72,10 @@ public class SSTInsituReader implements Reader {
 
     @Override
     public void close() throws IOException {
-        netcdfFile.close();
-        netcdfFile = null;
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
+        }
 
         arrayMap.clear();
         fillValueMap.clear();
@@ -98,7 +100,7 @@ public class SSTInsituReader implements Reader {
     /**
      * @return the insitu type as a String
      */
-    public String getInsituType() {
+    String getInsituType() {
         return insituType;
     }
 
