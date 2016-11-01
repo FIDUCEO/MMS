@@ -6,23 +6,26 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 import java.util.logging.Logger;
 
 class Archive {
 
-    private Path rootPath;
     private final Logger log;
+    private final HashMap<String, PathElement[]> pathMaps;
+    private final PathElement[] defaultPath;
 
-    public Archive(Path rootPath) {
+    private Path rootPath;
+
+    Archive(Path rootPath) {
         this.rootPath = rootPath;
         log = FiduceoLogger.getLogger();
+        pathMaps = new HashMap<>();
+
+        defaultPath = createDefaultPathElements();
     }
 
-    public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
+    Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
         final ArrayList<Path> pathArrayList = new ArrayList<>();
         final Calendar instance = TimeUtils.getUTCCalendar();
         instance.setTime(startDate);
@@ -40,7 +43,7 @@ class Archive {
                     pathArrayList.add(iterator.next());
                 }
             } else {
-                System.err.println("The directory doest not exist: " + productsDir.toString());
+                log.warning("The directory doest not exist: " + productsDir.toString());
             }
             instance.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -48,10 +51,38 @@ class Archive {
     }
 
     Path createValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
-        return rootPath.resolve(sensorType)
-                .resolve(processingVersion)
-                .resolve("" + year)
-                .resolve(String.format("%02d", month))
-                .resolve(String.format("%02d", day));
+        final PathElement[] pathElements = getPathElements(sensorType);
+        final PathContext pathContext = new PathContext(sensorType, processingVersion, year, month, day);
+
+        Path path = this.rootPath;
+        for (PathElement pathElement : pathElements) {
+            final String segment = pathContext.getSegment(pathElement);
+            path = path.resolve(segment);
+        }
+
+        return path;
+    }
+
+    // package access for testing only tb 2016-11-01
+    PathElement[] getPathElements(String sensorType) {
+        PathElement[] pathElements = pathMaps.get(sensorType);
+        if (pathElements == null) {
+            pathElements = defaultPath;
+        }
+
+        return pathElements;
+    }
+
+    // package access for testing only tb 2016-11-01
+    static PathElement[] createDefaultPathElements() {
+        final PathElement[] pathElements = new PathElement[5];
+
+        pathElements[0] = new PathElement("SENSOR", null);
+        pathElements[1] = new PathElement("VERSION", null);
+        pathElements[2] = new PathElement("YEAR", null);
+        pathElements[3] = new PathElement("MONTH", null);
+        pathElements[4] = new PathElement("DAY", null);
+
+        return pathElements;
     }
 }
