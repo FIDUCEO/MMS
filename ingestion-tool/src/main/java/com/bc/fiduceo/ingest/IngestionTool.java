@@ -22,6 +22,7 @@ package com.bc.fiduceo.ingest;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;

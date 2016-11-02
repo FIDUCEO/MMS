@@ -1,4 +1,24 @@
-package com.bc.fiduceo.ingest;
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
+package com.bc.fiduceo.archive;
 
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
@@ -9,7 +29,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Logger;
 
-class Archive {
+public class Archive {
 
     private final Logger log;
     private final HashMap<String, String[]> pathMaps;
@@ -17,7 +37,7 @@ class Archive {
 
     private Path rootPath;
 
-    Archive(Path rootPath) {
+    public Archive(Path rootPath) {
         this.rootPath = rootPath;
         log = FiduceoLogger.getLogger();
         pathMaps = new HashMap<>();
@@ -25,7 +45,7 @@ class Archive {
         defaultPath = createDefaultPathElements();
     }
 
-    Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
+    public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
         final ArrayList<Path> pathArrayList = new ArrayList<>();
         final Calendar instance = TimeUtils.getUTCCalendar();
         instance.setTime(startDate);
