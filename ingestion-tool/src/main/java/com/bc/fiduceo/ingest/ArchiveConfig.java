@@ -93,10 +93,7 @@ public class ArchiveConfig {
 
             final String[] pathElements = parsePathElements(ruleElement);
 
-
             assignRules(pathElements, sensorsAttribute);
-
-
         }
     }
 
@@ -128,7 +125,7 @@ public class ArchiveConfig {
 
     private void parseRootPath(Element rootElement) {
         final Element rootPathElement = rootElement.getChild(ROOT_PATH_TAG);
-        if (rootElement != null) {
+        if (rootPathElement != null) {
             final String rootPathValue = rootPathElement.getValue();
             if (rootPathValue == null || rootPathValue.trim().isEmpty()) {
                 throw new RuntimeException("Archive root path not configured, element '" + ROOT_PATH_TAG + "' is empty");

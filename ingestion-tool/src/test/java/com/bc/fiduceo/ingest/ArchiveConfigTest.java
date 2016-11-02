@@ -152,4 +152,21 @@ public class ArchiveConfigTest {
         assertEquals("YEAR", elements[2]);
         assertEquals("VERSION", elements[3]);
     }
+
+    @Test
+    public void testParseAndGet_missigRule() {
+        final String rootPathXML = "<archive>" +
+                "    <root-path>" +
+                "        /usr/local/data/fiduceo" +
+                "    </root-path>" +
+                "    <rule sensors = \"sensor-1, sensor-2\">" +
+                "    </rule>" +
+                "</archive>";
+
+        try {
+            ArchiveConfig.parse(rootPathXML);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }
