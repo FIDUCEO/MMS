@@ -44,11 +44,11 @@ public class JDomUtils {
         return child.getTextTrim();
     }
 
-    public static Element getMandatoryRootElement(Document document) {
+    public static Element getMandatoryRootElement(String elementName, Document document) {
         final Element rootElement = document.getRootElement();
         final String name = rootElement.getName();
-        if (!UseCaseConfig.TAG_NAME_ROOT.equals(name)) {
-            throw new RuntimeException("Root tag name '" + UseCaseConfig.TAG_NAME_ROOT + "' expected");
+        if (!elementName.equals(name)) {
+            throw new RuntimeException("Root tag name '" + elementName + "' expected");
         }
         return rootElement;
     }

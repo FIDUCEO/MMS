@@ -186,7 +186,7 @@ public class UseCaseConfig {
 
     @SuppressWarnings("unchecked")
     private void init() {
-        final Element rootElement = getMandatoryRootElement(document);
+        final Element rootElement = getMandatoryRootElement(UseCaseConfig.TAG_NAME_ROOT, document);
         setName(getMandatoryAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {

@@ -119,7 +119,7 @@ public class JDomUtilsTest {
         when(document.getRootElement()).thenReturn(rootElement);
         when(rootElement.getName()).thenReturn(UseCaseConfig.TAG_NAME_ROOT);
 
-        final Element mandatoryRootElement = JDomUtils.getMandatoryRootElement(document);
+        final Element mandatoryRootElement = JDomUtils.getMandatoryRootElement(UseCaseConfig.TAG_NAME_ROOT, document);
         assertNotNull(mandatoryRootElement);
         assertSame(rootElement, mandatoryRootElement);
     }
@@ -133,7 +133,7 @@ public class JDomUtilsTest {
         when(rootElement.getName()).thenReturn("my_name_is_renate");
 
         try {
-            JDomUtils.getMandatoryRootElement(document);
+            JDomUtils.getMandatoryRootElement(UseCaseConfig.TAG_NAME_ROOT, document);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

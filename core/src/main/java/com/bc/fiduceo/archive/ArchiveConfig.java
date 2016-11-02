@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class ArchiveConfig {
+    // @todo 2 tb/tb use JDOMUtils here 2016-11-02
 
     private static final String ROOT_ELEMENT_TAG = "archive";
     private static final String ROOT_PATH_TAG = "root-path";

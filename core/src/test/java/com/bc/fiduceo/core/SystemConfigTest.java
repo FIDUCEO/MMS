@@ -20,63 +20,51 @@
 
 package com.bc.fiduceo.core;
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-@RunWith(IOTestRunner.class)
 public class SystemConfigTest {
 
-    private File testDirectory;
 
     @Before
     public void setUp() {
-        testDirectory = TestUtil.createTestDirectory();
+
     }
 
     @After
     public void tearDown() {
-        TestUtil.deleteTestDirectory();
+
     }
 
     @Test
-    public void testLoadAndGetParameter() throws IOException {
-        final File systemConfigFile = TestUtil.createFileInTestDir("system.properties");
+    public void testLoadAndGet_geometryLibrary() throws IOException {
+        final String useCaseXml = "<system-config>" +
+                "    <geometry-library name = \"lib_name\" />" +
+                "</system-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
-        final Properties properties = new Properties();
-        properties.setProperty("archive-root", testDirectory.getAbsolutePath());
-        properties.setProperty("geometry-library-type", "S2");
-        final FileOutputStream outputStream = new FileOutputStream(systemConfigFile);
-        properties.store(outputStream, "");
-        outputStream.close();
+        final SystemConfig systemConfig = SystemConfig.load(inputStream);
 
-        final SystemConfig systemConfig = new SystemConfig();
-        systemConfig.loadFrom(testDirectory);
-
-        assertEquals(testDirectory.getAbsolutePath(), systemConfig.getArchiveRoot());
-        assertEquals("S2", systemConfig.getGeometryLibraryType());
+        assertEquals("lib_name", systemConfig.getGeometryLibraryType());
     }
 
-    @Test
-    public void testLoadFileNotPresent() throws IOException {
-        final SystemConfig systemConfig = new SystemConfig();
-        try {
-            systemConfig.loadFrom(testDirectory);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
+    // @todo 1 tb/tb root element missing 2016-11-02
+
+//    @Test
+//    public void testLoadFileNotPresent() throws IOException {
+//        final SystemConfig systemConfig = new SystemConfig();
+//        try {
+//            systemConfig.loadFrom(testDirectory);
+//            fail("RuntimeException expected");
+//        } catch (RuntimeException expected) {
+//        }
+//    }
 
     @Test
     public void testDefaultValues() {

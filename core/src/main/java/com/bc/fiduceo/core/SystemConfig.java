@@ -20,21 +20,34 @@
 
 package com.bc.fiduceo.core;
 
+import com.bc.fiduceo.util.JDomUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class SystemConfig {
 
-    private final Properties properties;
+    private Properties properties;
+    private String geometryLibraryType;
 
     public SystemConfig() {
         properties = new Properties();
+        geometryLibraryType = "S2";
     }
 
+
+
+    @Deprecated
     public void loadFrom(File configDirectory) throws IOException {
         final File systemPropertiesFile = new File(configDirectory, "system.properties");
         if (!systemPropertiesFile.isFile()) {
@@ -46,11 +59,32 @@ public class SystemConfig {
         }
     }
 
+    public static SystemConfig load(InputStream inputStream) {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+        try {
+            final Document document = saxBuilder.build(inputStream);
+            return new SystemConfig(document);
+        } catch (JDOMException | IOException | RuntimeException e) {
+            throw new RuntimeException("Unable to initialize use case configuration: " + e.getMessage(), e);
+        }
+    }
+
     public String getArchiveRoot() {
         return properties.getProperty("archive-root").trim();
     }
 
     public String getGeometryLibraryType() {
-        return properties.getProperty("geometry-library-type", "S2").trim();
+        return geometryLibraryType;
+    }
+
+    SystemConfig(Document document) {
+        this();
+
+        final Element rootElement = JDomUtils.getMandatoryRootElement("system-config", document);
+        final Element geometryLibraryElement = rootElement.getChild("geometry-library");
+        if (geometryLibraryElement != null) {
+            final Attribute nameAttribute = JDomUtils.getMandatoryAttribute(geometryLibraryElement, "name");
+            geometryLibraryType = nameAttribute.getValue();
+        }
     }
 }
