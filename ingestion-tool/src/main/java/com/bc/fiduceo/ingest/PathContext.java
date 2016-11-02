@@ -35,10 +35,10 @@ class PathContext {
         map.put("DAY", String.format("%02d", day));
     }
 
-    String getSegment(PathElement pathElement) {
-        String segment = map.get(pathElement.getName());
+    String getSegment(String pathElement) {
+        String segment = map.get(pathElement);
         if (segment == null) {
-            segment = pathElement.getValue();
+            return pathElement;
         }
         return segment;
     }

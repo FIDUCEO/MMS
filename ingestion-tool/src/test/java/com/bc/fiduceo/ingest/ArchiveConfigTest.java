@@ -95,17 +95,17 @@ public class ArchiveConfigTest {
 
         final ArchiveConfig config = ArchiveConfig.parse(rootPathXML);
 
-        final Map<String, PathElement[]> rules = config.getRules();
+        final Map<String, String[]> rules = config.getRules();
         assertNotNull(rules);
 
-        PathElement[] elements = rules.get("dansk");
+        String[] elements = rules.get("dansk");
         assertEquals(3, elements.length);
-        assertEquals("SENSOR", elements[0].getName());
+        assertEquals("SENSOR", elements[0]);
 
         elements = rules.get("gammel");
         assertEquals(3, elements.length);
-        assertEquals("VERSION", elements[1].getName());
-        assertEquals("YEAR", elements[2].getName());
+        assertEquals("VERSION", elements[1]);
+        assertEquals("YEAR", elements[2]);
     }
 
     @Test
@@ -124,5 +124,32 @@ public class ArchiveConfigTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testParseAndGet_ruleWithStandardAndSpecialElements() {
+        final String rootPathXML = "<archive>" +
+                "    <root-path>" +
+                "        /usr/local/data/fiduceo" +
+                "    </root-path>" +
+                "    <rule sensors = \"sensor-1, sensor-2\">" +
+                "        sub-dir/SENSOR/YEAR/VERSION" +
+                "    </rule>" +
+                "</archive>";
+
+        final ArchiveConfig config = ArchiveConfig.parse(rootPathXML);
+
+        final Map<String, String[]> rules = config.getRules();
+        assertNotNull(rules);
+
+        String[] elements = rules.get("sensor-1");
+        assertEquals(4, elements.length);
+        assertEquals("sub-dir", elements[0]);
+        assertEquals("SENSOR", elements[1]);
+
+        elements = rules.get("sensor-2");
+        assertEquals(4, elements.length);
+        assertEquals("YEAR", elements[2]);
+        assertEquals("VERSION", elements[3]);
     }
 }

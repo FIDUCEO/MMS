@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 class Archive {
 
     private final Logger log;
-    private final HashMap<String, PathElement[]> pathMaps;
-    private final PathElement[] defaultPath;
+    private final HashMap<String, String[]> pathMaps;
+    private final String[] defaultPath;
 
     private Path rootPath;
 
@@ -51,11 +51,11 @@ class Archive {
     }
 
     Path createValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
-        final PathElement[] pathElements = getPathElements(sensorType);
+        final String[] pathElements = getPathElements(sensorType);
         final PathContext pathContext = new PathContext(sensorType, processingVersion, year, month, day);
 
         Path path = this.rootPath;
-        for (PathElement pathElement : pathElements) {
+        for (String pathElement : pathElements) {
             final String segment = pathContext.getSegment(pathElement);
             path = path.resolve(segment);
         }
@@ -64,8 +64,8 @@ class Archive {
     }
 
     // package access for testing only tb 2016-11-01
-    PathElement[] getPathElements(String sensorType) {
-        PathElement[] pathElements = pathMaps.get(sensorType);
+    String[] getPathElements(String sensorType) {
+        String[] pathElements = pathMaps.get(sensorType);
         if (pathElements == null) {
             pathElements = defaultPath;
         }
@@ -74,14 +74,14 @@ class Archive {
     }
 
     // package access for testing only tb 2016-11-01
-    static PathElement[] createDefaultPathElements() {
-        final PathElement[] pathElements = new PathElement[5];
+    static String[] createDefaultPathElements() {
+        final String[] pathElements = new String[5];
 
-        pathElements[0] = new PathElement("SENSOR", null);
-        pathElements[1] = new PathElement("VERSION", null);
-        pathElements[2] = new PathElement("YEAR", null);
-        pathElements[3] = new PathElement("MONTH", null);
-        pathElements[4] = new PathElement("DAY", null);
+        pathElements[0] = "SENSOR";
+        pathElements[1] = "VERSION";
+        pathElements[2] = "YEAR";
+        pathElements[3] = "MONTH";
+        pathElements[4] = "DAY";
 
         return pathElements;
     }

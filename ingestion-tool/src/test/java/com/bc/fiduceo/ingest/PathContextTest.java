@@ -31,24 +31,19 @@ public class PathContextTest {
     public void testCreateAndGet_defaults() {
         final PathContext pathContext = new PathContext("coolSensor", "version_1", 1998, 6, 22);
 
-        PathElement pathElement = new PathElement("SENSOR", null);
-        String pathSegment = pathContext.getSegment(pathElement);
+        String pathSegment = pathContext.getSegment("SENSOR");
         assertEquals("coolSensor", pathSegment);
 
-        pathElement = new PathElement("VERSION", null);
-        pathSegment = pathContext.getSegment(pathElement);
+        pathSegment = pathContext.getSegment("VERSION");
         assertEquals("version_1", pathSegment);
 
-        pathElement = new PathElement("YEAR", null);
-        pathSegment = pathContext.getSegment(pathElement);
+        pathSegment = pathContext.getSegment("YEAR");
         assertEquals("1998", pathSegment);
 
-        pathElement = new PathElement("MONTH", null);
-        pathSegment = pathContext.getSegment(pathElement);
+        pathSegment = pathContext.getSegment("MONTH");
         assertEquals("06", pathSegment);
 
-        pathElement = new PathElement("DAY", null);
-        pathSegment = pathContext.getSegment(pathElement);
+        pathSegment = pathContext.getSegment("DAY");
         assertEquals("22", pathSegment);
     }
 
@@ -56,8 +51,7 @@ public class PathContextTest {
     public void testCreateAndGet_specialSegments() {
         final PathContext pathContext = new PathContext("coolSensor", "version_1", 1998, 6, 22);
 
-        final PathElement pathElement = new PathElement("PREFIX", "subPath");
-        final String pathSegment = pathContext.getSegment(pathElement);
+        final String pathSegment = pathContext.getSegment("subPath");
         assertEquals("subPath", pathSegment);
     }
 }

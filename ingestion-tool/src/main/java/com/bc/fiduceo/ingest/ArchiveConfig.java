@@ -21,7 +21,6 @@
 package com.bc.fiduceo.ingest;
 
 
-import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -30,7 +29,11 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class ArchiveConfig {
 
@@ -39,7 +42,27 @@ public class ArchiveConfig {
     private static final String RULE_TAG = "rule";
 
     private String rootPath;
-    private Map<String, PathElement[]> rules;
+    private Map<String, String[]> rules;
+
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    public Map<String, String[]> getRules() {
+        return rules;
+    }
+
+    public static ArchiveConfig parse(String xml) {
+        final SAXBuilder saxBuilder = new SAXBuilder();
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes());
+
+        try {
+            final Document document = saxBuilder.build(inputStream);
+            return new ArchiveConfig(document);
+        } catch (JDOMException | IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
     ArchiveConfig() {
         rules = new HashMap<>();
@@ -59,59 +82,48 @@ public class ArchiveConfig {
         parseRules(rootElement);
     }
 
-    public static ArchiveConfig parse(String xml) {
-        final SAXBuilder saxBuilder = new SAXBuilder();
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes());
-
-        try {
-            final Document document = saxBuilder.build(inputStream);
-            return new ArchiveConfig(document);
-        } catch (JDOMException | IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    public String getRootPath() {
-        return rootPath;
-    }
-
-    public Map<String, PathElement[]> getRules() {
-        return rules;
-    }
-
+    @SuppressWarnings("unchecked")
     private void parseRules(Element rootElement) {
-        final List<Element> ruleElements = rootElement.getChildren(RULE_TAG);
-        for (final Element ruleElement : ruleElements) {
+        final List<Element> ruleElementsList = rootElement.getChildren(RULE_TAG);
+        for (final Element ruleElement : ruleElementsList) {
             final Attribute sensorsAttribute = ruleElement.getAttribute("sensors");
             if (sensorsAttribute == null) {
                 throw new RuntimeException("Sensors not configured for archive rule");
             }
 
-            final PathElement[] pathElements = parsePathElements(ruleElement);
+            final String[] pathElements = parsePathElements(ruleElement);
 
-            final String sensorsAttributeValue = sensorsAttribute.getValue();
-            final StringTokenizer stringTokenizer = new StringTokenizer(sensorsAttributeValue.trim(), ",", false);
-            while (stringTokenizer.hasMoreTokens()) {
-                final String sensorName = stringTokenizer.nextToken().trim();
 
-                rules.put(sensorName, pathElements);
-            }
+            assignRules(pathElements, sensorsAttribute);
+
+
         }
     }
 
-    private PathElement[] parsePathElements(Element ruleElement) {
+    private void assignRules(String[] pathElements, Attribute sensorsAttribute) {
+        final String sensorsAttributeValue = sensorsAttribute.getValue();
+        final StringTokenizer stringTokenizer = new StringTokenizer(sensorsAttributeValue.trim(), ",", false);
+        while (stringTokenizer.hasMoreTokens()) {
+            final String sensorName = stringTokenizer.nextToken().trim();
+
+            rules.put(sensorName, pathElements);
+        }
+    }
+
+    private String[] parsePathElements(Element ruleElement) {
         final String ruleElementValue = ruleElement.getValue();
         if (ruleElementValue == null || ruleElementValue.trim().isEmpty()) {
             throw new RuntimeException("Archive root path not configured, element '" + ROOT_PATH_TAG + "' is empty");
         }
+
         final StringTokenizer stringTokenizer = new StringTokenizer(ruleElementValue.trim(), "/", false);
-        final ArrayList<PathElement> elementsList = new ArrayList<>();
+        final ArrayList<String> elementsList = new ArrayList<>();
         while (stringTokenizer.hasMoreTokens()) {
             final String token = stringTokenizer.nextToken().trim();
-            elementsList.add(new PathElement(token, null));
+            elementsList.add(token);
         }
 
-        return elementsList.toArray(new PathElement[elementsList.size()]);
+        return elementsList.toArray(new String[elementsList.size()]);
     }
 
     private void parseRootPath(Element rootElement) {

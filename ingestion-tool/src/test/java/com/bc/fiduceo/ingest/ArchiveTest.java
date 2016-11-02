@@ -130,24 +130,24 @@ public class ArchiveTest {
 
     @Test
     public void testCreateDefaultPathElements() {
-        final PathElement[] defaultPathElements = Archive.createDefaultPathElements();
+        final String[] defaultPathElements = Archive.createDefaultPathElements();
         assertNotNull(defaultPathElements);
         assertEquals(5, defaultPathElements.length);
 
-        assertEquals("SENSOR", defaultPathElements[0].getName());
-        assertEquals("VERSION", defaultPathElements[1].getName());
-        assertEquals("YEAR", defaultPathElements[2].getName());
-        assertEquals("MONTH", defaultPathElements[3].getName());
-        assertEquals("DAY", defaultPathElements[4].getName());
+        assertEquals("SENSOR", defaultPathElements[0]);
+        assertEquals("VERSION", defaultPathElements[1]);
+        assertEquals("YEAR", defaultPathElements[2]);
+        assertEquals("MONTH", defaultPathElements[3]);
+        assertEquals("DAY", defaultPathElements[4]);
     }
 
     @Test
     public void testGetPathElements_default() {
-        final PathElement[] pathElements = archive.getPathElements("unknown_sensor");
+        final String[] pathElements = archive.getPathElements("unknown_sensor");
 
         assertEquals(5, pathElements.length);
 
-        assertEquals("SENSOR", pathElements[0].getName());
-        assertEquals("VERSION", pathElements[1].getName());
+        assertEquals("SENSOR", pathElements[0]);
+        assertEquals("VERSION", pathElements[1]);
     }
 }
