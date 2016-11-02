@@ -21,7 +21,6 @@
 package com.bc.fiduceo.archive;
 
 import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.util.TimeUtils;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -34,9 +33,10 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashMap;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -51,10 +51,13 @@ public class ArchiveTest {
 
     @Before
     public void setUp() throws IOException {
-        FileSystem fs = Jimfs.newFileSystem();
+        final FileSystem fs = Jimfs.newFileSystem();
         root = fs.getPath("archiveRoot");
         Files.createDirectory(root);
-        archive = new Archive(root);
+
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        archiveConfig.setRootPath(root);
+        archive = new Archive(archiveConfig);
 
         separator = FileSystems.getDefault().getSeparator();
     }
@@ -71,13 +74,14 @@ public class ArchiveTest {
         final Path pvPath = Files.createDirectory(stPath.resolve(processingVersion));
         final Path yearPath = Files.createDirectory(pvPath.resolve("2015"));
         final Path monPath = Files.createDirectory(yearPath.resolve("01"));
-        stPath.resolve(processingVersion).resolve("2015").resolve("01");
+
         for (int day = 21; day < 26; day++) {
-            final Path directory = Files.createDirectory(monPath.resolve("" + day));
+            final Path directory = Files.createDirectory(monPath.resolve(String.format("%02d", day)));
             for (int i = 0; i < day - 20; i++) {
                 Files.createFile(directory.resolve(String.format("productFile%d.nc", i)));
             }
         }
+
         final Date startDate = getDate("2015-021");
         final Date endDate = getDate("2015-025");
 
@@ -86,6 +90,115 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(15, productPaths.length);
+        assertEquals("archiveRoot/amsub/1.0/2015/01/21/productFile0.nc", productPaths[0].toString());
+        assertEquals("archiveRoot/amsub/1.0/2015/01/24/productFile3.nc", productPaths[9].toString());
+        assertEquals("archiveRoot/amsub/1.0/2015/01/25/productFile4.nc", productPaths[14].toString());
+    }
+
+    @Test
+    public void testGetWithStartAndEndDate_defaultPath_crossingMonthBoundary() throws Exception {
+        // preparation
+        final Path stPath = Files.createDirectory(root.resolve(sensorType));
+        final Path pvPath = Files.createDirectory(stPath.resolve(processingVersion));
+        final Path yearPath = Files.createDirectory(pvPath.resolve("2014"));
+        final Path mayPath = Files.createDirectory(yearPath.resolve("05"));
+        final Path junePath = Files.createDirectory(yearPath.resolve("06"));
+
+        for (int day = 30; day <= 31; day++) {
+            final Path directory = Files.createDirectory(mayPath.resolve(String.format("%02d", day)));
+            for (int i = 0; i < 4; i++) {
+                Files.createFile(directory.resolve(String.format("productFile%d_%d.nc", day, i)));
+            }
+        }
+        for (int day = 1; day < 4; day++) {
+            final Path directory = Files.createDirectory(junePath.resolve(String.format("%02d", day)));
+            for (int i = 0; i < 4; i++) {
+                Files.createFile(directory.resolve(String.format("productFile%d_%d.nc", day, i)));
+            }
+        }
+
+        final Date startDate = getDate("2014-150");
+        final Date endDate = getDate("2014-156");
+
+        // action
+        final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
+        // validation
+        assertNotNull(productPaths);
+        assertEquals(20, productPaths.length);
+        assertEquals("archiveRoot/amsub/1.0/2014/05/30/productFile30_0.nc", productPaths[0].toString());
+        assertEquals("archiveRoot/amsub/1.0/2014/05/31/productFile31_3.nc", productPaths[7].toString());
+        assertEquals("archiveRoot/amsub/1.0/2014/06/01/productFile1_0.nc", productPaths[8].toString());
+        assertEquals("archiveRoot/amsub/1.0/2014/06/03/productFile3_3.nc", productPaths[19].toString());
+    }
+
+    @Test
+    public void testGetWithStartAndEndDate_configuredPath() throws Exception {
+        // path: <root>/<version>/<sensor>/<year>/<month>
+        // preparation
+        final Path versionDir = Files.createDirectory(root.resolve(processingVersion));
+        final Path sensorDir = Files.createDirectory(versionDir.resolve(sensorType));
+        final Path yearPath = Files.createDirectory(sensorDir.resolve("2016"));
+        final Path monPath = Files.createDirectory(yearPath.resolve("05"));
+
+        for (int day = 11; day < 14; day++) {
+            for (int i = 0; i < 15; i++) {
+                Files.createFile(monPath.resolve(String.format("productFile%d_%d.nc", day, i)));
+            }
+        }
+        final Date startDate = getDate("2016-132");
+        final Date endDate = getDate("2016-135");
+
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        archiveConfig.setRootPath(root);
+        final String[] pathElements = {"VERSION", "SENSOR", "YEAR", "MONTH"};
+        final HashMap<String, String[]> rules = new HashMap<>();
+        rules.put(sensorType, pathElements);
+        archiveConfig.setRules(rules);
+
+        final Archive configuredArchive = new Archive(archiveConfig);
+
+        // action
+        final Path[] productPaths = configuredArchive.get(startDate, endDate, processingVersion, sensorType);
+        // validation
+        assertNotNull(productPaths);
+        assertEquals(45, productPaths.length);
+        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile11_0.nc", productPaths[0].toString());
+        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile12_14.nc", productPaths[21].toString());
+        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile13_9.nc", productPaths[44].toString());
+    }
+
+    @Test
+    public void testGetWithStartAndEndDate_configuredPath_withCustomElements() throws Exception {
+        // path: <root>/<version>/<sensor>/<year>/<month>
+        // preparation
+        final Path insituDir = Files.createDirectory(root.resolve("in-situ"));
+        final Path versionDir = Files.createDirectory(insituDir.resolve(processingVersion));
+        final Path sensorDir = Files.createDirectory(versionDir.resolve(sensorType));
+
+        for (int i = 0; i < 15; i++) {
+            Files.createFile(sensorDir.resolve(String.format("productFile%d.nc", i)));
+        }
+
+        final Date startDate = getDate("2016-132");
+        final Date endDate = getDate("2016-135");
+
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        archiveConfig.setRootPath(root);
+        final String[] pathElements = {"in-situ", "VERSION", "SENSOR"};
+        final HashMap<String, String[]> rules = new HashMap<>();
+        rules.put(sensorType, pathElements);
+        archiveConfig.setRules(rules);
+
+        final Archive configuredArchive = new Archive(archiveConfig);
+
+        // action
+        final Path[] productPaths = configuredArchive.get(startDate, endDate, processingVersion, sensorType);
+        // validation
+        assertNotNull(productPaths);
+        assertEquals(15, productPaths.length);
+        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile0.nc", productPaths[0].toString());
+        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile3.nc", productPaths[8].toString());
+        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile9.nc", productPaths[14].toString());
     }
 
 
@@ -128,9 +241,9 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(3, productPaths.length);
-        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\01\\productFile_01.nc".replace("\\",separator), productPaths[0].toString());
-        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\04\\productFile_04.nc".replace("\\",separator), productPaths[1].toString());
-        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\06\\productFile_06.nc".replace("\\",separator), productPaths[2].toString());
+        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\01\\productFile_01.nc".replace("\\", separator), productPaths[0].toString());
+        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\04\\productFile_04.nc".replace("\\", separator), productPaths[1].toString());
+        assertEquals("archiveRoot\\amsub\\1.0\\2015\\01\\06\\productFile_06.nc".replace("\\", separator), productPaths[2].toString());
     }
 
     private Date getDate(String dateString) {
@@ -146,7 +259,7 @@ public class ArchiveTest {
         final Path productPath = archive.createValidProductPath(processingVersion, sensorType, 2001, 4, 3);
 
         // validation
-        assertEquals("archiveRoot\\amsub\\1.0\\2001\\04\\03".replace("\\",separator), productPath.toString());
+        assertEquals("archiveRoot\\amsub\\1.0\\2001\\04\\03".replace("\\", separator), productPath.toString());
     }
 
     @Test
@@ -170,5 +283,29 @@ public class ArchiveTest {
 
         assertEquals("SENSOR", pathElements[0]);
         assertEquals("VERSION", pathElements[1]);
+    }
+
+    @Test
+    public void testConstruction_withConfig() {
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        archiveConfig.setRootPath(Paths.get("C:/data/storage"));
+
+        final HashMap<String, String[]> rules = new HashMap<>();
+        final String[] pathElements = {"bla", "SENSOR", "blubb", "VERSION"};
+        rules.put("the_sensor", pathElements);
+        archiveConfig.setRules(rules);
+
+        final Archive archive = new Archive(archiveConfig);
+        assertEquals("C:/data/storage", archive.getRootPath().toString());
+
+        String[] sensorElements = archive.getPathElements("the_sensor");
+        assertEquals(4, sensorElements.length);
+        assertEquals("bla", sensorElements[0]);
+        assertEquals("SENSOR", sensorElements[1]);
+
+        sensorElements = archive.getPathElements("get_default_sensor");
+        assertEquals(5, sensorElements.length);
+        assertEquals("VERSION", sensorElements[1]);
+        assertEquals("YEAR", sensorElements[2]);
     }
 }

@@ -49,6 +49,8 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,10 +63,10 @@ public class ArchiveConfig {
     private static final String ROOT_PATH_TAG = "root-path";
     private static final String RULE_TAG = "rule";
 
-    private String rootPath;
+    private Path rootPath;
     private Map<String, String[]> rules;
 
-    public String getRootPath() {
+    public Path getRootPath() {
         return rootPath;
     }
 
@@ -100,6 +102,14 @@ public class ArchiveConfig {
 
         parseRootPath(rootElement);
         parseRules(rootElement);
+    }
+
+    void setRootPath(Path rootPath) {
+        this.rootPath = rootPath;
+    }
+
+    void setRules(Map<String, String[]> rules) {
+        this.rules = rules;
     }
 
     @SuppressWarnings("unchecked")
@@ -150,7 +160,7 @@ public class ArchiveConfig {
             if (rootPathValue == null || rootPathValue.trim().isEmpty()) {
                 throw new RuntimeException("Archive root path not configured, element '" + ROOT_PATH_TAG + "' is empty");
             }
-            rootPath = rootPathValue.trim();
+            rootPath = Paths.get(rootPathValue.trim());
         } else {
             throw new RuntimeException("Archive root path not configured, missing element '" + ROOT_PATH_TAG + "'");
         }

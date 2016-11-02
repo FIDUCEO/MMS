@@ -26,6 +26,7 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -37,12 +38,20 @@ public class Archive {
 
     private Path rootPath;
 
+    @Deprecated
     public Archive(Path rootPath) {
         this.rootPath = rootPath;
         log = FiduceoLogger.getLogger();
         pathMaps = new HashMap<>();
 
         defaultPath = createDefaultPathElements();
+    }
+
+    public Archive(ArchiveConfig config) {
+        this(config.getRootPath());
+
+        final Map<String, String[]> rules = config.getRules();
+        pathMaps.putAll(rules);
     }
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
@@ -60,7 +69,13 @@ public class Archive {
                 log.info("The product directory :" + productsDir.toString());
                 final Iterator<Path> iterator = Files.list(productsDir).iterator();
                 while (iterator.hasNext()) {
-                    pathArrayList.add(iterator.next());
+                    final Path next = iterator.next();
+                    if (pathArrayList.contains(next)) {
+                        // @todo 3 tb/tb this is a crude skip-what-you-already-have logic. We really need to determine
+                        // the time loop increment by checking the pathSegments defined - which is not that simple tb 2016-11-02
+                        continue;
+                    }
+                    pathArrayList.add(next);
                 }
             } else {
                 log.warning("The directory doest not exist: " + productsDir.toString());
@@ -104,5 +119,10 @@ public class Archive {
         pathElements[4] = "DAY";
 
         return pathElements;
+    }
+
+    // for testing only tb 2016-11-01
+    Path getRootPath() {
+        return rootPath;
     }
 }
