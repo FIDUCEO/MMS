@@ -30,16 +30,13 @@ import com.bc.fiduceo.geometry.*;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -611,13 +608,15 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testIngest_insitu_SST_Drifter() throws SQLException, IOException, ParseException {
-        // @todo tb/tb continue here 2016-10-31
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst"   , "-v", "v03.3"};
+        // @todo 2 tb/tb we have to supply dates here - which are not udes during ingestion - rethink this 2016-11-03
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst", "-start", "2001-165", "-end", "2001-165", "-v", "v03.3"};
 
         try {
             IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
         } finally {
             storage.clear();
             storage.close();
@@ -625,7 +624,7 @@ public class IngestionToolIntegrationTest {
     }
 
     private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {
-        for (final SatelliteObservation observation :satelliteObservations) {
+        for (final SatelliteObservation observation : satelliteObservations) {
             if (observation.getDataFilePath().endsWith(name)) {
                 return observation;
             }

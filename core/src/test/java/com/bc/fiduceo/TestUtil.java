@@ -126,7 +126,7 @@ public class TestUtil {
                 "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
                 "        </root-path>" +
                 "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
-                "            insitu/SENSOR/VERSION\"" +
+                "            insitu/SENSOR/VERSION" +
                 "        </rule>"  +
                 "    </archive>" +
                 "</system-config>";

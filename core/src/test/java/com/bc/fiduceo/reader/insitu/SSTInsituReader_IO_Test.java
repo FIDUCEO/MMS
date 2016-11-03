@@ -23,6 +23,7 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -84,6 +85,7 @@ public class SSTInsituReader_IO_Test {
         final DateFormat utc = ProductData.UTC.createDateFormat();
         assertEquals("02-Apr-2004 18:43:47", utc.format(info.getSensingStart()));
         assertEquals("07-Feb-2006 05:17:59", utc.format(info.getSensingStop()));
+        assertEquals(NodeType.UNDEFINED, info.getNodeType());
     }
 
     @Test

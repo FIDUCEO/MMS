@@ -23,14 +23,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -139,10 +132,20 @@ public class MongoDbDriver extends AbstractDriver {
         document.append(START_TIME_KEY, satelliteObservation.getStartTime());
         document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
         document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
-        document.append(GEO_BOUNDS_KEY, convertToGeoJSON(satelliteObservation.getGeoBounds()));
+
+        final Geometry geoBounds = satelliteObservation.getGeoBounds();
+        if (geoBounds != null) {
+            document.append(GEO_BOUNDS_KEY, convertToGeoJSON(geoBounds));
+        }
+
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
-        document.append(TIME_AXES_KEY, convertToDocument(satelliteObservation.getTimeAxes()));
+
+        final TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
+        if (timeAxes != null) {
+            document.append(TIME_AXES_KEY, convertToDocument(timeAxes));
+        }
+
         document.append(VERSION_KEY, satelliteObservation.getVersion());
 
         observationCollection.insertOne(document);
@@ -193,8 +196,10 @@ public class MongoDbDriver extends AbstractDriver {
         satelliteObservation.setNodeType(NodeType.fromId(nodeTypeId));
 
         final Document geoBounds = (Document) document.get(GEO_BOUNDS_KEY);
-        final Geometry geometry = convertToGeometry(geoBounds);
-        satelliteObservation.setGeoBounds(geometry);
+        if (geoBounds != null) {
+            final Geometry geometry = convertToGeometry(geoBounds);
+            satelliteObservation.setGeoBounds(geometry);
+        }
 
         // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
         final Document jsonSensor = (Document) document.get(SENSOR_KEY);
@@ -202,8 +207,10 @@ public class MongoDbDriver extends AbstractDriver {
         satelliteObservation.setSensor(sensor);
 
         final Document jsonTimeAxes = (Document) document.get(TIME_AXES_KEY);
-        final TimeAxis[] timeAxes = convertToTimeAxes(jsonTimeAxes);
-        satelliteObservation.setTimeAxes(timeAxes);
+        if (jsonTimeAxes != null) {
+            final TimeAxis[] timeAxes = convertToTimeAxes(jsonTimeAxes);
+            satelliteObservation.setTimeAxes(timeAxes);
+        }
 
         return satelliteObservation;
     }

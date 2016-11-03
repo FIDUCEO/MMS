@@ -34,7 +34,6 @@ import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -105,6 +104,27 @@ public abstract class StorageTest_SatelliteObservation {
         TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 30, 0, 0, timeAxes[0].getEndTime());
         final Geometry geometry = timeAxes[0].getGeometry();
         assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testInsert_andGet_noGeometry_noTimeAxes() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        observation.setGeoBounds(null);
+        observation.setTimeAxes(null);
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final SatelliteObservation observationFromDb = result.get(0);
+        assertEquals(observation.getStartTime().getTime(), observationFromDb.getStartTime().getTime());
+        assertEquals(observation.getStopTime().getTime(), observationFromDb.getStopTime().getTime());
+        assertEquals(observation.getNodeType(), observationFromDb.getNodeType());
+        assertEquals(observation.getVersion(), observationFromDb.getVersion());
+
+        assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
+        assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
     }
 
     @Test

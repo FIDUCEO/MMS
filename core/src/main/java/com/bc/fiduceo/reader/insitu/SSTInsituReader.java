@@ -20,6 +20,7 @@ package com.bc.fiduceo.reader.insitu;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -84,16 +85,10 @@ public class SSTInsituReader implements Reader {
     @Override
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo info = new AcquisitionInfo();
-        final Array timeArray = arrayMap.get("insitu.time");
-        final int[] ints = (int[]) timeArray.getStorage();
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-        for (int anInt : ints) {
-            min = Math.min(anInt, min);
-            max = Math.max(anInt, max);
-        }
-        info.setSensingStart(new Date(millisSince1978 + (long) min * 1000));
-        info.setSensingStop(new Date(millisSince1978 + (long) max * 1000));
+
+        extractSensingTimes(info);
+        info.setNodeType(NodeType.UNDEFINED);
+
         return info;
     }
 
@@ -178,5 +173,18 @@ public class SSTInsituReader implements Reader {
     @Override
     public Dimension getProductSize() throws IOException {
         return new Dimension("product_size", 1, getNumObservations());
+    }
+
+    private void extractSensingTimes(AcquisitionInfo info) {
+        final Array timeArray = arrayMap.get("insitu.time");
+        final int[] ints = (int[]) timeArray.getStorage();
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int anInt : ints) {
+            min = Math.min(anInt, min);
+            max = Math.max(anInt, max);
+        }
+        info.setSensingStart(new Date(millisSince1978 + (long) min * 1000));
+        info.setSensingStop(new Date(millisSince1978 + (long) max * 1000));
     }
 }

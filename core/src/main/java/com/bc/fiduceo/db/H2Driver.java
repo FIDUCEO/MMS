@@ -74,8 +74,13 @@ public class H2Driver extends AbstractDriver {
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
-        String wkt = geometryFactory.format(observation.getGeoBounds());
-        preparedStatement.setString(4, wkt);
+        final com.bc.fiduceo.geometry.Geometry geoBounds = observation.getGeoBounds();
+        if (geoBounds != null) {
+            final String wkt = geometryFactory.format(geoBounds);
+            preparedStatement.setString(4, wkt);
+        } else {
+            preparedStatement.setNull(4, Types.VARCHAR);
+        }
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getVersion());
         preparedStatement.setString(7, observation.getDataFilePath().toString());
@@ -83,20 +88,29 @@ public class H2Driver extends AbstractDriver {
 
         final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
         final int observationId;
-        if(generatedKeys.next()) {
+        if (generatedKeys.next()) {
             observationId = generatedKeys.getInt(1);
         } else {
             throw new SQLException("Internal driver error: no ID generated for SATELLITE_OBSERVATION");
         }
 
         final TimeAxis[] timeAxes = observation.getTimeAxes();
-        for (final TimeAxis timeAxis : timeAxes) {
+        if (timeAxes != null) {
+            for (final TimeAxis timeAxis : timeAxes) {
+                preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?,)");
+                preparedStatement.setInt(1, observationId);
+                final String wkt = geometryFactory.format(timeAxis.getGeometry());
+                preparedStatement.setString(2, wkt);
+                preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(timeAxis.getStartTime()));
+                preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(timeAxis.getEndTime()));
+                preparedStatement.executeUpdate();
+            }
+        } else {
             preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?,)");
             preparedStatement.setInt(1, observationId);
-            wkt = geometryFactory.format(timeAxis.getGeometry());
-            preparedStatement.setString(2, wkt);
-            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(timeAxis.getStartTime()));
-            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(timeAxis.getEndTime()));
+            preparedStatement.setNull(2, Types.VARCHAR);
+            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));
+            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
             preparedStatement.executeUpdate();
         }
     }
@@ -134,9 +148,11 @@ public class H2Driver extends AbstractDriver {
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
             final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
-            final String geoBoundsWkt = wktWriter.write(geoBounds);
-            final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
-            observation.setGeoBounds(geometry);
+            if (geoBounds != null) {
+                final String geoBoundsWkt = wktWriter.write(geoBounds);
+                final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
+                observation.setGeoBounds(geometry);
+            }
 
             final int sensorId = resultSet.getInt("SensorId");
             final Sensor sensor = getSensor(sensorId);
@@ -151,7 +167,9 @@ public class H2Driver extends AbstractDriver {
             final List<TimeAxis> timeAxesList = new ArrayList<>();
             while (observationId == resultSet.getInt("id")) {
                 final TimeAxis timeAxis = getTimeAxis(resultSet);
-                timeAxesList.add(timeAxis);
+                if (timeAxis != null) {
+                    timeAxesList.add(timeAxis);
+                }
 
                 if (!resultSet.next()) {
                     break;
@@ -242,6 +260,9 @@ public class H2Driver extends AbstractDriver {
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
         final Geometry axis = (Geometry) resultSet.getObject("Axis");
+        if (axis == null) {
+            return null;
+        }
         final String axisWkt = wktWriter.write(axis);
         final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
 
