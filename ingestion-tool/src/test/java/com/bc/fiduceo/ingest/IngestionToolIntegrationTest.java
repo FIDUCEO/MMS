@@ -609,7 +609,7 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_insitu_SST_Drifter() throws SQLException, IOException, ParseException {
-        // @todo 2 tb/tb we have to supply dates here - which are not udes during ingestion - rethink this 2016-11-03
+        // @todo 2 tb/tb we have to supply dates here - which are not used during ingestion - rethink this 2016-11-03
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst", "-start", "2001-165", "-end", "2001-165", "-v", "v03.3"};
 
         try {
@@ -617,6 +617,22 @@ public class IngestionToolIntegrationTest {
 
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("insitu_0_WMOID_51993_20040402_20060207.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2004, 4, 2, 18, 43, 47, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2006, 2, 7, 5, 17, 59, 0, observation.getStopTime());
+
+            assertEquals("drifter-sst", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v03.3", "insitu_0_WMOID_51993_20040402_20060207.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v03.3", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
         } finally {
             storage.clear();
             storage.close();
