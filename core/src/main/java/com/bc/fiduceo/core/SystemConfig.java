@@ -20,15 +20,14 @@
 
 package com.bc.fiduceo.core;
 
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.util.JDomUtils;
-import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,23 +38,24 @@ public class SystemConfig {
 
     private Properties properties;
     private String geometryLibraryType;
+    private ArchiveConfig archiveConfig;
 
     public SystemConfig() {
         properties = new Properties();
         geometryLibraryType = "S2";
     }
 
-
-
-    @Deprecated
-    public void loadFrom(File configDirectory) throws IOException {
-        final File systemPropertiesFile = new File(configDirectory, "system.properties");
+    public static SystemConfig loadFrom(File configDirectory) throws IOException {
+        final File systemPropertiesFile = new File(configDirectory, "system-config.xml");
         if (!systemPropertiesFile.isFile()) {
             throw new RuntimeException("Configuration file not found: " + systemPropertiesFile.getAbsolutePath());
         }
 
-        try (FileInputStream fileInputStream = new FileInputStream(systemPropertiesFile)) {
-            properties.load(fileInputStream);
+        final FileInputStream inputStream = new FileInputStream(systemPropertiesFile);
+        try {
+            return load(inputStream);
+        } finally {
+            inputStream.close();
         }
     }
 
@@ -77,6 +77,11 @@ public class SystemConfig {
         return geometryLibraryType;
     }
 
+
+    public ArchiveConfig getArchiveConfig() {
+        return archiveConfig;
+    }
+
     SystemConfig(Document document) {
         this();
 
@@ -86,5 +91,11 @@ public class SystemConfig {
             final Attribute nameAttribute = JDomUtils.getMandatoryAttribute(geometryLibraryElement, "name");
             geometryLibraryType = nameAttribute.getValue();
         }
+
+        final Element archiveConfigElement = rootElement.getChild("archive");
+        if (archiveConfigElement != null) {
+            archiveConfig = new ArchiveConfig(archiveConfigElement);
+        }
     }
+
 }

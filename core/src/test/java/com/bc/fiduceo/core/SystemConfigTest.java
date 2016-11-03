@@ -20,27 +20,20 @@
 
 package com.bc.fiduceo.core;
 
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SystemConfigTest {
-
-
-    @Before
-    public void setUp() {
-
-    }
-
-    @After
-    public void tearDown() {
-
-    }
 
     @Test
     public void testLoadAndGet_geometryLibrary() throws IOException {
@@ -54,17 +47,45 @@ public class SystemConfigTest {
         assertEquals("lib_name", systemConfig.getGeometryLibraryType());
     }
 
-    // @todo 1 tb/tb root element missing 2016-11-02
+    @Test
+    public void testLoadAndGet_invalidRootTag() throws IOException {
+        final String useCaseXml = "<system-thing>" +
+                "    <geometry-library name = \"lib_name\" />" +
+                "</system-thing>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
-//    @Test
-//    public void testLoadFileNotPresent() throws IOException {
-//        final SystemConfig systemConfig = new SystemConfig();
-//        try {
-//            systemConfig.loadFrom(testDirectory);
-//            fail("RuntimeException expected");
-//        } catch (RuntimeException expected) {
-//        }
-//    }
+        try {
+            SystemConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testLoadAndGet_archiveConfig() throws IOException {
+        final String useCaseXml = "<system-config>" +
+                "    <archive>" +
+                "        <root-path>" +
+                "            /usr/local/data/fiduceo" +
+                "        </root-path>" +
+                "        <rule sensors = \"wurst\">" +
+                "            SENSOR/VERSION/YEAR" +
+                "        </rule>"  +
+                "    </archive>" +
+                "</system-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final SystemConfig systemConfig = SystemConfig.load(inputStream);
+
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final String expected = TestUtil.assembleFileSystemPath(new String[]{"usr", "local", "data", "fiduceo"}, true);
+        assertEquals(expected, archiveConfig.getRootPath().toString());
+
+        final Map<String, String[]> rules = archiveConfig.getRules();
+        final String[] pathElements = rules.get("wurst");
+        assertEquals(3, pathElements.length);
+        assertEquals("VERSION", pathElements[1]);
+    }
 
     @Test
     public void testDefaultValues() {

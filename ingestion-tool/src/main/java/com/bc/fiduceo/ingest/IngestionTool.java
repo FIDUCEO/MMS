@@ -23,6 +23,7 @@ package com.bc.fiduceo.ingest;
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
@@ -91,8 +92,8 @@ class IngestionTool {
         final QueryParameter queryParameter = new QueryParameter();
 
         final SystemConfig systemConfig = context.getSystemConfig();
-        final Path archiveRootPath = Paths.get(systemConfig.getArchiveRoot());
-        final Archive archive = new Archive(archiveRootPath);
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final Archive archive = new Archive(archiveConfig);
         final Date startDate = context.getStartDate();
         final Date endDate = context.getEndDate();
 
@@ -205,8 +206,7 @@ class IngestionTool {
             context.setEndDate(endDate);
         }
 
-        final SystemConfig systemConfig = new SystemConfig();
-        systemConfig.loadFrom(confDirPath.toFile());
+        final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
         context.setSystemConfig(systemConfig);
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();

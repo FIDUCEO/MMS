@@ -387,8 +387,7 @@ class MatchupTool {
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.loadFrom(configDirectory);
 
-        final SystemConfig systemConfig = new SystemConfig();
-        systemConfig.loadFrom(configDirectory);
+        final SystemConfig systemConfig = SystemConfig.loadFrom(configDirectory);
         context.setSystemConfig(systemConfig);
 
         context.setStartDate(getStartDate(commandLine));

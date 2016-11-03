@@ -62,7 +62,7 @@ abstract class AbstractUsecaseIntegrationTest {
         storage.initialize();
 
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeSystemConfig(configDir);
         TestUtil.writeMmdWriterConfig(configDir);
     }
 

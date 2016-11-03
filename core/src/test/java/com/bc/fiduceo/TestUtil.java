@@ -118,12 +118,35 @@ public class TestUtil {
         return dataSource;
     }
 
-    public static void writeSystemProperties(File configDir) throws IOException {
-        final Properties properties = new Properties();
-        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
-        properties.setProperty("geometry-library-type", "S2");
+    public static void writeSystemConfig(File configDir) throws IOException {
+        final String systemConfigXML = "<system-config>" +
+                "    <geometry-library name = \"S2\" />" +
+                "    <archive>" +
+                "        <root-path>" +
+                "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
+                "        </root-path>" +
+                "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
+                "            insitu/SENSOR/VERSION\"" +
+                "        </rule>"  +
+                "    </archive>" +
+                "</system-config>";
 
-        TestUtil.storeProperties(properties, configDir, "system.properties");
+
+        final File systemConfigFile = new File(configDir, "system-config.xml");
+        if (!systemConfigFile.createNewFile()) {
+            fail("unable to create test file: " + systemConfigFile.getAbsolutePath());
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(systemConfigFile);
+            outputStream.write(systemConfigXML.getBytes());
+            outputStream.flush();
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
     }
 
     public static void writeMmdWriterConfig(File configDir) throws IOException {

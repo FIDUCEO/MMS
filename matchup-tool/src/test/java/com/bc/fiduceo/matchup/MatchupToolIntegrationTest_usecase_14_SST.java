@@ -69,7 +69,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeSystemConfig(configDir);
         TestUtil.writeMmdWriterConfig(configDir);
 
 
@@ -103,7 +103,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
     @Test
     public void testMatchup_overlappingSensingTimes_withVariablesRenamed() throws IOException, ParseException, SQLException, InvalidRangeException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeSystemProperties(configDir);
+        TestUtil.writeSystemConfig(configDir);
         final String writerConfigXml = "<mmd-writer-config>" +
                                        "    <overwrite>false</overwrite>" +
                                        "    <cache-size>2048</cache-size>" +

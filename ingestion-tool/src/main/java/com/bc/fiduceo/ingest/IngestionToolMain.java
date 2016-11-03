@@ -54,6 +54,7 @@ public class IngestionToolMain {
             ingestionTool.run(commandLine);
         } catch (Throwable e) {
             FiduceoLogger.getLogger().severe(e.getMessage());
+            e.printStackTrace();
             System.exit(-1);
         }
     }

@@ -46,6 +46,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom2.Parent;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -93,16 +94,18 @@ public class ArchiveConfig {
 
     @SuppressWarnings("unchecked")
     ArchiveConfig(Document document) {
-        this();
+      this(document.getRootElement());
+    }
 
-        final Element rootElement = document.getRootElement();
-        final String name = rootElement.getName();
+    public ArchiveConfig(Element element) {
+        this();
+        final String name = element.getName();
         if (!ROOT_ELEMENT_TAG.equals(name)) {
             throw new RuntimeException("Root tag name '" + ROOT_ELEMENT_TAG + "' expected");
         }
 
-        parseRootPath(rootElement);
-        parseRules(rootElement);
+        parseRootPath(element);
+        parseRules(element);
     }
 
     void setRootPath(Path rootPath) {

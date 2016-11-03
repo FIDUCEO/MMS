@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -51,7 +52,7 @@ public class IngestionToolIntegrationTest {
     private Storage storage;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, IOException {
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
@@ -60,6 +61,10 @@ public class IngestionToolIntegrationTest {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
+
+        TestUtil.writeMmdWriterConfig(configDir);
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
     }
 
     @After
@@ -89,9 +94,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n17", "-start", "2007-091", "-end", "2007-093", "-v", "1.01"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
 
             final List<SatelliteObservation> satelliteObservations = storage.get();
@@ -137,9 +139,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n18", "-start", "2007-090", "-end", "2007-092", "-v", "1.02"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
 
             final List<SatelliteObservation> satelliteObservations = storage.get();
@@ -185,9 +184,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(3, satelliteObservations.size());
@@ -232,9 +228,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             IngestionToolMain.main(args);
 
@@ -251,9 +244,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mhs-n18", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(3, satelliteObservations.size());
@@ -298,9 +288,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-tn", "-start", "1979-286", "-end", "1979-288", "-v", "1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -347,9 +334,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-n10", "-start", "1989-076", "-end", "1989-077", "-v", "1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -396,9 +380,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "hirs-ma", "-start", "2011-234", "-end", "2011-236", "-v", "1.0"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -445,9 +426,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e1", "-start", "1993-217", "-end", "1993-217", "-v", "v3"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -486,9 +464,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "atsr-e2", "-start", "1998-114", "-end", "1998-114", "-v", "v3"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -527,9 +502,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "aatsr-en", "-start", "2006-046", "-end", "2006-046", "-v", "v3"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -568,9 +540,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsre-aq", "-start", "2005-048", "-end", "2005-048", "-v", "v12"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -609,9 +578,6 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "ssmt2-f14", "-start", "2001-165", "-end", "2001-165", "-v", "v01"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
             assertEquals(1, satelliteObservations.size());
@@ -651,21 +617,11 @@ public class IngestionToolIntegrationTest {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst"   , "-v", "v03.3"};
 
         try {
-            writeSystemProperties();
-            TestUtil.writeDatabaseProperties_MongoDb(configDir);
-
             IngestionToolMain.main(args);
         } finally {
             storage.clear();
             storage.close();
         }
-    }
-
-    private void writeSystemProperties() throws IOException {
-        final Properties properties = new Properties();
-        properties.setProperty("archive-root", TestUtil.getTestDataDirectory().getAbsolutePath());
-        properties.setProperty("geometry-library-type", "S2");
-        TestUtil.storeProperties(properties, configDir, "system.properties");
     }
 
     private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {
