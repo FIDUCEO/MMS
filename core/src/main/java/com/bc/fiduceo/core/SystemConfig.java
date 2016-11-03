@@ -32,18 +32,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 
 public class SystemConfig {
 
-    private Properties properties;
     private String geometryLibraryType;
     private ArchiveConfig archiveConfig;
-
-    public SystemConfig() {
-        properties = new Properties();
-        geometryLibraryType = "S2";
-    }
 
     public static SystemConfig loadFrom(File configDirectory) throws IOException {
         final File systemPropertiesFile = new File(configDirectory, "system-config.xml");
@@ -51,11 +44,8 @@ public class SystemConfig {
             throw new RuntimeException("Configuration file not found: " + systemPropertiesFile.getAbsolutePath());
         }
 
-        final FileInputStream inputStream = new FileInputStream(systemPropertiesFile);
-        try {
+        try (FileInputStream inputStream = new FileInputStream(systemPropertiesFile)) {
             return load(inputStream);
-        } finally {
-            inputStream.close();
         }
     }
 
@@ -69,20 +59,19 @@ public class SystemConfig {
         }
     }
 
-    public String getArchiveRoot() {
-        return properties.getProperty("archive-root").trim();
+    SystemConfig() {
+        geometryLibraryType = "S2";
     }
 
     public String getGeometryLibraryType() {
         return geometryLibraryType;
     }
 
-
     public ArchiveConfig getArchiveConfig() {
         return archiveConfig;
     }
 
-    SystemConfig(Document document) {
+    private SystemConfig(Document document) {
         this();
 
         final Element rootElement = JDomUtils.getMandatoryRootElement("system-config", document);
@@ -97,5 +86,4 @@ public class SystemConfig {
             archiveConfig = new ArchiveConfig(archiveConfigElement);
         }
     }
-
 }

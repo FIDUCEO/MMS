@@ -41,25 +41,20 @@
 package com.bc.fiduceo.archive;
 
 
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom2.Parent;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class ArchiveConfig {
-    // @todo 2 tb/tb use JDOMUtils here 2016-11-02
 
     private static final String ROOT_ELEMENT_TAG = "archive";
     private static final String ROOT_PATH_TAG = "root-path";
@@ -88,15 +83,6 @@ public class ArchiveConfig {
         }
     }
 
-    ArchiveConfig() {
-        rules = new HashMap<>();
-    }
-
-    @SuppressWarnings("unchecked")
-    ArchiveConfig(Document document) {
-      this(document.getRootElement());
-    }
-
     public ArchiveConfig(Element element) {
         this();
         final String name = element.getName();
@@ -108,6 +94,10 @@ public class ArchiveConfig {
         parseRules(element);
     }
 
+    ArchiveConfig() {
+        rules = new HashMap<>();
+    }
+
     void setRootPath(Path rootPath) {
         this.rootPath = rootPath;
     }
@@ -116,14 +106,15 @@ public class ArchiveConfig {
         this.rules = rules;
     }
 
+    private ArchiveConfig(Document document) {
+        this(document.getRootElement());
+    }
+
     @SuppressWarnings("unchecked")
     private void parseRules(Element rootElement) {
         final List<Element> ruleElementsList = rootElement.getChildren(RULE_TAG);
         for (final Element ruleElement : ruleElementsList) {
-            final Attribute sensorsAttribute = ruleElement.getAttribute("sensors");
-            if (sensorsAttribute == null) {
-                throw new RuntimeException("Sensors not configured for archive rule");
-            }
+            final Attribute sensorsAttribute = JDomUtils.getMandatoryAttribute(ruleElement, "sensors");
 
             final String[] pathElements = parsePathElements(ruleElement);
 
@@ -158,15 +149,12 @@ public class ArchiveConfig {
     }
 
     private void parseRootPath(Element rootElement) {
-        final Element rootPathElement = rootElement.getChild(ROOT_PATH_TAG);
-        if (rootPathElement != null) {
-            final String rootPathValue = rootPathElement.getValue();
-            if (rootPathValue == null || rootPathValue.trim().isEmpty()) {
-                throw new RuntimeException("Archive root path not configured, element '" + ROOT_PATH_TAG + "' is empty");
-            }
-            rootPath = Paths.get(rootPathValue.trim());
-        } else {
-            throw new RuntimeException("Archive root path not configured, missing element '" + ROOT_PATH_TAG + "'");
+        final Element rootPathElement = JDomUtils.getMandatoryChild(rootElement, ROOT_PATH_TAG);
+
+        final String rootPathValue = rootPathElement.getValue();
+        if (rootPathValue == null || rootPathValue.trim().isEmpty()) {
+            throw new RuntimeException("Archive root path not configured, element '" + ROOT_PATH_TAG + "' is empty");
         }
+        rootPath = Paths.get(rootPathValue.trim());
     }
 }
