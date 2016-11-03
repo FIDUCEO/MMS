@@ -41,6 +41,7 @@
 package com.bc.fiduceo.archive;
 
 
+import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
 
 import java.util.Map;
@@ -61,7 +62,8 @@ public class ArchiveConfigTest {
 
         final ArchiveConfig config = ArchiveConfig.parse(rootPathXML);
         assertNotNull(config);
-        assertEquals("/usr/local/data/fiduceo", config.getRootPath().toString());
+        final String expected = TestUtil.assembleFileSystemPath(new String[]{"usr", "local", "data", "fiduceo"}, true);
+        assertEquals(expected, config.getRootPath().toString());
     }
 
     @Test

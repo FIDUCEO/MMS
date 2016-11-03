@@ -217,10 +217,10 @@ public class TestUtil {
         return databaseConfigFile;
     }
 
-    public static String assembleFileSystemPath(String[] pathSegments, boolean relative) {
+    public static String assembleFileSystemPath(String[] pathSegments, boolean absolute) {
         final StringBuilder builder = new StringBuilder();
         final String sep = File.separator;
-        if (relative) {
+        if (absolute) {
             builder.append(sep);
         }
         for (int i = 0; i < pathSegments.length; i++) {

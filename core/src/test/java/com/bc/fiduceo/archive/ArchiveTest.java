@@ -21,6 +21,7 @@
 package com.bc.fiduceo.archive;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.util.TimeUtils;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -29,11 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -90,9 +87,15 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(15, productPaths.length);
-        assertEquals("archiveRoot/amsub/1.0/2015/01/21/productFile0.nc", productPaths[0].toString());
-        assertEquals("archiveRoot/amsub/1.0/2015/01/24/productFile3.nc", productPaths[9].toString());
-        assertEquals("archiveRoot/amsub/1.0/2015/01/25/productFile4.nc", productPaths[14].toString());
+
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2015", "01", "21", "productFile0.nc"}, false);
+        assertEquals(expected, productPaths[0].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2015", "01", "24", "productFile3.nc"}, false);
+        assertEquals(expected, productPaths[9].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2015", "01", "25", "productFile4.nc"}, false);
+        assertEquals(expected, productPaths[14].toString());
     }
 
     @Test
@@ -125,10 +128,17 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(20, productPaths.length);
-        assertEquals("archiveRoot/amsub/1.0/2014/05/30/productFile30_0.nc", productPaths[0].toString());
-        assertEquals("archiveRoot/amsub/1.0/2014/05/31/productFile31_3.nc", productPaths[7].toString());
-        assertEquals("archiveRoot/amsub/1.0/2014/06/01/productFile1_0.nc", productPaths[8].toString());
-        assertEquals("archiveRoot/amsub/1.0/2014/06/03/productFile3_3.nc", productPaths[19].toString());
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2014", "05", "30", "productFile30_0.nc"}, false);
+        assertEquals(expected, productPaths[0].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2014", "05", "31", "productFile31_3.nc"}, false);
+        assertEquals(expected, productPaths[7].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2014", "06", "01", "productFile1_0.nc"}, false);
+        assertEquals(expected, productPaths[8].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "amsub", "1.0", "2014", "06", "03", "productFile3_3.nc"}, false);
+        assertEquals(expected, productPaths[19].toString());
     }
 
     @Test
@@ -162,9 +172,15 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(45, productPaths.length);
-        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile11_0.nc", productPaths[0].toString());
-        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile12_14.nc", productPaths[21].toString());
-        assertEquals("archiveRoot/1.0/amsub/2016/05/productFile13_9.nc", productPaths[44].toString());
+
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile11_0.nc"}, false);
+        assertEquals(expected, productPaths[0].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile12_14.nc"}, false);
+        assertEquals(expected, productPaths[21].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile13_9.nc"}, false);
+        assertEquals(expected, productPaths[44].toString());
     }
 
     @Test
@@ -196,9 +212,15 @@ public class ArchiveTest {
         // validation
         assertNotNull(productPaths);
         assertEquals(15, productPaths.length);
-        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile0.nc", productPaths[0].toString());
-        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile3.nc", productPaths[8].toString());
-        assertEquals("archiveRoot/in-situ/1.0/amsub/productFile9.nc", productPaths[14].toString());
+
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile0.nc"}, false);
+        assertEquals(expected, productPaths[0].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile3.nc"}, false);
+        assertEquals(expected, productPaths[8].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile9.nc"}, false);
+        assertEquals(expected, productPaths[14].toString());
     }
 
 
@@ -211,7 +233,6 @@ public class ArchiveTest {
         assertNotNull(productPaths);
         assertEquals(0, productPaths.length);
     }
-
 
     @Test
     public void testGetWithStartAndEndDate_withEmpty_and_missingDir() throws IOException {
@@ -296,7 +317,8 @@ public class ArchiveTest {
         archiveConfig.setRules(rules);
 
         final Archive archive = new Archive(archiveConfig);
-        assertEquals("C:/data/storage", archive.getRootPath().toString());
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"C:","data","storage"}, false);
+        assertEquals(expected, archive.getRootPath().toString());
 
         String[] sensorElements = archive.getPathElements("the_sensor");
         assertEquals(4, sensorElements.length);
