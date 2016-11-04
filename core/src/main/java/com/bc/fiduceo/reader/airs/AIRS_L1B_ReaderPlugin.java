@@ -37,6 +37,7 @@
 package com.bc.fiduceo.reader.airs;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
@@ -52,5 +53,10 @@ public class AIRS_L1B_ReaderPlugin implements ReaderPlugin {
     @Override
     public String[] getSupportedSensorKeys() {
         return SENSOR_KEYS;
+    }
+
+    @Override
+    public DataType getDataType() {
+        throw new RuntimeException("not implemented");
     }
 }

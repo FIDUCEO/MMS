@@ -20,11 +20,13 @@
 
 package com.bc.fiduceo.reader.hirs;
 
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -43,6 +45,11 @@ public class HIRS_L1C_ReaderPluginTest {
         final String[] keys = plugin.getSupportedSensorKeys();
 
         assertArrayEquals(expected, keys);
+    }
+
+    @Test
+    public void testGetDataType() {
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, plugin.getDataType());
     }
 
     @Test

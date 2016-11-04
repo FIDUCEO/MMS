@@ -37,9 +37,11 @@
 package com.bc.fiduceo.reader.avhrr_gac;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 
@@ -57,6 +59,11 @@ public class AVHRR_GAC_ReaderPluginTest {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof AVHRR_GAC_Reader);
+    }
+
+    @Test
+    public void testGetDataType() {
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, plugin.getDataType());
     }
 
     @Test

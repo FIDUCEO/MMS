@@ -20,11 +20,13 @@
 
 package com.bc.fiduceo.reader.insitu;
 
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -50,5 +52,10 @@ public class SSTInsituReaderPluginTest {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof SSTInsituReader);
+    }
+
+    @Test
+    public void testGetDataType() {
+        assertEquals(DataType.INSITU, plugin.getDataType());
     }
 }

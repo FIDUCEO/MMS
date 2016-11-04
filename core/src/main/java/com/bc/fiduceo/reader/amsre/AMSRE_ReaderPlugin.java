@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.amsre;
 
 
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
@@ -35,5 +36,10 @@ public class AMSRE_ReaderPlugin implements ReaderPlugin {
     @Override
     public String[] getSupportedSensorKeys() {
         return new String[] {"amsre-aq"};
+    }
+
+    @Override
+    public DataType getDataType() {
+        return DataType.POLAR_ORBITING_SATELLITE;
     }
 }

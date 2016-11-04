@@ -18,29 +18,10 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.DataType;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class ATSR_L1B_ReaderPlugin implements ReaderPlugin {
-
-    private static final String[] SENSOR_KEYS = new String[]{"atsr-e1", "atsr-e2", "aatsr-en"};
-
-    @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new ATSR_L1B_Reader(geometryFactory);
-    }
-
-    @Override
-    public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
-    }
-
-    @Override
-    public DataType getDataType() {
-        return DataType.POLAR_ORBITING_SATELLITE;
-    }
+public enum DataType {
+    POLAR_ORBITING_SATELLITE,
+    INSITU
 }

@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.insitu;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
@@ -36,5 +37,10 @@ public class SSTInsituReaderPlugin implements ReaderPlugin {
     @Override
     public String[] getSupportedSensorKeys() {
         return SUPPORTED_KEYS;
+    }
+
+    @Override
+    public DataType getDataType() {
+        return DataType.INSITU;
     }
 }

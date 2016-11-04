@@ -37,9 +37,11 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 
@@ -58,6 +60,11 @@ public class AMSUB_MHS_L1C_ReaderPluginTest {
 
         final String[] sensorKeys= plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
+    }
+
+    @Test
+    public void testGetDataType() {
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, plugin.getDataType());
     }
 
     @Test

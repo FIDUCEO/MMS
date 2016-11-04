@@ -7,4 +7,6 @@ public interface ReaderPlugin {
     Reader createReader(GeometryFactory geometryFactory);
 
     String[] getSupportedSensorKeys();
+
+    DataType getDataType();
 }
