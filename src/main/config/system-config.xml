@@ -32,7 +32,7 @@
     <archive>
         <!--
         The archive root defines the root directory containing the input datasets used for matchup processing
-        by default, the archive is ,organised as
+        by default, the archive is organised as
             <root>/<sensor-platform>/<version>/<year>/<month>(/<day>)
         -->
         <root-path>
