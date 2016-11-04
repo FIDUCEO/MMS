@@ -117,6 +117,25 @@ public class ReaderFactoryTest {
     }
 
     @Test
+    public void testGetDataType() {
+         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("amsre-aq"));
+         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("iasi-mb"));
+         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("ssmt2-f12"));
+
+         assertEquals(DataType.INSITU, readerFactory.getDataType("radiometer-sst"));
+         assertEquals(DataType.INSITU, readerFactory.getDataType("ctd-sst"));
+    }
+
+    @Test
+    public void testGetDataType_invalidSensor() throws Exception {
+        try {
+            readerFactory.getDataType("grepolysium");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
     public void testSingletonBehaviour(){
         final ReaderFactory factory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
         assertNotNull(factory);

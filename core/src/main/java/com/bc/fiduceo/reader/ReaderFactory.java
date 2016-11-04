@@ -50,11 +50,21 @@ public class ReaderFactory {
             throw new IllegalArgumentException("The reader support sensor key most be well define");
         }
 
+        final ReaderPlugin readerPlugin = getReaderPluginSafe(sensorPlatformKey);
+        return readerPlugin.createReader(geometryFactory);
+    }
+
+    public DataType getDataType(String sensorPlatformKey) {
+        final ReaderPlugin readerPlugin = getReaderPluginSafe(sensorPlatformKey);
+        return readerPlugin.getDataType();
+    }
+
+    private ReaderPlugin getReaderPluginSafe(String sensorPlatformKey) {
         final ReaderPlugin readerPlugin = readerPluginHashMap.get(sensorPlatformKey);
         if (readerPlugin == null) {
             throw new IllegalArgumentException("No reader available for data of type: '" + sensorPlatformKey + "'");
         }
-        return readerPlugin.createReader(geometryFactory);
+        return readerPlugin;
     }
 
     private ReaderFactory(GeometryFactory geometryFactory) {
