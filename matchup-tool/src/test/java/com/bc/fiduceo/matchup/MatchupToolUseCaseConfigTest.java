@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 
-public class UseCaseConfigTest {
+public class MatchupToolUseCaseConfigTest {
 
     @Test
     public void testStore() throws IOException {

@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.matchup;
+package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;

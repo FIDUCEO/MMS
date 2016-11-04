@@ -1,20 +1,50 @@
-package com.bc.fiduceo.matchup;
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.when;
 
 public class SampleCollectorTest {
 
@@ -36,11 +66,11 @@ public class SampleCollectorTest {
     public void testAddPrimarySamples() {
         // preparation
         final List<Point> polygonPoints = createPoints(new double[]{
-                    1, 1,
-                    3, 1,
-                    3, 3,
-                    1, 3,
-                    1, 1
+                1, 1,
+                3, 1,
+                3, 3,
+                1, 3,
+                1, 1
         });
         final Polygon polygon = factory.createPolygon(polygonPoints);
 
@@ -52,10 +82,10 @@ public class SampleCollectorTest {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         assertNotNull(sampleSets);
         final Sample[] expecteds = {
-                    new Sample(12, 14, 1.5, 1.5, 14012L),
-                    new Sample(13, 14, 2.5, 1.5, 14013L),
-                    new Sample(12, 15, 1.5, 2.5, 15012L),
-                    new Sample(13, 15, 2.5, 2.5, 15013L)
+                new Sample(12, 14, 1.5, 1.5, 14012L),
+                new Sample(13, 14, 2.5, 1.5, 14013L),
+                new Sample(12, 15, 1.5, 2.5, 15012L),
+                new Sample(13, 15, 2.5, 2.5, 15013L)
 
         };
         assertEquals(expecteds.length, sampleSets.size());
@@ -137,11 +167,11 @@ public class SampleCollectorTest {
     @Test
     public void testPointInPolygonTest_GeometriesCreatedByFactory() throws Exception {
         final Polygon polygon = factory.createPolygon(createPoints(new double[]{
-                    2, 2,
-                    6, 2,
-                    6, 6,
-                    2, 6,
-                    2, 2
+                2, 2,
+                6, 2,
+                6, 6,
+                2, 6,
+                2, 2
         }));
         assertTrue(polygon.contains(factory.createPoint(4, 4)));
     }

@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.matchup;
+package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -27,9 +27,9 @@ import com.bc.fiduceo.reader.ReaderFactory;
 
 import java.util.logging.Logger;
 
-class MatchupStrategyFactory {
+public class MatchupStrategyFactory {
 
-    static AbstractMatchupStrategy get(UseCaseConfig useCaseConfig, Logger logger) {
+    public static AbstractMatchupStrategy get(UseCaseConfig useCaseConfig, Logger logger) {
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
 
@@ -39,12 +39,12 @@ class MatchupStrategyFactory {
         final DataType primaryType = readerFactory.getDataType(primarySensor.getName());
         final DataType secondaryType = readerFactory.getDataType(secondarySensor.getName());
 
-        if (primaryType == DataType.POLAR_ORBITING_SATELLITE && secondaryType== DataType.POLAR_ORBITING_SATELLITE) {
+        if (primaryType == DataType.POLAR_ORBITING_SATELLITE && secondaryType == DataType.POLAR_ORBITING_SATELLITE) {
             return new PolarOrbitingMatchupStrategy(logger);
-        } else if(primaryType == DataType.INSITU && secondaryType== DataType.POLAR_ORBITING_SATELLITE) {
-           return new InsituPolarOrbitingMatchupStrategy(logger);
+        } else if (primaryType == DataType.INSITU && secondaryType == DataType.POLAR_ORBITING_SATELLITE) {
+            return new InsituPolarOrbitingMatchupStrategy(logger);
         }
 
-        throw new RuntimeException("No matchup strategy registerd for combination primary: " + primaryType + " secondary: " +secondaryType);
+        throw new RuntimeException("No matchup strategy registerd for combination primary: " + primaryType + " secondary: " + secondaryType);
     }
 }

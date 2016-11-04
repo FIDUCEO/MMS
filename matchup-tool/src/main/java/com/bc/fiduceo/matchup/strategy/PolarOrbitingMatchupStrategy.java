@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.matchup;
+package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -30,6 +30,9 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
@@ -49,7 +52,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy{
+class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     private final Logger logger;
 
@@ -57,7 +60,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy{
         this.logger = logger;
     }
 
-    MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
+    public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();

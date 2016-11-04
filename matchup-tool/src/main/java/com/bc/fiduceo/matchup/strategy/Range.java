@@ -18,15 +18,28 @@
  *
  */
 
-package com.bc.fiduceo.matchup;
+package com.bc.fiduceo.matchup.strategy;
 
-import com.bc.fiduceo.tool.ToolContext;
-import ucar.ma2.InvalidRangeException;
+class Range {
 
-import java.io.IOException;
-import java.sql.SQLException;
+    private double min;
+    private double max;
 
-abstract class AbstractMatchupStrategy {
+    Range() {
+        min = Double.MAX_VALUE;
+        max = Double.MIN_VALUE;
+    }
 
-    abstract MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
+    void aggregate(double value) {
+        max = Math.max(max, value);
+        min = Math.min(min, value);
+    }
+
+    double getMax() {
+        return max;
+    }
+
+    double getMin() {
+        return min;
+    }
 }

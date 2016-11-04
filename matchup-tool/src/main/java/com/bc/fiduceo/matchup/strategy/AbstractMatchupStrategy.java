@@ -18,23 +18,16 @@
  *
  */
 
-package com.bc.fiduceo.matchup;
+package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.tool.ToolContext;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
-class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
+public abstract class AbstractMatchupStrategy {
 
-    InsituPolarOrbitingMatchupStrategy(Logger logger) {
-
-    }
-
-    @Override
-    MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
-    }
+    abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
 }

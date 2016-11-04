@@ -28,6 +28,8 @@ import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.matchup.strategy.AbstractMatchupStrategy;
+import com.bc.fiduceo.matchup.strategy.MatchupStrategyFactory;
 import com.bc.fiduceo.matchup.writer.AcquisitionTimeReadingIOVariable;
 import com.bc.fiduceo.matchup.writer.CenterXWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.CenterYWritingIOVariable;
