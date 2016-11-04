@@ -20,19 +20,14 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.ValidationResult;
 import com.bc.fiduceo.db.DatabaseConfig;
-import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.matchup.condition.ConditionEngine;
-import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
-import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.matchup.writer.AcquisitionTimeReadingIOVariable;
 import com.bc.fiduceo.matchup.writer.CenterXWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.CenterYWritingIOVariable;
@@ -44,10 +39,6 @@ import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.matchup.writer.ReaderContainer;
 import com.bc.fiduceo.matchup.writer.SourcePathWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
-import com.bc.fiduceo.math.Intersection;
-import com.bc.fiduceo.math.IntersectionEngine;
-import com.bc.fiduceo.math.TimeInfo;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
@@ -60,7 +51,11 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Date;
@@ -83,19 +78,82 @@ class MatchupTool {
         logger = FiduceoLogger.getLogger();
     }
 
-    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
-        final PixelLocator pixelLocator;
-        if (isSegmented) {
-            pixelLocator = reader.getSubScenePixelLocator(polygon);
-        } else {
-            pixelLocator = reader.getPixelLocator();
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
+
+        readerFactory = ReaderFactory.get(context.getGeometryFactory());
+
+        runMatchupGeneration(context, mmdWriterConfig);
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION_NUMBER);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
+    }
+
+    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
+        final List<MatchupSet> sets = matchupCollection.getSets();
+        if (sets.size() > 0) {
+            return sets.get(0);
         }
-        return pixelLocator;
+        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
+    }
+
+    // package access for testing only tb 2016-10-05
+    static void applyExcludesAndRenames(IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
+        final List<String> sensorNames = ioVariablesList.getSensorNames();
+
+        for (final String sensorName : sensorNames) {
+            final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
+            final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
+            for (Map.Entry<String, String> rename : renames.entrySet()) {
+                final String sourceName = rename.getKey();
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    variable.setTargetVariableName(rename.getValue());
+                }
+            }
+
+            final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
+            for (final String sourceName : excludes) {
+                final IOVariable variable = getVariable(sourceName, ioVariables);
+                if (variable != null) {
+                    ioVariables.remove(variable);
+                }
+            }
+        }
+    }
+
+    static IOVariable getVariable(String sourceName, List<IOVariable> ioVariables) {
+        for (final IOVariable variable : ioVariables) {
+            if (sourceName.equals(variable.getSourceVariableName())) {
+                return variable;
+            }
+        }
+        return null;
+    }
+
+    // package access for testing only tb 2016-08-16
+    static void calculateDistance(MatchupSet matchupSet) {
+        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
+        for (final SampleSet sampleSet : sourceSamples) {
+            final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
+            sampleSet.setSphericalDistance((float) km);
+        }
     }
 
     static void createIOVariablesPerSensor(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
                                            final UseCaseConfig useCaseConfig, VariablesConfiguration variablesConfiguration)
-                throws IOException {
+            throws IOException {
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
         // todo 3 se/** 2016-10-21 adopt when multiple secondary sensors are needed
@@ -189,44 +247,6 @@ class MatchupTool {
         }
     }
 
-    static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        assignSensor(parameter, secondarySensor);
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
-        }
-
-        return additionalSensors.get(0);
-    }
-
-    // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(ToolContext context) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        if (primarySensor == null) {
-            throw new RuntimeException("primary sensor not present in configuration file");
-        }
-
-        assignSensor(parameter, primarySensor);
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
-        return parameter;
-    }
-
     // package access for testing only tb 2016-02-18
     static Options getOptions() {
         final Options options = new Options();
@@ -296,86 +316,6 @@ class MatchupTool {
         return builder;
     }
 
-    static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
-        final List<MatchupSet> sets = matchupCollection.getSets();
-        if (sets.size() > 0) {
-            return sets.get(0);
-        }
-        throw new IllegalStateException("Called getFirst() on empty matchupCollection.");
-    }
-
-    // package access for testing only tb 2016-10-05
-    static void applyExcludesAndRenames(IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
-        final List<String> sensorNames = ioVariablesList.getSensorNames();
-
-        for (final String sensorName : sensorNames) {
-            final List<IOVariable> ioVariables = ioVariablesList.getVariablesFor(sensorName);
-            final Map<String, String> renames = variablesConfiguration.getRenames(sensorName);
-            for (Map.Entry<String, String> rename : renames.entrySet()) {
-                final String sourceName = rename.getKey();
-                final IOVariable variable = getVariable(sourceName, ioVariables);
-                if (variable != null) {
-                    variable.setTargetVariableName(rename.getValue());
-                }
-            }
-
-            final List<String> excludes = variablesConfiguration.getExcludes(sensorName);
-            for (final String sourceName : excludes) {
-                final IOVariable variable = getVariable(sourceName, ioVariables);
-                if (variable != null) {
-                    ioVariables.remove(variable);
-                }
-            }
-        }
-    }
-
-    static IOVariable getVariable(String sourceName, List<IOVariable> ioVariables) {
-        for (final IOVariable variable : ioVariables) {
-            if (sourceName.equals(variable.getSourceVariableName())) {
-                return variable;
-            }
-        }
-        return null;
-    }
-
-    // package access for testing only tb 2016-08-16
-    static void calculateDistance(MatchupSet matchupSet) {
-        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
-        for (final SampleSet sampleSet : sourceSamples) {
-            final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
-            sampleSet.setSphericalDistance((float) km);
-        }
-    }
-
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        readerFactory = ReaderFactory.get(context.getGeometryFactory());
-
-        runMatchupGeneration(context, mmdWriterConfig);
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION_NUMBER);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
-    }
-
-    private static void assignSensor(QueryParameter parameter, Sensor secondarySensor) {
-        parameter.setSensorName(secondarySensor.getName());
-        final String dataVersion = secondarySensor.getDataVersion();
-        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
-            parameter.setVersion(dataVersion);
-        }
-    }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
         logger.info("Loading configuration ...");
@@ -412,7 +352,12 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context, MmdWriterConfig writerConfig) throws SQLException, IOException, InvalidRangeException {
-        final MatchupCollection matchupCollection = createMatchupCollection(context);
+        // @todo 1 tb/tb create MatchupStrategy Factory 2016-11-04
+        // @todo 1 tb/tb request MatchupStrategy from config  2016-11-04
+
+        final MatchupStrategy matchupStrategy = new MatchupStrategy(logger);
+        final MatchupCollection matchupCollection = matchupStrategy.createMatchupCollection(context);
+
 
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
@@ -421,7 +366,6 @@ class MatchupTool {
 
         final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(writerConfig);
 
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -447,118 +391,6 @@ class MatchupTool {
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
         attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
         return variable;
-    }
-
-    // @todo 2 tb/** this method wants to be refactured 2016-05-11
-    private MatchupCollection createMatchupCollection(ToolContext context) throws IOException, SQLException, InvalidRangeException {
-        final MatchupCollection matchupCollection = new MatchupCollection();
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-
-        final ConditionEngine conditionEngine = new ConditionEngine();
-        final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
-        conditionEngine.configure(useCaseConfig);
-
-        final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
-        final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
-
-        final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
-        for (final SatelliteObservation primaryObservation : primaryObservations) {
-            try (Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
-                primaryReader.open(primaryObservation.getDataFilePath().toFile());
-
-                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryObservation.getStartTime());
-                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryObservation.getStopTime());
-
-                final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
-                final boolean isPrimarySegmented = isSegmented(primaryGeoBounds);
-
-                final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
-                for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                    try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
-                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
-
-                        final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
-                        final boolean isSecondarySegmented = isSegmented(secondaryGeoBounds);
-
-                        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
-                        if (intersectingIntervals.length == 0) {
-                            continue;
-                        }
-
-                        final MatchupSet matchupSet = new MatchupSet();
-                        matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
-
-                        for (final Intersection intersection : intersectingIntervals) {
-                            final TimeInfo timeInfo = intersection.getTimeInfo();
-                            if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
-                                final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
-                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
-                                if (primaryPixelLocator == null || secondaryPixelLocator == null) {
-                                    logger.warning("Unable to create valid pixel locators. Skipping intersection segment.");
-                                    continue;
-                                }
-
-                                SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
-                                sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
-
-                                sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
-                                matchupSet.setSampleSets(completeSamples);
-                            }
-                        }
-
-                        if (matchupSet.getNumObservations() > 0) {
-                            final Dimension primarySize = primaryReader.getProductSize();
-                            conditionEngineContext.setPrimarySize(primarySize);
-                            final Dimension secondarySize = secondaryReader.getProductSize();
-                            conditionEngineContext.setSecondarySize(secondarySize);
-
-                            logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                            conditionEngine.process(matchupSet, conditionEngineContext);
-                            logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
-
-                            final ScreeningEngine screeningEngine = new ScreeningEngine();
-                            screeningEngine.configure(useCaseConfig);
-
-                            screeningEngine.process(matchupSet, primaryReader, secondaryReader);
-                            logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
-
-                            if (matchupSet.getNumObservations() > 0) {
-                                matchupCollection.add(matchupSet);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return matchupCollection;
-    }
-
-    private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
-        logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
-
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
-
-        logger.info("Received " + secondaryObservations.size() + " secondary satellite observations");
-
-        return secondaryObservations;
-    }
-
-    private List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
-        final QueryParameter parameter = getPrimarySensorParameter(context);
-        logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
-
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
-
-        logger.info("Received " + primaryObservations.size() + " primary satellite observations");
-
-        return primaryObservations;
     }
 
     private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {
