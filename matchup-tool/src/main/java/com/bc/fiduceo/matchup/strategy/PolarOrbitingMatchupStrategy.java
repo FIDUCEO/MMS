@@ -54,10 +54,9 @@ import java.util.logging.Logger;
 
 class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
-    private final Logger logger;
 
     PolarOrbitingMatchupStrategy(Logger logger) {
-        this.logger = logger;
+        super(logger);
     }
 
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
@@ -80,14 +79,14 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
             try (final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
-                primaryReader.open(primaryObservation.getDataFilePath().toFile());
-
                 final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryObservation.getStartTime());
                 final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryObservation.getStopTime());
 
                 // @todo 2 tb/tb extract method
                 final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
                 final boolean isPrimarySegmented = PolarOrbitingMatchupStrategy.isSegmented(primaryGeoBounds);
+
+                primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
                 final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
@@ -211,17 +210,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return pixelLocator;
     }
 
-    private List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
-        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
-        logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
-
-        logger.info("Received " + primaryObservations.size() + " primary satellite observations");
-
-        return primaryObservations;
-    }
 
     private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();

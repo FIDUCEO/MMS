@@ -20,14 +20,37 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.db.QueryParameter;
+import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.tool.ToolContext;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Logger;
 
 public abstract class AbstractMatchupStrategy {
 
+    final Logger logger;
+
+    AbstractMatchupStrategy(Logger logger) {
+        this.logger = logger;
+    }
+
     abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
+
+    List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
+        logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+
+        logger.info("Received " + primaryObservations.size() + " primary satellite observations");
+
+        return primaryObservations;
+    }
 }
