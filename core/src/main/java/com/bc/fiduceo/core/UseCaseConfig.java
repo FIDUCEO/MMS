@@ -54,18 +54,16 @@ public class UseCaseConfig {
     public static final String TAG_NAME_NAME = "name";
     public static final String ATTRIBUTE_NAME_NAME = "name";
 
-    transient private final Document document;
+    transient private Document document;
     private String name;
     private List<Sensor> sensors;
     private List<Dimension> dimensions;
     private String outputPath;
     private boolean writeDistance;
 
-    private UseCaseConfig(Document document) {
+    public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
-        this.document = document;
-        init();
     }
 
     public static UseCaseConfig load(InputStream inputStream) {
@@ -94,7 +92,7 @@ public class UseCaseConfig {
         return sensors;
     }
 
-    void setSensors(List<Sensor> sensors) {
+    public void setSensors(List<Sensor> sensors) {
         this.sensors = sensors;
     }
 
@@ -154,6 +152,14 @@ public class UseCaseConfig {
             }
         }
         return false;
+    }
+
+    public boolean isWriteDistance() {
+        return writeDistance;
+    }
+
+    public void setWriteDistance(boolean writeDistance) {
+        this.writeDistance = writeDistance;
     }
 
     public ValidationResult checkValid() {
@@ -232,11 +238,9 @@ public class UseCaseConfig {
         validationResult.addMessage(message);
     }
 
-    public boolean isWriteDistance() {
-        return writeDistance;
-    }
-
-    public void setWriteDistance(boolean writeDistance) {
-        this.writeDistance = writeDistance;
+    private UseCaseConfig(Document document) {
+        this();
+        this.document = document;
+        init();
     }
 }

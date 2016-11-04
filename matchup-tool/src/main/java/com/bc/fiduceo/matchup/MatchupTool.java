@@ -352,12 +352,10 @@ class MatchupTool {
     }
 
     private void runMatchupGeneration(ToolContext context, MmdWriterConfig writerConfig) throws SQLException, IOException, InvalidRangeException {
-        // @todo 1 tb/tb create MatchupStrategy Factory 2016-11-04
-        // @todo 1 tb/tb request MatchupStrategy from config  2016-11-04
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        final MatchupStrategy matchupStrategy = new MatchupStrategy(logger);
+        final AbstractMatchupStrategy matchupStrategy = MatchupStrategyFactory.get(useCaseConfig, logger);
         final MatchupCollection matchupCollection = matchupStrategy.createMatchupCollection(context);
-
 
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
@@ -368,7 +366,6 @@ class MatchupTool {
 
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {

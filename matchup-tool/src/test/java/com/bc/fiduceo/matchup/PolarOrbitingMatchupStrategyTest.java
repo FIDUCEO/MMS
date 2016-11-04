@@ -50,14 +50,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class MatchupStrategyTest {
+public class PolarOrbitingMatchupStrategyTest {
 
     @Test
     public void testAssignSensor() {
         final Sensor sensor = new Sensor("Klaus", "v1.0");
         final QueryParameter parameter = new QueryParameter();
 
-        MatchupStrategy.assignSensor(parameter, sensor);
+        PolarOrbitingMatchupStrategy.assignSensor(parameter, sensor);
 
         assertEquals("Klaus", parameter.getSensorName());
         assertEquals("v1.0", parameter.getVersion());
@@ -68,7 +68,7 @@ public class MatchupStrategyTest {
         final Sensor sensor = new Sensor("Marie", null);
         final QueryParameter parameter = new QueryParameter();
 
-        MatchupStrategy.assignSensor(parameter, sensor);
+        PolarOrbitingMatchupStrategy.assignSensor(parameter, sensor);
 
         assertEquals("Marie", parameter.getSensorName());
         assertEquals(null, parameter.getVersion());
@@ -89,7 +89,7 @@ public class MatchupStrategyTest {
                 .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
-        final QueryParameter parameter = MatchupStrategy.getPrimarySensorParameter(context);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
         assertNotNull(parameter);
         assertEquals("amsub-n16", parameter.getSensorName());
         assertNull(parameter.getVersion());
@@ -111,7 +111,7 @@ public class MatchupStrategyTest {
                 .createConfig();
         context.setUseCaseConfig(useCaseConfig);
 
-        final QueryParameter parameter = MatchupStrategy.getPrimarySensorParameter(context);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
         assertNotNull(parameter);
         assertEquals("amsub-n16", parameter.getSensorName());
         assertEquals("v23.5", parameter.getVersion());
@@ -131,7 +131,7 @@ public class MatchupStrategyTest {
         context.setUseCaseConfig(useCaseConfig);
 
         try {
-            MatchupStrategy.getPrimarySensorParameter(context);
+            PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -148,7 +148,7 @@ public class MatchupStrategyTest {
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
 
-        final QueryParameter parameter = MatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
         assertNull(parameter.getVersion());
@@ -167,7 +167,7 @@ public class MatchupStrategyTest {
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-35");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-35");
 
-        final QueryParameter parameter = MatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
         assertEquals("version_string", parameter.getVersion());
@@ -183,7 +183,7 @@ public class MatchupStrategyTest {
         additionalSensors.add(new Sensor("nasenmann"));
         when(config.getAdditionalSensors()).thenReturn(additionalSensors);
 
-        final Sensor secondarySensor = MatchupStrategy.getSecondarySensor(config);
+        final Sensor secondarySensor = PolarOrbitingMatchupStrategy.getSecondarySensor(config);
         assertNotNull(secondarySensor);
         assertEquals("nasenmann", secondarySensor.getName());
     }
@@ -196,7 +196,7 @@ public class MatchupStrategyTest {
         when(config.getAdditionalSensors()).thenReturn(additionalSensors);
 
         try {
-            MatchupStrategy.getSecondarySensor(config);
+            PolarOrbitingMatchupStrategy.getSecondarySensor(config);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -207,10 +207,10 @@ public class MatchupStrategyTest {
         final GeometryCollection collection = mock(GeometryCollection.class);
 
         when(collection.getGeometries()).thenReturn(new Geometry[1]);
-        assertEquals(false, MatchupStrategy.isSegmented(collection));
+        assertEquals(false, PolarOrbitingMatchupStrategy.isSegmented(collection));
 
         when(collection.getGeometries()).thenReturn(new Geometry[2]);
-        assertEquals(true, MatchupStrategy.isSegmented(collection));
+        assertEquals(true, PolarOrbitingMatchupStrategy.isSegmented(collection));
 
         verify(collection, times(2)).getGeometries();
         verifyNoMoreInteractions(collection);
@@ -224,7 +224,7 @@ public class MatchupStrategyTest {
         final Polygon polygon = mock(Polygon.class);
         final boolean segmented = false;
 
-        final PixelLocator pixelLocator = MatchupStrategy.getPixelLocator(reader, segmented, polygon);
+        final PixelLocator pixelLocator = PolarOrbitingMatchupStrategy.getPixelLocator(reader, segmented, polygon);
 
         verify(reader, times(1)).getPixelLocator();
         verifyNoMoreInteractions(reader);
@@ -241,7 +241,7 @@ public class MatchupStrategyTest {
         when(reader.getSubScenePixelLocator(polygon)).thenReturn(locator);
         final boolean segmented = true;
 
-        final PixelLocator pixelLocator = MatchupStrategy.getPixelLocator(reader, segmented, polygon);
+        final PixelLocator pixelLocator = PolarOrbitingMatchupStrategy.getPixelLocator(reader, segmented, polygon);
 
         verify(reader, times(1)).getSubScenePixelLocator(same(polygon));
         verifyNoMoreInteractions(reader);

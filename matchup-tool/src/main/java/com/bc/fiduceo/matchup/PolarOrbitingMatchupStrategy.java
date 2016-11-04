@@ -49,11 +49,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-class MatchupStrategy {
+class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy{
 
     private final Logger logger;
 
-    MatchupStrategy(Logger logger) {
+    PolarOrbitingMatchupStrategy(Logger logger) {
         this.logger = logger;
     }
 
@@ -84,7 +84,7 @@ class MatchupStrategy {
 
                 // @todo 2 tb/tb extract method
                 final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
-                final boolean isPrimarySegmented = MatchupStrategy.isSegmented(primaryGeoBounds);
+                final boolean isPrimarySegmented = PolarOrbitingMatchupStrategy.isSegmented(primaryGeoBounds);
 
                 final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
@@ -102,7 +102,7 @@ class MatchupStrategy {
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
-                        final boolean isSecondarySegmented = MatchupStrategy.isSegmented(secondaryGeoBounds);
+                        final boolean isSecondarySegmented = PolarOrbitingMatchupStrategy.isSegmented(secondaryGeoBounds);
 
                         for (final Intersection intersection : intersectingIntervals) {
                             final TimeInfo timeInfo = intersection.getTimeInfo();
@@ -157,7 +157,7 @@ class MatchupStrategy {
             throw new RuntimeException("primary sensor not present in configuration file");
         }
 
-        MatchupStrategy.assignSensor(parameter, primarySensor);
+        PolarOrbitingMatchupStrategy.assignSensor(parameter, primarySensor);
         parameter.setStartTime(context.getStartDate());
         parameter.setStopTime(context.getEndDate());
         return parameter;
@@ -166,8 +166,8 @@ class MatchupStrategy {
     // package access for testing only tb 2016-03-14
     static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
         final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = MatchupStrategy.getSecondarySensor(useCaseConfig);
-        MatchupStrategy.assignSensor(parameter, secondarySensor);
+        final Sensor secondarySensor = PolarOrbitingMatchupStrategy.getSecondarySensor(useCaseConfig);
+        PolarOrbitingMatchupStrategy.assignSensor(parameter, secondarySensor);
         parameter.setStartTime(searchTimeStart);
         parameter.setStopTime(searchTimeEnd);
         return parameter;
@@ -209,7 +209,7 @@ class MatchupStrategy {
     }
 
     private List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
-        final QueryParameter parameter = MatchupStrategy.getPrimarySensorParameter(context);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
         logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
         final Storage storage = context.getStorage();
@@ -222,7 +222,7 @@ class MatchupStrategy {
 
     private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final QueryParameter parameter = MatchupStrategy.getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
+        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
         logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
         final Storage storage = context.getStorage();
