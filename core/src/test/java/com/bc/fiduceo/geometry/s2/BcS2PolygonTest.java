@@ -109,7 +109,27 @@ public class BcS2PolygonTest {
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
-        assertEquals(intersection.toString(), "Polygon: (0) loops:\n");
+        assertEquals("Polygon: (0) loops:\n", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_Point_contained() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
+        final BcS2Point point = createBcS2Point("POINT(0 0)");
+
+        final Geometry intersection = polygon.getIntersection(point);
+        assertNotNull(intersection);
+        assertEquals("POINT(0.0 0.0)", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_Point_outside() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
+        final BcS2Point point = createBcS2Point("POINT(-28 65)");
+
+        final Geometry intersection = polygon.getIntersection(point);
+        assertNotNull(intersection);
+        assertTrue(intersection.isEmpty());
     }
 
 

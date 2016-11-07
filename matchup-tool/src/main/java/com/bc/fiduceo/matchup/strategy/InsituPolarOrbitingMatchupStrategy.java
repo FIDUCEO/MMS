@@ -24,6 +24,9 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
@@ -57,6 +60,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
+
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final ConditionEngine conditionEngine = new ConditionEngine();
@@ -66,7 +70,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final ScreeningEngine screeningEngine = new ScreeningEngine();
         screeningEngine.configure(useCaseConfig);
 
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final GeometryFactory geometryFactory = context.getGeometryFactory();
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
 
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
@@ -84,9 +89,11 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                 final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
                 for(final Sample insituSample: insituSamples) {
-                    final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time));
-                    System.out.println("candidatesByTime = " + candidatesByTime);
-                    // getCandidatesByGeolocation
+                    final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time), timeDeltaInMillis);
+                    //System.out.println("candidatesByTime = " + candidatesByTime.size());
+
+                    final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
+                    //System.out.println("candidatesByGeometry = " + candidatesByGeometry.size());
                     // getSecondaryGedöns
                 }
             }
@@ -116,11 +123,24 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return insituSamples;
     }
 
-    public static List<SatelliteObservation> getCandidatesByTime(List<SatelliteObservation> satelliteObservations, Date insituTime) {
+    static List<SatelliteObservation> getCandidatesByTime(List<SatelliteObservation> satelliteObservations, Date insituTime, long timeDeltaInMillis) {
         final List<SatelliteObservation> candidateList = new ArrayList<>();
         for (final SatelliteObservation observation: satelliteObservations) {
-            final TimeInterval observationInterval = new TimeInterval(observation.getStartTime(), observation.getStopTime());
+            final Date startTime = new Date(observation.getStartTime().getTime() - timeDeltaInMillis);
+            final Date stopTime = new Date(observation.getStopTime().getTime() + timeDeltaInMillis);
+            final TimeInterval observationInterval = new TimeInterval(startTime, stopTime);
             if (observationInterval.contains(insituTime)) {
+                candidateList.add(observation);
+            }
+        }
+        return candidateList;
+    }
+
+    static List<SatelliteObservation> getCandidatesByGeometry(List<SatelliteObservation> satelliteObservations, Point point) {
+        final List<SatelliteObservation> candidateList = new ArrayList<>();
+        for (final SatelliteObservation observation: satelliteObservations) {
+            final Geometry geoBounds = observation.getGeoBounds();
+            if (!geoBounds.getIntersection(point).isEmpty()) {
                 candidateList.add(observation);
             }
         }

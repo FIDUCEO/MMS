@@ -39,24 +39,28 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_overlappingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_overlappingTimes_noGeometryMatch() throws IOException, ParseException, SQLException, InvalidRangeException {
         insert_AMSRE();
         insert_Insitu();
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(900)
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600)
                 .withMaxPixelDistanceKm(1.41f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
         MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
+        assertFalse(mmdFile.isFile());
     }
 
     private void insert_AMSRE() throws IOException, SQLException {
