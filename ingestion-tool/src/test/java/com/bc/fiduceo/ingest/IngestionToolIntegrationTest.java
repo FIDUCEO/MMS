@@ -616,7 +616,7 @@ public class IngestionToolIntegrationTest {
             IngestionToolMain.main(args);
 
             final List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(1, satelliteObservations.size());
+            assertEquals(3, satelliteObservations.size());
 
             final SatelliteObservation observation = getSatelliteObservation("insitu_0_WMOID_51993_20040402_20060207.nc", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2004, 4, 2, 18, 43, 47, 0, observation.getStartTime());

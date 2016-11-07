@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtilsTest;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
@@ -39,17 +40,15 @@ import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -60,17 +59,12 @@ public class SSTInsituReader_IO_Test {
     private static final Interval _3x3 = new Interval(3, 3);
 
     private SSTInsituReader insituReader;
+    private File testDataDirectory;
 
     @Before
     public void setUp() throws Exception {
         insituReader = new SSTInsituReader();
-
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v03.3", "insitu_0_WMOID_51993_20040402_20060207.nc"}, false);
-        final File insituDataFile = new File(testDataDirectory, testFilePath);
-        assertTrue(insituDataFile.isFile());
-
-        insituReader.open(insituDataFile);
+        testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @After
@@ -79,18 +73,53 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo() throws Exception {
-        final AcquisitionInfo info = insituReader.read();
+    public void testReadAcquisitionInfo_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
 
+        final AcquisitionInfo info = insituReader.read();
         assertNotNull(info);
-        final DateFormat utc = ProductData.UTC.createDateFormat();
-        assertEquals("02-Apr-2004 18:43:47", utc.format(info.getSensingStart()));
-        assertEquals("07-Feb-2006 05:17:59", utc.format(info.getSensingStop()));
+
+        TestUtil.assertCorrectUTCDate(2004, 4, 2, 18, 43, 47, 0, info.getSensingStart());
+        TestUtil.assertCorrectUTCDate(2006, 2, 7, 5, 17, 59, 0, info.getSensingStop());
+
         assertEquals(NodeType.UNDEFINED, info.getNodeType());
+
+        assertNull(info.getBoundingGeometry());
     }
 
     @Test
-    public void testGetVariables() throws Exception {
+    public void testReadAcquisitionInfo_ship() throws Exception {
+        openFile("ship-sst", "insitu_2_WMOID_DBBH_19780118_20151025.nc");
+
+        final AcquisitionInfo info = insituReader.read();
+        assertNotNull(info);
+
+        TestUtil.assertCorrectUTCDate(1978, 1, 18, 9, 0, 0, 0, info.getSensingStart());
+        TestUtil.assertCorrectUTCDate(2015, 10, 25, 11, 0, 0, 0, info.getSensingStop());
+
+        assertEquals(NodeType.UNDEFINED, info.getNodeType());
+
+        assertNull(info.getBoundingGeometry());
+    }
+
+    @Test
+    public void testReadAcquisitionInfo_gtmba() throws Exception {
+        openFile("gtmba-sst", "insitu_3_WMOID_51019_19910722_20120610.nc");
+
+        final AcquisitionInfo info = insituReader.read();
+        assertNotNull(info);
+
+        TestUtil.assertCorrectUTCDate(1991, 7, 22, 16, 0, 0, 0, info.getSensingStart());
+        TestUtil.assertCorrectUTCDate(2012, 6, 10, 0, 10, 0, 0, info.getSensingStop());
+
+        assertEquals(NodeType.UNDEFINED, info.getNodeType());
+
+        assertNull(info.getBoundingGeometry());
+    }
+
+    @Test
+    public void testGetVariables_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
         final List<Variable> variables = insituReader.getVariables();
 
         assertNotNull(variables);
@@ -107,12 +136,38 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testInsituType() throws Exception {
+    public void testGetVariables_ship() throws Exception {
+        openFile("ship-sst", "insitu_2_WMOID_DBBH_19780118_20151025.nc");
+        final List<Variable> variables = insituReader.getVariables();
+
+        assertNotNull(variables);
+        assertEquals(9, variables.size());
+        assertEquals("insitu.time", variables.get(0).getShortName());
+        assertEquals("insitu.lat", variables.get(1).getShortName());
+        assertEquals("insitu.lon", variables.get(2).getShortName());
+        assertEquals("insitu.sea_surface_temperature", variables.get(3).getShortName());
+        assertEquals("insitu.sst_uncertainty", variables.get(4).getShortName());
+        assertEquals("insitu.sst_depth", variables.get(5).getShortName());
+        assertEquals("insitu.sst_qc_flag", variables.get(6).getShortName());
+        assertEquals("insitu.sst_track_flag", variables.get(7).getShortName());
+        assertEquals("insitu.mohc_id", variables.get(8).getShortName());
+    }
+
+    @Test
+    public void testInsituType_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         assertEquals("drifter", insituReader.getInsituType());
     }
 
     @Test
-    public void testGetTime() throws Exception {
+    public void testInsituType_ship() throws Exception {
+        openFile("ship-sst", "insitu_2_WMOID_DBBH_19780118_20151025.nc");
+        assertEquals("ship", insituReader.getInsituType());
+    }
+
+    @Test
+    public void testGetTime_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final int numObservations = insituReader.getNumObservations();
 
         assertEquals(8969, numObservations);
@@ -127,7 +182,24 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
+    public void testGetTime_gtmba() throws Exception {
+        openFile("gtmba-sst", "insitu_3_WMOID_51019_19910722_20120610.nc");
+        final int numObservations = insituReader.getNumObservations();
+
+        assertEquals(590706, numObservations);
+        assertEquals(427737600, insituReader.getTime(0));
+        assertEquals(847325400, insituReader.getTime(250656));
+        assertEquals(1086826200, insituReader.getTime(numObservations - 1));
+        try {
+            insituReader.getTime(numObservations);
+            fail("ArrayIndexOutOfBoundsException expected");
+        } catch (ArrayIndexOutOfBoundsException expected) {
+        }
+    }
+
+    @Test
     public void testReadRaw_0() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
         final Array array = insituReader.readRaw(0, 0, new Interval(1, 1), "insitu.lat");
 
         assertNotNull(array);
@@ -135,12 +207,13 @@ public class SSTInsituReader_IO_Test {
         assertArrayEquals(new int[]{1, 1}, array.getShape());
         assertEquals(1, array.getSize());
         assertEquals(DataType.FLOAT, array.getDataType());
-        assertEquals("3.61", array.getObject(0).toString());
-        assertEquals(3.61f, array.getFloat(0), 0);
+        assertEquals("41.7", array.getObject(0).toString());
+        assertEquals(41.7f, array.getFloat(0), 0);
     }
 
     @Test
     public void testReadRaw_1() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
         final Array array = insituReader.readRaw(0, 1, new Interval(1, 1), "insitu.lat");
 
         assertNotNull(array);
@@ -148,12 +221,13 @@ public class SSTInsituReader_IO_Test {
         assertArrayEquals(new int[]{1, 1}, array.getShape());
         assertEquals(1, array.getSize());
         assertEquals(DataType.FLOAT, array.getDataType());
-        assertEquals("3.67", array.getObject(0).toString());
-        assertEquals(3.67f, array.getFloat(0), 0);
+        assertEquals("41.7", array.getObject(0).toString());
+        assertEquals(41.7f, array.getFloat(0), 0);
     }
 
     @Test
     public void testReadRaw_1_3x3() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
         final Array array = insituReader.readRaw(0, 1, _3x3, "insitu.lat");
 
         assertNotNull(array);
@@ -165,7 +239,7 @@ public class SSTInsituReader_IO_Test {
         assertEquals("-32768.0", array.getObject(1).toString());
         assertEquals("-32768.0", array.getObject(2).toString());
         assertEquals("-32768.0", array.getObject(3).toString());
-        assertEquals("3.67", array.getObject(4).toString());
+        assertEquals("41.7", array.getObject(4).toString());
         assertEquals("-32768.0", array.getObject(5).toString());
         assertEquals("-32768.0", array.getObject(6).toString());
         assertEquals("-32768.0", array.getObject(7).toString());
@@ -173,7 +247,8 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_1_3x3() throws Exception {
+    public void testReadScaled_1_3x3_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final Array array = insituReader.readScaled(0, 24, _3x3, "insitu.sea_surface_temperature");
 
         assertNotNull(array);
@@ -194,6 +269,7 @@ public class SSTInsituReader_IO_Test {
 
     @Test
     public void testReadAcquisitionTime() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 3, _3x3);
 
         assertNotNull(array);
@@ -213,7 +289,8 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize() throws Exception {
+    public void testGetProductSize_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final Dimension productSize = insituReader.getProductSize();
 
         assertNotNull(productSize);
@@ -223,7 +300,8 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetTimeLocator() throws Exception {
+    public void testGetTimeLocator_drifter() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final TimeLocator timeLocator = insituReader.getTimeLocator();
 
         assertNotNull(timeLocator);
@@ -232,6 +310,8 @@ public class SSTInsituReader_IO_Test {
 
     @Test
     public void testGetPixelLocator() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
+
         try {
             insituReader.getPixelLocator();
             fail("RuntimeException expected");
@@ -242,6 +322,7 @@ public class SSTInsituReader_IO_Test {
 
     @Test
     public void testGetSubScenePixelLocator() throws Exception {
+        openFile("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Polygon polygon = geometryFactory.createPolygon(Arrays.asList(
                 geometryFactory.createPoint(4, 5),
@@ -254,5 +335,13 @@ public class SSTInsituReader_IO_Test {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    private void openFile(String dataType, String fileName) throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", dataType, "v03.3", fileName}, false);
+        final File insituDataFile = new File(testDataDirectory, testFilePath);
+        assertTrue(insituDataFile.isFile());
+
+        insituReader.open(insituDataFile);
     }
 }

@@ -182,7 +182,7 @@ public class TestUtil {
         calendar.setTime(utcDate);
 
         assertEquals(year, calendar.get(Calendar.YEAR));
-        assertEquals(month - 1, calendar.get(Calendar.MONTH));
+        assertEquals(month, calendar.get(Calendar.MONTH) + 1);
         assertEquals(day, calendar.get(Calendar.DAY_OF_MONTH));
         assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
         assertEquals(minute, calendar.get(Calendar.MINUTE));
@@ -194,7 +194,7 @@ public class TestUtil {
         calendar.setTime(utcDate);
 
         assertEquals("year", year, calendar.get(Calendar.YEAR));
-        assertEquals("month", month - 1, calendar.get(Calendar.MONTH));
+        assertEquals("month", month, calendar.get(Calendar.MONTH) + 1);
         assertEquals("day", day, calendar.get(Calendar.DAY_OF_MONTH));
         assertEquals("hour", hour, calendar.get(Calendar.HOUR_OF_DAY));
         assertEquals("minute", minute, calendar.get(Calendar.MINUTE));

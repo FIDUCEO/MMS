@@ -59,8 +59,6 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
-
-
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final ConditionEngine conditionEngine = new ConditionEngine();
@@ -78,6 +76,10 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final TimeInterval processingInterval = new TimeInterval(context.getStartDate(), context.getEndDate());
 
         final List<SatelliteObservation> insituObservations = getPrimaryObservations(context);
+        if (insituObservations.size() == 0) {
+            logger.warning("No insitu data in time interval:" + context.getStartDate() + " - " + context.getEndDate());
+            return  matchupCollection;
+        }
 
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
@@ -93,8 +95,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     //System.out.println("candidatesByTime = " + candidatesByTime.size());
 
                     final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
-                    //System.out.println("candidatesByGeometry = " + candidatesByGeometry.size());
-                    // getSecondaryGedöns
+                    if (candidatesByGeometry.size() > 0) {
+                        System.out.println("------------------ FOUND GEOMETRIC INTERSECTION -----------------------");
+                        System.out.println("insitu: " + insituObservation.getDataFilePath());
+
+                        System.out.println("satellite: " + candidatesByGeometry.get(0).getDataFilePath());
+
+                    }
+
+                    // @todo 1 tb/tb getSecondaryGedöns
                 }
             }
         }

@@ -48,7 +48,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
     @Test
     public void testMatchup_overlappingTimes_noGeometryMatch() throws IOException, ParseException, SQLException, InvalidRangeException {
         insert_AMSRE();
-        insert_Insitu();
+        insert_Insitu("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600)
@@ -63,18 +63,54 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         assertFalse(mmdFile.isFile());
     }
 
+    @Test
+    public void testMatchup_noInsituDataInInterval() throws IOException, ParseException, SQLException, InvalidRangeException {
+        insert_AMSRE();
+        insert_Insitu("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
+
+        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600)
+                .withMaxPixelDistanceKm(1.41f)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
+        assertFalse(mmdFile.isFile());
+    }
+
+    @Test
+    public void testMatchup_drifter() throws IOException, ParseException, SQLException, InvalidRangeException {
+        insert_AMSRE();
+        insert_Insitu("drifter-sst", "insitu_0_WMOID_71612_20040223_20151010.nc");
+
+        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200)
+                .withMaxPixelDistanceKm(1.41f)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
+        assertFalse(mmdFile.isFile());
+    }
+
     private void insert_AMSRE() throws IOException, SQLException {
         final String sensorKey = "amsre-aq";
         final String version = "v12";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2005", "02", "17", "AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf"}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2005", "02", "16", "AMSR_E_L2A_BrightnessTemperatures_V12_200502161217_A.hdf"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
         storage.insert(satelliteObservation);
     }
 
-    private void insert_Insitu() throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v03.3", "insitu_0_WMOID_51993_20040402_20060207.nc"}, true);
+    private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "v03.3", fileName}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
         final SatelliteObservation insitu = readSatelliteObservation("drifter-sst", absolutePath, "v03.3");
         storage.insert(insitu);
