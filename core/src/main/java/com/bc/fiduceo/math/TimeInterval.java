@@ -106,4 +106,12 @@ public class TimeInterval {
         }
         return segments;
     }
+
+    public boolean contains(Date date) {
+        final long stopMillis = stopTime.getTime();
+        final long startMillis = startTime.getTime();
+
+        final long checkTime = date.getTime();
+        return checkTime >= startMillis && checkTime <= stopMillis;
+    }
 }

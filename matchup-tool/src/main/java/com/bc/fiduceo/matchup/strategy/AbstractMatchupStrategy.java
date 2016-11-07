@@ -21,14 +21,18 @@
 package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.tool.ToolContext;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -40,10 +44,53 @@ public abstract class AbstractMatchupStrategy {
         this.logger = logger;
     }
 
+    // package access for testing only tb 2016-03-14
+    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        assignSensor(parameter, secondarySensor);
+        parameter.setStartTime(searchTimeStart);
+        parameter.setStopTime(searchTimeEnd);
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-03-14
+    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        if (additionalSensors.size() != 1) {
+            throw new RuntimeException("Unable to run matchup with given sensor number");
+        }
+
+        return additionalSensors.get(0);
+    }
+
     abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
 
+    // package access for testing only tb 2016-02-23
+    static QueryParameter getPrimarySensorParameter(ToolContext context) {
+        final QueryParameter parameter = new QueryParameter();
+        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
+        if (primarySensor == null) {
+            throw new RuntimeException("primary sensor not present in configuration file");
+        }
+
+        AbstractMatchupStrategy.assignSensor(parameter, primarySensor);
+        parameter.setStartTime(context.getStartDate());
+        parameter.setStopTime(context.getEndDate());
+        return parameter;
+    }
+
+    // package access for testing only tb 2016-11-04
+    static void assignSensor(QueryParameter parameter, Sensor sensor) {
+        parameter.setSensorName(sensor.getName());
+        final String dataVersion = sensor.getDataVersion();
+        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
+            parameter.setVersion(dataVersion);
+        }
+    }
+
     List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
-        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getPrimarySensorParameter(context);
+        final QueryParameter parameter = getPrimarySensorParameter(context);
         logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
         final Storage storage = context.getStorage();
@@ -52,5 +99,18 @@ public abstract class AbstractMatchupStrategy {
         logger.info("Received " + primaryObservations.size() + " primary satellite observations");
 
         return primaryObservations;
+    }
+
+    List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
+        logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+
+        final Storage storage = context.getStorage();
+        final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
+
+        logger.info("Received " + secondaryObservations.size() + " secondary satellite observations");
+
+        return secondaryObservations;
     }
 }

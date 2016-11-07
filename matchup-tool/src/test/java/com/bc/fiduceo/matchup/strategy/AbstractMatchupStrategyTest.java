@@ -1,0 +1,194 @@
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
+package com.bc.fiduceo.matchup.strategy;
+
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.UseCaseConfigBuilder;
+import com.bc.fiduceo.db.QueryParameter;
+import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.TimeUtils;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class AbstractMatchupStrategyTest {
+
+    @Test
+    public void testAssignSensor() {
+        final Sensor sensor = new Sensor("Klaus", "v1.0");
+        final QueryParameter parameter = new QueryParameter();
+
+        AbstractMatchupStrategy.assignSensor(parameter, sensor);
+
+        assertEquals("Klaus", parameter.getSensorName());
+        assertEquals("v1.0", parameter.getVersion());
+    }
+
+    @Test
+    public void testAssignSensor_withoutVersion() {
+        final Sensor sensor = new Sensor("Marie", null);
+        final QueryParameter parameter = new QueryParameter();
+
+        AbstractMatchupStrategy.assignSensor(parameter, sensor);
+
+        assertEquals("Marie", parameter.getSensorName());
+        assertEquals(null, parameter.getVersion());
+    }
+
+    @Test
+    public void testGetPrimarySensorParameter() {
+        final ToolContext context = new ToolContext();
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay("2002-23"));
+        context.setEndDate(TimeUtils.parseDOYEndOfDay("2002-23"));
+
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensor.setPrimary(true);
+        sensorList.add(sensor);
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
+                .withSensors(sensorList)
+                .createConfig();
+        context.setUseCaseConfig(useCaseConfig);
+
+        final QueryParameter parameter = AbstractMatchupStrategy.getPrimarySensorParameter(context);
+        assertNotNull(parameter);
+        assertEquals("amsub-n16", parameter.getSensorName());
+        assertNull(parameter.getVersion());
+        TestUtil.assertCorrectUTCDate(2002, 1, 23, 0, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(2002, 1, 23, 23, 59, 59, 999, parameter.getStopTime());
+    }
+
+    @Test
+    public void testGetPrimarySensorParameter_withDataVersion() {
+        final ToolContext context = new ToolContext();
+
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensor.setPrimary(true);
+        sensor.setDataVersion("v23.5");
+        sensorList.add(sensor);
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("name")
+                .withSensors(sensorList)
+                .createConfig();
+        context.setUseCaseConfig(useCaseConfig);
+
+        final QueryParameter parameter = AbstractMatchupStrategy.getPrimarySensorParameter(context);
+        assertNotNull(parameter);
+        assertEquals("amsub-n16", parameter.getSensorName());
+        assertEquals("v23.5", parameter.getVersion());
+    }
+
+    @Test
+    public void testGetPrimarySensorParameter_missingPrimarySensor() {
+        final ToolContext context = new ToolContext();
+
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor sensor = new Sensor("amsub-n16");
+        sensorList.add(sensor);
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
+                .withSensors(sensorList)
+                .createConfig();
+        context.setUseCaseConfig(useCaseConfig);
+
+        try {
+            AbstractMatchupStrategy.getPrimarySensorParameter(context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetSecondarySensor() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("nasenmann"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Sensor secondarySensor = AbstractMatchupStrategy.getSecondarySensor(config);
+        assertNotNull(secondarySensor);
+        assertEquals("nasenmann", secondarySensor.getName());
+    }
+
+    @Test
+    public void testGetSecondarySensor_emptyList() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        try {
+            AbstractMatchupStrategy.getSecondarySensor(config);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetSecondarySensorParameter() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("the sensor"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
+        final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
+
+        final QueryParameter parameter = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        assertNotNull(parameter);
+        assertEquals("the sensor", parameter.getSensorName());
+        assertNull(parameter.getVersion());
+        TestUtil.assertCorrectUTCDate(1997, 2, 3, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(1997, 2, 3, 23, 59, 59, parameter.getStopTime());
+    }
+
+    @Test
+    public void testGetSecondarySensorParameter_withDataVersion() {
+        final UseCaseConfig config = mock(UseCaseConfig.class);
+
+        final List<Sensor> additionalSensors = new ArrayList<>();
+        additionalSensors.add(new Sensor("the sensor", "version_string"));
+        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+
+        final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-35");
+        final Date endDate = TimeUtils.parseDOYEndOfDay("1997-35");
+
+        final QueryParameter parameter = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        assertNotNull(parameter);
+        assertEquals("the sensor", parameter.getSensorName());
+        assertEquals("version_string", parameter.getVersion());
+        TestUtil.assertCorrectUTCDate(1997, 2, 4, 0, 0, 0, parameter.getStartTime());
+        TestUtil.assertCorrectUTCDate(1997, 2, 4, 23, 59, 59, parameter.getStopTime());
+    }
+}

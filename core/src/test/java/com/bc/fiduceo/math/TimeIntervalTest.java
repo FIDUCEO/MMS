@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TimeIntervalTest {
 
@@ -141,6 +143,22 @@ public class TimeIntervalTest {
         assertTimeInterval(1250, 1500, splits[1]);
         assertTimeInterval(1500, 1750, splits[2]);
         assertTimeInterval(1750, 2000, splits[3]);
+    }
+
+    @Test
+    public void testContains() {
+        final ArrayList<Date> dates = new ArrayList<>();
+        dates.add(new Date(2000));
+        dates.add(new Date(3000));
+
+        final TimeInterval interval = TimeInterval.create(dates);
+        assertTrue(interval.contains(new Date(2000)));
+        assertTrue(interval.contains(new Date(2001)));
+        assertTrue(interval.contains(new Date(2999)));
+        assertTrue(interval.contains(new Date(3000)));
+
+        assertFalse(interval.contains(new Date(1999)));
+        assertFalse(interval.contains(new Date(3001)));
     }
 
     private void assertTimeInterval(int expectedStart, int expectedEnd, TimeInterval intersection) {

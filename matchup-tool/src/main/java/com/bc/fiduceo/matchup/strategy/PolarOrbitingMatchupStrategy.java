@@ -43,7 +43,6 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
@@ -151,49 +150,6 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return matchupCollection;
     }
 
-    // package access for testing only tb 2016-02-23
-    static QueryParameter getPrimarySensorParameter(ToolContext context) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
-        if (primarySensor == null) {
-            throw new RuntimeException("primary sensor not present in configuration file");
-        }
-
-        PolarOrbitingMatchupStrategy.assignSensor(parameter, primarySensor);
-        parameter.setStartTime(context.getStartDate());
-        parameter.setStopTime(context.getEndDate());
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = PolarOrbitingMatchupStrategy.getSecondarySensor(useCaseConfig);
-        PolarOrbitingMatchupStrategy.assignSensor(parameter, secondarySensor);
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        return parameter;
-    }
-
-    // package access for testing only tb 2016-03-14
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
-        }
-
-        return additionalSensors.get(0);
-    }
-
-    // package access for testing only tb 2016-11-04
-    static void assignSensor(QueryParameter parameter, Sensor sensor) {
-        parameter.setSensorName(sensor.getName());
-        final String dataVersion = sensor.getDataVersion();
-        if (StringUtils.isNotNullAndNotEmpty(dataVersion)) {
-            parameter.setVersion(dataVersion);
-        }
-    }
-
     // package access for testing only tb 2016-11-04
     static boolean isSegmented(Geometry primaryGeoBounds) {
         return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
@@ -208,20 +164,5 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             pixelLocator = reader.getPixelLocator();
         }
         return pixelLocator;
-    }
-
-
-
-    private List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
-        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final QueryParameter parameter = PolarOrbitingMatchupStrategy.getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
-        logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
-
-        final Storage storage = context.getStorage();
-        final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
-
-        logger.info("Received " + secondaryObservations.size() + " secondary satellite observations");
-
-        return secondaryObservations;
     }
 }

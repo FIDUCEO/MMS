@@ -29,7 +29,9 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -44,6 +46,7 @@ import java.util.Map;
 public class SSTInsituReader implements Reader {
 
     private final long millisSince1978;
+    private final int secondsSince1978;
 
     private NetcdfFile netcdfFile;
     private String insituType;
@@ -55,6 +58,7 @@ public class SSTInsituReader implements Reader {
         calendar.clear();
         calendar.set(1978, Calendar.JANUARY, 1);
         millisSince1978 = calendar.getTime().getTime();
+        secondsSince1978 = (int) (millisSince1978 * 0.001d);
     }
 
     @Override
@@ -167,7 +171,18 @@ public class SSTInsituReader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        return (ArrayInt.D2) readRaw(x, y, interval, "insitu.time");
+        final Array acquisitionTime_1978 = readRaw(x, y, interval, "insitu.time");
+        final int fillValue = fillValueMap.get("insitu.time").intValue();
+        final Array acquisitionTime_1970 = Array.factory(acquisitionTime_1978.getDataType(), acquisitionTime_1978.getShape());
+        for (int i = 0; i < acquisitionTime_1978.getSize(); i++) {
+            final int time1978 = acquisitionTime_1978.getInt(i);
+            if (time1978 != fillValue) {
+                acquisitionTime_1970.setInt(i, time1978 + secondsSince1978);
+            } else {
+                acquisitionTime_1970.setInt(i, fillValue);
+            }
+        }
+        return (ArrayInt.D2) acquisitionTime_1970;
     }
 
     @Override

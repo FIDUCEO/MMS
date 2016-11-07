@@ -20,25 +20,34 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
+import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
 class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
+
+    private static final Interval singlePixel = new Interval(1,1);
 
     InsituPolarOrbitingMatchupStrategy(Logger logger) {
         super(logger);
@@ -61,21 +70,43 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
+        final TimeInterval processingInterval = new TimeInterval(context.getStartDate(), context.getEndDate());
 
         final List<SatelliteObservation> insituObservations = getPrimaryObservations(context);
+
+        final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
+        final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
+        final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+
         for (final SatelliteObservation insituObservation : insituObservations) {
-            try (final Reader primaryReader = readerFactory.getReader(insituObservation.getSensor().getName())) {
-                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, insituObservation.getStartTime());
-                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, insituObservation.getStopTime());
+            try (final Reader insituReader = readerFactory.getReader(insituObservation.getSensor().getName())) {
+                insituReader.open(insituObservation.getDataFilePath().toFile());
 
-                // @todo 1 tb/tb intersect time interval with processing interval 2016-11-04
-                // @todo 1 tb/tb continue here 2016-11-ß4
-
-                System.out.println("searchTimeStart = " + searchTimeStart);
-                System.out.println("searchTimeEnd = " + searchTimeEnd);
+                final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
             }
         }
 
         return matchupCollection;
+    }
+
+    private List<Sample> getInsituSamples(TimeInterval processingInterval, Reader insituReader) throws IOException, InvalidRangeException {
+        final List<Sample> insituSamples = new ArrayList<>();
+        final Dimension productSize = insituReader.getProductSize();
+        final int height = productSize.getNy();
+        for (int i = 0; i < height; i++) {
+            final ArrayInt.D2 acquisitionTimeArray = insituReader.readAcquisitionTime(0, i, singlePixel);
+            final int acquisitionTime = acquisitionTimeArray.getInt(0);
+            final Date acquisitionDate = TimeUtils.create(acquisitionTime * 1000L);
+            if (processingInterval.contains(acquisitionDate)) {
+                // @todo 3 tb/tb this is SST-CCI specific - generalise the geolocation access 2016-11-07
+                final Array lon = insituReader.readRaw(0, i, singlePixel, "insitu.lon");
+                final Array lat = insituReader.readRaw(0, i, singlePixel, "insitu.lat");
+
+                final Sample sample = new Sample(0, i, lon.getDouble(0), lat.getDouble(0), acquisitionDate.getTime());
+                insituSamples.add(sample);
+            }
+        }
+
+        return insituSamples;
     }
 }

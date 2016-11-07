@@ -41,6 +41,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -204,7 +205,7 @@ public class SSTInsituReader_IO_Test {
         assertEquals("-32768", array.getObject(1).toString());
         assertEquals("-32768", array.getObject(2).toString());
         assertEquals("-32768", array.getObject(3).toString());
-        assertEquals("828485100", array.getObject(4).toString());
+        assertEquals("1080945900", array.getObject(4).toString());
         assertEquals("-32768", array.getObject(5).toString());
         assertEquals("-32768", array.getObject(6).toString());
         assertEquals("-32768", array.getObject(7).toString());
