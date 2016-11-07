@@ -83,6 +83,12 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 insituReader.open(insituObservation.getDataFilePath().toFile());
 
                 final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
+                for(final Sample insituSample: insituSamples) {
+                    final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time));
+                    System.out.println("candidatesByTime = " + candidatesByTime);
+                    // getCandidatesByGeolocation
+                    // getSecondaryGedöns
+                }
             }
         }
 
@@ -108,5 +114,16 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
 
         return insituSamples;
+    }
+
+    public static List<SatelliteObservation> getCandidatesByTime(List<SatelliteObservation> satelliteObservations, Date insituTime) {
+        final List<SatelliteObservation> candidateList = new ArrayList<>();
+        for (final SatelliteObservation observation: satelliteObservations) {
+            final TimeInterval observationInterval = new TimeInterval(observation.getStartTime(), observation.getStopTime());
+            if (observationInterval.contains(insituTime)) {
+                candidateList.add(observation);
+            }
+        }
+        return candidateList;
     }
 }
