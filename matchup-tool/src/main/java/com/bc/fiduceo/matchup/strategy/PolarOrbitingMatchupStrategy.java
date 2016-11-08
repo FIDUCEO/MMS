@@ -22,12 +22,8 @@ package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.db.QueryParameter;
-import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
@@ -83,7 +79,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                 // @todo 2 tb/tb extract method
                 final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
-                final boolean isPrimarySegmented = PolarOrbitingMatchupStrategy.isSegmented(primaryGeoBounds);
+                final boolean isPrimarySegmented = AbstractMatchupStrategy.isSegmented(primaryGeoBounds);
 
                 primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
@@ -103,7 +99,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
-                        final boolean isSecondarySegmented = PolarOrbitingMatchupStrategy.isSegmented(secondaryGeoBounds);
+                        final boolean isSecondarySegmented = AbstractMatchupStrategy.isSegmented(secondaryGeoBounds);
 
                         for (final Intersection intersection : intersectingIntervals) {
                             final TimeInfo timeInfo = intersection.getTimeInfo();
@@ -150,19 +146,4 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return matchupCollection;
     }
 
-    // package access for testing only tb 2016-11-04
-    static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
-    }
-
-    // package access for testing only tb 2016-11-04
-    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
-        final PixelLocator pixelLocator;
-        if (isSegmented) {
-            pixelLocator = reader.getSubScenePixelLocator(polygon);
-        } else {
-            pixelLocator = reader.getPixelLocator();
-        }
-        return pixelLocator;
-    }
 }

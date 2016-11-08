@@ -25,6 +25,11 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.QueryParameter;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
@@ -33,12 +38,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class AbstractMatchupStrategyTest {
 
@@ -190,5 +194,53 @@ public class AbstractMatchupStrategyTest {
         assertEquals("version_string", parameter.getVersion());
         TestUtil.assertCorrectUTCDate(1997, 2, 4, 0, 0, 0, parameter.getStartTime());
         TestUtil.assertCorrectUTCDate(1997, 2, 4, 23, 59, 59, parameter.getStopTime());
+    }
+
+    @Test
+    public void testGetPixelLocator_notSegmented() throws Exception {
+        final Reader reader = mock(Reader.class);
+        final PixelLocator locator = mock(PixelLocator.class);
+        when(reader.getPixelLocator()).thenReturn(locator);
+        final Polygon polygon = mock(Polygon.class);
+        final boolean segmented = false;
+
+        final PixelLocator pixelLocator = AbstractMatchupStrategy.getPixelLocator(reader, segmented, polygon);
+
+        verify(reader, times(1)).getPixelLocator();
+        verifyNoMoreInteractions(reader);
+        verifyNoMoreInteractions(polygon);
+        assertNotNull(pixelLocator);
+        assertSame(locator, pixelLocator);
+    }
+
+    @Test
+    public void testGetPixelLocator_segmented() throws Exception {
+        final Reader reader = mock(Reader.class);
+        final PixelLocator locator = mock(PixelLocator.class);
+        final Polygon polygon = mock(Polygon.class);
+        when(reader.getSubScenePixelLocator(polygon)).thenReturn(locator);
+        final boolean segmented = true;
+
+        final PixelLocator pixelLocator = AbstractMatchupStrategy.getPixelLocator(reader, segmented, polygon);
+
+        verify(reader, times(1)).getSubScenePixelLocator(same(polygon));
+        verifyNoMoreInteractions(reader);
+        verifyNoMoreInteractions(polygon);
+        assertNotNull(pixelLocator);
+        assertSame(locator, pixelLocator);
+    }
+
+    @Test
+    public void testIsSegmented() throws Exception {
+        final GeometryCollection collection = mock(GeometryCollection.class);
+
+        when(collection.getGeometries()).thenReturn(new Geometry[1]);
+        assertEquals(false, AbstractMatchupStrategy.isSegmented(collection));
+
+        when(collection.getGeometries()).thenReturn(new Geometry[2]);
+        assertEquals(true, AbstractMatchupStrategy.isSegmented(collection));
+
+        verify(collection, times(2)).getGeometries();
+        verifyNoMoreInteractions(collection);
     }
 }

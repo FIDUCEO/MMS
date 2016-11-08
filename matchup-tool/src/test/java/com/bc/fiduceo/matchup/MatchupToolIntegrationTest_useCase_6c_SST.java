@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -31,7 +30,6 @@ import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +86,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200)
-                .withMaxPixelDistanceKm(1.41f)
+                .withMaxPixelDistanceKm(6.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 
@@ -96,7 +94,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         MatchupToolMain.main(args);
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
-        assertFalse(mmdFile.isFile());
+        assertTrue(mmdFile.isFile());
     }
 
     private void insert_AMSRE() throws IOException, SQLException {

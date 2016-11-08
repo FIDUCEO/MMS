@@ -41,7 +41,7 @@ class SampleCollector {
     private final Range yRange;
     private final ToolContext context;
 
-    public SampleCollector(ToolContext context, PixelLocator pixelLocator) {
+    SampleCollector(ToolContext context, PixelLocator pixelLocator) {
         this.context = context;
         this.pixelLocator = pixelLocator;
         xRange = new Range();
@@ -55,7 +55,7 @@ class SampleCollector {
      * @param timeLocator the time locator for the sample locations
      * @return the result list with the sampleSets that contain two observations
      */
-    public List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
+    List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
         Point2D geopos = new Point2D.Double();
         final List<SampleSet> toKeep = new ArrayList<>();
         for (final SampleSet sampleSet : sampleSets) {
@@ -77,7 +77,7 @@ class SampleCollector {
         return toKeep;
     }
 
-    public void addPrimarySamples(Polygon polygon, MatchupSet matchupSet, TimeLocator timeLocator) {
+    void addPrimarySamples(Polygon polygon, MatchupSet matchupSet, TimeLocator timeLocator) {
         final Point[] coordinates = polygon.getCoordinates();
         for (Point coordinate : coordinates) {
             final Point2D[] pixelLocation = pixelLocator.getPixelLocation(coordinate.getLon(), coordinate.getLat());

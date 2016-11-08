@@ -20,21 +20,22 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -42,15 +43,17 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
 class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
-    private static final Interval singlePixel = new Interval(1,1);
+    private static final Interval singlePixel = new Interval(1, 1);
 
     InsituPolarOrbitingMatchupStrategy(Logger logger) {
         super(logger);
@@ -78,9 +81,10 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final List<SatelliteObservation> insituObservations = getPrimaryObservations(context);
         if (insituObservations.size() == 0) {
             logger.warning("No insitu data in time interval:" + context.getStartDate() + " - " + context.getEndDate());
-            return  matchupCollection;
+            return matchupCollection;
         }
 
+        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
@@ -89,26 +93,100 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             try (final Reader insituReader = readerFactory.getReader(insituObservation.getSensor().getName())) {
                 insituReader.open(insituObservation.getDataFilePath().toFile());
 
-                final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
-                for(final Sample insituSample: insituSamples) {
-                    final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time), timeDeltaInMillis);
-                    //System.out.println("candidatesByTime = " + candidatesByTime.size());
+                final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
 
-                    final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
-                    if (candidatesByGeometry.size() > 0) {
-                        System.out.println("------------------ FOUND GEOMETRIC INTERSECTION -----------------------");
-                        System.out.println("insitu: " + insituObservation.getDataFilePath());
+                for (final MatchupSet matchupSet : matchupSets) {
+                    matchupSet.setPrimaryObservationPath(insituObservation.getDataFilePath());
 
-                        System.out.println("satellite: " + candidatesByGeometry.get(0).getDataFilePath());
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensor.getName())) {
+                        final Path secondaryPath = matchupSet.getSecondaryObservationPath();
+                        secondaryReader.open(secondaryPath.toFile());
 
+                        final PixelLocator pixelLocator = secondaryReader.getPixelLocator();
+                        final TimeLocator timeLocator = secondaryReader.getTimeLocator();
+
+                        final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
+                        final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator);
+                        matchupSet.setSampleSets(completeSamples);
+
+                        if (matchupSet.getNumObservations() > 0) {
+                            final Dimension primarySize = insituReader.getProductSize();
+                            conditionEngineContext.setPrimarySize(primarySize);
+                            final Dimension secondarySize = secondaryReader.getProductSize();
+                            conditionEngineContext.setSecondarySize(secondarySize);
+
+                            logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
+                            conditionEngine.process(matchupSet, conditionEngineContext);
+                            logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+
+                            screeningEngine.process(matchupSet, insituReader, secondaryReader);
+                            logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
+
+                            if (matchupSet.getNumObservations() > 0) {
+                                matchupCollection.add(matchupSet);
+                            }
+                        }
                     }
 
-                    // @todo 1 tb/tb getSecondaryGedöns
+
                 }
+
+
+//                        try (Reader secondaryReader = readerFactory.getReader(candidate.getSensor().getName())) {
+//                            secondaryReader.open(candidate.getDataFilePath().toFile());
+//
+//                            final MatchupSet matchupSet = new MatchupSet();
+//                            matchupSet.setPrimaryObservationPath(insituObservation.getDataFilePath());
+//                            matchupSet.setSecondaryObservationPath(candidate.getDataFilePath());
+//
+//                            matchupSet.addPrimary(insituSample);
+//
+//                            final Geometry geoBounds = candidate.getGeoBounds();
+//                            final boolean segmented = AbstractMatchupStrategy.isSegmented(geoBounds);
+//                            final Polygon[] geometries;
+//                            if (geoBounds instanceof MultiPolygon) {
+//                                throw new RuntimeException("not implemented");
+//                            } else {
+//                                geometries = new Polygon[]{(Polygon) geoBounds};
+//                            }
+//
+//                            for (final Polygon polygon : geometries) {
+//                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, segmented, polygon);
+//                                final SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+//                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
+//
+//                                matchupSet.setSampleSets(completeSamples);
+//                            }
+//                        }
+
+
             }
         }
 
         return matchupCollection;
+    }
+
+    private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval, List<SatelliteObservation> secondaryObservations, Reader insituReader) throws IOException, InvalidRangeException {
+        final HashMap<String, MatchupSet> observationsPerProduct = new HashMap<>();
+
+        final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
+        for (final Sample insituSample : insituSamples) {
+            final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time), timeDeltaInMillis);
+            final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
+
+            for (SatelliteObservation candidate : candidatesByGeometry) {
+                final String productName = candidate.getDataFilePath().getFileName().toString();
+                MatchupSet matchupSet = observationsPerProduct.get(productName);
+                if (matchupSet == null) {
+                    matchupSet = new MatchupSet();
+                    matchupSet.setSecondaryObservationPath(candidate.getDataFilePath());
+
+                    observationsPerProduct.put(productName, matchupSet);
+                }
+                matchupSet.addPrimary(insituSample);
+            }
+        }
+        return new ArrayList<>(observationsPerProduct.values());
     }
 
     private List<Sample> getInsituSamples(TimeInterval processingInterval, Reader insituReader) throws IOException, InvalidRangeException {
@@ -134,7 +212,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     static List<SatelliteObservation> getCandidatesByTime(List<SatelliteObservation> satelliteObservations, Date insituTime, long timeDeltaInMillis) {
         final List<SatelliteObservation> candidateList = new ArrayList<>();
-        for (final SatelliteObservation observation: satelliteObservations) {
+        for (final SatelliteObservation observation : satelliteObservations) {
             final Date startTime = new Date(observation.getStartTime().getTime() - timeDeltaInMillis);
             final Date stopTime = new Date(observation.getStopTime().getTime() + timeDeltaInMillis);
             final TimeInterval observationInterval = new TimeInterval(startTime, stopTime);
@@ -147,7 +225,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     static List<SatelliteObservation> getCandidatesByGeometry(List<SatelliteObservation> satelliteObservations, Point point) {
         final List<SatelliteObservation> candidateList = new ArrayList<>();
-        for (final SatelliteObservation observation: satelliteObservations) {
+        for (final SatelliteObservation observation : satelliteObservations) {
             final Geometry geoBounds = observation.getGeoBounds();
             if (!geoBounds.getIntersection(point).isEmpty()) {
                 candidateList.add(observation);

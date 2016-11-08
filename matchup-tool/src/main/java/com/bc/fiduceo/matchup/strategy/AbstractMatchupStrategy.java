@@ -25,7 +25,12 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
@@ -42,6 +47,13 @@ public abstract class AbstractMatchupStrategy {
 
     AbstractMatchupStrategy(Logger logger) {
         this.logger = logger;
+    }
+
+    abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
+
+    // package access for testing only tb 2016-11-04
+    static boolean isSegmented(Geometry primaryGeoBounds) {
+        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
     }
 
     // package access for testing only tb 2016-03-14
@@ -64,7 +76,16 @@ public abstract class AbstractMatchupStrategy {
         return additionalSensors.get(0);
     }
 
-    abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
+    // package access for testing only tb 2016-11-04
+    static PixelLocator getPixelLocator(Reader reader, boolean isSegmented, Polygon polygon) throws IOException {
+        final PixelLocator pixelLocator;
+        if (isSegmented) {
+            pixelLocator = reader.getSubScenePixelLocator(polygon);
+        } else {
+            pixelLocator = reader.getPixelLocator();
+        }
+        return pixelLocator;
+    }
 
     // package access for testing only tb 2016-02-23
     static QueryParameter getPrimarySensorParameter(ToolContext context) {
