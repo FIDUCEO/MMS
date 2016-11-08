@@ -110,61 +110,16 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setSampleSets(completeSamples);
 
                         if (matchupSet.getNumObservations() > 0) {
-                            final Dimension primarySize = insituReader.getProductSize();
-                            conditionEngineContext.setPrimarySize(primarySize);
-                            final Dimension secondarySize = secondaryReader.getProductSize();
-                            conditionEngineContext.setSecondarySize(secondarySize);
-
-                            logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                            conditionEngine.process(matchupSet, conditionEngineContext);
-                            logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
-
-                            screeningEngine.process(matchupSet, insituReader, secondaryReader);
-                            logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
-
-                            if (matchupSet.getNumObservations() > 0) {
-                                matchupCollection.add(matchupSet);
-                            }
+                            applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, insituReader, matchupSet, secondaryReader);
                         }
                     }
-
-
                 }
-
-
-//                        try (Reader secondaryReader = readerFactory.getReader(candidate.getSensor().getName())) {
-//                            secondaryReader.open(candidate.getDataFilePath().toFile());
-//
-//                            final MatchupSet matchupSet = new MatchupSet();
-//                            matchupSet.setPrimaryObservationPath(insituObservation.getDataFilePath());
-//                            matchupSet.setSecondaryObservationPath(candidate.getDataFilePath());
-//
-//                            matchupSet.addPrimary(insituSample);
-//
-//                            final Geometry geoBounds = candidate.getGeoBounds();
-//                            final boolean segmented = AbstractMatchupStrategy.isSegmented(geoBounds);
-//                            final Polygon[] geometries;
-//                            if (geoBounds instanceof MultiPolygon) {
-//                                throw new RuntimeException("not implemented");
-//                            } else {
-//                                geometries = new Polygon[]{(Polygon) geoBounds};
-//                            }
-//
-//                            for (final Polygon polygon : geometries) {
-//                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, segmented, polygon);
-//                                final SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-//                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
-//
-//                                matchupSet.setSampleSets(completeSamples);
-//                            }
-//                        }
-
-
             }
         }
 
         return matchupCollection;
     }
+
 
     private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval, List<SatelliteObservation> secondaryObservations, Reader insituReader) throws IOException, InvalidRangeException {
         final HashMap<String, MatchupSet> observationsPerProduct = new HashMap<>();

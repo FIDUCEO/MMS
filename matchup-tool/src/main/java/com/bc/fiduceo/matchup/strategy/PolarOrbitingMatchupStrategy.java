@@ -120,21 +120,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    final Dimension primarySize = primaryReader.getProductSize();
-                                    conditionEngineContext.setPrimarySize(primarySize);
-                                    final Dimension secondarySize = secondaryReader.getProductSize();
-                                    conditionEngineContext.setSecondarySize(secondarySize);
-
-                                    logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
-                                    conditionEngine.process(matchupSet, conditionEngineContext);
-                                    logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
-
-                                    screeningEngine.process(matchupSet, primaryReader, secondaryReader);
-                                    logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
-
-                                    if (matchupSet.getNumObservations() > 0) {
-                                        matchupCollection.add(matchupSet);
-                                    }
+                                    applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, matchupSet, secondaryReader);
                                 }
                             }
                         }

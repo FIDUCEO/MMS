@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -30,6 +31,7 @@ import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,6 +97,36 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
         assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 0, 0, 0, -22297, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 1, 0, 0, -15307, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 2, 0, 0, -17409, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_18_7V_Res_1_TB", 3, 0, 0, -12157, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_23_8H_Res_1_TB", 4, 0, 0, -12691, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_23_8V_Res_1_TB", 0, 1, 0, -9726, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_36_5H_Res_1_TB", 1, 1, 0, -11837, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_36_5V_Res_1_TB", 2, 1, 0, -8744, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_6_9H_Res_1_TB", 3, 1, 0, -23637, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_6_9V_Res_1_TB", 4, 1, 0, -16271, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_89_0H_Res_1_TB", 0, 2, 0, -6233, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_89_0V_Res_1_TB", 1, 2, 0, -5851, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_Channel_Quality_Flag_10H", 2, 2, 0, 0, mmd);
+
+            NCTestUtils.assert3DVariable("drifter-sst_acquisition_time", 0, 0, 0, 1108599012, mmd);
+            NCTestUtils.assertStringVariable("drifter-sst_file_name", 0, "insitu_0_WMOID_71612_20040223_20151010.nc", mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.lat", 0, 0, 0, -51.040000915527344, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.lon", 0, 0, 0, 18.610000610351562, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.mohc_id", 0, 0, 0, 392166, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.sea_surface_temperature", 0, 0, 0, 1.7000000476837158, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_depth", 0, 0, 0, 0.2, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_qc_flag", 0, 0, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_track_flag", 0, 0, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_uncertainty", 0, 0, 0, 0.389, mmd);
+            NCTestUtils.assert3DVariable("drifter-sst_insitu.time", 0, 0, 0, 856138212, mmd);
+            NCTestUtils.assertScalarVariable("drifter-sst_x", 0, 0, mmd);
+            NCTestUtils.assertScalarVariable("drifter-sst_y", 0, 8485, mmd);
+        }
     }
 
     private void insert_AMSRE() throws IOException, SQLException {

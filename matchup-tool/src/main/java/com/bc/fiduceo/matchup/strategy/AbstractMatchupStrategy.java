@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -30,6 +31,10 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.condition.ConditionEngine;
+import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
+import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import org.esa.snap.core.util.StringUtils;
@@ -50,6 +55,24 @@ public abstract class AbstractMatchupStrategy {
     }
 
     abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
+
+    void applyConditionsAndScreenings(MatchupCollection matchupCollection, ConditionEngine conditionEngine, ConditionEngineContext conditionEngineContext, ScreeningEngine screeningEngine, Reader insituReader, MatchupSet matchupSet, Reader secondaryReader) throws IOException, InvalidRangeException {
+        final Dimension primarySize = insituReader.getProductSize();
+        conditionEngineContext.setPrimarySize(primarySize);
+        final Dimension secondarySize = secondaryReader.getProductSize();
+        conditionEngineContext.setSecondarySize(secondarySize);
+
+        logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
+        conditionEngine.process(matchupSet, conditionEngineContext);
+        logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+
+        screeningEngine.process(matchupSet, insituReader, secondaryReader);
+        logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
+
+        if (matchupSet.getNumObservations() > 0) {
+            matchupCollection.add(matchupSet);
+        }
+    }
 
     // package access for testing only tb 2016-11-04
     static boolean isSegmented(Geometry primaryGeoBounds) {
