@@ -337,7 +337,7 @@ public class IngestionToolIntegrationTest {
 
             final SatelliteObservation observation = getSatelliteObservation("NSS.HIRX.NG.D89076.S0608.E0802.B1296162.WI.nc", satelliteObservations);
 
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 45, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 12, 16, 0, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 8, 2, 2, 0, observation.getStopTime());
             assertEquals("hirs-n10", observation.getSensor().getName());
 
@@ -359,11 +359,11 @@ public class IngestionToolIntegrationTest {
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 45, 0, timeAxes[0].getStartTime());
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 5, 23, 500, timeAxes[0].getEndTime());
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 12, 16, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 7, 9, 0, timeAxes[0].getEndTime());
             assertEquals(TestData.HIRS_N10_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
 
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 5, 23, 500, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 7, 9, 0, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 8, 2, 2, 0, timeAxes[1].getEndTime());
             assertEquals(TestData.HIRS_N10_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
         } finally {
@@ -383,7 +383,7 @@ public class IngestionToolIntegrationTest {
 
             final SatelliteObservation observation = getSatelliteObservation("190583863.NSS.HIRX.M2.D11235.S1641.E1823.B2513233.SV.nc", satelliteObservations);
 
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 52, 0, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, observation.getStopTime());
             assertEquals("hirs-ma", observation.getSensor().getName());
 
@@ -405,11 +405,11 @@ public class IngestionToolIntegrationTest {
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, timeAxes[0].getStartTime());
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, timeAxes[0].getEndTime());
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 52, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 16, 0, timeAxes[0].getEndTime());
             assertEquals(TestData.HIRS_MA_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
 
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 16, 0, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, timeAxes[1].getEndTime());
             assertEquals(TestData.HIRS_MA_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
         } finally {

@@ -130,7 +130,7 @@ public class HIRS_L1C_Reader_IO_Test {
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 45, 0, sensingStart);
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 12, 16, 0, sensingStart);
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 8, 2, 2, 0, sensingStop);
@@ -146,30 +146,30 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(2, geometries.length);
 
             Point[] coordinates = geometries[0].getCoordinates();
-            assertEquals(137, coordinates.length);
-            assertEquals(-170.703125, coordinates[1].getLon(), 1e-8);
-            assertEquals(22.859375, coordinates[1].getLat(), 1e-8);
+            assertEquals(133, coordinates.length);
+            assertEquals(-175.1171875, coordinates[1].getLon(), 1e-8);
+            assertEquals(34.8984375, coordinates[1].getLat(), 1e-8);
 
-            assertEquals(-6.3515625, coordinates[63].getLon(), 1e-8);
-            assertEquals(-25.4765625, coordinates[63].getLat(), 1e-8);
+            assertEquals(-12.171875, coordinates[63].getLon(), 1e-8);
+            assertEquals(-38.74999999999999, coordinates[63].getLat(), 1e-8);
 
             coordinates = geometries[1].getCoordinates();
-            assertEquals(137, coordinates.length);
-            assertEquals(6.6640625, coordinates[2].getLon(), 1e-8);
-            assertEquals(-46.84375, coordinates[2].getLat(), 1e-8);
+            assertEquals(133, coordinates.length);
+            assertEquals(5.1328125, coordinates[2].getLon(), 1e-8);
+            assertEquals(-53.2109375, coordinates[2].getLat(), 1e-8);
 
-            assertEquals(178.5625, coordinates[65].getLon(), 1e-8);
-            assertEquals(56.78125, coordinates[65].getLat(), 1e-8);
+            assertEquals(177.96875, coordinates[65].getLon(), 1e-8);
+            assertEquals(64.234375, coordinates[65].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
             coordinates = geometries[0].getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 8, 52, 2, time);
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 12, 21, 347, time);
 
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 5, 23, 500, time);
+            TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 7, 9, 0, time);
         } finally {
             reader.close();
         }
@@ -186,7 +186,7 @@ public class HIRS_L1C_Reader_IO_Test {
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, sensingStart);
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 52, 0, sensingStart);
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 18, 22, 40, 0, sensingStop);
@@ -203,16 +203,16 @@ public class HIRS_L1C_Reader_IO_Test {
 
             Point[] coordinates = geometries[0].getCoordinates();
             assertEquals(125, coordinates.length);
-            assertEquals(10.2899, coordinates[4].getLon(), 1e-8);
-            assertEquals(76.641, coordinates[4].getLat(), 1e-8);
+            assertEquals(2.4777, coordinates[4].getLon(), 1e-8);
+            assertEquals(77.4248, coordinates[4].getLat(), 1e-8);
 
-            assertEquals(177.6307, coordinates[61].getLon(), 1e-8);
-            assertEquals(-68.9219, coordinates[61].getLat(), 1e-8);
+            assertEquals(174.73, coordinates[61].getLon(), 1e-8);
+            assertEquals(-69.4306, coordinates[61].getLat(), 1e-8);
 
             coordinates = geometries[1].getCoordinates();
             assertEquals(125, coordinates.length);
-            assertEquals(-166.8919, coordinates[5].getLon(), 1e-8);
-            assertEquals(-80.9488, coordinates[5].getLat(), 1e-8);
+            assertEquals(-172.6181, coordinates[5].getLon(), 1e-8);
+            assertEquals(-81.6821, coordinates[5].getLat(), 1e-8);
 
             assertEquals(52.7125, coordinates[60].getLon(), 1e-8);
             assertEquals(76.5637, coordinates[60].getLat(), 1e-8);
@@ -221,11 +221,11 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(2, timeAxes.length);
             coordinates = geometries[0].getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 20, 0, time);
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 52, 0, time);
 
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 0, 0, time);
+            TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 16, 0, time);
         } finally {
             reader.close();
         }
@@ -259,9 +259,9 @@ public class HIRS_L1C_Reader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(606118125000L, timeLocator.getTimeFor(12, 0));
-            assertEquals(606121722000L, timeLocator.getTimeFor(14, 562));
-            assertEquals(606124922000L, timeLocator.getTimeFor(16, 1062));
+            assertEquals(606118336000L, timeLocator.getTimeFor(12, 0));
+            assertEquals(606121933000L, timeLocator.getTimeFor(14, 562));
+            assertEquals(606124922000L, timeLocator.getTimeFor(16, 1029));
         } finally {
             reader.close();
         }
@@ -277,9 +277,9 @@ public class HIRS_L1C_Reader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1314117680000L, timeLocator.getTimeFor(14, 0));
-            assertEquals(1314120509000L, timeLocator.getTimeFor(16, 442));
-            assertEquals(1314123760000L, timeLocator.getTimeFor(18, 950));
+            assertEquals(1314117712000L, timeLocator.getTimeFor(14, 0));
+            assertEquals(1314120541000L, timeLocator.getTimeFor(16, 442));
+            assertEquals(1314123760000L, timeLocator.getTimeFor(18, 945));
         } finally {
             reader.close();
         }
@@ -293,7 +293,7 @@ public class HIRS_L1C_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(65, variables.size());
+            assertEquals(66, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("time", variable.getShortName());
@@ -305,16 +305,16 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals("lon", variable.getShortName());
 
             variable = variables.get(3);
-            assertEquals("lza", variable.getShortName());
-
-            variable = variables.get(4);
             assertEquals("bt_ch01", variable.getShortName());
 
+            variable = variables.get(4);
+            assertEquals("bt_ch02", variable.getShortName());
+
             variable = variables.get(14);
-            assertEquals("bt_ch11", variable.getShortName());
+            assertEquals("bt_ch12", variable.getShortName());
 
             variable = variables.get(22);
-            assertEquals("bt_ch19", variable.getShortName());
+            assertEquals("lza", variable.getShortName());
 
             variable = variables.get(23);
             assertEquals("radiance_ch01", variable.getShortName());
@@ -352,16 +352,22 @@ public class HIRS_L1C_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(65, variables.size());
+            assertEquals(66, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("time", variable.getShortName());
 
-            variable = variables.get(4);
+            variable = variables.get(3);
             assertEquals("bt_ch01", variable.getShortName());
 
-            variable = variables.get(22);
+            variable = variables.get(4);
+            assertEquals("bt_ch02", variable.getShortName());
+
+            variable = variables.get(21);
             assertEquals("bt_ch19", variable.getShortName());
+
+            variable = variables.get(22);
+            assertEquals("lza", variable.getShortName());
 
             variable = variables.get(23);
             assertEquals("radiance_ch01", variable.getShortName());
@@ -399,10 +405,10 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals("time", variable.getShortName());
 
             variable = variables.get(4);
-            assertEquals("bt_ch01", variable.getShortName());
+            assertEquals("bt_ch02", variable.getShortName());
 
             variable = variables.get(22);
-            assertEquals("bt_ch19", variable.getShortName());
+            assertEquals("lza", variable.getShortName());
 
             variable = variables.get(23);
             assertEquals("radiance_ch01", variable.getShortName());
@@ -453,7 +459,7 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Dimension productSize = reader.getProductSize();
             assertEquals(56, productSize.getNx());
-            assertEquals(1063, productSize.getNy());
+            assertEquals(1030, productSize.getNy());
         } finally {
             reader.close();
         }
@@ -472,19 +478,19 @@ public class HIRS_L1C_Reader_IO_Test {
             final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
 
             index.set(0, 0);
-            assertEquals(1314118461, acquisitionTime.getInt(index));
+            assertEquals(1314118493, acquisitionTime.getInt(index));
 
             index.set(1, 1);
-            assertEquals(1314118467, acquisitionTime.getInt(index));
+            assertEquals(1314118499, acquisitionTime.getInt(index));
 
             index.set(2, 2);
-            assertEquals(1314118474, acquisitionTime.getInt(index));
+            assertEquals(1314118506, acquisitionTime.getInt(index));
 
             index.set(3, 1);
-            assertEquals(1314118480, acquisitionTime.getInt(index));
+            assertEquals(1314118512, acquisitionTime.getInt(index));
 
             index.set(4, 0);
-            assertEquals(1314118486, acquisitionTime.getInt(index));
+            assertEquals(1314118518, acquisitionTime.getInt(index));
         } finally {
             reader.close();
         }
@@ -499,12 +505,12 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readScaled(13, 231, interval, "bt_ch01");
-            NCTestUtils.assertValueAt(222.7375946044922, 0, 0, array);
-            NCTestUtils.assertValueAt(233.08966064453125, 1, 0, array);
+            NCTestUtils.assertValueAt(222.73716735839844, 0, 0, array);
+            NCTestUtils.assertValueAt(233.08924865722656, 1, 0, array);
 
             array = reader.readScaled(14, 232, interval, "bt_ch02");
-            NCTestUtils.assertValueAt(216.99314880371094, 2, 0, array);
-            NCTestUtils.assertValueAt(215.75836181640625, 3, 0, array);
+            NCTestUtils.assertValueAt(216.99270629882812, 2, 0, array);
+            NCTestUtils.assertValueAt(215.75791931152344, 3, 0, array);
 
             array = reader.readScaled(15, 233, interval, "counts_ch03");
             NCTestUtils.assertValueAt(-863, 4, 0, array);
@@ -531,8 +537,8 @@ public class HIRS_L1C_Reader_IO_Test {
             NCTestUtils.assertValueAt(69.71855163574219, 0, 3, array);
 
             array = reader.readScaled(21, 239, interval, "radiance_ch06");
-            NCTestUtils.assertValueAt(-0.5326722860336304, 1, 3, array);
-            NCTestUtils.assertValueAt(0.2421426773071289, 2, 3, array);
+            NCTestUtils.assertValueAt(-999.0, 1, 3, array);
+            NCTestUtils.assertValueAt(-999.0, 2, 3, array);
 
             array = reader.readScaled(22, 240, interval, "scanline");
             NCTestUtils.assertValueAt(242, 3, 3, array);
@@ -570,52 +576,52 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readRaw(25, 243, interval, "bt_ch07");
-            NCTestUtils.assertValueAt(252.1149139404297, 2, 4, array);
-            NCTestUtils.assertValueAt(252.6898193359375, 3, 4, array);
+            NCTestUtils.assertValueAt(251.18798828125, 2, 4, array);
+            NCTestUtils.assertValueAt(251.59432983398438, 3, 4, array);
 
             array = reader.readRaw(26, 244, interval, "bt_ch08");
-            NCTestUtils.assertValueAt(266.6014709472656, 4, 4, array);
-            NCTestUtils.assertValueAt(253.4669647216797, 0, 0, array);
+            NCTestUtils.assertValueAt(261.6963195800781, 4, 4, array);
+            NCTestUtils.assertValueAt(242.42616271972656, 0, 0, array);
 
             array = reader.readRaw(27, 245, interval, "counts_ch09");
-            NCTestUtils.assertValueAt(266, 1, 0, array);
-            NCTestUtils.assertValueAt(285, 2, 0, array);
+            NCTestUtils.assertValueAt(-2, 1, 0, array);
+            NCTestUtils.assertValueAt(-43, 2, 0, array);
 
             array = reader.readRaw(28, 246, interval, "counts_ch10");
-            NCTestUtils.assertValueAt(-654, 3, 0, array);
-            NCTestUtils.assertValueAt(-649, 4, 0, array);
+            NCTestUtils.assertValueAt(-782, 3, 0, array);
+            NCTestUtils.assertValueAt(-687, 4, 0, array);
 
             array = reader.readRaw(29, 247, interval, "lat");
-            NCTestUtils.assertValueAt(60.84375, 0, 1, array);
-            NCTestUtils.assertValueAt(60.90625, 1, 1, array);
+            NCTestUtils.assertValueAt(48.7734375, 0, 1, array);
+            NCTestUtils.assertValueAt(48.8203125, 1, 1, array);
 
             array = reader.readRaw(30, 248, interval, "lon");
-            NCTestUtils.assertValueAt(29.2421875, 2, 1, array);
-            NCTestUtils.assertValueAt(28.7890625, 3, 1, array);
+            NCTestUtils.assertValueAt(22.9453125, 2, 1, array);
+            NCTestUtils.assertValueAt(22.6015625, 3, 1, array);
 
             array = reader.readRaw(31, 249, interval, "lza");
-            NCTestUtils.assertValueAt(11.521845817565918, 4, 1, array);
-            NCTestUtils.assertValueAt(3.1400468349456787, 0, 2, array);
+            NCTestUtils.assertValueAt(11.476059913635254, 4, 1, array);
+            NCTestUtils.assertValueAt(3.1275672912597656, 0, 2, array);
 
             array = reader.readRaw(32, 250, interval, "radiance_ch11");
-            NCTestUtils.assertValueAt(11.918828964233398, 1, 2, array);
-            NCTestUtils.assertValueAt(11.980561256408691, 2, 2, array);
+            NCTestUtils.assertValueAt(12.17858600616455, 1, 2, array);
+            NCTestUtils.assertValueAt(12.456483840942383, 2, 2, array);
 
             array = reader.readRaw(33, 251, interval, "radiance_ch12");
-            NCTestUtils.assertValueAt(4.9098429679870605, 3, 2, array);
-            NCTestUtils.assertValueAt(4.83237886428833, 4, 2, array);
+            NCTestUtils.assertValueAt(4.776543617248535, 3, 2, array);
+            NCTestUtils.assertValueAt(4.776543617248535, 4, 2, array);
 
             array = reader.readRaw(34, 252, interval, "scanline");
-            NCTestUtils.assertValueAt(254, 0, 3, array);
-            NCTestUtils.assertValueAt(254, 1, 3, array);
+            NCTestUtils.assertValueAt(287, 0, 3, array);
+            NCTestUtils.assertValueAt(287, 1, 3, array);
 
             array = reader.readRaw(35, 253, interval, "scanpos");
             NCTestUtils.assertValueAt(35, 2, 3, array);
             NCTestUtils.assertValueAt(36, 3, 3, array);
 
             array = reader.readRaw(36, 254, interval, "time");
-            NCTestUtils.assertValueAt(606119757, 4, 3, array);
-            NCTestUtils.assertValueAt(606119763, 0, 4, array);
+            NCTestUtils.assertValueAt(606119968, 4, 3, array);
+            NCTestUtils.assertValueAt(606119975, 0, 4, array);
         } finally {
             reader.close();
         }
@@ -631,8 +637,8 @@ public class HIRS_L1C_Reader_IO_Test {
             final Interval interval = new Interval(5, 5);
             Array array = reader.readRaw(37, 4, interval, "scanline_type");
             NCTestUtils.assertValueAt(0, 1, 0, array);
-            NCTestUtils.assertValueAt(1, 1, 1, array);
-            NCTestUtils.assertValueAt(3, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
             NCTestUtils.assertValueAt(0, 1, 3, array);
             NCTestUtils.assertValueAt(0, 1, 4, array);
         } finally {
@@ -651,16 +657,16 @@ public class HIRS_L1C_Reader_IO_Test {
             assertNotNull(pixelLocator);
 
             Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
-            assertEquals(1.253499984741211, geoLocation.getX(), 1e-8);
-            assertEquals(70.50540161132812, geoLocation.getY(), 1e-8);
+            assertEquals(-4.352700233459473, geoLocation.getX(), 1e-8);
+            assertEquals(71.04930114746094, geoLocation.getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(29.5, 696.5, null);
-            assertEquals(55.48429870605469, geoLocation.getX(), 1e-8);
-            assertEquals(-12.545900344848633, geoLocation.getY(), 1e-8);
+            assertEquals(55.05039978027344, geoLocation.getX(), 1e-8);
+            assertEquals(-10.665200233459473, geoLocation.getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(55.5, 782.5, null);
-            assertEquals(57.860198974609375, geoLocation.getX(), 1e-8);
-            assertEquals(21.78820037841797, geoLocation.getY(), 1e-8);
+            assertEquals(57.537899017333984, geoLocation.getX(), 1e-8);
+            assertEquals(23.64889907836914, geoLocation.getY(), 1e-8);
         } finally {
             reader.close();
         }

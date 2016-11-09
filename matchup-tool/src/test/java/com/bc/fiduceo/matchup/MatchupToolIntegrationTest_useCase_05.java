@@ -68,9 +68,9 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             NCTestUtils.assert3DVariable("hirs-n10_acquisition_time", 0, 0, 0, 606122189, mmd);
-            NCTestUtils.assert3DVariable("hirs-n10_bt_ch01", 2, 0, 2, Float.NaN, mmd);
-            NCTestUtils.assert3DVariable("hirs-n10_bt_ch02", 4, 0, 4, 223.5828857421875, mmd);
-            NCTestUtils.assert3DVariable("hirs-n10_bt_ch03", 1, 1, 6, 223.87351989746094, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch01", 2, 0, 2, -999.0, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch02", 4, 0, 4, 223.58245849609375, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_bt_ch03", 1, 1, 6, 223.87307739257812, mmd);
 
             NCTestUtils.assert3DVariable("hirs-n10_counts_ch01", 3, 1, 8, 1403, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_counts_ch02", 0, 2, 10, -1373, mmd);
@@ -82,16 +82,16 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("hirs-n10_lon", 1, 3, 18, -42.40625, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_lza", 3, 3, 20, 26.595956802368164, mmd);
 
-            NCTestUtils.assert3DVariable("hirs-n10_radiance_ch01", 0, 4, 22, -458.3385009765625, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_radiance_ch01", 0, 4, 22, -999.0, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_radiance_ch02", 2, 4, 24, 47.478275299072266, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_radiance_ch03", 4, 4, 26, 46.72418975830078, mmd);
 
             NCTestUtils.assert3DVariable("hirs-n10_scanline", 1, 0, 27, 641, mmd);
-            NCTestUtils.assert3DVariable("hirs-n10_scanpos", 3, 0, 29, 11, mmd);
+            NCTestUtils.assert3DVariable("hirs-n10_scanpos", 3, 0, 29, 12, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_time", 0, 1, 31, 606122227, mmd);
 
-            NCTestUtils.assertScalarVariable("hirs-n10_x", 33, 21, mmd);
-            NCTestUtils.assertScalarVariable("hirs-n10_y", 35, 643, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n10_x", 33, 23, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n10_y", 35, 610, mmd);
 
             NCTestUtils.assert3DVariable("hirs-n11_acquisition_time", 1, 0, 1, N3iosp.NC_FILL_INT, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_bt_ch01", 3, 0, 3, 230.6595001220703, mmd);
@@ -112,14 +112,13 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("hirs-n11_radiance_ch02", 3, 4, 25, 48.26007080078125, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_radiance_ch03", 0, 0, 26, 122.11962890625, mmd);
 
-            NCTestUtils.assert3DVariable("hirs-n11_scanline", 2, 0, 28, 447, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_scanline", 2, 0, 28, 446, mmd);
             NCTestUtils.assert3DVariable("hirs-n11_scanpos", 4, 0, 30, 3, mmd);
-            NCTestUtils.assert3DVariable("hirs-n11_time", 1, 1, 32, 606120235, mmd);
-            // @todo 2 tb/tb reactivate when the testdata is updated 2016-08-22
-            //NCTestUtils.assert3DVariable("hirs-n11_scanline_type", 1, 1, 33, 3, mmd);
+            NCTestUtils.assert3DVariable("hirs-n11_time", 1, 1, 32, 6.06120229E8, mmd);
+           // NCTestUtils.assert3DVariable("hirs-n11_scanline_type", 1, 1, 33, 3, mmd);
 
-            NCTestUtils.assertScalarVariable("hirs-n11_x", 34, 2, mmd);
-            NCTestUtils.assertScalarVariable("hirs-n11_y", 36, 451, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n11_x", 34, 1, mmd);
+            NCTestUtils.assertScalarVariable("hirs-n11_y", 36, 444, mmd);
         }
     }
 
