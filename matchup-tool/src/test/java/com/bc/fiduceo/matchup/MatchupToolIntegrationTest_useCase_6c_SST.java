@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
@@ -28,8 +30,8 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import org.apache.commons.cli.ParseException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
@@ -38,9 +40,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIntegrationTest {

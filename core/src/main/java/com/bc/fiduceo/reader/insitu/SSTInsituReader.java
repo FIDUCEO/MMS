@@ -29,9 +29,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -45,8 +43,8 @@ import java.util.Map;
 
 public class SSTInsituReader implements Reader {
 
-    private final long millisSince1978;
-    private final int secondsSince1978;
+    public final long millisSince1978;
+    public final int secondsSince1978;
 
     private NetcdfFile netcdfFile;
     private String insituType;
@@ -58,7 +56,7 @@ public class SSTInsituReader implements Reader {
         calendar.clear();
         calendar.set(1978, Calendar.JANUARY, 1);
         millisSince1978 = calendar.getTime().getTime();
-        secondsSince1978 = (int) (millisSince1978 * 0.001d);
+        secondsSince1978 = (int) (millisSince1978 / 1000);
     }
 
     @Override
@@ -94,24 +92,6 @@ public class SSTInsituReader implements Reader {
         info.setNodeType(NodeType.UNDEFINED);
 
         return info;
-    }
-
-    /**
-     * @return the insitu type as a String
-     */
-    String getInsituType() {
-        return insituType;
-    }
-
-    /**
-     * Returns the time in seconds since 1978-01-01
-     *
-     * @param y the y index
-     * @return the time in seconds since 1978-01-01
-     */
-    int getTime(int y) {
-        // package access for testing only tb 2016-10-31
-        return arrayMap.get("insitu.time").getInt(y);
     }
 
     @Override
@@ -188,6 +168,25 @@ public class SSTInsituReader implements Reader {
     @Override
     public Dimension getProductSize() throws IOException {
         return new Dimension("product_size", 1, getNumObservations());
+    }
+
+    /**
+     * @return the insitu type as a String
+     */
+    String getInsituType() {
+        return insituType;
+    }
+
+    /**
+     * Returns the time in seconds since 1978-01-01
+     *
+     * @param y the y index
+     *
+     * @return the time in seconds since 1978-01-01
+     */
+    int getTime(int y) {
+        // package access for testing only tb 2016-10-31
+        return arrayMap.get("insitu.time").getInt(y);
     }
 
     private void extractSensingTimes(AcquisitionInfo info) {
