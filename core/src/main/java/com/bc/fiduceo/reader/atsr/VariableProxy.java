@@ -67,18 +67,18 @@ class VariableProxy extends VariablePrototype {
         if (rasterDataNode.isScalingApplied()) {
             final double scalingFactor = rasterDataNode.getScalingFactor();
             if (scalingFactor != 1.0) {
-                attributes.add(new Attribute("scale_factor", Double.toString(scalingFactor)));
+                attributes.add(new Attribute("scale_factor", scalingFactor));
             }
 
             final double scalingOffset = rasterDataNode.getScalingOffset();
             if (scalingOffset != 0.0) {
-                attributes.add(new Attribute("add_offset", Double.toString(scalingOffset)));
+                attributes.add(new Attribute("add_offset", scalingOffset));
             }
         }
 
         if (rasterDataNode.isNoDataValueUsed()) {
             final double noDataValue = rasterDataNode.getNoDataValue();
-            attributes.add(new Attribute("_FillValue", Double.toString(noDataValue)));
+            attributes.add(new Attribute("_FillValue", noDataValue));
         }
         return attributes;
     }

@@ -94,11 +94,11 @@ public class VariableProxyTest {
 
         Attribute attribute = attributes.get(0);
         assertEquals("scale_factor", attribute.getShortName());
-        assertEquals("1.23", attribute.getStringValue());
+        assertEquals(1.23, attribute.getNumericValue().doubleValue(), 1e-8);
 
         attribute = attributes.get(1);
         assertEquals("add_offset", attribute.getShortName());
-        assertEquals("0.86", attribute.getStringValue());
+        assertEquals(0.86, attribute.getNumericValue().doubleValue(), 1e-8);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class VariableProxyTest {
 
         final Attribute attribute = attributes.get(0);
         assertEquals("scale_factor", attribute.getShortName());
-        assertEquals("0.01", attribute.getStringValue());
+        assertEquals(0.01, attribute.getNumericValue().doubleValue(), 1e-8);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class VariableProxyTest {
 
         final Attribute attribute = attributes.get(0);
         assertEquals("add_offset", attribute.getShortName());
-        assertEquals("273.15", attribute.getStringValue());
+        assertEquals(273.15, attribute.getNumericValue().doubleValue(), 1e-8);
     }
 
     @Test
@@ -141,6 +141,6 @@ public class VariableProxyTest {
 
         final Attribute attribute = attributes.get(0);
         assertEquals("_FillValue", attribute.getShortName());
-        assertEquals("-32768.0", attribute.getStringValue());
+        assertEquals(-32768.0, attribute.getNumericValue().doubleValue(), 1e-8);
     }
 }

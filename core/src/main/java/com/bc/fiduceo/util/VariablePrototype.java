@@ -45,6 +45,10 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 
+// This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
+// all methods with a throws implementation ensures that methods that should be overridden are really overridden;
+// calls into the not completely initialized base class are not possible this was tb 2016-09-26
+
 @SuppressWarnings("deprecation")
 public class VariablePrototype extends Variable {
 
