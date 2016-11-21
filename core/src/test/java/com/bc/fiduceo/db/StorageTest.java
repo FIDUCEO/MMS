@@ -22,7 +22,7 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.Test;
 
 import java.sql.SQLException;

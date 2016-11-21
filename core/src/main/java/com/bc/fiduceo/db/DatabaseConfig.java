@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.db;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.io.File;
 import java.io.FileInputStream;

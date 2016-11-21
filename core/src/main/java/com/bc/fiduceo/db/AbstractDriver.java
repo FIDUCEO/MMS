@@ -23,7 +23,7 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.core.Sensor;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -22,7 +22,7 @@ package com.bc.fiduceo;
 
 import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
 import org.jdom.Document;
