@@ -15,6 +15,7 @@
         <module>ingestion-tool</module>
         <module>matchup-tool</module>
         <module>cems</module>
+        <module>post-processing-tool</module>
     </modules>
 
     <dependencyManagement>
