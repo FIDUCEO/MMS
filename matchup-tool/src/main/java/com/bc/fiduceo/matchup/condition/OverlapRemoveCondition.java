@@ -18,6 +18,7 @@
  *
  */
 
+
 package com.bc.fiduceo.matchup.condition;
 
 import com.bc.fiduceo.core.Dimension;
@@ -32,6 +33,14 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
+/* The XML template for this condition class looks like:
+
+    <overlap-remove>
+        <reference>PRIMARY</reference>
+    </overlap-remove>
+
+    Valid reference values are: PRIMARY, SECONDARY
+ */
 class OverlapRemoveCondition implements Condition {
 
     private final boolean primary;
