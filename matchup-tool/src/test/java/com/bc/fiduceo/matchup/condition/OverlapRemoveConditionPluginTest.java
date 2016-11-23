@@ -49,6 +49,7 @@ public class OverlapRemoveConditionPluginTest {
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
         final String XML = "<overlap-remove>" +
+                "<reference>SECONDARY</reference>" +
                 "</overlap-remove>";
         final Element element = TestUtil.createDomElement(XML);
 

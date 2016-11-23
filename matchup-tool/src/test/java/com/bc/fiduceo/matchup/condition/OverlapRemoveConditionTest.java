@@ -20,15 +20,26 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import org.esa.snap.core.util.StopWatch;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class OverlapRemoveConditionTest {
 
@@ -42,7 +53,10 @@ public class OverlapRemoveConditionTest {
         primaryCondition = new OverlapRemoveCondition(true);
         secondaryCondition = new OverlapRemoveCondition(false);
         matchupSet = new MatchupSet();
+
         context = new ConditionEngineContext();
+        context.setPrimarySize(new Dimension("bla", 3, 5));
+        context.setSecondarySize(new Dimension("bla", 7, 9));
     }
 
     @Test
@@ -90,6 +104,109 @@ public class OverlapRemoveConditionTest {
         secondaryCondition.apply(matchupSet, context);
 
         assertEquals(2, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testRemove_twoMatchups_primary_overlapping() {
+        addSampleSet(108, 346, 3567, 12056);
+        addSampleSet(110, 344, 3567, 12056);
+
+        primaryCondition.apply(matchupSet, context);
+
+        assertEquals(1, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testRemove_manyMatchups_secondary_mixed() {
+        addSampleSet(108, 346, 3567, 12056); // <- keep
+        addSampleSet(108, 346, 3565, 12056);
+        addSampleSet(108, 346, 4000, 12106); // <- keep
+        addSampleSet(108, 346, 5000, 12106); // <- keep
+        addSampleSet(108, 346, 3568, 12056);
+        addSampleSet(108, 346, 5002, 12106);
+        addSampleSet(108, 346, 4003, 12106);
+
+        secondaryCondition.apply(matchupSet, context);
+
+        assertEquals(3, matchupSet.getNumObservations());
+    }
+
+    @Test
+    @Ignore
+    public void testRemove_performanceTest_mimick_AATSR() {
+        int numSamples = 1000000;
+        for (int i = 0; i < numSamples; i++) {
+            final int primaryX = (int) (512 * Math.random());
+            final int primaryY = (int) (40000 * Math.random());
+            final int secondaryX = (int) (512 * Math.random());
+            final int secondaryY = (int) (40000 * Math.random());
+
+            addSampleSet(primaryX, primaryY, secondaryX, secondaryY);
+        }
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        primaryCondition.apply(matchupSet, context);
+
+        stopWatch.stop();
+        System.out.println("time = " + stopWatch.getTimeDiffString());
+    }
+
+    @Test
+    public void testGetDimension_primary() {
+        context.setPrimarySize(new Dimension("prime", 7, 9));
+
+        final Dimension dimension = primaryCondition.getDimension(context);
+        assertNotNull(dimension);
+        assertEquals(7, dimension.getNx());
+        assertEquals(9, dimension.getNy());
+    }
+
+    @Test
+    public void testGetDimension_secondary() {
+        context.setSecondarySize(new Dimension("sec", 5, 3));
+
+        final Dimension dimension = secondaryCondition.getDimension(context);
+        assertNotNull(dimension);
+        assertEquals(5, dimension.getNx());
+        assertEquals(3, dimension.getNy());
+    }
+
+    @Test
+    public void testGetReferenceFormElement_primary() throws JDOMException, IOException {
+        final String XML = "<overlap-remove>" +
+                "    <reference>PRIMARY</reference>" +
+                "</overlap-remove>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        boolean primary = secondaryCondition.getReferenceFromElement(element);
+        assertTrue(primary);
+    }
+
+    @Test
+    public void testGetReferenceFormElement_secondary() throws JDOMException, IOException {
+        final String XML = "<overlap-remove>" +
+                "    <reference>SECONDARY</reference>" +
+                "</overlap-remove>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        boolean primary = secondaryCondition.getReferenceFromElement(element);
+        assertFalse(primary);
+    }
+
+    @Test
+    public void testGetReferenceFormElement_invalid() throws JDOMException, IOException {
+        final String XML = "<overlap-remove>" +
+                "    <reference>rubbish</reference>" +
+                "</overlap-remove>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        try {
+            secondaryCondition.getReferenceFromElement(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     private void addSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
