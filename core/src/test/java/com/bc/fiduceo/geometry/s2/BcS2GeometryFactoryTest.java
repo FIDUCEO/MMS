@@ -21,6 +21,7 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.*;
+import com.google.common.geometry.S2Point;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -296,5 +297,25 @@ public class BcS2GeometryFactoryTest {
         assertEquals(8, coordinates[2].getLat(), 1e-8);
         assertEquals(3, coordinates[3].getLon(), 1e-8);
         assertEquals(8.2, coordinates[3].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testExtractS2Points_emptyList() {
+        final List<Point> points = new ArrayList<>();
+
+        final List<S2Point> s2Points = BcS2GeometryFactory.extractS2Points(points);
+        assertEquals(0, s2Points.size());
+    }
+
+    @Test
+    public void testExtractS2Points() {
+        final List<Point> points = new ArrayList<>();
+        points.add(factory.createPoint(23, 34));
+        points.add(factory.createPoint(33, 44));
+        points.add(factory.createPoint(43, 54));
+
+        final List<S2Point> s2Points = BcS2GeometryFactory.extractS2Points(points);
+        assertEquals(3, s2Points.size());
+        assertEquals("(44.0, 33.0)", s2Points.get(1).toDegreesString());
     }
 }

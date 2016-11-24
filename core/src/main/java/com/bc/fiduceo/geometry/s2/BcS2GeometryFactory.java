@@ -117,7 +117,6 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
         return new BcS2TimeAxis(lineString, startTime, endTime);
     }
 
-    // @todo 2 tb/** write tests 2016-09-23
     static List<S2Point> extractS2Points(List<Point> points) {
         final ArrayList<S2Point> loopPoints = new ArrayList<>();
 
