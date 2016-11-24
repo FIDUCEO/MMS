@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(300)
                 .withMaxPixelDistanceKm(1)   // value in km
@@ -92,6 +92,57 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 0, 1, 1411, 1554, mmd);
             NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 1, 1, 1412, 11639, mmd);
             NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 1, 1413, 77.22799682617188, mmd);
+        }
+    }
+
+    @Test
+    public void testMatchup_withOverlapRemoval() throws IOException, ParseException, SQLException, InvalidRangeException {
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(300)
+                .withMaxPixelDistanceKm(1)   // value in km
+                .withAtsrAngularScreening(10.0, 1.0)
+                .withOverlapRemoval("PRIMARY")
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-01.xml");
+
+        insert_AATSR();
+        insert_AVHRR_GAC_NOAA18();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2006-046", "-end", "2006-046"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2006-046", "2006-046");
+        assertTrue(mmdFile.isFile());
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 23, 1139989167, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 24, -289.458740234375, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 25, 26841, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_1100", 3, 0, 26, 26621, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_1200", 4, 0, 27, -2, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_0370", 5, 0, 28, 26925, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_1100", 6, 0, 29, 26897, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_nadir_1200", 7, 0, 30, 26696, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_cloud_flags_fward", 8, 0, 31, 450, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_cloud_flags_nadir", 9, 0, 32, 0, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_confid_flags_fward", 10, 0, 33, 1, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_confid_flags_nadir", 0, 1, 34, 0, mmd);
+            NCTestUtils.assertStringVariable("aatsr-en_file_name", 35, "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1", mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lat_corr_fward", 2, 1, 36, 0.0, mmd);
+
+            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 0, 0, 500, 1139989344, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 1, 0, 501, 265, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 2, 0, 502, 500, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 3, 0, 503, -32768, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 4, 0, 504, -951, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 5, 0, 505, -1356, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 6, 0, 506, -1553, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 7, 0, 507, 7, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 8, 0, 508, -128, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 9, 0, 509, 5774.001953125, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 510, "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 0, 1, 511, 1559, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 1, 1, 512, 11539, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 1, 513, 72.80999755859375, mmd);
         }
     }
 

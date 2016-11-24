@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.tool.ToolContext;
@@ -74,6 +76,18 @@ public class ConditionEngine {
         conditionEngineContext.setStartDate(context.getStartDate());
         conditionEngineContext.setEndDate(context.getEndDate());
         conditionEngineContext.validateTime(); // don't remove this line!
+
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        final Dimension primaryExtractSize = useCaseConfig.getDimensionFor(primarySensor.getName());
+        conditionEngineContext.setPrimaryExtractSize(primaryExtractSize);
+
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        final Sensor secondarySensor = additionalSensors.get(0);
+        final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(secondarySensor.getName());
+        conditionEngineContext.setSecondaryExtractSize(secondaryExtractSize);
+
         return conditionEngineContext;
     }
 }

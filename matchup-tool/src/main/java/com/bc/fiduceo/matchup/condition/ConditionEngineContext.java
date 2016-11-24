@@ -30,6 +30,8 @@ public class ConditionEngineContext {
     private Date endDate;
     private Dimension primarySize;
     private Dimension secondarySize;
+    private Dimension primaryExtractSize;
+    private Dimension secondaryExtractSize;
 
     public Date getStartDate() {
         return startDate;
@@ -66,5 +68,21 @@ public class ConditionEngineContext {
     public void validateTime() {
         if (endDate == null || startDate == null || endDate.before(startDate))
         throw new RuntimeException("End date and/or start date are not valid.");
+    }
+
+    public void setPrimaryExtractSize(Dimension primaryExtractSize) {
+        this.primaryExtractSize = primaryExtractSize;
+    }
+
+    public Dimension getPrimaryExtractSize() {
+        return primaryExtractSize;
+    }
+
+    public void setSecondaryExtractSize(Dimension secondaryExtractSize) {
+        this.secondaryExtractSize = secondaryExtractSize;
+    }
+
+    public Dimension getSecondaryExtractSize() {
+        return secondaryExtractSize;
     }
 }

@@ -34,9 +34,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bc.fiduceo.util.JDomUtils.getMandatoryAttribute;
-import static com.bc.fiduceo.util.JDomUtils.getMandatoryChild;
-import static com.bc.fiduceo.util.JDomUtils.getMandatoryRootElement;
+import static com.bc.fiduceo.util.JDomUtils.*;
 
 public class UseCaseConfig {
 
@@ -132,7 +130,7 @@ public class UseCaseConfig {
         return dimensions;
     }
 
-    void setDimensions(List<Dimension> dimensions) {
+    public void setDimensions(List<Dimension> dimensions) {
         this.dimensions = dimensions;
     }
 
@@ -145,7 +143,7 @@ public class UseCaseConfig {
         throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
-    public boolean hasDimensionFor(String sensorName) {
+    boolean hasDimensionFor(String sensorName) {
         for (Dimension dimension : dimensions) {
             if (dimension.getName().equals(sensorName)) {
                 return true;
@@ -175,7 +173,7 @@ public class UseCaseConfig {
         }
         final List<Sensor> sensors = getSensors();
         for (final Sensor sensor : sensors) {
-            if (!hasDimensionFor(sensor.getName())){
+            if (!hasDimensionFor(sensor.getName())) {
                 setInvalidWithMessage("No dimensions for sensor '" + sensor.getName() + "' configured.", validationResult);
             }
         }

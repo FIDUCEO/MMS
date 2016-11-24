@@ -97,9 +97,9 @@ class OverlapRemoveCondition implements Condition {
 
     Dimension getDimension(ConditionEngineContext context) {
         if (primary) {
-            return context.getPrimarySize();
+            return context.getPrimaryExtractSize();
         }
-        return context.getSecondarySize();
+        return context.getSecondaryExtractSize();
     }
 
     boolean getReferenceFromElement(Element element) {

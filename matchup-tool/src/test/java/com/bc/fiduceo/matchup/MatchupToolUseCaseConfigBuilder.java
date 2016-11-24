@@ -19,6 +19,7 @@ package com.bc.fiduceo.matchup;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
+import com.bc.fiduceo.matchup.condition.OverlapRemoveConditionPlugin;
 import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
@@ -43,6 +44,13 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element sphericalDistance = ensureChild(conditions, DistanceConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        return this;
+    }
+
+   public MatchupToolUseCaseConfigBuilder withOverlapRemoval(String reference) {
+        final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
+        final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
+        addChild(overlapRemove, "reference", reference);
         return this;
     }
 
@@ -114,7 +122,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withAtsrAngularScreening(double nadirAngleDelta, double fwardAngleDelta) {
+    MatchupToolUseCaseConfigBuilder withAtsrAngularScreening(double nadirAngleDelta, double fwardAngleDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angularScreening = ensureChild(screenings, "atsr-angular");
 

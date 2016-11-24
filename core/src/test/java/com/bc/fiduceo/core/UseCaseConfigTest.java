@@ -396,4 +396,16 @@ public class UseCaseConfigTest {
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertTrue(useCaseConfig.isWriteDistance());
     }
+
+    @Test
+    public void testSetDimensions() {
+        final List<Dimension> dimensions = new ArrayList<>();
+        dimensions.add(new Dimension("one", 2, 3));
+        dimensions.add(new Dimension("two", 4, 5));
+
+        useCaseConfig.setDimensions(dimensions);
+
+        final List<Dimension> result = useCaseConfig.getDimensions();
+        assertEquals(2, result.size());
+    }
 }

@@ -25,6 +25,8 @@ import org.jdom.Element;
 
 public class OverlapRemoveConditionPlugin implements ConditionPlugin {
 
+    public static final String TAG_NAME_CONDITION_NAME = "overlap-remove";
+
     @Override
     public OverlapRemoveCondition createCondition(Element element) {
         return new OverlapRemoveCondition(element);
@@ -32,6 +34,6 @@ public class OverlapRemoveConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "overlap-remove";
+        return TAG_NAME_CONDITION_NAME;
     }
 }

@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -32,6 +34,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -196,10 +199,32 @@ public class ConditionEngineTest {
         toolContext.setStartDate(new Date(1000000000L));
         toolContext.setEndDate(new Date(1100000000L));
 
+        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final List<Dimension> dimensions = new ArrayList<>();
+        dimensions.add(new Dimension("bla", 5, 6));
+        dimensions.add(new Dimension("blubb", 7, 8));
+        useCaseConfig.setDimensions(dimensions);
+        toolContext.setUseCaseConfig(useCaseConfig);
+
+        final List<Sensor> sensors = new ArrayList<>();
+        sensors.add(new Sensor("blubb"));
+        final Sensor primarySensor = new Sensor("bla");
+        primarySensor.setPrimary(true);
+        sensors.add(primarySensor);
+        useCaseConfig.setSensors(sensors);
+
         final ConditionEngineContext engineContext = ConditionEngine.createContext(toolContext);
         assertNotNull(engineContext);
         assertEquals(1000000000L, engineContext.getStartDate().getTime());
         assertEquals(1100000000L, engineContext.getEndDate().getTime());
+
+        final Dimension primaryExtractSize = engineContext.getPrimaryExtractSize();
+        assertNotNull(primaryExtractSize);
+        assertEquals(5, primaryExtractSize.getNx());
+
+        final Dimension secondaryExtractSize = engineContext.getSecondaryExtractSize();
+        assertNotNull(secondaryExtractSize);
+        assertEquals(7, secondaryExtractSize.getNx());
     }
 
     @Test

@@ -55,8 +55,8 @@ public class OverlapRemoveConditionTest {
         matchupSet = new MatchupSet();
 
         context = new ConditionEngineContext();
-        context.setPrimarySize(new Dimension("bla", 3, 5));
-        context.setSecondarySize(new Dimension("bla", 7, 9));
+        context.setPrimaryExtractSize(new Dimension("bla", 3, 5));
+        context.setSecondaryExtractSize(new Dimension("bla", 7, 9));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testGetDimension_primary() {
-        context.setPrimarySize(new Dimension("prime", 7, 9));
+        context.setPrimaryExtractSize(new Dimension("prime", 7, 9));
 
         final Dimension dimension = primaryCondition.getDimension(context);
         assertNotNull(dimension);
@@ -165,7 +165,7 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testGetDimension_secondary() {
-        context.setSecondarySize(new Dimension("sec", 5, 3));
+        context.setSecondaryExtractSize(new Dimension("sec", 5, 3));
 
         final Dimension dimension = secondaryCondition.getDimension(context);
         assertNotNull(dimension);
