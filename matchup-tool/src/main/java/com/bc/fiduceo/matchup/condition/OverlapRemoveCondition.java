@@ -63,8 +63,8 @@ class OverlapRemoveCondition implements Condition {
 
         final Dimension dimension = getDimension(context);
 
-        // we order the sample sets here by location in the file.firts top-down then left-right.
-        // this way we can apply a very fast overlap-remove operatoin as we just need to check the close vicinity
+        // we order the sample sets here by location in the file. First top-down then left-right.
+        // This way we can apply a very fast overlap-remove operation as we just need to check the close vicinity
         // of the matchup under investigation tb 2016-11-23
         final Comparator<SampleSet> orderedComparator = (o1, o2) -> {
             final Sample left;
