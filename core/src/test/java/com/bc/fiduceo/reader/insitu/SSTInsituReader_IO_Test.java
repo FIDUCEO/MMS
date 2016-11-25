@@ -113,7 +113,7 @@ public class SSTInsituReader_IO_Test {
         final List<Variable> variables = insituReader.getVariables();
 
         assertNotNull(variables);
-        assertEquals(9, variables.size());
+        assertEquals(10, variables.size());
         assertEquals("insitu.time", variables.get(0).getShortName());
         assertEquals("insitu.lat", variables.get(1).getShortName());
         assertEquals("insitu.lon", variables.get(2).getShortName());
@@ -123,6 +123,7 @@ public class SSTInsituReader_IO_Test {
         assertEquals("insitu.sst_qc_flag", variables.get(6).getShortName());
         assertEquals("insitu.sst_track_flag", variables.get(7).getShortName());
         assertEquals("insitu.mohc_id", variables.get(8).getShortName());
+        assertEquals("insitu.id", variables.get(9).getShortName());
     }
 
     @Test
@@ -131,7 +132,7 @@ public class SSTInsituReader_IO_Test {
         final List<Variable> variables = insituReader.getVariables();
 
         assertNotNull(variables);
-        assertEquals(9, variables.size());
+        assertEquals(10, variables.size());
         assertEquals("insitu.time", variables.get(0).getShortName());
         assertEquals("insitu.lat", variables.get(1).getShortName());
         assertEquals("insitu.lon", variables.get(2).getShortName());
@@ -141,6 +142,7 @@ public class SSTInsituReader_IO_Test {
         assertEquals("insitu.sst_qc_flag", variables.get(6).getShortName());
         assertEquals("insitu.sst_track_flag", variables.get(7).getShortName());
         assertEquals("insitu.mohc_id", variables.get(8).getShortName());
+        assertEquals("insitu.id", variables.get(9).getShortName());
     }
 
     @Test
@@ -164,6 +166,7 @@ public class SSTInsituReader_IO_Test {
         assertEquals(828470627, insituReader.getTime(0));
         assertEquals(828701820, insituReader.getTime(24));
         assertEquals(886828679, insituReader.getTime(numObservations - 1));
+
         try {
             insituReader.getTime(numObservations);
             fail("ArrayIndexOutOfBoundsException expected");
@@ -258,6 +261,24 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_Id() throws Exception {
+        openFile("gtmba-sst", "insitu_3_WMOID_51019_19910722_20120610.nc");
+        final Array idArray = insituReader.readRaw(0, 11, _3x3, "insitu.id");
+
+        assertNotNull(idArray);
+        assertEquals(DataType.LONG, idArray.getDataType());
+        assertEquals(-32768, idArray.getLong(0));
+        assertEquals(-32768, idArray.getLong(1));
+        assertEquals(-32768, idArray.getLong(2));
+        assertEquals(-32768, idArray.getLong(3));
+        assertEquals(1991070000000011L, idArray.getLong(4));
+        assertEquals(-32768, idArray.getLong(5));
+        assertEquals(-32768, idArray.getLong(6));
+        assertEquals(-32768, idArray.getLong(7));
+        assertEquals(-32768, idArray.getLong(8));
+    }
+
+    @Test
     public void testReadAcquisitionTime() throws Exception {
         openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 3, _3x3);
@@ -277,6 +298,8 @@ public class SSTInsituReader_IO_Test {
         assertEquals("-32768", array.getObject(7).toString());
         assertEquals("-32768", array.getObject(8).toString());
     }
+
+
 
     @Test
     public void testGetProductSize_drifter() throws Exception {

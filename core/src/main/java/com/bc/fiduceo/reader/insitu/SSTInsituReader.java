@@ -26,9 +26,11 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -43,13 +45,14 @@ import java.util.Map;
 
 public class SSTInsituReader implements Reader {
 
-    public final long millisSince1978;
-    public final int secondsSince1978;
+    private static long millisSince1978;
+    private static int secondsSince1978;
 
     private NetcdfFile netcdfFile;
     private String insituType;
     private Map<String, Number> fillValueMap = new HashMap<>();
     private Map<String, Array> arrayMap = new HashMap<>();
+    private List<Variable> variables;
 
     SSTInsituReader() {
         final Calendar calendar = ProductData.UTC.createCalendar();
@@ -62,7 +65,7 @@ public class SSTInsituReader implements Reader {
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
-        final List<Variable> variables = netcdfFile.getVariables();
+        variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
             final String shortName = variable.getShortName();
             final Array array = variable.read();
@@ -70,6 +73,9 @@ public class SSTInsituReader implements Reader {
             arrayMap.put(shortName, array);
             fillValueMap.put(shortName, fillValue);
         }
+
+        addIdVariableAndData();
+
         insituType = netcdfFile.findGlobalAttribute("dataset").getStringValue();
     }
 
@@ -96,11 +102,7 @@ public class SSTInsituReader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        return netcdfFile.getVariables();
-    }
-
-    public int getNumObservations() {
-        return netcdfFile.findDimension("record").getLength();
+        return variables;
     }
 
     @Override
@@ -181,12 +183,15 @@ public class SSTInsituReader implements Reader {
      * Returns the time in seconds since 1978-01-01
      *
      * @param y the y index
-     *
      * @return the time in seconds since 1978-01-01
      */
     int getTime(int y) {
         // package access for testing only tb 2016-10-31
         return arrayMap.get("insitu.time").getInt(y);
+    }
+
+    int getNumObservations() {
+        return netcdfFile.findDimension("record").getLength();
     }
 
     private void extractSensingTimes(AcquisitionInfo info) {
@@ -198,7 +203,46 @@ public class SSTInsituReader implements Reader {
             min = Math.min(anInt, min);
             max = Math.max(anInt, max);
         }
+        // @todo 1 tb/tb use UTC calendar here! 2016-11-25
         info.setSensingStart(new Date(millisSince1978 + (long) min * 1000));
         info.setSensingStop(new Date(millisSince1978 + (long) max * 1000));
+    }
+
+    private void addIdVariableAndData() {
+        final UniqueIdVariable uniqueIdVariable = new UniqueIdVariable();
+        variables.add(uniqueIdVariable);
+
+        final Number fillValue = fillValueMap.get("insitu.mohc_id");
+        fillValueMap.put(uniqueIdVariable.getShortName(), fillValue);
+
+        final Array idArray = createIdArray(arrayMap.get("insitu.mohc_id"), arrayMap.get("insitu.time"), fillValue.intValue());
+        arrayMap.put(uniqueIdVariable.getShortName(), idArray);
+    }
+
+    static Array createIdArray(Array mohc_idArray, Array timeArray, int fillValue) {
+        final int[] shape = mohc_idArray.getShape();
+        final Array idArray = Array.factory(DataType.LONG, shape);
+
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+
+        for (int i = 0; i < shape[0]; i++) {
+            final int mohc_id = mohc_idArray.getInt(i);
+            if (mohc_id == fillValue) {
+                idArray.setLong(i, fillValue);
+                continue;
+            }
+
+            final int time = timeArray.getInt(i);
+            final long utcTime = millisSince1978 + (long) time * 1000;
+            utcCalendar.setTimeInMillis(utcTime);
+            final int year = utcCalendar.get(Calendar.YEAR);
+            final int month = utcCalendar.get(Calendar.MONTH) + 1;
+
+            final int year_month = month + year * 100;
+            final long uniqueId = (long) mohc_id + (long) year_month * 10000000000L;
+            idArray.setLong(i, uniqueId);
+        }
+
+        return idArray;
     }
 }

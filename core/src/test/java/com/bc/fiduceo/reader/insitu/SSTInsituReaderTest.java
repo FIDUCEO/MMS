@@ -21,12 +21,14 @@
 package com.bc.fiduceo.reader.insitu;
 
 import org.junit.Test;
+import ucar.ma2.Array;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class SSTInsituReaderTest {
@@ -79,4 +81,22 @@ public class SSTInsituReaderTest {
         matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
         assertFalse(matcher.matches());
     }
+
+    @Test
+    public void testCreateIdArray() {
+        final int[] mohc_ids = {5674, 11245667, -32768, 10062352, -32768};
+        final Array mohcArray = Array.factory(mohc_ids);
+
+        final int[] times = {1112752200, 1116097799, 1118170800, 1123031999, 1123659600};
+        final Array timeArray = Array.factory(times);
+
+        final Array idArray = SSTInsituReader.createIdArray(mohcArray, timeArray, -32768);
+        assertNotNull(idArray);
+        assertEquals(2013040000005674L, idArray.getLong(0));
+        assertEquals(2013050011245667L, idArray.getLong(1));
+        assertEquals(-32768, idArray.getLong(2));
+        assertEquals(2013080010062352L, idArray.getLong(3));
+        assertEquals(-32768, idArray.getLong(4));
+    }
+
 }
