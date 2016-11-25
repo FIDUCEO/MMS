@@ -203,9 +203,13 @@ public class SSTInsituReader implements Reader {
             min = Math.min(anInt, min);
             max = Math.max(anInt, max);
         }
-        // @todo 1 tb/tb use UTC calendar here! 2016-11-25
-        info.setSensingStart(new Date(millisSince1978 + (long) min * 1000));
-        info.setSensingStop(new Date(millisSince1978 + (long) max * 1000));
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+
+        utcCalendar.setTimeInMillis(millisSince1978 + (long) min * 1000);
+        info.setSensingStart(utcCalendar.getTime());
+
+        utcCalendar.setTimeInMillis(millisSince1978 + (long) max * 1000);
+        info.setSensingStop(utcCalendar.getTime());
     }
 
     private void addIdVariableAndData() {
