@@ -53,8 +53,9 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
-    public boolean isInitialized() {
-        throw new RuntimeException("not implemented");
+    public boolean isInitialized() throws SQLException {
+        final ResultSet tables = connection.getMetaData().getTables(null, null, "satellite_observation", null);
+        return tables.next();
     }
 
     @Override
@@ -80,6 +81,12 @@ public class PostGISDriver extends AbstractDriver {
                 "StartTime TIMESTAMP, " +
                 "StopTime TIMESTAMP, " +
                 "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID))");
+
+        statement = connection.createStatement();
+        statement.execute("CREATE INDEX START_TIME ON SATELLITE_OBSERVATION(StartDate)");
+
+        statement = connection.createStatement();
+        statement.execute("CREATE INDEX STOP_TIME ON SATELLITE_OBSERVATION(StopDate)");
     }
 
     @Override
