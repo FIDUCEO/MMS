@@ -40,23 +40,12 @@ import java.util.*;
 
 public class PostGISDriver extends AbstractDriver {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
-
-    private WKBWriter wkbWriter;
-    private WKBReader wkbReader;
-
     private GeometryFactory geometryFactory;
-
-    public PostGISDriver() {
-        wkbWriter = new WKBWriter();
-        wkbReader = new WKBReader();
-    }
 
     @Override
     public String getUrlPattern() {
         return "jdbc:postgresql";
     }
-
 
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
@@ -203,76 +192,7 @@ public class PostGISDriver extends AbstractDriver {
         return resultList;
     }
 
-    // package access for testing only tb 2016-11-29
-    String createSql(QueryParameter parameter) {
-        final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
-        if (parameter == null) {
-            return sql.toString();
-        }
 
-        sql.append(" WHERE ");
-
-        boolean appendAnd = false;
-
-        final java.util.Date startTime = parameter.getStartTime();
-
-        if (startTime != null) {
-            sql.append("obs.stopDate >= '");
-            sql.append(TimeUtils.format(startTime, DATE_PATTERN));
-            sql.append("'");
-
-            appendAnd = true;
-        }
-
-        final java.util.Date stopTime = parameter.getStopTime();
-        if (stopTime != null) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-            sql.append("obs.startDate <= '");
-            sql.append(TimeUtils.format(stopTime, DATE_PATTERN));
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String sensorName = parameter.getSensorName();
-        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("sen.Name = '");
-            sql.append(sensorName);
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String path = parameter.getPath();
-        if (StringUtils.isNotNullAndNotEmpty(path)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("obs.DataFile = '");
-            sql.append(path);
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String version = parameter.getVersion();
-        if (StringUtils.isNotNullAndNotEmpty(version)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("obs.Version = '");
-            sql.append(version);
-            sql.append("'");
-        }
-
-        return sql.toString();
-    }
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
         final PGgeometry axis = (PGgeometry) resultSet.getObject("Axis");

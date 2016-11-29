@@ -21,100 +21,15 @@
 package com.bc.fiduceo.db;
 
 
-import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
 public class PostGISDriverTest {
 
-    private PostGISDriver driver;
-
-    @Before
-    public void setUp() {
-        driver = new PostGISDriver();
-    }
-
     @Test
-    public void testCreateSql_noParameter() {
-        final String sql = driver.createSql(null);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId", sql);
-    }
-
-    @Test
-    public void testCreateSql_startTime() {
-        final QueryParameter parameter = new QueryParameter();
-        final Date startDate = TimeUtils.create(1300000000000L);
-        parameter.setStartTime(startDate);
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-03-13 07:06:40.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_stopTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setStopTime(TimeUtils.create(1210000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.startDate <= '2008-05-05 15:06:40.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_startAndStopTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(TimeUtils.create(1320000000000L));
-        parameter.setStopTime(TimeUtils.create(1330000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-10-30 18:40:00.0' AND obs.startDate <= '2012-02-23 12:26:40.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_sensorName() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setSensorName("fieberthermometer");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE sen.Name = 'fieberthermometer'", sql);
-    }
-
-    @Test
-    public void testCreateSql_sensorNameAndStartTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setSensorName("sensing");
-        parameter.setStartTime(TimeUtils.create(1250000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2009-08-11 14:13:20.0' AND sen.Name = 'sensing'", sql);
-    }
-
-    @Test
-    public void testCreateSql_productPath() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setPath("/whereever/i/lay/my/hat");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.DataFile = '/whereever/i/lay/my/hat'", sql);
-    }
-
-    @Test
-    public void testCreateSql_version() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setVersion("v2.0");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.Version = 'v2.0'", sql);
+    public void testGetUrlPattern() {
+        final PostGISDriver driver = new PostGISDriver();
+        assertEquals("jdbc:postgresql", driver.getUrlPattern());
     }
 }

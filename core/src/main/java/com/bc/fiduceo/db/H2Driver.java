@@ -29,7 +29,6 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
-import org.esa.snap.core.util.StringUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -39,8 +38,6 @@ import java.util.List;
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class H2Driver extends AbstractDriver {
-
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     private GeometryFactory geometryFactory;
     private WKTWriter wktWriter;
@@ -185,77 +182,6 @@ public class H2Driver extends AbstractDriver {
         //org.h2.tools.Server.startWebServer(connection);
 
         return resultList;
-    }
-
-    // package access for testing only tb 2016-09-21
-    String createSql(QueryParameter parameter) {
-        // @todo 2 tb/** refactor this method 2016-09-22
-        final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
-        if (parameter == null) {
-            return sql.toString();
-        }
-
-        sql.append(" WHERE ");
-
-        boolean appendAnd = false;
-
-        final Date startTime = parameter.getStartTime();
-        final Date stopTime = parameter.getStopTime();
-        if (startTime != null) {
-            sql.append("obs.stopDate >= '");
-            sql.append(TimeUtils.format(startTime, DATE_PATTERN));
-            sql.append("'");
-
-            appendAnd = true;
-        }
-
-        if (stopTime != null) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-            sql.append("obs.startDate <= '");
-            sql.append(TimeUtils.format(stopTime, DATE_PATTERN));
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String sensorName = parameter.getSensorName();
-        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("sen.Name = '");
-            sql.append(sensorName);
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String path = parameter.getPath();
-        if (StringUtils.isNotNullAndNotEmpty(path)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("obs.DataFile = '");
-            sql.append(path);
-            sql.append("'");
-            appendAnd = true;
-        }
-
-        final String version = parameter.getVersion();
-        if (StringUtils.isNotNullAndNotEmpty(version)) {
-            if (appendAnd) {
-                sql.append(" AND ");
-            }
-
-            sql.append("obs.Version = '");
-            sql.append(version);
-            sql.append("'");
-        }
-
-        return sql.toString();
     }
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {

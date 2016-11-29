@@ -31,95 +31,9 @@ import static org.junit.Assert.assertTrue;
 
 public class H2DriverTest {
 
-    private H2Driver driver;
-
-    @Before
-    public void setUp() {
-        driver = new H2Driver();
-    }
-
     @Test
     public void testGetUrlPattern() {
+        final H2Driver driver = new H2Driver();
         assertEquals("jdbc:h2", driver.getUrlPattern());
-    }
-
-    @Test
-    public void testCreateSql_noParameter() {
-        final String sql = driver.createSql(null);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId", sql);
-    }
-
-    @Test
-    public void testCreateSql_startTime() {
-        final QueryParameter parameter = new QueryParameter();
-        final Date startDate = TimeUtils.create(1200000000000L);
-        parameter.setStartTime(startDate);
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2008-01-10 21:20:00.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_stopTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setStopTime(TimeUtils.create(1210000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.startDate <= '2008-05-05 15:06:40.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_startAndStopTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setStartTime(TimeUtils.create(1220000000000L));
-        parameter.setStopTime(TimeUtils.create(1230000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2008-08-29 08:53:20.0' AND obs.startDate <= '2008-12-23 02:40:00.0'", sql);
-    }
-
-    @Test
-    public void testCreateSql_sensorName() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setSensorName("sensor_name");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE sen.Name = 'sensor_name'", sql);
-    }
-
-    @Test
-    public void testCreateSql_sensorNameAndStartTime() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setSensorName("sensor_name");
-        parameter.setStartTime(TimeUtils.create(1240000000000L));
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2009-04-17 20:26:40.0' AND sen.Name = 'sensor_name'", sql);
-    }
-
-    @Test
-    public void testCreateSql_productPath() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setPath("/a/file/system/path");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.DataFile = '/a/file/system/path'", sql);
-    }
-
-    @Test
-    public void testCreateSql_version() {
-        final QueryParameter parameter = new QueryParameter();
-        parameter.setVersion("first_one");
-
-        final String sql = driver.createSql(parameter);
-
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.Version = 'first_one'", sql);
     }
 }

@@ -23,7 +23,9 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.esa.snap.core.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,6 +35,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 abstract class AbstractDriver implements Driver {
+
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     Connection connection;
 
@@ -102,6 +106,77 @@ abstract class AbstractDriver implements Driver {
             return generatedKeys.getInt(1);
         }
         return -1;
+    }
+
+    // package access for testing only tb 2016-11-29
+    static String createSql(QueryParameter parameter) {
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
+        if (parameter == null) {
+            return sql.toString();
+        }
+
+        sql.append(" WHERE ");
+
+        boolean appendAnd = false;
+
+        final java.util.Date startTime = parameter.getStartTime();
+
+        if (startTime != null) {
+            sql.append("obs.stopDate >= '");
+            sql.append(TimeUtils.format(startTime, DATE_PATTERN));
+            sql.append("'");
+
+            appendAnd = true;
+        }
+
+        final java.util.Date stopTime = parameter.getStopTime();
+        if (stopTime != null) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+            sql.append("obs.startDate <= '");
+            sql.append(TimeUtils.format(stopTime, DATE_PATTERN));
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String sensorName = parameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("sen.Name = '");
+            sql.append(sensorName);
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String path = parameter.getPath();
+        if (StringUtils.isNotNullAndNotEmpty(path)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("obs.DataFile = '");
+            sql.append(path);
+            sql.append("'");
+            appendAnd = true;
+        }
+
+        final String version = parameter.getVersion();
+        if (StringUtils.isNotNullAndNotEmpty(version)) {
+            if (appendAnd) {
+                sql.append(" AND ");
+            }
+
+            sql.append("obs.Version = '");
+            sql.append(version);
+            sql.append("'");
+        }
+
+        return sql.toString();
     }
 
     Sensor getSensor(int id) throws SQLException {
