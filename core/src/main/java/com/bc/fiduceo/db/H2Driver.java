@@ -97,7 +97,7 @@ public class H2Driver extends AbstractDriver {
         final TimeAxis[] timeAxes = observation.getTimeAxes();
         if (timeAxes != null) {
             for (final TimeAxis timeAxis : timeAxes) {
-                preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?,)");
+                preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
                 preparedStatement.setInt(1, observationId);
                 final String wkt = geometryFactory.format(timeAxis.getGeometry());
                 preparedStatement.setString(2, wkt);
@@ -106,7 +106,7 @@ public class H2Driver extends AbstractDriver {
                 preparedStatement.executeUpdate();
             }
         } else {
-            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?,)");
+            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
             preparedStatement.setInt(1, observationId);
             preparedStatement.setNull(2, Types.VARCHAR);
             preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));

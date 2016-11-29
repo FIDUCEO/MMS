@@ -77,13 +77,13 @@ abstract class AbstractDriver implements Driver {
     @Override
     public void clear() throws SQLException {
         Statement statement = connection.createStatement();
+        statement.execute("DROP TABLE IF EXISTS TIMEAXIS");
+
+        statement = connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS SATELLITE_OBSERVATION");
 
         connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS SENSOR");
-
-        connection.createStatement();
-        statement.execute("DROP TABLE IF EXISTS TIMEAXIS");
     }
 
     @Override

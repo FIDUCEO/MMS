@@ -55,6 +55,11 @@
                 <artifactId>postgresql</artifactId>
                 <version>9.4-1202-jdbc42</version>
             </dependency>
+            <dependency>
+                <groupId>org.postgis</groupId>
+                <artifactId>postgis</artifactId>
+                <version>1.5.2</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.h2database</groupId>
