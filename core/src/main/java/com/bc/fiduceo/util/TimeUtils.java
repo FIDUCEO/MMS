@@ -29,7 +29,7 @@ import java.util.Date;
 
 public class TimeUtils {
 
-    private static final String YEAR_DOY_PATTERN = "yyyy-DDD";
+    public static final String YEAR_DOY_PATTERN = "yyyy-DDD";
 
     private static final double EPOCH_MJD2000 = 10957.0;
     private static final double MILLIS_PER_DAY = 86400000.0;

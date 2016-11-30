@@ -24,16 +24,19 @@ package com.bc.fiduceo.matchup;
 import org.esa.snap.core.util.math.RsMathUtils;
 import org.esa.snap.core.util.math.SphericalDistance;
 
-class SphericalDistanceCalculator {
+public class SphericalDistanceCalculator {
 
     private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
-    static double calculateKm(SampleSet sampleSet) {
+    public static double calculateKm(SampleSet sampleSet) {
         final Sample primary = sampleSet.getPrimary();
         final Sample secondary = sampleSet.getSecondary();
+        return calculateKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
+    }
 
-        final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
-        final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
+    public static double calculateKm(double p_lon, double p_lat, double s_lon, double s_lat) {
+        final SphericalDistance sphericalDistance = new SphericalDistance(p_lon, p_lat);
+        final double radDistance = sphericalDistance.distance(s_lon, s_lat);
         return radDistance * MEAN_EARTH_RADIUS_IN_KM;
     }
 }

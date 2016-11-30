@@ -209,7 +209,10 @@ public class TestUtil {
 
     public static File createTestDirectory() {
         final File testDir = getTestDir();
-        if (!testDir.mkdirs()) {
+        if (testDir.isDirectory()) {
+            return testDir;
+        }
+        if (testDir.isFile() || !testDir.mkdirs()) {
             fail("unable to create test directory: " + testDir.getAbsolutePath());
         }
         return testDir;

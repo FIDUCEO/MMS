@@ -24,9 +24,11 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.SnapCoreActivator;
 import org.jdom.Element;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
-public class PostProcessingFactory {
+public final class PostProcessingFactory {
 
     private static PostProcessingFactory conditionFactory;
     private final HashMap<String, PostProcessingPlugin> conditionPluginMap = new HashMap<>();
@@ -54,8 +56,13 @@ public class PostProcessingFactory {
 
         final PostProcessingPlugin plugin = conditionPluginMap.get(name);
         if (plugin == null) {
-            throw new IllegalArgumentException("Condition for name '" + name + "' not available.");
+            throw new IllegalArgumentException("PostProcessing for name '" + name + "' not available.");
         }
         return plugin.createPostProcessing(element);
+    }
+
+    // package access for testing only se 2016-11-28
+    Map<String, PostProcessingPlugin> getPlugins() {
+        return Collections.unmodifiableMap(conditionPluginMap);
     }
 }

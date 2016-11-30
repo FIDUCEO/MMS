@@ -16,14 +16,30 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-
 package com.bc.fiduceo.post;
 
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFileWriter;
 
-public interface PostProcessing {
+import java.io.IOException;
 
-    void prepare(NetcdfFileWriter writer);
+public abstract class PostProcessing {
 
-    void compute(NetcdfFileWriter writer);
+    public void prepare(NetcdfFileWriter writer) {
+        if (!writer.isDefineMode()) {
+            throw new RuntimeException("NetcdfFileWriter has to be in 'define' mode.");
+        }
+        prepareImpl(writer);
+    }
+
+    protected abstract void prepareImpl(NetcdfFileWriter writer);
+
+    public void compute(NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        if (writer.isDefineMode()) {
+            throw new RuntimeException("NetcdfFileWriter has NOT to be in 'define' mode.");
+        }
+        computeImpl(writer);
+    }
+
+    protected abstract void computeImpl(NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 }

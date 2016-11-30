@@ -31,6 +31,14 @@ public class JDomUtils {
         return attribute;
     }
 
+    public static String getMandatoryText(final Element element) {
+        final String textTrim = element.getTextTrim();
+        if (textTrim.length() == 0) {
+            throw new RuntimeException("Vale of element '" + element.getName() + "' expected");
+        }
+        return textTrim;
+    }
+
     public static Element getMandatoryChild(final Element element, final String name) {
         final Element child = element.getChild(name);
         if (child == null) {
@@ -42,6 +50,11 @@ public class JDomUtils {
     public static String getMandatoryChildTextTrim(final Element element, final String name) {
         final Element child = getMandatoryChild(element, name);
         return child.getTextTrim();
+    }
+
+    public static String getMandatoryChildMandatoryTextTrim(final Element element, final String name) {
+        final Element child = getMandatoryChild(element, name);
+        return getMandatoryText(child);
     }
 
     public static Element getMandatoryRootElement(String elementName, Document document) {

@@ -20,6 +20,168 @@
 
 package com.bc.fiduceo.post;
 
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+import static org.geotools.xml.DocumentWriter.logger;
+
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.util.TimeUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFileWriter;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class PostProcessingTool {
+
+    public void run(CommandLine commandLine) throws IOException, InvalidRangeException {
+        final PostProcessingContext context = initialize(commandLine);
+        runPostProcessing(context);
+    }
+
+    static void runPostProcessing(PostProcessingContext context) throws IOException, InvalidRangeException {
+        final Path inputDirectory = context.getMmdInputDirectory();
+        final Pattern pattern = Pattern.compile("mmd\\d{1,2}_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
+
+        try (Stream<Path> pathStream = Files.walk(inputDirectory)) {
+            final Stream<Path> regularFiles = pathStream.filter(path -> Files.isRegularFile(path));
+            final Stream<Path> mmdFileStream = regularFiles.filter(path -> pattern.matcher(path.getFileName().toString()).matches());
+            List<Path> mmdFiles = mmdFileStream.collect(Collectors.toList());
+
+            final long startTime = context.getStartDate().getTime();
+            final long endTime = context.getEndDate().getTime();
+
+            for (Path mmdFile : mmdFiles) {
+                if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
+                    try(NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdFile.toAbsolutePath().toString())) {
+                        run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
+                    }
+                }
+            }
+        }
+    }
+
+    static void run(NetcdfFileWriter ncFile, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
+        ncFile.setRedefineMode(true);
+        for (PostProcessing postProcessing : postProcessings) {
+            postProcessing.prepare(ncFile);
+        }
+        ncFile.setRedefineMode(false);
+        for (PostProcessing postProcessing : postProcessings) {
+            postProcessing.compute(ncFile);
+        }
+    }
+
+    // package access for testing only se 2016-11-28
+    static String getDate(CommandLine commandLine, final String optionName) {
+        final String dateString = commandLine.getOptionValue(optionName);
+        if (StringUtils.isNullOrEmpty(dateString)) {
+            throw new RuntimeException("cmd-line parameter '" + optionName + "' missing");
+        }
+        return dateString;
+    }
+
+    // package access for testing only se 2016-11-28
+    static void printUsageTo(OutputStream outputStream) {
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.println("post-processing-tool version " + VERSION_NUMBER);
+        writer.println();
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "post-processing-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
+    }
+
+    // package access for testing only se 2016-11-28
+    static Options getOptions() {
+        final Options options = new Options();
+
+        final Option helpOption = new Option("h", "help", false, "Prints the tool usage.");
+        options.addOption(helpOption);
+
+        final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
+        options.addOption(configOption);
+
+        final Option mmdDir = new Option("d", "mmd-dir", true, "Defines the path to the input mmd files directory.");
+        mmdDir.setRequired(true);
+        options.addOption(mmdDir);
+
+        final Option ppuc = new Option("j", "job-config", true, "Defines the path to post processing job configuration file. Path is relative to the configuration directory.");
+        ppuc.setRequired(true);
+        options.addOption(ppuc);
+
+        final Option startOption = new Option("start", "start-time", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        startOption.setRequired(true);
+        options.addOption(startOption);
+
+        final Option endOption = new Option("end", "end-time", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        endOption.setRequired(true);
+        options.addOption(endOption);
+
+        return options;
+    }
+
+    // package access for testing only se 2016-11-28
+    static PostProcessingContext initialize(CommandLine commandLine) throws IOException {
+        logger.info("Loading configuration ...");
+        final PostProcessingContext context = new PostProcessingContext();
+
+        final String configValue = commandLine.getOptionValue("config", "./config");
+        final Path configDirectory = Paths.get(configValue);
+
+        final SystemConfig systemConfig = SystemConfig.loadFrom(configDirectory.toFile());
+        context.setSystemConfig(systemConfig);
+
+        final String jobConfigPathString = commandLine.getOptionValue("job-config");
+        final Path jobConfigPath = Paths.get(jobConfigPathString);
+        final InputStream inputStream;
+        if (jobConfigPath.isAbsolute()) {
+            inputStream = Files.newInputStream(jobConfigPath);
+        } else {
+            inputStream = Files.newInputStream(configDirectory.resolve(jobConfigPath));
+        }
+        final PostProcessingConfig jobConfig = PostProcessingConfig.load(inputStream);
+        context.setProcessingConfig(jobConfig);
+
+        final String startDate = getDate(commandLine, "start");
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay(startDate));
+
+        final String endDate = getDate(commandLine, "end");
+        context.setEndDate(TimeUtils.parseDOYEndOfDay(endDate));
+
+        final String mmdFilesDir = commandLine.getOptionValue("mmd-dir");
+        context.setMmdInputDirectory(Paths.get(mmdFilesDir));
+
+        logger.info("Success loading configuration.");
+        return context;
+    }
+
+    static boolean isFileInTimeRange(long startTime, long endTime, String filename) {
+        final int dotIdx = filename.lastIndexOf(".");
+        final int endIdx = filename.lastIndexOf("_", dotIdx);
+        final int startIdx = filename.lastIndexOf("_", endIdx -1);
+
+        final String endDOY = filename.substring(endIdx +1, dotIdx);
+        final String startDOY = filename.substring(startIdx +1, endIdx);
+
+        final long fileStart = TimeUtils.parseDOYBeginOfDay(startDOY).getTime();
+        final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();
+
+        return fileStart >= startTime && fileEnd <= endTime;
+    }
+
 }

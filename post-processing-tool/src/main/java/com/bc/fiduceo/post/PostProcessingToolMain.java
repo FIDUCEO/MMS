@@ -21,9 +21,38 @@
 package com.bc.fiduceo.post;
 
 
+import com.bc.fiduceo.log.FiduceoLogger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
 public class PostProcessingToolMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        final CommandLineParser parser = new PosixParser();
+        final CommandLine commandLine;
+        try {
+            commandLine = parser.parse(PostProcessingTool.getOptions(), args);
+        } catch (ParseException e) {
+            System.err.println(e.getMessage());
+            System.err.println();
+            PostProcessingTool.printUsageTo(System.err);
+            return;
+        }
+        if (commandLine.hasOption("h") || commandLine.hasOption("--help")) {
+            PostProcessingTool.printUsageTo(System.out);
+            return;
+        }
+
         final PostProcessingTool postProcessingTool = new PostProcessingTool();
+
+        try {
+            postProcessingTool.run(commandLine);
+        } catch (Throwable e) {
+            FiduceoLogger.getLogger().severe(e.getMessage());
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 }
