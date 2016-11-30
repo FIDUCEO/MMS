@@ -29,14 +29,16 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import org.esa.snap.core.util.StringUtils;
 import org.postgis.PGgeometry;
 
-import java.sql.*;
-import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostGISDriver extends AbstractDriver {
 
@@ -104,8 +106,8 @@ public class PostGISDriver extends AbstractDriver {
         final Geometry geoBounds = observation.getGeoBounds();
         if (geoBounds != null) {
             preparedStatement.setString(4, new String(geometryFactory.toStorageFormat(geoBounds)));
-        }else {
-           preparedStatement.setNull(4, Types.OTHER);
+        } else {
+            preparedStatement.setNull(4, Types.OTHER);
         }
         preparedStatement.setInt(5, sensorId);
         preparedStatement.setString(6, observation.getVersion());
@@ -198,7 +200,6 @@ public class PostGISDriver extends AbstractDriver {
 
         return resultList;
     }
-
 
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
