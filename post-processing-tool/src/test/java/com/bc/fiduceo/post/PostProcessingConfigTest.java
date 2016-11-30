@@ -33,6 +33,8 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 public class PostProcessingConfigTest {
@@ -64,22 +66,27 @@ public class PostProcessingConfigTest {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             config.store(outputStream);
-            assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + ls +
-                         "<post-processing-config>" + ls +
-                         "  <post-processings>" + ls +
-                         "    <spherical-distance>" + ls +
-                         "      <target>" + ls +
-                         "        <data-type>Float</data-type>" + ls +
-                         "        <var-name>post_dist</var-name>" + ls +
-                         "        <dim-name>matchup_count</dim-name>" + ls +
-                         "      </target>" + ls +
-                         "      <primary-lat-variable scaleAttrName=\"Scale\">amsub-n16_Latitude</primary-lat-variable>" + ls +
-                         "      <primary-lon-variable scaleAttrName=\"Scale\">amsub-n16_Longitude</primary-lon-variable>" + ls +
-                         "      <secondary-lat-variable>ssmt2-f14_lat</secondary-lat-variable>" + ls +
-                         "      <secondary-lon-variable>ssmt2-f14_lon</secondary-lon-variable>" + ls +
-                         "    </spherical-distance>" + ls +
-                         "  </post-processings>" + ls +
-                         "</post-processing-config>", outputStream.toString().trim());
+            final StringWriter sw = new StringWriter();
+            final PrintWriter pw = new PrintWriter(sw);
+            pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            pw.println("<post-processing-config>");
+            pw.println("  <post-processings>");
+            pw.println("    <spherical-distance>");
+            pw.println("      <target>");
+            pw.println("        <data-type>Float</data-type>");
+            pw.println("        <var-name>post_dist</var-name>");
+            pw.println("        <dim-name>matchup_count</dim-name>");
+            pw.println("      </target>");
+            pw.println("      <primary-lat-variable scaleAttrName=\"Scale\">amsub-n16_Latitude</primary-lat-variable>");
+            pw.println("      <primary-lon-variable scaleAttrName=\"Scale\">amsub-n16_Longitude</primary-lon-variable>");
+            pw.println("      <secondary-lat-variable>ssmt2-f14_lat</secondary-lat-variable>");
+            pw.println("      <secondary-lon-variable>ssmt2-f14_lon</secondary-lon-variable>");
+            pw.println("    </spherical-distance>");
+            pw.println("  </post-processings>");
+            pw.println("</post-processing-config>");
+            pw.flush();
+
+            assertEquals(sw.toString().trim(), outputStream.toString().trim());
         } catch (IOException e) {
             fail("should never come here");
         }

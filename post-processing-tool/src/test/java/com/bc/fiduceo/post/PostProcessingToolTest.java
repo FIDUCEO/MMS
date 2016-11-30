@@ -39,6 +39,8 @@ import ucar.nc2.NetcdfFileWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,7 +133,8 @@ public class PostProcessingToolTest {
 
         final PostProcessingContext context = PostProcessingTool.initialize(commandLine);
 
-        assertEquals("\\mmd_files", context.getMmdInputDirectory().toString());
+        final String separator = FileSystems.getDefault().getSeparator();
+        assertEquals(separator + "mmd_files", context.getMmdInputDirectory().toString());
         assertEquals("03-May-2011 00:00:00", ProductData.UTC.createDateFormat().format(context.getStartDate()));
         assertEquals("04-May-2011 23:59:59", ProductData.UTC.createDateFormat().format(context.getEndDate()));
 
