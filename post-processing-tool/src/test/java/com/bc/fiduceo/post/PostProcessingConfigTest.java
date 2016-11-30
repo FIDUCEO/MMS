@@ -28,6 +28,7 @@ import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
 import org.junit.*;
 
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
@@ -86,7 +87,8 @@ public class PostProcessingConfigTest {
             pw.println("</post-processing-config>");
             pw.flush();
 
-            assertEquals(sw.toString().trim(), outputStream.toString().trim());
+            assertThat(sw.toString(), equalToIgnoringWhiteSpace(outputStream.toString()));
+
         } catch (IOException e) {
             fail("should never come here");
         }
