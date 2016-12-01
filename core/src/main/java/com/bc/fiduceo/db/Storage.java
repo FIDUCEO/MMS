@@ -92,6 +92,7 @@ public class Storage {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         final String dbUrl = dataSource.getUrl().toLowerCase();
+
         final DriverUtils syDriverUtils = new DriverUtils();
         return syDriverUtils.getDriver(dbUrl);
     }

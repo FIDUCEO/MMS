@@ -28,9 +28,9 @@ import java.util.Set;
 /**
  * @author muhammad.bc
  */
-public class DriverUtils {
+class DriverUtils {
 
-    public Driver getDriver(String searchTerm) {
+    Driver getDriver(String driverUrl) {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<Driver> readerRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
 
@@ -42,11 +42,12 @@ public class DriverUtils {
         }
 
         for (Driver driver : driverSet) {
-            final String content = driver.getUrlPattern().toLowerCase();
-            if (searchTerm.contains(content)) {
+            final String driverPattern = driver.getUrlPattern().toLowerCase();
+            System.out.println("driverPattern = " + driverPattern);
+            if (driverUrl.contains(driverPattern)) {
                 return driver;
             }
         }
-        throw new IllegalArgumentException("No database drive with the drivers name :" + searchTerm);
+        throw new IllegalArgumentException("No database driver with the name: " + driverUrl);
     }
 }
