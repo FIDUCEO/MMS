@@ -18,12 +18,13 @@
  */
 package com.bc.fiduceo.post.distance;
 
-import com.bc.fiduceo.matchup.SphericalDistanceCalculator;
+import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -99,10 +100,25 @@ public class PostSphericalDistance extends PostProcessing {
             final double pLat = p_lat.getDouble(i);
             final double sLon = s_lon.getDouble(i);
             final double sLat = s_lat.getDouble(i);
-            final double distanceKm = SphericalDistanceCalculator.calculateKm(pLon, pLat, sLon, sLat);
+            final double distanceKm = Distance.computeSpericalDistanceKm(pLon, pLat, sLon, sLat);
             target.setDouble(i, distanceKm);
         }
         writer.write(targetVar, target);
+    }
+
+    static double getValueFromAttribute(Variable variable, String attrName, final int defaultValue) {
+        if (attrName != null) {
+            final Attribute attribute = variable.findAttribute(attrName);
+            if (attribute == null) {
+                throw new RuntimeException("No attribute with name '" + attrName + "'.");
+            }
+            final Number number = attribute.getNumericValue();
+            if (number == null) {
+                throw new RuntimeException("Attribute '" + attrName + "' does not own a number value.");
+            }
+            return number.doubleValue();
+        }
+        return defaultValue;
     }
 
     private Array getCenterPosArray(Variable variable, String scaleAttrName, String offsetAttrName) throws IOException, InvalidRangeException {
@@ -119,14 +135,8 @@ public class PostSphericalDistance extends PostProcessing {
 
         final Array array = variable.read(index, shape).reduce();
 
-        double scaleFactor = 1;
-        if (scaleAttrName != null) {
-            scaleFactor = variable.findAttribute(scaleAttrName).getNumericValue().doubleValue();
-        }
-        double offset = 0;
-        if (offsetAttrName != null) {
-            offset = variable.findAttribute(offsetAttrName).getNumericValue().doubleValue();
-        }
+        double scaleFactor = getValueFromAttribute(variable, scaleAttrName, 1);
+        double offset = getValueFromAttribute(variable, offsetAttrName, 0);
         if (scaleFactor != 1d || offset != 0d) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -134,7 +144,7 @@ public class PostSphericalDistance extends PostProcessing {
         return array;
     }
 
-    private Dimension getCountDimension(NetcdfFile netcdfFile) {
+    Dimension getCountDimension(NetcdfFile netcdfFile) {
         final Dimension dimension = netcdfFile.findDimension(targetDimName);
         if (dimension == null) {
             throw new RuntimeException("Dimension '" + targetDimName + "' expected");

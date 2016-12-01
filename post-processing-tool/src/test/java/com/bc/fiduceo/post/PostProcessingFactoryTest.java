@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post;
 
+import org.esa.snap.core.util.Debug;
 import org.jdom.Element;
 import org.junit.*;
 
@@ -50,7 +51,7 @@ public class PostProcessingFactoryTest {
     }
 
     @Test
-    public void testCreatePostProcessing() throws Exception {
+    public void testGetPostProcessing() throws Exception {
 
         final Element element = new Element("spherical-distance").addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
@@ -67,5 +68,18 @@ public class PostProcessingFactoryTest {
         final PostProcessing postProcessing = postProcessingFactory.getPostProcessing(element);
         assertNotNull(postProcessing);
         assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", postProcessing.getClass().getName());
+    }
+
+    @Test
+    public void testGetPostProcessing_nonExistingPostProcessing() throws Exception {
+
+        final Element element = new Element("non-existing-post-processing");
+
+        try {
+            postProcessingFactory.getPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("PostProcessing for name 'non-existing-post-processing' not available.", expected.getMessage());
+        }
     }
 }

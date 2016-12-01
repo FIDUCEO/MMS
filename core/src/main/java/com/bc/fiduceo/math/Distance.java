@@ -15,19 +15,19 @@
  *
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
- *
  */
+package com.bc.fiduceo.math;
 
-package com.bc.fiduceo.matchup;
+import org.esa.snap.core.util.math.RsMathUtils;
+import org.esa.snap.core.util.math.SphericalDistance;
 
+public class Distance {
 
-import com.bc.fiduceo.math.Distance;
+    private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
-public class SphericalDistanceCalculator {
-
-    public static double calculateKm(SampleSet sampleSet) {
-        final Sample primary = sampleSet.getPrimary();
-        final Sample secondary = sampleSet.getSecondary();
-        return Distance.computeSpericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
+    public static double computeSpericalDistanceKm(double p_lon, double p_lat, double s_lon, double s_lat) {
+        final SphericalDistance sphericalDistance = new SphericalDistance(p_lon, p_lat);
+        final double radDistance = sphericalDistance.distance(s_lon, s_lat);
+        return radDistance * MEAN_EARTH_RADIUS_IN_KM;
     }
 }

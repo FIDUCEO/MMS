@@ -28,21 +28,24 @@ import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.io.FileUtils;
 import org.junit.*;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.nio.file.FileSystem;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -117,10 +120,25 @@ public class PostProcessingToolTest {
 
     @Test
     public void testInitialisation() throws Exception {
+        final Path src = Paths.get(getClass().getResource("processing_config.xml").toURI()).toAbsolutePath();
+
+        final String absoluteProcessingConfigPath = src.toString();
+        initialize(absoluteProcessingConfigPath);
+
+        configDir.mkdirs();
+        final String relativeProcessingConfigPath = "processingConfig.xml";
+        final OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(relativeProcessingConfigPath));
+        Files.copy(src, outputStream);
+        outputStream.flush();
+        outputStream.close();
+        initialize(relativeProcessingConfigPath);
+    }
+
+    private void initialize(String processingConfigPath) throws ParseException, IOException {
         final Options options = PostProcessingTool.getOptions();
         final PosixParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(options, new String[]{
-                    "-j", Paths.get(getClass().getResource("processing_config.xml").toURI()).toAbsolutePath().toString(),
+                    "-j", processingConfigPath,
                     "-d", "/mmd_files",
                     "-start", "2011-123",
                     "-end", "2011-124",
@@ -200,7 +218,43 @@ public class PostProcessingToolTest {
         final long endTime = TimeUtils.parseDOYEndOfDay(fileEnd).getTime();
 
         assertTrue(PostProcessingTool.isFileInTimeRange(startTime, endTime, filename));
-        assertFalse(PostProcessingTool.isFileInTimeRange(startTime +1, endTime, filename));
-        assertFalse(PostProcessingTool.isFileInTimeRange(startTime, endTime -1, filename));
+        assertFalse(PostProcessingTool.isFileInTimeRange(startTime + 1, endTime, filename));
+        assertFalse(PostProcessingTool.isFileInTimeRange(startTime, endTime - 1, filename));
+    }
+
+    @Test
+    public void testGetDate() throws Exception {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("TheDateString");
+
+        final String start = PostProcessingTool.getDate(commandLine, "start");
+
+        assertEquals("TheDateString", start);
+    }
+
+    @Test
+    public void testGetDate_emptyString() throws Exception {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("");
+
+        try {
+            PostProcessingTool.getDate(commandLine, "start");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of cmd-line parameter 'start' is missing.", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetDate_null() throws Exception {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn(null);
+
+        try {
+            PostProcessingTool.getDate(commandLine, "start");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of cmd-line parameter 'start' is missing.", expected.getMessage());
+        }
     }
 }

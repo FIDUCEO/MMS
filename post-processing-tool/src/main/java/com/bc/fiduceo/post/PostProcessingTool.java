@@ -89,7 +89,7 @@ class PostProcessingTool {
     static String getDate(CommandLine commandLine, final String optionName) {
         final String dateString = commandLine.getOptionValue(optionName);
         if (StringUtils.isNullOrEmpty(dateString)) {
-            throw new RuntimeException("cmd-line parameter '" + optionName + "' missing");
+            throw new RuntimeException("Value of cmd-line parameter '" + optionName + "' is missing.");
         }
         return dateString;
     }

@@ -19,18 +19,17 @@
 
 package com.bc.fiduceo.post;
 
-import com.bc.fiduceo.post.distance.PostSphericalDistance;
-import com.bc.fiduceo.util.JDomUtils;
-import org.esa.snap.core.dataio.dimap.DimapProductHelpers;
-import org.esa.snap.core.util.Debug;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.DOMBuilder;
-import org.junit.*;
-
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.post.distance.PostSphericalDistance;
+import org.hamcrest.BaseMatcher;
+import org.junit.*;
+import org.junit.matchers.*;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,5 +122,43 @@ public class PostProcessingConfigTest {
         assertEquals("ssmt2-f14_lon", sphericalDistance.secoLonVar);
         assertEquals(null, sphericalDistance.secoLonScaleAttrName);
         assertEquals(null, sphericalDistance.secoLonOffsetAttrName);
+    }
+
+    @Test
+    public void testLoad_CauseIsJDOMParseException() throws Exception {
+        final InputStream inputStream = new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?><post-processing-".getBytes());
+        try {
+            PostProcessingConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("org.jdom.input.JDOMParseException", expected.getCause().getClass().getTypeName());
+            assertTrue( expected.getMessage().matches("Unable to initialize post processing configuration: .*"));
+        }
+    }
+
+    @Test
+    public void testLoad_CauseIsRuntimeException() throws Exception {
+        final InputStream inputStream = new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?><post-processing-config/>".getBytes());
+        try {
+            PostProcessingConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("java.lang.RuntimeException", expected.getCause().getClass().getTypeName());
+            assertTrue( expected.getMessage().matches("Unable to initialize post processing configuration: .*"));
+        }
+    }
+
+    @Test
+    public void testLoad_CauseIsIOException() throws Exception {
+        final InputStream inputStream = mock(InputStream.class);
+        when(inputStream.read()).thenThrow(IOException.class);
+
+        try {
+            PostProcessingConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("java.io.IOException", expected.getCause().getClass().getTypeName());
+            assertTrue( expected.getMessage().matches("Unable to initialize post processing configuration: .*"));
+        }
     }
 }
