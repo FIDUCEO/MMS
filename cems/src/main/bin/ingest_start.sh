@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ${MMS_HOME}/bin/mms-env.sh
+. ${MMS_HOME}/bin/${MMS_ENV_NAME}
 
 sensor=$1
 start_date=$2

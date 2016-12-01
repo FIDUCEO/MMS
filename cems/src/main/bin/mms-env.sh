@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # MMS function definitions
-# useage ${mms_home}/bin/mms-env.sh  (in xxx-start.sh and xxx-run.sh)
+# useage ${mms_home}/bin/${MMS_ENV_NAME}  (in xxx-start.sh and xxx-run.sh)
 
 # the following exports are CEMS/Fiduceo specific settings of executables to be used
 # adapt if necessary tb 2016-04-03
@@ -9,6 +9,7 @@
 export MMS_HOME='/group_workspaces/cems2/fiduceo/Software/mms'
 export MMS_PYTHON_EXEC='/usr/bin/python'
 export MMS_JAVA_EXEC='/group_workspaces/cems2/fiduceo/Software/jdk1.8.0_73/bin/java'
+export MMS_ENV_NAME='mms-env.sh'
 
 export PATH=$MMS_HOME/bin:$PATH
 

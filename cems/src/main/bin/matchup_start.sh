@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ${MMS_HOME}/bin/mms-env.sh
+. ${MMS_HOME}/bin/${MMS_ENV_NAME}
 
 start_date=$1
 end_date=$2
