@@ -41,8 +41,8 @@ public class DriverUtilsTest {
         assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:mysql"));
 
 
-        driver = driverUtils.getDriver("jdbc:postgres://localhost:5432/test");
-        assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:postgres"));
+        driver = driverUtils.getDriver("jdbc:postgresql://localhost:5432/test");
+        assertTrue(driver.getUrlPattern().toLowerCase().equals("jdbc:postgresql"));
     }
 
     @Test

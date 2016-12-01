@@ -30,6 +30,6 @@ public class PostGISDriverTest {
     @Test
     public void testGetUrlPattern() {
         final PostGISDriver driver = new PostGISDriver();
-        assertEquals("jdbc:postgres", driver.getUrlPattern());
+        assertEquals("jdbc:postgresql", driver.getUrlPattern());
     }
 }
