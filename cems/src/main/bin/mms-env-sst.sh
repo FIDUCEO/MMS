@@ -8,7 +8,7 @@
 
 export MMS_HOME='/group_workspaces/cems2/esacci_sst/mms_new'
 export MMS_PYTHON_EXEC='/usr/bin/python'
-export MMS_JAVA_EXEC='/group_workspaces/cems2/esacci_sst/mms_new/software/jdk1.8.0_111/bin'
+export MMS_JAVA_EXEC='/group_workspaces/cems2/esacci_sst/mms_new/software/jdk1.8.0_111/bin/java'
 
 export PATH=$MMS_HOME/bin:$PATH
 
