@@ -25,6 +25,9 @@ import org.apache.commons.cli.ParseException;
 import org.esa.snap.core.util.io.FileUtils;
 import org.junit.*;
 import org.junit.runner.*;
+import ucar.ma2.Array;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import static org.junit.Assert.*;
 
@@ -68,12 +71,12 @@ public class PostProcessingToolMainTest {
 
         dataDir.mkdirs();
         final String filename = "mmd22_amsub-n16_ssmt2-f14_2000-306_2000-312.nc";
-        final Path src = Paths.get( getClass().getResource(filename).toURI());
-        final OutputStream outputStream = Files.newOutputStream(dataDir.toPath().resolve(filename));
+        final Path src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
+        final Path target = dataDir.toPath().resolve(filename);
+        final OutputStream outputStream = Files.newOutputStream(target);
         Files.copy(src, outputStream);
         outputStream.flush();
         outputStream.close();
-
 
         final String[] args = {
                     "-c", configDir.getAbsolutePath(),
@@ -84,5 +87,25 @@ public class PostProcessingToolMainTest {
         };
 
         PostProcessingToolMain.main(args);
+
+        final NetcdfFile netcdfFile = NetcdfFile.open(target.toAbsolutePath().toString());
+        final Variable postDistVar = netcdfFile.findVariable("post_dist");
+        final Variable matchupDistVar = netcdfFile.findVariable("matchup_spherical_distance");
+
+        assertNotNull(postDistVar);
+        assertNotNull(matchupDistVar);
+
+        final Array pDistArr = postDistVar.read();
+        final Array mDistArr = matchupDistVar.read();
+
+        final float[] pStorage = (float[]) pDistArr.getStorage();
+        final float[] mStorage = (float[]) mDistArr.getStorage();
+
+        assertEquals(4, pStorage.length);
+        assertEquals(4, mStorage.length);
+
+        for (int i = 0; i < pStorage.length; i++) {
+            assertEquals(pStorage[i], mStorage[i] , 1e-3);
+        }
     }
 }
