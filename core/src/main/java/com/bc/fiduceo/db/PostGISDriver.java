@@ -46,7 +46,7 @@ public class PostGISDriver extends AbstractDriver {
 
     @Override
     public String getUrlPattern() {
-        return "jdbc:postgresql";
+        return "jdbc:postgres";
     }
 
     @Override
