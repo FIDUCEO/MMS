@@ -116,7 +116,7 @@ class PostProcessingTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
-        final Option mmdDir = new Option("d", "mmd-dir", true, "Defines the path to the input mmd files directory.");
+        final Option mmdDir = new Option("i", "input-dir", true, "Defines the path to the input mmd files directory.");
         mmdDir.setRequired(true);
         options.addOption(mmdDir);
 
@@ -124,11 +124,11 @@ class PostProcessingTool {
         ppuc.setRequired(true);
         options.addOption(ppuc);
 
-        final Option startOption = new Option("start", "start-time", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'");
         startOption.setRequired(true);
         options.addOption(startOption);
 
-        final Option endOption = new Option("end", "end-time", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'");
         endOption.setRequired(true);
         options.addOption(endOption);
 
@@ -163,7 +163,7 @@ class PostProcessingTool {
         final String endDate = getDate(commandLine, "end");
         context.setEndDate(TimeUtils.parseDOYEndOfDay(endDate));
 
-        final String mmdFilesDir = commandLine.getOptionValue("mmd-dir");
+        final String mmdFilesDir = commandLine.getOptionValue("input-dir");
         context.setMmdInputDirectory(Paths.get(mmdFilesDir));
 
         logger.info("Success loading configuration.");

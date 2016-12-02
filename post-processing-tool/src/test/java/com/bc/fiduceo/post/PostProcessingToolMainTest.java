@@ -87,7 +87,7 @@ public class PostProcessingToolMainTest {
 
         final String[] args = {
                     "-c", configDir.getAbsolutePath(),
-                    "-d", dataDir.getAbsolutePath(),
+                    "-i", dataDir.getAbsolutePath(),
                     "-start", "2000-306",
                     "-end", "2000-312",
                     "-j", processingConfigFileName

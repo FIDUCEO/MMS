@@ -19,53 +19,29 @@
 
 package com.bc.fiduceo.post;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.util.Debug;
-import org.esa.snap.core.util.io.FileUtils;
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.InOrder;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class PostProcessingToolTest {
-
-    private File configDir;
-    private File testDir;
-
-    @Before
-    public void setUp() throws Exception {
-        testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
-        configDir = new File(testDir, "config");
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (testDir.isDirectory()) {
-            FileUtils.deleteTree(testDir);
-        }
-    }
 
     @Test
     public void testOptions() {
@@ -82,16 +58,16 @@ public class PostProcessingToolTest {
         assertEquals(false, o.isRequired());
 
 
-        o = options.getOption("d");
+        o = options.getOption("i");
         assertNotNull(o);
-        assertEquals("mmd-dir", o.getLongOpt());
+        assertEquals("input-dir", o.getLongOpt());
         assertEquals("Defines the path to the input mmd files directory.", o.getDescription());
         assertEquals(true, o.hasArg());
         assertEquals(true, o.isRequired());
 
         o = options.getOption("end");
         assertNotNull(o);
-        assertEquals("end-time", o.getLongOpt());
+        assertEquals("end-date", o.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'", o.getDescription());
         assertEquals(true, o.hasArg());
         assertEquals(true, o.isRequired());
@@ -112,81 +88,30 @@ public class PostProcessingToolTest {
 
         o = options.getOption("start");
         assertNotNull(o);
-        assertEquals("start-time", o.getLongOpt());
+        assertEquals("start-date", o.getLongOpt());
         assertEquals("Defines the processing start-date, format 'yyyy-DDD'", o.getDescription());
         assertEquals(true, o.hasArg());
         assertEquals(true, o.isRequired());
     }
 
     @Test
-    public void testInitialisation() throws Exception {
-        final Path src = Paths.get(getClass().getResource("processing_config.xml").toURI()).toAbsolutePath();
-
-        final String absoluteProcessingConfigPath = src.toString();
-        initialize(absoluteProcessingConfigPath);
-
-        configDir.mkdirs();
-        final String relativeProcessingConfigPath = "processingConfig.xml";
-        final OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(relativeProcessingConfigPath));
-        Files.copy(src, outputStream);
-        outputStream.flush();
-        outputStream.close();
-        initialize(relativeProcessingConfigPath);
-    }
-
-    private void initialize(String processingConfigPath) throws ParseException, IOException {
-        final Options options = PostProcessingTool.getOptions();
-        final PosixParser parser = new PosixParser();
-        final CommandLine commandLine = parser.parse(options, new String[]{
-                    "-j", processingConfigPath,
-                    "-d", "/mmd_files",
-                    "-start", "2011-123",
-                    "-end", "2011-124",
-                    "-c", configDir.getPath()
-        });
-        configDir.mkdirs();
-        final FileWriter fileWriter = new FileWriter(new File(configDir, "system-config.xml"));
-        fileWriter.write("<system-config></system-config>");
-        fileWriter.close();
-
-        final PostProcessingContext context = PostProcessingTool.initialize(commandLine);
-
-        final String separator = FileSystems.getDefault().getSeparator();
-        assertEquals(separator + "mmd_files", context.getMmdInputDirectory().toString());
-        assertEquals("03-May-2011 00:00:00", ProductData.UTC.createDateFormat().format(context.getStartDate()));
-        assertEquals("04-May-2011 23:59:59", ProductData.UTC.createDateFormat().format(context.getEndDate()));
-
-        final SystemConfig sysConfig = context.getSystemConfig();
-        assertNotNull(sysConfig);
-        assertNull(sysConfig.getArchiveConfig());
-
-        final PostProcessingConfig config = context.getProcessingConfig();
-        assertNotNull(config);
-        final List<PostProcessing> processings = config.getProcessings();
-        assertNotNull(processings);
-        assertEquals("java.util.Collections$UnmodifiableRandomAccessList", processings.getClass().getTypeName());
-        assertEquals(1, processings.size());
-        assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", processings.get(0).getClass().getTypeName());
-    }
-
-    @Test
-    public void name() throws Exception {
+    public void testPrintUsage() throws Exception {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
         PostProcessingTool.printUsageTo(out);
 
         final String ls = System.lineSeparator();
-
         final String expected = "post-processing-tool version 1.1.1-SNAPSHOT" + ls +
-                                "" + ls +
-                                "usage: post-processing-tool <options>" + ls +
-                                "Valid options are:" + ls +
-                                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                                "   -d,--mmd-dir <arg>          Defines the path to the input mmd files directory." + ls +
-                                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                                "   -h,--help                   Prints the tool usage." + ls +
-                                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
-                                "                               configuration directory." + ls +
-                                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'";
+                "" + ls +
+                "usage: post-processing-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help                   Prints the tool usage." + ls +
+                "   -i,--input-dir <arg>        Defines the path to the input mmd files directory." + ls +
+                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
+                "                               configuration directory." + ls +
+                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'";
         assertEquals(expected, out.toString().trim());
     }
 

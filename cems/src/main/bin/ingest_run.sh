@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-# example usage: ingestion-run.sh avhrr-n07 1982-234 1982-231 v01.2 ./config_dir
+# example usage: ingest_run.sh avhrr-n07 1982-234 1982-231 v01.2 ./config_dir
 
 sensor=$1
 start_date=$2
