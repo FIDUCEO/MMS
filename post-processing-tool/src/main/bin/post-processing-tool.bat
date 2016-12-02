@@ -25,6 +25,6 @@ SET OLD_CLASSPATH=%CLASSPATH%
 
 SET CLASSPATH=%LIBDIR%\*;%LIBDIR%
 
-CALL "%JAVAEXE%" %JAVA_OPTS% -classpath "%CLASSPATH%" com.bc.fiduceo.matchup.MatchupToolMain %*
+CALL "%JAVAEXE%" %JAVA_OPTS% -classpath "%CLASSPATH%" com.bc.fiduceo.post.PostProcessingToolMain %*
 
 SET CLASSPATH=%OLD_CLASSPATH%

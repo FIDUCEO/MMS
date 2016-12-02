@@ -12,7 +12,7 @@ SET INSTALLDIR=%~dp0%
 ::    '-Xms64M' sets the minimum heap space to 64 megabytes
 ::    '-Xmx512M' sets the maximum heap space to 512 megabytes
 ::------------------------------------------------------------------
-SET JAVA_OPTS=-Xms64M -Xmx2048M
+SET JAVA_OPTS=-Xms64M -Xmx8192M
 
 
 :: -======================-

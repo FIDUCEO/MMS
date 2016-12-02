@@ -89,6 +89,18 @@
         </fileSet>
 
         <fileSet>
+            <directory>post-processing-tool/src/main/bin</directory>
+            <outputDirectory/>
+            <directoryMode>0774</directoryMode>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0770</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
             <directory>src/main/config</directory>
             <outputDirectory>config</outputDirectory>
             <directoryMode>0774</directoryMode>
