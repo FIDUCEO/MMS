@@ -43,7 +43,6 @@ class DriverUtils {
 
         for (Driver driver : driverSet) {
             final String driverPattern = driver.getUrlPattern().toLowerCase();
-            System.out.println("driverPattern = " + driverPattern);
             if (driverUrl.contains(driverPattern)) {
                 return driver;
             }
