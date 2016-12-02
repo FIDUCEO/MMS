@@ -69,11 +69,18 @@ public class PostProcessingToolMainTest {
         fileWriter.write("<system-config></system-config>");
         fileWriter.close();
 
+        final String processingConfigFileName = "processing_config.xml";
+        Path src = Paths.get(getClass().getResource(processingConfigFileName).toURI()).toAbsolutePath();
+        OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(processingConfigFileName));
+        Files.copy(src, outputStream);
+        outputStream.flush();
+        outputStream.close();
+
         dataDir.mkdirs();
         final String filename = "mmd22_amsub-n16_ssmt2-f14_2000-306_2000-312.nc";
-        final Path src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
+        src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
         final Path target = dataDir.toPath().resolve(filename);
-        final OutputStream outputStream = Files.newOutputStream(target);
+        outputStream = Files.newOutputStream(target);
         Files.copy(src, outputStream);
         outputStream.flush();
         outputStream.close();
@@ -83,7 +90,7 @@ public class PostProcessingToolMainTest {
                     "-d", dataDir.getAbsolutePath(),
                     "-start", "2000-306",
                     "-end", "2000-312",
-                    "-j", Paths.get(getClass().getResource("processing_config.xml").toURI()).toAbsolutePath().toString()
+                    "-j", processingConfigFileName
         };
 
         PostProcessingToolMain.main(args);
