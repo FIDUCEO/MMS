@@ -22,7 +22,9 @@ package com.bc.fiduceo.db;
 
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.runner.*;
 
+@RunWith(DatabaseTestRunner.class)
 public class StorageTest_PostGIS extends StorageTest {
 
     // This test will use a local database implementation. Please make sure that you have a running PostgreSQL database server
