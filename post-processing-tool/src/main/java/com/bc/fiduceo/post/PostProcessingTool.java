@@ -66,8 +66,13 @@ class PostProcessingTool {
 
             for (Path mmdFile : mmdFiles) {
                 if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
-                    try(NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdFile.toAbsolutePath().toString())) {
+                    final String mmdAbsFile = mmdFile.toAbsolutePath().toString();
+                    try (NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdAbsFile)) {
                         run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
+                    } catch (Exception e) {
+                        logger.severe("Unable to execute post processing for matchup '" + mmdAbsFile + "'");
+                        logger.severe("Cause: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             }
@@ -124,11 +129,11 @@ class PostProcessingTool {
         ppuc.setRequired(true);
         options.addOption(ppuc);
 
-        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.");
         startOption.setRequired(true);
         options.addOption(startOption);
 
-        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year.");
         endOption.setRequired(true);
         options.addOption(endOption);
 
@@ -173,10 +178,10 @@ class PostProcessingTool {
     static boolean isFileInTimeRange(long startTime, long endTime, String filename) {
         final int dotIdx = filename.lastIndexOf(".");
         final int endIdx = filename.lastIndexOf("_", dotIdx);
-        final int startIdx = filename.lastIndexOf("_", endIdx -1);
+        final int startIdx = filename.lastIndexOf("_", endIdx - 1);
 
-        final String endDOY = filename.substring(endIdx +1, dotIdx);
-        final String startDOY = filename.substring(startIdx +1, endIdx);
+        final String endDOY = filename.substring(endIdx + 1, dotIdx);
+        final String startDOY = filename.substring(startIdx + 1, endIdx);
 
         final long fileStart = TimeUtils.parseDOYBeginOfDay(startDOY).getTime();
         final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();
