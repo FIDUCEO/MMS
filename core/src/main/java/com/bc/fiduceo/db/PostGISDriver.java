@@ -89,6 +89,9 @@ public class PostGISDriver extends AbstractDriver {
 
         statement = connection.createStatement();
         statement.execute("CREATE INDEX STOP_TIME ON SATELLITE_OBSERVATION(StopDate)");
+
+        statement = connection.createStatement();
+        statement.execute("CREATE INDEX OBSERVATION_ID ON TIMEAXIS(ObservationId)");
     }
 
     @Override
@@ -99,7 +102,7 @@ public class PostGISDriver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ST_GeomFromText(?), ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ST_GeomFromText(?), ?, ?, ?) RETURNING ID");
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
@@ -113,7 +116,9 @@ public class PostGISDriver extends AbstractDriver {
         preparedStatement.setString(6, observation.getVersion());
         preparedStatement.setString(7, observation.getDataFilePath().toString());
 
-        final int observationId = preparedStatement.executeUpdate();
+        final ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
+        final int observationId = resultSet.getInt(1);
         final TimeAxis[] timeAxes = observation.getTimeAxes();
         if (timeAxes != null) {
             for (final TimeAxis timeAxis : timeAxes) {
