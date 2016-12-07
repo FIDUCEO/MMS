@@ -19,27 +19,29 @@
 
 package com.bc.fiduceo.post;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.Test;
+import org.hamcrest.CoreMatchers;
+import org.junit.*;
 import org.mockito.InOrder;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Formatter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 public class PostProcessingToolTest {
 
@@ -102,16 +104,16 @@ public class PostProcessingToolTest {
 
         final String ls = System.lineSeparator();
         final String expected = "post-processing-tool version 1.1.1" + ls +
-                "" + ls +
-                "usage: post-processing-tool <options>" + ls +
-                "Valid options are:" + ls +
-                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year." + ls +
-                "   -h,--help                   Prints the tool usage." + ls +
-                "   -i,--input-dir <arg>        Defines the path to the input mmd files directory." + ls +
-                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
-                "                               configuration directory." + ls +
-                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.";
+                                "" + ls +
+                                "usage: post-processing-tool <options>" + ls +
+                                "Valid options are:" + ls +
+                                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year." + ls +
+                                "   -h,--help                   Prints the tool usage." + ls +
+                                "   -i,--input-dir <arg>        Defines the path to the input mmd files directory." + ls +
+                                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
+                                "                               configuration directory." + ls +
+                                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.";
         assertEquals(expected, out.toString().trim());
     }
 
@@ -180,6 +182,33 @@ public class PostProcessingToolTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Value of cmd-line parameter 'start' is missing.", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testThatPostProcessingToolInCaseOfExceptionsPrintsTheErrorMessageAndContinueWithTheNextFile() throws Exception {
+        final ArrayList<Path> mmdFiles = new ArrayList<>();
+        mmdFiles.add(Paths.get("nonExistingFileOne"));
+        mmdFiles.add(Paths.get("nonExistingFileTwo"));
+        mmdFiles.add(Paths.get("nonExistingFileThree"));
+
+        final Formatter formatter = new SimpleFormatter();
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final StreamHandler handler = new StreamHandler(stream, formatter);
+        final Logger logger = FiduceoLogger.getLogger();
+
+        try {
+            logger.addHandler(handler);
+
+            PostProcessingTool.computeFiles(mmdFiles, null);
+
+            handler.close();
+            final String string = stream.toString();
+            assertThat(string, CoreMatchers.containsString("nonExistingFileOne"));
+            assertThat(string, CoreMatchers.containsString("nonExistingFileTwo"));
+            assertThat(string, CoreMatchers.containsString("nonExistingFileThree"));
+        } finally {
+            logger.removeHandler(handler);
         }
     }
 }
