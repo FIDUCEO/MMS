@@ -16,7 +16,7 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.fiduceo.post.distance;
+package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.PostProcessing;
@@ -32,7 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class PostSphericalDistance extends PostProcessing {
+public class SphericalDistance extends PostProcessing {
 
     public final String targetVarName;
     public final String targetDataType;
@@ -50,11 +50,11 @@ public class PostSphericalDistance extends PostProcessing {
     public final String secoLonScaleAttrName;
     public final String secoLonOffsetAttrName;
 
-    public PostSphericalDistance(String targetVarName, String targetDataType, String targetDimName,
-                                 String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
-                                 String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
-                                 String secoLatVar, String secoLatScaleAttrName, String secoLatOffsetAttrName,
-                                 String secoLonVar, String secoLonScaleAttrName, String secoLonOffsetAttrName) {
+    public SphericalDistance(String targetVarName, String targetDataType, String targetDimName,
+                             String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
+                             String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
+                             String secoLatVar, String secoLatScaleAttrName, String secoLatOffsetAttrName,
+                             String secoLonVar, String secoLonScaleAttrName, String secoLonOffsetAttrName) {
         this.targetVarName = targetVarName;
         this.targetDataType = targetDataType;
         this.targetDimName = targetDimName;

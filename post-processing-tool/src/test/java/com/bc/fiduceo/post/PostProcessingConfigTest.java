@@ -24,10 +24,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.bc.fiduceo.post.distance.PostSphericalDistance;
-import org.hamcrest.BaseMatcher;
+import com.bc.fiduceo.post.plugin.SphericalDistance;
 import org.junit.*;
-import org.junit.matchers.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -104,9 +102,9 @@ public class PostProcessingConfigTest {
         final PostProcessing postProcessing = processings.get(0);
 
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", postProcessing.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", postProcessing.getClass().getTypeName());
 
-        final PostSphericalDistance sphericalDistance = (PostSphericalDistance) postProcessing;
+        final SphericalDistance sphericalDistance = (SphericalDistance) postProcessing;
         assertEquals("post_dist", sphericalDistance.targetVarName);
         assertEquals("Float", sphericalDistance.targetDataType);
         assertEquals("matchup_count", sphericalDistance.targetDimName);

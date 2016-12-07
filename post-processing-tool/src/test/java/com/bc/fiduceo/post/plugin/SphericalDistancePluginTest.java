@@ -17,9 +17,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.distance;
+package com.bc.fiduceo.post.plugin;
 
-import static com.bc.fiduceo.post.distance.SpericalDistancePlugin.*;
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
@@ -28,14 +28,14 @@ import org.junit.*;
 
 import java.util.Arrays;
 
-public class SpericalDistancePluginTest {
+public class SphericalDistancePluginTest {
 
-    private SpericalDistancePlugin plugin;
+    private SphericalDistancePlugin plugin;
     private Element element;
 
     @Before
     public void setUp() throws Exception {
-        plugin = new SpericalDistancePlugin();
+        plugin = new SphericalDistancePlugin();
         element = new Element("spherical-distance").addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
@@ -55,9 +55,9 @@ public class SpericalDistancePluginTest {
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", postProcessing.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", postProcessing.getClass().getTypeName());
 
-        final PostSphericalDistance sphericalDistance = (PostSphericalDistance) postProcessing;
+        final SphericalDistance sphericalDistance = (SphericalDistance) postProcessing;
 
         assertEquals("post_sphere_distance", sphericalDistance.targetVarName);
         assertEquals("matchup_count", sphericalDistance.targetDimName);
