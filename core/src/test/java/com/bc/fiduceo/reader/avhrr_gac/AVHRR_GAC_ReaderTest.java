@@ -169,4 +169,12 @@ public class AVHRR_GAC_ReaderTest {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testGetSecondsSince1970() {
+         assertEquals(0, AVHRR_GAC_Reader.getSecondsSince1970(0, 0));
+         assertEquals(1, AVHRR_GAC_Reader.getSecondsSince1970(1000, 0));
+         assertEquals(2, AVHRR_GAC_Reader.getSecondsSince1970(0, 2));
+         assertEquals(4, AVHRR_GAC_Reader.getSecondsSince1970(2000, 2));
+    }
 }

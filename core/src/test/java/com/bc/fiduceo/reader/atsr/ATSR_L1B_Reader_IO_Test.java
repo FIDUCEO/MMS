@@ -40,7 +40,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -348,7 +347,7 @@ public class ATSR_L1B_Reader_IO_Test {
         }
     }
 
-   @Test
+    @Test
     public void testGetProductSize_AATSR() throws IOException, InvalidRangeException {
         final File file = getAatsrFile();
 
@@ -373,22 +372,29 @@ public class ATSR_L1B_Reader_IO_Test {
             final Interval interval = new Interval(5, 5);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(108, 2538, interval);
             assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
 
-            index.set(0, 0);
-            assertEquals(893397855, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(893397855, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(893397855, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(893397855, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(893397856, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(893397856, 0, 4, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
 
-            index.set(1, 1);
-            assertEquals(893397855, acquisitionTime.getInt(index));
+    @Test
+    public void testReadAcquisitionTime_ATSR1_singlePixel() throws IOException, InvalidRangeException {
+        final File file = getAtsr1File();
 
-            index.set(2, 2);
-            assertEquals(893397855, acquisitionTime.getInt(index));
+        try {
+            reader.open(file);
 
-            index.set(3, 1);
-            assertEquals(893397856, acquisitionTime.getInt(index));
+            final Interval interval = new Interval(1, 1);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(110, 2542, interval);
+            assertNotNull(acquisitionTime);
 
-            index.set(4, 0);
-            assertEquals(893397856, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(744584812, 0, 0, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -404,16 +410,10 @@ public class ATSR_L1B_Reader_IO_Test {
             final Interval interval = new Interval(5, 5);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 268, interval);
             assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
 
-            index.set(0, 0);
-            assertEquals(-2147483648, acquisitionTime.getInt(index));
-
-            index.set(1, 1);
-            assertEquals(1139987373, acquisitionTime.getInt(index));
-
-            index.set(4, 3);
-            assertEquals(1139987373, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(-2147483648, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1139987373, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1139987373, 3, 4, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -429,16 +429,10 @@ public class ATSR_L1B_Reader_IO_Test {
             final Interval interval = new Interval(5, 5);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(278, 43519, interval);
             assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
 
-            index.set(0, 0);
-            assertEquals(1139993860, acquisitionTime.getInt(index));
-
-            index.set(1, 1);
-            assertEquals(1139993861, acquisitionTime.getInt(index));
-
-            index.set(4, 2);
-            assertEquals(-2147483648, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(1139993860, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1139993861, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483648, 2, 4, acquisitionTime);
         } finally {
             reader.close();
         }

@@ -34,10 +34,12 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
@@ -230,6 +232,38 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertEquals(referenceTime + 1007501, timeLocator.getTimeFor(303, 2015));
             assertEquals(referenceTime + 2007999, timeLocator.getTimeFor(304, 4016));
             assertEquals(referenceTime + 6118997, timeLocator.getTimeFor(171, 12238));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_NOAA17() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA17File();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(34, 209, new Interval(3, 3));
+            NCTestUtils.assertValueAt(1175398598, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1175398598, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1175398599, 1, 2, acquisitionTime);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_NOAA18_singlePixel() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA18File();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(38, 213, new Interval(1, 1));
+            NCTestUtils.assertValueAt(1175414652, 0, 0, acquisitionTime);
+
         } finally {
             reader.close();
         }

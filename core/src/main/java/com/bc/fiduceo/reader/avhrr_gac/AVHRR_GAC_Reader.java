@@ -27,11 +27,23 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -168,7 +180,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        final ArrayFloat.D2 raw = (ArrayFloat.D2) readRaw(x, y, interval, "dtime");
+        final Array raw = readRaw(x, y, interval, "dtime");
         return convertToAcquisitionTime(raw, startTimeMilliSecondsSince1970);
     }
 
@@ -256,22 +268,38 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
-    static ArrayInt.D2 convertToAcquisitionTime(ArrayFloat.D2 rawData, long startTimeMilliSecondsSince1970) {
+    static ArrayInt.D2 convertToAcquisitionTime(Array rawData, long startTimeMilliSecondsSince1970) {
+        final int rank = rawData.getRank();
+
+        if (rank == 0) {
+            final ArrayInt.D2 times = new ArrayInt.D2(1, 1);
+            final float seconds = rawData.getFloat(0);
+            final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
+            times.set(0, 0, secondsSince1970);
+            return times;
+        }
+
         final int[] shape = rawData.getShape();
-        final int height = shape[0];
-        final int width = shape[1];
+        int height = shape[0];
+        int width = shape[1];
         final ArrayInt.D2 times = new ArrayInt.D2(height, width);
 
+        final Index index = rawData.getIndex();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                final float seconds = rawData.get(i, j);
+                index.set(i, j);
+                final float seconds = rawData.getFloat(index);
 
-                final float milliSeconds = seconds * 1000.f;
-                final int secondsSince1970 = (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
+                final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
                 times.set(i, j, secondsSince1970);
             }
         }
         return times;
+    }
+
+    static int getSecondsSince1970(long startTimeMilliSecondsSince1970, float seconds) {
+        final float milliSeconds = seconds * 1000.f;
+        return (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
     }
 
     // package access for testing only tb 2016-03-31
