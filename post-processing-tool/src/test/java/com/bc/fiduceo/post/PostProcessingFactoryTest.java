@@ -45,9 +45,10 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(2, plugins.size());
-        assertTrue(plugins.containsKey("spherical-distance"));
-        assertTrue(plugins.containsKey("sst-insitu-time-series"));
+        assertEquals(3, plugins.size());
+        /* 01 */  assertTrue(plugins.containsKey("dummy-post-processing"));
+        /* 02 */  assertTrue(plugins.containsKey("spherical-distance"));
+        /* 03 */  assertTrue(plugins.containsKey("sst-insitu-time-series"));
     }
 
     @Test

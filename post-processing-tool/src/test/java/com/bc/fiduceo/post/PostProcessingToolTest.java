@@ -101,6 +101,7 @@ public class PostProcessingToolTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         PostProcessingTool.printUsageTo(out);
+        PostProcessingTool.printUsageTo(System.out);
 
         final String ls = System.lineSeparator();
         final String expected = "post-processing-tool version 1.1.2" + ls +

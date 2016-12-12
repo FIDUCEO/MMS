@@ -84,6 +84,7 @@ class PostProcessingTool {
         final long endTime = context.getEndDate().getTime();
         if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
             final String mmdAbsFile = mmdFile.toAbsolutePath().toString();
+            // todo 1 se/se implement overwrite or new files in dedicated output directory
             try (NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdAbsFile)) {
                 run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
             }
@@ -164,12 +165,7 @@ class PostProcessingTool {
 
         final String jobConfigPathString = commandLine.getOptionValue("job-config");
         final Path jobConfigPath = Paths.get(jobConfigPathString);
-        final InputStream inputStream;
-        if (jobConfigPath.isAbsolute()) {
-            inputStream = Files.newInputStream(jobConfigPath);
-        } else {
-            inputStream = Files.newInputStream(configDirectory.resolve(jobConfigPath));
-        }
+        final InputStream inputStream = Files.newInputStream(configDirectory.resolve(jobConfigPath));
         final PostProcessingConfig jobConfig = PostProcessingConfig.load(inputStream);
         context.setProcessingConfig(jobConfig);
 

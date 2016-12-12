@@ -23,6 +23,10 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
 import org.esa.snap.core.util.io.FileUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.junit.*;
 import org.junit.runner.*;
 import ucar.ma2.Array;
@@ -40,6 +44,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolMainTest {
@@ -69,20 +74,35 @@ public class PostProcessingToolMainTest {
         fileWriter.write("<system-config></system-config>");
         fileWriter.close();
 
-        final String processingConfigFileName = "processing_config.xml";
-        Path src = Paths.get(getClass().getResource(processingConfigFileName).toURI()).toAbsolutePath();
+        final String processingConfigFileName = "processing-config.xml";
         OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(processingConfigFileName));
-        Files.copy(src, outputStream);
-        outputStream.flush();
+        final Element rootElement = new Element("post-processing-config").addContent(Arrays.asList(
+                    new Element("overwrite"),
+                    new Element("post-processings").addContent(
+                                new Element("spherical-distance").addContent(Arrays.asList(
+                                            new Element("target").addContent(Arrays.asList(
+                                                        new Element("data-type").addContent("Float"),
+                                                        new Element("var-name").addContent("post_dist"),
+                                                        new Element("dim-name").addContent("matchup_count")
+                                            )),
+                                            new Element("primary-lat-variable").setAttribute("scaleAttrName","Scale").addContent("amsub-n16_Latitude"),
+                                            new Element("primary-lon-variable").setAttribute("scaleAttrName","Scale").addContent("amsub-n16_Longitude"),
+                                            new Element("secondary-lat-variable").addContent("ssmt2-f14_lat"),
+                                            new Element("secondary-lon-variable").addContent("ssmt2-f14_lon")
+                                ))
+                    )
+        ));
+
+        final Document document = new Document(rootElement);
+        new XMLOutputter(Format.getPrettyFormat()).output(document, outputStream);
         outputStream.close();
 
         dataDir.mkdirs();
         final String filename = "mmd22_amsub-n16_ssmt2-f14_2000-306_2000-312.nc";
-        src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
+        final Path src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
         final Path target = dataDir.toPath().resolve(filename);
         outputStream = Files.newOutputStream(target);
         Files.copy(src, outputStream);
-        outputStream.flush();
         outputStream.close();
 
         final String[] args = {
@@ -112,7 +132,7 @@ public class PostProcessingToolMainTest {
         assertEquals(4, mStorage.length);
 
         for (int i = 0; i < pStorage.length; i++) {
-            assertEquals(pStorage[i], mStorage[i] , 1e-3);
+            assertEquals(pStorage[i], mStorage[i], 1e-3);
         }
     }
 }

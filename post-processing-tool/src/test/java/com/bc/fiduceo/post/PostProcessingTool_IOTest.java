@@ -25,10 +25,10 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
+import org.h2.util.New;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +36,8 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +52,8 @@ import static org.junit.Assert.fail;
 @RunWith(IOTestRunner.class)
 public class PostProcessingTool_IOTest {
 
+    private final String processingConfigName = "processing-config.xml";
+
     private File configDir;
     private File testDir;
 
@@ -62,6 +64,27 @@ public class PostProcessingTool_IOTest {
         if (!configDir.mkdirs()) {
             fail("unable to create test directory");
         }
+
+        final OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(processingConfigName));
+        final PrintWriter pw = new PrintWriter(outputStream);
+        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        pw.println("<post-processing-config>");
+        pw.println("    <overwrite/>");
+        pw.println("    <post-processings>");
+        pw.println("        <spherical-distance>");
+        pw.println("            <target>");
+        pw.println("                <data-type>Float</data-type>");
+        pw.println("                <var-name>post_dist</var-name>");
+        pw.println("                <dim-name>matchup_count</dim-name>");
+        pw.println("            </target>");
+        pw.println("            <primary-lat-variable scaleAttrName=\"Scale\">amsub-n16_Latitude</primary-lat-variable>");
+        pw.println("            <primary-lon-variable scaleAttrName=\"Scale\">amsub-n16_Longitude</primary-lon-variable>");
+        pw.println("            <secondary-lat-variable>ssmt2-f14_lat</secondary-lat-variable>");
+        pw.println("            <secondary-lon-variable>ssmt2-f14_lon</secondary-lon-variable>");
+        pw.println("        </spherical-distance>");
+        pw.println("    </post-processings>");
+        pw.println("</post-processing-config>");
+        pw.close();
     }
 
     @After
@@ -73,29 +96,14 @@ public class PostProcessingTool_IOTest {
 
     @Test
     public void testInitialisation() throws Exception {
-        final Path src = Paths.get(getClass().getResource("processing_config.xml").toURI()).toAbsolutePath();
-
-        final String absoluteProcessingConfigPath = src.toString();
-        initialize(absoluteProcessingConfigPath);
-
-        final String relativeProcessingConfigPath = "processingConfig.xml";
-        final OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(relativeProcessingConfigPath));
-        Files.copy(src, outputStream);
-        outputStream.flush();
-        outputStream.close();
-        initialize(relativeProcessingConfigPath);
-    }
-
-    private void initialize(String processingConfigPath) throws ParseException, IOException {
-
         final Options options = PostProcessingTool.getOptions();
         final PosixParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(options, new String[]{
-                "-j", processingConfigPath,
-                "-i", "/mmd_files",
-                "-start", "2011-123",
-                "-end", "2011-124",
-                "-c", configDir.getPath()
+                    "-j", processingConfigName,
+                    "-i", "/mmd_files",
+                    "-start", "2011-123",
+                    "-end", "2011-124",
+                    "-c", configDir.getPath()
         });
 
         final FileWriter fileWriter = new FileWriter(new File(configDir, "system-config.xml"));
@@ -121,4 +129,5 @@ public class PostProcessingTool_IOTest {
         assertEquals(1, processings.size());
         assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", processings.get(0).getClass().getTypeName());
     }
+
 }

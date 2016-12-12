@@ -38,8 +38,15 @@ public class PostProcessingConfig {
 
     public static final String TAG_NAME_ROOT = "post-processing-config";
     public static final String TAG_NAME_POST_PROCESSINGS = "post-processings";
+    public static final String TAG_NAME_NEW_FILES = "create-new-files";
+    public static final String TAG_NAME_OUTPUT_DIR = "output-directory";
+    public static final String TAG_NAME_OVERWRITE = "overwrite";
+
     private final ArrayList<PostProcessing> processings;
     transient private Document document;
+    private boolean newFiles;
+    private String outputDirectory;
+    private boolean overwrite;
 
     private PostProcessingConfig(Document document) {
         this.document = document;
@@ -65,15 +72,44 @@ public class PostProcessingConfig {
         return Collections.unmodifiableList(processings);
     }
 
+    public boolean isNewFiles() {
+        return newFiles;
+    }
+
+    public String getOutputDirectory() {
+        return outputDirectory;
+    }
+
+    public boolean isOverwrite() {
+        return overwrite;
+    }
+
     @SuppressWarnings("unchecked")
     private void init() {
         final Element rootElement = JDomUtils.getMandatoryRootElement(TAG_NAME_ROOT, document);
+
+        final Element newFilesElem = rootElement.getChild(TAG_NAME_NEW_FILES);
+        if (newFilesElem != null) {
+            outputDirectory = JDomUtils.getMandatoryChildMandatoryTextTrim(newFilesElem, TAG_NAME_OUTPUT_DIR);
+            newFiles = true;
+        }
+
+        overwrite = rootElement.getChild(TAG_NAME_OVERWRITE) != null;
+        if (newFiles && overwrite){
+            throw new RuntimeException("Tag <" + TAG_NAME_NEW_FILES + "> and <"+TAG_NAME_OVERWRITE+"> is not allowed at the same time.");
+        }
+
+        if (!newFiles && !overwrite) {
+            throw new RuntimeException("Either <" + TAG_NAME_NEW_FILES + "> or <"+TAG_NAME_OVERWRITE+"> must be configured.");
+        }
+
         final Element processingsElem = JDomUtils.getMandatoryChild(rootElement, TAG_NAME_POST_PROCESSINGS);
+        final List<Element> processingList = processingsElem.getChildren();
+        if (processingList.size() == 0) {
+            throw new RuntimeException("Empty list of post processings.");
+        }
 
         final PostProcessingFactory factory = PostProcessingFactory.get();
-
-        final List<Element> processingList = processingsElem.getChildren();
-
         for (Element processing : processingList) {
             processings.add(factory.getPostProcessing(processing));
         }
