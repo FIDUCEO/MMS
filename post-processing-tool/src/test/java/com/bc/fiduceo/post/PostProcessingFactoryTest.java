@@ -19,14 +19,13 @@
 
 package com.bc.fiduceo.post;
 
-import org.esa.snap.core.util.Debug;
 import org.jdom.Element;
 import org.junit.*;
 
-import static com.bc.fiduceo.post.distance.SpericalDistancePlugin.TAG_NAME_DATA_TYPE;
-import static com.bc.fiduceo.post.distance.SpericalDistancePlugin.TAG_NAME_DIM_NAME;
-import static com.bc.fiduceo.post.distance.SpericalDistancePlugin.TAG_NAME_TARGET;
-import static com.bc.fiduceo.post.distance.SpericalDistancePlugin.TAG_NAME_VAR_NAME;
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_DATA_TYPE;
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_DIM_NAME;
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_TARGET;
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_VAR_NAME;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -46,8 +45,9 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(1, plugins.size());
+        assertEquals(2, plugins.size());
         assertTrue(plugins.containsKey("spherical-distance"));
+        assertTrue(plugins.containsKey("sst-insitu-time-series"));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class PostProcessingFactoryTest {
 
         final PostProcessing postProcessing = postProcessingFactory.getPostProcessing(element);
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", postProcessing.getClass().getName());
+        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", postProcessing.getClass().getName());
     }
 
     @Test

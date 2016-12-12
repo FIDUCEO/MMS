@@ -17,19 +17,17 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.distance;
+package com.bc.fiduceo.post.plugin;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import org.esa.snap.core.util.Debug;
 import org.junit.*;
 import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-public class PostSpericalDistanceTest {
+public class SphericalDistanceTest {
 
     @Test
     public void testGetValueFromAttribute() {
@@ -39,7 +37,7 @@ public class PostSpericalDistanceTest {
         when(variable.findAttribute("scale")).thenReturn(attribute);
         when(attribute.getNumericValue()).thenReturn(24.4);
 
-        final double scaleFactor = PostSphericalDistance.getValueFromAttribute(variable, "scale", 1);
+        final double scaleFactor = SphericalDistance.getValueFromAttribute(variable, "scale", 1);
 
         assertEquals("24.4", "" + scaleFactor);
     }
@@ -48,7 +46,7 @@ public class PostSpericalDistanceTest {
     public void testGetValueFromAttribute_defaultValue() {
         final Variable variable = mock(Variable.class);
 
-        final double scaleFactor = PostSphericalDistance.getValueFromAttribute(variable, null, 1);
+        final double scaleFactor = SphericalDistance.getValueFromAttribute(variable, null, 1);
 
         assertEquals("1.0", "" + scaleFactor);
 
@@ -61,7 +59,7 @@ public class PostSpericalDistanceTest {
         when(variable.findAttribute("scale")).thenReturn(null);
 
         try {
-            PostSphericalDistance.getValueFromAttribute(variable, "scale", 1);
+            SphericalDistance.getValueFromAttribute(variable, "scale", 1);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("No attribute with name 'scale'.", expected.getMessage());
@@ -75,7 +73,7 @@ public class PostSpericalDistanceTest {
         when(variable.findAttribute("scale")).thenReturn(attribute);
 
         try {
-            PostSphericalDistance.getValueFromAttribute(variable, "scale", 1);
+            SphericalDistance.getValueFromAttribute(variable, "scale", 1);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Attribute 'scale' does not own a number value.", expected.getMessage());
@@ -84,8 +82,8 @@ public class PostSpericalDistanceTest {
 
     @Test
     public void testGetCountDimension() throws Exception {
-        final PostSphericalDistance sphericalDistance = new PostSphericalDistance("tvar", "tType", "tDim", null, null, null, null,
-                                                                                  null, null, null, null, null, null, null, null);
+        final SphericalDistance sphericalDistance = new SphericalDistance("tvar", "tType", "tDim", null, null, null, null,
+                                                                          null, null, null, null, null, null, null, null);
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         try {
             sphericalDistance.getCountDimension(netcdfFile);

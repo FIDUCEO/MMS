@@ -21,9 +21,9 @@
 package com.bc.fiduceo.post;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-import static org.geotools.xml.DocumentWriter.logger;
 
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -41,11 +41,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class PostProcessingTool {
+    private final static Logger logger = FiduceoLogger.getLogger();
 
     public void run(CommandLine commandLine) throws IOException, InvalidRangeException {
         final PostProcessingContext context = initialize(commandLine);
@@ -61,15 +63,29 @@ class PostProcessingTool {
             final Stream<Path> mmdFileStream = regularFiles.filter(path -> pattern.matcher(path.getFileName().toString()).matches());
             List<Path> mmdFiles = mmdFileStream.collect(Collectors.toList());
 
-            final long startTime = context.getStartDate().getTime();
-            final long endTime = context.getEndDate().getTime();
+            computeFiles(mmdFiles, context);
+        }
+    }
 
-            for (Path mmdFile : mmdFiles) {
-                if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
-                    try(NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdFile.toAbsolutePath().toString())) {
-                        run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
-                    }
-                }
+    static void computeFiles(List<Path> mmdFiles, PostProcessingContext context) {
+        for (Path mmdFile : mmdFiles) {
+            try {
+                computeFile(mmdFile, context);
+            } catch (Exception e) {
+                logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
+                logger.severe("Cause: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void computeFile(Path mmdFile, PostProcessingContext context) throws IOException, InvalidRangeException {
+        final long startTime = context.getStartDate().getTime();
+        final long endTime = context.getEndDate().getTime();
+        if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
+            final String mmdAbsFile = mmdFile.toAbsolutePath().toString();
+            try (NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdAbsFile)) {
+                run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
             }
         }
     }
@@ -124,11 +140,11 @@ class PostProcessingTool {
         ppuc.setRequired(true);
         options.addOption(ppuc);
 
-        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.");
         startOption.setRequired(true);
         options.addOption(startOption);
 
-        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year.");
         endOption.setRequired(true);
         options.addOption(endOption);
 
@@ -173,10 +189,10 @@ class PostProcessingTool {
     static boolean isFileInTimeRange(long startTime, long endTime, String filename) {
         final int dotIdx = filename.lastIndexOf(".");
         final int endIdx = filename.lastIndexOf("_", dotIdx);
-        final int startIdx = filename.lastIndexOf("_", endIdx -1);
+        final int startIdx = filename.lastIndexOf("_", endIdx - 1);
 
-        final String endDOY = filename.substring(endIdx +1, dotIdx);
-        final String startDOY = filename.substring(startIdx +1, endIdx);
+        final String endDOY = filename.substring(endIdx + 1, dotIdx);
+        final String startDOY = filename.substring(startIdx + 1, endIdx);
 
         final long fileStart = TimeUtils.parseDOYBeginOfDay(startDOY).getTime();
         final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();

@@ -423,6 +423,107 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(1, satelliteObservations.size());
     }
 
+    @Test
+    public void testMultipleTimeAxes() throws ParseException, SQLException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        final TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
+        final TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(1, satelliteObservations.size());
+
+        final SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+        final TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+    }
+
+    @Test
+    public void testTwoObservations_MultipleTimeAxes() throws ParseException, SQLException {
+        SatelliteObservation observation = createSatelliteObservation(new Date(10000000L), new Date(11000000L));
+        TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
+        TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+        storage.insert(observation);
+
+        observation = createSatelliteObservation(new Date(20000000L), new Date(21000000L));
+        timeAxis_1 = createTimeAxis("LINESTRING(3 5, 3 6, 3 7)", new Date(), new Date());
+        timeAxis_2 = createTimeAxis("LINESTRING(4 5, 4 6, 4 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(2, satelliteObservations.size());
+
+        SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+        TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+
+        satelliteObservation = satelliteObservations.get(1);
+        timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+    }
+
+    @Test
+    public void testThreeObservations_twoSensors_MultipleTimeAxes() throws ParseException, SQLException {
+        SatelliteObservation observation = createSatelliteObservation(new Date(10000000L), new Date(11000000L));
+        TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
+        TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+        storage.insert(observation);
+
+        observation = createSatelliteObservation(new Date(20000000L), new Date(21000000L));
+        timeAxis_1 = createTimeAxis("LINESTRING(3 5, 3 6, 3 7)", new Date(), new Date());
+        timeAxis_2 = createTimeAxis("LINESTRING(4 5, 4 6, 4 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+        observation.setSensor(new Sensor("the_second_one"));
+
+        storage.insert(observation);
+
+        observation = createSatelliteObservation(new Date(30000000L), new Date(31000000L));
+        timeAxis_1 = createTimeAxis("LINESTRING(5 5, 5 6, 5 7)", new Date(), new Date());
+        timeAxis_2 = createTimeAxis("LINESTRING(6 5, 6 6, 6 7)", new Date(), new Date());
+        observation.setTimeAxes(new TimeAxis[]{timeAxis_1, timeAxis_2});
+
+        storage.insert(observation);
+
+        QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME);
+
+        List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(2, satelliteObservations.size());
+
+        SatelliteObservation satelliteObservation = satelliteObservations.get(0);
+        TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+
+        satelliteObservation = satelliteObservations.get(1);
+        timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+
+        queryParameter = new QueryParameter();
+        queryParameter.setSensorName("the_second_one");
+
+        satelliteObservations = storage.get(queryParameter);
+        assertEquals(1, satelliteObservations.size());
+
+        satelliteObservation = satelliteObservations.get(0);
+        timeAxes = satelliteObservation.getTimeAxes();
+        assertEquals(2, timeAxes.length);
+    }
+
+
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(startTime);

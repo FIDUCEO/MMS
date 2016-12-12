@@ -16,14 +16,14 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.fiduceo.post.distance;
+package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
-public class SpericalDistancePlugin implements PostProcessingPlugin {
+public class SphericalDistancePlugin implements PostProcessingPlugin {
 
     public static final String TAG_NAME_SPHERICAL_DISTANCE = "spherical-distance";
     public static final String TAG_NAME_TARGET = "target";
@@ -67,11 +67,11 @@ public class SpericalDistancePlugin implements PostProcessingPlugin {
         final String secoLonScaleAttrName = secoLonVar.getAttributeValue(SCALE_ATTR_NAME);
         final String secoLonOffsetAttrName = secoLonVar.getAttributeValue(OFFSET_ATTR_NAME);
 
-        return new PostSphericalDistance(targetVarName, targetDataType, targetDimName,
-                                         primLatVarName, primeLatScaleAttrName,primeLatOffsetAttrName,
-                                         primLonVarName, primeLonScaleAttrName, primeLonOffsetAttrName,
-                                         secoLatVarName, secoLatScaleAttrName, secoLatOffsetAttrName,
-                                         secoLonVarName, secoLonScaleAttrName, secoLonOffsetAttrName);
+        return new SphericalDistance(targetVarName, targetDataType, targetDimName,
+                                     primLatVarName, primeLatScaleAttrName, primeLatOffsetAttrName,
+                                     primLonVarName, primeLonScaleAttrName, primeLonOffsetAttrName,
+                                     secoLatVarName, secoLatScaleAttrName, secoLatOffsetAttrName,
+                                     secoLonVarName, secoLonScaleAttrName, secoLonOffsetAttrName);
     }
 
     @Override

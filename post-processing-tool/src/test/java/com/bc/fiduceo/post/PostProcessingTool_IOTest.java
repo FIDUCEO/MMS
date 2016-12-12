@@ -119,6 +119,6 @@ public class PostProcessingTool_IOTest {
         assertNotNull(processings);
         assertEquals("java.util.Collections$UnmodifiableRandomAccessList", processings.getClass().getTypeName());
         assertEquals(1, processings.size());
-        assertEquals("com.bc.fiduceo.post.distance.PostSphericalDistance", processings.get(0).getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", processings.get(0).getClass().getTypeName());
     }
 }

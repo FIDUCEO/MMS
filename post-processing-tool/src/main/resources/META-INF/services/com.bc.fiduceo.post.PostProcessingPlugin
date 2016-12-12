@@ -1,1 +1,2 @@
-com.bc.fiduceo.post.distance.SpericalDistancePlugin
+com.bc.fiduceo.post.plugin.SphericalDistancePlugin
+com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin
