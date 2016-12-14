@@ -21,10 +21,8 @@ package com.bc.fiduceo.post;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.List;
 
 public abstract class PostProcessing {
 
@@ -37,12 +35,12 @@ public abstract class PostProcessing {
 
     protected abstract void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer);
 
-    public void compute(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
+    public void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         if (writer.isDefineMode()) {
             throw new RuntimeException("NetcdfFileWriter has NOT to be in 'define' mode.");
         }
-        computeImpl(reader, writer, outstandingTransfer);
+        computeImpl(reader, writer);
     }
 
-    protected abstract void computeImpl(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException;
+    protected abstract void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 }

@@ -164,8 +164,8 @@ public class PostProcessingToolTest {
         inOrder.verify(p1, times(1)).prepare(reader, writer);
         inOrder.verify(p2, times(1)).prepare(reader, writer);
         inOrder.verify(writer, times(1)).create();
-        inOrder.verify(p1, times(1)).compute(same(reader), same(writer), anyList());
-        inOrder.verify(p2, times(1)).compute(same(reader), same(writer), anyList());
+        inOrder.verify(p1, times(1)).compute(same(reader), same(writer));
+        inOrder.verify(p2, times(1)).compute(same(reader), same(writer));
         verifyNoMoreInteractions(writer, p1, p2);
     }
 

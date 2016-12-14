@@ -26,10 +26,8 @@ import org.junit.*;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.List;
 
 public class PostProcessingTest {
 
@@ -44,7 +42,7 @@ public class PostProcessingTest {
             }
 
             @Override
-            protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
+            protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
 
             }
         };
@@ -79,7 +77,7 @@ public class PostProcessingTest {
     public void testCompute() throws IOException, InvalidRangeException {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(false);
-        postProcessing.compute(null, netcdfFileWriter, null);
+        postProcessing.compute(null, netcdfFileWriter);
 
         verify(netcdfFileWriter, times(1)).isDefineMode();
         verifyNoMoreInteractions(netcdfFileWriter);
@@ -90,7 +88,7 @@ public class PostProcessingTest {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(true);
         try {
-            postProcessing.compute(null, netcdfFileWriter, null);
+            postProcessing.compute(null, netcdfFileWriter);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("NetcdfFileWriter has NOT to be in 'define' mode.", expected.getMessage());

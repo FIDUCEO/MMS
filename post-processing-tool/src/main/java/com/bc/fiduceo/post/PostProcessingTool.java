@@ -154,12 +154,9 @@ class PostProcessingTool {
             postProcessing.prepare(reader, writer);
         }
         writer.create();
-        final List<Variable> outstandingTransfer = transferData(writer, rootGroup, null);
+        transferData(writer, rootGroup);
         for (PostProcessing postProcessing : postProcessings) {
-            postProcessing.compute(reader, writer, outstandingTransfer);
-        }
-        for (Variable variable : outstandingTransfer) {
-            logger.warning("Maybe data of variable '" + variable.getFullName() +"' is lost.");
+            postProcessing.compute(reader, writer);
         }
     }
 
@@ -295,27 +292,20 @@ class PostProcessingTool {
         }
     }
 
-    private static List<Variable> transferData(NetcdfFileWriter writer, Group oldGroup, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
-        if (outstandingTransfer == null) {
-            outstandingTransfer = new ArrayList<>();
-        }
-
+    private static void transferData(NetcdfFileWriter writer, Group oldGroup) throws IOException, InvalidRangeException {
         for (Variable v : oldGroup.getVariables()) {
 
             logger.info(String.format("write %s", v.getNameAndDimensions()));
             Variable nv = writer.findVariable(v.getFullName());
-            if (nv == null) {
-                outstandingTransfer.add(v);
-            } else {
+            if (nv != null) {
                 writer.write(nv, v.read());
             }
         }
 
         // recurse
         for (Group g : oldGroup.getGroups()) {
-            transferData(writer, g, outstandingTransfer);
+            transferData(writer, g);
         }
-        return outstandingTransfer;
     }
 
 }

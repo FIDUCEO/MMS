@@ -55,22 +55,23 @@ public class SourceTargetManager {
     }
 
     public void processingDone(Path src, Exception exception) {
-        if (overwrite) {
-            final Path tempFile = createTempFile(src);
-            if (exception == null) {
-                if (!tempFile.toFile().delete()) {
-                    tempFile.toFile().deleteOnExit();
-                }
-            } else {
-                if (src.toFile().delete()) {
-                    try {
-                        Files.move(tempFile, src);
-                    } catch (IOException e) {
-                        loggErrorMessage(src, tempFile);
-                    }
-                } else {
+        if (!overwrite) {
+            return;
+        }
+        final Path tempFile = createTempFile(src);
+        if (exception == null) {
+            if (!tempFile.toFile().delete()) {
+                tempFile.toFile().deleteOnExit();
+            }
+        } else {
+            if (src.toFile().delete()) {
+                try {
+                    Files.move(tempFile, src);
+                } catch (IOException e) {
                     loggErrorMessage(src, tempFile);
                 }
+            } else {
+                loggErrorMessage(src, tempFile);
             }
         }
     }
