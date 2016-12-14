@@ -49,6 +49,7 @@ public class AngularCosineProportionScreeningPlugin implements ScreeningPlugin {
         return "angular-cosine-proportion";
     }
 
+    // @todo 3 tb/** throw exception when fields are missing, use JDomUtils to extract child elements tb 2016-12-14
     static AngularCosineProportionScreening.Configuration createConfiguration(Element element) {
         final AngularCosineProportionScreening.Configuration configuration = new AngularCosineProportionScreening.Configuration();
 
