@@ -25,6 +25,9 @@ import org.jdom.Element;
 public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
 
     public static final String TAG_NAME_SST_INSITU_TIME_SERIES = "sst-insitu-time-series";
+    public static final String TAG_NAME_VERSION = "version";
+    public static final String TAG_NAME_TIME_RANGE_SECONDS = "time-range-in-seconds";
+    public static final String TAG_NAME_TIME_SERIES_SIZE = "time-series-size";
 
     @Override
     public PostProcessing createPostProcessing(Element element) {

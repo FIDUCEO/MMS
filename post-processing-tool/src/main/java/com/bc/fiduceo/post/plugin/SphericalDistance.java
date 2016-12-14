@@ -31,6 +31,7 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.List;
 
 public class SphericalDistance extends PostProcessing {
 
@@ -73,12 +74,12 @@ public class SphericalDistance extends PostProcessing {
     }
 
     @Override
-    protected void prepareImpl(NetcdfFileWriter writer) {
+    protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
         writer.addVariable(null, targetVarName, DataType.getType(targetDataType), targetDimName);
     }
 
     @Override
-    protected void computeImpl(NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
         final Dimension countDimension = getCountDimension(netcdfFile);
         int count = countDimension.getLength();

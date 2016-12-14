@@ -96,32 +96,28 @@ public class PostProcessingConfigTest {
 
     @Test
     public void testValidInitialised() throws Exception {
-        final List<PostProcessing> processings = getConfig().getProcessings();
+        final List<Element> postProcessingElements = getConfig().getPostProcessingElements();
 
-        assertNotNull(processings);
-        assertEquals("java.util.Collections$UnmodifiableRandomAccessList", processings.getClass().getTypeName());
-        assertEquals(3, processings.size());
+        assertNotNull(postProcessingElements);
+        assertEquals("java.util.Collections$UnmodifiableList", postProcessingElements.getClass().getTypeName());
+        assertEquals(3, postProcessingElements.size());
 
-        PostProcessing postProcessing;
-        DummyPostProcessing dummyPostProcessing;
+        Element postProcessingElem;
 
-        postProcessing = processings.get(0);
-        assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.DummyPostProcessing", postProcessing.getClass().getTypeName());
-        dummyPostProcessing = (DummyPostProcessing) postProcessing;
-        assertEquals("A", dummyPostProcessing.name);
+        postProcessingElem = postProcessingElements.get(0);
+        assertNotNull(postProcessingElem);
+        assertEquals(DUMMY_NAME, postProcessingElem.getName());
+        assertEquals("A", postProcessingElem.getValue());
 
-        postProcessing = processings.get(1);
-        assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.DummyPostProcessing", postProcessing.getClass().getTypeName());
-        dummyPostProcessing = (DummyPostProcessing) postProcessing;
-        assertEquals("B", dummyPostProcessing.name);
+        postProcessingElem = postProcessingElements.get(1);
+        assertNotNull(postProcessingElem);
+        assertEquals(DUMMY_NAME, postProcessingElem.getName());
+        assertEquals("B", postProcessingElem.getValue());
 
-        postProcessing = processings.get(2);
-        assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.DummyPostProcessing", postProcessing.getClass().getTypeName());
-        dummyPostProcessing = (DummyPostProcessing) postProcessing;
-        assertEquals("C", dummyPostProcessing.name);
+        postProcessingElem = postProcessingElements.get(2);
+        assertNotNull(postProcessingElem);
+        assertEquals(DUMMY_NAME, postProcessingElem.getName());
+        assertEquals("C", postProcessingElem.getValue());
     }
 
     @Test

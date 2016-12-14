@@ -23,27 +23,54 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.post.plugin.DummyPostProcessingPlugin;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.hamcrest.CoreMatchers;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.junit.*;
 import org.mockito.InOrder;
+import ucar.nc2.Group;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Formatter;
-
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
 public class PostProcessingToolTest {
+
+    private static final String CONFIG = PostProcessingConfig.TAG_NAME_ROOT;
+    private static final String PROCESSINGS = PostProcessingConfig.TAG_NAME_POST_PROCESSINGS;
+    private static final String NEW_FILES = PostProcessingConfig.TAG_NAME_NEW_FILES;
+    private static final String OUTPUT_DIR = PostProcessingConfig.TAG_NAME_OUTPUT_DIR;
+
+    private static final String DUMMY_NAME = DummyPostProcessingPlugin.DUMMY_POST_PROCESSING_NAME;
+    private Element root;
+
+    @Before
+    public void setUp() throws Exception {
+        root = new Element(CONFIG).addContent(Arrays.asList(
+                    new Element(NEW_FILES).addContent(
+                                new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
+                    new Element(PROCESSINGS).addContent(
+                                new Element(DUMMY_NAME).addContent("C")
+                    )
+        ));
+    }
+
 
     @Test
     public void testOptions() {
@@ -120,20 +147,26 @@ public class PostProcessingToolTest {
 
     @Test
     public void testRunPostProcessing_runWithNetcdfFileWriter() throws Exception {
-        final NetcdfFileWriter ncFile = mock(NetcdfFileWriter.class);
+        final Group rootGroup = mock(Group.class);
+        when(rootGroup.getShortName()).thenReturn("root");
+
+        final NetcdfFile reader = mock(NetcdfFile.class);
+        when(reader.getRootGroup()).thenReturn(rootGroup);
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         final PostProcessing p1 = mock(PostProcessing.class);
         final PostProcessing p2 = mock(PostProcessing.class);
 
-        PostProcessingTool.run(ncFile, Arrays.asList(p1, p2));
+        PostProcessingTool.run(reader, writer, Arrays.asList(p1, p2));
 
-        final InOrder inOrder = inOrder(ncFile, p1, p2);
-        inOrder.verify(ncFile, times(1)).setRedefineMode(true);
-        inOrder.verify(p1, times(1)).prepare(ncFile);
-        inOrder.verify(p2, times(1)).prepare(ncFile);
-        inOrder.verify(ncFile, times(1)).setRedefineMode(false);
-        inOrder.verify(p1, times(1)).compute(ncFile);
-        inOrder.verify(p2, times(1)).compute(ncFile);
-        verifyNoMoreInteractions(ncFile, p1, p2);
+        final InOrder inOrder = inOrder(reader, writer, p1, p2);
+        inOrder.verify(writer, times(1)).addGroup(null, "root");
+        inOrder.verify(p1, times(1)).prepare(reader, writer);
+        inOrder.verify(p2, times(1)).prepare(reader, writer);
+        inOrder.verify(writer, times(1)).create();
+        inOrder.verify(p1, times(1)).compute(same(reader), same(writer), anyList());
+        inOrder.verify(p2, times(1)).compute(same(reader), same(writer), anyList());
+        verifyNoMoreInteractions(writer, p1, p2);
     }
 
     @Test
@@ -201,7 +234,10 @@ public class PostProcessingToolTest {
         try {
             logger.addHandler(handler);
 
-            PostProcessingTool.computeFiles(mmdFiles, null);
+            final PostProcessingContext context = new PostProcessingContext();
+            final PostProcessingConfig processingConfig = getConfig();
+            context.setProcessingConfig(processingConfig);
+            PostProcessingTool.computeFiles(mmdFiles, context);
 
             handler.close();
             final String string = stream.toString();
@@ -211,5 +247,15 @@ public class PostProcessingToolTest {
         } finally {
             logger.removeHandler(handler);
         }
+    }
+
+    private PostProcessingConfig getConfig() throws Exception {
+        final Document document = new Document(root);
+
+        final ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        new XMLOutputter(Format.getPrettyFormat()).output(document, bs);
+        bs.close();
+
+        return PostProcessingConfig.load(new ByteArrayInputStream(bs.toByteArray()));
     }
 }

@@ -28,7 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
-import org.h2.util.New;
+import org.jdom.Element;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,10 +40,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
+import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -123,11 +122,11 @@ public class PostProcessingTool_IOTest {
 
         final PostProcessingConfig config = context.getProcessingConfig();
         assertNotNull(config);
-        final List<PostProcessing> processings = config.getProcessings();
-        assertNotNull(processings);
-        assertEquals("java.util.Collections$UnmodifiableRandomAccessList", processings.getClass().getTypeName());
-        assertEquals(1, processings.size());
-        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", processings.get(0).getClass().getTypeName());
+        final List<Element> postProcessingElements = config.getPostProcessingElements();
+        assertNotNull(postProcessingElements);
+        assertEquals("java.util.Collections$UnmodifiableList", postProcessingElements.getClass().getTypeName());
+        assertEquals(1, postProcessingElements.size());
+        assertEquals(TAG_NAME_SPHERICAL_DISTANCE, postProcessingElements.get(0).getName());
     }
 
 }

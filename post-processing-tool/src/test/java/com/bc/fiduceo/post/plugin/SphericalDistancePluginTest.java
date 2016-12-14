@@ -36,7 +36,7 @@ public class SphericalDistancePluginTest {
     @Before
     public void setUp() throws Exception {
         plugin = new SphericalDistancePlugin();
-        element = new Element("spherical-distance").addContent(Arrays.asList(
+        element = new Element(TAG_NAME_SPHERICAL_DISTANCE).addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
                                 new Element(TAG_NAME_DIM_NAME).addContent("matchup_count"),

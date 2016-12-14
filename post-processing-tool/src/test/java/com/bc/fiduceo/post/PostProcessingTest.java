@@ -22,12 +22,14 @@ package com.bc.fiduceo.post;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import org.esa.snap.core.util.Debug;
 import org.junit.*;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.List;
 
 public class PostProcessingTest {
 
@@ -37,12 +39,12 @@ public class PostProcessingTest {
     public void setUp() throws Exception {
         postProcessing = new PostProcessing() {
             @Override
-            protected void prepareImpl(NetcdfFileWriter writer) {
+            protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
 
             }
 
             @Override
-            protected void computeImpl(NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+            protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
 
             }
         };
@@ -50,12 +52,12 @@ public class PostProcessingTest {
 
     @Test
     public void testPrepare() {
-        final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
-        when(netcdfFileWriter.isDefineMode()).thenReturn(true);
-        postProcessing.prepare(netcdfFileWriter);
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.isDefineMode()).thenReturn(true);
+        postProcessing.prepare(null, writer);
 
-        verify(netcdfFileWriter, times(1)).isDefineMode();
-        verifyNoMoreInteractions(netcdfFileWriter);
+        verify(writer, times(1)).isDefineMode();
+        verifyNoMoreInteractions(writer);
     }
 
     @Test
@@ -63,7 +65,7 @@ public class PostProcessingTest {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(false);
         try {
-            postProcessing.prepare(netcdfFileWriter);
+            postProcessing.prepare(null, netcdfFileWriter);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("NetcdfFileWriter has to be in 'define' mode.", expected.getMessage());
@@ -77,7 +79,7 @@ public class PostProcessingTest {
     public void testCompute() throws IOException, InvalidRangeException {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(false);
-        postProcessing.compute(netcdfFileWriter);
+        postProcessing.compute(null, netcdfFileWriter, null);
 
         verify(netcdfFileWriter, times(1)).isDefineMode();
         verifyNoMoreInteractions(netcdfFileWriter);
@@ -88,7 +90,7 @@ public class PostProcessingTest {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(true);
         try {
-            postProcessing.compute(netcdfFileWriter);
+            postProcessing.compute(null, netcdfFileWriter, null);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("NetcdfFileWriter has NOT to be in 'define' mode.", expected.getMessage());

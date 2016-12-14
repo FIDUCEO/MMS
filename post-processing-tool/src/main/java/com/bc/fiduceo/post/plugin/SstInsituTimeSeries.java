@@ -20,19 +20,22 @@ package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.List;
 
 public class SstInsituTimeSeries extends PostProcessing {
 
     @Override
-    protected void prepareImpl(NetcdfFileWriter writer) {
+    protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    protected void computeImpl(NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
         throw new RuntimeException("not implemented");
     }
 }

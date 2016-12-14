@@ -19,32 +19,16 @@
 
 package com.bc.fiduceo.post.plugin;
 
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
-import com.sun.corba.se.impl.presentation.rmi.DynamicMethodMarshallerImpl;
 import org.jdom.Element;
 import org.junit.*;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
-import ucar.nc2.rewrite.Rewrite;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Created by Sabine on 08.12.2016.
@@ -52,10 +36,16 @@ import java.util.List;
 public class SstInsituTimeSeriesPluginTest {
 
     private SstInsituTimeSeriesPlugin plugin;
+    private Element element;
 
     @Before
     public void setUp() throws Exception {
         plugin = new SstInsituTimeSeriesPlugin();
+        element = new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
+                    new Element(TAG_NAME_VERSION).addContent("v03.3"),
+                    new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("28"),
+                    new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96")
+        ));
     }
 
     @Test
@@ -65,8 +55,7 @@ public class SstInsituTimeSeriesPluginTest {
 
     @Test
     public void testThatPluginReturnsASstInsituTimeSeriesPostProcessing() throws Exception {
-        final Element jDomElement = new Element("name");
-        final PostProcessing postProcessing = plugin.createPostProcessing(jDomElement);
+        final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertThat(postProcessing, is(not(nullValue())));
         assertThat(postProcessing, instanceOf(PostProcessing.class));

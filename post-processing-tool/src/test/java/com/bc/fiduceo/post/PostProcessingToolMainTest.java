@@ -19,6 +19,8 @@
 
 package com.bc.fiduceo.post;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
@@ -33,49 +35,41 @@ import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolMainTest {
 
-    private File testDir;
     private File configDir;
     private File dataDir;
 
     @Before
     public void setUp() throws Exception {
-        testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
+        File testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
         configDir = new File(testDir, "config");
         dataDir = new File(testDir, "data");
     }
 
     @After
     public void tearDown() throws Exception {
+        final File testDir = TestUtil.getTestDir();
         if (testDir.isDirectory()) {
             FileUtils.deleteTree(testDir);
+            assertFalse(testDir.exists());
         }
     }
 
     @Test
     public void acceptanceTest() throws IOException, URISyntaxException, ParseException {
         configDir.mkdirs();
-        final FileWriter fileWriter = new FileWriter(new File(configDir, "system-config.xml"));
-        fileWriter.write("<system-config></system-config>");
-        fileWriter.close();
+        final File systemConfigFile = new File(configDir, "system-config.xml");
+        Files.write(systemConfigFile.toPath(), "<system-config></system-config>".getBytes());
 
-        final String processingConfigFileName = "processing-config.xml";
-        OutputStream outputStream = Files.newOutputStream(configDir.toPath().resolve(processingConfigFileName));
         final Element rootElement = new Element("post-processing-config").addContent(Arrays.asList(
                     new Element("overwrite"),
                     new Element("post-processings").addContent(
@@ -85,8 +79,8 @@ public class PostProcessingToolMainTest {
                                                         new Element("var-name").addContent("post_dist"),
                                                         new Element("dim-name").addContent("matchup_count")
                                             )),
-                                            new Element("primary-lat-variable").setAttribute("scaleAttrName","Scale").addContent("amsub-n16_Latitude"),
-                                            new Element("primary-lon-variable").setAttribute("scaleAttrName","Scale").addContent("amsub-n16_Longitude"),
+                                            new Element("primary-lat-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Latitude"),
+                                            new Element("primary-lon-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Longitude"),
                                             new Element("secondary-lat-variable").addContent("ssmt2-f14_lat"),
                                             new Element("secondary-lon-variable").addContent("ssmt2-f14_lon")
                                 ))
@@ -94,16 +88,17 @@ public class PostProcessingToolMainTest {
         ));
 
         final Document document = new Document(rootElement);
-        new XMLOutputter(Format.getPrettyFormat()).output(document, outputStream);
-        outputStream.close();
+        final String processingConfigFileName = "processing-config.xml";
+        final File file = new File(configDir, processingConfigFileName);
+        try (OutputStream stream = Files.newOutputStream(file.toPath())) {
+            new XMLOutputter(Format.getPrettyFormat()).output(document, stream);
+        }
 
         dataDir.mkdirs();
         final String filename = "mmd22_amsub-n16_ssmt2-f14_2000-306_2000-312.nc";
-        final Path src = TestUtil.getTestDataDirectory().toPath().resolve("post-processing").resolve(filename);
-        final Path target = dataDir.toPath().resolve(filename);
-        outputStream = Files.newOutputStream(target);
-        Files.copy(src, outputStream);
-        outputStream.close();
+        final File src = new File(new File(TestUtil.getTestDataDirectory(), "post-processing"), filename);
+        final File target = new File(dataDir, filename);
+        Files.copy(src.toPath(), target.toPath());
 
         final String[] args = {
                     "-c", configDir.getAbsolutePath(),
@@ -115,24 +110,32 @@ public class PostProcessingToolMainTest {
 
         PostProcessingToolMain.main(args);
 
-        final NetcdfFile netcdfFile = NetcdfFile.open(target.toAbsolutePath().toString());
-        final Variable postDistVar = netcdfFile.findVariable("post_dist");
-        final Variable matchupDistVar = netcdfFile.findVariable("matchup_spherical_distance");
 
-        assertNotNull(postDistVar);
-        assertNotNull(matchupDistVar);
+        NetcdfFile netcdfFile = null;
+        try {
+            netcdfFile = NetcdfFile.open(target.getAbsolutePath());
+            final Variable postDistVar = netcdfFile.findVariable("post_dist");
+            final Variable matchupDistVar = netcdfFile.findVariable("matchup_spherical_distance");
 
-        final Array pDistArr = postDistVar.read();
-        final Array mDistArr = matchupDistVar.read();
+            assertNotNull(postDistVar);
+            assertNotNull(matchupDistVar);
 
-        final float[] pStorage = (float[]) pDistArr.getStorage();
-        final float[] mStorage = (float[]) mDistArr.getStorage();
+            final Array pDistArr = postDistVar.read();
+            final Array mDistArr = matchupDistVar.read();
 
-        assertEquals(4, pStorage.length);
-        assertEquals(4, mStorage.length);
+            final float[] pStorage = (float[]) pDistArr.getStorage();
+            final float[] mStorage = (float[]) mDistArr.getStorage();
 
-        for (int i = 0; i < pStorage.length; i++) {
-            assertEquals(pStorage[i], mStorage[i], 1e-3);
+            assertEquals(4, pStorage.length);
+            assertEquals(4, mStorage.length);
+
+            for (int i = 0; i < pStorage.length; i++) {
+                assertEquals(pStorage[i], mStorage[i], 1e-3);
+            }
+        } finally {
+            if (netcdfFile != null) {
+                netcdfFile.close();
+            }
         }
     }
 }

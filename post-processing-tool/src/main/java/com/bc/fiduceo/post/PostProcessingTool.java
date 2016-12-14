@@ -30,8 +30,18 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
+import org.jdom.Element;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Group;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+import ucar.nc2.constants.DataFormatType;
+import ucar.nc2.write.Nc4Chunking;
+import ucar.nc2.write.Nc4ChunkingDefault;
+import ucar.unidata.io.RandomAccessFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +50,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -47,7 +58,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class PostProcessingTool {
+
     private final static Logger logger = FiduceoLogger.getLogger();
+    private static int anon = 0;
 
     public void run(CommandLine commandLine) throws IOException, InvalidRangeException {
         final PostProcessingContext context = initialize(commandLine);
@@ -67,38 +80,86 @@ class PostProcessingTool {
         }
     }
 
-    static void computeFiles(List<Path> mmdFiles, PostProcessingContext context) {
+    static void computeFiles(List<Path> mmdFiles, PostProcessingContext context)  {
+        final PostProcessingConfig processingConfig = context.getProcessingConfig();
+
+        final List<PostProcessing> processings = new ArrayList<>();
+        final PostProcessingFactory factory = PostProcessingFactory.get();
+        for (Element processing : processingConfig.getPostProcessingElements()) {
+            processings.add(factory.getPostProcessing(processing));
+        }
+
+        final SourceTargetManager manager = new SourceTargetManager(processingConfig);
         for (Path mmdFile : mmdFiles) {
+            Exception ex = null;
             try {
-                computeFile(mmdFile, context);
+                computeFile(mmdFile, context, manager, processings);
             } catch (Exception e) {
+                ex = e;
                 logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
                 logger.severe("Cause: " + e.getMessage());
                 e.printStackTrace();
+            } finally {
+                manager.processingDone(mmdFile, ex);
             }
         }
     }
 
-    private static void computeFile(Path mmdFile, PostProcessingContext context) throws IOException, InvalidRangeException {
+    static void computeFile(Path mmdFile, PostProcessingContext context, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
         final long startTime = context.getStartDate().getTime();
         final long endTime = context.getEndDate().getTime();
         if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
-            final String mmdAbsFile = mmdFile.toAbsolutePath().toString();
-            // todo 1 se/se implement overwrite or new files in dedicated output directory
-            try (NetcdfFileWriter netcdfFileWriter = NetcdfFileWriter.openExisting(mmdAbsFile)) {
-                run(netcdfFileWriter, context.getProcessingConfig().getProcessings());
+
+            final Path source = manager.getSource(mmdFile);
+            final Path target = manager.getTargetPath(mmdFile);
+
+            NetcdfFile reader = null;
+            NetcdfFileWriter writer = null;
+            RandomAccessFile raf = null;
+
+            try {
+                final String absSource = source.toAbsolutePath().toString();
+                raf = new RandomAccessFile(absSource, "r");
+                reader = NetcdfFile.open(raf, absSource, null, null);
+
+                final String absTarget = target.toAbsolutePath().toString();
+                if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
+                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, absTarget);
+                } else {
+                    final Nc4Chunking chunking = Nc4ChunkingDefault.factory(Nc4Chunking.Strategy.standard, 5, true);
+                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
+                }
+
+                run(reader, writer, processings);
+            } finally {
+                if (raf != null) {
+                    raf.close();
+                }
+                if (reader != null) {
+                    reader.close();
+                }
+                if (writer != null) {
+                    writer.close();
+                }
             }
         }
     }
 
-    static void run(NetcdfFileWriter ncFile, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
-        ncFile.setRedefineMode(true);
+    // package access for testing only se 2016-11-28
+    static void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
+        anon = 0;
+        final Group rootGroup = reader.getRootGroup();
+        copyHeader(writer, null, rootGroup);
         for (PostProcessing postProcessing : postProcessings) {
-            postProcessing.prepare(ncFile);
+            postProcessing.prepare(reader, writer);
         }
-        ncFile.setRedefineMode(false);
+        writer.create();
+        final List<Variable> outstandingTransfer = transferData(writer, rootGroup, null);
         for (PostProcessing postProcessing : postProcessings) {
-            postProcessing.compute(ncFile);
+            postProcessing.compute(reader, writer, outstandingTransfer);
+        }
+        for (Variable variable : outstandingTransfer) {
+            logger.warning("Maybe data of variable '" + variable.getFullName() +"' is lost.");
         }
     }
 
@@ -194,6 +255,67 @@ class PostProcessingTool {
         final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();
 
         return fileStart >= startTime && fileEnd <= endTime;
+    }
+
+    private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup) throws IOException, InvalidRangeException {
+        Group newGroup = writer.addGroup(newParent, oldGroup.getShortName());
+
+        for (Attribute att : oldGroup.getAttributes()) {
+            newGroup.addAttribute(att);
+        }
+
+        for (Dimension dim : oldGroup.getDimensions()) {
+            writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), true, dim.isUnlimited(), dim.isVariableLength());
+        }
+
+        for (Variable v : oldGroup.getVariables()) {
+            List<Dimension> dims = v.getDimensions();
+
+            // all dimensions must be shared (!)
+            for (Dimension dim : dims) {
+                if (!dim.isShared()) {
+                    dim.setName("anon" + anon);
+                    dim.setShared(true);
+                    anon++;
+                    writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), true, dim.isUnlimited(), dim.isVariableLength());
+                }
+            }
+
+            final String shortName = v.getShortName();
+            final Variable nv = writer.addVariable(null, shortName, v.getDataType(), v.getDimensionsString());
+
+            for (Attribute att : v.getAttributes()) {
+                writer.addVariableAttribute(nv, att);
+            }
+        }
+
+        // recurse
+        for (Group g : oldGroup.getGroups()) {
+            copyHeader(writer, newGroup, g);
+        }
+    }
+
+    private static List<Variable> transferData(NetcdfFileWriter writer, Group oldGroup, List<Variable> outstandingTransfer) throws IOException, InvalidRangeException {
+        if (outstandingTransfer == null) {
+            outstandingTransfer = new ArrayList<>();
+        }
+
+        for (Variable v : oldGroup.getVariables()) {
+
+            logger.info(String.format("write %s", v.getNameAndDimensions()));
+            Variable nv = writer.findVariable(v.getFullName());
+            if (nv == null) {
+                outstandingTransfer.add(v);
+            } else {
+                writer.write(nv, v.read());
+            }
+        }
+
+        // recurse
+        for (Group g : oldGroup.getGroups()) {
+            transferData(writer, g, outstandingTransfer);
+        }
+        return outstandingTransfer;
     }
 
 }
