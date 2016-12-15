@@ -21,11 +21,14 @@
 package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
+import ucar.ma2.MAMath;
+import ucar.nc2.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class AddAmsreSolarAngles extends PostProcessing {
 
@@ -33,12 +36,45 @@ public class AddAmsreSolarAngles extends PostProcessing {
 
     @Override
     protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
+        final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
+        final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
+        writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
+        writer.addVariable(null, configuration.saaVariable, DataType.FLOAT, dimensions);
+    }
+
+    private Variable getVariable(NetcdfFile reader, String name) {
+        final Variable earthAzimuthVariable = reader.findVariable(null, name);
+        if (earthAzimuthVariable == null) {
+            throw new RuntimeException("Input Variable '" + configuration.earthAzimuthVariable + "' not present in input file");
+        }
+        return earthAzimuthVariable;
     }
 
     @Override
     protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
+        final Array earthAzimuth = readAndScale(earthAzimuthVariable);
+
+        final Variable earthIncidenceVariable = getVariable(reader, configuration.earthIncidenceVariable);
+        final Array earthIncidence = readAndScale(earthIncidenceVariable);
+
+        final Variable sunAzimuthVariable = getVariable(reader, configuration.sunAzimuthVariable);
+        final Array sunAzimuth = readAndScale(sunAzimuthVariable);
+
+        final Variable sunElevationVariable = getVariable(reader, configuration.sunElevationVariable);
+        final Array sunElevation = readAndScale(sunElevationVariable);
+
+        final Array sza = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
+    }
+
+    private Array readAndScale(Variable earthAzimuthVariable) throws IOException {
+        final Array array = earthAzimuthVariable.read();
+
+        final Attribute scaleFactorAttribute = earthAzimuthVariable.findAttribute("SCALE_FACTOR");
+        final float scaleFactor = scaleFactorAttribute.getNumericValue().floatValue();
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
+        return MAMath.convert2Unpacked(array, scaleOffset);
     }
 
     void configure(Configuration configuration) {
