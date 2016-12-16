@@ -60,14 +60,18 @@ import java.util.stream.Stream;
 class PostProcessingTool {
 
     private final static Logger logger = FiduceoLogger.getLogger();
-    private static int anon = 0;
+    PostProcessingContext context;
 
     public void run(CommandLine commandLine) throws IOException, InvalidRangeException {
-        final PostProcessingContext context = initialize(commandLine);
-        runPostProcessing(context);
+        context = initialize(commandLine);
+        runPostProcessing();
     }
 
-    static void runPostProcessing(PostProcessingContext context) throws IOException, InvalidRangeException {
+    // for tests only
+    PostProcessingTool() {
+    }
+
+    void runPostProcessing() throws IOException, InvalidRangeException {
         final Path inputDirectory = context.getMmdInputDirectory();
         final Pattern pattern = Pattern.compile("mmd\\d{1,2}_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
 
@@ -76,24 +80,26 @@ class PostProcessingTool {
             final Stream<Path> mmdFileStream = regularFiles.filter(path -> pattern.matcher(path.getFileName().toString()).matches());
             List<Path> mmdFiles = mmdFileStream.collect(Collectors.toList());
 
-            computeFiles(mmdFiles, context);
+            computeFiles(mmdFiles);
         }
     }
 
-    static void computeFiles(List<Path> mmdFiles, PostProcessingContext context)  {
+    void computeFiles(List<Path> mmdFiles)  {
         final PostProcessingConfig processingConfig = context.getProcessingConfig();
 
         final List<PostProcessing> processings = new ArrayList<>();
         final PostProcessingFactory factory = PostProcessingFactory.get();
         for (Element processing : processingConfig.getPostProcessingElements()) {
-            processings.add(factory.getPostProcessing(processing));
+            final PostProcessing postProcessing = factory.getPostProcessing(processing);
+            postProcessing.setContext(context);
+            processings.add(postProcessing);
         }
 
         final SourceTargetManager manager = new SourceTargetManager(processingConfig);
         for (Path mmdFile : mmdFiles) {
             Exception ex = null;
             try {
-                computeFile(mmdFile, context, manager, processings);
+                computeFile(mmdFile, manager, processings);
             } catch (Exception e) {
                 ex = e;
                 logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
@@ -105,7 +111,7 @@ class PostProcessingTool {
         }
     }
 
-    static void computeFile(Path mmdFile, PostProcessingContext context, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
+    void computeFile(Path mmdFile, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
         final long startTime = context.getStartDate().getTime();
         final long endTime = context.getEndDate().getTime();
         if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
@@ -147,9 +153,8 @@ class PostProcessingTool {
 
     // package access for testing only se 2016-11-28
     static void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
-        anon = 0;
         final Group rootGroup = reader.getRootGroup();
-        copyHeader(writer, null, rootGroup);
+        copyHeader(writer, null, rootGroup, 0);
         for (PostProcessing postProcessing : postProcessings) {
             postProcessing.prepare(reader, writer);
         }
@@ -254,7 +259,7 @@ class PostProcessingTool {
         return fileStart >= startTime && fileEnd <= endTime;
     }
 
-    private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup) throws IOException, InvalidRangeException {
+    private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup, int anon) throws IOException, InvalidRangeException {
         Group newGroup = writer.addGroup(newParent, oldGroup.getShortName());
 
         for (Attribute att : oldGroup.getAttributes()) {
@@ -288,7 +293,7 @@ class PostProcessingTool {
 
         // recurse
         for (Group g : oldGroup.getGroups()) {
-            copyHeader(writer, newGroup, g);
+            copyHeader(writer, newGroup, g, anon);
         }
     }
 

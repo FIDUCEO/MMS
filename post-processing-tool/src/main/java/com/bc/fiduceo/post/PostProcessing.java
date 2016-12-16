@@ -26,14 +26,24 @@ import java.io.IOException;
 
 public abstract class PostProcessing {
 
-    public void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
+    private PostProcessingContext context;
+
+    public void setContext(PostProcessingContext context) {
+        this.context = context;
+    }
+
+    public PostProcessingContext getContext() {
+        return context;
+    }
+
+    public void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         if (!writer.isDefineMode()) {
             throw new RuntimeException("NetcdfFileWriter has to be in 'define' mode.");
         }
         prepareImpl(reader, writer);
     }
 
-    protected abstract void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer);
+    protected abstract void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 
     public void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         if (writer.isDefineMode()) {

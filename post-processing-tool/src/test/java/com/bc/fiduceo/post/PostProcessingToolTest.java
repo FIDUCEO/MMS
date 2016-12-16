@@ -128,7 +128,7 @@ public class PostProcessingToolTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         PostProcessingTool.printUsageTo(out);
-        PostProcessingTool.printUsageTo(System.out);
+//        PostProcessingTool.printUsageTo(System.out);
 
         final String ls = System.lineSeparator();
         final String expected = "post-processing-tool version 1.1.2" + ls +
@@ -146,7 +146,7 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testRunPostProcessing_runWithNetcdfFileWriter() throws Exception {
+    public void testRun() throws Exception {
         final Group rootGroup = mock(Group.class);
         when(rootGroup.getShortName()).thenReturn("root");
 
@@ -237,7 +237,11 @@ public class PostProcessingToolTest {
             final PostProcessingContext context = new PostProcessingContext();
             final PostProcessingConfig processingConfig = getConfig();
             context.setProcessingConfig(processingConfig);
-            PostProcessingTool.computeFiles(mmdFiles, context);
+
+            final PostProcessingTool postProcessingTool = new PostProcessingTool();
+            postProcessingTool.context = context;
+
+            postProcessingTool.computeFiles(mmdFiles);
 
             handler.close();
             final String string = stream.toString();

@@ -49,7 +49,7 @@ public class PostProcessingTest {
     }
 
     @Test
-    public void testPrepare() {
+    public void testPrepare() throws IOException, InvalidRangeException {
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         when(writer.isDefineMode()).thenReturn(true);
         postProcessing.prepare(null, writer);
@@ -59,7 +59,7 @@ public class PostProcessingTest {
     }
 
     @Test
-    public void testPrepare_wrongMode() {
+    public void testPrepare_wrongMode() throws IOException, InvalidRangeException {
         final NetcdfFileWriter netcdfFileWriter = mock(NetcdfFileWriter.class);
         when(netcdfFileWriter.isDefineMode()).thenReturn(false);
         try {

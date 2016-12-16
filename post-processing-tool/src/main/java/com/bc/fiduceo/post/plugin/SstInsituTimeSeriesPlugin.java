@@ -20,6 +20,7 @@ package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
 public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
@@ -31,7 +32,18 @@ public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        return new SstInsituTimeSeries();
+        if (!getPostProcessingName().equals(element.getName())) {
+            throw new RuntimeException("Illegal XML Element. Tagname '" + getPostProcessingName() + "' expected.");
+        }
+        final String processingVersion = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_VERSION);
+
+        final String timeRange = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_RANGE_SECONDS);
+        final int timeRangeSeconds = Integer.parseInt(timeRange);
+
+        final String seriesSize = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_SERIES_SIZE);
+        final int timeSeriesSize = Integer.parseInt(seriesSize);
+
+        return new SstInsituTimeSeries(processingVersion, timeRangeSeconds, timeSeriesSize);
     }
 
     @Override

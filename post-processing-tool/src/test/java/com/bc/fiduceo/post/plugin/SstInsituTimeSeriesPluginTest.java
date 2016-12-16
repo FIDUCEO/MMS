@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
+import org.esa.snap.core.util.Debug;
 import org.jdom.Element;
 import org.junit.*;
 
@@ -43,7 +44,7 @@ public class SstInsituTimeSeriesPluginTest {
         plugin = new SstInsituTimeSeriesPlugin();
         element = new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
                     new Element(TAG_NAME_VERSION).addContent("v03.3"),
-                    new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("28"),
+                    new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
                     new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96")
         ));
     }
@@ -60,5 +61,20 @@ public class SstInsituTimeSeriesPluginTest {
         assertThat(postProcessing, is(not(nullValue())));
         assertThat(postProcessing, instanceOf(PostProcessing.class));
         assertThat(postProcessing, instanceOf(SstInsituTimeSeries.class));
+        final SstInsituTimeSeries insituTimeSeries = (SstInsituTimeSeries) postProcessing;
+        assertThat(insituTimeSeries.processingVersion, is(equalTo("v03.3")));
+        assertThat(insituTimeSeries.timeRangeSeconds, is(equalTo(36 * 60 * 60)));
+        assertThat(insituTimeSeries.timeSeriesSize, is(equalTo(96)));
+    }
+
+    @Test
+    public void chreatePostProcessing_throwsExceptionIfTheNameOfTheRootElementIsWrong() throws Exception {
+        try {
+            plugin.createPostProcessing(new Element("wrongName"));
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), is(equalTo("Illegal XML Element. Tagname '" + plugin.getPostProcessingName() + "' expected.")));
+        }
+
     }
 }
