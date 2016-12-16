@@ -55,13 +55,13 @@ public class Archive {
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
         final ArrayList<Path> pathArrayList = new ArrayList<>();
-        final Calendar instance = TimeUtils.getUTCCalendar();
-        instance.setTime(startDate);
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(startDate);
 
-        while (instance.getTime().compareTo(endDate) <= 0) {
-            final int year = instance.get(Calendar.YEAR);
-            final int month = instance.get(Calendar.MONTH) + 1;
-            final int day = instance.get(Calendar.DAY_OF_MONTH);
+        while (utcCalendar.getTime().compareTo(endDate) <= 0) {
+            final int year = utcCalendar.get(Calendar.YEAR);
+            final int month = utcCalendar.get(Calendar.MONTH) + 1;
+            final int day = utcCalendar.get(Calendar.DAY_OF_MONTH);
             final Path productsDir = createValidProductPath(processingVersion, sensorType, year, month, day);
 
             if (Files.exists(productsDir)) {
@@ -79,7 +79,7 @@ public class Archive {
             } else {
                 log.warning("The directory doest not exist: " + productsDir.toString());
             }
-            instance.add(Calendar.DAY_OF_MONTH, 1);
+            utcCalendar.add(Calendar.DAY_OF_MONTH, 1);
         }
         return pathArrayList.toArray(new Path[0]);
     }
