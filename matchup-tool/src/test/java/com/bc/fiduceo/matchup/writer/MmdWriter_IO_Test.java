@@ -219,7 +219,7 @@ public class MmdWriter_IO_Test {
             assertEquals(DataType.FLOAT, variable.getDataType());
             att = variable.findAttribute("_FillValue");
             assertNotNull(att);
-            assertEquals(Float.MIN_VALUE, att.getNumericValue().floatValue(), 1e-8);
+            assertEquals(N3iosp.NC_FILL_FLOAT, att.getNumericValue().floatValue(), 1e-8);
 
             final List<Variable> variables = mmd.getVariables();
             assertEquals(4, variables.size());

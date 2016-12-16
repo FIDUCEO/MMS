@@ -33,6 +33,7 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -92,7 +93,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Double.MIN_VALUE, attribute.getNumericValue());
+        assertEquals(N3iosp.NC_FILL_DOUBLE, attribute.getNumericValue());
     }
 
     @Test
@@ -107,7 +108,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Float.MIN_VALUE, attribute.getNumericValue());
+        assertEquals(N3iosp.NC_FILL_FLOAT, attribute.getNumericValue());
     }
 
     @Test
@@ -122,7 +123,8 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Long.MIN_VALUE, attribute.getNumericValue());
+        // this is due to a bug in the NetCDF Attribute class which converts all values to Double and therefore introduces errors
+        assertEquals(new Double(N3iosp.NC_FILL_LONG).longValue(), attribute.getNumericValue().longValue());
     }
 
     @Test
@@ -137,7 +139,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Integer.MIN_VALUE, attribute.getNumericValue());
+        assertEquals(N3iosp.NC_FILL_INT, attribute.getNumericValue());
     }
 
     @Test
@@ -152,7 +154,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Short.MIN_VALUE, attribute.getNumericValue());
+        assertEquals(N3iosp.NC_FILL_SHORT, attribute.getNumericValue());
     }
 
     @Test
@@ -167,7 +169,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(Byte.MIN_VALUE, attribute.getNumericValue());
+        assertEquals(N3iosp.NC_FILL_BYTE, attribute.getNumericValue());
     }
 
     @Test

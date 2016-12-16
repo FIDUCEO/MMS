@@ -42,6 +42,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -78,7 +79,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
      * @param ioVariablesList   the variables which has to be part of the mmd file
-     *
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
@@ -176,15 +176,15 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "comment",
+                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             useCaseConfig.store(outputStream);
             netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                        "use-case-configuration",
-                        outputStream.toString()
+                    "use-case-configuration",
+                    outputStream.toString()
             ));
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
@@ -199,19 +199,20 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 return;
             }
         }
+
         final DataType dataType = DataType.getType(variable.getDataType());
         if (DataType.DOUBLE.equals(dataType)) {
-            attributes.add(new Attribute(name, Double.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_DOUBLE));
         } else if (DataType.FLOAT.equals(dataType)) {
-            attributes.add(new Attribute(name, Float.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_FLOAT));
         } else if (DataType.LONG.equals(dataType)) {
-            attributes.add(new Attribute(name, Long.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_LONG));
         } else if (DataType.INT.equals(dataType)) {
-            attributes.add(new Attribute(name, Integer.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_INT));
         } else if (DataType.SHORT.equals(dataType)) {
-            attributes.add(new Attribute(name, Short.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_SHORT));
         } else if (DataType.BYTE.equals(dataType)) {
-            attributes.add(new Attribute(name, Byte.MIN_VALUE));
+            attributes.add(new Attribute(name, N3iosp.NC_FILL_BYTE));
         }
     }
 
@@ -261,9 +262,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         for (final IOVariable ioVariable : ioVariables) {
             ensureFillValue(ioVariable);
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   ioVariable.getTargetVariableName(),
-                                                                   DataType.getType(ioVariable.getDataType()),
-                                                                   ioVariable.getDimensionNames());
+                    ioVariable.getTargetVariableName(),
+                    DataType.getType(ioVariable.getDataType()),
+                    ioVariable.getDimensionNames());
             final List<Attribute> attributes = ioVariable.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
@@ -283,7 +284,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     }
 
     private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
-                throws IOException, InvalidRangeException {
+            throws IOException, InvalidRangeException {
         for (SampleSetIOVariable variable : sampleSetVariables) {
             variable.setSampleSet(sampleSet);
             variable.writeData(0, 0, null, zIndex);

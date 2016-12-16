@@ -280,6 +280,58 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_rightBorder() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(242, 335, interval, "Time");
+            NCTestUtils.assertValueAt(3.8277267057169616E8, 2, 0, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 3, 0, array);
+
+            array = reader.readRaw(242, 334, interval, "Longitude");
+            NCTestUtils.assertValueAt(-30.30225944519043, 2, 1, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 3, 1, array);
+
+            array = reader.readRaw(242, 336, interval, "Earth_Azimuth");
+            NCTestUtils.assertValueAt(13653, 2, 2, array);
+            NCTestUtils.assertValueAt(-32767, 3, 2, array);
+
+            array = reader.readRaw(242, 337, interval, "Land_Ocean_Flag_6");
+            NCTestUtils.assertValueAt(0, 2, 3, array);
+            NCTestUtils.assertValueAt(-127, 3, 3, array);
+
+            array = reader.readRaw(242, 338, interval, "6_9H_Res_1_TB");
+            NCTestUtils.assertValueAt(-23777, 2, 4, array);
+            NCTestUtils.assertValueAt(-32767, 3, 4, array);
+
+            array = reader.readRaw(242, 339, interval, "18_7V_Res_1_TB");
+            NCTestUtils.assertValueAt(-13934, 2, 0, array);
+            NCTestUtils.assertValueAt(-32767, 3, 0, array);
+
+            array = reader.readRaw(242, 340, interval, "Scan_Quality_Flag");
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 3, 1, array);
+
+            array = reader.readRaw(242, 341, interval, "Channel_Quality_Flag_10V");
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+            NCTestUtils.assertValueAt(-32767, 3, 2, array);
+
+            array = reader.readRaw(242, 342, interval, "Channel_Quality_Flag_89V");
+            NCTestUtils.assertValueAt(11, 2, 3, array);
+            NCTestUtils.assertValueAt(-32767, 3, 3, array);
+
+            array = reader.readRaw(242, 343, interval, "Res1_Surf");
+            NCTestUtils.assertValueAt(0, 2, 4, array);
+            NCTestUtils.assertValueAt(-127, 3, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadScaled() throws IOException, InvalidRangeException {
         final File file = getAmsreFile();
 
