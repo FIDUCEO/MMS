@@ -374,13 +374,4 @@ public class MmdWriter_IO_Test {
         assertNotNull(globalAttribute);
         assertEquals(value, globalAttribute.getStringValue());
     }
-
-    private void assertCorrectDimensions(Variable variable, int... dims) {
-        final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
-        assertEquals(dims.length, dimensions.size());
-        for (int i = 0; i < dims.length; i++) {
-            int dim = dims[i];
-            assertEquals("wrong dimension at idx " + i, dim, dimensions.get(i).getLength());
-        }
-    }
 }
