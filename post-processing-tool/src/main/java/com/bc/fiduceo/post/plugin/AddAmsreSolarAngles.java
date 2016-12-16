@@ -23,6 +23,7 @@ package com.bc.fiduceo.post.plugin;
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.*;
@@ -66,6 +67,35 @@ public class AddAmsreSolarAngles extends PostProcessing {
         final Array sunElevation = readAndScale(sunElevationVariable);
 
         final Array sza = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
+        final Array saa = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
+
+        calculateAngles(earthAzimuth, earthIncidence, sunAzimuth, sunElevation, sza, saa);
+
+        final Variable szaVariable = writer.findVariable(configuration.szaVariable);
+        final Variable saaVariable = writer.findVariable(configuration.saaVariable);
+
+        writer.write(szaVariable, sza);
+        writer.write(saaVariable, saa);
+    }
+
+    // package access for testing only tb 2016-12-16
+    static void calculateAngles(Array earthAzimuth, Array earthIncidence, Array sunAzimuth, Array sunElevation, Array sza, Array saa) {
+        final IndexIterator szaIterator = sza.getIndexIterator();
+        final IndexIterator saaIterator = saa.getIndexIterator();
+
+        // @todo 2 tb/tb check if we need to call hasNext for all variables or if it is sufficient to call it once to
+        // initialize the iterators and check on ly one in the loop - as we assume all arrays having the same size 2016-12-16
+        while (earthAzimuth.hasNext() && earthIncidence.hasNext() && sunAzimuth.hasNext() && sunElevation.hasNext()) {
+            final float szaValue = sunElevation.nextFloat() + earthIncidence.nextFloat();
+            szaIterator.setFloatNext(szaValue);
+
+            final float saaValue = (earthAzimuth.nextFloat() - sunAzimuth.nextFloat() + 180.f) % 360.f;
+            saaIterator.setFloatNext(saaValue);
+        }
+    }
+
+    void configure(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     private Array readAndScale(Variable earthAzimuthVariable) throws IOException {
@@ -75,10 +105,6 @@ public class AddAmsreSolarAngles extends PostProcessing {
         final float scaleFactor = scaleFactorAttribute.getNumericValue().floatValue();
         final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
         return MAMath.convert2Unpacked(array, scaleOffset);
-    }
-
-    void configure(Configuration configuration) {
-        this.configuration = configuration;
     }
 
     static class Configuration {

@@ -25,13 +25,23 @@ import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class AddAmsreSolarAnglesTest {
 
@@ -95,8 +105,47 @@ public class AddAmsreSolarAnglesTest {
         final Variable sunAzimuthVariable = createVariableWithData(new short[]{789}, 0.1);
         when(reader.findVariable(null, "Sun_Azimuth")).thenReturn(sunAzimuthVariable);
 
+        when(writer.findVariable("sun_zenith_angle")).thenReturn(mock(Variable.class));
+        when(writer.findVariable("sun_azimuth_angle")).thenReturn(mock(Variable.class));
+
         addAmsreSolarAngles.computeImpl(reader, writer);
 
+        verify(reader, times(1)).findVariable(null, "Earth_Incidence");
+        verify(reader, times(1)).findVariable(null, "Sun_Elevation");
+        verify(reader, times(1)).findVariable(null, "Earth_Azimuth");
+        verify(reader, times(1)).findVariable(null, "Sun_Azimuth");
+
+        verify(writer, times(1)).findVariable("sun_zenith_angle");
+        verify(writer, times(1)).findVariable("sun_azimuth_angle");
+        verify(writer, times(2)).write(any(), any());
+        verifyNoMoreInteractions(reader, writer);
+    }
+
+    @Test
+    public void testCalculateAngles_3by3_singleLayer() {
+        final int[] shape = new int[]{3, 3};
+        final float[] earthIncidences = {55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f};
+        final Array earthIncidenceArray = Array.factory(float.class, shape, earthIncidences);
+
+        final float[] sunElevation = {41.4f, 41.4f, 41.5f, 41.5f, 41.5f, 41.6f, 41.5f, 41.6f, 41.7f};
+        final Array sunElevationArray = Array.factory(float.class, shape, sunElevation);
+
+        final float[] earthAzimuth = {65.67f, 64.7f, 63.71f, 65.53f, 64.55f, 63.56f, 65.39f, 64.41f, 63.4f};
+        final Array earthAzimuthArray = Array.factory(float.class, shape, earthAzimuth);
+
+        final float[] sunAzimuth = {-125.1f, -125.8f, -126.4f, -125.2f, -125.8f, -126.4f, -125.1f, -125.8f, -126.4f};
+        final Array sunAzimuthArray = Array.factory(float.class, shape, sunAzimuth);
+
+        final Array sza = Array.factory(DataType.FLOAT, shape);
+        final Array saa = Array.factory(DataType.FLOAT, shape);
+
+        AddAmsreSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
+
+        final float[] expectedSza = new float[]{96.505005f, 96.505005f, 96.604996f, 96.604996f, 96.604996f, 96.705f, 96.604996f, 96.705f, 96.805f};
+        final float[] expectedSaa = new float[]{10.769989f, 10.5f, 10.109985f, 10.72998f, 10.350006f, 9.960022f, 10.48999f, 10.210022f, 9.799988f};
+
+        assertArrayEquals(expectedSza, (float[]) sza.get1DJavaArray(float.class), 1e-8f);
+        assertArrayEquals(expectedSaa, (float[]) saa.get1DJavaArray(float.class), 1e-8f);
     }
 
     private Variable createVariableWithData(short[] data, double scaleFactor) throws IOException {
@@ -111,4 +160,5 @@ public class AddAmsreSolarAnglesTest {
 
         return variable;
     }
+
 }
