@@ -20,7 +20,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 

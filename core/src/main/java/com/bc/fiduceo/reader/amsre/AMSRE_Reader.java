@@ -56,7 +56,7 @@ class AMSRE_Reader implements Reader {
     private static final String LO_RES_SWATH_DATA_GROUP = "Low_Res_Swath/Data_Fields";
     private static final String LAND_OCEAN_FLAGS_NAME = "Land_Ocean_Flag_for_6_10_18_23_36_50_89A";
     private static final String CHANNEL_QUALITY_FLAGS_NAME = "Channel_Quality_Flag_6_to_52";
-    private static final String REG_EX = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z]{1}.hdf";
+    private static final String REG_EX = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z].hdf";
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;

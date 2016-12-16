@@ -29,7 +29,7 @@ import java.util.Date;
 
 public class TimeUtils {
 
-    public static final String YEAR_DOY_PATTERN = "yyyy-DDD";
+    private static final String YEAR_DOY_PATTERN = "yyyy-DDD";
 
     private static final double EPOCH_MJD2000 = 10957.0;
     private static final double MILLIS_PER_DAY = 86400000.0;
@@ -121,24 +121,18 @@ public class TimeUtils {
 
     public static Date getEndOfMonth(Date date) {
         final Calendar utcCalendar = calendarThreadLocal.get();
-        final int maxDay = utcCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         utcCalendar.setTime(date);
+        final int maxDay = utcCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         utcCalendar.set(Calendar.DAY_OF_MONTH, maxDay);
-        return getEndOfDay(utcCalendar.getTime());
+        utcCalendar.set(Calendar.MILLISECOND, 999);
+        utcCalendar.set(Calendar.SECOND, 59);
+        utcCalendar.set(Calendar.MINUTE, 59);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 23);
+        return utcCalendar.getTime();
     }
 
     public static Date getBeginningOfDay(Date day) {
         return calendarDayOf(day).getTime();
-    }
-
-    public static Date getEndOfDay(Date day) {
-        final Calendar calendar = calendarThreadLocal.get();
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        return calendar.getTime();
     }
 
     public static Date mjd2000ToDate(double mjd2000) {

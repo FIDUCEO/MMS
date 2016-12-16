@@ -16,7 +16,6 @@
  */
 package com.bc.fiduceo.util;
 
-import com.bc.fiduceo.core.UseCaseConfig;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;

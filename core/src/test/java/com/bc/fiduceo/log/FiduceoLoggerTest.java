@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class FiduceoLoggerTest {
 
-    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Test
     public void testGetDefaultAndLevel() throws Exception {
@@ -56,7 +56,7 @@ public class FiduceoLoggerTest {
     public void testLoggerMessageWithLineNumber() throws Exception {
         Logger logger = FiduceoLogger.getLogger(Level.SEVERE);
         logger.severe("With Error message Line");
-        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()) + " - SEVERE: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageWithLineNumber - 58 - With Error message Line\n";
+        String dateTimeNow = DATE_FORMAT.format(Calendar.getInstance().getTime()) + " - SEVERE: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageWithLineNumber - 58 - With Error message Line\n";
 
         assertEquals(dateTimeNow, FiduceoLoggerFormatter.getLogMessage());
     }
@@ -65,7 +65,7 @@ public class FiduceoLoggerTest {
     public void testLoggerMessageINFO() throws Exception {
         Logger logger = FiduceoLogger.getLogger(Level.INFO);
         logger.info("Info about Fiduceo");
-        String dateTimeNow = dateFormat.format(Calendar.getInstance().getTime()) + " - INFO: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageINFO - Info about Fiduceo\n";
+        String dateTimeNow = DATE_FORMAT.format(Calendar.getInstance().getTime()) + " - INFO: com.bc.fiduceo.log.FiduceoLoggerTest - testLoggerMessageINFO - Info about Fiduceo\n";
         assertEquals(dateTimeNow, FiduceoLoggerFormatter.getLogMessage());
     }
 }

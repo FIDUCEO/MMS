@@ -137,16 +137,7 @@ public class TestUtil {
             fail("unable to create test file: " + systemConfigFile.getAbsolutePath());
         }
 
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(systemConfigFile);
-            outputStream.write(systemConfigXML.getBytes());
-            outputStream.flush();
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
-        }
+        writeStringTo(systemConfigFile, systemConfigXML);
     }
 
     public static void writeMmdWriterConfig(File configDir) throws IOException {
@@ -165,16 +156,7 @@ public class TestUtil {
             fail("unable to create test file: " + propertiesFile.getAbsolutePath());
         }
 
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(propertiesFile);
-            outputStream.write(xml.getBytes());
-            outputStream.flush();
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
-        }
+        writeStringTo(propertiesFile, xml);
     }
 
     public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, Date utcDate) {
@@ -279,5 +261,18 @@ public class TestUtil {
         properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", datasource.getUsername());
         properties.setProperty("password", datasource.getPassword());
+    }
+
+    private static void writeStringTo(File outFile, String data) throws IOException {
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(outFile);
+            outputStream.write(data.getBytes());
+            outputStream.flush();
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
     }
 }

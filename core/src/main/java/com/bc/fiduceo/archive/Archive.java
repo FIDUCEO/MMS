@@ -26,8 +26,12 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Archive {
@@ -38,17 +42,12 @@ public class Archive {
 
     private Path rootPath;
 
-    @Deprecated
-    public Archive(Path rootPath) {
-        this.rootPath = rootPath;
+    public Archive(ArchiveConfig config) {
+        rootPath = config.getRootPath();
         log = FiduceoLogger.getLogger();
         pathMaps = new HashMap<>();
 
         defaultPath = createDefaultPathElements();
-    }
-
-    public Archive(ArchiveConfig config) {
-        this(config.getRootPath());
 
         final Map<String, String[]> rules = config.getRules();
         pathMaps.putAll(rules);

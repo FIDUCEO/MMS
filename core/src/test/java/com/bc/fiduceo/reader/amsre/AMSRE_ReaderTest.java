@@ -124,7 +124,7 @@ public class AMSRE_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-         final String expected = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z]{1}.hdf";
+        final String expected = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z].hdf";
 
         final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2016-09-07
         assertEquals(expected, reader.getRegEx());

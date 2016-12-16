@@ -22,7 +22,6 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;

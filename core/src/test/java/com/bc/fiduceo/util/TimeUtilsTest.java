@@ -44,7 +44,7 @@ public class TimeUtilsTest {
     }
 
     @Test
-    public void testCreateNow(){
+    public void testCreateNow() {
         final Date now = TimeUtils.createNow();
         assertNotNull(now);
     }
@@ -98,7 +98,7 @@ public class TimeUtilsTest {
     }
 
     @Test
-    public void testFormatToDOY(){
+    public void testFormatToDOY() {
         final Date date = TimeUtils.parseDOYBeginOfDay("2007-127");
 
         final String doyFormatted = TimeUtils.formatToDOY(date);
@@ -208,5 +208,21 @@ public class TimeUtilsTest {
 
         date = TimeUtils.getDate(2008, 217, 82022567);
         TestUtil.assertCorrectUTCDate(2008, 8, 4, 22, 47, 2, 567, date);
+    }
+
+
+    @Test
+    public void testGetEndOfMonth() {
+        Date date = TimeUtils.parse("2009-114", "yyyy-DDD");
+        TestUtil.assertCorrectUTCDate(2009, 4, 24, 0, 0, 0, date);
+
+        Date endOfMonth = TimeUtils.getEndOfMonth(date);
+        TestUtil.assertCorrectUTCDate(2009, 4, 30, 23, 59, 59, 999, endOfMonth);
+
+        date = TimeUtils.parse("2010-214", "yyyy-DDD");
+        TestUtil.assertCorrectUTCDate(2010, 8, 2, 0, 0, 0, date);
+
+        endOfMonth = TimeUtils.getEndOfMonth(date);
+        TestUtil.assertCorrectUTCDate(2010, 8, 31, 23, 59, 59, 999, endOfMonth);
     }
 }

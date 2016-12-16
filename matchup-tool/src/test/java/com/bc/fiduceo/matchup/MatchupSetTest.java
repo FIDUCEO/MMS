@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +44,7 @@ public class MatchupSetTest {
     @Test
     public void testSetGetPrimaryObservationPath() {
         final String primaryPath = "/the/primary/file.nc";
-        when(path.toString()). thenReturn(primaryPath);
+        when(path.toString()).thenReturn(primaryPath);
 
         matchupSet.setPrimaryObservationPath(path);
         assertEquals(primaryPath, matchupSet.getPrimaryObservationPath().toString());
@@ -54,7 +53,7 @@ public class MatchupSetTest {
     @Test
     public void testSetGetSecondaryObservationPath() {
         final String secondaryPath = "/the/secondary/file.nc";
-        when(path.toString()). thenReturn(secondaryPath);
+        when(path.toString()).thenReturn(secondaryPath);
 
         matchupSet.setSecondaryObservationPath(path);
         assertEquals(secondaryPath, matchupSet.getSecondaryObservationPath().toString());

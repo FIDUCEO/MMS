@@ -89,8 +89,8 @@ public class TimeLatMapStrategyTest {
 
         final TimeRange timeRange = TimeLatMapStrategy.extractTimeRangeInFullMonths(points);
         assertNotNull(timeRange);
-        assertExpectedTime("2011-06-01T00:00:00Z", timeRange.getStartDate());
-        assertExpectedTime("2011-07-01T00:00:00Z", timeRange.getStopDate());
+        assertExpectedTime("2011-06-01T00:00:00.000Z", timeRange.getStartDate());
+        assertExpectedTime("2011-06-30T23:59:59.999Z", timeRange.getStopDate());
     }
 
     @Test
@@ -102,12 +102,12 @@ public class TimeLatMapStrategyTest {
 
         final TimeRange timeRange = TimeLatMapStrategy.extractTimeRangeInFullMonths(points);
         assertNotNull(timeRange);
-        assertExpectedTime("2010-05-01T00:00:00Z", timeRange.getStartDate());
-        assertExpectedTime("2010-06-01T00:00:00Z", timeRange.getStopDate());
+        assertExpectedTime("2010-05-01T00:00:00.000Z", timeRange.getStartDate());
+        assertExpectedTime("2010-05-31T23:59:59.999Z", timeRange.getStopDate());
     }
 
     private static void assertExpectedTime(String expected, Date date) throws ParseException {
-        assertEquals(TimeUtils.parse(expected, "yyyy-MM-dd'T'HH:mm:ss'Z'").getTime(), date.getTime());
+        assertEquals(TimeUtils.parse(expected, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").getTime(), date.getTime());
     }
 
     private static SamplingPoint createPoint(String time, double lat) throws ParseException {
