@@ -75,7 +75,7 @@ public class AddAmsreSolarAnglesTest {
         when(earthAzimuthVariable.getDimensions()).thenReturn(dimensions);
         when(reader.findVariable(null, "Earth_Azimuth")).thenReturn(earthAzimuthVariable);
 
-        addAmsreSolarAngles.prepareImpl(reader, writer);
+        addAmsreSolarAngles.prepare(reader, writer);
 
         verify(writer, times(1)).addVariable(null, "sun_zenith_angle", DataType.FLOAT, dimensions);
         verify(writer, times(1)).addVariable(null, "sun_azimuth_angle", DataType.FLOAT, dimensions);
@@ -86,7 +86,7 @@ public class AddAmsreSolarAnglesTest {
     @Test
     public void testPrepare_missingInputVariable() {
         try {
-            addAmsreSolarAngles.prepareImpl(reader, writer);
+            addAmsreSolarAngles.prepare(reader, writer);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -109,7 +109,7 @@ public class AddAmsreSolarAnglesTest {
         when(writer.findVariable("sun_zenith_angle")).thenReturn(mock(Variable.class));
         when(writer.findVariable("sun_azimuth_angle")).thenReturn(mock(Variable.class));
 
-        addAmsreSolarAngles.computeImpl(reader, writer);
+        addAmsreSolarAngles.compute(reader, writer);
 
         verify(reader, times(1)).findVariable(null, "Earth_Incidence");
         verify(reader, times(1)).findVariable(null, "Sun_Elevation");

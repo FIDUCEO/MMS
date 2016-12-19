@@ -56,7 +56,7 @@ public class SstInsituTimeSeries extends PostProcessing {
     }
 
     @Override
-    protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
         fileNameVar = getFileNameVariable(reader, sensorType);
         filenameSize = findDimensionMandatory(reader, "file_name").getLength();
@@ -75,7 +75,7 @@ public class SstInsituTimeSeries extends PostProcessing {
     }
 
     @Override
-    protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         throw new RuntimeException("not implemented");
     }
 

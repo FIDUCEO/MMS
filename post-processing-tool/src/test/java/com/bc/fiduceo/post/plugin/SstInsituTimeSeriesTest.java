@@ -304,7 +304,7 @@ public class SstInsituTimeSeriesTest {
                      "</"+ PostProcessingConfig.TAG_NAME_ROOT + ">").getBytes())));
         insituTimeSeries.setContext(context);
 
-        insituTimeSeries.prepareImpl(reader, writer);
+        insituTimeSeries.prepare(reader, writer);
 
 //        verify(writer, times(1)).findGlobalAttribute("use-case-configuration");
 //        assertEquals("", targetAttrib.getStringValue());

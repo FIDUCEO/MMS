@@ -73,12 +73,12 @@ public class SphericalDistance extends PostProcessing {
     }
 
     @Override
-    protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         writer.addVariable(null, targetVarName, DataType.getType(targetDataType), targetDimName);
     }
 
     @Override
-    protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
         final Dimension countDimension = getCountDimension(netcdfFile);
         int count = countDimension.getLength();

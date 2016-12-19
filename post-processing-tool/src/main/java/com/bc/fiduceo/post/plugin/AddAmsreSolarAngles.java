@@ -40,7 +40,7 @@ public class AddAmsreSolarAngles extends PostProcessing {
     private Configuration configuration;
 
     @Override
-    protected void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
         final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
@@ -57,7 +57,7 @@ public class AddAmsreSolarAngles extends PostProcessing {
     }
 
     @Override
-    protected void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
         final Array earthAzimuth = readAndScale(earthAzimuthVariable);
 

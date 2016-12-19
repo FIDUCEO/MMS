@@ -36,21 +36,7 @@ public abstract class PostProcessing {
         return context;
     }
 
-    public void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        if (!writer.isDefineMode()) {
-            throw new RuntimeException("NetcdfFileWriter has to be in 'define' mode.");
-        }
-        prepareImpl(reader, writer);
-    }
+    protected abstract void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 
-    protected abstract void prepareImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
-
-    public void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        if (writer.isDefineMode()) {
-            throw new RuntimeException("NetcdfFileWriter has NOT to be in 'define' mode.");
-        }
-        computeImpl(reader, writer);
-    }
-
-    protected abstract void computeImpl(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
+    protected abstract void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 }
