@@ -23,30 +23,18 @@ public class ReaderContainerTest {
     }
 
     @Test
-    public void testSetReader() throws Exception {
+    public void testSetGetReader() throws Exception {
         final Reader readerMock = mock(Reader.class);
+
         readerContainer.setReader(readerMock);
         assertSame(readerMock, readerContainer.getReader());
     }
 
     @Test
-    public void setSourcePath_WithoutSoure() throws Exception {
+    public void testSetGetSourcePath() throws Exception {
         final Path aPath = Paths.get("aPath");
+
         readerContainer.setSourcePath(aPath);
-
         assertSame(aPath, readerContainer.getSourcePath());
-    }
-
-    @Test
-    public void setSourcePath_WithSoure() throws Exception {
-        final Reader readerMock = mock(Reader.class);
-        readerContainer.setReader(readerMock);
-        final Path aPath = Paths.get("aPath");
-        readerContainer.setSourcePath(aPath);
-
-        assertSame(aPath, readerContainer.getSourcePath());
-        verify(readerMock, times(1)).close();
-        verify(readerMock, times(1)).open(aPath.toFile());
-        verifyNoMoreInteractions(readerMock);
     }
 }

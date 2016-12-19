@@ -83,7 +83,7 @@ class IngestionTool {
     }
 
     private void ingestMetadata(ToolContext context, String sensorType, String processingVersion) throws SQLException, IOException {
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final ReaderFactory readerFactory = context.getReaderFactory();
         final Reader reader = readerFactory.getReader(sensorType);
 
         final Pattern pattern = getPattern(reader);
@@ -214,6 +214,9 @@ class IngestionTool {
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
+
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         if (!storage.isInitialized()) {

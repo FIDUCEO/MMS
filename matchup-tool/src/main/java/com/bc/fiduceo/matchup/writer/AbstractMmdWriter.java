@@ -31,6 +31,8 @@ import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StopWatch;
@@ -93,6 +95,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             variable.setTarget(this);
         }
 
+        final ReaderCache readerCache = new ReaderCache(6);
+        final ReaderFactory readerFactory = context.getReaderFactory();
+
         try {
             logger.info("Start writing mmd-file ...");
 
@@ -124,9 +129,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
+                final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
+
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
-                ioVariablesList.setDataSourcePath(primarySensorName, primaryObservationPath);
-                ioVariablesList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
+                final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
+
+                ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath);
+                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath);
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
                 logger.info("Num matchups: " + set.getNumObservations());
@@ -149,8 +158,20 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             logger.info("Writing time: '" + stopWatch.getTimeDiffString());
 
         } finally {
+            readerCache.close();
             close();
         }
+    }
+
+    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String primarySensorName, Path primaryObservationPath) throws IOException {
+        Reader reader = readerCache.get(primaryObservationPath.toString());
+        if (reader == null) {
+            reader = readerFactory.getReader(primarySensorName);
+            reader.open(primaryObservationPath.toFile());
+            readerCache.add(reader, primaryObservationPath.toString());
+        }
+
+        return reader;
     }
 
     @Override

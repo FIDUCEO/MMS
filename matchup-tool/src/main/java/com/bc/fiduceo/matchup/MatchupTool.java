@@ -74,8 +74,6 @@ class MatchupTool {
 
     private final Logger logger;
 
-    private ReaderFactory readerFactory;
-
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
     }
@@ -83,8 +81,6 @@ class MatchupTool {
     void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
         final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        readerFactory = ReaderFactory.get(context.getGeometryFactory());
 
         runMatchupGeneration(context, mmdWriterConfig);
     }
@@ -346,6 +342,9 @@ class MatchupTool {
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
 
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        context.setReaderFactory(readerFactory);
+
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
         context.setStorage(storage);
 
@@ -366,13 +365,14 @@ class MatchupTool {
 
         final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(writerConfig);
 
-        final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
+        final IOVariablesList ioVariablesList = new IOVariablesList(context.getReaderFactory());
 
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {
             ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable());
         }
+
         try {
             mmdWriter.writeMMD(matchupCollection, context, ioVariablesList);
         } finally {

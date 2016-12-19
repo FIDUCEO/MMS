@@ -18,7 +18,6 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.reader.Reader;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public class ReaderContainer {
@@ -38,11 +37,7 @@ public class ReaderContainer {
         return sourcePath;
     }
 
-    void setSourcePath(Path sourcePath) throws IOException {
+    void setSourcePath(Path sourcePath) {
         this.sourcePath = sourcePath;
-        if (reader != null) {
-            reader.close();
-            reader.open(sourcePath.toFile());
-        }
     }
 }

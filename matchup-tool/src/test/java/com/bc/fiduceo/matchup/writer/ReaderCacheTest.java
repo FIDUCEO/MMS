@@ -20,12 +20,15 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;

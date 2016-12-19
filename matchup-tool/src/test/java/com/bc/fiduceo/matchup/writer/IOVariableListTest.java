@@ -324,37 +324,7 @@ public class IOVariableListTest {
         }
     }
 
-    @Test
-    public void testSetDataSourcePath() throws IOException {
-        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final ReaderContainer container = new ReaderContainer();
-        final Reader readerMock = mock(Reader.class);
-        container.setReader(readerMock);
-        ioVariablesList.setReaderContainer("theFirst", container);
-        final Path path = Paths.get("hallo path");
-
-        ioVariablesList.setDataSourcePath("theFirst", path);
-
-        verify(readerMock, times(1)).close();
-        verify(readerMock, times(1)).open(path.toFile());
-        verifyNoMoreInteractions(readerMock);
-    }
-
-    @Test
-    public void testSetDataSourcePath_invalidSensorName() throws IOException {
-        final IOVariablesList ioVariablesList = new IOVariablesList(null);// we don't need a ReaderFactory for this test tb 2016-10-05
-        final ReaderContainer container = new ReaderContainer();
-        final Reader readerMock = mock(Reader.class);
-        container.setReader(readerMock);
-        ioVariablesList.setReaderContainer("theFirst", container);
-        final Path path = Paths.get("hallo path");
-
-        try {
-            ioVariablesList.setDataSourcePath("invalid Name", path);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
+    // @todo 1 tb/tb add tests for set reader - must be propagated to container 2016-12-19
 
     @Test
     public void testClose() throws IOException {

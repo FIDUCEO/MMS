@@ -40,9 +40,9 @@ class ReaderCache {
     public Reader get(String filePath) {
         final Container container = readerMap.get(filePath);
         if (container != null) {
+            container.timeStamp = new Date().getTime();
             return container.reader;
         }
-
         return null;
     }
 
