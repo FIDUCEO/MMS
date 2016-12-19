@@ -98,7 +98,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
             final Path mmdFile = createMmdFile(context, writerConfig);
             final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
             initializeNetcdfFile(mmdFile, useCaseConfig, ioVariablesList.get(), matchupCollection.getNumMatchups());
+            logger.info("Initialized target file");
 
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
             final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
@@ -107,6 +109,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
             final List<IOVariable> secondaryVariables = ioVariablesList.getVariablesFor(secondarySensorName);
             final List<SampleSetIOVariable> sampleSetVariables = ioVariablesList.getSampleSetIOVariables();
+            logger.info("Collected IO Variables");
+
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
@@ -123,6 +127,10 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
                 ioVariablesList.setDataSourcePath(primarySensorName, primaryObservationPath);
                 ioVariablesList.setDataSourcePath(secondarySensorName, secondaryObservationPath);
+
+                logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
+                logger.info("Num matchups: " + set.getNumObservations());
+
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);

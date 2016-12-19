@@ -1,17 +1,18 @@
 package com.bc.fiduceo.matchup.writer;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.reader.Reader;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Created by Sabine on 17.10.2016.
- */
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 public class ReaderContainerTest {
 
     private ReaderContainer readerContainer;
@@ -45,8 +46,7 @@ public class ReaderContainerTest {
 
         assertSame(aPath, readerContainer.getSourcePath());
         verify(readerMock, times(1)).close();
-        verify(readerMock,times(1)).open(aPath.toFile());
+        verify(readerMock, times(1)).open(aPath.toFile());
         verifyNoMoreInteractions(readerMock);
-
     }
 }

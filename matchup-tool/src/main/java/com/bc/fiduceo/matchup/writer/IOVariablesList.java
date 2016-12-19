@@ -39,13 +39,15 @@ import java.util.Set;
 
 public class IOVariablesList {
 
-    public static final String SAMPLE_SET_IO_VARIABLES = "SampleSetIOVariables";
+    private static final String SAMPLE_SET_IO_VARIABLES = "SampleSetIOVariables";
 
     private final Map<String, List<IOVariable>> ioVariablesMap;
     private final Map<String, ReaderContainer> readerContainerMap;
     private final ReaderFactory readerFactory;
+    private final ReaderCache readerCache;
 
     public IOVariablesList(ReaderFactory readerFactory) {
+        readerCache = new ReaderCache(6);       // @todo 1 tb/tb move to config 2016-12-19
         ioVariablesMap = new HashMap<>();
         readerContainerMap = new HashMap<>();
         this.readerFactory = readerFactory;
@@ -77,6 +79,8 @@ public class IOVariablesList {
             final ReaderContainer container = entry.getValue();
             container.getReader().close();
         }
+
+        readerCache.close();
     }
 
     public void addSampleSetVariable(SampleSetIOVariable variable) {

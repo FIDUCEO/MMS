@@ -34,11 +34,11 @@ public class ReaderContainer {
         return reader;
     }
 
-    public Path getSourcePath() {
+    Path getSourcePath() {
         return sourcePath;
     }
 
-    public void setSourcePath(Path sourcePath) throws IOException {
+    void setSourcePath(Path sourcePath) throws IOException {
         this.sourcePath = sourcePath;
         if (reader != null) {
             reader.close();
