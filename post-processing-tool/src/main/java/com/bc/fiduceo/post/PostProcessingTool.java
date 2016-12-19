@@ -43,6 +43,7 @@ import ucar.nc2.write.Nc4Chunking;
 import ucar.nc2.write.Nc4ChunkingDefault;
 import ucar.unidata.io.RandomAccessFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,18 +61,13 @@ import java.util.stream.Stream;
 class PostProcessingTool {
 
     private final static Logger logger = FiduceoLogger.getLogger();
-    PostProcessingContext context;
+    private final PostProcessingContext context;
 
-    public void run(CommandLine commandLine) throws IOException, InvalidRangeException {
-        context = initialize(commandLine);
-        runPostProcessing();
+    public PostProcessingTool(PostProcessingContext context) {
+        this.context = context;
     }
 
-    // for tests only
-    PostProcessingTool() {
-    }
-
-    void runPostProcessing() throws IOException, InvalidRangeException {
+    public void runPostProcessing() throws IOException, InvalidRangeException {
         final Path inputDirectory = context.getMmdInputDirectory();
         final Pattern pattern = Pattern.compile("mmd\\d{1,2}_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
 
@@ -152,9 +148,10 @@ class PostProcessingTool {
     }
 
     // package access for testing only se 2016-11-28
-    static void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
+    void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
         final Group rootGroup = reader.getRootGroup();
         copyHeader(writer, null, rootGroup, 0);
+        addPostProcessingConfig(writer);
         for (PostProcessing postProcessing : postProcessings) {
             postProcessing.prepare(reader, writer);
         }
@@ -163,6 +160,23 @@ class PostProcessingTool {
         for (PostProcessing postProcessing : postProcessings) {
             postProcessing.compute(reader, writer);
         }
+    }
+
+    void addPostProcessingConfig(NetcdfFileWriter writer) throws IOException {
+        final String attName = "post-processing-configuration";
+
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Attribute attribute = writer.findGlobalAttribute(attName);
+        if (attribute != null) {
+            os.write(attribute.getStringValue().getBytes());
+            os.write("\n".getBytes());
+            writer.deleteGroupAttribute(null, attName);
+        }
+
+        context.getProcessingConfig().store(os);
+        os.close();
+
+        writer.addGroupAttribute(null, new Attribute(attName, os.toString()));
     }
 
     // package access for testing only se 2016-11-28
@@ -215,8 +229,7 @@ class PostProcessingTool {
         return options;
     }
 
-    // package access for testing only se 2016-11-28
-    static PostProcessingContext initialize(CommandLine commandLine) throws IOException {
+    public static PostProcessingContext initializeContext(CommandLine commandLine) throws IOException {
         logger.info("Loading configuration ...");
         final PostProcessingContext context = new PostProcessingContext();
 

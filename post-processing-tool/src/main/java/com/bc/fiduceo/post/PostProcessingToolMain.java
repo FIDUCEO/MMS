@@ -45,10 +45,11 @@ public class PostProcessingToolMain {
             return;
         }
 
-        final PostProcessingTool postProcessingTool = new PostProcessingTool();
 
         try {
-            postProcessingTool.run(commandLine);
+            final PostProcessingContext context = PostProcessingTool.initializeContext(commandLine);
+            final PostProcessingTool tool = new PostProcessingTool(context);
+            tool.runPostProcessing();
         } catch (Throwable e) {
             FiduceoLogger.getLogger().severe(e.getMessage());
             e.printStackTrace();

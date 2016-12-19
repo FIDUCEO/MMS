@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post;
 
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -34,7 +35,9 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.junit.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -157,7 +160,11 @@ public class PostProcessingToolTest {
         final PostProcessing p1 = mock(PostProcessing.class);
         final PostProcessing p2 = mock(PostProcessing.class);
 
-        PostProcessingTool.run(reader, writer, Arrays.asList(p1, p2));
+        final PostProcessingContext context = new PostProcessingContext();
+        context.setProcessingConfig(getConfig());
+        final PostProcessingTool tool = new PostProcessingTool(context);
+
+        tool.run(reader, writer, Arrays.asList(p1, p2));
 
         final InOrder inOrder = inOrder(reader, writer, p1, p2);
         inOrder.verify(writer, times(1)).addGroup(null, "root");
@@ -166,7 +173,69 @@ public class PostProcessingToolTest {
         inOrder.verify(writer, times(1)).create();
         inOrder.verify(p1, times(1)).compute(same(reader), same(writer));
         inOrder.verify(p2, times(1)).compute(same(reader), same(writer));
-        verifyNoMoreInteractions(writer, p1, p2);
+    }
+
+    @Test
+    public void addPostProcessingConfig_newAttribute() throws Exception {
+        final String attName = "post-processing-configuration";
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.findGlobalAttribute(attName)).thenReturn(null);
+
+        final PostProcessingContext context = new PostProcessingContext();
+        context.setProcessingConfig(getConfig());
+        final PostProcessingTool tool = new PostProcessingTool(context);
+
+        tool.addPostProcessingConfig(writer);
+
+        final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                                "<post-processing-config>" +
+                                "  <create-new-files>" +
+                                "    <output-directory>An_Output_Directory</output-directory>" +
+                                "  </create-new-files>" +
+                                "  <post-processings>" +
+                                "    <dummy-post-processing>C</dummy-post-processing>" +
+                                "  </post-processings> " +
+                                "</post-processing-config>";
+
+        final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
+        verify(writer, times(1)).findGlobalAttribute(attName);
+        verify(writer, times(1)).addGroupAttribute(isNull(Group.class), attribCaptor.capture());
+        assertThat(attribCaptor.getValue().getStringValue(), equalToIgnoringWhiteSpace(expected));
+        verifyNoMoreInteractions(writer);
+    }
+
+    @Test
+    public void addPostProcessingConfig_existingAttribute() throws Exception {
+        final String attName = "post-processing-configuration";
+        final String prevoiusContent = "previous content";
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.findGlobalAttribute(attName)).thenReturn(new Attribute(attName, prevoiusContent));
+
+        final PostProcessingContext context = new PostProcessingContext();
+        context.setProcessingConfig(getConfig());
+        final PostProcessingTool tool = new PostProcessingTool(context);
+
+        tool.addPostProcessingConfig(writer);
+
+        final String expected = prevoiusContent + " " +
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                                "<post-processing-config>" +
+                                "  <create-new-files>" +
+                                "    <output-directory>An_Output_Directory</output-directory>" +
+                                "  </create-new-files>" +
+                                "  <post-processings>" +
+                                "    <dummy-post-processing>C</dummy-post-processing>" +
+                                "  </post-processings> " +
+                                "</post-processing-config>";
+
+        final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
+        verify(writer, times(1)).findGlobalAttribute(attName);
+        verify(writer, times(1)).addGroupAttribute(isNull(Group.class), attribCaptor.capture());
+        verify(writer, times(1)).deleteGroupAttribute(null, attName);
+        assertThat(attribCaptor.getValue().getStringValue(), equalToIgnoringWhiteSpace(expected));
+        verifyNoMoreInteractions(writer);
     }
 
     @Test
@@ -238,8 +307,7 @@ public class PostProcessingToolTest {
             final PostProcessingConfig processingConfig = getConfig();
             context.setProcessingConfig(processingConfig);
 
-            final PostProcessingTool postProcessingTool = new PostProcessingTool();
-            postProcessingTool.context = context;
+            final PostProcessingTool postProcessingTool = new PostProcessingTool(context);
 
             postProcessingTool.computeFiles(mmdFiles);
 

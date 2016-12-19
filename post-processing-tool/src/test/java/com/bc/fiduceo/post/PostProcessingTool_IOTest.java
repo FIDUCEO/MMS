@@ -109,7 +109,7 @@ public class PostProcessingTool_IOTest {
         fileWriter.write("<system-config></system-config>");
         fileWriter.close();
 
-        final PostProcessingContext context = PostProcessingTool.initialize(commandLine);
+        final PostProcessingContext context = PostProcessingTool.initializeContext(commandLine);
 
         final String separator = FileSystems.getDefault().getSeparator();
         assertEquals(separator + "mmd_files", context.getMmdInputDirectory().toString());
