@@ -162,50 +162,6 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void getInsituFileOpened() throws Exception {
-        final String root = TestUtil.getTestDataDirectory().getAbsolutePath();
-        final String useCaseXml = "<system-config>" +
-                                  "    <archive>" +
-                                  "        <root-path>" +
-                                  "            " + root +
-                                  "        </root-path>" +
-                                  "        <rule sensors = \"animal-sst\">" +
-                                  "            insitu/SENSOR/VERSION" +
-                                  "        </rule>" +
-                                  "    </archive>" +
-                                  "</system-config>";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
-
-        final SystemConfig systemConfig = SystemConfig.load(inputStream);
-
-        // action
-        final Reader insituFileOpened = SstInsituTimeSeries
-                    .getInsituFileOpened("insitu_12_WMOID_11835_20040110_20040127.nc", "animal-sst", "v03.3", systemConfig);
-
-        //validation
-        assertNotNull(insituFileOpened);
-        final List<Variable> variables = insituFileOpened.getVariables();
-        assertNotNull(variables);
-        final String[] expectedNames = {
-                    "insitu.time",
-                    "insitu.lat",
-                    "insitu.lon",
-                    "insitu.sea_surface_temperature",
-                    "insitu.sst_uncertainty",
-                    "insitu.sst_depth",
-                    "insitu.sst_qc_flag",
-                    "insitu.sst_track_flag",
-                    "insitu.mohc_id",
-                    "insitu.id"
-        };
-        assertEquals(expectedNames.length, variables.size());
-        for (int i = 0; i < variables.size(); i++) {
-            Variable variable = variables.get(i);
-            assertEquals(i + ": " + expectedNames[i], i + ": " + variable.getShortName());
-        }
-    }
-
-    @Test
     public void getInsituFileName_Success() throws Exception {
         final Array array = mock(Array.class);
 
@@ -265,48 +221,5 @@ public class SstInsituTimeSeriesTest {
         } catch (IOException expected) {
             assertEquals("mess", expected.getMessage());
         }
-    }
-
-    @Test
-    public void prepareImpl() throws Exception {
-        final String s = File.separator;
-        final String testDataDir = TestUtil.getTestDataDirectory().getAbsolutePath();
-
-        final String input = testDataDir + s + "mmd06c" + s + "animal-sst_amsre-aq" + s + "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc";
-        final NetcdfFile reader = NetCDFUtils.openReadOnly(input);
-
-        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        final Attribute targetAttrib = new Attribute("use-case-configuration", "");
-        when(writer.findGlobalAttribute("use-case-configuration")).thenReturn(targetAttrib);
-
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 124, 2);
-        final PostProcessingContext context = new PostProcessingContext();
-        context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
-                    ("<system-config>" +
-                     "<geometry-library name = \"S2\" />" +
-                     "    <archive>" +
-                     "        <root-path>" +
-                     "            " + testDataDir +
-                     "        </root-path>" +
-                     "        <rule sensors = \"animal-sst\">" +
-                     "            insitu/SENSOR/VERSION" +
-                     "        </rule>" +
-                     "    </archive>" +
-                     "</system-config>").getBytes())));
-        context.setProcessingConfig(PostProcessingConfig.load(new ByteArrayInputStream(
-                    ("<"+ PostProcessingConfig.TAG_NAME_ROOT + ">" +
-                     "<create-new-files>" +
-                     "<output-directory>outDir</output-directory>" +
-                     "</create-new-files>" +
-                     "<post-processings>" +
-                     "<dummy-post-processing>ABC</dummy-post-processing>" +
-                     "</post-processings>" +
-                     "</"+ PostProcessingConfig.TAG_NAME_ROOT + ">").getBytes())));
-        insituTimeSeries.setContext(context);
-
-        insituTimeSeries.prepare(reader, writer);
-
-//        verify(writer, times(1)).findGlobalAttribute("use-case-configuration");
-//        assertEquals("", targetAttrib.getStringValue());
     }
 }
