@@ -32,6 +32,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
@@ -63,6 +64,10 @@ public class SstInsituTimeSeries extends PostProcessing {
 
         final SystemConfig systemConfig = getContext().getSystemConfig();
         final Reader insituReader = getInsituFileOpened(insituFileName, sensorType, processingVersion, systemConfig);
+
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        getContext().getProcessingConfig().store(os);
+        os.close();
 
         final List<Variable> variables = insituReader.getVariables();
 

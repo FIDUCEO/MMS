@@ -206,7 +206,7 @@ public class PostProcessingConfigTest {
     }
 
     @Test
-    public void testLoad_CauseIsIOException() throws Exception {
+    public void testLoad_CaseIOException() throws Exception {
         final InputStream inputStream = mock(InputStream.class);
         when(inputStream.read()).thenThrow(IOException.class);
 

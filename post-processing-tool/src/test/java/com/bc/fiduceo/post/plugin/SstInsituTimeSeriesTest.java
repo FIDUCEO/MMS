@@ -23,18 +23,26 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.post.PostProcessingConfig;
+import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +50,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+@RunWith(IOTestRunner.class)
 public class SstInsituTimeSeriesTest {
 
 
@@ -256,5 +265,48 @@ public class SstInsituTimeSeriesTest {
         } catch (IOException expected) {
             assertEquals("mess", expected.getMessage());
         }
+    }
+
+    @Test
+    public void prepareImpl() throws Exception {
+        final String s = File.separator;
+        final String testDataDir = TestUtil.getTestDataDirectory().getAbsolutePath();
+
+        final String input = testDataDir + s + "mmd06c" + s + "animal-sst_amsre-aq" + s + "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc";
+        final NetcdfFile reader = NetCDFUtils.openReadOnly(input);
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        final Attribute targetAttrib = new Attribute("use-case-configuration", "");
+        when(writer.findGlobalAttribute("use-case-configuration")).thenReturn(targetAttrib);
+
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 124, 2);
+        final PostProcessingContext context = new PostProcessingContext();
+        context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
+                    ("<system-config>" +
+                     "<geometry-library name = \"S2\" />" +
+                     "    <archive>" +
+                     "        <root-path>" +
+                     "            " + testDataDir +
+                     "        </root-path>" +
+                     "        <rule sensors = \"animal-sst\">" +
+                     "            insitu/SENSOR/VERSION" +
+                     "        </rule>" +
+                     "    </archive>" +
+                     "</system-config>").getBytes())));
+        context.setProcessingConfig(PostProcessingConfig.load(new ByteArrayInputStream(
+                    ("<"+ PostProcessingConfig.TAG_NAME_ROOT + ">" +
+                     "<create-new-files>" +
+                     "<output-directory>outDir</output-directory>" +
+                     "</create-new-files>" +
+                     "<post-processings>" +
+                     "<dummy-post-processing>ABC</dummy-post-processing>" +
+                     "</post-processings>" +
+                     "</"+ PostProcessingConfig.TAG_NAME_ROOT + ">").getBytes())));
+        insituTimeSeries.setContext(context);
+
+        insituTimeSeries.prepareImpl(reader, writer);
+
+//        verify(writer, times(1)).findGlobalAttribute("use-case-configuration");
+//        assertEquals("", targetAttrib.getStringValue());
     }
 }

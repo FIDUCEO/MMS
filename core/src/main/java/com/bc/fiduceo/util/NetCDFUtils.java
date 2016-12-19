@@ -27,6 +27,7 @@ import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.netcdf3.N3iosp;
+import ucar.unidata.io.RandomAccessFile;
 
 import java.io.IOException;
 
@@ -100,5 +101,10 @@ public class NetCDFUtils {
             throw new IOException("Required global attribute not found: " + attributeName);
         }
         return startDateAttribute.getStringValue();
+    }
+
+    public static NetcdfFile openReadOnly(final String absFileLocation) throws IOException {
+        final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "r");
+        return NetcdfFile.open(raf, absFileLocation, null, null);
     }
 }
