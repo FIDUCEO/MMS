@@ -30,6 +30,7 @@ import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -143,6 +144,33 @@ public class AddAmsreSolarAnglesTest {
 
         final float[] expectedSza = new float[]{96.505005f, 96.505005f, 96.604996f, 96.604996f, 96.604996f, 96.705f, 96.604996f, 96.705f, 96.805f};
         final float[] expectedSaa = new float[]{10.769989f, 10.5f, 10.109985f, 10.72998f, 10.350006f, 9.960022f, 10.48999f, 10.210022f, 9.799988f};
+
+        assertArrayEquals(expectedSza, (float[]) sza.get1DJavaArray(float.class), 1e-8f);
+        assertArrayEquals(expectedSaa, (float[]) saa.get1DJavaArray(float.class), 1e-8f);
+    }
+
+    @Test
+    public void testCalculateAngles_3by3_singleLayer_withInvalidPixels() {
+        final int[] shape = new int[]{3, 3};
+        final float[] earthIncidences = {55.105f, N3iosp.NC_FILL_FLOAT, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f};
+        final Array earthIncidenceArray = Array.factory(float.class, shape, earthIncidences);
+
+        final float[] sunElevation = {41.4f, 41.4f, 41.5f, N3iosp.NC_FILL_FLOAT, 41.5f, 41.6f, 41.5f, 41.6f, 41.7f};
+        final Array sunElevationArray = Array.factory(float.class, shape, sunElevation);
+
+        final float[] earthAzimuth = {65.67f, 64.7f, 63.71f, 65.53f, 64.55f, N3iosp.NC_FILL_FLOAT, 65.39f, 64.41f, 63.4f};
+        final Array earthAzimuthArray = Array.factory(float.class, shape, earthAzimuth);
+
+        final float[] sunAzimuth = {-125.1f, -125.8f, -126.4f, -125.2f, -125.8f, -126.4f, -125.1f, N3iosp.NC_FILL_FLOAT, -126.4f};
+        final Array sunAzimuthArray = Array.factory(float.class, shape, sunAzimuth);
+
+        final Array sza = Array.factory(DataType.FLOAT, shape);
+        final Array saa = Array.factory(DataType.FLOAT, shape);
+
+        AddAmsreSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
+
+        final float[] expectedSza = new float[]{96.505005f, N3iosp.NC_FILL_FLOAT, 96.604996f, N3iosp.NC_FILL_FLOAT, 96.604996f, 96.705f, 96.604996f, 96.705f, 96.805f};
+        final float[] expectedSaa = new float[]{10.769989f, 10.5f, 10.109985f, 10.72998f, 10.350006f, N3iosp.NC_FILL_FLOAT, 10.48999f, N3iosp.NC_FILL_FLOAT, 9.799988f};
 
         assertArrayEquals(expectedSza, (float[]) sza.get1DJavaArray(float.class), 1e-8f);
         assertArrayEquals(expectedSaa, (float[]) saa.get1DJavaArray(float.class), 1e-8f);

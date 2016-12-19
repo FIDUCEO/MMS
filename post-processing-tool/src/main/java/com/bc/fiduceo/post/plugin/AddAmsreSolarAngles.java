@@ -25,8 +25,12 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
 import java.util.List;
@@ -86,11 +90,23 @@ public class AddAmsreSolarAngles extends PostProcessing {
         // @todo 2 tb/tb check if we need to call hasNext for all variables or if it is sufficient to call it once to
         // initialize the iterators and check on ly one in the loop - as we assume all arrays having the same size 2016-12-16
         while (earthAzimuth.hasNext() && earthIncidence.hasNext() && sunAzimuth.hasNext() && sunElevation.hasNext()) {
-            final float szaValue = sunElevation.nextFloat() + earthIncidence.nextFloat();
-            szaIterator.setFloatNext(szaValue);
+            final float sunElevationValue = sunElevation.nextFloat();
+            final float earthIncidenceValue = earthIncidence.nextFloat();
+            if (sunElevationValue == N3iosp.NC_FILL_FLOAT || earthIncidenceValue == N3iosp.NC_FILL_FLOAT) {
+                szaIterator.setFloatNext(N3iosp.NC_FILL_FLOAT);
+            } else {
+                final float szaValue = sunElevationValue + earthIncidenceValue;
+                szaIterator.setFloatNext(szaValue);
+            }
 
-            final float saaValue = (earthAzimuth.nextFloat() - sunAzimuth.nextFloat() + 180.f) % 360.f;
-            saaIterator.setFloatNext(saaValue);
+            final float earthAzimuthValue = earthAzimuth.nextFloat();
+            final float sunAzimuthValue = sunAzimuth.nextFloat();
+            if (earthAzimuthValue == N3iosp.NC_FILL_FLOAT || sunAzimuthValue == N3iosp.NC_FILL_FLOAT) {
+                saaIterator.setFloatNext(N3iosp.NC_FILL_FLOAT);
+            } else {
+                final float saaValue = (earthAzimuthValue - sunAzimuthValue + 180.f) % 360.f;
+                saaIterator.setFloatNext(saaValue);
+            }
         }
     }
 
@@ -98,13 +114,19 @@ public class AddAmsreSolarAngles extends PostProcessing {
         this.configuration = configuration;
     }
 
-    private Array readAndScale(Variable earthAzimuthVariable) throws IOException {
-        final Array array = earthAzimuthVariable.read();
+    private Array readAndScale(Variable unscaledVariable) throws IOException {
+        final Array array = unscaledVariable.read();
+        final Array floatArray = Array.factory(DataType.FLOAT, array.getShape());
+        final IndexIterator targetIterator = floatArray.getIndexIterator();
 
-        final Attribute scaleFactorAttribute = earthAzimuthVariable.findAttribute("SCALE_FACTOR");
+        final Attribute scaleFactorAttribute = unscaledVariable.findAttribute("SCALE_FACTOR");
         final float scaleFactor = scaleFactorAttribute.getNumericValue().floatValue();
-        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
-        return MAMath.convert2Unpacked(array, scaleOffset);
+        while (array.hasNext() && floatArray.hasNext()) {
+            final float scaled = scaleFactor * array.nextShort();
+            targetIterator.setFloatNext(scaled);
+        }
+
+        return floatArray;
     }
 
     static class Configuration {
