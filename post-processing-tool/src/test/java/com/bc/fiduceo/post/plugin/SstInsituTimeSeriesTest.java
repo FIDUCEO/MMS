@@ -19,36 +19,31 @@
 
 package com.bc.fiduceo.post.plugin;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.post.PostProcessingConfig;
-import com.bc.fiduceo.post.PostProcessingContext;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeriesTest {
@@ -154,7 +149,7 @@ public class SstInsituTimeSeriesTest {
         final String end = "19760625";
 
         final Date[] dates = SstInsituTimeSeries.extractStarEndDateFromInsituFilename(
-                    "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
+                "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
 
         assertEquals(2, dates.length);
         assertEquals("25-Mar-1970 00:00:00", TimeUtils.format(dates[0]));
@@ -182,7 +177,7 @@ public class SstInsituTimeSeriesTest {
         assertEquals(".*_\\d{8}_\\d{8}.nc", expression);
         final String invalidName = "invalid_insitu_file_name_12345678.nc";
         final String expectedErrorMessage =
-                    "The insitu file name '" + invalidName + "' does not match the regular expression '" + expression + "'";
+                "The insitu file name '" + invalidName + "' does not match the regular expression '" + expression + "'";
 
         final Array array = mock(Array.class);
         final Variable fileNameVariable = mock(Variable.class);

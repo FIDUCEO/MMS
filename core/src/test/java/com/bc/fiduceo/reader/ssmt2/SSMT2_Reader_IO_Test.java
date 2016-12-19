@@ -68,12 +68,12 @@ import static org.junit.Assert.assertTrue;
 @RunWith(IOTestRunner.class)
 public class SSMT2_Reader_IO_Test {
 
-    private SSMT2_Reader reader;
+    private SSMT2_Reader ssmt2Reader;
     private File testDataDirectory;
 
     @Before
     public void setUp() throws IOException {
-        reader = new SSMT2_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        ssmt2Reader = new SSMT2_Reader(new GeometryFactory(GeometryFactory.Type.S2));
         testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
@@ -81,10 +81,10 @@ public class SSMT2_Reader_IO_Test {
     public void testReadAcquisitionInfo_F11() throws IOException, ParseException {
         final File f11File = createSSMT2_F11_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(f11File);
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(f11File);
 
-            final AcquisitionInfo acquisitionInfo = r.read();
+            final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
@@ -121,10 +121,10 @@ public class SSMT2_Reader_IO_Test {
     public void testReadAcquisitionInfo_F14() throws IOException, ParseException {
         final File f14File = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(f14File);
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(f14File);
 
-            final AcquisitionInfo acquisitionInfo = r.read();
+            final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
@@ -161,10 +161,10 @@ public class SSMT2_Reader_IO_Test {
     public void testGetProductSize() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
 
-            final Dimension productSize = r.getProductSize();
+            final Dimension productSize = reader.getProductSize();
             assertEquals(28, productSize.getNx());
             assertEquals(763, productSize.getNy());
         }
@@ -174,9 +174,9 @@ public class SSMT2_Reader_IO_Test {
     public void testReadFrom1dVariable() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Array array = r.readRaw(2, 197, new Interval(5, 5), "thermal_reference");
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Array array = reader.readRaw(2, 197, new Interval(5, 5), "thermal_reference");
             assertNotNull(array);
             assertTrue(array instanceof ArrayFloat.D2);
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
@@ -196,9 +196,9 @@ public class SSMT2_Reader_IO_Test {
     public void testReadFrom2dVariable() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Array array = r.readRaw(2, 2, new Interval(5, 5), "lon");
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Array array = reader.readRaw(2, 2, new Interval(5, 5), "lon");
             assertNotNull(array);
             assertTrue(array instanceof ArrayFloat.D2);
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
@@ -218,9 +218,9 @@ public class SSMT2_Reader_IO_Test {
     public void testRead1dFrom2dVariable_with_channel() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Array array = r.readRaw(0, 4, new Interval(5, 5), "counts_to_tb_gain_ch2");
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Array array = reader.readRaw(0, 4, new Interval(5, 5), "counts_to_tb_gain_ch2");
             assertNotNull(array);
             assertTrue(array instanceof ArrayFloat.D2);
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
@@ -240,9 +240,9 @@ public class SSMT2_Reader_IO_Test {
     public void testRead2dFrom3dVariable_with_channel() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Array array = r.readRaw(4, 4, new Interval(5, 5), "tb_ch3");
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Array array = reader.readRaw(4, 4, new Interval(5, 5), "tb_ch3");
             assertNotNull(array);
             assertTrue(array instanceof ArrayFloat.D2);
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
@@ -262,9 +262,9 @@ public class SSMT2_Reader_IO_Test {
     public void testRead1dFrom3dVariable_with_channel_and_calibrations() throws IOException, InvalidRangeException {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Array array = r.readRaw(4, 4, new Interval(5, 5), "warm_counts_ch3_cal3");
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Array array = reader.readRaw(4, 4, new Interval(5, 5), "warm_counts_ch3_cal3");
             assertNotNull(array);
             assertTrue(array instanceof ArrayFloat.D2);
             final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
@@ -284,9 +284,9 @@ public class SSMT2_Reader_IO_Test {
     public void testGetVariables() throws Exception {
         final File file = createSSMT2_F11_File();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final List<Variable> variables = r.getVariables();
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final List<Variable> variables = reader.getVariables();
 
             assertThat(variables, is(not(nullValue())));
             assertThat(variables.size(), is(97));
@@ -687,7 +687,7 @@ public class SSMT2_Reader_IO_Test {
     public void testGetPixelLocator() throws Exception {
         final File file = createSSMT2_F14_File();
 
-        try (SSMT2_Reader r = reader) {
+        try (SSMT2_Reader r = ssmt2Reader) {
             r.open(file);
 
             final PixelLocator pixelLocator = r.getPixelLocator();
@@ -712,37 +712,34 @@ public class SSMT2_Reader_IO_Test {
     public void testNewObjectsAfterClose() throws Exception {
         final File file = createSSMT2_F14_File();
 
-        SSMT2_Reader r = reader;
-        try {
-            r.open(file);
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
 
-            final PixelLocator pixelLocator1 = r.getPixelLocator();
+            final PixelLocator pixelLocator1 = reader.getPixelLocator();
             assertNotNull(pixelLocator1);
-            final TimeLocator timeLocator1 = r.getTimeLocator();
+            final TimeLocator timeLocator1 = reader.getTimeLocator();
             assertNotNull(timeLocator1);
-            final List<Variable> variables1 = r.getVariables();
+            final List<Variable> variables1 = reader.getVariables();
             assertNotNull(variables1);
-            final HashMap<String, WindowReader> readersMap1 = r.getReadersMap();
+            final HashMap<String, WindowReader> readersMap1 = reader.getReadersMap();
             assertNotNull(readersMap1);
 
-            r.close();
-            r.open(file);
+            reader.close();
+            reader.open(file);
 
-            final PixelLocator pixelLocator2 = r.getPixelLocator();
+            final PixelLocator pixelLocator2 = reader.getPixelLocator();
             assertNotNull(pixelLocator2);
-            final TimeLocator timeLocator2 = r.getTimeLocator();
+            final TimeLocator timeLocator2 = reader.getTimeLocator();
             assertNotNull(timeLocator2);
-            final List<Variable> variables2 = r.getVariables();
+            final List<Variable> variables2 = reader.getVariables();
             assertNotNull(variables2);
-            final HashMap<String, WindowReader> readersMap2 = r.getReadersMap();
+            final HashMap<String, WindowReader> readersMap2 = reader.getReadersMap();
             assertNotNull(readersMap2);
 
             assertNotSame(pixelLocator1, pixelLocator2);
             assertNotSame(timeLocator1, timeLocator2);
             assertNotSame(variables1, variables2);
             assertNotSame(readersMap1, readersMap2);
-        } finally {
-            r.close();
         }
     }
 
@@ -752,9 +749,9 @@ public class SSMT2_Reader_IO_Test {
         final Interval win5_5 = new Interval(5, 5);
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
-            final Dimension productSize = r.getProductSize();
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
+            final Dimension productSize = reader.getProductSize();
             final int width = productSize.getNx();
             final int height = productSize.getNy();
             final int minX = 0;
@@ -767,7 +764,7 @@ public class SSMT2_Reader_IO_Test {
             int[] expecteds;
 
             // at the upper left border
-            times = r.readAcquisitionTime(minX, minY, win5_5);
+            times = reader.readAcquisitionTime(minX, minY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
                     fillValue, fillValue, fillValue, fillValue, fillValue,
@@ -779,7 +776,7 @@ public class SSMT2_Reader_IO_Test {
             assertArrayEquals(expecteds, storage);
 
             // at the upper right border
-            times = r.readAcquisitionTime(maxX, minY, win5_5);
+            times = reader.readAcquisitionTime(maxX, minY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
                     fillValue, fillValue, fillValue, fillValue, fillValue,
@@ -791,7 +788,7 @@ public class SSMT2_Reader_IO_Test {
             assertArrayEquals(expecteds, storage);
 
             // at the lower right border
-            times = r.readAcquisitionTime(maxX, maxY, win5_5);
+            times = reader.readAcquisitionTime(maxX, maxY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
                     992527835, 992527835, 992527835, fillValue, fillValue,
@@ -803,7 +800,7 @@ public class SSMT2_Reader_IO_Test {
             assertArrayEquals(expecteds, storage);
 
             // at the lower left border
-            times = r.readAcquisitionTime(minX, maxY, win5_5);
+            times = reader.readAcquisitionTime(minX, maxY, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
                     fillValue, fillValue, 992527835, 992527835, 992527835,
@@ -815,7 +812,7 @@ public class SSMT2_Reader_IO_Test {
             assertArrayEquals(expecteds, storage);
 
             // entirely inside of the product
-            times = r.readAcquisitionTime(9, 11, win5_5);
+            times = reader.readAcquisitionTime(9, 11, win5_5);
             storage = (int[]) times.getStorage();
             expecteds = new int[]{
                     992521822, 992521822, 992521822, 992521822, 992521822,
@@ -833,16 +830,16 @@ public class SSMT2_Reader_IO_Test {
         final File file = createSSMT2_F14_File();
         final Interval interval = new Interval(3, 3);
 
-        try (SSMT2_Reader r = reader) {
-            r.open(file);
+        try (SSMT2_Reader reader = this.ssmt2Reader) {
+            reader.open(file);
 
-            Array array = r.readRaw(5, 178, interval, "Satellite_zenith_angle");
+            Array array = reader.readRaw(5, 178, interval, "Satellite_zenith_angle");
             NCTestUtils.assertValueAt(32.75, 0, 0, array);
             NCTestUtils.assertValueAt(29.209999084472656, 1, 1, array);
             NCTestUtils.assertValueAt(25.709999084472656, 2, 2, array);
 
 
-            array = r.readRaw(27, 179, interval, "Satellite_zenith_angle");
+            array = reader.readRaw(27, 179, interval, "Satellite_zenith_angle");
             NCTestUtils.assertValueAt(43.63999938964844, 0, 0, array);
             NCTestUtils.assertValueAt(47.41999816894531, 1, 1, array);
             NCTestUtils.assertValueAt(9.969209968386869E36, 2, 2, array);

@@ -22,7 +22,6 @@ package com.bc.fiduceo.db;
 
 
 import com.bc.fiduceo.TestUtil;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 

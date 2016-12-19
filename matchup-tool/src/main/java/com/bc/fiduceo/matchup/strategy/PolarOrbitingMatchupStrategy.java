@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
-import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.geometry.Geometry;

@@ -26,10 +26,14 @@ import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
-import com.bc.fiduceo.reader.insitu.SSTInsituReaderTest;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class ReaderFactoryTest {
@@ -118,12 +122,12 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGetDataType() {
-         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("amsre-aq"));
-         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("iasi-mb"));
-         assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("ssmt2-f12"));
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("amsre-aq"));
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("iasi-mb"));
+        assertEquals(DataType.POLAR_ORBITING_SATELLITE, readerFactory.getDataType("ssmt2-f12"));
 
-         assertEquals(DataType.INSITU, readerFactory.getDataType("radiometer-sst"));
-         assertEquals(DataType.INSITU, readerFactory.getDataType("ctd-sst"));
+        assertEquals(DataType.INSITU, readerFactory.getDataType("radiometer-sst"));
+        assertEquals(DataType.INSITU, readerFactory.getDataType("ctd-sst"));
     }
 
     @Test
@@ -136,7 +140,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testSingletonBehaviour(){
+    public void testSingletonBehaviour() {
         final ReaderFactory factory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
         assertNotNull(factory);
 

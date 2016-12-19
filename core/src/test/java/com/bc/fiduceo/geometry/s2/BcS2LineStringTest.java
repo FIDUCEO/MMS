@@ -21,7 +21,6 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.collect.Lists;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;

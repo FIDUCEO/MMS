@@ -18,7 +18,6 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
-import com.bc.fiduceo.matchup.writer.Target;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 
 import java.io.IOException;

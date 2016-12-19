@@ -26,9 +26,6 @@ import com.bc.fiduceo.util.VariablePrototype;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Variable;
-import ucar.nc2.VariableSimpleIF;
 
 import java.util.ArrayList;
 import java.util.List;

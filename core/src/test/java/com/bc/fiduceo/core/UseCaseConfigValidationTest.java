@@ -21,13 +21,14 @@
 package com.bc.fiduceo.core;
 
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-import org.junit.*;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class UseCaseConfigValidationTest {
 
@@ -132,14 +133,14 @@ public class UseCaseConfigValidationTest {
         primary.setPrimary(true);
 
         return UseCaseConfigBuilder
-                    .build("config-name")
-                    .withSensors(Arrays.asList(
-                                new Sensor("secondary"),
-                                primary))
-                    .withDimensions(Arrays.asList(
-                                new Dimension("primary", 2, 3),
-                                new Dimension("secondary", 4, 5)))
-                    .withOutputPath("some/arbitrary/path")
-                    .createConfig();
+                .build("config-name")
+                .withSensors(Arrays.asList(
+                        new Sensor("secondary"),
+                        primary))
+                .withDimensions(Arrays.asList(
+                        new Dimension("primary", 2, 3),
+                        new Dimension("secondary", 4, 5)))
+                .withOutputPath("some/arbitrary/path")
+                .createConfig();
     }
 }

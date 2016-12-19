@@ -21,25 +21,24 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderFactory;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(IOTestRunner.class)
 public class IOVariableList_IO_Test {
@@ -160,21 +159,21 @@ public class IOVariableList_IO_Test {
     @Test
     public void testExtractVariables_AVHRR_NOAA_17_mostOfThemExcluded() throws IOException {
         variablesConfiguration.addExcludes(sensorName, Arrays.asList(
-                    "lat",
-                    "lon",
-                    "dtime",
-                    "ch1",
-                    "ch2",
-                    "ch3a",
-                    "ch3b",
-                    "ch4",
-                    "ch5",
-                    "relative_azimuth_angle",
-                    "ict_temp",
-                    "qual_flags",
-                    "cloud_mask",
-                    "cloud_probability",
-                    "l1b_line_number"
+                "lat",
+                "lon",
+                "dtime",
+                "ch1",
+                "ch2",
+                "ch3a",
+                "ch3b",
+                "ch4",
+                "ch5",
+                "relative_azimuth_angle",
+                "ict_temp",
+                "qual_flags",
+                "cloud_mask",
+                "cloud_probability",
+                "l1b_line_number"
         ));
 
         ioVariablesList.extractVariables(sensorName, noaa17Path, new Dimension(sensorName, 5, 5), variablesConfiguration);
@@ -200,21 +199,21 @@ public class IOVariableList_IO_Test {
     @Test
     public void testExtractVariables_AVHRR_NOAA_17_mostOfThemExcluded_restIsRenamed() throws IOException {
         variablesConfiguration.addExcludes(sensorName, Arrays.asList(
-                    "lat",
-                    "lon",
-                    "dtime",
-                    "ch1",
-                    "ch2",
-                    "ch3a",
-                    "ch3b",
-                    "ch4",
-                    "ch5",
-                    "relative_azimuth_angle",
-                    "ict_temp",
-                    "qual_flags",
-                    "cloud_mask",
-                    "cloud_probability",
-                    "l1b_line_number"
+                "lat",
+                "lon",
+                "dtime",
+                "ch1",
+                "ch2",
+                "ch3a",
+                "ch3b",
+                "ch4",
+                "ch5",
+                "relative_azimuth_angle",
+                "ict_temp",
+                "qual_flags",
+                "cloud_mask",
+                "cloud_probability",
+                "l1b_line_number"
         ));
         Map<String, String> renames = new HashMap<>();
         renames.put("satellite_zenith_angle", "satza");

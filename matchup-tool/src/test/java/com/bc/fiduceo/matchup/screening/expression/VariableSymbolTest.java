@@ -41,7 +41,6 @@
 package com.bc.fiduceo.matchup.screening.expression;
 
 import com.bc.fiduceo.reader.Reader;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.jexp.Term;
 import org.junit.Test;
 import ucar.ma2.Array;

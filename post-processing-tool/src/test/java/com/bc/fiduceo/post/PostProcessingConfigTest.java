@@ -19,19 +19,13 @@
 
 package com.bc.fiduceo.post;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.bc.fiduceo.post.plugin.DummyPostProcessing;
 import com.bc.fiduceo.post.plugin.DummyPostProcessingPlugin;
-import org.esa.snap.core.util.Debug;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,6 +35,18 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PostProcessingConfigTest {
 
@@ -56,13 +62,13 @@ public class PostProcessingConfigTest {
     @Before
     public void setUp() throws Exception {
         root = new Element(CONFIG).addContent(Arrays.asList(
-                    new Element(NEW_FILES).addContent(
-                                new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
-                    new Element(PROCESSINGS).addContent(Arrays.asList(
-                                new Element(DUMMY_NAME).addContent("A"),
-                                new Element(DUMMY_NAME).addContent("B"),
-                                new Element(DUMMY_NAME).addContent("C")
-                    ))
+                new Element(NEW_FILES).addContent(
+                        new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
+                new Element(PROCESSINGS).addContent(Arrays.asList(
+                        new Element(DUMMY_NAME).addContent("A"),
+                        new Element(DUMMY_NAME).addContent("B"),
+                        new Element(DUMMY_NAME).addContent("C")
+                ))
         ));
     }
 

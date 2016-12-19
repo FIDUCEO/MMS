@@ -22,8 +22,6 @@ package com.bc.fiduceo.core;
 
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.archive.ArchiveConfig;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -70,7 +68,7 @@ public class SystemConfigTest {
                 "        </root-path>" +
                 "        <rule sensors = \"wurst\">" +
                 "            SENSOR/VERSION/YEAR" +
-                "        </rule>"  +
+                "        </rule>" +
                 "    </archive>" +
                 "</system-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());

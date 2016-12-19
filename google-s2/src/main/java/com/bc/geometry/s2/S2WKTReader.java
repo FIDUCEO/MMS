@@ -20,13 +20,17 @@
 
 package com.bc.geometry.s2;
 
-import com.google.common.geometry.*;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
+import com.google.common.geometry.S2Polyline;
+import com.google.common.geometry.S2Region;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -220,10 +224,9 @@ public class S2WKTReader {
      * was unexpected.
      *
      * @param expected a description of what was expected
-     * @throws IllegalArgumentException
-     * @throws IllegalStateException    if an invalid token is encountered
+     * @throws IllegalStateException if an invalid token is encountered
      */
-    private void parseErrorExpected(String expected) throws IllegalArgumentException {
+    private void parseErrorExpected(String expected) {
         // throws Asserts for tokens that should never be seen
         if (tokenizer.ttype == StreamTokenizer.TT_NUMBER) {
             throw new IllegalStateException("Should never reach here: Unexpected NUMBER token");
@@ -271,9 +274,7 @@ public class S2WKTReader {
 
         try {
             type = getNextWord();
-        } catch (IOException e) {
-            return null;
-        } catch (IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException e) {
             return null;
         }
 
@@ -331,12 +332,9 @@ public class S2WKTReader {
      *
      * @return a <code>Polygon</code> specified by the next token
      * in the stream
-     * @throws ParseException if the coordinates used to create the <code>Polygon</code>
-     *                        shell and holes do not form closed linestrings, or if an unexpected
-     *                        token was encountered.
-     * @throws IOException    if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
-    private S2Polygon readPolygonText() throws IOException, IllegalArgumentException {
+    private S2Polygon readPolygonText() throws IOException {
         String nextToken = getNextEmptyOrOpener();
         if (EMPTY.equals(nextToken)) {
             return new S2Polygon();

@@ -27,19 +27,11 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.core.ValidationResult;
-import com.bc.fiduceo.db.QueryParameter;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.writer.IOVariable;
 import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.ReaderContainer;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.matchup.writer.WindowReadingIOVariable;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.tool.ToolContext;
-import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -58,9 +50,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class MatchupToolTest {
 
@@ -79,15 +82,15 @@ public class MatchupToolTest {
         matchupTool.printUsageTo(outputStream);
 
         assertEquals("matchup-tool version 1.1.2" + ls +
-                     ls +
-                     "usage: matchup-tool <options>" + ls +
-                     "Valid options are:" + ls +
-                     "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                     "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
-                     "   -h,--help                   Prints the tool usage." + ls +
-                     "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
-                     "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
-                     "                               configuration directory." + ls, outputStream.toString());
+                ls +
+                "usage: matchup-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -h,--help                   Prints the tool usage." + ls +
+                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
+                "                               configuration directory." + ls, outputStream.toString());
     }
 
     @Test
@@ -324,9 +327,9 @@ public class MatchupToolTest {
         final Path mockingSecondaryPath = Paths.get("mockingSecondaryPath");
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder.build("testName")
-                    .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
-                    .withSensors(Arrays.asList(primarySensor, secondarySensor))
-                    .createConfig();
+                .withDimensions(Arrays.asList(primaryWindowDimension, secondaryWindowDimension))
+                .withSensors(Arrays.asList(primarySensor, secondarySensor))
+                .createConfig();
 
         final MatchupSet matchupSet = new MatchupSet();
         matchupSet.setPrimaryObservationPath(mockingPrimaryPath);

@@ -19,17 +19,25 @@
 
 package com.bc.fiduceo.post.plugin;
 
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
-import org.esa.snap.core.util.Debug;
 import org.jdom.Element;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Sabine on 08.12.2016.
@@ -43,9 +51,9 @@ public class SstInsituTimeSeriesPluginTest {
     public void setUp() throws Exception {
         plugin = new SstInsituTimeSeriesPlugin();
         element = new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
-                    new Element(TAG_NAME_VERSION).addContent("v03.3"),
-                    new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
-                    new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96")
+                new Element(TAG_NAME_VERSION).addContent("v03.3"),
+                new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
+                new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96")
         ));
     }
 

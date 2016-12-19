@@ -20,15 +20,12 @@
 
 package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
-import ucar.ma2.Array;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ReaderUtilsTest {
