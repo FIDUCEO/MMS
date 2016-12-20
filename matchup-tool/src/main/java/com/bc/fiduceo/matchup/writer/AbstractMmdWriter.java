@@ -95,7 +95,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             variable.setTarget(this);
         }
 
-        final ReaderCache readerCache = new ReaderCache(6);
+        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize());
         final ReaderFactory readerFactory = context.getReaderFactory();
 
         try {

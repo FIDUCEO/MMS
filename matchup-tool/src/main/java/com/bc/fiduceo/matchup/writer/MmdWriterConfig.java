@@ -31,11 +31,7 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class MmdWriterConfig {
@@ -44,6 +40,7 @@ public class MmdWriterConfig {
     private static final String OVERWRITE_TAG = "overwrite";
     private static final String CACHE_SIZE_TAG = "cache-size";
     private static final String NETCDF_FORMAT_TAG = "netcdf-format";
+    private static final String READER_CACHE_SIZE_TAG = "reader-cache-size";
     private static final String VARIABLES_CONFIGURATION_TAG = "variables-configuration";
     private static final String SENSOR_RENAME_TAG = "sensor-rename";
     private static final String SEPARATOR = "separator";
@@ -63,11 +60,13 @@ public class MmdWriterConfig {
     private int cacheSize;
     private NetcdfType netcdfFormat;
     private VariablesConfiguration variablesConfiguration;
+    private int readerCacheSize;
 
     MmdWriterConfig() {
         cacheSize = 2048;
         netcdfFormat = NetcdfType.N4;
         variablesConfiguration = new VariablesConfiguration();
+        readerCacheSize = 6;
     }
 
     private MmdWriterConfig(Document document) {
@@ -113,6 +112,14 @@ public class MmdWriterConfig {
         this.netcdfFormat = NetcdfType.valueOf(netcdfFormat);
     }
 
+    void setReaderCacheSize(int readerCacheSize) {
+        this.readerCacheSize = readerCacheSize;
+    }
+
+    int getReaderCacheSize() {
+        return readerCacheSize;
+    }
+
     private void init(Document document) {
         final Element rootElement = document.getRootElement();
         final String name = rootElement.getName();
@@ -136,6 +143,12 @@ public class MmdWriterConfig {
         if (netcdfFormatElement != null) {
             final String netcdfFormatValue = netcdfFormatElement.getValue();
             setNetcdfFormat(netcdfFormatValue);
+        }
+
+        final Element readerCachetElement = rootElement.getChild(READER_CACHE_SIZE_TAG);
+        if (readerCachetElement != null) {
+            final String readerCacheValue = readerCachetElement.getValue();
+            setReaderCacheSize(Integer.valueOf(readerCacheValue));
         }
 
         final Element variablesConfigurationElement = rootElement.getChild(VARIABLES_CONFIGURATION_TAG);

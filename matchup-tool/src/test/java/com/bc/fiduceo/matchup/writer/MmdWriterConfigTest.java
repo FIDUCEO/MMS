@@ -80,10 +80,19 @@ public class MmdWriterConfigTest {
     }
 
     @Test
+    public void testSetGetReaderCacheSize() {
+        final int cacheSize = 23;
+
+        config.setReaderCacheSize(cacheSize);
+        assertEquals(cacheSize, config.getReaderCacheSize());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertFalse(config.isOverwrite());
         assertEquals(2048, config.getCacheSize());
         assertEquals(N4, config.getNetcdfFormat());
+        assertEquals(6, config.getReaderCacheSize());
 
         final VariablesConfiguration variablesConfiguration = config.getVariablesConfiguration();
         assertNotNull(variablesConfiguration);
@@ -126,6 +135,17 @@ public class MmdWriterConfigTest {
 
         final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
         assertEquals(N3, loadedConfig.getNetcdfFormat());
+    }
+
+    @Test
+    public void testLoad_readerCacheSize() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <reader-cache-size>14</reader-cache-size>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        assertEquals(14, loadedConfig.getReaderCacheSize());
     }
 
     @Test
