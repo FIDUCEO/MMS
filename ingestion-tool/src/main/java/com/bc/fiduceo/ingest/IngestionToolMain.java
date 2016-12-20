@@ -29,9 +29,6 @@ import org.apache.commons.cli.PosixParser;
 import java.io.IOException;
 import java.sql.SQLException;
 
-/**
- * @todo 2 se/** add class description  2016-02-25
- */
 public class IngestionToolMain {
 
     public static void main(String[] args) throws ParseException, IOException, SQLException {

@@ -21,29 +21,19 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.reader.Reader;
-import org.junit.*;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.ArrayLong;
-import ucar.ma2.ArrayObject;
-import ucar.ma2.ArrayShort;
-import ucar.ma2.DataType;
+import org.junit.Test;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class IOVariableListTest {
 
@@ -204,7 +194,7 @@ public class IOVariableListTest {
 
 
         attribIndex = 6;
-        expectedAttrib = attributes.get(attribIndex +1);
+        expectedAttrib = attributes.get(attribIndex + 1);
         actualAttrib = attributeClones.get(attribIndex);
 
         assertEquals(expectedAttrib, actualAttrib);
