@@ -30,6 +30,11 @@
     -->
     <cache-size>2048</cache-size>
 
+    <!-- Defines the reader cache size in number of open file readers.
+         This setting defines the number of input files that are kept simultaneously open.
+    -->
+    <reader-cache-size>4</reader-cache-size>
+
     <!-- Defines the NetCDF format version of the MMD file
          "N3" - write in NetCDF 3 format
          "N4" - write in NetCDF 4 format
