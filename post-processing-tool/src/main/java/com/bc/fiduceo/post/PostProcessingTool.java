@@ -165,13 +165,11 @@ class PostProcessingTool {
         final int endIdx = filename.lastIndexOf("_", dotIdx);
         final int startIdx = filename.lastIndexOf("_", endIdx - 1);
 
-        final String endDOY = filename.substring(endIdx + 1, dotIdx);
         final String startDOY = filename.substring(startIdx + 1, endIdx);
 
         final long fileStart = TimeUtils.parseDOYBeginOfDay(startDOY).getTime();
-        final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();
 
-        return fileStart >= startTime && fileEnd <= endTime;
+        return fileStart >= startTime && fileStart <= endTime;
     }
 
     void computeFiles(List<Path> mmdFiles) {

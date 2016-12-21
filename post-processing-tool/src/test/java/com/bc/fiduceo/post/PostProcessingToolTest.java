@@ -241,15 +241,14 @@ public class PostProcessingToolTest {
     @Test
     public void testFilenameIsInTimeRange() throws Exception {
         final String fileStart = "2005-123";
-        final String fileEnd = "2005-128";
-        final String filename = "AnyCahractersBefore_" + fileStart + "_" + fileEnd + ".nc";
+        final String filename = "AnyCahractersBefore_" + fileStart + "_" + "anyTime" + ".nc";
 
         final long startTime = TimeUtils.parseDOYBeginOfDay(fileStart).getTime();
-        final long endTime = TimeUtils.parseDOYEndOfDay(fileEnd).getTime();
+        final long endTime = startTime;
 
         assertTrue(PostProcessingTool.isFileInTimeRange(startTime, endTime, filename));
-        assertFalse(PostProcessingTool.isFileInTimeRange(startTime + 1, endTime, filename));
-        assertFalse(PostProcessingTool.isFileInTimeRange(startTime, endTime - 1, filename));
+        assertFalse(PostProcessingTool.isFileInTimeRange(startTime + 1, endTime + 1, filename));
+        assertFalse(PostProcessingTool.isFileInTimeRange(startTime - 1, endTime - 1, filename));
     }
 
     @Test
