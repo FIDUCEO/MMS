@@ -64,11 +64,11 @@ class PostProcessingTool {
     private final static Logger logger = FiduceoLogger.getLogger();
     private final PostProcessingContext context;
 
-    public PostProcessingTool(PostProcessingContext context) {
+    PostProcessingTool(PostProcessingContext context) {
         this.context = context;
     }
 
-    public static PostProcessingContext initializeContext(CommandLine commandLine) throws IOException {
+    static PostProcessingContext initializeContext(CommandLine commandLine) throws IOException {
         logger.info("Loading configuration ...");
         final PostProcessingContext context = new PostProcessingContext();
 
@@ -97,7 +97,7 @@ class PostProcessingTool {
         return context;
     }
 
-    public void runPostProcessing() throws IOException, InvalidRangeException {
+    void runPostProcessing() throws IOException, InvalidRangeException {
         final Path inputDirectory = context.getMmdInputDirectory();
         final Pattern pattern = Pattern.compile("mmd\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
 
@@ -199,7 +199,7 @@ class PostProcessingTool {
         }
     }
 
-    void computeFile(Path mmdFile, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
+    private void computeFile(Path mmdFile, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
         final long startTime = context.getStartDate().getTime();
         final long endTime = context.getEndDate().getTime();
         if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
@@ -231,7 +231,11 @@ class PostProcessingTool {
                     reader.close();
                 }
                 if (writer != null) {
-                    writer.close();
+                    // when writer is in define mode, the file has not been created. Closing it in this state causes a
+                    // null pointer exception tb 2016-12-21
+                    if (!writer.isDefineMode()) {
+                        writer.close();
+                    }
                 }
             }
         }
