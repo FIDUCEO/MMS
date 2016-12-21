@@ -128,13 +128,20 @@ public class SstInsituTimeSeries extends PostProcessing {
         final List<Variable> variables = insituReader.getVariables();
         for (Variable variable : variables) {
             String shortName = variable.getShortName();
+            Variable newVar;
             if (shortName.endsWith(".lat")) {
                 shortName = shortName.replace(".lat", ".latitude");
-            }
-            if (shortName.endsWith(".lon")) {
+                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+                newVar.addAttribute(new Attribute("valid_min", -90.0f));
+                newVar.addAttribute(new Attribute("valid_max", 90.0f));
+            } else if (shortName.endsWith(".lon")) {
                 shortName = shortName.replace(".lon", ".longitude");
+                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+                newVar.addAttribute(new Attribute("valid_min", -180.0f));
+                newVar.addAttribute(new Attribute("valid_max", 180.0f));
+            } else {
+                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
             }
-            final Variable newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
             final List<Attribute> attributes = variable.getAttributes();
             newVar.addAll(attributes);
         }

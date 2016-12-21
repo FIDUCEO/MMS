@@ -301,14 +301,46 @@ public class SstInsituTimeSeries_IO_Test {
             assertArrayEquals(dtimeExpecteds, dtimeStorage);
 
             // **********  Latitude  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.latitude")));
-            // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
+            final Variable latitude = netcdfFile.findVariable(escape("insitu.latitude"));
+            assertEquals(5, latitude.getAttributes().size());
+            // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
+//            assertEquals("degrees_north", latitude.findAttribute("units").getStringValue());
+            assertEquals(-32768.0f, latitude.findAttribute("_FillValue").getNumericValue());
+            assertEquals(-90.0f, latitude.findAttribute("valid_min").getNumericValue());
+            assertEquals(90.0f, latitude.findAttribute("valid_max").getNumericValue());
+            assertEquals("in situ latitude", latitude.findAttribute("long_name").getStringValue());
+            final Array latArr = latitude.read();
+            assertEquals(DataType.FLOAT, latArr.getDataType());
+            final int[] latShape = latArr.getShape();
+            assertEquals(9, latShape[0]);
+            assertEquals(10, latShape[1]);
+
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
+            final float[] latStorage = (float[]) latArr.getStorage();
+            final float[] latExpecteds = new float[90];
+            Arrays.fill(latExpecteds, -32768.0f);
+            assertArrayEquals(latExpecteds, latStorage, 1e-7f);
 
             // **********  Longitude  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.longitude")));
-            // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
+            final Variable longitude = netcdfFile.findVariable(escape("insitu.longitude"));
+            assertEquals(5, longitude.getAttributes().size());
+            // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
+//            assertEquals("degrees_east", longitude.findAttribute("units").getStringValue());
+            assertEquals(-32768.0f, longitude.findAttribute("_FillValue").getNumericValue());
+            assertEquals(-180.0f, longitude.findAttribute("valid_min").getNumericValue());
+            assertEquals(180.0f, longitude.findAttribute("valid_max").getNumericValue());
+            assertEquals("in situ longitude", longitude.findAttribute("long_name").getStringValue());
+            final Array lonArr = longitude.read();
+            assertEquals(DataType.FLOAT, lonArr.getDataType());
+            final int[] lonShape = lonArr.getShape();
+            assertEquals(9, lonShape[0]);
+            assertEquals(10, lonShape[1]);
+
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
+            final float[] lonStorage = (float[]) lonArr.getStorage();
+            final float[] lonExpecteds = new float[90];
+            Arrays.fill(lonExpecteds, -32768.0f);
+            assertArrayEquals(lonExpecteds, lonStorage, 1e-7f);
 
             // **********  MOHC_ID  ************
             assertNotNull(netcdfFile.findVariable(escape("insitu.mohc_id")));

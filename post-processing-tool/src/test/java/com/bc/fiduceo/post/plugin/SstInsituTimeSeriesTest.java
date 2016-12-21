@@ -275,7 +275,7 @@ public class SstInsituTimeSeriesTest {
         verify(v2, times(1)).getShortName();
         verify(v2, times(1)).getDataType();
         verify(v2, times(1)).getAttributes();
-        verify(newVar, times(2)).addAttribute(any(Attribute.class));
+        verify(newVar, times(6)).addAttribute(any(Attribute.class));
         verifyNoMoreInteractions(writer, insituReader, newVar, v3, v2);
     }
 }
