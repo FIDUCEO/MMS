@@ -20,6 +20,7 @@ package com.bc.fiduceo.post;
 
 import com.bc.fiduceo.log.FiduceoLogger;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +65,8 @@ public class SourceTargetManager {
                 tempFile.toFile().deleteOnExit();
             }
         } else {
-            if (src.toFile().delete()) {
+            final File srcFile = src.toFile();
+            if (!srcFile.exists() || srcFile.delete()) {
                 try {
                     Files.move(tempFile, src);
                 } catch (IOException e) {

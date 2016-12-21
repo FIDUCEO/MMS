@@ -65,7 +65,7 @@ public class Archive {
             final Path productsDir = createValidProductPath(processingVersion, sensorType, year, month, day);
 
             if (Files.exists(productsDir)) {
-                log.info("The product directory :" + productsDir.toString());
+                log.info("The product directory: " + productsDir.toString());
                 final Iterator<Path> iterator = Files.list(productsDir).iterator();
                 while (iterator.hasNext()) {
                     final Path next = iterator.next();

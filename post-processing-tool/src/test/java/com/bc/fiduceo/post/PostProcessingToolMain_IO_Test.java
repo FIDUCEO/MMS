@@ -43,7 +43,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 @RunWith(IOTestRunner.class)
-public class PostProcessingToolMainTest {
+public class PostProcessingToolMain_IO_Test {
 
     private File configDir;
     private File dataDir;

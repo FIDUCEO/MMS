@@ -20,14 +20,20 @@
 package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
+import com.beust.jcommander.internal.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -35,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -42,7 +49,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(IOTestRunner.class)
@@ -148,8 +159,8 @@ public class SstInsituTimeSeriesTest {
         final String begin = "19700325";
         final String end = "19760625";
 
-        final Date[] dates = SstInsituTimeSeries.extractStarEndDateFromInsituFilename(
-                "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
+        final Date[] dates = SstInsituTimeSeries.extractStartEndDateFromInsituFilename(
+                    "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
 
         assertEquals(2, dates.length);
         assertEquals("25-Mar-1970 00:00:00", TimeUtils.format(dates[0]));
@@ -177,7 +188,7 @@ public class SstInsituTimeSeriesTest {
         assertEquals(".*_\\d{8}_\\d{8}.nc", expression);
         final String invalidName = "invalid_insitu_file_name_12345678.nc";
         final String expectedErrorMessage =
-                "The insitu file name '" + invalidName + "' does not match the regular expression '" + expression + "'";
+                    "The insitu file name '" + invalidName + "' does not match the regular expression '" + expression + "'";
 
         final Array array = mock(Array.class);
         final Variable fileNameVariable = mock(Variable.class);
@@ -216,5 +227,55 @@ public class SstInsituTimeSeriesTest {
         } catch (IOException expected) {
             assertEquals("mess", expected.getMessage());
         }
+    }
+
+    @Test
+    public void name() throws Exception {
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 234, 34);
+        final String matchupCount = SstInsituTimeSeries.MATCHUP_COUNT;
+        final String insituNtime = SstInsituTimeSeries.INSITU_NTIME;
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+
+        final Reader insituReader = mock(Reader.class);
+
+        final Variable v1 = mock(Variable.class);
+        when(v1.getShortName()).thenReturn("insitu.lat");
+        when(v1.getDataType()).thenReturn(DataType.FLOAT);
+        when(v1.getAttributes()).thenReturn(Lists.newArrayList());
+        final Variable v2 = mock(Variable.class);
+        when(v2.getShortName()).thenReturn("insitu.time");
+        when(v2.getDataType()).thenReturn(DataType.INT);
+        when(v2.getAttributes()).thenReturn(Lists.newArrayList());
+        final Variable v3 = mock(Variable.class);
+        when(v3.getShortName()).thenReturn("insitu.lon");
+        when(v3.getDataType()).thenReturn(DataType.FLOAT);
+        when(v3.getAttributes()).thenReturn(Lists.newArrayList());
+
+
+        when(insituReader.getVariables()).thenReturn(Arrays.asList(v1, v2, v3));
+        final Variable newVar = mock(Variable.class);
+        when(writer.addVariable(any(Group.class), any(String.class), any(DataType.class), any(String.class))).thenReturn(newVar);
+
+        insituTimeSeries.addInsituVariables(writer, insituReader);
+
+        final String dimString = matchupCount + " " + insituNtime;
+
+        verify(writer, times(1)).addDimension(null, "insitu.ntime", 34);
+        verify(writer, times(1)).addVariable(null, "insitu.latitude", DataType.FLOAT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.longitude", DataType.FLOAT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.dtime", DataType.INT, dimString);
+        verify(insituReader, times(1)).getVariables();
+        verify(newVar, times(3)).addAll(any(Iterable.class));
+        verify(v3, times(1)).getShortName();
+        verify(v3, times(1)).getDataType();
+        verify(v3, times(1)).getAttributes();
+        verify(v2, times(1)).getShortName();
+        verify(v2, times(1)).getDataType();
+        verify(v2, times(1)).getAttributes();
+        verify(newVar, times(2)).addAttribute(any(Attribute.class));
+        verifyNoMoreInteractions(writer, insituReader, newVar, v3, v2);
     }
 }

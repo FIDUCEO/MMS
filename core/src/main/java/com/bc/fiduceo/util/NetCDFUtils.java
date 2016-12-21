@@ -103,6 +103,13 @@ public class NetCDFUtils {
         return startDateAttribute.getStringValue();
     }
 
+    /**
+     * Method to open NetcdfFile using a read only RandomAccessFile.
+     * This is needed because opening a netcdf file with NetcdfFile.open(<String>) changes the file size.
+     * @param absFileLocation
+     * @return       unmodifies NetcdfFile instance
+     * @throws IOException
+     */
     public static NetcdfFile openReadOnly(final String absFileLocation) throws IOException {
         final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "r");
         return NetcdfFile.open(raf, absFileLocation, null, null);

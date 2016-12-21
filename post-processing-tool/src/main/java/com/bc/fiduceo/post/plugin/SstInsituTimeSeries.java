@@ -26,13 +26,14 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
@@ -41,13 +42,12 @@ import java.util.List;
 public class SstInsituTimeSeries extends PostProcessing {
 
     public static final String D_8_D_8_NC = ".*_\\d{8}_\\d{8}.nc";
+    static final String INSITU_NTIME = "insitu.ntime";
+    static final String MATCHUP_COUNT = "matchup_count";
 
     public final String processingVersion;
     public final int timeRangeSeconds;
     public final int timeSeriesSize;
-    private Variable fileNameVar;
-    private String sensorType;
-    private int filenameSize;
 
     public SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize) {
         this.processingVersion = processingVersion;
@@ -57,58 +57,33 @@ public class SstInsituTimeSeries extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        sensorType = extractSensorType(reader);
-        fileNameVar = getFileNameVariable(reader, sensorType);
-        filenameSize = findDimensionMandatory(reader, "file_name").getLength();
+        final String sensorType = extractSensorType(reader);
+        final Variable fileNameVar = getFileNameVariable(reader, sensorType);
+        final int filenameSize = findDimensionMandatory(reader, "file_name").getLength();
         final String insituFileName = getInsituFileName(fileNameVar, 0, filenameSize);
+        final Reader insituReader = getInsituFileOpened(insituFileName, sensorType);
 
-        final SystemConfig systemConfig = getContext().getSystemConfig();
-        final Reader insituReader = getInsituFileOpened(insituFileName, sensorType, processingVersion, systemConfig);
-
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        getContext().getProcessingConfig().store(os);
-        os.close();
-
-        final List<Variable> variables = insituReader.getVariables();
-
-        final int matchupCount = findDimensionMandatory(reader, "matchup_count").getLength();
+        addInsituVariables(writer, insituReader);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+//        throw new RuntimeException("not implemented");
     }
 
     static String getInsituFileName(Variable fileNameVar, int position, int filenameSize) throws IOException, InvalidRangeException {
         final Array nameArray = fileNameVar.read(new int[]{position, 0}, new int[]{1, filenameSize});
         final String insituFileName = String.valueOf((char[]) nameArray.getStorage()).trim();
         if (!insituFileName.matches(D_8_D_8_NC)) {
-            throw new RuntimeException("The insitu file name '"+insituFileName+"' does not match the regular expression '" + D_8_D_8_NC + "'");
+            throw new RuntimeException("The insitu file name '" + insituFileName + "' does not match the regular expression '" + D_8_D_8_NC + "'");
         }
         return insituFileName;
     }
 
-    static Reader getInsituFileOpened(String insituFileName, String sensorType, String processingVersion, SystemConfig systemConfig) throws IOException {
-        final Date[] startEnd = extractStarEndDateFromInsituFilename(insituFileName);
-        final String geomType = systemConfig.getGeometryLibraryType();
-        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geomType));
-        final Reader insituReader = readerFactory.getReader(sensorType);
-
-        final Archive archive = new Archive(systemConfig.getArchiveConfig());
-
-        final Path[] paths = archive.get(startEnd[0], startEnd[1], processingVersion, sensorType);
-        for (Path path : paths) {
-            if (insituFileName.equals(path.getFileName().toString())) {
-                insituReader.open(path.toFile());
-            }
-        }
-        return insituReader;
-    }
-
-    static Date[] extractStarEndDateFromInsituFilename(String insituFileName) {
+    static Date[] extractStartEndDateFromInsituFilename(String insituFileName) {
         final String[] strings = insituFileName.split("_");
         final String start = strings[strings.length - 2];
-        final String end = strings[strings.length - 1].substring(0,8);
+        final String end = strings[strings.length - 1].substring(0, 8);
         final String pattern = "yyyyMMdd";
         final Date[] startEnd = new Date[2];
         startEnd[0] = TimeUtils.parse(start, pattern);
@@ -144,5 +119,47 @@ public class SstInsituTimeSeries extends PostProcessing {
             throw new RuntimeException("Dimension '" + dimName + "' does not exist.");
         }
         return dim;
+    }
+
+    void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
+        final String dimString = MATCHUP_COUNT + " " + INSITU_NTIME;
+
+        writer.addDimension(null, INSITU_NTIME, timeSeriesSize);
+        final List<Variable> variables = insituReader.getVariables();
+        for (Variable variable : variables) {
+            String shortName = variable.getShortName();
+            if (shortName.endsWith(".lat")) {
+                shortName = shortName.replace(".lat", ".latitude");
+            }
+            if (shortName.endsWith(".lon")) {
+                shortName = shortName.replace(".lon", ".longitude");
+            }
+            final Variable newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+            final List<Attribute> attributes = variable.getAttributes();
+            newVar.addAll(attributes);
+        }
+        writer.addVariable(null, "insitu.y", DataType.INT, dimString);
+        final Variable dtimeVariable = writer.addVariable(null, "insitu.dtime", DataType.INT, dimString);
+        dtimeVariable.addAttribute(new Attribute("units", "seconds from matchup.time"));
+        dtimeVariable.addAttribute(new Attribute("_FillValue", -2147483648));
+    }
+
+    Reader getInsituFileOpened(String insituFileName, String sensorType) throws IOException {
+        final SystemConfig systemConfig = getContext().getSystemConfig();
+
+        final Date[] startEnd = extractStartEndDateFromInsituFilename(insituFileName);
+        final String geomType = systemConfig.getGeometryLibraryType();
+        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geomType));
+        final Reader insituReader = readerFactory.getReader(sensorType);
+
+        final Archive archive = new Archive(systemConfig.getArchiveConfig());
+
+        final Path[] paths = archive.get(startEnd[0], startEnd[1], processingVersion, sensorType);
+        for (Path path : paths) {
+            if (insituFileName.equals(path.getFileName().toString())) {
+                insituReader.open(path.toFile());
+            }
+        }
+        return insituReader;
     }
 }

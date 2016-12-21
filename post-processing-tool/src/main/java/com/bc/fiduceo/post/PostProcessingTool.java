@@ -24,6 +24,7 @@ import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -67,9 +68,38 @@ class PostProcessingTool {
         this.context = context;
     }
 
+    public static PostProcessingContext initializeContext(CommandLine commandLine) throws IOException {
+        logger.info("Loading configuration ...");
+        final PostProcessingContext context = new PostProcessingContext();
+
+        final String configValue = commandLine.getOptionValue("config", "./config");
+        final Path configDirectory = Paths.get(configValue);
+
+        final SystemConfig systemConfig = SystemConfig.loadFrom(configDirectory.toFile());
+        context.setSystemConfig(systemConfig);
+
+        final String jobConfigPathString = commandLine.getOptionValue("job-config");
+        final Path jobConfigPath = Paths.get(jobConfigPathString);
+        final InputStream inputStream = Files.newInputStream(configDirectory.resolve(jobConfigPath));
+        final PostProcessingConfig jobConfig = PostProcessingConfig.load(inputStream);
+        context.setProcessingConfig(jobConfig);
+
+        final String startDate = getDate(commandLine, "start");
+        context.setStartDate(TimeUtils.parseDOYBeginOfDay(startDate));
+
+        final String endDate = getDate(commandLine, "end");
+        context.setEndDate(TimeUtils.parseDOYEndOfDay(endDate));
+
+        final String mmdFilesDir = commandLine.getOptionValue("input-dir");
+        context.setMmdInputDirectory(Paths.get(mmdFilesDir));
+
+        logger.info("Success loading configuration.");
+        return context;
+    }
+
     public void runPostProcessing() throws IOException, InvalidRangeException {
         final Path inputDirectory = context.getMmdInputDirectory();
-        final Pattern pattern = Pattern.compile("mmd\\d{1,2}_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
+        final Pattern pattern = Pattern.compile("mmd\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
 
         try (Stream<Path> pathStream = Files.walk(inputDirectory)) {
             final Stream<Path> regularFiles = pathStream.filter(path -> Files.isRegularFile(path));
@@ -78,105 +108,6 @@ class PostProcessingTool {
 
             computeFiles(mmdFiles);
         }
-    }
-
-    void computeFiles(List<Path> mmdFiles)  {
-        final PostProcessingConfig processingConfig = context.getProcessingConfig();
-
-        final List<PostProcessing> processings = new ArrayList<>();
-        final PostProcessingFactory factory = PostProcessingFactory.get();
-        for (Element processing : processingConfig.getPostProcessingElements()) {
-            final PostProcessing postProcessing = factory.getPostProcessing(processing);
-            postProcessing.setContext(context);
-            processings.add(postProcessing);
-        }
-
-        final SourceTargetManager manager = new SourceTargetManager(processingConfig);
-        for (Path mmdFile : mmdFiles) {
-            Exception ex = null;
-            try {
-                computeFile(mmdFile, manager, processings);
-            } catch (Exception e) {
-                ex = e;
-                logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
-                logger.severe("Cause: " + e.getMessage());
-                e.printStackTrace();
-            } finally {
-                manager.processingDone(mmdFile, ex);
-            }
-        }
-    }
-
-    void computeFile(Path mmdFile, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
-        final long startTime = context.getStartDate().getTime();
-        final long endTime = context.getEndDate().getTime();
-        if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
-
-            final Path source = manager.getSource(mmdFile);
-            final Path target = manager.getTargetPath(mmdFile);
-
-            NetcdfFile reader = null;
-            NetcdfFileWriter writer = null;
-            RandomAccessFile raf = null;
-
-            try {
-                final String absSource = source.toAbsolutePath().toString();
-                raf = new RandomAccessFile(absSource, "r");
-                reader = NetcdfFile.open(raf, absSource, null, null);
-
-                final String absTarget = target.toAbsolutePath().toString();
-                if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
-                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, absTarget);
-                } else {
-                    final Nc4Chunking chunking = Nc4ChunkingDefault.factory(Nc4Chunking.Strategy.standard, 5, true);
-                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
-                }
-
-                run(reader, writer, processings);
-            } finally {
-                if (raf != null) {
-                    raf.close();
-                }
-                if (reader != null) {
-                    reader.close();
-                }
-                if (writer != null) {
-                    writer.close();
-                }
-            }
-        }
-    }
-
-    // package access for testing only se 2016-11-28
-    void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
-        final Group rootGroup = reader.getRootGroup();
-        copyHeader(writer, null, rootGroup, 0);
-        addPostProcessingConfig(writer);
-        for (PostProcessing postProcessing : postProcessings) {
-            postProcessing.prepare(reader, writer);
-        }
-        writer.create();
-        transferData(writer, rootGroup);
-        for (PostProcessing postProcessing : postProcessings) {
-            postProcessing.compute(reader, writer);
-        }
-    }
-
-    void addPostProcessingConfig(NetcdfFileWriter writer) throws IOException {
-        final String attName = "post-processing-configuration";
-
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Attribute attribute = writer.findGlobalAttribute(attName);
-        if (attribute != null) {
-            os.write(attribute.getStringValue().getBytes());
-            os.write("\n".getBytes());
-            writer.deleteGroupAttribute(null, attName);
-        }
-
-        context.getProcessingConfig().store(os);
-        os.close();
-
-        writer.addGroupAttribute(null, new Attribute(attName, os.toString()));
     }
 
     // package access for testing only se 2016-11-28
@@ -229,35 +160,6 @@ class PostProcessingTool {
         return options;
     }
 
-    public static PostProcessingContext initializeContext(CommandLine commandLine) throws IOException {
-        logger.info("Loading configuration ...");
-        final PostProcessingContext context = new PostProcessingContext();
-
-        final String configValue = commandLine.getOptionValue("config", "./config");
-        final Path configDirectory = Paths.get(configValue);
-
-        final SystemConfig systemConfig = SystemConfig.loadFrom(configDirectory.toFile());
-        context.setSystemConfig(systemConfig);
-
-        final String jobConfigPathString = commandLine.getOptionValue("job-config");
-        final Path jobConfigPath = Paths.get(jobConfigPathString);
-        final InputStream inputStream = Files.newInputStream(configDirectory.resolve(jobConfigPath));
-        final PostProcessingConfig jobConfig = PostProcessingConfig.load(inputStream);
-        context.setProcessingConfig(jobConfig);
-
-        final String startDate = getDate(commandLine, "start");
-        context.setStartDate(TimeUtils.parseDOYBeginOfDay(startDate));
-
-        final String endDate = getDate(commandLine, "end");
-        context.setEndDate(TimeUtils.parseDOYEndOfDay(endDate));
-
-        final String mmdFilesDir = commandLine.getOptionValue("input-dir");
-        context.setMmdInputDirectory(Paths.get(mmdFilesDir));
-
-        logger.info("Success loading configuration.");
-        return context;
-    }
-
     static boolean isFileInTimeRange(long startTime, long endTime, String filename) {
         final int dotIdx = filename.lastIndexOf(".");
         final int endIdx = filename.lastIndexOf("_", dotIdx);
@@ -270,6 +172,103 @@ class PostProcessingTool {
         final long fileEnd = TimeUtils.parseDOYEndOfDay(endDOY).getTime();
 
         return fileStart >= startTime && fileEnd <= endTime;
+    }
+
+    void computeFiles(List<Path> mmdFiles) {
+        final PostProcessingConfig processingConfig = context.getProcessingConfig();
+
+        final List<PostProcessing> processings = new ArrayList<>();
+        final PostProcessingFactory factory = PostProcessingFactory.get();
+        for (Element processing : processingConfig.getPostProcessingElements()) {
+            final PostProcessing postProcessing = factory.getPostProcessing(processing);
+            postProcessing.setContext(context);
+            processings.add(postProcessing);
+        }
+
+        final SourceTargetManager manager = new SourceTargetManager(processingConfig);
+        for (Path mmdFile : mmdFiles) {
+            Exception ex = null;
+            try {
+                computeFile(mmdFile, manager, processings);
+            } catch (Exception e) {
+                ex = e;
+                logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
+                logger.severe("Cause: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                manager.processingDone(mmdFile, ex);
+            }
+        }
+    }
+
+    void computeFile(Path mmdFile, final SourceTargetManager manager, List<PostProcessing> processings) throws IOException, InvalidRangeException {
+        final long startTime = context.getStartDate().getTime();
+        final long endTime = context.getEndDate().getTime();
+        if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
+
+            final Path source = manager.getSource(mmdFile);
+            final Path target = manager.getTargetPath(mmdFile);
+
+            NetcdfFile reader = null;
+            NetcdfFileWriter writer = null;
+            RandomAccessFile raf = null;
+
+            try {
+                final String absSource = source.toAbsolutePath().toString();
+
+                // open the file that way is needed because the standard open mechanism changes the file size
+                reader = NetCDFUtils.openReadOnly(absSource);
+
+                final String absTarget = target.toAbsolutePath().toString();
+                if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
+                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, absTarget);
+                } else {
+                    final Nc4Chunking chunking = Nc4ChunkingDefault.factory(Nc4Chunking.Strategy.standard, 5, true);
+                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
+                }
+
+                run(reader, writer, processings);
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (writer != null) {
+                    writer.close();
+                }
+            }
+        }
+    }
+
+    // package access for testing only se 2016-11-28
+    void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
+        final Group rootGroup = reader.getRootGroup();
+        copyHeader(writer, null, rootGroup, 0);
+        addPostProcessingConfig(writer);
+        for (PostProcessing postProcessing : postProcessings) {
+            postProcessing.prepare(reader, writer);
+        }
+        writer.create();
+        transferData(writer, rootGroup);
+        for (PostProcessing postProcessing : postProcessings) {
+            postProcessing.compute(reader, writer);
+        }
+    }
+
+    void addPostProcessingConfig(NetcdfFileWriter writer) throws IOException {
+        final String attName = "post-processing-configuration";
+
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Attribute attribute = writer.findGlobalAttribute(attName);
+        if (attribute != null) {
+            os.write(attribute.getStringValue().getBytes());
+            os.write("\n".getBytes());
+            writer.deleteGroupAttribute(null, attName);
+        }
+
+        context.getProcessingConfig().store(os);
+        os.close();
+
+        writer.addGroupAttribute(null, new Attribute(attName, os.toString()));
     }
 
     private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup, int anon) throws IOException, InvalidRangeException {

@@ -299,6 +299,7 @@ public class PostProcessingToolTest {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final StreamHandler handler = new StreamHandler(stream, formatter);
         final Logger logger = FiduceoLogger.getLogger();
+        FiduceoLogger.setLevelSilent();
 
         try {
             logger.addHandler(handler);
