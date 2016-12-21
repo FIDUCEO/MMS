@@ -21,6 +21,10 @@
 
 <post-processing-config>
 
+    <create-new-files>
+        <output-directory>An_Output_Directory</output-directory>
+    </create-new-files>
+
     <post-processings>
 
         <spherical-distance>

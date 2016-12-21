@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.post;
 
-import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -58,6 +56,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class PostProcessingTool {
 

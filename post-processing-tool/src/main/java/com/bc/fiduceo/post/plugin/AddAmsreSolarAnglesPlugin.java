@@ -43,6 +43,7 @@ public class AddAmsreSolarAnglesPlugin implements PostProcessingPlugin {
     @Override
     public PostProcessing createPostProcessing(Element element) {
         final AddAmsreSolarAngles.Configuration configuration = createConfiguration(element);
+
         final AddAmsreSolarAngles solarAnglesPostProcessing = new AddAmsreSolarAngles();
         solarAnglesPostProcessing.configure(configuration);
 

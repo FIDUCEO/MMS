@@ -1,2 +1,3 @@
 com.bc.fiduceo.post.plugin.SphericalDistancePlugin
 com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin
+com.bc.fiduceo.post.plugin.AddAmsreSolarAnglesPlugin

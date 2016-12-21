@@ -45,10 +45,11 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(3, plugins.size());
+        assertEquals(4, plugins.size());
         /* 01 */  assertTrue(plugins.containsKey("dummy-post-processing"));
         /* 02 */  assertTrue(plugins.containsKey("spherical-distance"));
         /* 03 */  assertTrue(plugins.containsKey("sst-insitu-time-series"));
+        /* 04 */  assertTrue(plugins.containsKey("add-amsre-solar-angles"));
     }
 
     @Test

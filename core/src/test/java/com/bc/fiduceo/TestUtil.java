@@ -256,14 +256,7 @@ public class TestUtil {
         return document.getRootElement();
     }
 
-    private static void convertToProperties(Properties properties, BasicDataSource datasource) {
-        properties.setProperty("driverClassName", datasource.getDriverClassName());
-        properties.setProperty("url", datasource.getUrl());
-        properties.setProperty("username", datasource.getUsername());
-        properties.setProperty("password", datasource.getPassword());
-    }
-
-    private static void writeStringTo(File outFile, String data) throws IOException {
+    public static void writeStringTo(File outFile, String data) throws IOException {
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(outFile);
@@ -274,5 +267,12 @@ public class TestUtil {
                 outputStream.close();
             }
         }
+    }
+
+    private static void convertToProperties(Properties properties, BasicDataSource datasource) {
+        properties.setProperty("driverClassName", datasource.getDriverClassName());
+        properties.setProperty("url", datasource.getUrl());
+        properties.setProperty("username", datasource.getUsername());
+        properties.setProperty("password", datasource.getPassword());
     }
 }
