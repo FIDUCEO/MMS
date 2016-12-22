@@ -55,6 +55,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetNWPAuxDir() {
+        final String nwpAuxDir = "/here/are/the/files";
+
+        config.setNWPAuxDir(nwpAuxDir);
+        assertEquals(nwpAuxDir, config.getNWPAuxDir());
+    }
+
+    @Test
     public void testSetGetAnalysisSteps() {
         config.setAnalysisSteps(19);
         assertEquals(19, config.getAnalysisSteps());

@@ -21,22 +21,50 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import com.bc.fiduceo.math.Intersection;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
+/* The XML template for this post processing class looks like:
+
+    <nwp>
+        <!-- Directory hosting the CDO executables
+        -->
+        <cdo-home>/usr/local/bin/cdo</cdo-home>
+
+        <!-- Defines the directory where the ERAInterim auxiliary files are located
+        -->
+        <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>
+
+        <!-- Set whether to delete all temporary files after processing or not.
+             Default value is: true
+         -->
+        <delete-on-exit>true</delete-on-exit>
+
+        <!-- Defines the number of time steps around the matchup time for
+             NWP analysis data (6 hr time resolution). Default is: 17.
+        -->
+        <analysis-steps>19</analysis-steps>
+
+         <!-- Defines the number of time steps around the matchup time for
+             NWP forecast data (3 hr time resolution). Default is: 33
+        -->
+        <forecast-steps>33</forecast-steps>
+
+    </nwp>
+ */
+
 public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        throw new RuntimeException("not implemented");
+       return new NwpPostProcessing();
     }
 
     @Override
     public String getPostProcessingName() {
-        throw new RuntimeException("not implemented");
+        return "nwp";
     }
 
     static Configuration createConfiguration(Element rootElement) {
@@ -50,6 +78,9 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
         final String cdoHomeValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "cdo-home");
         configuration.setCDOHome(cdoHomeValue);
+
+        final String nwpAuxDirValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "nwp-aux-dir");
+        configuration.setNWPAuxDir(nwpAuxDirValue);
 
         final Element analysisStepsElement = rootElement.getChild("analysis-steps");
         if (analysisStepsElement != null) {

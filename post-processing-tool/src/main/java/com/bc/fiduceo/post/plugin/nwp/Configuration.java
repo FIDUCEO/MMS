@@ -27,6 +27,7 @@ class Configuration {
     private String CDOHome;
     private int analysisSteps;
     private int forecastSteps;
+    private String NWPAuxDir;
 
     Configuration() {
         deleteOnExit = true;
@@ -64,5 +65,13 @@ class Configuration {
 
     int getForecastSteps() {
         return forecastSteps;
+    }
+
+    void setNWPAuxDir(String NWPAuxDir) {
+        this.NWPAuxDir = NWPAuxDir;
+    }
+
+    String getNWPAuxDir() {
+        return NWPAuxDir;
     }
 }
