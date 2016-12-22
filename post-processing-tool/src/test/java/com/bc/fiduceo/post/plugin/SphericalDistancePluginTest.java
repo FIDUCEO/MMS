@@ -96,7 +96,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'target' expected", expected.getMessage());
+            assertEquals("Child element 'target' expected", expected.getMessage());
         }
     }
 
@@ -108,7 +108,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'var-name' expected", expected.getMessage());
+            assertEquals("Child element 'var-name' expected", expected.getMessage());
         }
     }
 
@@ -120,7 +120,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'var-name' expected", expected.getMessage());
+            assertEquals("Value of element 'var-name' expected", expected.getMessage());
         }
     }
 
@@ -132,7 +132,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'dim-name' expected", expected.getMessage());
+            assertEquals("Child element 'dim-name' expected", expected.getMessage());
         }
     }
 
@@ -144,7 +144,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'dim-name' expected", expected.getMessage());
+            assertEquals("Value of element 'dim-name' expected", expected.getMessage());
         }
     }
 
@@ -156,7 +156,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'data-type' expected", expected.getMessage());
+            assertEquals("Child element 'data-type' expected", expected.getMessage());
         }
     }
 
@@ -168,7 +168,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'data-type' expected", expected.getMessage());
+            assertEquals("Value of element 'data-type' expected", expected.getMessage());
         }
     }
 
@@ -180,7 +180,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'primary-lat-variable' expected", expected.getMessage());
+            assertEquals("Child element 'primary-lat-variable' expected", expected.getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'primary-lat-variable' expected", expected.getMessage());
+            assertEquals("Value of element 'primary-lat-variable' expected", expected.getMessage());
         }
     }
 
@@ -204,7 +204,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'primary-lon-variable' expected", expected.getMessage());
+            assertEquals("Child element 'primary-lon-variable' expected", expected.getMessage());
         }
     }
 
@@ -216,7 +216,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'primary-lon-variable' expected", expected.getMessage());
+            assertEquals("Value of element 'primary-lon-variable' expected", expected.getMessage());
         }
     }
 
@@ -228,7 +228,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'secondary-lat-variable' expected", expected.getMessage());
+            assertEquals("Child element 'secondary-lat-variable' expected", expected.getMessage());
         }
     }
 
@@ -240,7 +240,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'secondary-lat-variable' expected", expected.getMessage());
+            assertEquals("Value of element 'secondary-lat-variable' expected", expected.getMessage());
         }
     }
 
@@ -252,7 +252,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Children 'secondary-lon-variable' expected", expected.getMessage());
+            assertEquals("Child element 'secondary-lon-variable' expected", expected.getMessage());
         }
     }
 
@@ -264,7 +264,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Vale of element 'secondary-lon-variable' expected", expected.getMessage());
+            assertEquals("Value of element 'secondary-lon-variable' expected", expected.getMessage());
         }
     }
 }

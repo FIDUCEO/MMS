@@ -33,7 +33,7 @@ public class JDomUtils {
     public static String getMandatoryText(final Element element) {
         final String textTrim = element.getTextTrim();
         if (textTrim.length() == 0) {
-            throw new RuntimeException("Vale of element '" + element.getName() + "' expected");
+            throw new RuntimeException("Value of element '" + element.getName() + "' expected");
         }
         return textTrim;
     }
@@ -41,7 +41,7 @@ public class JDomUtils {
     public static Element getMandatoryChild(final Element element, final String name) {
         final Element child = element.getChild(name);
         if (child == null) {
-            throw new RuntimeException("Children '" + name + "' expected");
+            throw new RuntimeException("Child element '" + name + "' expected");
         }
         return child;
     }
