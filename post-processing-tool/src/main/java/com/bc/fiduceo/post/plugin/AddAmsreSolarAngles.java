@@ -49,11 +49,12 @@ public class AddAmsreSolarAngles extends PostProcessing {
     }
 
     private Variable getVariable(NetcdfFile reader, String name) {
-        final Variable earthAzimuthVariable = reader.findVariable(null, name);
-        if (earthAzimuthVariable == null) {
-            throw new RuntimeException("Input Variable '" + configuration.earthAzimuthVariable + "' not present in input file");
+        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final Variable variable = reader.findVariable(null, escapedName);
+        if (variable == null) {
+            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
         }
-        return earthAzimuthVariable;
+        return variable;
     }
 
     @Override
@@ -75,8 +76,11 @@ public class AddAmsreSolarAngles extends PostProcessing {
 
         calculateAngles(earthAzimuth, earthIncidence, sunAzimuth, sunElevation, sza, saa);
 
-        final Variable szaVariable = writer.findVariable(configuration.szaVariable);
-        final Variable saaVariable = writer.findVariable(configuration.saaVariable);
+
+        final String szaEscapedName = NetcdfFile.makeValidCDLName(configuration.szaVariable);
+        final Variable szaVariable = writer.findVariable(szaEscapedName);
+        final String saaEscapedName = NetcdfFile.makeValidCDLName(configuration.saaVariable);
+        final Variable saaVariable = writer.findVariable(saaEscapedName);
 
         writer.write(szaVariable, sza);
         writer.write(saaVariable, saa);

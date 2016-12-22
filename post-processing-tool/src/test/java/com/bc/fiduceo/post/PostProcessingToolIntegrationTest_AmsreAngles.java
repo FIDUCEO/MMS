@@ -21,16 +21,20 @@
 package com.bc.fiduceo.post;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
@@ -56,10 +60,29 @@ public class PostProcessingToolIntegrationTest_AmsreAngles {
     }
 
     @Test
-    public void testAddAngleVariables() throws ParseException, IOException {
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File inputDir = new File(testDataDirectory, "post-processing/mmd06c");
+    public void testAddAngleVariables() throws ParseException, IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory();
 
+        writeConfiguration();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2004-008", "-end", "2004-012",
+                "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
+
+        PostProcessingToolMain.main(args);
+
+        final File targetFile = new File(testDirectory, "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 0, 0, 0, 104.08000183105469, mmd);
+            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 1, 0, 0, 103.97999572753906, mmd);
+
+            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 2, 0, 0, -11.169998168945312, mmd);
+            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 3, 0, 0, -11.29998779296875, mmd);
+        }
+    }
+
+    private void writeConfiguration() throws IOException {
         final String postProcessingConfig = "<post-processing-config>\n" +
                 "    <create-new-files>\n" +
                 "        <output-directory>\n" +
@@ -83,12 +106,10 @@ public class PostProcessingToolIntegrationTest_AmsreAngles {
             fail("unable to create test file");
         }
         TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
+    }
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2004-008", "-end", "2004-012",
-                "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
-
-        PostProcessingToolMain.main(args);
-
-        // @todo 1 tb/tb add assertions here tb 2016-12-21
+    private File getInputDirectory() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        return new File(testDataDirectory, "post-processing/mmd06c");
     }
 }
