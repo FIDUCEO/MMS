@@ -83,6 +83,46 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetAnSeaIceFractionName() {
+        final String variableName = "fraction";
+
+        config.setAnSeaIceFractionName(variableName);
+        assertEquals(variableName, config.getAnSeaIceFractionName());
+    }
+
+    @Test
+    public void testSetGetAnSSTName() {
+        final String variableName = "sea_surface_temp";
+
+        config.setAnSSTName(variableName);
+        assertEquals(variableName, config.getAnSSTName());
+    }
+
+    @Test
+    public void testSetGetAnEastWind() {
+        final String variableName = "eastern_wind";
+
+        config.setAnEastWindName(variableName);
+        assertEquals(variableName, config.getAnEastWindName());
+    }
+
+    @Test
+    public void testSetGetAnNorthWind() {
+        final String variableName = "cold";
+
+        config.setAnNorthWindName(variableName);
+        assertEquals(variableName, config.getAnNorthWindName());
+    }
+
+    @Test
+    public void testSetGetFcSSTName() {
+        final String variableName = "sea_surface_temp";
+
+        config.setFcSSTName(variableName);
+        assertEquals(variableName, config.getFcSSTName());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
@@ -90,5 +130,12 @@ public class ConfigurationTest {
         assertEquals(33, config.getForecastSteps());
         assertNull(config.getNWPAuxDir());
         assertNull(config.getTimeVariableName());
+
+        assertEquals("matchup.nwp.an.sea_ice_fraction", config.getAnSeaIceFractionName());
+        assertEquals("matchup.nwp.an.sea_surface_temperature", config.getAnSSTName());
+        assertEquals("matchup.nwp.an.10m_east_wind_component", config.getAnEastWindName());
+        assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
+
+        assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
     }
 }

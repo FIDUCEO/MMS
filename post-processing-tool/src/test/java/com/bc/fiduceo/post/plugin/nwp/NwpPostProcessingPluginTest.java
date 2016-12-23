@@ -160,4 +160,79 @@ public class NwpPostProcessingPluginTest {
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("big_ben", configuration.getTimeVariableName());
     }
+
+    @Test
+    public void testCreateConfiguration_anSeaIceFractionName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <an-sea-ice-fraction-name>nogger</an-sea-ice-fraction-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("nogger", configuration.getAnSeaIceFractionName());
+    }
+
+    @Test
+    public void testCreateConfiguration_anSSTName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <an-sst-name>quite_warm</an-sst-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("quite_warm", configuration.getAnSSTName());
+    }
+
+    @Test
+    public void testCreateConfiguration_anEastWindName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <an-east-wind-name>breeze</an-east-wind-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("breeze", configuration.getAnEastWindName());
+    }
+
+    @Test
+    public void testCreateConfiguration_anNorthWindName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <an-north-wind-name>from_ice_land</an-north-wind-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("from_ice_land", configuration.getAnNorthWindName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcSSTName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-sst-name>temperature</fc-sst-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("temperature", configuration.getFcSSTName());
+    }
 }

@@ -57,6 +57,31 @@ import org.jdom.Element;
         -->
         <time-variable-name>acquisition-time</time-variable-name>
 
+        <!-- Defines the name of the target variable for analysis sea-ice-fraction.
+             Default: matchup.nwp.an.sea_ice_fraction
+        -->
+        <an-sea-ice-fraction-name>an_sea-ice-fraction</an-sea-ice-fraction-name>
+
+        <!-- Defines the name of the target variable for analysis sea surface temperature.
+             Default: matchup.nwp.an.sea_surface_temperature
+        -->
+        <an-sst-name>an_sea-surface-temperature</an-sst-name>
+
+        <!-- Defines the name of the target variable for analysis 10m east wind component.
+             Default: matchup.nwp.an.10m_east_wind_component
+        -->
+        <an-east-wind-name>an_sea-surface-temperature</an-east-wind-name>
+
+        <!-- Defines the name of the target variable for analysis 10m north wind component.
+             Default: matchup.nwp.an.10m_north_wind_component
+        -->
+        <an-north-wind-name>an_sea-surface-temperature</an-north-wind-name>
+
+         <!-- Defines the name of the target variable for forecast sea surface temperature.
+             Default: matchup.nwp.fc.sea_surface_temperature
+        -->
+        <fc-sst-name>fc_sea-surface-temperature</fc-sst-name>
+
     </nwp>
  */
 
@@ -105,6 +130,31 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
         final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "time-variable-name");
         configuration.setTimeVariableName(timeVariableName);
+
+        final Element anSeaIceFractionElement = rootElement.getChild("an-sea-ice-fraction-name");
+        if (anSeaIceFractionElement != null) {
+            configuration.setAnSeaIceFractionName(anSeaIceFractionElement.getValue().trim());
+        }
+
+        final Element anSSTElement = rootElement.getChild("an-sst-name");
+        if (anSSTElement != null) {
+            configuration.setAnSSTName(anSSTElement.getValue().trim());
+        }
+
+        final Element anEastWindElement = rootElement.getChild("an-east-wind-name");
+        if (anEastWindElement != null) {
+            configuration.setAnEastWindName(anEastWindElement.getValue().trim());
+        }
+
+        final Element anNorthWindElement = rootElement.getChild("an-north-wind-name");
+        if (anNorthWindElement != null) {
+            configuration.setAnNorthWindName(anNorthWindElement.getValue().trim());
+        }
+
+        final Element fcSSTElement = rootElement.getChild("fc-sst-name");
+        if (fcSSTElement != null) {
+            configuration.setFcSSTName(fcSSTElement.getValue().trim());
+        }
 
         return configuration;
     }

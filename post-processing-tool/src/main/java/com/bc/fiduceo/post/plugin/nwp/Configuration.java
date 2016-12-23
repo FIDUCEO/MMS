@@ -21,8 +21,6 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import org.esa.snap.core.util.StringUtils;
-
 import java.io.File;
 
 class Configuration {
@@ -33,11 +31,22 @@ class Configuration {
     private int forecastSteps;
     private String NWPAuxDir;
     private String timeVariableName;
+    private String anSeaIceFractionName;
+    private String anSSTName;
+    private String anEastWindName;
+    private String anNorthWindName;
+    private String fcSSTName;
 
     Configuration() {
         deleteOnExit = true;
         analysisSteps = 17;
         forecastSteps = 33;
+
+        anSeaIceFractionName = "matchup.nwp.an.sea_ice_fraction";
+        anSSTName = "matchup.nwp.an.sea_surface_temperature";
+        anEastWindName = "matchup.nwp.an.10m_east_wind_component";
+        anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
+        fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -88,6 +97,46 @@ class Configuration {
         return timeVariableName;
     }
 
+    void setAnSeaIceFractionName(String anSeaIceFractionName) {
+        this.anSeaIceFractionName = anSeaIceFractionName;
+    }
+
+    String getAnSeaIceFractionName() {
+        return anSeaIceFractionName;
+    }
+
+    void setAnSSTName(String anSSTName) {
+        this.anSSTName = anSSTName;
+    }
+
+    String getAnSSTName() {
+        return anSSTName;
+    }
+
+    void setAnEastWindName(String anEastWindName) {
+        this.anEastWindName = anEastWindName;
+    }
+
+    String getAnEastWindName() {
+        return anEastWindName;
+    }
+
+    void setAnNorthWindName(String anNorthWindName) {
+        this.anNorthWindName = anNorthWindName;
+    }
+
+    String getAnNorthWindName() {
+        return anNorthWindName;
+    }
+
+    void setFcSSTName(String fcSSTName) {
+        this.fcSSTName = fcSSTName;
+    }
+
+    String getFcSSTName() {
+        return fcSSTName;
+    }
+
     boolean verify() {
         final File cdoDir = new File(CDOHome);
         if (!cdoDir.isDirectory()) {
@@ -100,4 +149,5 @@ class Configuration {
         }
         return true;
     }
+
 }
