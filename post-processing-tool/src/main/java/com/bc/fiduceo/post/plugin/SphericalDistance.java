@@ -24,37 +24,34 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 
-public class SphericalDistance extends PostProcessing {
+class SphericalDistance extends PostProcessing {
 
-    public final String targetVarName;
-    public final String targetDataType;
-    public final String targetDimName;
-    public final String primLatVar;
-    public final String primLatScaleAttrName;
-    public final String primLatOffsetAttrName;
-    public final String primLonVar;
-    public final String primLonScaleAttrName;
-    public final String primLonOffsetAttrName;
-    public final String secoLatVar;
-    public final String secoLatScaleAttrName;
-    public final String secoLatOffsetAttrName;
-    public final String secoLonVar;
-    public final String secoLonScaleAttrName;
-    public final String secoLonOffsetAttrName;
+    // @todo 3 tb/** maybe extract a configuration class here? 2016-12-23
+    final String targetVarName;
+    final String targetDataType;
+    final String targetDimName;
+    final String primLatVar;
+    final String primLatScaleAttrName;
+    final String primLatOffsetAttrName;
+    final String primLonVar;
+    final String primLonScaleAttrName;
+    final String primLonOffsetAttrName;
+    final String secoLatVar;
+    final String secoLatScaleAttrName;
+    final String secoLatOffsetAttrName;
+    final String secoLonVar;
+    final String secoLonScaleAttrName;
+    final String secoLonOffsetAttrName;
 
-    public SphericalDistance(String targetVarName, String targetDataType, String targetDimName,
-                             String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
-                             String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
-                             String secoLatVar, String secoLatScaleAttrName, String secoLatOffsetAttrName,
-                             String secoLonVar, String secoLonScaleAttrName, String secoLonOffsetAttrName) {
+    SphericalDistance(String targetVarName, String targetDataType, String targetDimName,
+                      String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
+                      String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
+                      String secoLatVar, String secoLatScaleAttrName, String secoLatOffsetAttrName,
+                      String secoLonVar, String secoLonScaleAttrName, String secoLonOffsetAttrName) {
         this.targetVarName = targetVarName;
         this.targetDataType = targetDataType;
         this.targetDimName = targetDimName;

@@ -25,17 +25,13 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
 import java.util.List;
 
-public class AddAmsreSolarAngles extends PostProcessing {
+class AddAmsreSolarAngles extends PostProcessing {
 
     private Configuration configuration;
 
@@ -46,15 +42,6 @@ public class AddAmsreSolarAngles extends PostProcessing {
 
         writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
         writer.addVariable(null, configuration.saaVariable, DataType.FLOAT, dimensions);
-    }
-
-    private Variable getVariable(NetcdfFile reader, String name) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
-        final Variable variable = reader.findVariable(null, escapedName);
-        if (variable == null) {
-            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
-        }
-        return variable;
     }
 
     @Override
@@ -131,6 +118,15 @@ public class AddAmsreSolarAngles extends PostProcessing {
         }
 
         return floatArray;
+    }
+
+    private Variable getVariable(NetcdfFile reader, String name) {
+        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final Variable variable = reader.findVariable(null, escapedName);
+        if (variable == null) {
+            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
+        }
+        return variable;
     }
 
     static class Configuration {

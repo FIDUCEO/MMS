@@ -27,15 +27,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -70,6 +63,7 @@ public class SstInsituTimeSeriesPluginTest {
         assertThat(postProcessing, instanceOf(PostProcessing.class));
         assertThat(postProcessing, instanceOf(SstInsituTimeSeries.class));
         final SstInsituTimeSeries insituTimeSeries = (SstInsituTimeSeries) postProcessing;
+        // @todo 3 tb/** use configuration class instead of checking fields of prost-processing 2016-12-23
         assertThat(insituTimeSeries.processingVersion, is(equalTo("v03.3")));
         assertThat(insituTimeSeries.timeRangeSeconds, is(equalTo(36 * 60 * 60)));
         assertThat(insituTimeSeries.timeSeriesSize, is(equalTo(96)));

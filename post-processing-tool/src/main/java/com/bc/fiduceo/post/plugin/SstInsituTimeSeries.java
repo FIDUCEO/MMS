@@ -28,28 +28,25 @@ import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 
-public class SstInsituTimeSeries extends PostProcessing {
+class SstInsituTimeSeries extends PostProcessing {
 
-    public static final String D_8_D_8_NC = ".*_\\d{8}_\\d{8}.nc";
+    static final String D_8_D_8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
     static final String MATCHUP_COUNT = "matchup_count";
 
-    public final String processingVersion;
-    public final int timeRangeSeconds;
-    public final int timeSeriesSize;
+    // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
+    final String processingVersion;
+    final int timeRangeSeconds;
+    final int timeSeriesSize;
 
-    public SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize) {
+    SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize) {
         this.processingVersion = processingVersion;
         this.timeRangeSeconds = timeRangeSeconds;
         this.timeSeriesSize = timeSeriesSize;
