@@ -218,11 +218,11 @@ public class TestUtil {
     public static File createFileInTestDir(String fileName) throws IOException {
         final File testDirectory = getTestDir();
 
-        final File databaseConfigFile = new File(testDirectory, fileName);
-        if (!databaseConfigFile.createNewFile()) {
-            fail("Unable to create test file: " + databaseConfigFile.getAbsolutePath());
+        final File testFile = new File(testDirectory, fileName);
+        if (!testFile.createNewFile()) {
+            fail("Unable to create test file: " + testFile.getAbsolutePath());
         }
-        return databaseConfigFile;
+        return testFile;
     }
 
     public static String assembleFileSystemPath(String[] pathSegments, boolean absolute) {

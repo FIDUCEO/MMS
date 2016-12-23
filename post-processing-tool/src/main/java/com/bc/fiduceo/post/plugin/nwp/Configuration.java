@@ -21,6 +21,10 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import org.esa.snap.core.util.StringUtils;
+
+import java.io.File;
+
 class Configuration {
 
     private boolean deleteOnExit;
@@ -28,6 +32,7 @@ class Configuration {
     private int analysisSteps;
     private int forecastSteps;
     private String NWPAuxDir;
+    private String timeVariableName;
 
     Configuration() {
         deleteOnExit = true;
@@ -73,5 +78,26 @@ class Configuration {
 
     String getNWPAuxDir() {
         return NWPAuxDir;
+    }
+
+    void setTimeVariableName(String timeVariableName) {
+        this.timeVariableName = timeVariableName;
+    }
+
+    String getTimeVariableName() {
+        return timeVariableName;
+    }
+
+    boolean verify() {
+        final File cdoDir = new File(CDOHome);
+        if (!cdoDir.isDirectory()) {
+            throw new RuntimeException("cdo executable directory does not exist");
+        }
+
+        final File nwpDir = new File(NWPAuxDir);
+        if (!nwpDir.isDirectory()) {
+            throw new RuntimeException("era interim aux data directory does not exist");
+        }
+        return true;
     }
 }

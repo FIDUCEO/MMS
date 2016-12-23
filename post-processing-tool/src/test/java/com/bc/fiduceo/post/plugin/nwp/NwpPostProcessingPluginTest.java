@@ -22,8 +22,6 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.plugin.AddAmsreSolarAngles;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
@@ -34,11 +32,6 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 public class NwpPostProcessingPluginTest {
-
-    private static final String FULL_CONFIG = "<nwp>" +
-            "    <cdo-home>we need this, its mandatory</cdo-home>" +
-            "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-            "</nwp>";
 
     private NwpPostProcessingPlugin plugin;
 
@@ -53,20 +46,13 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
-    public void testCreatePostProcessing() throws JDOMException, IOException {
-        final Element rootElement = TestUtil.createDomElement(FULL_CONFIG);
-
-        final PostProcessing postProcessing = plugin.createPostProcessing(rootElement);
-        assertNotNull(postProcessing);
-        assertTrue(postProcessing instanceof NwpPostProcessing);
-    }
-
-    @Test
     public void testCreateConfiguration_deleteOnExit() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <delete-on-exit>false</delete-on-exit>" +
+                "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -78,7 +64,9 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_cdoHome() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <cdo-home>/in/this/directory</cdo-home>" +
+                "" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -90,6 +78,7 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_missing_cdoHome() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -104,8 +93,10 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_analysisSteps() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <analysis-steps>19</analysis-steps>" +
+                "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -117,8 +108,10 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_forecastSteps() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <forecast-steps>27</forecast-steps>" +
+                "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -129,8 +122,10 @@ public class NwpPostProcessingPluginTest {
     @Test
     public void testCreateConfiguration_nwpAuxDir() throws JDOMException, IOException {
         final String XML = "<nwp>" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -142,6 +137,7 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_missing_nwpAuxDir() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -150,5 +146,18 @@ public class NwpPostProcessingPluginTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testCreateConfiguration_timeVariableName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <time-variable-name>big_ben</time-variable-name>" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("big_ben", configuration.getTimeVariableName());
     }
 }

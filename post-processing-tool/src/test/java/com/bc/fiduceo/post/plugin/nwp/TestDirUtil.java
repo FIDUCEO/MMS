@@ -21,28 +21,17 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import com.bc.fiduceo.post.PostProcessing;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
+import java.io.File;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
 
-class NwpPostProcessing extends PostProcessing {
+class TestDirUtil {
 
-    private final Configuration configuration;
-
-    NwpPostProcessing(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+    static File createDirectory(File testDir, String directoryName) {
+        final File cdoDir = new File(testDir, directoryName);
+        if (!cdoDir.mkdirs()) {
+            fail("unable to create test directory");
+        }
+        return cdoDir;
     }
 }

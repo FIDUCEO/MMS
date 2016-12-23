@@ -75,10 +75,20 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetTimeVariableName() {
+        final String timeVariableName = "clock";
+
+        config.setTimeVariableName(timeVariableName);
+        assertEquals(timeVariableName, config.getTimeVariableName());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
         assertEquals(17, config.getAnalysisSteps());
         assertEquals(33, config.getForecastSteps());
+        assertNull(config.getNWPAuxDir());
+        assertNull(config.getTimeVariableName());
     }
 }

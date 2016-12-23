@@ -52,6 +52,11 @@ import org.jdom.Element;
         -->
         <forecast-steps>33</forecast-steps>
 
+        <!-- Defines the name of the time variable to use. Time variables are expected to store data in
+             seconds since 1970 format.
+        -->
+        <time-variable-name>acquisition-time</time-variable-name>
+
     </nwp>
  */
 
@@ -59,7 +64,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-       return new NwpPostProcessing();
+        final Configuration configuration = createConfiguration(element);
+        if (configuration.verify()) {
+            return new NwpPostProcessing(configuration);
+        }
+        return null;
     }
 
     @Override
@@ -93,6 +102,9 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             final String forecastStepsValue = forecastStepsElement.getValue().trim();
             configuration.setForecastSteps(Integer.parseInt(forecastStepsValue));
         }
+
+        final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "time-variable-name");
+        configuration.setTimeVariableName(timeVariableName);
 
         return configuration;
     }
