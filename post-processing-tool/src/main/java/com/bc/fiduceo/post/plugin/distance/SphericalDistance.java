@@ -16,7 +16,8 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.fiduceo.post.plugin;
+
+package com.bc.fiduceo.post.plugin.distance;
 
 import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.PostProcessing;

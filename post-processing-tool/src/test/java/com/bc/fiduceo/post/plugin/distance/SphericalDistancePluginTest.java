@@ -17,9 +17,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.distance;
 
-import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.*;
+import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
@@ -51,11 +51,10 @@ public class SphericalDistancePluginTest {
 
     @Test
     public void testCreatePostProcessing() {
-
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.SphericalDistance", postProcessing.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.distance.SphericalDistance", postProcessing.getClass().getTypeName());
 
         final SphericalDistance sphericalDistance = (SphericalDistance) postProcessing;
 

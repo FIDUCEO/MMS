@@ -17,7 +17,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.distance;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

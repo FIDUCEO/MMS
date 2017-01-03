@@ -17,12 +17,12 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
-import static com.bc.fiduceo.post.plugin.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -147,7 +147,8 @@ public class SstInsituTimeSeries_IO_Test {
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         final Attribute targetAttrib = new Attribute("use-case-configuration", "");
         when(writer.findGlobalAttribute("use-case-configuration")).thenReturn(targetAttrib);
-        when(writer.addVariable(any(Group.class), anyString(), any(DataType.class), anyString())).thenReturn(mock(Variable.class));
+        final Variable newVariable = mock(Variable.class);
+        when(writer.addVariable(any(Group.class), anyString(), any(DataType.class), anyString())).thenReturn(newVariable);
 
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
@@ -180,25 +181,67 @@ public class SstInsituTimeSeries_IO_Test {
 
         // verification
         final String insituNtime = SstInsituTimeSeries.INSITU_NTIME;
-        final String matchupCount = SstInsituTimeSeries.MATCHUP_COUNT;
-        final String dimString = matchupCount + " " + insituNtime;
+        final String matchup = SstInsituTimeSeries.MATCHUP;
+        final String dimString = matchup + " " + insituNtime;
 
-        final InOrder inOrder = inOrder(writer);
+        final InOrder inOrder = inOrder(writer, newVariable);
+        inOrder.verify(writer, times(1)).addDimension(null, matchup, 9);
         inOrder.verify(writer, times(1)).addDimension(null, insituNtime, 16);
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.latitude", DataType.FLOAT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", -90.0f));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", 90.0f));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.longitude", DataType.FLOAT, dimString);
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sea_surface_temperature", DataType.FLOAT, dimString);
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_uncertainty", DataType.FLOAT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", -180.0f));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", 180.0f));
+
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sea_surface_temperature", DataType.SHORT, dimString);
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "K"));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("add_offset", 293.15));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("scale_factor", 0.001));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", (short) -32768));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", (short) -22000));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", (short) 31850));
+        inOrder.verify(newVariable, times(1)).addAttribute(any(Attribute.class));
+
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_uncertainty", DataType.SHORT, dimString);
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "K"));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("add_offset", 0.0));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("scale_factor", 0.001));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", (short) -32768));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", (short) -22000));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", (short) 22000));
+        inOrder.verify(newVariable, times(1)).addAttribute(any(Attribute.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_depth", DataType.FLOAT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_qc_flag", DataType.SHORT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_track_flag", DataType.SHORT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.mohc_id", DataType.INT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.id", DataType.LONG, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
+
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.dtime", DataType.INT, dimString);
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "seconds from matchup.time"));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", -2147483648));
 
         verifyNoMoreInteractions(writer);
+        verifyNoMoreInteractions(newVariable);
     }
 
     @Test
@@ -267,6 +310,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  ID  ************
             final Variable insituId = netcdfFile.findVariable(escape("insitu.id"));
+            assertEquals("matchup insitu.ntime", insituId.getDimensionsString());
             assertEquals(3, insituId.getAttributes().size());
             assertEquals(-32768L, insituId.findAttribute("_FillValue").getNumericValue());
             assertEquals("unique matchup ID", insituId.findAttribute("long_name").getStringValue());
@@ -285,6 +329,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  dTIME  ************
             final Variable dtime = netcdfFile.findVariable(escape("insitu.dtime"));
+            assertEquals("matchup insitu.ntime", dtime.getDimensionsString());
             assertEquals(2, dtime.getAttributes().size());
             assertEquals(-2147483648, dtime.findAttribute("_FillValue").getNumericValue());
             assertEquals("seconds from matchup.time", dtime.findAttribute("units").getStringValue());
@@ -302,6 +347,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  Latitude  ************
             final Variable latitude = netcdfFile.findVariable(escape("insitu.latitude"));
+            assertEquals("matchup insitu.ntime", latitude.getDimensionsString());
             assertEquals(5, latitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_north", latitude.findAttribute("units").getStringValue());
@@ -323,6 +369,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  Longitude  ************
             final Variable longitude = netcdfFile.findVariable(escape("insitu.longitude"));
+            assertEquals("matchup insitu.ntime", longitude.getDimensionsString());
             assertEquals(5, longitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_east", longitude.findAttribute("units").getStringValue());
@@ -348,8 +395,34 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SEA_SURFACE_TEMPERATURE  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.sea_surface_temperature")));
-            // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
+            final Variable temperature = netcdfFile.findVariable(escape("insitu.sea_surface_temperature"));
+            assertNotNull(temperature);
+            assertEquals("matchup insitu.ntime", temperature.getDimensionsString());
+            assertEquals(7, temperature.getAttributes().size());
+            assertEquals("in situ sea surface temperature", temperature.findAttribute("long_name").getStringValue());
+            assertEquals("K", temperature.findAttribute("units").getStringValue());
+            assertEquals(293.15, temperature.findAttribute("add_offset").getNumericValue());
+            assertEquals(DataType.DOUBLE, temperature.findAttribute("add_offset").getDataType());
+            assertEquals(0.001, temperature.findAttribute("scale_factor").getNumericValue());
+            assertEquals(DataType.DOUBLE, temperature.findAttribute("scale_factor").getDataType());
+            assertEquals((short) -32768, temperature.findAttribute("_FillValue").getNumericValue());
+            assertEquals(DataType.SHORT, temperature.findAttribute("_FillValue").getDataType());
+            assertEquals((short) -22000, temperature.findAttribute("valid_min").getNumericValue());
+            assertEquals(DataType.SHORT, temperature.findAttribute("valid_min").getDataType());
+            assertEquals((short) 31850, temperature.findAttribute("valid_max").getNumericValue());
+            assertEquals(DataType.SHORT, temperature.findAttribute("valid_max").getDataType());
+
+            final Array tempArr = temperature.read();
+            assertEquals(DataType.SHORT, tempArr.getDataType());
+            final int[] tempShape = tempArr.getShape();
+            assertEquals(9, tempShape[0]);
+            assertEquals(10, tempShape[1]);
+
+            final short[] tempStorage = (short[]) tempArr.getStorage();
+            final short[] tempExpecteds = new short[90];
+            Arrays.fill(tempExpecteds, (short) -32768);
+            assertArrayEquals(tempExpecteds, tempStorage);
+
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_DEPTH  ************

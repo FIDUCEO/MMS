@@ -42,7 +42,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.List;
 
-import static com.bc.fiduceo.post.plugin.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
+import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

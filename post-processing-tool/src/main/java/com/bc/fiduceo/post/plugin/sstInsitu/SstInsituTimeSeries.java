@@ -16,7 +16,8 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.fiduceo.post.plugin;
+
+package com.bc.fiduceo.post.plugin.sstInsitu;
 
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.SystemConfig;
@@ -28,7 +29,11 @@ import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,11 +45,13 @@ class SstInsituTimeSeries extends PostProcessing {
     static final String D_8_D_8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
     static final String MATCHUP_COUNT = "matchup_count";
+    static final String MATCHUP = "matchup";
 
     // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
     final String processingVersion;
     final int timeRangeSeconds;
     final int timeSeriesSize;
+    private int matchupCount;
 
     SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize) {
         this.processingVersion = processingVersion;
@@ -57,6 +64,7 @@ class SstInsituTimeSeries extends PostProcessing {
         final String sensorType = extractSensorType(reader);
         final Variable fileNameVar = getFileNameVariable(reader, sensorType);
         final int filenameSize = findDimensionMandatory(reader, "file_name").getLength();
+        matchupCount = findDimensionMandatory(reader, MATCHUP_COUNT).getLength();
         final String insituFileName = getInsituFileName(fileNameVar, 0, filenameSize);
         final Reader insituReader = getInsituFileOpened(insituFileName, sensorType);
 
@@ -119,8 +127,8 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
-        final String dimString = MATCHUP_COUNT + " " + INSITU_NTIME;
-
+        final String dimString = MATCHUP + " " + INSITU_NTIME;
+        writer.addDimension(null, MATCHUP, matchupCount);
         writer.addDimension(null, INSITU_NTIME, timeSeriesSize);
         final List<Variable> variables = insituReader.getVariables();
         for (Variable variable : variables) {
@@ -129,18 +137,37 @@ class SstInsituTimeSeries extends PostProcessing {
             if (shortName.endsWith(".lat")) {
                 shortName = shortName.replace(".lat", ".latitude");
                 newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+                newVar.addAll(variable.getAttributes());
                 newVar.addAttribute(new Attribute("valid_min", -90.0f));
                 newVar.addAttribute(new Attribute("valid_max", 90.0f));
             } else if (shortName.endsWith(".lon")) {
                 shortName = shortName.replace(".lon", ".longitude");
                 newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+                newVar.addAll(variable.getAttributes());
                 newVar.addAttribute(new Attribute("valid_min", -180.0f));
                 newVar.addAttribute(new Attribute("valid_max", 180.0f));
+            } else if (shortName.endsWith(".sea_surface_temperature")) {
+                newVar = writer.addVariable(null, shortName, DataType.SHORT, dimString);
+                newVar.addAttribute(new Attribute("units", "K"));
+                newVar.addAttribute(new Attribute("add_offset", 293.15));
+                newVar.addAttribute(new Attribute("scale_factor", 0.001));
+                newVar.addAttribute(new Attribute("_FillValue", (short) -32768));
+                newVar.addAttribute(new Attribute("valid_min", (short) -22000));
+                newVar.addAttribute(new Attribute("valid_max", (short) 31850));
+                newVar.addAttribute(variable.findAttribute("long_name"));
+            } else if (shortName.endsWith(".sst_uncertainty")) {
+                newVar = writer.addVariable(null, shortName, DataType.SHORT, dimString);
+                newVar.addAttribute(new Attribute("units", "K"));
+                newVar.addAttribute(new Attribute("add_offset", 0.0));
+                newVar.addAttribute(new Attribute("scale_factor", 0.001));
+                newVar.addAttribute(new Attribute("_FillValue", (short) -32768));
+                newVar.addAttribute(new Attribute("valid_min", (short) -22000));
+                newVar.addAttribute(new Attribute("valid_max", (short) 22000));
+                newVar.addAttribute(variable.findAttribute("long_name"));
             } else {
                 newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
+                newVar.addAll(variable.getAttributes());
             }
-            final List<Attribute> attributes = variable.getAttributes();
-            newVar.addAll(attributes);
         }
         writer.addVariable(null, "insitu.y", DataType.INT, dimString);
         final Variable dtimeVariable = writer.addVariable(null, "insitu.dtime", DataType.INT, dimString);
