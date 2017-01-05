@@ -145,6 +145,10 @@ public class SSTInsituReader implements Reader {
         return windowArray;
     }
 
+    public Array getSourceArray(String variableName) {
+        return arrayMap.get(variableName);
+    }
+
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         return readRaw(centerX, centerY, interval, variableName);

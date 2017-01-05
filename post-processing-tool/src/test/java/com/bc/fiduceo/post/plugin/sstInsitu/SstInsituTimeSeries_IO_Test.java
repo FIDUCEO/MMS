@@ -29,11 +29,14 @@ import static org.mockito.Mockito.*;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.PostProcessingConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.reader.insitu.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.jdom.Document;
@@ -81,53 +84,6 @@ public class SstInsituTimeSeries_IO_Test {
         if (testDir.isDirectory()) {
             FileUtils.deleteTree(testDir);
             assertFalse(testDir.exists());
-        }
-    }
-
-    @Test
-    public void getInsituFileOpened() throws Exception {
-        final String root = testDataDirectory.getAbsolutePath();
-        final String systemConfigXml = "<system-config>" +
-                                       "    <archive>" +
-                                       "        <root-path>" +
-                                       "            " + root +
-                                       "        </root-path>" +
-                                       "        <rule sensors = \"animal-sst\">" +
-                                       "            insitu/SENSOR/VERSION" +
-                                       "        </rule>" +
-                                       "    </archive>" +
-                                       "</system-config>";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(systemConfigXml.getBytes());
-
-        final SstInsituTimeSeries sstInsituTimeSeries = new SstInsituTimeSeries("v03.3", 123, 12);
-        final PostProcessingContext context = new PostProcessingContext();
-        context.setSystemConfig(SystemConfig.load(inputStream));
-        sstInsituTimeSeries.setContext(context);
-
-        // action
-        final Reader insituFileOpened = sstInsituTimeSeries
-                    .getInsituFileOpened("insitu_12_WMOID_11835_20040110_20040127.nc", "animal-sst");
-
-        //validation
-        assertNotNull(insituFileOpened);
-        final List<Variable> variables = insituFileOpened.getVariables();
-        assertNotNull(variables);
-        final String[] expectedNames = {
-                    "insitu.time",
-                    "insitu.lat",
-                    "insitu.lon",
-                    "insitu.sea_surface_temperature",
-                    "insitu.sst_uncertainty",
-                    "insitu.sst_depth",
-                    "insitu.sst_qc_flag",
-                    "insitu.sst_track_flag",
-                    "insitu.mohc_id",
-                    "insitu.id"
-        };
-        assertEquals(expectedNames.length, variables.size());
-        for (int i = 0; i < variables.size(); i++) {
-            Variable variable = variables.get(i);
-            assertEquals(i + ": " + expectedNames[i], i + ": " + variable.getShortName());
         }
     }
 
@@ -191,33 +147,17 @@ public class SstInsituTimeSeries_IO_Test {
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
         inOrder.verify(newVariable, times(1)).addAll(any(List.class));
 
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.latitude", DataType.FLOAT, dimString);
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);
         inOrder.verify(newVariable, times(1)).addAll(any(List.class));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", -90.0f));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", 90.0f));
 
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.longitude", DataType.FLOAT, dimString);
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.lon", DataType.FLOAT, dimString);
         inOrder.verify(newVariable, times(1)).addAll(any(List.class));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", -180.0f));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", 180.0f));
 
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sea_surface_temperature", DataType.SHORT, dimString);
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "K"));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("add_offset", 293.15));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("scale_factor", 0.001));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", (short) -32768));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", (short) -22000));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", (short) 31850));
-        inOrder.verify(newVariable, times(1)).addAttribute(any(Attribute.class));
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sea_surface_temperature", DataType.FLOAT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
 
-        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_uncertainty", DataType.SHORT, dimString);
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "K"));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("add_offset", 0.0));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("scale_factor", 0.001));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", (short) -32768));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_min", (short) -22000));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("valid_max", (short) 22000));
-        inOrder.verify(newVariable, times(1)).addAttribute(any(Attribute.class));
+        inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_uncertainty", DataType.FLOAT, dimString);
+        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_depth", DataType.FLOAT, dimString);
         inOrder.verify(newVariable, times(1)).addAll(any(List.class));
@@ -235,13 +175,37 @@ public class SstInsituTimeSeries_IO_Test {
         inOrder.verify(newVariable, times(1)).addAll(any(List.class));
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", -2147483647));
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.dtime", DataType.INT, dimString);
         inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("units", "seconds from matchup.time"));
-        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", -2147483648));
+        inOrder.verify(newVariable, times(1)).addAttribute(new Attribute("_FillValue", -2147483647));
 
         verifyNoMoreInteractions(writer);
         verifyNoMoreInteractions(newVariable);
+    }
+
+    @Test
+    public void computeInsituRange() throws Exception {
+        final int seconds = 80000;
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("any", seconds, 300);
+        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory("S2"));
+        final Reader insituReader = readerFactory.getReader("animal-sst");
+
+        final File insituFile = testDataDirectory.toPath()
+                    .resolve("insitu")
+                    .resolve("animal-sst")
+                    .resolve("v03.3")
+                    .resolve("insitu_12_WMOID_11836_20040112_20041006.nc").toAbsolutePath().toFile();
+
+
+        insituReader.open(insituFile);
+
+        final SstInsituTimeSeries.Range range = insituTimeSeries.computeInsituRange(15, insituReader);
+
+        assertNotNull(range);
+        assertEquals(11, range.min);
+        assertEquals(17, range.max);
     }
 
     @Test
@@ -264,7 +228,6 @@ public class SstInsituTimeSeries_IO_Test {
             new XMLOutputter(Format.getPrettyFormat()).output(dom, stream);
         }
 
-
         final File postProcessingConfigFile = new File(configDir, "processing-config.xml");
         try (OutputStream stream = Files.newOutputStream(postProcessingConfigFile.toPath())) {
             final Document dom = new Document(
@@ -273,7 +236,8 @@ public class SstInsituTimeSeries_IO_Test {
                                     new Element("post-processings").addContent(
                                                 new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
                                                             new Element(TAG_NAME_VERSION).addContent("v03.3"),
-                                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
+                                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 80000),
+//                                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
                                                             new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("10")
                                                 ))
                                     )
@@ -323,15 +287,25 @@ public class SstInsituTimeSeries_IO_Test {
 
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final long[] idStorage = (long[]) idArr.getStorage();
-            final long[] idExpecteds = new long[90];
-            Arrays.fill(idExpecteds, -32768);
+            final int fill = -32768;
+            final long[] idExpecteds = new long[]{
+                        2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, fill, fill, fill, fill, fill,
+                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, fill, fill, fill,
+                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill,
+                        2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, fill, fill, fill, fill, fill,
+                        2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill,
+                        2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill,
+                        2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill, fill
+            };
             assertArrayEquals(idExpecteds, idStorage);
 
             // **********  dTIME  ************
             final Variable dtime = netcdfFile.findVariable(escape("insitu.dtime"));
             assertEquals("matchup insitu.ntime", dtime.getDimensionsString());
             assertEquals(2, dtime.getAttributes().size());
-            assertEquals(new Attribute("_FillValue", -2147483648), dtime.findAttribute("_FillValue"));
+            assertEquals(new Attribute("_FillValue", -2147483647), dtime.findAttribute("_FillValue"));
             assertEquals(new Attribute("units", "seconds from matchup.time"), dtime.findAttribute("units"));
             final Array dtimeArr = dtime.read();
             assertEquals(DataType.INT, dtimeArr.getDataType());
@@ -342,18 +316,16 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final int[] dtimeStorage = (int[]) dtimeArr.getStorage();
             final int[] dtimeExpecteds = new int[90];
-            Arrays.fill(dtimeExpecteds, -2147483648);
+            Arrays.fill(dtimeExpecteds, -2147483647);
             assertArrayEquals(dtimeExpecteds, dtimeStorage);
 
             // **********  Latitude  ************
-            final Variable latitude = netcdfFile.findVariable(escape("insitu.latitude"));
+            final Variable latitude = netcdfFile.findVariable(escape("insitu.lat"));
             assertEquals("matchup insitu.ntime", latitude.getDimensionsString());
-            assertEquals(5, latitude.getAttributes().size());
+            assertEquals(3, latitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_north", latitude.findAttribute("units").getStringValue());
             assertEquals(new Attribute("_FillValue", -32768.0f), latitude.findAttribute("_FillValue"));
-            assertEquals(new Attribute("valid_min", -90.0f), latitude.findAttribute("valid_min"));
-            assertEquals(new Attribute("valid_max", 90.0f), latitude.findAttribute("valid_max"));
             assertEquals(new Attribute("long_name", "in situ latitude"), latitude.findAttribute("long_name"));
             final Array latArr = latitude.read();
             assertEquals(DataType.FLOAT, latArr.getDataType());
@@ -363,19 +335,26 @@ public class SstInsituTimeSeries_IO_Test {
 
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final float[] latStorage = (float[]) latArr.getStorage();
-            final float[] latExpecteds = new float[90];
-            Arrays.fill(latExpecteds, -32768.0f);
+            final float[] latExpecteds = new float[]{
+                        -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, fill, fill, fill, fill, fill,
+                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, -54.0165f, -53.9501f, fill, fill, fill,
+                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill,
+                        -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, fill, fill, fill, fill, fill,
+                        -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill,
+                        -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill,
+                        -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill, fill
+            };
             assertArrayEquals(latExpecteds, latStorage, 1e-7f);
 
             // **********  Longitude  ************
-            final Variable longitude = netcdfFile.findVariable(escape("insitu.longitude"));
+            final Variable longitude = netcdfFile.findVariable(escape("insitu.lon"));
             assertEquals("matchup insitu.ntime", longitude.getDimensionsString());
-            assertEquals(5, longitude.getAttributes().size());
+            assertEquals(3, longitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_east", longitude.findAttribute("units").getStringValue());
-            assertEquals(new Attribute("_FillValue",-32768.0f), longitude.findAttribute("_FillValue"));
-            assertEquals(new Attribute("valid_min", -180.0f), longitude.findAttribute("valid_min"));
-            assertEquals(new Attribute("valid_max", 180.0f), longitude.findAttribute("valid_max"));
+            assertEquals(new Attribute("_FillValue", -32768.0f), longitude.findAttribute("_FillValue"));
             assertEquals(new Attribute("long_name", "in situ longitude"), longitude.findAttribute("long_name"));
             final Array lonArr = longitude.read();
             assertEquals(DataType.FLOAT, lonArr.getDataType());
@@ -385,8 +364,17 @@ public class SstInsituTimeSeries_IO_Test {
 
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final float[] lonStorage = (float[]) lonArr.getStorage();
-            final float[] lonExpecteds = new float[90];
-            Arrays.fill(lonExpecteds, -32768.0f);
+            final float[] lonExpecteds = new float[]{
+                        -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, fill, fill, fill, fill, fill,
+                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, -35.6856f, -35.5854f, fill, fill, fill,
+                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill,
+                        -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, fill, fill, fill, fill, fill,
+                        -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill,
+                        -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill,
+                        -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill, fill
+            };
             assertArrayEquals(lonExpecteds, lonStorage, 1e-7f);
 
             // **********  MOHC_ID  ************
@@ -398,25 +386,30 @@ public class SstInsituTimeSeries_IO_Test {
             final Variable temperature = netcdfFile.findVariable(escape("insitu.sea_surface_temperature"));
             assertNotNull(temperature);
             assertEquals("matchup insitu.ntime", temperature.getDimensionsString());
-            assertEquals(7, temperature.getAttributes().size());
+            assertEquals(3, temperature.getAttributes().size());
             assertEquals(new Attribute("long_name", "in situ sea surface temperature"), temperature.findAttribute("long_name"));
-            assertEquals(new Attribute("units", "K"), temperature.findAttribute("units"));
-            assertEquals(new Attribute("add_offset", 293.15), temperature.findAttribute("add_offset"));
-            assertEquals(new Attribute("scale_factor", 0.001), temperature.findAttribute("scale_factor"));
-            assertEquals(new Attribute("_FillValue", (short) -32768), temperature.findAttribute("_FillValue"));
-            assertEquals(new Attribute("valid_min", (short) -22000), temperature.findAttribute("valid_min"));
-            assertEquals(new Attribute("valid_max", (short) 31850), temperature.findAttribute("valid_max"));
+            assertEquals(new Attribute("units", "Celcius"), temperature.findAttribute("units"));
+            assertEquals(new Attribute("_FillValue", -32768.0f), temperature.findAttribute("_FillValue"));
 
             final Array tempArr = temperature.read();
-            assertEquals(DataType.SHORT, tempArr.getDataType());
+            assertEquals(DataType.FLOAT, tempArr.getDataType());
             final int[] tempShape = tempArr.getShape();
             assertEquals(9, tempShape[0]);
             assertEquals(10, tempShape[1]);
 
-            final short[] tempStorage = (short[]) tempArr.getStorage();
-            final short[] tempExpecteds = new short[90];
-            Arrays.fill(tempExpecteds, (short) -32768);
-            assertArrayEquals(tempExpecteds, tempStorage);
+            final float[] tempStorage = (float[]) tempArr.getStorage();
+            final float[] tempExpecteds = new float[]{
+                        3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, fill, fill, fill, fill, fill,
+                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, 2.445f, 2.5f, fill, fill, fill,
+                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill,
+                        3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, fill, fill, fill, fill, fill,
+                        2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill,
+                        2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill,
+                        2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill, fill
+            };
+            assertArrayEquals(tempExpecteds, tempStorage, 1e-8f);
 
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
@@ -424,25 +417,30 @@ public class SstInsituTimeSeries_IO_Test {
             final Variable uncertainty = netcdfFile.findVariable(escape("insitu.sst_uncertainty"));
             assertNotNull(uncertainty);
             assertEquals("matchup insitu.ntime", uncertainty.getDimensionsString());
-            assertEquals(7, uncertainty.getAttributes().size());
+            assertEquals(3, uncertainty.getAttributes().size());
             assertEquals(new Attribute("long_name", "in situ sea surface temperature uncertainty"), uncertainty.findAttribute("long_name"));
-            assertEquals(new Attribute("units", "K"), uncertainty.findAttribute("units"));
-            assertEquals(new Attribute("add_offset", 0.0), uncertainty.findAttribute("add_offset"));
-            assertEquals(new Attribute("scale_factor", 0.001), uncertainty.findAttribute("scale_factor"));
-            assertEquals(new Attribute("_FillValue", (short) -32768), uncertainty.findAttribute("_FillValue"));
-            assertEquals(new Attribute("valid_min", (short) -22000), uncertainty.findAttribute("valid_min"));
-            assertEquals(new Attribute("valid_max", (short) 22000), uncertainty.findAttribute("valid_max"));
+            assertEquals(new Attribute("units", "Celcius"), uncertainty.findAttribute("units"));
+            assertEquals(new Attribute("_FillValue", -32768f), uncertainty.findAttribute("_FillValue"));
 
             final Array uncertArr = uncertainty.read();
-            assertEquals(DataType.SHORT, uncertArr.getDataType());
+            assertEquals(DataType.FLOAT, uncertArr.getDataType());
             final int[] uncertShape = uncertArr.getShape();
             assertEquals(9, uncertShape[0]);
             assertEquals(10, uncertShape[1]);
 
-            final short[] uncertStorage = (short[]) uncertArr.getStorage();
-            final short[] uncertExpecteds = new short[90];
-            Arrays.fill(uncertExpecteds, (short) -32768);
-            assertArrayEquals(uncertExpecteds, uncertStorage);
+            final float[] uncertStorage = (float[]) uncertArr.getStorage();
+            final float[] uncertExpecteds = new float[]{
+                        0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill,
+                        0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill
+            };
+            assertArrayEquals(uncertExpecteds, uncertStorage, 1e-8f);
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_DEPTH  ************

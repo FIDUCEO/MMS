@@ -96,7 +96,7 @@ public class SstInsituTimeSeriesTest {
         when(reader.findVariable("sensor-name_file_name")).thenReturn(expectedVariable);
 
         //action
-        final Variable fileNameVariable = SstInsituTimeSeries.getFileNameVariable(reader, "sensor-name");
+        final Variable fileNameVariable = SstInsituTimeSeries.getInsituFileNameVariable(reader, "sensor-name");
 
         assertSame(expectedVariable, fileNameVariable);
     }
@@ -113,7 +113,7 @@ public class SstInsituTimeSeriesTest {
         when(reader.getVariables()).thenReturn(variables);
 
         try {
-            SstInsituTimeSeries.getFileNameVariable(reader, SstInsituTimeSeries.extractSensorType(reader));
+            SstInsituTimeSeries.getInsituFileNameVariable(reader, SstInsituTimeSeries.extractSensorType(reader));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertThat(expected.getMessage(), is(equalTo("Variable 'sensor-name_file_name' does not exist.")));
@@ -147,19 +147,6 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void extractStarEndDateFromInsituFilename() throws Exception {
-        final String begin = "19700325";
-        final String end = "19760625";
-
-        final Date[] dates = SstInsituTimeSeries.extractStartEndDateFromInsituFilename(
-                    "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
-
-        assertEquals(2, dates.length);
-        assertEquals("25-Mar-1970 00:00:00", TimeUtils.format(dates[0]));
-        assertEquals("25-Jun-1976 00:00:00", TimeUtils.format(dates[1]));
-    }
-
-    @Test
     public void getInsituFileName_Success() throws Exception {
         final Array array = mock(Array.class);
 
@@ -176,7 +163,7 @@ public class SstInsituTimeSeriesTest {
 
     @Test
     public void getInsituFileName_ThrowsRuntimeException_BecauseTheFileNameDoesNotMatchTheExpectedPattern() throws Exception {
-        final String expression = SstInsituTimeSeries.D_8_D_8_NC;
+        final String expression = SstInsituTimeSeries.FILE_NAME_PATTERN_D8_D8_NC;
         assertEquals(".*_\\d{8}_\\d{8}.nc", expression);
         final String invalidName = "invalid_insitu_file_name_12345678.nc";
         final String expectedErrorMessage =
@@ -253,9 +240,9 @@ public class SstInsituTimeSeriesTest {
 
         verify(writer, times(1)).addDimension(null, "matchup", 0);
         verify(writer, times(1)).addDimension(null, "insitu.ntime", 34);
-        verify(writer, times(1)).addVariable(null, "insitu.latitude", DataType.FLOAT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);
         verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
-        verify(writer, times(1)).addVariable(null, "insitu.longitude", DataType.FLOAT, dimString);
+        verify(writer, times(1)).addVariable(null, "insitu.lon", DataType.FLOAT, dimString);
         verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
         verify(writer, times(1)).addVariable(null, "insitu.dtime", DataType.INT, dimString);
         verify(insituReader, times(1)).getVariables();
@@ -266,7 +253,7 @@ public class SstInsituTimeSeriesTest {
         verify(v2, times(1)).getShortName();
         verify(v2, times(1)).getDataType();
         verify(v2, times(1)).getAttributes();
-        verify(newVar, times(6)).addAttribute(any(Attribute.class));
+        verify(newVar, times(3)).addAttribute(any(Attribute.class));
         verifyNoMoreInteractions(writer, insituReader, newVar, v3, v2);
     }
 }
