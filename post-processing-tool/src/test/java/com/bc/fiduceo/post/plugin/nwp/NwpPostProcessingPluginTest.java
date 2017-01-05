@@ -235,4 +235,229 @@ public class NwpPostProcessingPluginTest {
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("temperature", configuration.getFcSSTName());
     }
+
+    @Test
+    public void testCreateConfiguration_fcSurfaceSensibleHeatFluxName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-surf-sensible-heat-flux-name>fluxi</fc-surf-sensible-heat-flux-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("fluxi", configuration.getFcSurfSensibleHeatFluxName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcSurfaceLatentHeatFluxName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-surf-latent-heat-flux-name>lati-flux</fc-surf-latent-heat-flux-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("lati-flux", configuration.getFcSurfLatentHeatFluxName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcBoundaryLayerHeightName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-boundary-layer-height-name>christine</fc-boundary-layer-height-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("christine", configuration.getFcBoundaryLayerHeightName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fc1mEastWindName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-10m-east-wind-name>out-of-russia</fc-10m-east-wind-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("out-of-russia", configuration.getFc10mEastWindName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fc10mNorthWindName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-10m-north-wind-name>from Sweden</fc-10m-north-wind-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("from Sweden", configuration.getFc10mNorthWindName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fc2mTemperatureName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-2m-temperature-name>Kevin</fc-2m-temperature-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Kevin", configuration.getFc2mTemperatureName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fc2mDewPointName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-2m-dew-point-name>pointy</fc-2m-dew-point-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("pointy", configuration.getFc2mDewPointName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcDownSurfSolarRadiationName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-down-surf-solar-radiation-name>Hermann</fc-down-surf-solar-radiation-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Hermann", configuration.getFcDownSurfSolarRadiationName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcDownSurfThermalRadiationName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-down-surf-thermal-radiation-name>Thekla</fc-down-surf-thermal-radiation-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Thekla", configuration.getFcDownSurfThermalRadiationName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcSurfSolarRadiationName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-surf-solar-radiation-name>Winfried</fc-surf-solar-radiation-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Winfried", configuration.getFcSurfSolarRadiationName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcSurfThermalRadiationName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-surf-thermal-radiation-name>Martin</fc-surf-thermal-radiation-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Martin", configuration.getFcSurfThermalRadiationName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcTurbStressEastName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-turb-stress-east-name>whassup</fc-turb-stress-east-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("whassup", configuration.getFcTurbStressEastName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcTurbStressNorthName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-turb-stress-north-name>northern_rubbish</fc-turb-stress-north-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("northern_rubbish", configuration.getFcTurbStressNorthName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcEvaporationName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-evaporation-name>Eva</fc-evaporation-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Eva", configuration.getFcEvaporationName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcTotalPrecipName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-total-precip-name>Toti</fc-total-precip-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("Toti", configuration.getFcTotalPrecipName());
+    }
 }

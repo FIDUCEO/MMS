@@ -82,6 +82,81 @@ import org.jdom.Element;
         -->
         <fc-sst-name>fc_sea-surface-temperature</fc-sst-name>
 
+        <!-- Defines the name of the target variable for forecast surface sensible heat flux.
+             Default: matchup.nwp.fc.surface_sensible_heat_flux
+        -->
+        <fc-surf-sensible-heat-flux-name>matchup.nwp.fc.surface_sensible_heat_flux</fc-surf-sensible-heat-flux-name>
+
+        <!-- Defines the name of the target variable for forecast latent sensible heat flux.
+             Default: matchup.nwp.fc.surface_latent_heat_flux
+        -->
+        <fc-surf-latent-heat-flux-name>matchup.nwp.fc.surface_latent_heat_flux</fc-surf-latent-heat-flux-name>
+
+        <!-- Defines the name of the target variable for forecast boundary layer height.
+             Default: matchup.nwp.fc.boundary_layer_height
+        -->
+        <fc-surf-boundary-layer-height-name>matchup.nwp.fc.boundary_layer_height</fc-surf-boundary-layer-height-name>
+
+        <!-- Defines the name of the target variable for forecast 10m east wind component.
+             Default: matchup.nwp.fc.10m_east_wind_component
+        -->
+        <fc-10m-east-wind-name>matchup.nwp.fc.10m_east_wind_component</fc-10m-east-wind-name>
+
+        <!-- Defines the name of the target variable for forecast 10m north wind component.
+             Default: matchup.nwp.fc.10m_north_wind_component
+        -->
+        <fc-10m-north-wind-name>matchup.nwp.fc.10m_north_wind_component</fc-10m-north-wind-name>
+
+        <!-- Defines the name of the target variable for forecast 2m temperature.
+             Default: matchup.nwp.fc.2m_temperature
+        -->
+        <fc-2m-temperature-name>matchup.nwp.fc.2m-temperature</fc-2m-temperature-name>
+
+        <!-- Defines the name of the target variable for forecast 2m dew point.
+             Default: matchup.nwp.fc.2m_dew_point
+        -->
+        <fc-2m-dew-point-name>matchup.nwp.fc.2m_dew_point</fc-2m-dew-point-name>
+
+        <!-- Defines the name of the target variable for forecast downward surface solar radiation.
+             Default: matchup.nwp.fc.downward_surface_solar_radiation
+        -->
+        <fc-down-surf-solar-radiation-name>matchup.nwp.fc.downward_surface_solar_radiation</fc-down-surf-solar-radiation-name>
+
+        <!-- Defines the name of the target variable for forecast downward surface thermal radiation.
+             Default: matchup.nwp.fc.downward_surface_thermal_radiation
+        -->
+        <fc-down-surf-thermal-radiation-name>matchup.nwp.fc.downward_surface_thermal_radiation</fc-down-surf-thermal-radiation-name>
+
+        <!-- Defines the name of the target variable for forecast surface solar radiation.
+             Default: matchup.nwp.fc.surface_solar_radiation
+        -->
+        <fc-surf-solar-radiation-name>matchup.nwp.fc.surface_solar_radiation</fc-surf-solar-radiation-name>
+
+        <!-- Defines the name of the target variable for forecast surface thermal radiation.
+             Default: matchup.nwp.fc.surface_thermal_radiation
+        -->
+        <fc-surf-thermal-radiation-name>matchup.nwp.fc.surface_thermal_radiation</fc-surf-thermal-radiation-name>
+
+        <!-- Defines the name of the target variable for forecast turbulent stress east component.
+             Default: matchup.nwp.fc.turbulent_stress_east_component
+        -->
+        <fc-turb-stress-east-name>matchup.nwp.fc.turbulent_stress_east_component</fc-turb-stress-east-name>
+
+        <!-- Defines the name of the target variable for forecast turbulent stress north component.
+             Default: matchup.nwp.fc.turbulent_stress_north_component
+        -->
+        <fc-turb-stress-north-name>matchup.nwp.fc.turbulent_stress_north_component</fc-turb-stress-north-name>
+
+        <!-- Defines the name of the target variable for forecast evaporation.
+             Default: matchup.nwp.fc.evaporation
+        -->
+        <fc-evaporation-name>matchup.nwp.fc.evaporation</fc-evaporation-name>
+
+        <!-- Defines the name of the target variable for forecast total precipitation.
+             Default: matchup.nwp.fc.total_precipitation
+        -->
+        <fc-total-precip-name>matchup.nwp.fc.total_precipitation</fc-total-precip-name>
+
     </nwp>
  */
 
@@ -154,6 +229,81 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element fcSSTElement = rootElement.getChild("fc-sst-name");
         if (fcSSTElement != null) {
             configuration.setFcSSTName(fcSSTElement.getValue().trim());
+        }
+
+        final Element fcSurfSensibleHeatFluxElement = rootElement.getChild("fc-surf-sensible-heat-flux-name");
+        if (fcSurfSensibleHeatFluxElement != null) {
+            configuration.setFcSurfSensibleHeatFluxName(fcSurfSensibleHeatFluxElement.getValue().trim());
+        }
+
+        final Element fcSurfLatentHeatFluxElement = rootElement.getChild("fc-surf-latent-heat-flux-name");
+        if (fcSurfLatentHeatFluxElement != null) {
+            configuration.setFcSurfLatentHeatFluxName(fcSurfLatentHeatFluxElement.getValue().trim());
+        }
+
+        final Element fcBoundaryLayerHeightElement = rootElement.getChild("fc-boundary-layer-height-name");
+        if (fcBoundaryLayerHeightElement != null) {
+            configuration.setFcBoundaryLayerHeightName(fcBoundaryLayerHeightElement.getValue().trim());
+        }
+
+        final Element fc10mEastWindElement = rootElement.getChild("fc-10m-east-wind-name");
+        if (fc10mEastWindElement != null) {
+            configuration.setFc10mEastWindName(fc10mEastWindElement.getValue().trim());
+        }
+
+        final Element fc10mNorthWindElement = rootElement.getChild("fc-10m-north-wind-name");
+        if (fc10mNorthWindElement != null) {
+            configuration.setFc10mNorthWindName(fc10mNorthWindElement.getValue().trim());
+        }
+
+        final Element fc2mTemperatureElement = rootElement.getChild("fc-2m-temperature-name");
+        if (fc2mTemperatureElement != null) {
+            configuration.setFc2mTemperatureName(fc2mTemperatureElement.getValue().trim());
+        }
+
+        final Element fc2mDewPointElement = rootElement.getChild("fc-2m-dew-point-name");
+        if (fc2mDewPointElement != null) {
+            configuration.setFc2mDewPointName(fc2mDewPointElement.getValue().trim());
+        }
+
+        final Element fcDownSurfSolarRadiationElement = rootElement.getChild("fc-down-surf-solar-radiation-name");
+        if (fcDownSurfSolarRadiationElement != null) {
+            configuration.setFcDownSurfSolarRadiationName(fcDownSurfSolarRadiationElement.getValue().trim());
+        }
+
+        final Element fcDownSurfThermalRadiationElement = rootElement.getChild("fc-down-surf-thermal-radiation-name");
+        if (fcDownSurfThermalRadiationElement != null) {
+            configuration.setFcDownSurfThermalRadiationName(fcDownSurfThermalRadiationElement.getValue().trim());
+        }
+
+        final Element fcSurfSolarRadiationElement = rootElement.getChild("fc-surf-solar-radiation-name");
+        if (fcSurfSolarRadiationElement != null) {
+            configuration.setFcSurfSolarRadiationName(fcSurfSolarRadiationElement.getValue().trim());
+        }
+
+        final Element fcSurfThermalRadiationElement = rootElement.getChild("fc-surf-thermal-radiation-name");
+        if (fcSurfThermalRadiationElement != null) {
+            configuration.setFcSurfThermalRadiationName(fcSurfThermalRadiationElement.getValue().trim());
+        }
+
+        final Element fcTurbStressEastElement = rootElement.getChild("fc-turb-stress-east-name");
+        if (fcTurbStressEastElement != null) {
+            configuration.setFcTurbStressEastName(fcTurbStressEastElement.getValue().trim());
+        }
+
+        final Element fcTurbStressNorthElement = rootElement.getChild("fc-turb-stress-north-name");
+        if (fcTurbStressNorthElement != null) {
+            configuration.setFcTurbStressNorthName(fcTurbStressNorthElement.getValue().trim());
+        }
+
+        final Element fcEvaporationElement = rootElement.getChild("fc-evaporation-name");
+        if (fcEvaporationElement != null) {
+            configuration.setFcEvaporationName(fcEvaporationElement.getValue().trim());
+        }
+
+        final Element fcTotalPrecipElement = rootElement.getChild("fc-total-precip-name");
+        if (fcTotalPrecipElement != null) {
+            configuration.setFcTotalPrecipName(fcTotalPrecipElement.getValue().trim());
         }
 
         return configuration;

@@ -36,6 +36,22 @@ class Configuration {
     private String anEastWindName;
     private String anNorthWindName;
     private String fcSSTName;
+    private String fcSurfSensibleHeatFluxName;
+    private String fcSurfLatentHeatFluxName;
+    private String fcMeanSeaLevelPressureName;
+    private String fcBoundaryLayerHeightName;
+    private String fc10mEastWindName;
+    private String fc10mNorthWindName;
+    private String fc2mTemperatureName;
+    private String fc2mDewPointName;
+    private String fcDownSurfSolarRadiationName;
+    private String fcDownSurfThermalRadiationName;
+    private String fcSurfSolarRadiationName;
+    private String fcSurfThermalRadiationName;
+    private String fcTurbStressEastName;
+    private String fcTurbStressNorthName;
+    private String fcEvaporationName;
+    private String fcTotalPrecipName;
 
     Configuration() {
         deleteOnExit = true;
@@ -47,6 +63,22 @@ class Configuration {
         anEastWindName = "matchup.nwp.an.10m_east_wind_component";
         anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
         fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
+        fcSurfSensibleHeatFluxName = "matchup.nwp.fc.surface_sensible_heat_flux";
+        fcSurfLatentHeatFluxName = "matchup.nwp.fc.surface_latent_heat_flux";
+        fcMeanSeaLevelPressureName = "matchup.nwp.fc.mean_sea_level_pressure";
+        fcBoundaryLayerHeightName = "matchup.nwp.fc.boundary_layer_height";
+        fc10mEastWindName = "matchup.nwp.fc.10m_east_wind_component";
+        fc10mNorthWindName = "matchup.nwp.fc.10m_north_wind_component";
+        fc2mTemperatureName = "matchup.nwp.fc.2m_temperature";
+        fc2mDewPointName = "matchup.nwp.fc.2m_dew_point";
+        fcDownSurfSolarRadiationName = "matchup.nwp.fc.downward_surface_solar_radiation";
+        fcDownSurfThermalRadiationName = "matchup.nwp.fc.downward_surface_thermal_radiation";
+        fcSurfSolarRadiationName = "matchup.nwp.fc.surface_solar_radiation";
+        fcSurfThermalRadiationName = "matchup.nwp.fc.surface_thermal_radiation";
+        fcTurbStressEastName = "matchup.nwp.fc.turbulent_stress_east_component";
+        fcTurbStressNorthName = "matchup.nwp.fc.turbulent_stress_north_component";
+        fcEvaporationName = "matchup.nwp.fc.evaporation";
+        fcTotalPrecipName = "matchup.nwp.fc.total_precipitation";
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -137,6 +169,134 @@ class Configuration {
         return fcSSTName;
     }
 
+    void setFcSurfSensibleHeatFluxName(String fcSurfSensibleHeatFluxName) {
+        this.fcSurfSensibleHeatFluxName = fcSurfSensibleHeatFluxName;
+    }
+
+    String getFcSurfSensibleHeatFluxName() {
+        return fcSurfSensibleHeatFluxName;
+    }
+
+    void setFcSurfLatentHeatFluxName(String fcSurfLatentHeatFluxName) {
+        this.fcSurfLatentHeatFluxName = fcSurfLatentHeatFluxName;
+    }
+
+    String getFcSurfLatentHeatFluxName() {
+        return fcSurfLatentHeatFluxName;
+    }
+
+    void setFcMeanSeaLevelPressureName(String fcMeanSeaLevelPressureName) {
+        this.fcMeanSeaLevelPressureName = fcMeanSeaLevelPressureName;
+    }
+
+    String getFcMeanSeaLevelPressureName() {
+        return fcMeanSeaLevelPressureName;
+    }
+
+    void setFcBoundaryLayerHeightName(String fcBoundaryLayerHeightName) {
+        this.fcBoundaryLayerHeightName = fcBoundaryLayerHeightName;
+    }
+
+    String getFcBoundaryLayerHeightName() {
+        return fcBoundaryLayerHeightName;
+    }
+
+    void setFc10mEastWindName(String fc10mEastWindName) {
+        this.fc10mEastWindName = fc10mEastWindName;
+    }
+
+    String getFc10mEastWindName() {
+        return fc10mEastWindName;
+    }
+
+    void setFc10mNorthWindName(String fc10mNorthWindName) {
+        this.fc10mNorthWindName = fc10mNorthWindName;
+    }
+
+    String getFc10mNorthWindName() {
+        return fc10mNorthWindName;
+    }
+
+    void setFc2mTemperatureName(String fc2mTemperatureName) {
+        this.fc2mTemperatureName = fc2mTemperatureName;
+    }
+
+    String getFc2mTemperatureName() {
+        return fc2mTemperatureName;
+    }
+
+    void setFc2mDewPointName(String fc2mDewPointName) {
+        this.fc2mDewPointName = fc2mDewPointName;
+    }
+
+    String getFc2mDewPointName() {
+        return fc2mDewPointName;
+    }
+
+    void setFcDownSurfSolarRadiationName(String fcDownSurfSolarRadiationName) {
+        this.fcDownSurfSolarRadiationName = fcDownSurfSolarRadiationName;
+    }
+
+    String getFcDownSurfSolarRadiationName() {
+        return fcDownSurfSolarRadiationName;
+    }
+
+    void setFcDownSurfThermalRadiationName(String fcDownSurfThermalRadiationName) {
+        this.fcDownSurfThermalRadiationName = fcDownSurfThermalRadiationName;
+    }
+
+    String getFcDownSurfThermalRadiationName() {
+        return fcDownSurfThermalRadiationName;
+    }
+
+    void setFcSurfSolarRadiationName(String fcSurfSolarRadiationName) {
+        this.fcSurfSolarRadiationName = fcSurfSolarRadiationName;
+    }
+
+    String getFcSurfSolarRadiationName() {
+        return fcSurfSolarRadiationName;
+    }
+
+    void setFcSurfThermalRadiationName(String fcSurfThermalRadiationName) {
+        this.fcSurfThermalRadiationName = fcSurfThermalRadiationName;
+    }
+
+    String getFcSurfThermalRadiationName() {
+        return fcSurfThermalRadiationName;
+    }
+
+    void setFcTurbStressEastName(String fcTurbStressEastName) {
+        this.fcTurbStressEastName = fcTurbStressEastName;
+    }
+
+    String getFcTurbStressEastName() {
+        return fcTurbStressEastName;
+    }
+
+    void setFcTurbStressNorthName(String fcTurbStressNorthName) {
+        this.fcTurbStressNorthName = fcTurbStressNorthName;
+    }
+
+    String getFcTurbStressNorthName() {
+        return fcTurbStressNorthName;
+    }
+
+    void setFcEvaporationName(String fcEvaporationName) {
+        this.fcEvaporationName = fcEvaporationName;
+    }
+
+    String getFcEvaporationName() {
+        return fcEvaporationName;
+    }
+
+    void setFcTotalPrecipName(String fcTotalPrecipName) {
+        this.fcTotalPrecipName = fcTotalPrecipName;
+    }
+
+    String getFcTotalPrecipName() {
+        return fcTotalPrecipName;
+    }
+
     boolean verify() {
         final File cdoDir = new File(CDOHome);
         if (!cdoDir.isDirectory()) {
@@ -149,5 +309,4 @@ class Configuration {
         }
         return true;
     }
-
 }

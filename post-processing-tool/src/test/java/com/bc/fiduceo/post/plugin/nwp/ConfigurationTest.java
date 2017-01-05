@@ -123,6 +123,134 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetFcSurfSensibleHeatFluxName() {
+        final String variableName = "surface_sensible_heat_flux";
+
+        config.setFcSurfSensibleHeatFluxName(variableName);
+        assertEquals(variableName, config.getFcSurfSensibleHeatFluxName());
+    }
+
+    @Test
+    public void testSetGetFcSurfLatentHeatFluxName() {
+        final String variableName = "surface_latent_heat_flux";
+
+        config.setFcSurfLatentHeatFluxName(variableName);
+        assertEquals(variableName, config.getFcSurfLatentHeatFluxName());
+    }
+
+    @Test
+    public void testSetGetFcMeanSeaLevelPressureName() {
+        final String variableName = "sea-level-pressure";
+
+        config.setFcMeanSeaLevelPressureName(variableName);
+        assertEquals(variableName, config.getFcMeanSeaLevelPressureName());
+    }
+
+    @Test
+    public void testSetGetFcBoundaryLayerHeightName() {
+        final String variableName = "high_rise";
+
+        config.setFcBoundaryLayerHeightName(variableName);
+        assertEquals(variableName, config.getFcBoundaryLayerHeightName());
+    }
+
+    @Test
+    public void testSetGetFc10mEastWindName() {
+        final String variableName = "storm";
+
+        config.setFc10mEastWindName(variableName);
+        assertEquals(variableName, config.getFc10mEastWindName());
+    }
+
+    @Test
+    public void testSetGetFc10mNorthWindName() {
+        final String variableName = "blow-wind-blow";
+
+        config.setFc10mNorthWindName(variableName);
+        assertEquals(variableName, config.getFc10mNorthWindName());
+    }
+
+    @Test
+    public void testSetGetFc2mTemperatureName() {
+        final String variableName = "warm";
+
+        config.setFc2mTemperatureName(variableName);
+        assertEquals(variableName, config.getFc2mTemperatureName());
+    }
+
+    @Test
+    public void testSetGetFc2mDewPointName() {
+        final String variableName = "there";
+
+        config.setFc2mDewPointName(variableName);
+        assertEquals(variableName, config.getFc2mDewPointName());
+    }
+
+    @Test
+    public void testSetGetFcDownSurfSolarRadiationName() {
+        final String variableName = "radia-tion";
+
+        config.setFcDownSurfSolarRadiationName(variableName);
+        assertEquals(variableName, config.getFcDownSurfSolarRadiationName());
+    }
+
+    @Test
+    public void testSetGetFcDownSurfThermalRadiationName() {
+        final String variableName = "thermolation";
+
+        config.setFcDownSurfThermalRadiationName(variableName);
+        assertEquals(variableName, config.getFcDownSurfThermalRadiationName());
+    }
+
+    @Test
+    public void testSetGetFcSurfSolarRadiationName() {
+        final String variableName = "radia-tion";
+
+        config.setFcSurfSolarRadiationName(variableName);
+        assertEquals(variableName, config.getFcSurfSolarRadiationName());
+    }
+
+    @Test
+    public void testSetGetFcSurfThermalRadiationName() {
+        final String variableName = "thermo-schlermo";
+
+        config.setFcSurfThermalRadiationName(variableName);
+        assertEquals(variableName, config.getFcSurfThermalRadiationName());
+    }
+
+    @Test
+    public void testSetGetFcTurbStressEastName() {
+        final String variableName = "stresso";
+
+        config.setFcTurbStressEastName(variableName);
+        assertEquals(variableName, config.getFcTurbStressEastName());
+    }
+
+    @Test
+    public void testSetGetFcTurbStressNorthName() {
+        final String variableName = "northern_stress";
+
+        config.setFcTurbStressNorthName(variableName);
+        assertEquals(variableName, config.getFcTurbStressNorthName());
+    }
+
+    @Test
+    public void testSetGetFcEvaporationName() {
+        final String variableName = "vapoclean";
+
+        config.setFcEvaporationName(variableName);
+        assertEquals(variableName, config.getFcEvaporationName());
+    }
+
+    @Test
+    public void testSetGetFcTotalPrecipName() {
+        final String variableName = "prcipate";
+
+        config.setFcTotalPrecipName(variableName);
+        assertEquals(variableName, config.getFcTotalPrecipName());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
@@ -137,5 +265,21 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
 
         assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
+        assertEquals("matchup.nwp.fc.surface_sensible_heat_flux", config.getFcSurfSensibleHeatFluxName());
+        assertEquals("matchup.nwp.fc.surface_latent_heat_flux", config.getFcSurfLatentHeatFluxName());
+        assertEquals("matchup.nwp.fc.mean_sea_level_pressure", config.getFcMeanSeaLevelPressureName());
+        assertEquals("matchup.nwp.fc.boundary_layer_height", config.getFcBoundaryLayerHeightName());
+        assertEquals("matchup.nwp.fc.10m_east_wind_component", config.getFc10mEastWindName());
+        assertEquals("matchup.nwp.fc.10m_north_wind_component", config.getFc10mNorthWindName());
+        assertEquals("matchup.nwp.fc.2m_temperature", config.getFc2mTemperatureName());
+        assertEquals("matchup.nwp.fc.2m_dew_point", config.getFc2mDewPointName());
+        assertEquals("matchup.nwp.fc.downward_surface_solar_radiation", config.getFcDownSurfSolarRadiationName());
+        assertEquals("matchup.nwp.fc.downward_surface_thermal_radiation", config.getFcDownSurfThermalRadiationName());
+        assertEquals("matchup.nwp.fc.surface_solar_radiation", config.getFcSurfSolarRadiationName());
+        assertEquals("matchup.nwp.fc.surface_thermal_radiation", config.getFcSurfThermalRadiationName());
+        assertEquals("matchup.nwp.fc.turbulent_stress_east_component", config.getFcTurbStressEastName());
+        assertEquals("matchup.nwp.fc.turbulent_stress_north_component", config.getFcTurbStressNorthName());
+        assertEquals("matchup.nwp.fc.evaporation", config.getFcEvaporationName());
+        assertEquals("matchup.nwp.fc.total_precipitation", config.getFcTotalPrecipName());
     }
 }
