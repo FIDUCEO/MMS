@@ -82,7 +82,7 @@ class SstInsituTimeSeries extends PostProcessing {
         final Variable insituY_Var = getInsitu_Y_Variable(reader, sensorType);
         final int[] ys = (int[]) insituY_Var.read().getStorage();
         for (int i = 0; i < matchupCount; i++) {
-            final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
+            final String insituFileName = getInsituFileName(fileNameVariable, i, filenameFieldSize);
             final SSTInsituReader insituReader = (SSTInsituReader) insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);
             Range range = computeInsituRange(ys[i], insituReader);
             final int[] origin = {range.min};

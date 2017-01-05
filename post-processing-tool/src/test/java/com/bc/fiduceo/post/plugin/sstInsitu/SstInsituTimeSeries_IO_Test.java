@@ -290,14 +290,14 @@ public class SstInsituTimeSeries_IO_Test {
             final int fill = -32768;
             final long[] idExpecteds = new long[]{
                         2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, fill, fill, fill, fill, fill,
-                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, fill, fill, fill,
-                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill,
-                        2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531976L, 2004010000532000L, 2004010000532036L, 2004010000532048L, 2004010000532060L, fill, fill, fill, fill, fill,
-                        2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill,
-                        2004010000532048L, 2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill,
-                        2004010000532060L, 2004010000532113L, 2004010000532125L, 2004010000532149L, 2004010000532155L, fill, fill, fill, fill, fill
+                        2004010000531754L, 2004010000531778L, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531754L, 2004010000531778L, 2004010000531790L, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531778L, 2004010000531790L, 2004010000531814L, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531682L, 2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2004010000531790L, 2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill,
+                        2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill, fill,
+                        2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, 2004010000531898L, fill, fill, fill, fill, fill
             };
             assertArrayEquals(idExpecteds, idStorage);
 
@@ -337,14 +337,14 @@ public class SstInsituTimeSeries_IO_Test {
             final float[] latStorage = (float[]) latArr.getStorage();
             final float[] latExpecteds = new float[]{
                         -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, fill, fill, fill, fill, fill,
-                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, -54.0165f, -53.9501f, fill, fill, fill,
-                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill,
-                        -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -54.1639f, -54.1571f, -54.0558f, -53.9727f, -54.0484f, fill, fill, fill, fill, fill,
-                        -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill,
-                        -53.9727f, -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill,
-                        -54.0484f, -54.0165f, -53.9501f, -53.8995f, -53.9038f, fill, fill, fill, fill, fill
+                        -54.392f, -54.7024f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -54.392f, -54.7024f, -54.9134f, fill, fill, fill, fill, fill, fill, fill,
+                        -54.7024f, -54.9134f, -55.169f, fill, fill, fill, fill, fill, fill, fill,
+                        -54.0713f, -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill,
+                        -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -54.9134f, -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill,
+                        -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill, fill,
+                        -55.169f, -55.2213f, -55.3544f, -55.53f, -55.7162f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(latExpecteds, latStorage, 1e-7f);
 
@@ -366,14 +366,14 @@ public class SstInsituTimeSeries_IO_Test {
             final float[] lonStorage = (float[]) lonArr.getStorage();
             final float[] lonExpecteds = new float[]{
                         -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, fill, fill, fill, fill, fill,
-                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, -35.6856f, -35.5854f, fill, fill, fill,
-                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill,
-                        -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -36.6366f, -36.6253f, -36.4815f, -36.2036f, -36.0436f, fill, fill, fill, fill, fill,
-                        -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill,
-                        -36.2036f, -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill,
-                        -36.0436f, -35.6856f, -35.5854f, -35.5578f, -35.6608f, fill, fill, fill, fill, fill
+                        -36.1543f, -35.8584f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -36.1543f, -35.8584f, -35.6824f, fill, fill, fill, fill, fill, fill, fill,
+                        -35.8584f, -35.6824f, -35.9283f, fill, fill, fill, fill, fill, fill, fill,
+                        -36.7689f, -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill,
+                        -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        -35.6824f, -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill,
+                        -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill, fill,
+                        -35.9283f, -36.1054f, -36.0165f, -36.3847f, -36.5203f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(lonExpecteds, lonStorage, 1e-7f);
 
@@ -400,14 +400,14 @@ public class SstInsituTimeSeries_IO_Test {
             final float[] tempStorage = (float[]) tempArr.getStorage();
             final float[] tempExpecteds = new float[]{
                         3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, fill, fill, fill, fill, fill,
-                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, 2.445f, 2.5f, fill, fill, fill,
-                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill,
-                        3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        3.095f, 2.805f, 2.73f, 2.865f, 2.725f, fill, fill, fill, fill, fill,
-                        2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill,
-                        2.865f, 2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill,
-                        2.725f, 2.445f, 2.5f, 3.07f, 2.99f, fill, fill, fill, fill, fill
+                        2.804f, 0.964f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2.804f, 0.964f, 2.643f, fill, fill, fill, fill, fill, fill, fill,
+                        0.964f, 2.643f, 2.619f, fill, fill, fill, fill, fill, fill, fill,
+                        2.289f, 2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill,
+                        2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        2.643f, 2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill,
+                        2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill, fill,
+                        2.619f, 2.719f, 2.984f, 2.799f, 2.814f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(tempExpecteds, tempStorage, 1e-8f);
 
@@ -431,13 +431,13 @@ public class SstInsituTimeSeries_IO_Test {
             final float[] uncertStorage = (float[]) uncertArr.getStorage();
             final float[] uncertExpecteds = new float[]{
                         0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                        0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
                         0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill,
-                        0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill,
+                        0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill,
                         0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(uncertExpecteds, uncertStorage, 1e-8f);
