@@ -21,8 +21,10 @@
 package com.bc.fiduceo;
 
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -53,9 +55,23 @@ public class NCTestUtils {
     public static void assert3DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
         final String escapedName = NetcdfFile.makeValidCDLName(variableName);
         final Variable variable = mmd.findVariable(escapedName);
-        assertNotNull("NetCDF Variable '"+variableName+"' expected", variable);
+        assertNotNull("NetCDF Variable '" + variableName + "' expected", variable);
         final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);
+    }
+
+    public static void assertVariablePresent(String variableName, DataType dataType, String dimNames, NetcdfFile geoFileNC) {
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Variable variable = geoFileNC.findVariable(escapedName);
+        assertNotNull(variable);
+        assertEquals(dataType, variable.getDataType());
+        assertEquals(dimNames, variable.getDimensionsString());
+    }
+
+    public static void assertDimension(String name, int size, NetcdfFile geoFileNC) {
+        final Dimension grid_size = geoFileNC.findDimension(name);
+        assertNotNull(grid_size);
+        assertEquals(size, grid_size.getLength());
     }
 
     public static void assertValueAt(double expected, int x, int y, Array array) {

@@ -123,8 +123,7 @@ public class AbstractMmdWriterTest {
         assertEquals(1, attributes.size());
         final Attribute attribute = attributes.get(0);
         assertEquals(fillValueName, attribute.getShortName());
-        // this is due to a bug in the NetCDF Attribute class which converts all values to Double and therefore introduces errors
-        assertEquals(new Double(N3iosp.NC_FILL_LONG).longValue(), attribute.getNumericValue().longValue());
+        assertEquals(N3iosp.NC_FILL_LONG, attribute.getNumericValue().longValue());
     }
 
     @Test
