@@ -43,6 +43,7 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        reader.findVariable(null, configuration.getTimeVariableName());
+
     }
 }

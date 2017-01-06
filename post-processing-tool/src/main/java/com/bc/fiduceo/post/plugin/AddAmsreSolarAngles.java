@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
@@ -37,7 +38,7 @@ class AddAmsreSolarAngles extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
+        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.earthAzimuthVariable);
         final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
         writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
@@ -46,16 +47,16 @@ class AddAmsreSolarAngles extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable earthAzimuthVariable = getVariable(reader, configuration.earthAzimuthVariable);
+        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.earthAzimuthVariable);
         final Array earthAzimuth = readAndScale(earthAzimuthVariable);
 
-        final Variable earthIncidenceVariable = getVariable(reader, configuration.earthIncidenceVariable);
+        final Variable earthIncidenceVariable = NetCDFUtils.getVariable(reader, configuration.earthIncidenceVariable);
         final Array earthIncidence = readAndScale(earthIncidenceVariable);
 
-        final Variable sunAzimuthVariable = getVariable(reader, configuration.sunAzimuthVariable);
+        final Variable sunAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.sunAzimuthVariable);
         final Array sunAzimuth = readAndScale(sunAzimuthVariable);
 
-        final Variable sunElevationVariable = getVariable(reader, configuration.sunElevationVariable);
+        final Variable sunElevationVariable = NetCDFUtils.getVariable(reader, configuration.sunElevationVariable);
         final Array sunElevation = readAndScale(sunElevationVariable);
 
         final Array sza = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
@@ -118,15 +119,6 @@ class AddAmsreSolarAngles extends PostProcessing {
         }
 
         return floatArray;
-    }
-
-    private Variable getVariable(NetcdfFile reader, String name) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
-        final Variable variable = reader.findVariable(null, escapedName);
-        if (variable == null) {
-            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
-        }
-        return variable;
     }
 
     static class Configuration {

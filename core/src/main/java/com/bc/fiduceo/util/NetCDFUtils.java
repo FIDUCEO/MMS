@@ -26,6 +26,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
 
@@ -66,10 +67,8 @@ public class NetCDFUtils {
      * Return the NetCDF equivalent to the given dataType.
      *
      * @param dataType must be one of {@code ProductData.TYPE_*}
-     *
      * @return the NetCDF equivalent to the given dataType or {@code null} if not {@code dataType} is
-     *         not one of {@code ProductData.TYPE_*}
-     *
+     * not one of {@code ProductData.TYPE_*}
      * @see ProductData
      */
     public static DataType getNetcdfDataType(int dataType) {
@@ -103,12 +102,22 @@ public class NetCDFUtils {
         return startDateAttribute.getStringValue();
     }
 
+    public static Variable getVariable(NetcdfFile reader, String name) {
+        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final Variable variable = reader.findVariable(null, escapedName);
+        if (variable == null) {
+            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
+        }
+        return variable;
+    }
+
     /**
      * Method to open NetcdfFile using a read only RandomAccessFile.
      * This is needed because opening a netcdf file with NetcdfFile.open(<String>) changes the file size.
-     * @param absFileLocation
-     * @return       unmodifies NetcdfFile instance
-     * @throws IOException
+     *
+     * @param absFileLocation absolute path to file
+     * @return unmodifieable NetcdfFile instance
+     * @throws IOException on IO errors
      */
     public static NetcdfFile openReadOnly(final String absFileLocation) throws IOException {
         final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "r");
