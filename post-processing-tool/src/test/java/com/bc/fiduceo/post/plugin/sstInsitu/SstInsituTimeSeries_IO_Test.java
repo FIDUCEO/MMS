@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
@@ -129,7 +130,7 @@ public class SstInsituTimeSeries_IO_Test {
                      "</post-processings>" +
                      "</" + PostProcessingConfig.TAG_NAME_ROOT + ">").getBytes())));
 
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16);
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
         insituTimeSeries.setContext(context);
 
         // method under test
@@ -188,7 +189,7 @@ public class SstInsituTimeSeries_IO_Test {
     @Test
     public void computeInsituRange() throws Exception {
         final int seconds = 80000;
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("any", seconds, 300);
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("any", seconds, 300, "matchupTimeVarName");
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory("S2"));
         final Reader insituReader = readerFactory.getReader("animal-sst");
 
@@ -201,7 +202,7 @@ public class SstInsituTimeSeries_IO_Test {
 
         insituReader.open(insituFile);
 
-        final SstInsituTimeSeries.Range range = insituTimeSeries.computeInsituRange(15, insituReader);
+        final SstInsituTimeSeries.Range range = insituTimeSeries.computeInsituRange(15, (SSTInsituReader) insituReader);
 
         assertNotNull(range);
         assertEquals(11, range.min);
@@ -237,8 +238,8 @@ public class SstInsituTimeSeries_IO_Test {
                                                 new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
                                                             new Element(TAG_NAME_VERSION).addContent("v03.3"),
                                                             new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 80000),
-//                                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
-                                                            new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("10")
+                                                            new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("10"),
+                                                            new Element(TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE).addContent("amsre.acquisition_time")
                                                 ))
                                     )
                         ))
@@ -260,8 +261,8 @@ public class SstInsituTimeSeries_IO_Test {
         final String[] args = {
                     "-c", configDir.getAbsolutePath(),
                     "-i", dataDir.getAbsolutePath(),
-                    "-start", "2004-008",
-                    "-end", "2004-014",
+                    "-start", "2004-001",
+                    "-end", "2009-363",
                     "-j", "processing-config.xml"
         };
 
@@ -305,7 +306,8 @@ public class SstInsituTimeSeries_IO_Test {
             final Variable dtime = netcdfFile.findVariable(escape("insitu.dtime"));
             assertEquals("matchup insitu.ntime", dtime.getDimensionsString());
             assertEquals(2, dtime.getAttributes().size());
-            assertEquals(new Attribute("_FillValue", -2147483647), dtime.findAttribute("_FillValue"));
+            final int fill2 = -2147483647;
+            assertEquals(new Attribute("_FillValue", fill2), dtime.findAttribute("_FillValue"));
             assertEquals(new Attribute("units", "seconds from matchup.time"), dtime.findAttribute("units"));
             final Array dtimeArr = dtime.read();
             assertEquals(DataType.INT, dtimeArr.getDataType());
@@ -315,8 +317,17 @@ public class SstInsituTimeSeries_IO_Test {
 
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final int[] dtimeStorage = (int[]) dtimeArr.getStorage();
-            final int[] dtimeExpecteds = new int[90];
-            Arrays.fill(dtimeExpecteds, -2147483647);
+            final int[] dtimeExpecteds = new int[]{
+                        -8974, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -5398, 22981, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -39845, -11466, 2754, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -11469, 2751, 37072, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -4274, 766, 23387, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        768, 23389, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -45850, -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2,
+                        -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2, fill2,
+                        -11526, -2346, 7314, 28254, 41813, fill2, fill2, fill2, fill2, fill2
+            };
             assertArrayEquals(dtimeExpecteds, dtimeStorage);
 
             // **********  Latitude  ************

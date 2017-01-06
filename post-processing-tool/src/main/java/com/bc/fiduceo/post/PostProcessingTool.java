@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.post;
 
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -40,7 +42,6 @@ import ucar.nc2.Variable;
 import ucar.nc2.constants.DataFormatType;
 import ucar.nc2.write.Nc4Chunking;
 import ucar.nc2.write.Nc4ChunkingDefault;
-import ucar.unidata.io.RandomAccessFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,8 +57,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class PostProcessingTool {
 
@@ -203,13 +202,12 @@ class PostProcessingTool {
         final long startTime = context.getStartDate().getTime();
         final long endTime = context.getEndDate().getTime();
         if (isFileInTimeRange(startTime, endTime, mmdFile.getFileName().toString())) {
-
+            logger.info("Compute file '" + mmdFile.getFileName().toString() + "'");
             final Path source = manager.getSource(mmdFile);
             final Path target = manager.getTargetPath(mmdFile);
 
             NetcdfFile reader = null;
             NetcdfFileWriter writer = null;
-            RandomAccessFile raf = null;
 
             try {
                 final String absSource = source.toAbsolutePath().toString();

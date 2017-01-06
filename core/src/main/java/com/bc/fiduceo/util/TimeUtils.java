@@ -37,6 +37,17 @@ public class TimeUtils {
 
     private static ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
 
+    public static final long millisSince1978;
+    public static final int secondsSince1978;
+
+    static {
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.clear();
+        calendar.set(1978, Calendar.JANUARY, 1);
+        millisSince1978 = calendar.getTime().getTime();
+        secondsSince1978 = (int) (millisSince1978 / 1000);
+    }
+
     public static Date create(long millisSinceEpoch) {
         final Calendar calendar = calendarThreadLocal.get();
         calendar.setTimeInMillis(millisSinceEpoch);

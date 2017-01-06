@@ -19,18 +19,16 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
-import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.WindowArrayFactory;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -52,6 +50,7 @@ class SstInsituTimeSeries extends PostProcessing {
     final String processingVersion;
     final int timeRangeSeconds;
     final int timeSeriesSize;
+    final String matchupTimeVarName;
 
     private int matchupCount;
     private String sensorType;
@@ -59,10 +58,11 @@ class SstInsituTimeSeries extends PostProcessing {
     private int filenameFieldSize;
     private InsituReaderCache insituReaderCache;
 
-    SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize) {
+    SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize, String matchupTimeVarName) {
         this.processingVersion = processingVersion;
         this.timeRangeSeconds = timeRangeSeconds;
         this.timeSeriesSize = timeSeriesSize;
+        this.matchupTimeVarName = matchupTimeVarName;
     }
 
     @Override
@@ -79,38 +79,73 @@ class SstInsituTimeSeries extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable insituY_Var = getInsitu_Y_Variable(reader, sensorType);
-        final int[] ys = (int[]) insituY_Var.read().getStorage();
+        final Variable yVariable1D = getInsitu_Y_Variable(reader, sensorType);
+        final int[] y1D = (int[]) yVariable1D.read().getStorage();
+        final Variable yVariable2D = writer.findVariable(makeValidCDLName("insitu.y"));
+
+        final Variable satMatchupVar = NetCDFUtils.getVariable(reader, matchupTimeVarName);
+        final int[] satMatchupShape = satMatchupVar.getShape();
+        final int xIdx = satMatchupShape[2] / 2;
+        final int yIdx = satMatchupShape[1] / 2;
+        // read only the center pixels
+        final Array satMatchupTimeData = satMatchupVar.read(new int[]{0, yIdx, xIdx}, new int[]{satMatchupShape[0], 1, 1}).reduce();
+        final int[] storage = (int[]) satMatchupTimeData.getStorage();
+        final int[] satMatchup1978_1D = Arrays.stream(storage).map(v -> v - secondsSince1978).toArray();
+
+        final Variable timeVar2D = writer.findVariable(makeValidCDLName("insitu.time"));
+        final Variable dtimeVar2D = writer.findVariable(makeValidCDLName("insitu.dtime"));
+
         for (int i = 0; i < matchupCount; i++) {
             final String insituFileName = getInsituFileName(fileNameVariable, i, filenameFieldSize);
             final SSTInsituReader insituReader = (SSTInsituReader) insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);
-            Range range = computeInsituRange(ys[i], insituReader);
-            final int[] origin = {range.min};
-            final int[] shape = {range.max - range.min + 1};
-
-//            final Interval interval = new Interval(range.max - range.min + 1, 1);
-            final int[] targetOrigin = {i, 0};
-            final int[] shape2D = {1, shape[0]};
-
+            Range range = computeInsituRange(y1D[i], insituReader);
+            final int[] origin1D = {range.min};
+            final int timeSeriesLength = getTimeSeriesLength(range);
+            final int[] shape1D = {timeSeriesLength};
+            final int[] origin2D = {i, 0};
+            final int[] shape2D = {1, timeSeriesLength};
             final List<Variable> variables = insituReader.getVariables();
-            for (Variable variable : variables) {
-//                final Array data = insituReader.readRaw(0, range.min, interval, variable.getShortName());
-                final Array srcdata = insituReader.getSourceArray(variable.getShortName());
-                final Array data = srcdata.section(origin, shape);
-                final String validShortName = makeValidCDLName(variable.getShortName());
-                final Variable targetVar = writer.findVariable(validShortName);
-                final Array targetData = data.reshape(shape2D);
-                writer.write(targetVar, targetOrigin, targetData);
+            for (Variable variable1D : variables) {
+                final Array fullSrcData1D = insituReader.getSourceArray(variable1D.getShortName());
+                final Array srcData1D = fullSrcData1D.section(origin1D, shape1D);
+                final String validShortName = makeValidCDLName(variable1D.getShortName());
+                final Variable targetVar2D = writer.findVariable(validShortName);
+                final Array targetData2D = srcData1D.reshape(shape2D);
+                writer.write(targetVar2D, origin2D, targetData2D);
             }
-            final Variable variable = writer.findVariable(makeValidCDLName("insitu.y"));
-            final int[] y = new int[shape[0]];
-            for (int j = 0; j < y.length; j++) {
-                y[j] = range.min + j;
-            }
-            final Array data = Array.factory(y);
-            final Array targetData = data.reshape(shape2D);
-            writer.write(variable, targetOrigin, targetData);
+
+            final Array y2D = createY2D(range, shape2D);
+            writer.write(yVariable2D, origin2D, y2D);
+
+            final int satMatchupTime = satMatchup1978_1D[i];
+            final Array deltaTimes = createDeltaTime2D(satMatchupTime, timeVar2D, dtimeVar2D, origin2D, shape2D);
+            writer.write(dtimeVar2D, origin2D, deltaTimes);
         }
+    }
+
+    private Array createDeltaTime2D(int satelliteMatchupTime, Variable timeVar2D, Variable dtimeVar2D, int[] origin2D, int[] shape2D) throws IOException, InvalidRangeException {
+        final Array insituTimes = timeVar2D.read(origin2D, shape2D);
+        final Array deltaTimes = dtimeVar2D.read(origin2D, shape2D);
+        for (int j = 0; j < insituTimes.getSize(); j++) {
+            final int insituTime = insituTimes.getInt(j);
+            final int deltaTime = insituTime - satelliteMatchupTime;
+            deltaTimes.setInt(j, deltaTime);
+        }
+        return deltaTimes;
+    }
+
+    private Array createY2D(Range range, int[] shape2D) {
+        final int timeSeriesLength = getTimeSeriesLength(range);
+        final int[] y = new int[timeSeriesLength];
+        for (int j = 0; j < y.length; j++) {
+            y[j] = range.min + j;
+        }
+        final Array yData1D = Array.factory(y);
+        return yData1D.reshape(shape2D);
+    }
+
+    private int getTimeSeriesLength(Range range) {
+        return range.max - range.min + 1;
     }
 
     static String getInsituFileName(Variable fileNameVar, int position, int filenameSize) throws IOException, InvalidRangeException {
@@ -160,10 +195,10 @@ class SstInsituTimeSeries extends PostProcessing {
         return dim;
     }
 
-    Range computeInsituRange(int matchupPos, Reader insituReader) throws IOException, InvalidRangeException {
-        final List<Variable> variables = insituReader.getVariables();
+    Range computeInsituRange(int matchupPos, SSTInsituReader insituReader) throws IOException, InvalidRangeException {
         final String name = "insitu.time";
-        final int[] times = readInts(variables, name);
+        final Array sourceArray = insituReader.getSourceArray(name);
+        final int[] times = (int[]) sourceArray.getStorage();
         final int matchupTime = times[matchupPos];
         final int minTime_ = matchupTime - (timeRangeSeconds / 2);
         final int maxTime = minTime_ + timeRangeSeconds;
@@ -211,56 +246,6 @@ class SstInsituTimeSeries extends PostProcessing {
         final Variable dtimeVariable = writer.addVariable(null, "insitu.dtime", DataType.INT, dimString);
         dtimeVariable.addAttribute(new Attribute("units", "seconds from matchup.time"));
         dtimeVariable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(int.class)));
-    }
-
-    private void addVariablesAccordingToOldSstFileVersion(List<Variable> variables, String dimString, NetcdfFileWriter writer) {
-        for (Variable variable : variables) {
-            String shortName = variable.getShortName();
-            Variable newVar;
-            if (shortName.endsWith(".lat")) {
-                shortName = shortName.replace(".lat", ".latitude");
-                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
-                newVar.addAll(variable.getAttributes());
-                newVar.addAttribute(new Attribute("valid_min", -90.0f));
-                newVar.addAttribute(new Attribute("valid_max", 90.0f));
-            } else if (shortName.endsWith(".lon")) {
-                shortName = shortName.replace(".lon", ".longitude");
-                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
-                newVar.addAll(variable.getAttributes());
-                newVar.addAttribute(new Attribute("valid_min", -180.0f));
-                newVar.addAttribute(new Attribute("valid_max", 180.0f));
-            } else if (shortName.endsWith(".sea_surface_temperature")) {
-                newVar = writer.addVariable(null, shortName, DataType.SHORT, dimString);
-                newVar.addAttribute(new Attribute("units", "K"));
-                newVar.addAttribute(new Attribute("add_offset", 293.15));
-                newVar.addAttribute(new Attribute("scale_factor", 0.001));
-                newVar.addAttribute(new Attribute("_FillValue", (short) -32768));
-                newVar.addAttribute(new Attribute("valid_min", (short) -22000));
-                newVar.addAttribute(new Attribute("valid_max", (short) 31850));
-                newVar.addAttribute(variable.findAttribute("long_name"));
-            } else if (shortName.endsWith(".sst_uncertainty")) {
-                newVar = writer.addVariable(null, shortName, DataType.SHORT, dimString);
-                newVar.addAttribute(new Attribute("units", "K"));
-                newVar.addAttribute(new Attribute("add_offset", 0.0));
-                newVar.addAttribute(new Attribute("scale_factor", 0.001));
-                newVar.addAttribute(new Attribute("_FillValue", (short) -32768));
-                newVar.addAttribute(new Attribute("valid_min", (short) -22000));
-                newVar.addAttribute(new Attribute("valid_max", (short) 22000));
-                newVar.addAttribute(variable.findAttribute("long_name"));
-            } else {
-                newVar = writer.addVariable(null, shortName, variable.getDataType(), dimString);
-                newVar.addAll(variable.getAttributes());
-            }
-        }
-    }
-
-    private int[] readInts(List<Variable> variables, String name) throws IOException {
-        for (Variable variable : variables) {
-            if (variable.getShortName().equals(name)) {
-                return (int[]) variable.read().getStorage();
-            }
-        }
-        return null;
     }
 
     public static class Range {

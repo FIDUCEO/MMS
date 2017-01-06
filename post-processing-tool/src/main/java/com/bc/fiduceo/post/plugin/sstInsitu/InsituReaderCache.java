@@ -75,24 +75,19 @@ public class InsituReaderCache {
 
     private Reader openFile(String insituFileName, String sensorType, String processingVersion) throws IOException {
         final SystemConfig systemConfig = context.getSystemConfig();
-        final Date[] startEnd = extractStartEndDateFromInsituFilename(insituFileName);
         final String geomType = systemConfig.getGeometryLibraryType();
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geomType));
         final Reader insituReader = readerFactory.getReader(sensorType);
 
-        final Path[] paths = archive.get(startEnd[0], startEnd[1], processingVersion, sensorType);
-        for (Path path : paths) {
-            if (insituFileName.equals(path.getFileName().toString())) {
-                insituReader.open(path.toFile());
-            }
-        }
+        final Path insituProductsDir = archive.createValidProductPath(processingVersion, sensorType, 1970,1,1);
+        insituReader.open(insituProductsDir.resolve(insituFileName).toFile());
         return insituReader;
     }
 
     private void removeOldestReader() throws IOException {
         // todo se/** 3 put maxCacheSize to configuration file
         // todo se/** 3 an other solution to eliminate caching problems can be sorting of insitu file indexes
-        final int maxCacheSize = 5;
+        final int maxCacheSize = 70;
         if (oldestMap.size() > maxCacheSize) {
             final Map.Entry<Long, String> oldest = oldestMap.firstEntry();
             cacheMap.remove(oldest.getValue()).close();

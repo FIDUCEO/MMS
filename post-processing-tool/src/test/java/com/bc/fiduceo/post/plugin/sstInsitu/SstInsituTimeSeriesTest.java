@@ -28,7 +28,6 @@ import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.util.TimeUtils;
 import com.beust.jcommander.internal.Lists;
 import org.junit.*;
 import org.junit.runner.*;
@@ -46,16 +45,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeriesTest {
-
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
 
     @Test
     public void extractSensorType_Success() throws Exception {
@@ -209,8 +201,8 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void name() throws Exception {
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 234, 34);
+    public void addInsituVariables() throws Exception {
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 234, 34, "matchupTimeVarName");
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
 

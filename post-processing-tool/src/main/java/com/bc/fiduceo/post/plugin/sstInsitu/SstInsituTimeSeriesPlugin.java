@@ -30,6 +30,7 @@ public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
     public static final String TAG_NAME_VERSION = "version";
     public static final String TAG_NAME_TIME_RANGE_SECONDS = "time-range-in-seconds";
     public static final String TAG_NAME_TIME_SERIES_SIZE = "time-series-size";
+    public static final String TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE = "secondary-sensor-matchup-time-variable";
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
@@ -44,7 +45,9 @@ public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
         final String seriesSize = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_SERIES_SIZE);
         final int timeSeriesSize = Integer.parseInt(seriesSize);
 
-        return new SstInsituTimeSeries(processingVersion, timeRangeSeconds, timeSeriesSize);
+        final String matchupTimeVarName = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE);
+
+        return new SstInsituTimeSeries(processingVersion, timeRangeSeconds, timeSeriesSize, matchupTimeVarName);
     }
 
     @Override

@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
@@ -47,7 +48,8 @@ public class SstInsituTimeSeriesPluginTest {
         element = new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
                 new Element(TAG_NAME_VERSION).addContent("v03.3"),
                 new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 36 * 60 * 60),
-                new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96")
+                new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("96"),
+                new Element(TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE).addContent("amsre.acquisition_time")
         ));
     }
 
@@ -68,6 +70,7 @@ public class SstInsituTimeSeriesPluginTest {
         assertThat(insituTimeSeries.processingVersion, is(equalTo("v03.3")));
         assertThat(insituTimeSeries.timeRangeSeconds, is(equalTo(36 * 60 * 60)));
         assertThat(insituTimeSeries.timeSeriesSize, is(equalTo(96)));
+        assertThat(insituTimeSeries.matchupTimeVarName, is(equalTo("amsre.acquisition_time")));
     }
 
     @Test

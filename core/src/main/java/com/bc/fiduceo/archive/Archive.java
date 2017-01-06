@@ -84,7 +84,7 @@ public class Archive {
         return pathArrayList.toArray(new Path[0]);
     }
 
-    Path createValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
+    public Path createValidProductPath(String processingVersion, String sensorType, int year, int month, int day) {
         final String[] pathElements = getPathElements(sensorType);
         final PathContext pathContext = new PathContext(sensorType, processingVersion, year, month, day);
 

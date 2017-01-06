@@ -18,6 +18,9 @@
  */
 package com.bc.fiduceo.reader.insitu;
 
+import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -27,7 +30,6 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -44,22 +46,12 @@ import java.util.Map;
 
 public class SSTInsituReader implements Reader {
 
-    private static long millisSince1978;
-    private static int secondsSince1978;
 
     private NetcdfFile netcdfFile;
     private String insituType;
     private Map<String, Number> fillValueMap = new HashMap<>();
     private Map<String, Array> arrayMap = new HashMap<>();
     private List<Variable> variables;
-
-    SSTInsituReader() {
-        final Calendar calendar = ProductData.UTC.createCalendar();
-        calendar.clear();
-        calendar.set(1978, Calendar.JANUARY, 1);
-        millisSince1978 = calendar.getTime().getTime();
-        secondsSince1978 = (int) (millisSince1978 / 1000);
-    }
 
     @Override
     public void open(File file) throws IOException {
