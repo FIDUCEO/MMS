@@ -25,6 +25,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
@@ -92,5 +93,25 @@ public class NetCDFUtilsTest {
             fail("IOException expected");
         } catch (IOException expected) {
         }
+    }
+
+    @Test
+    public void testGetFillValue_fromAttribute() {
+        final Variable variable = mock(Variable.class);
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(19);
+        when(variable.findAttribute("_FillValue")).thenReturn(attribute);
+
+        final Number fillValue = NetCDFUtils.getFillValue(variable);
+        assertEquals(19, fillValue.intValue());
+    }
+
+    @Test
+    public void testGetFillValue_fromDataType() {
+        final Variable variable = mock(Variable.class);
+        when(variable.getDataType()).thenReturn(DataType.FLOAT);
+
+        final Number fillValue = NetCDFUtils.getFillValue(variable);
+        assertEquals(N3iosp.NC_FILL_FLOAT, fillValue.floatValue(), 1e-8);
     }
 }

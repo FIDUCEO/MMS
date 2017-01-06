@@ -57,6 +57,16 @@ public class NetCDFUtils {
         }
     }
 
+    public static Number getFillValue(Variable variable) {
+        final Attribute fillValueAttribute = variable.findAttribute("_FillValue");
+        if (fillValueAttribute != null) {
+            return fillValueAttribute.getNumericValue();
+        }
+
+        final DataType dataType = variable.getDataType();
+        return getDefaultFillValue(dataType.getClassType());
+    }
+
     public static Array toFloat(Array original) {
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);

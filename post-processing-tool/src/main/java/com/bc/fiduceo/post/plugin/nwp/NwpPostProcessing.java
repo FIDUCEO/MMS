@@ -21,14 +21,24 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
+import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 class NwpPostProcessing extends PostProcessing {
+
+    private static final int SIXTY_HOURS_IN_SECONDS = 60 * 60 * 60;
+    private static final int THIRTY_SIX_HOURS_IN_SECONDS = 36 * 60 * 60;
 
     private final Configuration configuration;
 
@@ -43,7 +53,61 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        reader.findVariable(null, configuration.getTimeVariableName());
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, configuration.getTimeVariableName());
+        final Array timeArray = timeVariable.read();
 
+        final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
+        final TimeRange timeRange = extractTimeRange(timeArray, fillValue);
+        final List<String> directoryNamesList = toDirectoryNamesList(timeRange);
+
+    }
+
+    // package access for testing only tb 2017-01-06
+    static TimeRange extractTimeRange(Array timesArray, Number fillValue) {
+        int startTime = Integer.MAX_VALUE;
+        int endTime = Integer.MIN_VALUE;
+        final int fill = fillValue.intValue();
+
+        for (int i = 0; i < timesArray.getSize(); i++) {
+            final int currentTime = timesArray.getInt(i);
+            if (currentTime == fill) {
+                continue;
+            }
+
+            if (currentTime > endTime) {
+                endTime = currentTime;
+            }
+            if (currentTime < startTime) {
+                startTime = currentTime;
+            }
+        }
+
+        final Date startDate = TimeUtils.create(startTime);
+        final Date endDate = TimeUtils.create(endTime);
+        return new TimeRange(startDate, endDate);
+    }
+
+    // package access for testing only tb 2017-01-06
+    static List<String> toDirectoryNamesList(TimeRange timeRange) {
+        final Date startDate = timeRange.getStartDate();
+        final Date extractStartDate = TimeUtils.addSeconds(-SIXTY_HOURS_IN_SECONDS, startDate);
+        final Date beginningOfDay = TimeUtils.getBeginningOfDay(extractStartDate);
+
+        final Date stopDate = timeRange.getStopDate();
+        final Date extractStopDate = TimeUtils.addSeconds(THIRTY_SIX_HOURS_IN_SECONDS, stopDate);
+
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(beginningOfDay);
+
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        final List<String> directoryNameList = new ArrayList<>();
+        while (!utcCalendar.getTime().after(extractStopDate)) {
+            directoryNameList.add(simpleDateFormat.format(utcCalendar.getTime()));
+            utcCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        return directoryNameList;
     }
 }
