@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 class GeoFile {
+    // @todo 1 tb/tb add delete on exit property 2017-01-09
 
     private File tempFile;
     private NetcdfFileWriter writer;
