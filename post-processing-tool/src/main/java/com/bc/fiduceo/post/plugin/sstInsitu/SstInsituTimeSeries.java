@@ -19,9 +19,6 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-import static ucar.nc2.NetcdfFile.makeValidCDLName;
-
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
@@ -30,7 +27,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -39,11 +35,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
+import static ucar.nc2.NetcdfFile.makeValidCDLName;
+
 class SstInsituTimeSeries extends PostProcessing {
 
     static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
-    static final String MATCHUP_COUNT = "matchup_count";
+    private static final String MATCHUP_COUNT = "matchup_count";
     static final String MATCHUP = "matchup";
 
     // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
@@ -69,8 +68,8 @@ class SstInsituTimeSeries extends PostProcessing {
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
         fileNameVariable = getInsituFileNameVariable(reader, sensorType);
-        filenameFieldSize = findDimensionMandatory(reader, "file_name").getLength();
-        matchupCount = findDimensionMandatory(reader, MATCHUP_COUNT).getLength();
+        filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
+        matchupCount = NetCDFUtils.getDimensionLength(MATCHUP_COUNT, reader);
         final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
         insituReaderCache = new InsituReaderCache(getContext());
         final Reader insituReader = insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);
@@ -161,11 +160,11 @@ class SstInsituTimeSeries extends PostProcessing {
         return getVariable(reader, sensorType, "_file_name");
     }
 
-    static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
+    private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
         return getVariable(reader, sensorType, "_y");
     }
 
-    static Variable getVariable(NetcdfFile reader, String sensorType, String varName) {
+    private static Variable getVariable(NetcdfFile reader, String sensorType, String varName) {
         final String fileNameVarName = sensorType + varName;
 
         final Variable fileNameVar = reader.findVariable(fileNameVarName);
@@ -185,14 +184,6 @@ class SstInsituTimeSeries extends PostProcessing {
             }
         }
         throw new RuntimeException("Unable to extract sensor type.");
-    }
-
-    static Dimension findDimensionMandatory(NetcdfFile reader, String dimName) {
-        final Dimension dim = reader.findDimension(dimName);
-        if (dim == null) {
-            throw new RuntimeException("Dimension '" + dimName + "' does not exist.");
-        }
-        return dim;
     }
 
     Range computeInsituRange(int matchupPos, SSTInsituReader insituReader) throws IOException, InvalidRangeException {
@@ -248,12 +239,12 @@ class SstInsituTimeSeries extends PostProcessing {
         dtimeVariable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(int.class)));
     }
 
-    public static class Range {
+    static class Range {
 
-        public final int min;
-        public final int max;
+        final int min;
+        final int max;
 
-        public Range(int min, int max) {
+        Range(int min, int max) {
             this.min = min;
             this.max = max;
         }

@@ -156,11 +156,11 @@ class SSMT2_Reader implements Reader {
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
             final Variable ancil_data = netcdfFile.findVariable("ancil_data");
-            final ucar.nc2.Dimension time_step = netcdfFile.findDimension("time_step");
+            final int numTimeSteps = NetCDFUtils.getDimensionLength("time_step", netcdfFile);
             final int[] yearOrigin = {0, 0};
             final int[] doyOrigin = {0, 1};
             final int[] milliesOrigin = {0, 2};
-            final int[] shape = {time_step.getLength(), 1};
+            final int[] shape = {numTimeSteps, 1};
             try {
                 final Array yearPerScanline = ancil_data.read(yearOrigin, shape).reduce();
                 final Array doyPerScanline = ancil_data.read(doyOrigin, shape).reduce();
@@ -229,7 +229,7 @@ class SSMT2_Reader implements Reader {
         return new Dimension("lon", shape[1], shape[0]);
     }
 
-    public HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
+    HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
         ensureInitialisation();
         return readersMap;
     }
@@ -285,7 +285,7 @@ class SSMT2_Reader implements Reader {
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
             if (shape[0] != height
-                || shape.length > 3) {
+                    || shape.length > 3) {
                 continue;
             }
             if (shortName.equalsIgnoreCase("ancil_data")) {
@@ -322,23 +322,19 @@ class SSMT2_Reader implements Reader {
     }
 
     private int getNumX() {
-        return getDimLen(DIM_NAME_SCAN_POSITION);
+        return NetCDFUtils.getDimensionLength(DIM_NAME_SCAN_POSITION, netcdfFile);
     }
 
     private int getNumY() {
-        return getDimLen(DIM_NAME_TIME_STEP);
+        return NetCDFUtils.getDimensionLength(DIM_NAME_TIME_STEP, netcdfFile);
     }
 
     private int getNumChannels() {
-        return getDimLen(DIM_NAME_CHANNEL);
+        return NetCDFUtils.getDimensionLength(DIM_NAME_CHANNEL, netcdfFile);
     }
 
     private int getNumCalibrations() {
-        return getDimLen(DIM_NAME_CALIBRATION_NUMBER);
-    }
-
-    private int getDimLen(String name) {
-        return netcdfFile.findDimension(name).getLength();
+        return NetCDFUtils.getDimensionLength(DIM_NAME_CALIBRATION_NUMBER, netcdfFile);
     }
 
     private void collect2dChannelsFrom3dVariable(Variable variable) throws InvalidRangeException {
@@ -529,7 +525,7 @@ class SSMT2_Reader implements Reader {
         private Number fillValue;
         private boolean needData = true;
 
-        public Read2dFrom1d(ArrayCache arrayCache, String shortName, int defaultWidth) {
+        Read2dFrom1d(ArrayCache arrayCache, String shortName, int defaultWidth) {
             this.shortName = shortName;
             this.defaultWidth = defaultWidth;
             this.arrayCache = arrayCache;
@@ -563,7 +559,7 @@ class SSMT2_Reader implements Reader {
         private Number fillValue;
         private boolean needData = true;
 
-        public Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth) {
+        Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth) {
             this.arrayCache = arrayCache;
             this.defaultWidth = defaultWidth;
             this.shortName = shortName;
@@ -597,7 +593,7 @@ class SSMT2_Reader implements Reader {
         private double fillValue;
         private boolean needData;
 
-        public Read1dFrom2d(ArrayCache arrayCache, String shortName, int sourceChannel) {
+        Read1dFrom2d(ArrayCache arrayCache, String shortName, int sourceChannel) {
             this.arrayCache = arrayCache;
             this.shortName = shortName;
             this.sourceChannel = sourceChannel;
@@ -622,17 +618,17 @@ class SSMT2_Reader implements Reader {
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                      targetWidth, targetHeight,
-                      0, srcHeight,
-                      (y, x) -> {
-                          targetIdx.set(y, x);
-                          targetArray.setDouble(targetIdx, fillValue);
-                      },
-                      (y, x, yRaw, xRaw) -> {
-                          targetIdx.set(y, x);
-                          sourceIdx.set(yRaw, sourceChannel);
-                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                      }
+                    targetWidth, targetHeight,
+                    0, srcHeight,
+                    (y, x) -> {
+                        targetIdx.set(y, x);
+                        targetArray.setDouble(targetIdx, fillValue);
+                    },
+                    (y, x, yRaw, xRaw) -> {
+                        targetIdx.set(y, x);
+                        sourceIdx.set(yRaw, sourceChannel);
+                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                    }
             );
             return targetArray;
         }

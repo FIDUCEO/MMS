@@ -113,32 +113,6 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void findDimensionMandatory_Success() throws Exception {
-        final String dimName = "dimName";
-        final NetcdfFile reader = mock(NetcdfFile.class);
-        final Dimension expectedDim = new Dimension("dimName", 24);
-        when(reader.findDimension(dimName)).thenReturn(expectedDim);
-
-        final Dimension dimension = SstInsituTimeSeries.findDimensionMandatory(reader, dimName);
-
-        assertSame(dimension, expectedDim);
-    }
-
-    @Test
-    public void findDimensionMandatory_DimensionDoesNotExist() throws Exception {
-        final String dimName = "dimName";
-        final NetcdfFile reader = mock(NetcdfFile.class);
-        when(reader.findDimension(dimName)).thenReturn(null);
-
-        try {
-            SstInsituTimeSeries.findDimensionMandatory(reader, dimName);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Dimension 'dimName' does not exist.", expected.getMessage());
-        }
-    }
-
-    @Test
     public void getInsituFileName_Success() throws Exception {
         final Array array = mock(Array.class);
 

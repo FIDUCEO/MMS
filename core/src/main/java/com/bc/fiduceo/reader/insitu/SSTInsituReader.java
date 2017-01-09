@@ -18,9 +18,6 @@
  */
 package com.bc.fiduceo.reader.insitu;
 
-import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
-import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -29,6 +26,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -43,6 +41,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 
 public class SSTInsituReader implements Reader {
 
@@ -186,7 +187,7 @@ public class SSTInsituReader implements Reader {
     }
 
     int getNumObservations() {
-        return netcdfFile.findDimension("record").getLength();
+        return NetCDFUtils.getDimensionLength("record", netcdfFile);
     }
 
     private void extractSensingTimes(AcquisitionInfo info) {

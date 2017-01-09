@@ -37,8 +37,8 @@ import java.util.*;
 
 class NwpPostProcessing extends PostProcessing {
 
-    private static final int SIXTY_HOURS_IN_SECONDS = 60 * 60 * 60;
-    private static final int THIRTY_SIX_HOURS_IN_SECONDS = 36 * 60 * 60;
+    private static final int SEVENTY_TWO_HOURS_IN_SECONDS = 72 * 60 * 60;
+    private static final int FOURTY_EIGHT_HOURS_IN_SECONDS = 48 * 60 * 60;
 
     private final Configuration configuration;
 
@@ -59,6 +59,10 @@ class NwpPostProcessing extends PostProcessing {
         final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
         final TimeRange timeRange = extractTimeRange(timeArray, fillValue);
         final List<String> directoryNamesList = toDirectoryNamesList(timeRange);
+
+        final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);
+        final GeoFile geoFile = new GeoFile(matchupCount);
+        geoFile.create();
 
     }
 
@@ -90,11 +94,11 @@ class NwpPostProcessing extends PostProcessing {
     // package access for testing only tb 2017-01-06
     static List<String> toDirectoryNamesList(TimeRange timeRange) {
         final Date startDate = timeRange.getStartDate();
-        final Date extractStartDate = TimeUtils.addSeconds(-SIXTY_HOURS_IN_SECONDS, startDate);
+        final Date extractStartDate = TimeUtils.addSeconds(-SEVENTY_TWO_HOURS_IN_SECONDS, startDate);
         final Date beginningOfDay = TimeUtils.getBeginningOfDay(extractStartDate);
 
         final Date stopDate = timeRange.getStopDate();
-        final Date extractStopDate = TimeUtils.addSeconds(THIRTY_SIX_HOURS_IN_SECONDS, stopDate);
+        final Date extractStopDate = TimeUtils.addSeconds(FOURTY_EIGHT_HOURS_IN_SECONDS, stopDate);
 
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTime(beginningOfDay);

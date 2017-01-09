@@ -66,9 +66,9 @@ public class NwpPostProcessingTest {
         final TimeRange timeRange = new TimeRange(startDate, endDate);
 
         final List<String> directoryNames = NwpPostProcessing.toDirectoryNamesList(timeRange);
-        assertEquals(16, directoryNames.size());
+        assertEquals(17, directoryNames.size());
         assertEquals("2007/03/29", directoryNames.get(0));
         assertEquals("2007/04/07", directoryNames.get(9));
-        assertEquals("2007/04/13", directoryNames.get(15));
+        assertEquals("2007/04/14", directoryNames.get(16));
     }
 }

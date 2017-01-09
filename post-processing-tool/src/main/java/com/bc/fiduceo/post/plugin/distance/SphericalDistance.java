@@ -21,6 +21,7 @@ package com.bc.fiduceo.post.plugin.distance;
 
 import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -78,8 +79,7 @@ class SphericalDistance extends PostProcessing {
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final Dimension countDimension = getCountDimension(netcdfFile);
-        int count = countDimension.getLength();
+        final int count = NetCDFUtils.getDimensionLength(targetDimName, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
         final Variable primLons = netcdfFile.findVariable(null, primLonVar);
@@ -140,13 +140,5 @@ class SphericalDistance extends PostProcessing {
             return MAMath.convert2Unpacked(array, scaleOffset);
         }
         return array;
-    }
-
-    Dimension getCountDimension(NetcdfFile netcdfFile) {
-        final Dimension dimension = netcdfFile.findDimension(targetDimName);
-        if (dimension == null) {
-            throw new RuntimeException("Dimension '" + targetDimName + "' expected");
-        }
-        return dimension;
     }
 }

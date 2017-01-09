@@ -24,6 +24,7 @@ import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
@@ -113,5 +114,26 @@ public class NetCDFUtilsTest {
 
         final Number fillValue = NetCDFUtils.getFillValue(variable);
         assertEquals(N3iosp.NC_FILL_FLOAT, fillValue.floatValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDimensionSize() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension dimension = mock(Dimension.class);
+        when(dimension.getLength()).thenReturn(22);
+        when(netcdfFile.findDimension("matchup_count")).thenReturn(dimension);
+
+        assertEquals(22, NetCDFUtils.getDimensionLength("matchup_count", netcdfFile));
+    }
+
+    @Test
+    public void testGetDimensionSize_dimensionNotPresent() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+
+        try {
+            NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

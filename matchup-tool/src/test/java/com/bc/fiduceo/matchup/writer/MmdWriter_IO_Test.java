@@ -38,6 +38,7 @@ import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
 import org.junit.runner.*;
@@ -357,9 +358,8 @@ public class MmdWriter_IO_Test {
     }
 
     private void assertDimension(String name, int expected, NetcdfFile mmd) {
-        final ucar.nc2.Dimension ncDimension = mmd.findDimension(name);
-        assertNotNull(ncDimension);
-        assertEquals(expected, ncDimension.getLength());
+        final int dimensionLength = NetCDFUtils.getDimensionLength(name, mmd);
+        assertEquals(expected, dimensionLength);
     }
 
     private void assertGlobalDateAttribute(String name, Date expected, NetcdfFile mmd) {

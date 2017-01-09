@@ -21,7 +21,9 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -34,6 +36,10 @@ class GeoFile {
     private File tempFile;
     private NetcdfFileWriter writer;
     private final int numMatchups;
+    private Variable gridDims;
+    private Variable gridCenterLat;
+    private Variable gridCenterLon;
+    private Variable gridMask;
 
     GeoFile(int numMatchups) {
         this.numMatchups = numMatchups;
@@ -52,21 +58,48 @@ class GeoFile {
         writer.addDimension(null, "grid_corners", 4);
         writer.addDimension(null, "grid_rank", 2);
 
-        final Variable gridDims = writer.addVariable(null, "grid_dims", DataType.INT, "grid_rank");
+        gridDims = writer.addVariable(null, "grid_dims", DataType.INT, "grid_rank");
 
-        final Variable gridCenterLat = writer.addVariable(null, "grid_center_lat", DataType.FLOAT, "grid_size");
+        gridCenterLat = writer.addVariable(null, "grid_center_lat", DataType.FLOAT, "grid_size");
         gridCenterLat.addAttribute(new Attribute("units", "degrees"));
 
-        final Variable gridCenterLon = writer.addVariable(null, "grid_center_lon", DataType.FLOAT, "grid_size");
+        gridCenterLon = writer.addVariable(null, "grid_center_lon", DataType.FLOAT, "grid_size");
         gridCenterLon.addAttribute(new Attribute("units", "degrees"));
 
-        final Variable gridMask = writer.addVariable(null, "grid_imask", DataType.INT, "grid_size");
+        gridMask = writer.addVariable(null, "grid_imask", DataType.INT, "grid_size");
+        // @todo 2 tb/tb why is this written? Can't we just skip these variables? 2017-01-09
         writer.addVariable(null, "grid_corner_lat", DataType.FLOAT, "grid_size grid_corners");
         writer.addVariable(null, "grid_corner_lon", DataType.FLOAT, "grid_size grid_corners");
         writer.addGroupAttribute(null, new Attribute("title", "MMD geo-location in SCRIP format"));
 
         writer.create();
         writer.flush();
+    }
+
+    void write(Array longitudesArray, Array latitudesArray) throws IOException, InvalidRangeException {
+        writer.write(gridDims, Array.factory(new int[]{1, numMatchups}));
+
+        final int[] targetStart = {0};
+        final int[] targetShape = {1};
+        final Array maskData = Array.factory(DataType.INT, targetShape);
+        final Array lonWriteArray = Array.factory(new float[]{0.f});
+        final Array latWriteArray = Array.factory(new float[]{0.f});
+
+        final long size = longitudesArray.getSize();
+        for (int i = 0; i < size; i++) {
+            targetStart[0] = i;
+
+            final float lon = longitudesArray.getFloat(i);
+            final float lat = latitudesArray.getFloat(i);
+
+            maskData.setInt(0, lat >= -90.0f && lat <= 90.0f && lon >= -180.0f && lat <= 180.0f ? 1 : 0);
+            lonWriteArray.setFloat(0, lon);
+            latWriteArray.setFloat(0, lat);
+
+            writer.write(gridCenterLon, targetStart, lonWriteArray);
+            writer.write(gridCenterLat, targetStart, latWriteArray);
+            writer.write(gridMask, targetStart, maskData);
+        }
     }
 
     void close() throws IOException {
@@ -78,4 +111,6 @@ class GeoFile {
     File getFile() {
         return tempFile;
     }
+
+
 }

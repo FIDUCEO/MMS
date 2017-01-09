@@ -79,17 +79,4 @@ public class SphericalDistanceTest {
             assertEquals("Attribute 'scale' does not own a number value.", expected.getMessage());
         }
     }
-
-    @Test
-    public void testGetCountDimension() throws Exception {
-        final SphericalDistance sphericalDistance = new SphericalDistance("tvar", "tType", "tDim", null, null, null, null,
-                                                                          null, null, null, null, null, null, null, null);
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        try {
-            sphericalDistance.getCountDimension(netcdfFile);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Dimension 'tDim' expected", expected.getMessage());
-        }
-    }
 }

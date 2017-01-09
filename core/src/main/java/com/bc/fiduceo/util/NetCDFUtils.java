@@ -25,6 +25,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
@@ -132,5 +133,13 @@ public class NetCDFUtils {
     public static NetcdfFile openReadOnly(final String absFileLocation) throws IOException {
         final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "r");
         return NetcdfFile.open(raf, absFileLocation, null, null);
+    }
+
+    public static int getDimensionLength(String dimensionName, NetcdfFile netcdfFile) {
+        final Dimension dimension = netcdfFile.findDimension(dimensionName);
+        if (dimension == null) {
+            throw new RuntimeException("Dimension not present in file: " + dimensionName);
+        }
+        return dimension.getLength();
     }
 }
