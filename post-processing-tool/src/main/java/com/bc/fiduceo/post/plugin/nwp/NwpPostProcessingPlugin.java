@@ -206,6 +206,12 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "time-variable-name");
         configuration.setTimeVariableName(timeVariableName);
 
+        final String longitudeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "longitude-variable-name");
+        configuration.setLongitudeVariableName(longitudeVariableName);
+
+        final String latitudeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "latitude-variable-name");
+        configuration.setLatitudeVariableName(latitudeVariableName);
+
         final Element anSeaIceFractionElement = rootElement.getChild("an-sea-ice-fraction-name");
         if (anSeaIceFractionElement != null) {
             configuration.setAnSeaIceFractionName(anSeaIceFractionElement.getValue().trim());

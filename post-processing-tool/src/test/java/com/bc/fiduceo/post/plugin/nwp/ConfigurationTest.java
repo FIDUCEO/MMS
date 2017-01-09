@@ -28,8 +28,6 @@ import static org.junit.Assert.*;
 
 public class ConfigurationTest {
 
-    // @todo 1 tb/tb add IO Test class for confguration checking 2016-12-22
-
     private Configuration config;
 
     @Before
@@ -80,6 +78,22 @@ public class ConfigurationTest {
 
         config.setTimeVariableName(timeVariableName);
         assertEquals(timeVariableName, config.getTimeVariableName());
+    }
+
+    @Test
+    public void testSetGetLongitudeVariableName() {
+         final String variableName = "longi-tuhude";
+
+         config.setLongitudeVariableName(variableName);
+         assertEquals(variableName, config.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testSetGetLatitudeVariableName() {
+        final String variableName = "lat-popat";
+
+        config.setLatitudeVariableName(variableName);
+        assertEquals(variableName, config.getLatitudeVariableName());
     }
 
     @Test

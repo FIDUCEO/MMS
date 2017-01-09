@@ -52,6 +52,8 @@ class Configuration {
     private String fcTurbStressNorthName;
     private String fcEvaporationName;
     private String fcTotalPrecipName;
+    private String longitudeVariableName;
+    private String latitudeVariableName;
 
     Configuration() {
         deleteOnExit = true;
@@ -295,6 +297,22 @@ class Configuration {
 
     String getFcTotalPrecipName() {
         return fcTotalPrecipName;
+    }
+
+    void setLongitudeVariableName(String longitudeVariableName) {
+        this.longitudeVariableName = longitudeVariableName;
+    }
+
+    String getLongitudeVariableName() {
+        return longitudeVariableName;
+    }
+
+    void setLatitudeVariableName(String latitudeVariableName) {
+        this.latitudeVariableName = latitudeVariableName;
+    }
+
+    String getLatitudeVariableName() {
+        return latitudeVariableName;
     }
 
     boolean verify() {

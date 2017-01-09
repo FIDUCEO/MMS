@@ -66,6 +66,8 @@ public class NwpPostProcessingPlugin_IO_Test {
                 "    <cdo-home>" + cdoDir.getAbsolutePath() +"</cdo-home>" +
                 "    <nwp-aux-dir>" + nwpDir.getAbsolutePath() + "</nwp-aux-dir>" +
                 "    <time-variable-name>the_time</time-variable-name>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(config);
 
