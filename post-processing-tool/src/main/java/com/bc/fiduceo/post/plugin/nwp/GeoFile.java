@@ -23,6 +23,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
@@ -79,18 +80,37 @@ class GeoFile {
     void write(Array longitudesArray, Array latitudesArray) throws IOException, InvalidRangeException {
         writer.write(gridDims, Array.factory(new int[]{1, numMatchups}));
 
+        int[] sourceStart;
+        int[] sourceShape;
+        final int rank = longitudesArray.getRank();
+        if (rank == 1) {
+            sourceStart = new int[]{0};
+            sourceShape = new int[]{1};
+        } else if (rank == 3) {
+            final int[] shape = longitudesArray.getShape();
+            sourceStart = new int[]{0, shape[1] / 2, shape[2] / 2};
+            sourceShape = new int[]{1, 1, 1};
+        } else {
+            throw new RuntimeException("Unsupported geolocation array dimensionality");
+        }
         final int[] targetStart = {0};
         final int[] targetShape = {1};
+
         final Array maskData = Array.factory(DataType.INT, targetShape);
         final Array lonWriteArray = Array.factory(new float[]{0.f});
         final Array latWriteArray = Array.factory(new float[]{0.f});
 
-        final long size = longitudesArray.getSize();
-        for (int i = 0; i < size; i++) {
-            targetStart[0] = i;
 
-            final float lon = longitudesArray.getFloat(i);
-            final float lat = latitudesArray.getFloat(i);
+        for (int i = 0; i < numMatchups; i++) {
+            targetStart[0] = i;
+            sourceStart[0] = i;
+
+            final Array lonSection = longitudesArray.section(sourceStart, sourceShape);
+            final IndexIterator lonIterator = lonSection.getIndexIterator();
+            final Array latSection = latitudesArray.section(sourceStart, sourceShape);
+            final IndexIterator latIterator = latSection.getIndexIterator();
+            final float lon = lonIterator.getFloatNext();
+            final float lat = latIterator.getFloatNext();
 
             maskData.setInt(0, lat >= -90.0f && lat <= 90.0f && lon >= -180.0f && lat <= 180.0f ? 1 : 0);
             lonWriteArray.setFloat(0, lon);
