@@ -45,7 +45,7 @@ public class GeoFile_IO_Test {
         File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create();
+            geoFile.create(false);
             file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -89,7 +89,7 @@ public class GeoFile_IO_Test {
         File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create();
+            geoFile.create(true);
             file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -134,7 +134,7 @@ public class GeoFile_IO_Test {
         File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create();
+            geoFile.create(false);
             file = geoFile.getFile();
             assertTrue(file.isFile());
 

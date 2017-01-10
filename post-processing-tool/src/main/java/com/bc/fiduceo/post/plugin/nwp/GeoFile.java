@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 
 class GeoFile {
-    // @todo 1 tb/tb add delete on exit property 2017-01-09
 
     private File tempFile;
     private NetcdfFileWriter writer;
@@ -47,8 +46,11 @@ class GeoFile {
         this.numMatchups = numMatchups;
     }
 
-    void create() throws IOException {
+    void create(boolean deleteOnExit) throws IOException {
         tempFile = File.createTempFile("geo", ".nc");
+        if (deleteOnExit) {
+            tempFile.deleteOnExit();
+        }
 
         writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, tempFile.getAbsolutePath());
         writer.setLargeFile(true);

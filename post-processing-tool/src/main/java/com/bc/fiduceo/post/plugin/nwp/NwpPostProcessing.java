@@ -62,7 +62,7 @@ class NwpPostProcessing extends PostProcessing {
 
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);
         final GeoFile geoFile = new GeoFile(matchupCount);
-        geoFile.create();
+        geoFile.create(configuration.isDeleteOnExit());
 
     }
 
