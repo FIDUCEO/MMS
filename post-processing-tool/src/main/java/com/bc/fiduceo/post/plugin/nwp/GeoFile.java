@@ -47,10 +47,7 @@ class GeoFile {
     }
 
     void create(boolean deleteOnExit) throws IOException {
-        tempFile = File.createTempFile("geo", ".nc");
-        if (deleteOnExit) {
-            tempFile.deleteOnExit();
-        }
+        tempFile = NwpUtils.createTempFile("geo", ".nc", deleteOnExit);
 
         writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, tempFile.getAbsolutePath());
         writer.setLargeFile(true);

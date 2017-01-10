@@ -31,6 +31,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,17 +54,47 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        final List<String> nwpDataDirectories = extractNwpDataDirectories(reader);
+
+        final File geoFile = writeGeoFile(reader);
+
+        createAnalysisFile(geoFile, nwpDataDirectories);
+
+    }
+
+    private void createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException {
+        final File ggasTimeSeriesFile = NwpUtils.createTempFile("ggas", ".nc", configuration.isDeleteOnExit());
+        final File analysisFile = NwpUtils.createTempFile("analysis", ".nc", configuration.isDeleteOnExit());
+
+        final String timeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
+    }
+
+    private List<String> extractNwpDataDirectories(NetcdfFile reader) throws IOException {
         final Variable timeVariable = NetCDFUtils.getVariable(reader, configuration.getTimeVariableName());
         final Array timeArray = timeVariable.read();
 
         final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
         final TimeRange timeRange = extractTimeRange(timeArray, fillValue);
-        final List<String> directoryNamesList = toDirectoryNamesList(timeRange);
+        return toDirectoryNamesList(timeRange);
+    }
+
+    private File writeGeoFile(NetcdfFile reader) throws IOException, InvalidRangeException {
+        final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.getLongitudeVariableName());
+        final Array longitudes = lonVariable.read();
+
+        final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.getLatitudeVariableName());
+        final Array latitudes = latVariable.read();
 
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);
-        final GeoFile geoFile = new GeoFile(matchupCount);
-        geoFile.create(configuration.isDeleteOnExit());
 
+        final GeoFile geoFile = new GeoFile(matchupCount);
+        try {
+            geoFile.create(configuration.isDeleteOnExit());
+            geoFile.write(longitudes, latitudes);
+        } finally {
+            geoFile.close();
+        }
+        return geoFile.getFile();
     }
 
     // package access for testing only tb 2017-01-06
