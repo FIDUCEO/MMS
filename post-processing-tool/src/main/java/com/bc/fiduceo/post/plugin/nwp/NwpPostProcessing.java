@@ -47,6 +47,11 @@ class NwpPostProcessing extends PostProcessing {
     private static final int SEVENTY_TWO_HOURS_IN_SECONDS = 72 * 60 * 60;
     private static final int FOURTY_EIGHT_HOURS_IN_SECONDS = 48 * 60 * 60;
 
+    private static final String CDO_MATCHUP_AN_TEMPLATE =
+            "#! /bin/sh\n" +
+                    "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GGAS_TIMESTEPS} ${GGAS_TIME_SERIES} && " +
+                    "${CDO} ${CDO_OPTS} -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname,CI,SSTK,U10,V10 ${GGAS_TIME_SERIES} ${AN_TIME_SERIES}\n";
+
     private final Configuration configuration;
 
     NwpPostProcessing(Configuration configuration) {
