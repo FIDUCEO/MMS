@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class NwpUtils {
+class NwpUtils {
 
     // @todo 2 tb/tb write tests for this method 2017-01-10
     static String composeFilesString(final String dirPath, final List<String> subDirPaths, final String pattern, int skip) {

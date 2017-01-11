@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.post;
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.plugin.nwp.CDOTestRunner;
 import org.apache.commons.cli.ParseException;
@@ -30,12 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(CDOTestRunner.class)
@@ -84,6 +80,8 @@ public class PostProcessingToolIntegrationTest_NWP {
     }
 
     private void writeConfiguration() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File eraInterimDir = new File(testDataDirectory, "era-interim/v1");
         final String postProcessingConfig = "<post-processing-config>\n" +
                 "    <create-new-files>\n" +
                 "        <output-directory>\n" +
@@ -92,14 +90,14 @@ public class PostProcessingToolIntegrationTest_NWP {
                 "    </create-new-files>\n" +
                 "    <post-processings>\n" +
                 "        <nwp>\n" +
-                "            <cdo-home>/usr/local/bin/cdo</cdo-home>\n" +
-                "            <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>\n" +
+                "            <cdo-home>/home/tom/Dev/cdo_installation/bin</cdo-home>\n" + // @todo move to test-confug tb 2017-01-11
+                "            <nwp-aux-dir>" + eraInterimDir.getAbsolutePath() + "</nwp-aux-dir>\n" +
                 "            <delete-on-exit>true</delete-on-exit>\n" +
                 "            <analysis-steps>19</analysis-steps>\n" +
                 "            <forecast-steps>33</forecast-steps>\n" +
-                "            <time-variable-name>acquisition-time</time-variable-name>\n" +
-                "            <longitude-variable-name>acquisition-time</longitude-variable-name>\n" +
-                "            <latitude-variable-name>acquisition-time</latitude-variable-name>\n" +
+                "            <time-variable-name>animal-sst_acquisition_time</time-variable-name>\n" +
+                "            <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>\n" +
+                "            <latitude-variable-name>animal-sst_insitu.lon</latitude-variable-name>\n" +
                 "        </nwp>" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";

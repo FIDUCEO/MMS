@@ -27,6 +27,7 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -34,7 +35,12 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 class NwpPostProcessing extends PostProcessing {
 
@@ -49,7 +55,13 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Dimension matchupCountDimension = reader.findDimension("matchup_count");
+        if (matchupCountDimension == null) {
+            throw new RuntimeException("Expected dimension not present in file: 'matchup_count'");
+        }
+
+        final Dimension anDimension = writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
+        final Dimension fcDimension = writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
     }
 
     @Override
@@ -67,6 +79,9 @@ class NwpPostProcessing extends PostProcessing {
         final File analysisFile = NwpUtils.createTempFile("analysis", ".nc", configuration.isDeleteOnExit());
 
         final String timeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
+
+        final Properties templateProperties = createAnalysisFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), timeStepFiles,
+                ggasTimeSeriesFile.getAbsolutePath(), analysisFile.getAbsolutePath());
     }
 
     private List<String> extractNwpDataDirectories(NetcdfFile reader) throws IOException {
@@ -99,8 +114,8 @@ class NwpPostProcessing extends PostProcessing {
 
     // package access for testing only tb 2017-01-06
     static TimeRange extractTimeRange(Array timesArray, Number fillValue) {
-        int startTime = Integer.MAX_VALUE;
-        int endTime = Integer.MIN_VALUE;
+        int startTimeSeconds = Integer.MAX_VALUE;
+        int endTimeSeconds = Integer.MIN_VALUE;
         final int fill = fillValue.intValue();
 
         for (int i = 0; i < timesArray.getSize(); i++) {
@@ -109,16 +124,16 @@ class NwpPostProcessing extends PostProcessing {
                 continue;
             }
 
-            if (currentTime > endTime) {
-                endTime = currentTime;
+            if (currentTime > endTimeSeconds) {
+                endTimeSeconds = currentTime;
             }
-            if (currentTime < startTime) {
-                startTime = currentTime;
+            if (currentTime < startTimeSeconds) {
+                startTimeSeconds = currentTime;
             }
         }
 
-        final Date startDate = TimeUtils.create(startTime);
-        final Date endDate = TimeUtils.create(endTime);
+        final Date startDate = TimeUtils.create(startTimeSeconds * 1000L);
+        final Date endDate = TimeUtils.create(endTimeSeconds * 1000L);
         return new TimeRange(startDate, endDate);
     }
 
@@ -144,5 +159,18 @@ class NwpPostProcessing extends PostProcessing {
         }
 
         return directoryNameList;
+    }
+
+    // package access for testing only tb 2017-01-11
+    static Properties createAnalysisFileTemplateProperties(String cdoHome, String geoFileLocation, String ggasStepLocations, String ggasTimeSeriesLocation, String analysisTimeSeriesLocation) {
+        final Properties properties = new Properties();
+        properties.setProperty("CDO", cdoHome + "/cdo");
+        properties.setProperty("CDO_OPTS", "-M -R");
+        properties.setProperty("REFTIME", "1970-01-01,00:00:00,seconds");
+        properties.setProperty("GEO", geoFileLocation);
+        properties.setProperty("GGAS_TIMESTEPS", ggasStepLocations);
+        properties.setProperty("GGAS_TIME_SERIES", ggasTimeSeriesLocation);
+        properties.setProperty("AN_TIME_SERIES", analysisTimeSeriesLocation);
+        return properties;
     }
 }

@@ -26,12 +26,22 @@ import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NwpPostProcessingTest {
 
@@ -43,8 +53,8 @@ public class NwpPostProcessingTest {
         final TimeRange timeRange = NwpPostProcessing.extractTimeRange(timesArray, 12);
         assertNotNull(timeRange);
 
-        TestUtil.assertCorrectUTCDate(1970, 1, 2, 3, 46, 40, timeRange.getStartDate());
-        TestUtil.assertCorrectUTCDate(1970, 1, 2, 17, 40, 0, timeRange.getStopDate());
+        TestUtil.assertCorrectUTCDate(1973, 3, 3, 9, 46, 40, timeRange.getStartDate());
+        TestUtil.assertCorrectUTCDate(1974, 10, 3, 2, 40, 0, timeRange.getStopDate());
     }
 
     @Test
@@ -55,8 +65,8 @@ public class NwpPostProcessingTest {
         final TimeRange timeRange = NwpPostProcessing.extractTimeRange(timesArray, -32768);
         assertNotNull(timeRange);
 
-        TestUtil.assertCorrectUTCDate(1970, 1, 3, 7, 33, 20, timeRange.getStartDate());
-        TestUtil.assertCorrectUTCDate(1970, 1, 3, 21, 26, 40, timeRange.getStopDate());
+        TestUtil.assertCorrectUTCDate(1976, 5, 3, 19, 33, 20, timeRange.getStartDate());
+        TestUtil.assertCorrectUTCDate(1977, 12, 3, 12, 26, 40, timeRange.getStopDate());
     }
 
     @Test
@@ -70,5 +80,49 @@ public class NwpPostProcessingTest {
         assertEquals("2007/03/29", directoryNames.get(0));
         assertEquals("2007/04/07", directoryNames.get(9));
         assertEquals("2007/04/14", directoryNames.get(16));
+    }
+
+    @Test
+    public void testCreateAnalysisFileTemplateProperties() {
+         final Properties analysisTemplateProperties = NwpPostProcessing.createAnalysisFileTemplateProperties("/home/tome/CiDiOh",
+                 "/home/tom/geo_file",
+                 "/home/tom/time/steps",
+                 "/home/tom/time-series",
+                 "/usr/data/analysis-file");
+
+         assertEquals("/home/tome/CiDiOh/cdo", analysisTemplateProperties.getProperty("CDO"));
+         assertEquals("-M -R", analysisTemplateProperties.getProperty("CDO_OPTS"));
+         assertEquals("1970-01-01,00:00:00,seconds", analysisTemplateProperties.getProperty("REFTIME"));
+         assertEquals("/home/tom/geo_file", analysisTemplateProperties.getProperty("GEO"));
+         assertEquals("/home/tom/time/steps", analysisTemplateProperties.getProperty("GGAS_TIMESTEPS"));
+         assertEquals("/home/tom/time-series", analysisTemplateProperties.getProperty("GGAS_TIME_SERIES"));
+         assertEquals("/usr/data/analysis-file", analysisTemplateProperties.getProperty("AN_TIME_SERIES"));
+    }
+
+    @Test
+    public void testPrepare() throws IOException, InvalidRangeException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension matchupCountDimension = new Dimension("matchup_count", 7);
+
+        when(netcdfFile.findDimension("matchup_count")).thenReturn(matchupCountDimension);
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+
+        final Configuration configuration = createConfiguration();
+        final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
+        postProcessing.prepare(netcdfFile, writer);
+
+        // @todo 1 tb/tb add more assertions for the variables 2017-01-11
+
+        verify(writer, times(1)).addDimension(null, "matchup.nwp.an.time", 13);
+        verify(writer, times(1)).addDimension(null, "matchup.nwp.fc.time", 14);
+    }
+
+    private Configuration createConfiguration() {
+        final Configuration configuration = new Configuration();
+
+        configuration.setAnalysisSteps(13);
+        configuration.setForecastSteps(14);
+        return configuration;
     }
 }
