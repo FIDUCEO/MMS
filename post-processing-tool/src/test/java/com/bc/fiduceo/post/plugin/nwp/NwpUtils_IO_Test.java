@@ -60,9 +60,24 @@ public class NwpUtils_IO_Test {
         subPaths.add("2004/01/09");
         subPaths.add("2004/01/10");
 
-        final String filesString = NwpUtils.composeFilesString(eraInterimDir, subPaths, "ggas[0-9]*.nc", 0);
-        final String expected = "/usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/08/ggas200401080000.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/08/ggas200401080600.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/08/ggas200401081200.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/08/ggas200401081800.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/09/ggas200401090000.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/09/ggas200401090600.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/09/ggas200401091200.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/09/ggas200401091800.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/10/ggas200401100000.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/10/ggas200401100600.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/10/ggas200401101200.nc /usr/local/data/Fiduceo_TestData/era-interim/v1/ggas/2004/01/10/ggas200401101800.nc";
-        assertEquals(expected, filesString);
+        final File rootDir = new File(eraInterimDir);
+        final File dir_01_08 = new File(rootDir, "2004/01/08");
+        final File dir_01_09 = new File(rootDir, "2004/01/09");
+        final File dir_01_10 = new File(rootDir, "2004/01/10");
 
+        final String filesString = NwpUtils.composeFilesString(eraInterimDir, subPaths, "ggas[0-9]*.nc", 0);
+        final String expected = new File(dir_01_08, "ggas200401080000.nc").getAbsolutePath() + " " +
+                new File(dir_01_08, "ggas200401080600.nc").getAbsolutePath() + " " +
+                new File(dir_01_08, "ggas200401081200.nc").getAbsolutePath() + " " +
+                new File(dir_01_08, "ggas200401081800.nc").getAbsolutePath() + " " +
+                new File(dir_01_09, "ggas200401090000.nc").getAbsolutePath() + " " +
+                new File(dir_01_09, "ggas200401090600.nc").getAbsolutePath() + " " +
+                new File(dir_01_09, "ggas200401091200.nc").getAbsolutePath() + " " +
+                new File(dir_01_09, "ggas200401091800.nc").getAbsolutePath() + " " +
+                new File(dir_01_10, "ggas200401100000.nc").getAbsolutePath() + " " +
+                new File(dir_01_10, "ggas200401100600.nc").getAbsolutePath() + " " +
+                new File(dir_01_10, "ggas200401101200.nc").getAbsolutePath() + " " +
+                new File(dir_01_10, "ggas200401101800.nc").getAbsolutePath();
+        assertEquals(expected, filesString);
     }
 }
