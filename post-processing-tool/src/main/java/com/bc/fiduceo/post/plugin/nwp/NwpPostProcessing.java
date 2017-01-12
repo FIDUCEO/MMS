@@ -35,12 +35,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 class NwpPostProcessing extends PostProcessing {
 
@@ -75,11 +70,15 @@ class NwpPostProcessing extends PostProcessing {
 
         final File geoFile = writeGeoFile(reader);
 
-        createAnalysisFile(geoFile, nwpDataDirectories);
-
+        try {
+            final File analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IOException(e.getMessage());
+        }
     }
 
-    private void createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException {
+    private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
         final File ggasTimeSeriesFile = NwpUtils.createTempFile("ggas", ".nc", configuration.isDeleteOnExit());
         final File analysisFile = NwpUtils.createTempFile("analysis", ".nc", configuration.isDeleteOnExit());
 
@@ -87,6 +86,14 @@ class NwpPostProcessing extends PostProcessing {
 
         final Properties templateProperties = createAnalysisFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), timeStepFiles,
                 ggasTimeSeriesFile.getAbsolutePath(), analysisFile.getAbsolutePath());
+
+        final String resolvedExecutable = TemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
+
+        final ProcessRunner processRunner = new ProcessRunner();
+        processRunner.execute(scriptFile.getPath());
+
+        return analysisFile;
     }
 
     private List<String> extractNwpDataDirectories(NetcdfFile reader) throws IOException {

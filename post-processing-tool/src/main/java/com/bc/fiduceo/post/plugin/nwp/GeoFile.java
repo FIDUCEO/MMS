@@ -131,6 +131,4 @@ class GeoFile {
     File getFile() {
         return tempFile;
     }
-
-
 }

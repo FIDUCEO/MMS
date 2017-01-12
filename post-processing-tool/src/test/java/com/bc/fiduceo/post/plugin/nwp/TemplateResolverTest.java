@@ -25,6 +25,8 @@ import org.junit.Test;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TemplateResolverTest {
 
@@ -40,11 +42,29 @@ public class TemplateResolverTest {
         properties.put("CDO_OPTS", "-L -M");
         properties.put("GGAS_TIMESTEPS", "/home/tom/ggas12345.nc");
         properties.put("GGAS_TIME_SERIES", "/home/tom/ggas6789.nc");
+        properties.put("REFTIME", "1970-01-01,00:00:00,seconds");
+        properties.put("GEO", "/home/tom/geo123.nc");
+        properties.put("AN_TIME_SERIES", "/home/tom/an_target.nc");
 
         final TemplateResolver templateResolver = new TemplateResolver(properties);
         final String resolved = templateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE);
         assertEquals("#! /bin/sh\n" +
-                "/fiduceo/bin/cdo_dir -L -M -f nc2 mergetime /home/tom/ggas12345.nc /home/tom/ggas6789.nc && /fiduceo/bin/cdo_dir -L -M -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname,CI,SSTK,U10,V10 /home/tom/ggas6789.nc ${AN_TIME_SERIES}\n",
+                "/fiduceo/bin/cdo_dir -L -M -f nc2 mergetime /home/tom/ggas12345.nc /home/tom/ggas6789.nc && /fiduceo/bin/cdo_dir -L -M -f nc2 setreftime,1970-01-01,00:00:00,seconds -remapbil,/home/tom/geo123.nc -selname,CI,SSTK,U10,V10 /home/tom/ggas6789.nc /home/tom/an_target.nc\n",
                 resolved);
+    }
+
+    @Test
+    public void testIsResolved_resolved() {
+        final String resolved = "#! /bin/sh\n/fiduceo/bin/cdo_dir -L -M -f nc2 mergetime /home/tom/ggas12345.nc /home/tom/ggas6789.nc && /fiduceo/bin/cdo_dir -L -M -f nc2 setreftime,1970-01-01,00:00:00,seconds -remapbil,/home/tom/geo123.nc -selname,CI,SSTK,U10,V10 /home/tom/ggas6789.nc /home/tom/an_target.nc\n";
+
+        final TemplateResolver resolver = new TemplateResolver(new Properties());
+        assertTrue(resolver.isResolved(resolved));
+    }
+
+    @Test
+    public void testIsResolved_unresolved() {
+
+        final TemplateResolver resolver = new TemplateResolver(new Properties());
+        assertFalse(resolver.isResolved(CDO_MATCHUP_AN_TEMPLATE));
     }
 }

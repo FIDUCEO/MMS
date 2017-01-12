@@ -29,6 +29,17 @@ class TemplateResolver {
     private final Properties properties;
     private final Pattern pattern;
 
+    static String resolve(String template, Properties properties) {
+        final TemplateResolver templateResolver = new TemplateResolver(properties);
+        final String resolved = templateResolver.resolve(template);
+
+        if (templateResolver.isResolved(resolved)) {
+            return resolved;
+        }
+
+        throw new RuntimeException("Unable to resolve template:" + template);
+    }
+
     /**
      * Creates a new instance of this class, using the properties supplied as argument
      * for resolving templates.
