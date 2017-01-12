@@ -56,7 +56,7 @@ public class HIRS_LZADeltaScreeningTest {
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -105,7 +105,7 @@ public class HIRS_LZADeltaScreeningTest {
         configuration.maxLzaDelta = 10.0;
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondReader);
+        screening.apply(matchupSet, primaryReader, secondReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

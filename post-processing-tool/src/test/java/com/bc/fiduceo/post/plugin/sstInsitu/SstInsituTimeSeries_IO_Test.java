@@ -110,7 +110,7 @@ public class SstInsituTimeSeries_IO_Test {
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
                     ("<system-config>" +
-                     "<geometry-library name = \"S2\" />" +
+                     "    <geometry-library name = \"S2\" />" +
                      "    <archive>" +
                      "        <root-path>" +
                      "            " + testDataDirectory.getAbsolutePath() +
@@ -120,15 +120,6 @@ public class SstInsituTimeSeries_IO_Test {
                      "        </rule>" +
                      "    </archive>" +
                      "</system-config>").getBytes())));
-        context.setProcessingConfig(PostProcessingConfig.load(new ByteArrayInputStream(
-                    ("<" + PostProcessingConfig.TAG_NAME_ROOT + ">" +
-                     "<create-new-files>" +
-                     "<output-directory>outDir</output-directory>" +
-                     "</create-new-files>" +
-                     "<post-processings>" +
-                     "<dummy-post-processing>ABC</dummy-post-processing>" +
-                     "</post-processings>" +
-                     "</" + PostProcessingConfig.TAG_NAME_ROOT + ">").getBytes())));
 
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
         insituTimeSeries.setContext(context);

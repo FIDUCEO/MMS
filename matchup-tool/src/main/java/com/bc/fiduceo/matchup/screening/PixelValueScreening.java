@@ -42,7 +42,7 @@ class PixelValueScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         if (configuration == null) {
             return;
         }
@@ -50,7 +50,7 @@ class PixelValueScreening implements Screening {
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
         if (StringUtils.isNotNullAndNotEmpty(configuration.primaryExpression)) {
-            List<SampleSet> resultSet = new ArrayList<>();
+            List<SampleSet> keptSets = new ArrayList<>();
             final ReaderNamespace readerNamespace = new ReaderNamespace(primaryReader);
             final ParserImpl parser = new ParserImpl(readerNamespace);
             final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(primaryReader);
@@ -64,18 +64,18 @@ class PixelValueScreening implements Screening {
                     if (!keep) {
                         continue;
                     }
-                    resultSet.add(sampleSet);
+                    keptSets.add(sampleSet);
                 }
 
             } catch (ParseException e) {
                 throw new IOException("Invalid expression: " + e.getMessage());
             }
 
-            sampleSets = resultSet;
+            sampleSets = keptSets;
         }
 
         if (StringUtils.isNotNullAndNotEmpty(configuration.secondaryExpression)) {
-            List<SampleSet> resultSet = new ArrayList<>();
+            List<SampleSet> keptSets = new ArrayList<>();
             final ReaderNamespace readerNamespace = new ReaderNamespace(secondaryReader);
             final ParserImpl parser = new ParserImpl(readerNamespace);
             final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(secondaryReader);
@@ -89,13 +89,13 @@ class PixelValueScreening implements Screening {
                     if (!keep) {
                         continue;
                     }
-                    resultSet.add(sampleSet);
+                    keptSets.add(sampleSet);
                 }
 
             } catch (ParseException e) {
                 throw new IOException("Invalid expression: " + e.getMessage());
             }
-            sampleSets = resultSet;
+            sampleSets = keptSets;
         }
 
         matchupSet.setSampleSets(sampleSets);

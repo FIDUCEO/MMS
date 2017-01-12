@@ -62,8 +62,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         conditionEngine.configure(useCaseConfig);
 
-        final ScreeningEngine screeningEngine = new ScreeningEngine();
-        screeningEngine.configure(useCaseConfig);
+        final ScreeningEngine screeningEngine = new ScreeningEngine(context);
 
         final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
 

@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
@@ -54,7 +55,7 @@ public class NwpUtils_IO_Test {
     @Test
     public void testComposeFilesString_ggas() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final String eraInterimDir = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "era-interim", "v1", "ggas"}, true);
+        final String eraInterimDir = Paths.get(testDataDirectory.getAbsolutePath(), "era-interim", "v1", "ggas").toString();
         final ArrayList<String> subPaths = new ArrayList<>();
         subPaths.add("2004/01/08");
         subPaths.add("2004/01/09");

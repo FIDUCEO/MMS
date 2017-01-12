@@ -50,7 +50,7 @@ public interface Reader extends AutoCloseable {
     TimeLocator getTimeLocator() throws IOException;
 
     /**
-     * Reads raw data of a window defined by a center pixel position an a defined window size.
+     * Reads raw data of a window defined by a center pixel position and a defined window size.
      * According to this constraints the window dimensions must always be odd. If not
      * an IllegalArgumentException will be thrown. In the case where parts of the window are out
      * of the border, the outside array positions are filled with the fill value defined by the
@@ -69,7 +69,7 @@ public interface Reader extends AutoCloseable {
     Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
 
     /**
-     * Reads data of a window defined by a center pixel position an a defined window size.
+     * Reads data of a window defined by a center pixel position and a defined window size.
      * Scaling factor and offset are applied, if present. If not, this method returns the same data as readRaw().
      * According to this constraints the window dimensions must always be odd. If not
      * an IllegalArgumentException will be thrown. In the case where parts of the window are out

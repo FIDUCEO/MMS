@@ -21,29 +21,25 @@ package com.bc.fiduceo.post.plugin.sstInsitu;
 
 import static org.junit.Assert.*;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.junit.*;
+import org.junit.runner.*;
 import ucar.nc2.Variable;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 /**
  * Created by Sabine on 04.01.2017.
  */
+@RunWith(IOTestRunner.class)
 public class InsituReaderCacheTest {
 
     private File testDataDirectory;

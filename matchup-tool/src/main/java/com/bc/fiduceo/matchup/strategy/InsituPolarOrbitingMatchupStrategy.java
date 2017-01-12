@@ -69,8 +69,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         conditionEngine.configure(useCaseConfig);
 
-        final ScreeningEngine screeningEngine = new ScreeningEngine();
-        screeningEngine.configure(useCaseConfig);
+        final ScreeningEngine screeningEngine = new ScreeningEngine(context);
 
         final GeometryFactory geometryFactory = context.getGeometryFactory();
         final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);

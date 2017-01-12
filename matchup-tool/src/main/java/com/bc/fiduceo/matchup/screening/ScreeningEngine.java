@@ -20,9 +20,11 @@
 
 package com.bc.fiduceo.matchup.screening;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.tool.ToolContext;
 import org.jdom.Element;
 import ucar.ma2.InvalidRangeException;
 
@@ -35,19 +37,24 @@ import java.util.List;
 public class ScreeningEngine {
 
     private final List<Screening> screeningList;
+    private final ToolContext context;
 
-    public ScreeningEngine() {
+    public ScreeningEngine(ToolContext context) {
+        this.context = context;
         screeningList = new ArrayList<>();
+        configure();
     }
 
     public void process(MatchupSet matchupSet, final Reader primaryReader, final Reader secondaryReader) throws IOException, InvalidRangeException {
+        final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
-            screening.apply(matchupSet, primaryReader, secondaryReader);
+            screening.apply(matchupSet, primaryReader, secondaryReader, sc);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public void configure(UseCaseConfig useCaseConfig) {
+    private void configure() {
+        UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Element screeningsElem = useCaseConfig.getDomElement("screenings");
         if (screeningsElem != null) {
             final List<Element> children = screeningsElem.getChildren();
@@ -58,5 +65,22 @@ public class ScreeningEngine {
                 }
             }
         }
+    }
+
+    private Screening.ScreeningContext createScreeningContext() {
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+        return new Screening.ScreeningContext() {
+            @Override
+            public Dimension getPrimaryDimension() {
+                final String name = useCaseConfig.getPrimarySensor().getName();
+                return useCaseConfig.getDimensionFor(name);
+            }
+
+            @Override
+            public Dimension getSecondaryDimension() {
+                final String name = useCaseConfig.getAdditionalSensors().get(0).getName();
+                return useCaseConfig.getDimensionFor(name);
+            }
+        };
     }
 }

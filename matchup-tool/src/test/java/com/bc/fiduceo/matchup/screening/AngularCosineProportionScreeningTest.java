@@ -57,7 +57,7 @@ public class AngularCosineProportionScreeningTest {
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -95,7 +95,7 @@ public class AngularCosineProportionScreeningTest {
         configuration.threshold = 0.01;
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

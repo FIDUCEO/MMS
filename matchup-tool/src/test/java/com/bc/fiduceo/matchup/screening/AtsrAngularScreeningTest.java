@@ -59,7 +59,7 @@ public class AtsrAngularScreeningTest {
         assertEquals(0, matchupSet.getNumObservations());
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -96,7 +96,7 @@ public class AtsrAngularScreeningTest {
         configuration.angleDeltaNadir = 10.0;
         configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -134,7 +134,7 @@ public class AtsrAngularScreeningTest {
 
         configuration.angleDeltaNadir = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -173,7 +173,7 @@ public class AtsrAngularScreeningTest {
         configuration.angleDeltaNadir = 10.0;
         configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());

@@ -43,7 +43,7 @@ class BuehlerCloudScreening implements Screening {
     private boolean useSecondary;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         if (usePrimary) {
             runScreening(matchupSet, primaryReader, true);
         }

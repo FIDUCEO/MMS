@@ -157,19 +157,17 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     static Variable getInsituFileNameVariable(NetcdfFile reader, final String sensorType) {
-        return getVariable(reader, sensorType, "_file_name");
+        return getVariable(reader, sensorType + "_file_name");
     }
 
     private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
-        return getVariable(reader, sensorType, "_y");
+        return getVariable(reader, sensorType + "_y");
     }
 
-    private static Variable getVariable(NetcdfFile reader, String sensorType, String varName) {
-        final String fileNameVarName = sensorType + varName;
-
-        final Variable fileNameVar = reader.findVariable(fileNameVarName);
+    private static Variable getVariable(NetcdfFile reader, final String varName) {
+        final Variable fileNameVar = reader.findVariable(varName);
         if (fileNameVar == null) {
-            throw new RuntimeException("Variable '" + fileNameVarName + "' does not exist.");
+            throw new RuntimeException("Variable '" + varName + "' does not exist.");
         }
         return fileNameVar;
     }

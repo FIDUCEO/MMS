@@ -58,7 +58,7 @@ public class BuehlerCloudScreeningTest {
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -99,7 +99,7 @@ public class BuehlerCloudScreeningTest {
         configuration.primaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -147,7 +147,7 @@ public class BuehlerCloudScreeningTest {
         configuration.primaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -192,7 +192,7 @@ public class BuehlerCloudScreeningTest {
         configuration.secondaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -214,7 +214,7 @@ public class BuehlerCloudScreeningTest {
         final Reader secondaryReader = mock(Reader.class);
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader);
+        screening.apply(matchupSet, primaryReader, secondaryReader, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(3, sampleSets.size());
