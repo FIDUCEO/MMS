@@ -39,7 +39,6 @@ public class SphericalDistancePluginTest {
         element = new Element(TAG_NAME_SPHERICAL_DISTANCE).addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
-                                new Element(TAG_NAME_DIM_NAME).addContent("matchup_count"),
                                 new Element(TAG_NAME_DATA_TYPE).addContent("Float")
                     )),
                     new Element("primary-lat-variable").addContent("p_lat").setAttribute("scaleAttrName", "S1").setAttribute("offsetAttrName", "o1"),
@@ -59,7 +58,6 @@ public class SphericalDistancePluginTest {
         final SphericalDistance sphericalDistance = (SphericalDistance) postProcessing;
 
         assertEquals("post_sphere_distance", sphericalDistance.targetVarName);
-        assertEquals("matchup_count", sphericalDistance.targetDimName);
         assertEquals("Float", sphericalDistance.targetDataType);
         assertEquals("p_lat", sphericalDistance.primLatVar);
         assertEquals("S1", sphericalDistance.primLatScaleAttrName);
@@ -120,30 +118,6 @@ public class SphericalDistancePluginTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Value of element 'var-name' expected", expected.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreatePostProcessing_targetDimNameElementIsMissing() throws Exception {
-        element.getChild(TAG_NAME_TARGET).removeChild(TAG_NAME_DIM_NAME);
-
-        try {
-            plugin.createPostProcessing(element);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Child element 'dim-name' expected", expected.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreatePostProcessing_targetDimNameElement_valueIsMissing() throws Exception {
-        element.getChild(TAG_NAME_TARGET).getChild(TAG_NAME_DIM_NAME).setText("");
-
-        try {
-            plugin.createPostProcessing(element);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Value of element 'dim-name' expected", expected.getMessage());
         }
     }
 

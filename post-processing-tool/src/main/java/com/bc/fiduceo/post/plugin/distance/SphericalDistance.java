@@ -35,7 +35,6 @@ class SphericalDistance extends PostProcessing {
     // @todo 3 tb/** maybe extract a configuration class here? 2016-12-23
     final String targetVarName;
     final String targetDataType;
-    final String targetDimName;
     final String primLatVar;
     final String primLatScaleAttrName;
     final String primLatOffsetAttrName;
@@ -49,14 +48,15 @@ class SphericalDistance extends PostProcessing {
     final String secoLonScaleAttrName;
     final String secoLonOffsetAttrName;
 
-    SphericalDistance(String targetVarName, String targetDataType, String targetDimName,
+    private final String matchupDimName = "matchup_count";
+
+    SphericalDistance(String targetVarName, String targetDataType,
                       String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
                       String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
                       String secoLatVar, String secoLatScaleAttrName, String secoLatOffsetAttrName,
                       String secoLonVar, String secoLonScaleAttrName, String secoLonOffsetAttrName) {
         this.targetVarName = targetVarName;
         this.targetDataType = targetDataType;
-        this.targetDimName = targetDimName;
         this.primLatVar = primLatVar;
         this.primLatScaleAttrName = primLatScaleAttrName;
         this.primLatOffsetAttrName = primLatOffsetAttrName;
@@ -73,13 +73,13 @@ class SphericalDistance extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), targetDimName);
+        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), matchupDimName);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final int count = NetCDFUtils.getDimensionLength(targetDimName, netcdfFile);
+        final int count = NetCDFUtils.getDimensionLength(matchupDimName, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
         final Variable primLons = netcdfFile.findVariable(null, primLonVar);
@@ -120,7 +120,7 @@ class SphericalDistance extends PostProcessing {
     }
 
     private Array getCenterPosArray(Variable variable, String scaleAttrName, String offsetAttrName) throws IOException, InvalidRangeException {
-        final int countIdx = variable.findDimensionIndex(targetDimName);
+        final int countIdx = variable.findDimensionIndex(matchupDimName);
         final int[] shape = variable.getShape();
         final int[] index = new int[shape.length];
         for (int i = 0; i < shape.length; i++) {

@@ -46,7 +46,6 @@ public class SphericalDistancePlugin implements PostProcessingPlugin {
         final Element target = JDomUtils.getMandatoryChild(element, TAG_NAME_TARGET);
         final String targetVarName = JDomUtils.getMandatoryChildMandatoryTextTrim(target, TAG_NAME_VAR_NAME);
         final String targetDataType = JDomUtils.getMandatoryChildMandatoryTextTrim(target, TAG_NAME_DATA_TYPE);
-        final String targetDimName = JDomUtils.getMandatoryChildMandatoryTextTrim(target, TAG_NAME_DIM_NAME);
 
         final Element primLatVar = JDomUtils.getMandatoryChild(element, TAG_NAME_PRIM_LAT_VAR);
         final String primLatVarName = JDomUtils.getMandatoryText(primLatVar).trim();
@@ -68,7 +67,7 @@ public class SphericalDistancePlugin implements PostProcessingPlugin {
         final String secoLonScaleAttrName = secoLonVar.getAttributeValue(SCALE_ATTR_NAME);
         final String secoLonOffsetAttrName = secoLonVar.getAttributeValue(OFFSET_ATTR_NAME);
 
-        return new SphericalDistance(targetVarName, targetDataType, targetDimName,
+        return new SphericalDistance(targetVarName, targetDataType,
                                      primLatVarName, primeLatScaleAttrName, primeLatOffsetAttrName,
                                      primLonVarName, primeLonScaleAttrName, primeLonOffsetAttrName,
                                      secoLatVarName, secoLatScaleAttrName, secoLatOffsetAttrName,

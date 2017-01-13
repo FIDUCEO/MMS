@@ -23,7 +23,6 @@ import org.jdom.Element;
 import org.junit.*;
 
 import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_DATA_TYPE;
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_DIM_NAME;
 import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_TARGET;
 import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_VAR_NAME;
 import static org.junit.Assert.*;
@@ -59,7 +58,6 @@ public class PostProcessingFactoryTest {
         final Element element = new Element("spherical-distance").addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
-                                new Element(TAG_NAME_DIM_NAME).addContent("matchup_count"),
                                 new Element(TAG_NAME_DATA_TYPE).addContent("Float")
                     )),
                     new Element("primary-lat-variable").addContent("p_lat"),
