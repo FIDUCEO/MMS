@@ -100,6 +100,29 @@ public class NwpPostProcessingTest {
     }
 
     @Test
+    public void testCreateForecastFileTemplateProperties() {
+        final Properties fcTemplateProperties = NwpPostProcessing.createForecastFileTemplateProperties("/path/to/cdo/bin",
+                "/path/to/geo.file",
+                "/path/to/time.steps",
+                "/path/to/ggfs.file",
+                "/path/to/gafs_series",
+                "/path/to/ggfs_series",
+                "/path/to/ggfs_series_remap",
+                "/path/to/forecast_file");
+
+        assertEquals("/path/to/cdo/bin/cdo", fcTemplateProperties.getProperty("CDO"));
+        assertEquals("-M -R", fcTemplateProperties.getProperty("CDO_OPTS"));
+        assertEquals("1970-01-01,00:00:00,seconds", fcTemplateProperties.getProperty("REFTIME"));
+        assertEquals("/path/to/geo.file", fcTemplateProperties.getProperty("GEO"));
+        assertEquals("/path/to/time.steps", fcTemplateProperties.getProperty("GAFS_TIMESTEPS"));
+        assertEquals("/path/to/ggfs.file", fcTemplateProperties.getProperty("GGFS_TIMESTEPS"));
+        assertEquals("/path/to/gafs_series", fcTemplateProperties.getProperty("GAFS_TIME_SERIES"));
+        assertEquals("/path/to/ggfs_series", fcTemplateProperties.getProperty("GGFS_TIME_SERIES"));
+        assertEquals("/path/to/ggfs_series_remap", fcTemplateProperties.getProperty("GGFS_TIME_SERIES_REMAPPED"));
+        assertEquals("/path/to/forecast_file", fcTemplateProperties.getProperty("FC_TIME_SERIES"));
+    }
+
+    @Test
     public void testPrepare() throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension matchupCountDimension = new Dimension("matchup_count", 7);

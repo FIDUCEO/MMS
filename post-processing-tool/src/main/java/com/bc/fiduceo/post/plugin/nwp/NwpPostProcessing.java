@@ -47,6 +47,14 @@ class NwpPostProcessing extends PostProcessing {
                     "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GGAS_TIMESTEPS} ${GGAS_TIME_SERIES} && " +
                     "${CDO} ${CDO_OPTS} -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname,CI,SSTK,U10,V10 ${GGAS_TIME_SERIES} ${AN_TIME_SERIES}\n";
 
+    private static final String CDO_MATCHUP_FC_TEMPLATE =
+            "#! /bin/sh\n" +
+                    "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GAFS_TIMESTEPS} ${GAFS_TIME_SERIES} && " +
+                    "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GGFS_TIMESTEPS} ${GGFS_TIME_SERIES} && " +
+                    // attention: chaining the operations below results in a loss of the y dimension in the result file
+                    "${CDO} ${CDO_OPTS} -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname,SSTK,MSL,BLH,U10,V10,T2,D2 ${GGFS_TIME_SERIES} ${GGFS_TIME_SERIES_REMAPPED} && " +
+                    "${CDO} ${CDO_OPTS} -f nc2 merge -setreftime,${REFTIME} -remapbil,${GEO} -selname,SSHF,SLHF,SSRD,STRD,SSR,STR,EWSS,NSSS,E,TP ${GAFS_TIME_SERIES} ${GGFS_TIME_SERIES_REMAPPED} ${FC_TIME_SERIES}\n";
+
     private final Configuration configuration;
 
     NwpPostProcessing(Configuration configuration) {
@@ -72,10 +80,33 @@ class NwpPostProcessing extends PostProcessing {
 
         try {
             final File analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
+            final File forecastFile = createForecastFile(geoFile, nwpDataDirectories);
         } catch (InterruptedException e) {
             e.printStackTrace();
             throw new IOException(e.getMessage());
         }
+    }
+
+    private File createForecastFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
+        final File gafsTimeSeriesFile = NwpUtils.createTempFile("gafs", ".nc", configuration.isDeleteOnExit());
+        final File ggfsTimeSeriesFile = NwpUtils.createTempFile("ggfs", ".nc", configuration.isDeleteOnExit());
+        final File ggfrTimeSeriesFile = NwpUtils.createTempFile("ggfr", ".nc", configuration.isDeleteOnExit());
+        final File forecastFile = NwpUtils.createTempFile("forecast", ".nc", configuration.isDeleteOnExit());
+
+        final String gafsTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/gafs", nwpDataDirectories, "gafs[0-9]*.nc", 0);
+        final String ggfsTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggfs", nwpDataDirectories, "ggfs[0-9]*.nc", 0);
+
+        final Properties templateProperties = createForecastFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), gafsTimeSteps,
+                ggfsTimeSteps, gafsTimeSeriesFile.getAbsolutePath(), ggfsTimeSeriesFile.getAbsolutePath(),
+                ggfrTimeSeriesFile.getAbsolutePath(), forecastFile.getAbsolutePath());
+        final String resolvedExecutable = TemplateResolver.resolve(CDO_MATCHUP_FC_TEMPLATE, templateProperties);
+
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
+
+        final ProcessRunner processRunner = new ProcessRunner();
+        processRunner.execute(scriptFile.getPath());
+
+        return forecastFile;
     }
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
@@ -174,15 +205,35 @@ class NwpPostProcessing extends PostProcessing {
     }
 
     // package access for testing only tb 2017-01-11
-    static Properties createAnalysisFileTemplateProperties(String cdoHome, String geoFileLocation, String ggasStepLocations, String ggasTimeSeriesLocation, String analysisTimeSeriesLocation) {
+    static Properties createAnalysisFileTemplateProperties(String cdoHome, String geoFileLocation, String ggasStepLocations, String ggasTimeSeriesLocation,
+                                                           String analysisTimeSeriesLocation) {
+        final Properties properties = createBaseTemplateProperties(cdoHome, geoFileLocation);
+        properties.setProperty("GGAS_TIMESTEPS", ggasStepLocations);
+        properties.setProperty("GGAS_TIME_SERIES", ggasTimeSeriesLocation);
+        properties.setProperty("AN_TIME_SERIES", analysisTimeSeriesLocation);
+        return properties;
+    }
+
+    // package access for testing only tb 2017-01-13
+    static Properties createForecastFileTemplateProperties(String cdoHome, String geoFileLocation, String gafsStepLocations, String ggfsStepLocations,
+                                                           String gafsTimeSeriesLocation, String ggfsTimeSeriesLocation, String ggfsTimeSeriesRemapped,
+                                                           String forecastFileLocation) {
+        final Properties properties = createBaseTemplateProperties(cdoHome, geoFileLocation);
+        properties.setProperty("GAFS_TIMESTEPS", gafsStepLocations);
+        properties.setProperty("GGFS_TIMESTEPS", ggfsStepLocations);
+        properties.setProperty("GAFS_TIME_SERIES", gafsTimeSeriesLocation);
+        properties.setProperty("GGFS_TIME_SERIES", ggfsTimeSeriesLocation);
+        properties.setProperty("GGFS_TIME_SERIES_REMAPPED", ggfsTimeSeriesRemapped);
+        properties.setProperty("FC_TIME_SERIES", forecastFileLocation);
+        return properties;
+    }
+
+    private static Properties createBaseTemplateProperties(String cdoHome, String geoFileLocation) {
         final Properties properties = new Properties();
         properties.setProperty("CDO", cdoHome + "/cdo");
         properties.setProperty("CDO_OPTS", "-M -R");
         properties.setProperty("REFTIME", "1970-01-01,00:00:00,seconds");
         properties.setProperty("GEO", geoFileLocation);
-        properties.setProperty("GGAS_TIMESTEPS", ggasStepLocations);
-        properties.setProperty("GGAS_TIME_SERIES", ggasTimeSeriesLocation);
-        properties.setProperty("AN_TIME_SERIES", analysisTimeSeriesLocation);
         return properties;
     }
 }
