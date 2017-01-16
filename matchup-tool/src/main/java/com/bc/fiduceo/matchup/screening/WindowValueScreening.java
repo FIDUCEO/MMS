@@ -18,12 +18,14 @@
  */
 package com.bc.fiduceo.matchup.screening;
 
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.matchup.screening.expression.ReaderEvalEnv;
-import com.bc.fiduceo.matchup.screening.expression.ReaderNamespace;
+import com.bc.fiduceo.matchup.screening.expression.WindowReaderEvalEnv;
+import com.bc.fiduceo.matchup.screening.expression.WindowReaderNamespace;
 import com.bc.fiduceo.reader.Reader;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.Term;
@@ -34,6 +36,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class WindowValueScreening implements Screening {
 
@@ -49,45 +52,62 @@ public class WindowValueScreening implements Screening {
 
         final String primaryExpression = configuration.primaryExpression;
         if (StringUtils.isNotNullAndNotEmpty(primaryExpression)) {
-            sampleSets = getKeptSampleSets(sampleSets, primaryExpression, primaryReader, context.getPrimaryDimension(), SampleSet::getPrimary);
+            final Dimension primaryDimension = context.getPrimaryDimension();
+            final SampleFetcher primarySampleFetcher = SampleSet::getPrimary;
+            final double percentage = configuration.primaryPercentage;
+            final Evaluate evaluate = configuration.primaryEvaluate;
+            sampleSets = getKeptSampleSets(sampleSets, primaryExpression, primaryReader, primaryDimension, primarySampleFetcher, percentage, evaluate);
         }
 
         final String secondaryExpression = configuration.secondaryExpression;
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
-            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader, context.getSecondaryDimension(), SampleSet::getSecondary);
+            final Dimension secondaryDimension = context.getSecondaryDimension();
+            final SampleFetcher secondarySampleFetcher = SampleSet::getSecondary;
+            final double percentage = configuration.secondaryPercentage;
+            final Evaluate evaluate = configuration.secondaryEvaluate;
+            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader, secondaryDimension, secondarySampleFetcher, percentage, evaluate);
         }
 
         matchupSet.setSampleSets(sampleSets);
     }
 
-    static List<SampleSet> getKeptSampleSets(List<SampleSet> sampleSets, String expression, Reader reader, Dimension dimension, SampleFetcher sampleFetcher) throws InvalidRangeException, IOException {
+    static List<SampleSet> getKeptSampleSets(List<SampleSet> sampleSets, String expression, Reader reader,
+                                             Dimension dimension, SampleFetcher sampleFetcher,
+                                             double percentage, Evaluate evaluate) throws InvalidRangeException, IOException {
         List<SampleSet> keptSets = new ArrayList<>();
-        final ReaderNamespace readerNamespace = new ReaderNamespace(reader);
+        final WindowReaderNamespace readerNamespace = new WindowReaderNamespace(reader);
+        final WindowReaderEvalEnv readerEvalEnv = readerNamespace.getEvalEnv();
         final ParserImpl parser = new ParserImpl(readerNamespace);
-        final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(reader);
         try {
             final Term term = parser.parse(expression);
             final int width = dimension.getNx();
             final int height = dimension.getNy();
-            final int offsX = 0 - width/2;
-            final int offsY = 0 - height/2;
             for (final SampleSet sampleSet : sampleSets) {
                 final Sample sample = sampleFetcher.getSample(sampleSet);
-                final int yTop = sample.y + offsY;
-                final int xLeft = sample.x + offsX;
+                readerEvalEnv.setWindow(sample.x, sample.y, width, height);
                 int trueCount = 0;
+                int noDataCount = 0;
                 for (int y = 0; y < height; y++) {
-                    final int yLoc = yTop + y;
                     for (int x = 0; x < width; x++) {
-                        final int xLoc = xLeft + x;
-                        readerEvalEnv.setLocation(xLoc, yLoc);
-                        if (term.evalB(readerEvalEnv)) {
+                        readerEvalEnv.setLocationInWindow(x, y);
+                        final boolean result = term.evalB(readerEvalEnv);
+                        if (readerEvalEnv.isNoData()) {
+                            noDataCount++;
+                        } else if (result) {
                             trueCount++;
                         }
                     }
                 }
 
-                final boolean keep = trueCount == width*height;
+                final int fullCount = width * height;
+                final double minCount;
+                if (EntireWindow.equals(evaluate)) {
+                    minCount = fullCount * percentage * 0.01;
+                } else {
+                    final int validCount = fullCount - noDataCount;
+                    minCount = validCount * percentage * 0.01;
+                }
+                final boolean keep = trueCount >= minCount;
                 if (!keep) {
                     continue;
                 }
@@ -102,6 +122,7 @@ public class WindowValueScreening implements Screening {
     }
 
     interface SampleFetcher {
+
         Sample getSample(SampleSet sampleSet);
     }
 
@@ -109,7 +130,14 @@ public class WindowValueScreening implements Screening {
 
         public String primaryExpression;
         public Double primaryPercentage;
+        public Evaluate primaryEvaluate;
         public String secondaryExpression;
         public Double secondaryPercentage;
+        public Evaluate secondaryEvaluate;
+    }
+
+    enum Evaluate {
+        EntireWindow,
+        IgnoreNoData
     }
 }

@@ -19,6 +19,8 @@
 
 package com.bc.fiduceo.matchup.screening;
 
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.IgnoreNoData;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -46,10 +48,14 @@ public class WindowValueScreeningPluginTest {
     @Test
     public void testCreateScreening() throws JDOMException, IOException {
         final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_EXPRESSION).addContent("radiance_10 > 13.678"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_PERCENTAGE).addContent("72"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_EXPRESSION).addContent("flags != 26"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_PERCENTAGE).addContent("82")
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("radiance_10 > 13.678"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("72")
+                    )),
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("flags != 26"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("82")
+                    ))
         ));
         final Screening screening = plugin.createScreening(rootElement);
         assertNotNull(screening);
@@ -59,10 +65,14 @@ public class WindowValueScreeningPluginTest {
     @Test
     public void testCreateConfiguration() throws JDOMException, IOException {
         final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_EXPRESSION).addContent("radiance_10 > 13.678"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_PERCENTAGE).addContent("72"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_EXPRESSION).addContent("flags != 26"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_PERCENTAGE).addContent("82")
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("radiance_10 > 13.678"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("72")
+                    )),
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("flags != 26"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("82")
+                    ))
         ));
 
         final WindowValueScreening.Configuration configuration = WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -75,32 +85,42 @@ public class WindowValueScreeningPluginTest {
 
     @Test
     public void testCreateConfiguration_onlyPrimary() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_EXPRESSION).addContent("radiance_10 > 13.678"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_PERCENTAGE).addContent("72")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("radiance_10 > 13.678"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("72"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EVALUATE).addContent(IgnoreNoData.name())
+                    ))
+        );
 
         final WindowValueScreening.Configuration configuration = WindowValueScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
         assertEquals("radiance_10 > 13.678", configuration.primaryExpression);
         assertThat(configuration.primaryPercentage, is(72.0));
+        assertThat(configuration.primaryEvaluate, is(IgnoreNoData));
         assertNull(configuration.secondaryExpression);
         assertNull(configuration.secondaryPercentage);
+        assertThat(configuration.secondaryEvaluate, is(EntireWindow));
     }
 
     @Test
     public void testCreateConfiguration_onlySecondary() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_EXPRESSION).addContent("flags != 26"),
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_PERCENTAGE).addContent("82")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(Arrays.asList(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("flags != 26"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("82"),
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EVALUATE).addContent(IgnoreNoData.name())
+                    ))
+        );
 
         final WindowValueScreening.Configuration configuration = WindowValueScreeningPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
         assertNull(configuration.primaryExpression);
         assertNull(configuration.primaryPercentage);
+        assertThat(configuration.primaryEvaluate, is(EntireWindow));
         assertEquals("flags != 26", configuration.secondaryExpression);
         assertThat(configuration.secondaryPercentage, is(82.0));
+        assertThat(configuration.secondaryEvaluate, is(IgnoreNoData));
     }
 
     @Test
@@ -118,9 +138,11 @@ public class WindowValueScreeningPluginTest {
 
     @Test
     public void testCreateConfiguration_onlyPrimary_missingPercentage() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_EXPRESSION).addContent("radiance_10 > 13.678")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("radiance_10 > 13.678")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -133,9 +155,11 @@ public class WindowValueScreeningPluginTest {
 
     @Test
     public void testCreateConfiguration_onlyPrimary_missingExpression() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_PERCENTAGE).addContent("72")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("72")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -148,9 +172,11 @@ public class WindowValueScreeningPluginTest {
 
     @Test
     public void testCreateConfiguration_onlySecondary_missingPercentage() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_EXPRESSION).addContent("radiance_10 > 13.678")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_EXPRESSION).addContent("radiance_10 > 13.678")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -163,9 +189,11 @@ public class WindowValueScreeningPluginTest {
 
     @Test
     public void testCreateConfiguration_onlySecondary_missingExpression() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_PERCENTAGE).addContent("72")
-        ));
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("72")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -190,10 +218,12 @@ public class WindowValueScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_primaryPercentageNotParsabel() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY_PERCENTAGE).addContent("not parseable")
-        ));
+    public void testCreateConfiguration_primaryPercentageNotParseable() throws JDOMException, IOException {
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_PRIMARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("not parseable")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);
@@ -205,10 +235,12 @@ public class WindowValueScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_secondaryPercentageNotParsabel() throws JDOMException, IOException {
-        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(Arrays.asList(
-                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY_PERCENTAGE).addContent("secondary not parseable")
-        ));
+    public void testCreateConfiguration_secondaryPercentageNotParseable() throws JDOMException, IOException {
+        final Element rootElement = new Element(WindowValueScreeningPlugin.ROOT_TAG_NAME).addContent(
+                    new Element(WindowValueScreeningPlugin.TAG_NAME_SECONDARY).addContent(
+                                new Element(WindowValueScreeningPlugin.TAG_NAME_PERCENTAGE).addContent("secondary not parseable")
+                    )
+        );
 
         try {
             WindowValueScreeningPlugin.createConfiguration(rootElement);

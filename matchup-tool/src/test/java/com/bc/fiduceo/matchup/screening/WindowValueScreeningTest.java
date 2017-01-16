@@ -19,34 +19,53 @@
 
 package com.bc.fiduceo.matchup.screening;
 
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.IgnoreNoData;
 import static org.junit.Assert.*;
-import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import com.bc.fiduceo.reader.SimpleNc4ReaderForTestCases;
 import org.junit.*;
-import org.mockito.internal.matchers.Equals;
-import org.mockito.internal.matchers.Or;
-import org.mockito.internal.verification.argumentmatching.ArgumentMatchingTool;
+import org.junit.runner.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.file.Path;
 import java.util.List;
 
+@RunWith(IOTestRunner.class)
 public class WindowValueScreeningTest {
+
+    private Reader reader;
+
+    @Before
+    public void setUp() throws Exception {
+        final Path testDir = TestUtil.createTestDirectory().toPath();
+        final Path nc4testfile = testDir.resolve("nc4testfile").toAbsolutePath();
+        writeTestFile(nc4testfile);
+        reader = new SimpleNc4ReaderForTestCases();
+        reader.open(nc4testfile.toFile());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (reader != null) {
+            reader.close();
+        }
+        TestUtil.deleteTestDirectory();
+    }
 
     @Test
     public void testApply_emptyInputSet() throws IOException, InvalidRangeException {
@@ -67,47 +86,51 @@ public class WindowValueScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
 
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
-        sampleSets.add(createSampleSet(33, 274, 45, 654));
-        sampleSets.add(createSampleSet(44, 275, 46, 655));
-        sampleSets.add(createSampleSet(55, 276, 47, 656));  // <- this one gets removed
-
-        final Array regularScanArray = mock(Array.class);
-        when(regularScanArray.getInt(0)).thenReturn(0);
-
-        final Array calibrationScanArray = mock(Array.class);
-        when(calibrationScanArray.getInt(0)).thenReturn(3);
-
-        final List<Variable> variables = createVariablesList();
-
-
-        final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(anyInt(), anyInt(), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-
-        final int _32_34 = or(eq(31), or(eq(32), or(eq(33), or(eq(34), eq(35)))));
-        final int _273_275 = or(eq(273), or(eq(274), eq(275)));
-        when(primaryReader.readScaled(_32_34, _273_275, anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-
-        final int _43_45 = or(eq(42), or(eq(43), or(eq(44), or(eq(45), eq(46)))));
-        final int _274_276 = or(eq(274), or(eq(275), eq(276)));
-        when(primaryReader.readScaled(_43_45, _274_276, anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-
-        when(primaryReader.getVariables()).thenReturn(variables);
+        sampleSets.add(createSampleSet(0, 0, 3, 3));
+        sampleSets.add(createSampleSet(5, 5, 3, 3));  // <- this one gets removed
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
-        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 5, 3));
+        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-        configuration.primaryExpression = "scanline_type == 0";
+        configuration.primaryExpression = "varI <= 27";
+        configuration.primaryPercentage = 44d;
+        configuration.primaryEvaluate = EntireWindow;
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, primaryReader, null, screeningContext);
+        screening.apply(matchupSet, reader, null, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
-        assertEquals(2, sampleSets.size());
+        assertEquals(1, sampleSets.size());
 
-        assertEquals(33, sampleSets.get(0).getPrimary().x);
-        assertEquals(44, sampleSets.get(1).getPrimary().x);
+        assertEquals(0, sampleSets.get(0).getPrimary().x);
+    }
+
+    @Test
+    public void testApply_onlyPrimaryExpression_onlyValidPixels() throws IOException, InvalidRangeException {
+        final MatchupSet matchupSet = new MatchupSet();
+
+        List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(0, 0, 3, 3));
+        sampleSets.add(createSampleSet(5, 5, 3, 3));  // <- this one gets removed
+
+        final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
+        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
+
+        final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
+        configuration.primaryExpression = "varI <= 27";
+        configuration.primaryPercentage = 100d;
+        configuration.primaryEvaluate = IgnoreNoData;
+
+        final WindowValueScreening screening = new WindowValueScreening(configuration);
+
+        screening.apply(matchupSet, reader, null, screeningContext);
+
+        sampleSets = matchupSet.getSampleSets();
+        assertEquals(1, sampleSets.size());
+
+        assertEquals(0, sampleSets.get(0).getPrimary().x);
     }
 
     @Test
@@ -115,46 +138,51 @@ public class WindowValueScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
 
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
-        sampleSets.add(createSampleSet(34, 275, 46, 655));  // <- this one gets removed
-        sampleSets.add(createSampleSet(35, 276, 47, 656));
-        sampleSets.add(createSampleSet(36, 277, 48, 657));
-
-        final Array regularScanArray = mock(Array.class);
-        when(regularScanArray.getInt(0)).thenReturn(0);
-
-        final Array calibrationScanArray = mock(Array.class);
-        when(calibrationScanArray.getInt(0)).thenReturn(3);
-
-        final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(34), eq(275), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(35), eq(276), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(36), eq(277), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-
-        final List<Variable> variables = createVariablesList();
-        when(primaryReader.getVariables()).thenReturn(variables);
-
-        final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(46), eq(655), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-        when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.getVariables()).thenReturn(variables);
+        sampleSets.add(createSampleSet(3, 3, 2, 2));  // <- this one gets removed
+        sampleSets.add(createSampleSet(3, 3, 4, 4));
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 1, 1));
+        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 5, 5));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-//        configuration.primaryExpression = "scanline_type == 0";
-        configuration.secondaryExpression = "scanline_type == 0";
+        configuration.secondaryExpression = "varD >= 35";
+        configuration.secondaryPercentage = 72d;
+        configuration.secondaryEvaluate = EntireWindow;
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, screeningContext);
+        screening.apply(matchupSet, null, reader, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
-        assertEquals(2, sampleSets.size());
+        assertEquals(1, sampleSets.size());
 
-        assertEquals(35, sampleSets.get(0).getPrimary().x);
-        assertEquals(36, sampleSets.get(1).getPrimary().x);
+        assertEquals(4, sampleSets.get(0).getSecondary().x);
+    }
+
+    @Test
+    public void testApply_onlySecondaryExpression_onlyValidPixels() throws IOException, InvalidRangeException {
+        final MatchupSet matchupSet = new MatchupSet();
+
+        List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(3, 3, 2, 2));  // <- this one gets removed
+        sampleSets.add(createSampleSet(3, 3, 4, 4));
+
+        final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
+        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 5, 5));
+
+        final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
+        configuration.secondaryExpression = "varD >= 35";
+        configuration.secondaryPercentage = 75d;
+        configuration.secondaryEvaluate = IgnoreNoData;
+
+        final WindowValueScreening screening = new WindowValueScreening(configuration);
+
+        screening.apply(matchupSet, null, reader, screeningContext);
+
+        sampleSets = matchupSet.getSampleSets();
+        assertEquals(1, sampleSets.size());
+
+        assertEquals(4, sampleSets.get(0).getSecondary().x);
     }
 
     @Test
@@ -162,46 +190,91 @@ public class WindowValueScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
 
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
-        sampleSets.add(createSampleSet(35, 276, 47, 656));  // <- this one gets removed
-        sampleSets.add(createSampleSet(36, 277, 48, 657));
-        sampleSets.add(createSampleSet(37, 278, 49, 658));  // <- this one gets removed
-
-        final Array regularScanArray = mock(Array.class);
-        when(regularScanArray.getInt(0)).thenReturn(0);
-
-        final Array calibrationScanArray = mock(Array.class);
-        when(calibrationScanArray.getInt(0)).thenReturn(3);
-
-        final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(35), eq(276), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(36), eq(277), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(37), eq(278), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-
-        final List<Variable> variables = createVariablesList();
-        when(primaryReader.getVariables()).thenReturn(variables);
-
-        final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-        when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(49), eq(658), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.getVariables()).thenReturn(variables);
+        sampleSets.add(createSampleSet(3, 3, 2, 2));  // <- this one gets removed
+        sampleSets.add(createSampleSet(3, 3, 1, 1));
+        sampleSets.add(createSampleSet(2, 2, 1, 1));  // <- this one gets removed
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
-        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 1, 1));
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 1, 1));
+        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
+        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 3, 3));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-        configuration.primaryExpression = "scanline_type == 0";
-        configuration.secondaryExpression = "scanline_type == 0";
+        configuration.primaryExpression = "varI >= 27";
+        configuration.primaryPercentage = 88d;
+        configuration.primaryEvaluate = EntireWindow;
+        configuration.secondaryExpression = "varD <= 27.0";
+        configuration.secondaryPercentage = 100d;
+        configuration.secondaryEvaluate = EntireWindow;
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, screeningContext);
+        screening.apply(matchupSet, reader, reader, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(36, sampleSets.get(0).getPrimary().x);
+        assertEquals(3, sampleSets.get(0).getPrimary().x);
+        assertEquals(1, sampleSets.get(0).getSecondary().x);
+    }
+
+    @Test
+    public void testApply_bothExpression_onlyValidPixels() throws IOException, InvalidRangeException {
+        final MatchupSet matchupSet = new MatchupSet();
+
+        List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(3, 3, 2, 2));  // <- this one gets removed
+        sampleSets.add(createSampleSet(3, 3, 1, 1));
+        sampleSets.add(createSampleSet(2, 2, 1, 1));  // <- this one gets removed
+
+        final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
+        when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
+        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 3, 3));
+
+        final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
+        configuration.primaryExpression = "varI >= 27";
+        configuration.primaryPercentage = 88d;
+        configuration.primaryEvaluate = IgnoreNoData;
+        configuration.secondaryExpression = "varD <= 27.0";
+        configuration.secondaryPercentage = 100d;
+        configuration.secondaryEvaluate = IgnoreNoData;
+
+        final WindowValueScreening screening = new WindowValueScreening(configuration);
+
+        screening.apply(matchupSet, reader, reader, screeningContext);
+
+        sampleSets = matchupSet.getSampleSets();
+        assertEquals(1, sampleSets.size());
+
+        assertEquals(3, sampleSets.get(0).getPrimary().x);
+        assertEquals(1, sampleSets.get(0).getSecondary().x);
+    }
+
+    void writeTestFile(Path nc4testfile) throws IOException, InvalidRangeException {
+        final NetcdfFileWriter writer = NetcdfFileWriter.createNew(
+                    NetcdfFileWriter.Version.netcdf4,
+                    nc4testfile.toString()
+        );
+        writer.addDimension(null, "dim", 7);
+        final Variable varI = writer.addVariable(null, "varI", DataType.INT, "dim dim");
+        final Variable varD = writer.addVariable(null, "varD", DataType.DOUBLE, "dim dim");
+        writer.create();
+        final double XX = Float.NaN;
+        final double[][] values = {
+                    {11, 12, 13, 14, 15, 16, 17},
+                    {18, 19, 20, 21, 22, 23, 24},
+                    {25, 26, 27, 28, 29, 30, 31},
+                    {32, 33, 34, 35, 36, 37, 38},
+                    {39, 40, 41, 42, XX, 44, 45},
+                    {46, 47, 48, 49, 50, 51, 52},
+                    {53, 54, 55, 56, 57, 58, 59}
+        };
+        try {
+            final Array data = Array.factory(values);
+            writer.write(varI, MAMath.convert(data, DataType.INT));
+            writer.write(varD, data);
+        } finally {
+            writer.close();
+        }
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
@@ -214,15 +287,4 @@ public class WindowValueScreeningTest {
 
         return sampleSet;
     }
-
-    private List<Variable> createVariablesList() {
-        final List<Variable> variables = new ArrayList<>();
-        final Variable variable = mock(Variable.class);
-        when(variable.getFullName()).thenReturn("scanline_type");
-        when(variable.getShortName()).thenReturn("scanline_type");
-        when(variable.getDataType()).thenReturn(DataType.INT);
-        variables.add(variable);
-        return variables;
-    }
-
 }

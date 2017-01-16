@@ -200,6 +200,10 @@ public class TestUtil {
         return testDir;
     }
 
+    /**
+     * Returns a "fiduceo_test" directory which is a child of system temp directory
+     * @return new File(&lt;systemTempDir&gt;, "fiduceo_test")
+     */
     public static File getTestDir() {
         final String tempDirPath = System.getProperty(SYSTEM_TEMP_PROPETY);
         return new File(tempDirPath, TEST_DIRECTORY);

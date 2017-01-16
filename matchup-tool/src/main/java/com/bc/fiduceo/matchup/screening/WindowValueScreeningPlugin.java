@@ -18,15 +18,18 @@
  */
 package com.bc.fiduceo.matchup.screening;
 
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
+
 import org.jdom.Element;
 
 public class WindowValueScreeningPlugin implements ScreeningPlugin {
 
     public static final String ROOT_TAG_NAME = "window-value";
-    public static final String TAG_NAME_PRIMARY_EXPRESSION = "primary-expression";
-    public static final String TAG_NAME_PRIMARY_PERCENTAGE = "primary-percentage";
-    public static final String TAG_NAME_SECONDARY_EXPRESSION = "secondary-expression";
-    public static final String TAG_NAME_SECONDARY_PERCENTAGE = "secondary-percentage";
+    public static final String TAG_NAME_PRIMARY = "primary";
+    public static final String TAG_NAME_SECONDARY = "secondary";
+    public static final String TAG_NAME_EXPRESSION = "expression";
+    public static final String TAG_NAME_PERCENTAGE = "percentage";
+    public static final String TAG_NAME_EVALUATE = "evaluate";
 
     @Override
     public Screening createScreening(Element element) {
@@ -47,36 +50,60 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
 
         String primaryExpression = null;
         Double primaryPercentage = null;
+        WindowValueScreening.Evaluate primaryEvaluate = EntireWindow;
         String secondaryExpression = null;
         Double secondaryPercentage = null;
+        WindowValueScreening.Evaluate secondaryEvaluate = EntireWindow;
 
-        Element element = rootElement.getChild(TAG_NAME_PRIMARY_EXPRESSION);
-        if (element != null) {
-            primaryExpression = element.getValue();
-        }
+        Element element;
 
-        element = rootElement.getChild(TAG_NAME_PRIMARY_PERCENTAGE);
+        element = rootElement.getChild(TAG_NAME_PRIMARY);
         if (element != null) {
-            final String value = element.getValue();
-            try {
-                primaryPercentage = Double.parseDouble(value);
-            } catch (NumberFormatException e) {
-                throw new RuntimeException("Invalid primary percentage '" + value + "'", e);
+            final Element primary = element;
+            element = primary.getChild(TAG_NAME_EXPRESSION);
+            if (element != null) {
+                primaryExpression = element.getValue();
+            }
+
+            element = primary.getChild(TAG_NAME_PERCENTAGE);
+            if (element != null) {
+                final String value = element.getValue();
+                try {
+                    primaryPercentage = Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid primary percentage '" + value + "'", e);
+                }
+            }
+
+            element = primary.getChild(TAG_NAME_EVALUATE);
+            if (element != null) {
+                final String value = element.getValue();
+                primaryEvaluate = WindowValueScreening.Evaluate.valueOf(value);
             }
         }
 
-        element = rootElement.getChild(TAG_NAME_SECONDARY_EXPRESSION);
+        element = rootElement.getChild(TAG_NAME_SECONDARY);
         if (element != null) {
-            secondaryExpression = element.getValue();
-        }
+            final Element secondary = element;
+            element = secondary.getChild(TAG_NAME_EXPRESSION);
+            if (element != null) {
+                secondaryExpression = element.getValue();
+            }
 
-        element = rootElement.getChild(TAG_NAME_SECONDARY_PERCENTAGE);
-        if (element != null) {
-            final String value = element.getValue();
-            try {
-                secondaryPercentage = Double.parseDouble(value);
-            } catch (NumberFormatException e) {
-                throw new RuntimeException("Invalid secondary percentage '" + value + "'", e);
+            element = secondary.getChild(TAG_NAME_PERCENTAGE);
+            if (element != null) {
+                final String value = element.getValue();
+                try {
+                    secondaryPercentage = Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid secondary percentage '" + value + "'", e);
+                }
+            }
+
+            element = secondary.getChild(TAG_NAME_EVALUATE);
+            if (element != null) {
+                final String value = element.getValue();
+                secondaryEvaluate = WindowValueScreening.Evaluate.valueOf(value);
             }
         }
 
@@ -103,8 +130,10 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.primaryExpression = primaryExpression;
         configuration.primaryPercentage = primaryPercentage;
+        configuration.primaryEvaluate = primaryEvaluate;
         configuration.secondaryExpression = secondaryExpression;
         configuration.secondaryPercentage = secondaryPercentage;
+        configuration.secondaryEvaluate = secondaryEvaluate;
         return configuration;
     }
 }
