@@ -31,11 +31,11 @@ import static org.junit.Assert.*;
 
 public abstract class StorageTest {
 
-    protected BasicDataSource dataSource;
+    BasicDataSource dataSource;
 
     private final GeometryFactory geometryFactory;
 
-    public StorageTest() {
+    StorageTest() {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
     }
 

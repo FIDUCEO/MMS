@@ -23,9 +23,9 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.math.Distance;
 
-public class SphericalDistanceCalculator {
+class SphericalDistanceCalculator {
 
-    public static double calculateKm(SampleSet sampleSet) {
+    static double calculateKm(SampleSet sampleSet) {
         final Sample primary = sampleSet.getPrimary();
         final Sample secondary = sampleSet.getSecondary();
         return Distance.computeSpericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);

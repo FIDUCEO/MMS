@@ -53,10 +53,6 @@ public class WindowReaderEvalEnv implements EvalEnv, WindowVariableSymbol.NoData
         this.y = y;
     }
 
-    void resetNoData() {
-        noData=false;
-    }
-
     public void setWindow(int centerX, int centerY, int width, int height) {
         resetNoData();
         this.centerX = centerX;
@@ -81,6 +77,11 @@ public class WindowReaderEvalEnv implements EvalEnv, WindowVariableSymbol.NoData
         final Array array = windowArrayMap.get(name);
         return array.section(new int[]{y, x}, pixelShape);
     }
+
+    private void resetNoData() {
+        noData = false;
+    }
+
 
     private void readWindow(String name) throws IOException, InvalidRangeException {
         final Array array = reader.readScaled(centerX, centerY, interval, name);

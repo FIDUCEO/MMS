@@ -23,7 +23,7 @@ package com.bc.fiduceo.matchup.screening;
 
 import org.jdom.Element;
 
-public interface ScreeningPlugin {
+interface ScreeningPlugin {
 
     Screening createScreening(Element element);
 

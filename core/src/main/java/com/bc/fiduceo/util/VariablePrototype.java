@@ -375,18 +375,6 @@ public class VariablePrototype extends Variable {
         throw new RuntimeException("not implemented");
     }
 
-    public VariablePrototype(NetcdfFile ncfile, Group group, Structure parent, String shortName) {
-        throw new RuntimeException("not implemented");
-    }
-
-    public VariablePrototype(NetcdfFile ncfile, Group group, Structure parent, String shortName, DataType dtype, String dims) {
-        throw new RuntimeException("not implemented");
-    }
-
-    public VariablePrototype(Variable from) {
-        throw new RuntimeException("not implemented");
-    }
-
     @Override
     public void setDataType(DataType dataType) {
         throw new RuntimeException("not implemented");

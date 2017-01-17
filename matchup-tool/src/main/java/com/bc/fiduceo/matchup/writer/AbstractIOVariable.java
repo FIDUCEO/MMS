@@ -27,15 +27,15 @@ import java.util.List;
 
 public abstract class AbstractIOVariable implements IOVariable {
 
+    String sourceVariableName;
     protected String targetVariableName;
-    protected String sourceVariableName;
     protected Target target;
 
     private List<Attribute> attributes;
     private String dimensionNames;
     private String dataType;
 
-    public AbstractIOVariable() {
+    AbstractIOVariable() {
         attributes = new ArrayList<>();
     }
 

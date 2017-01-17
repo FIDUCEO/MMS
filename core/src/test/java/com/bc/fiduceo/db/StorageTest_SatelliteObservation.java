@@ -50,9 +50,9 @@ public abstract class StorageTest_SatelliteObservation {
     private static final String SENSOR_NAME = "test_sensor";
     private static final String DATA_FILE_PATH = "the_data.file";
 
-    protected BasicDataSource dataSource;
-    protected GeometryFactory geometryFactory;
+    BasicDataSource dataSource;
 
+    private GeometryFactory geometryFactory;
     private Storage storage;
 
     @Before

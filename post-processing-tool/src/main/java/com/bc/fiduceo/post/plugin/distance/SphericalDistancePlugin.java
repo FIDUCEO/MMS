@@ -30,13 +30,14 @@ public class SphericalDistancePlugin implements PostProcessingPlugin {
     public static final String TAG_NAME_TARGET = "target";
     public static final String TAG_NAME_DATA_TYPE = "data-type";
     public static final String TAG_NAME_VAR_NAME = "var-name";
-    public static final String TAG_NAME_DIM_NAME = "dim-name";
-    public static final String TAG_NAME_PRIM_LAT_VAR = "primary-lat-variable";
-    public static final String TAG_NAME_PRIM_LON_VAR = "primary-lon-variable";
-    public static final String TAG_NAME_SECO_LAT_VAR = "secondary-lat-variable";
-    public static final String TAG_NAME_SECO_LON_VAR = "secondary-lon-variable";
-    public static final String SCALE_ATTR_NAME = "scaleAttrName";
-    public static final String OFFSET_ATTR_NAME = "offsetAttrName";
+
+    static final String TAG_NAME_PRIM_LAT_VAR = "primary-lat-variable";
+    static final String TAG_NAME_PRIM_LON_VAR = "primary-lon-variable";
+    static final String TAG_NAME_SECO_LAT_VAR = "secondary-lat-variable";
+    static final String TAG_NAME_SECO_LON_VAR = "secondary-lon-variable";
+
+    private static final String SCALE_ATTR_NAME = "scaleAttrName";
+    private static final String OFFSET_ATTR_NAME = "offsetAttrName";
 
     @Override
     public PostProcessing createPostProcessing(final Element element) {
@@ -68,10 +69,10 @@ public class SphericalDistancePlugin implements PostProcessingPlugin {
         final String secoLonOffsetAttrName = secoLonVar.getAttributeValue(OFFSET_ATTR_NAME);
 
         return new SphericalDistance(targetVarName, targetDataType,
-                                     primLatVarName, primeLatScaleAttrName, primeLatOffsetAttrName,
-                                     primLonVarName, primeLonScaleAttrName, primeLonOffsetAttrName,
-                                     secoLatVarName, secoLatScaleAttrName, secoLatOffsetAttrName,
-                                     secoLonVarName, secoLonScaleAttrName, secoLonOffsetAttrName);
+                primLatVarName, primeLatScaleAttrName, primeLatOffsetAttrName,
+                primLonVarName, primeLonScaleAttrName, primeLonOffsetAttrName,
+                secoLatVarName, secoLatScaleAttrName, secoLatOffsetAttrName,
+                secoLonVarName, secoLonScaleAttrName, secoLonOffsetAttrName);
     }
 
     @Override

@@ -23,24 +23,29 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.ArrayLong;
 import ucar.ma2.ArrayShort;
 
-public class WindowArrayFactory {
+class WindowArrayFactory {
 
-    public static ArrayDouble.D2 createDoubleArray(int width, int height) {
+    static ArrayDouble.D2 createDoubleArray(int width, int height) {
         return new ArrayDouble.D2(height, width);
     }
-    public static ArrayFloat.D2 createFloatArray(int width, int height) {
+
+    static ArrayFloat.D2 createFloatArray(int width, int height) {
         return new ArrayFloat.D2(height, width);
     }
-    public static ArrayLong.D2 createLongArray(int width, int height) {
+
+    static ArrayLong.D2 createLongArray(int width, int height) {
         return new ArrayLong.D2(height, width);
     }
-    public static ArrayInt.D2 createIntArray(int width, int height) {
+
+    static ArrayInt.D2 createIntArray(int width, int height) {
         return new ArrayInt.D2(height, width);
     }
-    public static ArrayShort.D2 createShortArray(int width, int height) {
+
+    static ArrayShort.D2 createShortArray(int width, int height) {
         return new ArrayShort.D2(height, width);
     }
-    public static ArrayByte.D2 createByteArray(int width, int height) {
+
+    static ArrayByte.D2 createByteArray(int width, int height) {
         return new ArrayByte.D2(height, width);
     }
 }

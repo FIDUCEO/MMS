@@ -29,9 +29,9 @@ import java.io.IOException;
 public class Read1dFrom3dAndExpandTo2d extends WindowReader {
 
     protected final Number fillValue;
-    protected final int[] initialIndexPos;
+    private final int[] initialIndexPos;
     private final ArraySource arraySource;
-    protected int yIndex;
+    private int yIndex;
     private Array windowArray;
     private Array sourceArray;
 
@@ -56,20 +56,20 @@ public class Read1dFrom3dAndExpandTo2d extends WindowReader {
         srcIndex.set(initialIndexPos);
 
         fillArray(centerX,
-                  centerY - windowHeight / 2,
-                  windowWidth,
-                  windowHeight,
-                  Integer.MAX_VALUE,
-                  shape[yIndex],
-                  (y1, x1) -> {
-                      tarIndex.set(y1, x1);
-                      windowArray.setObject(tarIndex, fillValue);
-                  },
-                  (y, x, yRaw, xRaw) -> {
-                      srcIndex.setDim(yIndex, yRaw);
-                      tarIndex.set(y, x);
-                      windowArray.setObject(tarIndex, sourceArray.getObject(srcIndex));
-                  }
+                centerY - windowHeight / 2,
+                windowWidth,
+                windowHeight,
+                Integer.MAX_VALUE,
+                shape[yIndex],
+                (y1, x1) -> {
+                    tarIndex.set(y1, x1);
+                    windowArray.setObject(tarIndex, fillValue);
+                },
+                (y, x, yRaw, xRaw) -> {
+                    srcIndex.setDim(yIndex, yRaw);
+                    tarIndex.set(y, x);
+                    windowArray.setObject(tarIndex, sourceArray.getObject(srcIndex));
+                }
         );
         return windowArray;
     }

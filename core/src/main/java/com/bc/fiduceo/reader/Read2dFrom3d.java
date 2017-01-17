@@ -28,11 +28,11 @@ import java.io.IOException;
 
 public class Read2dFrom3d extends WindowReader {
 
-    protected final Number fillValue;
-    protected final int[] initialIndexPos;
+    private final Number fillValue;
+    private final int[] initialIndexPos;
     private final ArraySource arraySource;
-    protected int xIndex;
-    protected int yIndex;
+    private int xIndex;
+    private int yIndex;
     private Array windowArray;
     private Array sourceArray;
 

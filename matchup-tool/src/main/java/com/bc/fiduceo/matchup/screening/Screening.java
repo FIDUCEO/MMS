@@ -36,5 +36,5 @@ public interface Screening {
 
         Dimension getPrimaryDimension();
         Dimension getSecondaryDimension();
-    };
+    }
 }

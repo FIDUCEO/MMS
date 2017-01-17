@@ -27,17 +27,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-public class SourceTargetManager {
+class SourceTargetManager {
 
     private final boolean overwrite;
     private final String outputDirectory;
 
-    public SourceTargetManager(PostProcessingConfig config) {
+    SourceTargetManager(PostProcessingConfig config) {
         overwrite = config.isOverwrite();
         outputDirectory = config.getOutputDirectory();
     }
 
-    public Path getSource(Path src) throws IOException {
+    Path getSource(Path src) throws IOException {
         if (overwrite) {
             final Path temp = createTempFile(src);
             Files.move(src, temp);
@@ -47,7 +47,7 @@ public class SourceTargetManager {
         }
     }
 
-    public Path getTargetPath(Path src) {
+    Path getTargetPath(Path src) {
         if (overwrite) {
             return src;
         } else {
@@ -55,7 +55,7 @@ public class SourceTargetManager {
         }
     }
 
-    public void processingDone(Path src, Exception exception) {
+    void processingDone(Path src, Exception exception) {
         if (!overwrite) {
             return;
         }
