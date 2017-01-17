@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.plugin.nwp.CDOTestRunner;
 import org.apache.commons.cli.ParseException;
@@ -28,10 +29,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(CDOTestRunner.class)
@@ -67,16 +70,18 @@ public class PostProcessingToolIntegrationTest_NWP {
 
         PostProcessingToolMain.main(args);
 
-//        final File targetFile = new File(testDirectory, "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc");
-//        assertTrue(targetFile.isFile());
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
+        final File targetFile = new File(testDirectory, "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assertDimension("matchup.nwp.an.time", 19, mmd);
+            NCTestUtils.assertDimension("matchup.nwp.fc.time", 33, mmd);
 //            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 0, 0, 0, 104.08000183105469, mmd);
 //            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 1, 0, 0, 103.97999572753906, mmd);
 //
 //            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 2, 0, 0, -11.169998168945312, mmd);
 //            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 3, 0, 0, -11.29998779296875, mmd);
-//        }
+        }
     }
 
     private void writeConfiguration() throws IOException {

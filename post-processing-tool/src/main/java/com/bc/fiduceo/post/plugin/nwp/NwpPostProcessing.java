@@ -26,6 +26,7 @@ import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -70,6 +71,9 @@ class NwpPostProcessing extends PostProcessing {
 
         final Dimension anDimension = writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
         final Dimension fcDimension = writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
+
+        writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
+        writer.addVariable(null, "matchup.nwp.an.f0", DataType.INT, "matchup_count");
     }
 
     @Override
