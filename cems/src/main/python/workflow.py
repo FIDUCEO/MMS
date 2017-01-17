@@ -26,6 +26,7 @@ class Workflow:
         self.primary_sensors = set()
         self.secondary_sensors = set()
         self.usecase_config = None
+        self.input_dir = None
 
     def get_usecase(self):
         """
@@ -68,6 +69,20 @@ class Workflow:
         :type samples_per_time_slot: int
         """
         self.samples_per_time_slot = samples_per_time_slot
+
+    def set_input_dir(self, input_dir):
+        """
+
+        :type input_dir: str
+        """
+        self.input_dir = input_dir
+
+    def get_input_dir(self):
+        """
+        :type : input directory for post-processing
+        :rtype : str
+        """
+        return self.input_dir
 
     def get_time_slot_days(self):
         """
@@ -204,6 +219,30 @@ class Workflow:
 
         return preconditions
 
+    def _add_post_processing_preconditions(self, preconditions):
+        """
+
+        :type preconditions: list
+        :rtype : list
+        """
+        production_period = self.get_production_period()
+        if production_period is None:
+            return preconditions
+
+        date = production_period.get_start_date()
+        while date < production_period.get_end_date():
+            chunk = self._get_next_period(date)
+
+            start_string = self._get_year_day_of_year(chunk.get_start_date())
+            end_string = self._get_year_day_of_year(chunk.get_end_date())
+
+            mmd_pre_condition = 'mmd-' + start_string + '-' + end_string
+            preconditions.append(mmd_pre_condition)
+
+            date = chunk.get_end_date()
+
+        return preconditions
+
     def _get_monitor(self, hosts, calls, log_dir, simulation):
         """
 
@@ -217,6 +256,7 @@ class Workflow:
 
         # @todo 1 tb/tb refactor this, it's only relevant for ingestion
         self._add_inp_preconditions(preconditions)
+        self._add_post_processing_preconditions(preconditions)
 
         # @todo 2 tb/tb do we need this 2016-03-29
         # self._add_obs_preconditions(preconditions)
@@ -324,5 +364,34 @@ class Workflow:
                 monitor.execute(job)
 
                 date = chunk.get_end_date()
+
+        monitor.wait_for_completion_and_terminate()
+
+    def run_post_processing(self, hosts, simulation=False, logdir='trace'):
+        """
+
+        :param hosts: list
+        :param logdir: str
+        :param simulation: bool
+        :return:
+        """
+        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+        production_period = self.get_production_period()
+        date = production_period.get_start_date()
+        while date < production_period.get_end_date():
+            chunk = self._get_next_period(date)
+
+            start_string = self._get_year_day_of_year(chunk.get_start_date())
+            end_string = self._get_year_day_of_year(chunk.get_end_date())
+
+            job_name = 'post-processing-' + start_string + '-' + end_string + '-' + self.usecase_config
+            pre_condition = 'mmd-' + start_string + '-' + end_string
+            post_condition = 'post-processing-' + start_string + '-' + end_string + '-' + self.usecase_config
+
+            job = Job(job_name, 'post_processing_start.sh', [pre_condition], [post_condition],
+                      [self.input_dir, start_string, end_string, self.usecase_config, self._get_config_dir()])
+            monitor.execute(job)
+
+            date = chunk.get_end_date()
 
         monitor.wait_for_completion_and_terminate()

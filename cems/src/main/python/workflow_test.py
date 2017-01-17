@@ -268,3 +268,24 @@ class WorkflowTest(unittest.TestCase):
 
         with open('test.report', 'r') as report:
             self.assertEqual(5, len(report.readlines()))
+
+    def test_post_processing_mmd6c(self):
+        period = Period('2007-05-01', '2008-11-16')
+        w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config', period)
+
+        w.set_usecase_config('post-processing_06x.xml')
+        w.set_input_dir('/home/tom/the/data')
+
+        w.run_post_processing(list([('localhost', 4)]), True, self.logdir)
+
+        with open('test.status', 'r') as status:
+            self.assertEqual('93 created, 0 running, 0 backlog, 93 processed, 0 failed\n', status.readline())
+
+        with open('test.report', 'r') as report:
+            self.assertEqual(93, len(report.readlines()))
+
+    def test_set_get_input_dir(self):
+        w = Workflow('test', 4)
+        w.set_input_dir('/usr/local/inputs')
+        self.assertEqual('/usr/local/inputs', w.get_input_dir())
+
