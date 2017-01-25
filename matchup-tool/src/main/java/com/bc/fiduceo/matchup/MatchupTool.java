@@ -255,10 +255,10 @@ class MatchupTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
-        final Option startOption = new Option("start", "start-time", true, "Defines the processing start-date, format 'yyyy-DDD'");
+        final Option startOption = new Option("start", "start-date", true, "Defines the processing start-date, format 'yyyy-DDD'");
         options.addOption(startOption);
 
-        final Option endOption = new Option("end", "end-time", true, "Defines the processing end-date, format 'yyyy-DDD'");
+        final Option endOption = new Option("end", "end-date", true, "Defines the processing end-date, format 'yyyy-DDD'");
         options.addOption(endOption);
 
         final Option useCaseOption = new Option("u", "usecase", true, "Defines the path to the use-case configuration file. Path is relative to the configuration directory.");

@@ -55,7 +55,6 @@
 
     <screenings>
         <angular>
-            <!-- TODO se -->
             <!-- omit of no screening using the primary sensor is required -->
             <primary-vza-variable name="blabla"/>
 
@@ -68,7 +67,7 @@
             <!-- set max threshold in degrees for the secondary sensor VZA. Removing this tag switches secondary VZA screening off-->
             <max-secondary-vza>10.0</max-secondary-vza>
 
-            <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA selta screening off -->
+            <!-- set max threshold in degrees for the VZA delta. Removing this tag switches VZA delta screening off -->
             <max-angle-delta>10.0</max-angle-delta>
         </angular>
 

@@ -86,9 +86,9 @@ public class MatchupToolTest {
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
                 "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
                 "   -h,--help                   Prints the tool usage." + ls +
-                "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
                 "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
                 "                               configuration directory." + ls, outputStream.toString());
     }
@@ -115,14 +115,14 @@ public class MatchupToolTest {
         final Option startOption = options.getOption("start");
         assertNotNull(startOption);
         assertEquals("start", startOption.getOpt());
-        assertEquals("start-time", startOption.getLongOpt());
+        assertEquals("start-date", startOption.getLongOpt());
         assertEquals("Defines the processing start-date, format 'yyyy-DDD'", startOption.getDescription());
         assertTrue(startOption.hasArg());
 
         final Option endOption = options.getOption("end");
         assertNotNull(endOption);
         assertEquals("end", endOption.getOpt());
-        assertEquals("end-time", endOption.getLongOpt());
+        assertEquals("end-date", endOption.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'", endOption.getDescription());
         assertTrue(endOption.hasArg());
 

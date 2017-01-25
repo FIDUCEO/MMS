@@ -42,9 +42,9 @@ public class MatchupToolIntegrationTest {
             "usage: matchup-tool <options>" + ls +
             "Valid options are:" + ls +
             "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-            "   -end,--end-time <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
+            "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'" + ls +
             "   -h,--help                   Prints the tool usage." + ls +
-            "   -start,--start-time <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
+            "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'" + ls +
             "   -u,--usecase <arg>          Defines the path to the use-case configuration file. Path is relative to the" + ls +
             "                               configuration directory." + ls;
 
