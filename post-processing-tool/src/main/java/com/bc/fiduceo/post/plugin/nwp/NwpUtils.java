@@ -76,4 +76,14 @@ class NwpUtils {
         }
         return tempFile;
     }
+
+    // package public for testing
+    static int computeFutureTimeStepCount(int timeStepCount) {
+        return ((timeStepCount - 1) / 8) * 3;
+    }
+
+    // package public for testing
+    static int computePastTimeStepCount(int timeStepCount) {
+        return ((timeStepCount - 1) / 8) * 5;
+    }
 }
