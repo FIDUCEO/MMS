@@ -69,11 +69,14 @@ class NwpPostProcessing extends PostProcessing {
             throw new RuntimeException("Expected dimension not present in file: 'matchup_count'");
         }
 
-        final Dimension anDimension = writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
-        final Dimension fcDimension = writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
+        writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
+        writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
 
         writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
-        writer.addVariable(null, "matchup.nwp.an.f0", DataType.INT, "matchup_count");
+        writer.addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
+
+        final String anDimensions = "matchup_count matchup.nwp.an.time";
+        writer.addVariable(null, configuration.getAnSeaIceFractionName(), DataType.FLOAT, anDimensions);
     }
 
     @Override
@@ -85,6 +88,10 @@ class NwpPostProcessing extends PostProcessing {
         try {
             final File analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
             final File forecastFile = createForecastFile(geoFile, nwpDataDirectories);
+
+            // write stuff out - mapping:
+            // ----- analysis -----
+            // CI - anSeaIceFractionName
         } catch (InterruptedException e) {
             e.printStackTrace();
             throw new IOException(e.getMessage());
@@ -103,7 +110,7 @@ class NwpPostProcessing extends PostProcessing {
         final Properties templateProperties = createForecastFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), gafsTimeSteps,
                 ggfsTimeSteps, gafsTimeSeriesFile.getAbsolutePath(), ggfsTimeSeriesFile.getAbsolutePath(),
                 ggfrTimeSeriesFile.getAbsolutePath(), forecastFile.getAbsolutePath());
-        final String resolvedExecutable = TemplateResolver.resolve(CDO_MATCHUP_FC_TEMPLATE, templateProperties);
+        final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_FC_TEMPLATE, templateProperties);
 
         final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
 
@@ -122,7 +129,7 @@ class NwpPostProcessing extends PostProcessing {
         final Properties templateProperties = createAnalysisFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), timeStepFiles,
                 ggasTimeSeriesFile.getAbsolutePath(), analysisFile.getAbsolutePath());
 
-        final String resolvedExecutable = TemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
+        final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
         final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
 
         final ProcessRunner processRunner = new ProcessRunner();

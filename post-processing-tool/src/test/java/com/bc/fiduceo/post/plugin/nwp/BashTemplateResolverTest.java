@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TemplateResolverTest {
+public class BashTemplateResolverTest {
 
     private static final String CDO_MATCHUP_AN_TEMPLATE =
             "#! /bin/sh\n" +
@@ -46,7 +46,7 @@ public class TemplateResolverTest {
         properties.put("GEO", "/home/tom/geo123.nc");
         properties.put("AN_TIME_SERIES", "/home/tom/an_target.nc");
 
-        final TemplateResolver templateResolver = new TemplateResolver(properties);
+        final BashTemplateResolver templateResolver = new BashTemplateResolver(properties);
         final String resolved = templateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE);
         assertEquals("#! /bin/sh\n" +
                 "/fiduceo/bin/cdo_dir -L -M -f nc2 mergetime /home/tom/ggas12345.nc /home/tom/ggas6789.nc && /fiduceo/bin/cdo_dir -L -M -f nc2 setreftime,1970-01-01,00:00:00,seconds -remapbil,/home/tom/geo123.nc -selname,CI,SSTK,U10,V10 /home/tom/ggas6789.nc /home/tom/an_target.nc\n",
@@ -57,14 +57,14 @@ public class TemplateResolverTest {
     public void testIsResolved_resolved() {
         final String resolved = "#! /bin/sh\n/fiduceo/bin/cdo_dir -L -M -f nc2 mergetime /home/tom/ggas12345.nc /home/tom/ggas6789.nc && /fiduceo/bin/cdo_dir -L -M -f nc2 setreftime,1970-01-01,00:00:00,seconds -remapbil,/home/tom/geo123.nc -selname,CI,SSTK,U10,V10 /home/tom/ggas6789.nc /home/tom/an_target.nc\n";
 
-        final TemplateResolver resolver = new TemplateResolver(new Properties());
+        final BashTemplateResolver resolver = new BashTemplateResolver(new Properties());
         assertTrue(resolver.isResolved(resolved));
     }
 
     @Test
     public void testIsResolved_unresolved() {
 
-        final TemplateResolver resolver = new TemplateResolver(new Properties());
+        final BashTemplateResolver resolver = new BashTemplateResolver(new Properties());
         assertFalse(resolver.isResolved(CDO_MATCHUP_AN_TEMPLATE));
     }
 }

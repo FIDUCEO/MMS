@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -135,10 +136,13 @@ public class NwpPostProcessingTest {
         final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
         postProcessing.prepare(netcdfFile, writer);
 
-        // @todo 1 tb/tb add more assertions for the variables 2017-01-11
-
         verify(writer, times(1)).addDimension(null, "matchup.nwp.an.time", 13);
         verify(writer, times(1)).addDimension(null, "matchup.nwp.fc.time", 14);
+
+        verify(writer, times(1)).addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
+        verify(writer, times(1)).addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
+
+        verify(writer, times(1)).addVariable(null, configuration.getAnSeaIceFractionName(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
     }
 
     private Configuration createConfiguration() {

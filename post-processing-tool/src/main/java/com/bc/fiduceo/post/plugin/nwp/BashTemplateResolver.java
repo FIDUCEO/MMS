@@ -24,13 +24,13 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class TemplateResolver {
+class BashTemplateResolver {
 
     private final Properties properties;
     private final Pattern pattern;
 
     static String resolve(String template, Properties properties) {
-        final TemplateResolver templateResolver = new TemplateResolver(properties);
+        final BashTemplateResolver templateResolver = new BashTemplateResolver(properties);
         final String resolved = templateResolver.resolve(template);
 
         if (templateResolver.isResolved(resolved)) {
@@ -46,11 +46,11 @@ class TemplateResolver {
      *
      * @param properties The properties used for resolving templates.
      */
-    TemplateResolver(Properties properties) {
+    BashTemplateResolver(Properties properties) {
         this(properties, "\\$\\{[\\w\\-\\.]+\\}");
     }
 
-    private TemplateResolver(Properties properties, String regex) {
+    private BashTemplateResolver(Properties properties, String regex) {
         this.properties = properties;
         this.pattern = Pattern.compile(regex);
     }
