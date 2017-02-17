@@ -76,11 +76,9 @@ public class PostProcessingToolIntegrationTest_NWP {
         try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
             NCTestUtils.assertDimension("matchup.nwp.an.time", 19, mmd);
             NCTestUtils.assertDimension("matchup.nwp.fc.time", 33, mmd);
-//            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 0, 0, 0, 104.08000183105469, mmd);
-//            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 1, 0, 0, 103.97999572753906, mmd);
-//
-//            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 2, 0, 0, -11.169998168945312, mmd);
-//            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 3, 0, 0, -11.29998779296875, mmd);
+
+//            NCTestUtils.assert3DVariable("matchup.nwp.an.sea_ice_fraction", 0, 0, 0, 104.08000183105469, mmd);
+
         }
     }
 

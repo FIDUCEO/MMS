@@ -35,11 +35,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.junit.Assert.*;
 
 public class TestUtil {
@@ -85,14 +88,6 @@ public class TestUtil {
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
         final Properties properties = new Properties();
         final BasicDataSource datasource = TestUtil.getdatasourceMongoDb();
-        convertToProperties(properties, datasource);
-
-        TestUtil.storeProperties(properties, configDir, "database.properties");
-    }
-
-    public static void writeDatabaseProperties_H2(File configDir) throws IOException {
-        final Properties properties = new Properties();
-        final BasicDataSource datasource = TestUtil.getDatasource_H2();
         convertToProperties(properties, datasource);
 
         TestUtil.storeProperties(properties, configDir, "database.properties");
@@ -227,6 +222,20 @@ public class TestUtil {
             fail("Unable to create test file: " + testFile.getAbsolutePath());
         }
         return testFile;
+    }
+
+    public static File copyFileTOTestDir(File sourceFile) throws IOException {
+        assertTrue(sourceFile.isFile());
+
+        final String name = sourceFile.getName();
+        final File testDir = getTestDir();
+        final File targetFile = new File(testDir, name);
+        assertTrue(targetFile.createNewFile());
+
+        Files.copy(sourceFile.toPath(), targetFile.toPath(), REPLACE_EXISTING);
+
+        assertTrue(targetFile.isFile());
+        return targetFile;
     }
 
     public static String assembleFileSystemPath(String[] pathSegments, boolean absolute) {

@@ -21,6 +21,11 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -28,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 class NwpUtils {
 
@@ -35,12 +41,7 @@ class NwpUtils {
     static String composeFilesString(final String dirPath, final List<String> subDirPaths, final String pattern, int skip) {
         final StringBuilder sb = new StringBuilder();
         final List<File> allFiles = new ArrayList<>();
-        final FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.matches(pattern);
-            }
-        };
+        final FilenameFilter filter = (dir, name) -> name.matches(pattern);
         for (final String subDirPath : subDirPaths) {
             final File subDir = new File(dirPath, subDirPath);
             final File[] files = subDir.listFiles(filter);
@@ -85,5 +86,38 @@ class NwpUtils {
     // package public for testing
     static int computePastTimeStepCount(int timeStepCount) {
         return ((timeStepCount - 1) / 8) * 5;
+    }
+
+    // package access for testing only tb 2017-02-17
+    static int nearestTimeStep(Array sourceTimes, int targetTime) {
+        int timeStep = 0;
+        int minTimeDelta = Math.abs(targetTime - sourceTimes.getInt(0));
+
+        for (int i = 1; i < sourceTimes.getSize(); i++) {
+            final int sourceTime = sourceTimes.getInt(i);
+            final int actTimeDelta = Math.abs(targetTime - sourceTime);
+            if (actTimeDelta < minTimeDelta) {
+                minTimeDelta = actTimeDelta;
+                timeStep = i;
+            }
+        }
+
+        return timeStep;
+    }
+
+    static void copyValues(Map<Variable, Variable> map,
+                           NetcdfFileWriter targetFile,
+                           int targetMatchup,
+                           int[] sourceStart,
+                           int[] sourceShape) throws IOException, InvalidRangeException {
+        for (final Variable targetVariable : map.keySet()) {
+            final Variable sourceVariable = map.get(targetVariable);
+            final Array sourceData = sourceVariable.read(sourceStart, sourceShape);
+            final int[] targetShape = targetVariable.getShape();
+            targetShape[0] = 1;
+            final int[] targetStart = new int[targetShape.length];
+            targetStart[0] = targetMatchup;
+            targetFile.write(targetVariable, targetStart, sourceData.reshape(targetShape));
+        }
     }
 }

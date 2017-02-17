@@ -21,11 +21,22 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.Array;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NwpUtilsTest {
+
+    private Array array;
+
+    @Before
+    public void setUp() {
+        array = mock(Array.class);
+    }
 
     @Test
     public void testComputeFutureTimeStepCount() {
@@ -37,5 +48,45 @@ public class NwpUtilsTest {
     public void testComputePastTimeStepCount() throws Exception {
         assertEquals(20, NwpUtils.computePastTimeStepCount(33));
         assertEquals(10, NwpUtils.computePastTimeStepCount(17));
+    }
+
+    @Test
+    public void testNearestTimeStep_oneTimeValue() {
+        when(array.getSize()).thenReturn(1L);
+        when(array.getInt(0)).thenReturn(15);
+
+        final int nearestTimeStep = NwpUtils.nearestTimeStep(array, 18);
+        assertEquals(0, nearestTimeStep);
+    }
+
+    @Test
+    public void testNearestTimeStep_twoTimeValues() {
+        when(array.getSize()).thenReturn(2L);
+        when(array.getInt(0)).thenReturn(15);
+        when(array.getInt(1)).thenReturn(19);
+
+        final int nearestTimeStep = NwpUtils.nearestTimeStep(array, 18);
+        assertEquals(1, nearestTimeStep);
+    }
+
+    @Test
+    public void testNearestTimeStep_twoTimeValues_invertedOrder() {
+        when(array.getSize()).thenReturn(2L);
+        when(array.getInt(0)).thenReturn(19);
+        when(array.getInt(1)).thenReturn(15);
+
+        final int nearestTimeStep = NwpUtils.nearestTimeStep(array, 18);
+        assertEquals(0, nearestTimeStep);
+    }
+
+    @Test
+    public void testNearestTimeStep_threeTimeValues() {
+        when(array.getSize()).thenReturn(3L);
+        when(array.getInt(0)).thenReturn(21);
+        when(array.getInt(1)).thenReturn(17);
+        when(array.getInt(2)).thenReturn(13);
+
+        final int nearestTimeStep = NwpUtils.nearestTimeStep(array, 18);
+        assertEquals(1, nearestTimeStep);
     }
 }

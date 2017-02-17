@@ -27,6 +27,7 @@ import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
@@ -122,16 +123,30 @@ public class NetCDFUtils {
         return variable;
     }
 
+    public static Variable getVariable(NetcdfFileWriter fileWriter, String name) {
+        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final Variable variable = fileWriter.findVariable(escapedName);
+        if (variable == null) {
+            throw new RuntimeException("Input Variable '" + name + "' not present in input file");
+        }
+        return variable;
+    }
+
     /**
      * Method to open NetcdfFile using a read only RandomAccessFile.
      * This is needed because opening a netcdf file with NetcdfFile.open(<String>) changes the file size.
      *
      * @param absFileLocation absolute path to file
-     * @return unmodifieable NetcdfFile instance
+     * @return unmodifiable NetcdfFile instance
      * @throws IOException on IO errors
      */
     public static NetcdfFile openReadOnly(final String absFileLocation) throws IOException {
         final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "r");
+        return NetcdfFile.open(raf, absFileLocation, null, null);
+    }
+
+    public static NetcdfFile openReadWrite(final String absFileLocation) throws IOException {
+        final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "rw");
         return NetcdfFile.open(raf, absFileLocation, null, null);
     }
 

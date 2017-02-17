@@ -58,9 +58,11 @@ class NwpPostProcessing extends PostProcessing {
                     "${CDO} ${CDO_OPTS} -f nc2 merge -setreftime,${REFTIME} -remapbil,${GEO} -selname,SSHF,SLHF,SSRD,STRD,SSR,STR,EWSS,NSSS,E,TP ${GAFS_TIME_SERIES} ${GGFS_TIME_SERIES_REMAPPED} ${FC_TIME_SERIES}\n";
 
     private final Configuration configuration;
+    private final TemplateVariables templateVariables;
 
     NwpPostProcessing(Configuration configuration) {
         this.configuration = configuration;
+        templateVariables = new TemplateVariables(configuration);
     }
 
     @Override
@@ -76,7 +78,6 @@ class NwpPostProcessing extends PostProcessing {
         writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
         writer.addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
 
-        final TemplateVariables templateVariables = new TemplateVariables(configuration);
         final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
         for (final TemplateVariable templateVariable : allVariables) {
             final Variable variable = writer.addVariable(null, templateVariable.getName(), templateVariable.getDataType(), templateVariable.getDimensions());
@@ -95,9 +96,10 @@ class NwpPostProcessing extends PostProcessing {
             final File analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
             final File forecastFile = createForecastFile(geoFile, nwpDataDirectories);
 
-            // write stuff out - mapping:
-            // ----- analysis -----
-            // CI - anSeaIceFractionName
+            final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+            fileMerger.mergeAnalysisFile(writer, NetcdfFile.open(analysisFile.getAbsolutePath()));
+
+
         } catch (InterruptedException e) {
             e.printStackTrace();
             throw new IOException(e.getMessage());
