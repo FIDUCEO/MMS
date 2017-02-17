@@ -28,6 +28,7 @@ import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -75,8 +76,13 @@ class NwpPostProcessing extends PostProcessing {
         writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
         writer.addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
 
-        final String anDimensions = "matchup_count matchup.nwp.an.time";
-        writer.addVariable(null, configuration.getAnSeaIceFractionName(), DataType.FLOAT, anDimensions);
+        final TemplateVariables templateVariables = new TemplateVariables(configuration);
+        final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
+        for (final TemplateVariable templateVariable : allVariables) {
+            final Variable variable = writer.addVariable(null, templateVariable.getName(), templateVariable.getDataType(), templateVariable.getDimensions());
+            final List<Attribute> attributes = templateVariable.getAttributes();
+            variable.addAll(attributes);
+        }
     }
 
     @Override
