@@ -77,13 +77,13 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assertDimension("matchup.nwp.an.time", 19, mmd);
             NCTestUtils.assertDimension("matchup.nwp.fc.time", 33, mmd);
 
-            NCTestUtils.assertScalarVariable("matchup.nwp.an.t0", 0, 1073433600, mmd);
+            NCTestUtils.assertVectorVariable("matchup.nwp.an.t0", 0, 1073433600, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.sea_ice_fraction", 0, 1, 0.0, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.sea_surface_temperature", 1, 2, 293.451416015625, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_east_wind_component", 2, 3, 6.577442169189453, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_north_wind_component", 3, 4, -3.9324848651885986, mmd);
 
-            NCTestUtils.assertScalarVariable("matchup.nwp.fc.t0", 5, 1073498400, mmd);
+            NCTestUtils.assertVectorVariable("matchup.nwp.fc.t0", 5, 1073498400, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.sea_surface_temperature", 4, 6, 293.3771057128906, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_sensible_heat_flux", 5, 7, -279947.5, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_latent_heat_flux", 6, 8, -2967699.75, mmd);

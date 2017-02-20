@@ -84,12 +84,12 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            NCTestUtils.assertScalarVariable("avhrr-n17_x", 0, 52.0, mmd);
-            NCTestUtils.assertScalarVariable("avhrr-n17_y", 1, 13025.0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n17_x", 0, 52.0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n17_y", 1, 13025.0, mmd);
             NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
 
-            NCTestUtils.assertScalarVariable("avhrr-n18_x", 3, 79.0, mmd);
-            NCTestUtils.assertScalarVariable("avhrr-n18_y", 4, 2306.0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n18_x", 3, 79.0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n18_y", 4, 2306.0, mmd);
             NCTestUtils.assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
 
             NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);

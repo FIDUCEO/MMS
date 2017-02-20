@@ -25,7 +25,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class NCTestUtils {
 
-    public static void assertScalarVariable(String variableName, int index, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+    public static void assertVectorVariable(String variableName, int index, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
         final String escapedName = NetcdfFile.makeValidCDLName(variableName);
         final Variable variable = netcdfFile.findVariable(escapedName);
         assertNotNull(variable);

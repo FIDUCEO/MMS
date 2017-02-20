@@ -125,8 +125,8 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
             NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_uncertainty", 0, 0, 0, 0.389, mmd);
             NCTestUtils.assert3DVariable("drifter-sst_insitu.time", 0, 0, 0, 856138212, mmd);
             NCTestUtils.assert3DVariable("drifter-sst_insitu.id", 0, 0, 0, 2005020000392166L, mmd);
-            NCTestUtils.assertScalarVariable("drifter-sst_x", 0, 0, mmd);
-            NCTestUtils.assertScalarVariable("drifter-sst_y", 0, 8485, mmd);
+            NCTestUtils.assertVectorVariable("drifter-sst_x", 0, 0, mmd);
+            NCTestUtils.assertVectorVariable("drifter-sst_y", 0, 8485, mmd);
         }
     }
 

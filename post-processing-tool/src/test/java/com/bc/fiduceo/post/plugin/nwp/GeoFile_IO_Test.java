@@ -98,17 +98,17 @@ public class GeoFile_IO_Test {
             geoFile.close();
 
             geoFileNC = NetcdfFile.open(file.getAbsolutePath());
-            NCTestUtils.assertScalarVariable("grid_dims", 0, 1, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_dims", 1, 14, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_dims", 0, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_dims", 1, 14, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_center_lat", 0, -46.21271514892578, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_center_lat", 1, -47.56072235107422, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lat", 0, -46.21271514892578, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lat", 1, -47.56072235107422, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_center_lon", 2, 108.04573059082031, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_center_lon", 3, 107.9905776977539, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lon", 2, 108.04573059082031, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lon", 3, 107.9905776977539, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_imask", 4, 1, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_imask", 5, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_imask", 4, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_imask", 5, 1, geoFileNC);
         } finally {
             geoFile.close();
             if (geoFileNC != null) {
@@ -143,17 +143,17 @@ public class GeoFile_IO_Test {
             geoFile.close();
 
             geoFileNC = NetcdfFile.open(file.getAbsolutePath());
-            NCTestUtils.assertScalarVariable("grid_dims", 0, 1, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_dims", 1, 2, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_dims", 0, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_dims", 1, 2, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_center_lat", 0, 71.38964080810547, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_center_lat", 1, 70.8580322265625, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lat", 0, 71.38964080810547, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lat", 1, 70.8580322265625, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_center_lon", 0, -156.40980529785156, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_center_lon", 1, -158.261474609375, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lon", 0, -156.40980529785156, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lon", 1, -158.261474609375, geoFileNC);
 
-            NCTestUtils.assertScalarVariable("grid_imask", 0, 1, geoFileNC);
-            NCTestUtils.assertScalarVariable("grid_imask", 1, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_imask", 0, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_imask", 1, 1, geoFileNC);
         } finally {
             geoFile.close();
             if (geoFileNC != null) {

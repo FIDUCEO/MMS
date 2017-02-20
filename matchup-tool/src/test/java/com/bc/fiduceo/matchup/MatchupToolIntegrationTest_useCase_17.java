@@ -94,8 +94,8 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("amsub-n15_scnlintime", 0, 0, 5, 42349120.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_scnlinyr", 0, 0, 0, 2007.0, mmd);
 
-            NCTestUtils.assertScalarVariable("amsub-n15_x", 1, 14.0, mmd);
-            NCTestUtils.assertScalarVariable("amsub-n15_y", 2, 2283.0, mmd);
+            NCTestUtils.assertVectorVariable("amsub-n15_x", 1, 14.0, mmd);
+            NCTestUtils.assertVectorVariable("amsub-n15_y", 2, 2283.0, mmd);
 
             NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 3, 744460.0, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_Longitude", 0, 0, 4, -384918.0, mmd);
@@ -125,8 +125,8 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("mhs-n18_scnlintime", 0, 0, 2, 42937943.0, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_scnlinyr", 0, 0, 3, 2007.0, mmd);
 
-            NCTestUtils.assertScalarVariable("mhs-n18_x", 4, 14.0, mmd);
-            NCTestUtils.assertScalarVariable("mhs-n18_y", 5, 2374.0, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_x", 4, 14.0, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_y", 5, 2374.0, mmd);
         }
     }
 
@@ -151,7 +151,7 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            NCTestUtils.assertScalarVariable("matchup_spherical_distance", 0, 3.3357553482055664, mmd);
+            NCTestUtils.assertVectorVariable("matchup_spherical_distance", 0, 3.3357553482055664, mmd);
         }
     }
 
