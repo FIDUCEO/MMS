@@ -42,7 +42,16 @@ class FileMerger {
         this.templateVariables = templateVariables;
     }
 
-    void mergeAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
+    /**
+     * Merges the ERA-interim analysis file into the target MMD. Returns the NWP data center times per matchup as seconds since 1970.
+     * @param netcdfFileWriter the MMD file writer
+     * @param analysisFile the projected and re-gridded ERA-interim analysis file
+     * @return the extraction center times per matchup
+     *
+     * @throws IOException when something goes wrong
+     * @throws InvalidRangeException internal error 
+     */
+    int[] mergeAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> analysisVariablesMap = getAnalysisVariablesMap(netcdfFileWriter, analysisFile);
         final int[] anSourceShape = {configuration.getAnalysisSteps(), 1, 1, 1};
 
@@ -60,6 +69,7 @@ class FileMerger {
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
 
+        final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
             final int targetTime = mmdTimeArray.getInt(i);
             final int timeStep = NwpUtils.nearestTimeStep(analysisTimeArray, targetTime);
@@ -69,10 +79,22 @@ class FileMerger {
 
             final int[] sourceStart = {timeStep - anPastTimeStepCount, 0, i, 0};
             NwpUtils.copyValues(analysisVariablesMap, netcdfFileWriter, i, sourceStart, anSourceShape);
+            centerTimes[i] = analysisTimeArray.getInt(i);
         }
+
+        return centerTimes;
     }
 
-    void mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) throws IOException, InvalidRangeException {
+    /**
+     * Merges the ERA-interim forecast file into the target MMD. Returns the NWP data center times per matchup as seconds since 1970.
+     * @param netcdfFileWriter the MMD file writer
+     * @param forecastFile the projected and re-gridded ERA-interim forecast file
+     * @return the extraction center times per matchup
+     *
+     * @throws IOException when something goes wrong
+     * @throws InvalidRangeException internal error
+     */
+    int[] mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> forecastVariablesMap = getForecastVariablesMap(netcdfFileWriter, forecastFile);
         final int[] fcSourceShape = {configuration.getForecastSteps(), 1, 1, 1};
 
@@ -90,6 +112,7 @@ class FileMerger {
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
 
+        final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
             final int targetTime = mmdTimeArray.getInt(i);
             final int timeStep = NwpUtils.nearestTimeStep(forecastTimeArray, targetTime);
@@ -99,7 +122,10 @@ class FileMerger {
 
             final int[] sourceStart = {timeStep - fcPastTimeStepCount, 0, i, 0};
             NwpUtils.copyValues(forecastVariablesMap, netcdfFileWriter, i, sourceStart, fcSourceShape);
+            centerTimes[i] = forecastTimeArray.getInt(i);
         }
+
+        return centerTimes;
     }
 
     private Map<Variable, Variable> getAnalysisVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) {

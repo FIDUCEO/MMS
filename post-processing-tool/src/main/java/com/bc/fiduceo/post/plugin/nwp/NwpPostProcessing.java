@@ -37,7 +37,12 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 class NwpPostProcessing extends PostProcessing {
 
@@ -97,8 +102,15 @@ class NwpPostProcessing extends PostProcessing {
             final File forecastFile = createForecastFile(geoFile, nwpDataDirectories);
 
             final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
-            fileMerger.mergeAnalysisFile(writer, NetcdfFile.open(analysisFile.getAbsolutePath()));
+            final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, NetcdfFile.open(analysisFile.getAbsolutePath()));
 
+            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, NetcdfFile.open(forecastFile.getAbsolutePath()));
+
+            Variable variable = NetCDFUtils.getVariable(writer, "matchup.nwp.an.t0");
+            writer.write(variable, Array.factory(analysisCenterTimes));
+
+            variable = NetCDFUtils.getVariable(writer, "matchup.nwp.fc.t0");
+            writer.write(variable, Array.factory(forecastCenterTimes));
 
         } catch (InterruptedException e) {
             e.printStackTrace();

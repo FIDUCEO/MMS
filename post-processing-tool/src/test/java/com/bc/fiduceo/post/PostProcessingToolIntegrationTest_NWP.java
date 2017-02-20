@@ -77,8 +77,30 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assertDimension("matchup.nwp.an.time", 19, mmd);
             NCTestUtils.assertDimension("matchup.nwp.fc.time", 33, mmd);
 
-//            NCTestUtils.assert3DVariable("matchup.nwp.an.sea_ice_fraction", 0, 0, 0, 104.08000183105469, mmd);
+            NCTestUtils.assertScalarVariable("matchup.nwp.an.t0", 0, 1073433600, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.sea_ice_fraction", 0, 1, 0.0, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.sea_surface_temperature", 1, 2, 293.451416015625, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.10m_east_wind_component", 2, 3, 6.577442169189453, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.10m_north_wind_component", 3, 4, -3.9324848651885986, mmd);
 
+            NCTestUtils.assertScalarVariable("matchup.nwp.fc.t0", 5, 1073498400, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.sea_surface_temperature", 4, 6, 293.3771057128906, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_sensible_heat_flux", 5, 7, -279947.5, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_latent_heat_flux", 6, 8, -2967699.75, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.mean_sea_level_pressure", 7, 0, 102026.4609375, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.boundary_layer_height", 8, 1, 348.9081115722656, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.10m_east_wind_component", 9, 2, 0.18119236826896667, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.10m_north_wind_component", 10, 3, 4.9406914710998535, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.2m_temperature", 11, 4, 292.26434326171875, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.2m_dew_point", 12, 5, 291.4545593261719, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.downward_surface_solar_radiation", 13, 6, 9262679.0, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.downward_surface_thermal_radiation", 14, 7, 1.2656222E7, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_solar_radiation", 15, 8, 1.0799999783372982E-11, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.surface_thermal_radiation", 16, 0, -2792648.75, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.turbulent_stress_east_component", 17, 1, -973.2415161132812, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.turbulent_stress_north_component", 18, 2, -338.94049072265625, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.evaporation", 19, 3, -4.630652256309986E-4, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.total_precipitation", 20, 4, 8.657717262394726E-5, mmd);
         }
     }
 

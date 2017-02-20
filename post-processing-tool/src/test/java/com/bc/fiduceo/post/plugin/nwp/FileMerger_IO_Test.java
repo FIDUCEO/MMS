@@ -35,6 +35,7 @@ import ucar.nc2.NetcdfFileWriter;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
@@ -93,7 +94,10 @@ public class FileMerger_IO_Test {
         final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
 
         try (NetcdfFile analysis = NetcdfFile.open(analysisFile.getAbsolutePath())) {
-            fileMerger.mergeAnalysisFile(netcdfFileWriter, analysis);
+            final int[] centerTimes = fileMerger.mergeAnalysisFile(netcdfFileWriter, analysis);
+            assertEquals(9, centerTimes.length);
+            assertEquals(1073433600, centerTimes[0]);
+            assertEquals(1073584800, centerTimes[7]);
 
             netcdfFileWriter.flush();
 
@@ -114,7 +118,10 @@ public class FileMerger_IO_Test {
         final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
 
         try (NetcdfFile analysis = NetcdfFile.open(forecastFile.getAbsolutePath())) {
-            fileMerger.mergeForecastFile(netcdfFileWriter, analysis);
+            final int[] centerTimes = fileMerger.mergeForecastFile(netcdfFileWriter, analysis);
+            assertEquals(9, centerTimes.length);
+            assertEquals(1073444400, centerTimes[0]);
+            assertEquals(1073520000, centerTimes[7]);
 
             netcdfFileWriter.flush();
 
