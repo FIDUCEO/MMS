@@ -97,14 +97,24 @@ class NwpPostProcessing extends PostProcessing {
 
         final File geoFile = writeGeoFile(reader);
 
+        final File analysisFile;
+        final File forecastFile;
         try {
-            final File analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
-            final File forecastFile = createForecastFile(geoFile, nwpDataDirectories);
+            analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
+            forecastFile = createForecastFile(geoFile, nwpDataDirectories);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IOException(e.getMessage());
+        }
 
+        NetcdfFile analysisNetCDF = null;
+        NetcdfFile forecastNetCDF = null;
+        try {
             final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
-            final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, NetcdfFile.open(analysisFile.getAbsolutePath()));
-
-            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, NetcdfFile.open(forecastFile.getAbsolutePath()));
+            analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
+            forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
+            final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, analysisNetCDF);
+            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
 
             Variable variable = NetCDFUtils.getVariable(writer, "matchup.nwp.an.t0");
             writer.write(variable, Array.factory(analysisCenterTimes));
@@ -112,9 +122,14 @@ class NwpPostProcessing extends PostProcessing {
             variable = NetCDFUtils.getVariable(writer, "matchup.nwp.fc.t0");
             writer.write(variable, Array.factory(forecastCenterTimes));
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
+        } finally {
+            if (analysisNetCDF != null) {
+                analysisNetCDF.close();
+            }
+
+            if (forecastNetCDF != null) {
+                forecastNetCDF.close();
+            }
         }
     }
 

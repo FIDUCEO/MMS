@@ -129,10 +129,18 @@ class FileMerger {
     }
 
     private Map<Variable, Variable> getAnalysisVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) {
-        final Map<Variable, Variable> variablesMap = new HashMap<>();
-
         final List<TemplateVariable> analysisVariables = templateVariables.getAnalysisVariables();
-        for (final TemplateVariable analysisVariable : analysisVariables) {
+        return getVariableVariableMap(netcdfFileWriter, analysisFile, analysisVariables);
+    }
+
+    private Map<Variable, Variable> getForecastVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) {
+        final List<TemplateVariable> forecastVariables = templateVariables.getForecastVariables();
+        return getVariableVariableMap(netcdfFileWriter, forecastFile, forecastVariables);
+    }
+
+    private Map<Variable, Variable> getVariableVariableMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile, List<TemplateVariable> templateVariables ) {
+        final Map<Variable, Variable> variablesMap = new HashMap<>();
+        for (final TemplateVariable analysisVariable : templateVariables) {
             final String targetName = analysisVariable.getName();
             final Variable targetVariable = NetCDFUtils.getVariable(netcdfFileWriter, targetName);
 
@@ -141,24 +149,6 @@ class FileMerger {
 
             variablesMap.put(targetVariable, sourceVariable);
         }
-
-        return variablesMap;
-    }
-
-    private Map<Variable, Variable> getForecastVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) {
-        final Map<Variable, Variable> variablesMap = new HashMap<>();
-
-        final List<TemplateVariable> forecastVariables = templateVariables.getForecastVariables();
-        for (final TemplateVariable forecastVariable : forecastVariables) {
-            final String targetName = forecastVariable.getName();
-            final Variable targetVariable = NetCDFUtils.getVariable(netcdfFileWriter, targetName);
-
-            final String originalName = forecastVariable.getOriginalName();
-            final Variable sourceVariable = NetCDFUtils.getVariable(forecastFile, originalName);
-
-            variablesMap.put(targetVariable, sourceVariable);
-        }
-
         return variablesMap;
     }
 }
