@@ -57,6 +57,14 @@ import org.jdom.Element;
         -->
         <time-variable-name>acquisition-time</time-variable-name>
 
+        <!-- Defines the name of the longitude variable to use. Data is expected in decimal degrees east.
+        -->
+        <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
+
+        <!-- Defines the name of the latitude variable to use. Data is expected in decimal degrees east.
+        -->
+        <latitude-variable-name>animal-sst_insitu.lat</latitude-variable-name>
+
         <!-- Defines the name of the target variable for analysis sea-ice-fraction.
              Default: matchup.nwp.an.sea_ice_fraction
         -->

@@ -23,6 +23,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import org.junit.Before;
 import org.junit.Test;
+import ucar.nc2.NetcdfFile;
 
 import static org.junit.Assert.*;
 
@@ -273,27 +274,27 @@ public class ConfigurationTest {
         assertNull(config.getNWPAuxDir());
         assertNull(config.getTimeVariableName());
 
-        assertEquals("matchup.nwp.an.sea_ice_fraction", config.getAnSeaIceFractionName());
-        assertEquals("matchup.nwp.an.sea_surface_temperature", config.getAnSSTName());
-        assertEquals("matchup.nwp.an.10m_east_wind_component", config.getAnEastWindName());
-        assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.an.sea_ice_fraction"), config.getAnSeaIceFractionName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.an.sea_surface_temperature"), config.getAnSSTName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.an.10m_east_wind_component"), config.getAnEastWindName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.an.10m_north_wind_component"), config.getAnNorthWindName());
 
-        assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
-        assertEquals("matchup.nwp.fc.surface_sensible_heat_flux", config.getFcSurfSensibleHeatFluxName());
-        assertEquals("matchup.nwp.fc.surface_latent_heat_flux", config.getFcSurfLatentHeatFluxName());
-        assertEquals("matchup.nwp.fc.mean_sea_level_pressure", config.getFcMeanSeaLevelPressureName());
-        assertEquals("matchup.nwp.fc.boundary_layer_height", config.getFcBoundaryLayerHeightName());
-        assertEquals("matchup.nwp.fc.10m_east_wind_component", config.getFc10mEastWindName());
-        assertEquals("matchup.nwp.fc.10m_north_wind_component", config.getFc10mNorthWindName());
-        assertEquals("matchup.nwp.fc.2m_temperature", config.getFc2mTemperatureName());
-        assertEquals("matchup.nwp.fc.2m_dew_point", config.getFc2mDewPointName());
-        assertEquals("matchup.nwp.fc.downward_surface_solar_radiation", config.getFcDownSurfSolarRadiationName());
-        assertEquals("matchup.nwp.fc.downward_surface_thermal_radiation", config.getFcDownSurfThermalRadiationName());
-        assertEquals("matchup.nwp.fc.surface_solar_radiation", config.getFcSurfSolarRadiationName());
-        assertEquals("matchup.nwp.fc.surface_thermal_radiation", config.getFcSurfThermalRadiationName());
-        assertEquals("matchup.nwp.fc.turbulent_stress_east_component", config.getFcTurbStressEastName());
-        assertEquals("matchup.nwp.fc.turbulent_stress_north_component", config.getFcTurbStressNorthName());
-        assertEquals("matchup.nwp.fc.evaporation", config.getFcEvaporationName());
-        assertEquals("matchup.nwp.fc.total_precipitation", config.getFcTotalPrecipName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.sea_surface_temperature"), config.getFcSSTName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_sensible_heat_flux"), config.getFcSurfSensibleHeatFluxName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_latent_heat_flux"), config.getFcSurfLatentHeatFluxName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.mean_sea_level_pressure"), config.getFcMeanSeaLevelPressureName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.boundary_layer_height"), config.getFcBoundaryLayerHeightName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.10m_east_wind_component"), config.getFc10mEastWindName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.10m_north_wind_component"), config.getFc10mNorthWindName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.2m_temperature"), config.getFc2mTemperatureName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.2m_dew_point"), config.getFc2mDewPointName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.downward_surface_solar_radiation"), config.getFcDownSurfSolarRadiationName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.downward_surface_thermal_radiation"), config.getFcDownSurfThermalRadiationName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_solar_radiation"), config.getFcSurfSolarRadiationName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_thermal_radiation"), config.getFcSurfThermalRadiationName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.turbulent_stress_east_component"), config.getFcTurbStressEastName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.turbulent_stress_north_component"), config.getFcTurbStressNorthName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.evaporation"), config.getFcEvaporationName());
+        assertEquals(NetcdfFile.makeValidCDLName("matchup.nwp.fc.total_precipitation"), config.getFcTotalPrecipName());
     }
 }

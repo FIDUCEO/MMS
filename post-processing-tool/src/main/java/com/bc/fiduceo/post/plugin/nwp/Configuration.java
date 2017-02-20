@@ -21,6 +21,8 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import ucar.nc2.NetcdfFile;
+
 import java.io.File;
 
 class Configuration {
@@ -60,27 +62,27 @@ class Configuration {
         analysisSteps = 17;
         forecastSteps = 33;
 
-        anSeaIceFractionName = "matchup.nwp.an.sea_ice_fraction";
-        anSSTName = "matchup.nwp.an.sea_surface_temperature";
-        anEastWindName = "matchup.nwp.an.10m_east_wind_component";
-        anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
-        fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
-        fcSurfSensibleHeatFluxName = "matchup.nwp.fc.surface_sensible_heat_flux";
-        fcSurfLatentHeatFluxName = "matchup.nwp.fc.surface_latent_heat_flux";
-        fcMeanSeaLevelPressureName = "matchup.nwp.fc.mean_sea_level_pressure";
-        fcBoundaryLayerHeightName = "matchup.nwp.fc.boundary_layer_height";
-        fc10mEastWindName = "matchup.nwp.fc.10m_east_wind_component";
-        fc10mNorthWindName = "matchup.nwp.fc.10m_north_wind_component";
-        fc2mTemperatureName = "matchup.nwp.fc.2m_temperature";
-        fc2mDewPointName = "matchup.nwp.fc.2m_dew_point";
-        fcDownSurfSolarRadiationName = "matchup.nwp.fc.downward_surface_solar_radiation";
-        fcDownSurfThermalRadiationName = "matchup.nwp.fc.downward_surface_thermal_radiation";
-        fcSurfSolarRadiationName = "matchup.nwp.fc.surface_solar_radiation";
-        fcSurfThermalRadiationName = "matchup.nwp.fc.surface_thermal_radiation";
-        fcTurbStressEastName = "matchup.nwp.fc.turbulent_stress_east_component";
-        fcTurbStressNorthName = "matchup.nwp.fc.turbulent_stress_north_component";
-        fcEvaporationName = "matchup.nwp.fc.evaporation";
-        fcTotalPrecipName = "matchup.nwp.fc.total_precipitation";
+        anSeaIceFractionName = NetcdfFile.makeValidCDLName("matchup.nwp.an.sea_ice_fraction");
+        anSSTName = NetcdfFile.makeValidCDLName("matchup.nwp.an.sea_surface_temperature");
+        anEastWindName = NetcdfFile.makeValidCDLName("matchup.nwp.an.10m_east_wind_component");
+        anNorthWindName = NetcdfFile.makeValidCDLName("matchup.nwp.an.10m_north_wind_component");
+        fcSSTName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.sea_surface_temperature");
+        fcSurfSensibleHeatFluxName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_sensible_heat_flux");
+        fcSurfLatentHeatFluxName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_latent_heat_flux");
+        fcMeanSeaLevelPressureName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.mean_sea_level_pressure");
+        fcBoundaryLayerHeightName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.boundary_layer_height");
+        fc10mEastWindName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.10m_east_wind_component");
+        fc10mNorthWindName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.10m_north_wind_component");
+        fc2mTemperatureName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.2m_temperature");
+        fc2mDewPointName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.2m_dew_point");
+        fcDownSurfSolarRadiationName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.downward_surface_solar_radiation");
+        fcDownSurfThermalRadiationName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.downward_surface_thermal_radiation");
+        fcSurfSolarRadiationName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_solar_radiation");
+        fcSurfThermalRadiationName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.surface_thermal_radiation");
+        fcTurbStressEastName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.turbulent_stress_east_component");
+        fcTurbStressNorthName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.turbulent_stress_north_component");
+        fcEvaporationName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.evaporation");
+        fcTotalPrecipName = NetcdfFile.makeValidCDLName("matchup.nwp.fc.total_precipitation");
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -124,7 +126,7 @@ class Configuration {
     }
 
     void setTimeVariableName(String timeVariableName) {
-        this.timeVariableName = timeVariableName;
+        this.timeVariableName = NetcdfFile.makeValidCDLName(timeVariableName);
     }
 
     String getTimeVariableName() {
@@ -132,7 +134,7 @@ class Configuration {
     }
 
     void setAnSeaIceFractionName(String anSeaIceFractionName) {
-        this.anSeaIceFractionName = anSeaIceFractionName;
+        this.anSeaIceFractionName = NetcdfFile.makeValidCDLName(anSeaIceFractionName);
     }
 
     String getAnSeaIceFractionName() {
@@ -140,7 +142,7 @@ class Configuration {
     }
 
     void setAnSSTName(String anSSTName) {
-        this.anSSTName = anSSTName;
+        this.anSSTName = NetcdfFile.makeValidCDLName(anSSTName);
     }
 
     String getAnSSTName() {
@@ -148,7 +150,7 @@ class Configuration {
     }
 
     void setAnEastWindName(String anEastWindName) {
-        this.anEastWindName = anEastWindName;
+        this.anEastWindName = NetcdfFile.makeValidCDLName(anEastWindName);
     }
 
     String getAnEastWindName() {
@@ -156,7 +158,7 @@ class Configuration {
     }
 
     void setAnNorthWindName(String anNorthWindName) {
-        this.anNorthWindName = anNorthWindName;
+        this.anNorthWindName = NetcdfFile.makeValidCDLName(anNorthWindName);
     }
 
     String getAnNorthWindName() {
@@ -164,7 +166,7 @@ class Configuration {
     }
 
     void setFcSSTName(String fcSSTName) {
-        this.fcSSTName = fcSSTName;
+        this.fcSSTName = NetcdfFile.makeValidCDLName(fcSSTName);
     }
 
     String getFcSSTName() {
@@ -172,7 +174,7 @@ class Configuration {
     }
 
     void setFcSurfSensibleHeatFluxName(String fcSurfSensibleHeatFluxName) {
-        this.fcSurfSensibleHeatFluxName = fcSurfSensibleHeatFluxName;
+        this.fcSurfSensibleHeatFluxName = NetcdfFile.makeValidCDLName(fcSurfSensibleHeatFluxName);
     }
 
     String getFcSurfSensibleHeatFluxName() {
@@ -180,7 +182,7 @@ class Configuration {
     }
 
     void setFcSurfLatentHeatFluxName(String fcSurfLatentHeatFluxName) {
-        this.fcSurfLatentHeatFluxName = fcSurfLatentHeatFluxName;
+        this.fcSurfLatentHeatFluxName = NetcdfFile.makeValidCDLName(fcSurfLatentHeatFluxName);
     }
 
     String getFcSurfLatentHeatFluxName() {
@@ -188,7 +190,7 @@ class Configuration {
     }
 
     void setFcMeanSeaLevelPressureName(String fcMeanSeaLevelPressureName) {
-        this.fcMeanSeaLevelPressureName = fcMeanSeaLevelPressureName;
+        this.fcMeanSeaLevelPressureName = NetcdfFile.makeValidCDLName(fcMeanSeaLevelPressureName);
     }
 
     String getFcMeanSeaLevelPressureName() {
@@ -196,7 +198,7 @@ class Configuration {
     }
 
     void setFcBoundaryLayerHeightName(String fcBoundaryLayerHeightName) {
-        this.fcBoundaryLayerHeightName = fcBoundaryLayerHeightName;
+        this.fcBoundaryLayerHeightName = NetcdfFile.makeValidCDLName(fcBoundaryLayerHeightName);
     }
 
     String getFcBoundaryLayerHeightName() {
@@ -204,7 +206,7 @@ class Configuration {
     }
 
     void setFc10mEastWindName(String fc10mEastWindName) {
-        this.fc10mEastWindName = fc10mEastWindName;
+        this.fc10mEastWindName = NetcdfFile.makeValidCDLName(fc10mEastWindName);
     }
 
     String getFc10mEastWindName() {
@@ -212,7 +214,7 @@ class Configuration {
     }
 
     void setFc10mNorthWindName(String fc10mNorthWindName) {
-        this.fc10mNorthWindName = fc10mNorthWindName;
+        this.fc10mNorthWindName = NetcdfFile.makeValidCDLName(fc10mNorthWindName);
     }
 
     String getFc10mNorthWindName() {
@@ -220,7 +222,7 @@ class Configuration {
     }
 
     void setFc2mTemperatureName(String fc2mTemperatureName) {
-        this.fc2mTemperatureName = fc2mTemperatureName;
+        this.fc2mTemperatureName = NetcdfFile.makeValidCDLName(fc2mTemperatureName);
     }
 
     String getFc2mTemperatureName() {
@@ -228,7 +230,7 @@ class Configuration {
     }
 
     void setFc2mDewPointName(String fc2mDewPointName) {
-        this.fc2mDewPointName = fc2mDewPointName;
+        this.fc2mDewPointName = NetcdfFile.makeValidCDLName(fc2mDewPointName);
     }
 
     String getFc2mDewPointName() {
@@ -236,7 +238,7 @@ class Configuration {
     }
 
     void setFcDownSurfSolarRadiationName(String fcDownSurfSolarRadiationName) {
-        this.fcDownSurfSolarRadiationName = fcDownSurfSolarRadiationName;
+        this.fcDownSurfSolarRadiationName = NetcdfFile.makeValidCDLName(fcDownSurfSolarRadiationName);
     }
 
     String getFcDownSurfSolarRadiationName() {
@@ -244,7 +246,7 @@ class Configuration {
     }
 
     void setFcDownSurfThermalRadiationName(String fcDownSurfThermalRadiationName) {
-        this.fcDownSurfThermalRadiationName = fcDownSurfThermalRadiationName;
+        this.fcDownSurfThermalRadiationName = NetcdfFile.makeValidCDLName(fcDownSurfThermalRadiationName);
     }
 
     String getFcDownSurfThermalRadiationName() {
@@ -252,7 +254,7 @@ class Configuration {
     }
 
     void setFcSurfSolarRadiationName(String fcSurfSolarRadiationName) {
-        this.fcSurfSolarRadiationName = fcSurfSolarRadiationName;
+        this.fcSurfSolarRadiationName = NetcdfFile.makeValidCDLName(fcSurfSolarRadiationName);
     }
 
     String getFcSurfSolarRadiationName() {
@@ -260,7 +262,7 @@ class Configuration {
     }
 
     void setFcSurfThermalRadiationName(String fcSurfThermalRadiationName) {
-        this.fcSurfThermalRadiationName = fcSurfThermalRadiationName;
+        this.fcSurfThermalRadiationName = NetcdfFile.makeValidCDLName(fcSurfThermalRadiationName);
     }
 
     String getFcSurfThermalRadiationName() {
@@ -268,7 +270,7 @@ class Configuration {
     }
 
     void setFcTurbStressEastName(String fcTurbStressEastName) {
-        this.fcTurbStressEastName = fcTurbStressEastName;
+        this.fcTurbStressEastName = NetcdfFile.makeValidCDLName(fcTurbStressEastName);
     }
 
     String getFcTurbStressEastName() {
@@ -276,7 +278,7 @@ class Configuration {
     }
 
     void setFcTurbStressNorthName(String fcTurbStressNorthName) {
-        this.fcTurbStressNorthName = fcTurbStressNorthName;
+        this.fcTurbStressNorthName = NetcdfFile.makeValidCDLName(fcTurbStressNorthName);
     }
 
     String getFcTurbStressNorthName() {
@@ -284,7 +286,7 @@ class Configuration {
     }
 
     void setFcEvaporationName(String fcEvaporationName) {
-        this.fcEvaporationName = fcEvaporationName;
+        this.fcEvaporationName = NetcdfFile.makeValidCDLName(fcEvaporationName);
     }
 
     String getFcEvaporationName() {
@@ -292,7 +294,7 @@ class Configuration {
     }
 
     void setFcTotalPrecipName(String fcTotalPrecipName) {
-        this.fcTotalPrecipName = fcTotalPrecipName;
+        this.fcTotalPrecipName = NetcdfFile.makeValidCDLName(fcTotalPrecipName);
     }
 
     String getFcTotalPrecipName() {
@@ -300,7 +302,7 @@ class Configuration {
     }
 
     void setLongitudeVariableName(String longitudeVariableName) {
-        this.longitudeVariableName = longitudeVariableName;
+        this.longitudeVariableName = NetcdfFile.makeValidCDLName(longitudeVariableName);
     }
 
     String getLongitudeVariableName() {
@@ -308,7 +310,7 @@ class Configuration {
     }
 
     void setLatitudeVariableName(String latitudeVariableName) {
-        this.latitudeVariableName = latitudeVariableName;
+        this.latitudeVariableName = NetcdfFile.makeValidCDLName(latitudeVariableName);
     }
 
     String getLatitudeVariableName() {

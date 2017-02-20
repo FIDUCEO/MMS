@@ -183,10 +183,10 @@ class NwpPostProcessing extends PostProcessing {
     }
 
     private File writeGeoFile(NetcdfFile reader) throws IOException, InvalidRangeException {
-        final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.getLongitudeVariableName());
+        final Variable lonVariable = reader.findVariable(null, configuration.getLongitudeVariableName());
         final Array longitudes = lonVariable.read();
 
-        final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.getLatitudeVariableName());
+        final Variable latVariable = reader.findVariable(null, configuration.getLatitudeVariableName());
         final Array latitudes = latVariable.read();
 
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);

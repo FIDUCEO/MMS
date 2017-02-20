@@ -394,7 +394,7 @@ public class NwpPostProcessingPluginTest {
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("from Sweden", configuration.getFc10mNorthWindName());
+        assertEquals("from\\ Sweden", configuration.getFc10mNorthWindName());
     }
 
     @Test

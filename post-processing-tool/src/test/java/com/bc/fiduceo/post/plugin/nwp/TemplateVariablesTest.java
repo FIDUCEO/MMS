@@ -45,7 +45,7 @@ public class TemplateVariablesTest {
         assertEquals(4, analysisVars.size());
 
         final TemplateVariable variable = analysisVars.get(2);
-        assertEquals("matchup.nwp.an.10m_east_wind_component", variable.getName());
+        assertEquals("matchup\\.nwp\\.an\\.10m_east_wind_component", variable.getName());
         assertEquals("U10", variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.an.time", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
@@ -60,7 +60,7 @@ public class TemplateVariablesTest {
         assertEquals(17, forecastVariables.size());
 
         TemplateVariable variable = forecastVariables.get(5);
-        assertEquals("matchup.nwp.fc.surface_solar_radiation", variable.getName());
+        assertEquals("matchup\\.nwp\\.fc\\.surface_solar_radiation", variable.getName());
         assertEquals("SSR", variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.fc.time", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
@@ -69,7 +69,7 @@ public class TemplateVariablesTest {
         assertEquals(5, attributes.size());
 
         variable = forecastVariables.get(13);
-        assertEquals("matchup.nwp.fc.2m_temperature", variable.getName());
+        assertEquals("matchup\\.nwp\\.fc\\.2m_temperature", variable.getName());
         assertEquals("T2", variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.fc.time", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());

@@ -35,11 +35,11 @@ import java.util.List;
 
 public class PostProcessingConfig {
 
-    public static final String TAG_NAME_ROOT = "post-processing-config";
-    public static final String TAG_NAME_POST_PROCESSINGS = "post-processings";
-    public static final String TAG_NAME_NEW_FILES = "create-new-files";
-    public static final String TAG_NAME_OUTPUT_DIR = "output-directory";
-    public static final String TAG_NAME_OVERWRITE = "overwrite";
+    static final String TAG_NAME_ROOT = "post-processing-config";
+    static final String TAG_NAME_POST_PROCESSINGS = "post-processings";
+    static final String TAG_NAME_NEW_FILES = "create-new-files";
+    static final String TAG_NAME_OUTPUT_DIR = "output-directory";
+    static final String TAG_NAME_OVERWRITE = "overwrite";
 
     transient private Document document;
     private boolean newFiles;
@@ -52,7 +52,7 @@ public class PostProcessingConfig {
         init();
     }
 
-    public static PostProcessingConfig load(InputStream inputStream) {
+    static PostProcessingConfig load(InputStream inputStream) {
         final SAXBuilder saxBuilder = new SAXBuilder();
         try {
             final Document document = saxBuilder.build(inputStream);
@@ -62,23 +62,23 @@ public class PostProcessingConfig {
         }
     }
 
-    public void store(OutputStream outputStream) throws IOException {
+    void store(OutputStream outputStream) throws IOException {
         new XMLOutputter(Format.getPrettyFormat()).output(document, outputStream);
     }
 
-    public List<Element> getPostProcessingElements() {
+    List<Element> getPostProcessingElements() {
         return Collections.unmodifiableList(postProcessingElements);
     }
 
-    public boolean isNewFiles() {
+    boolean isNewFiles() {
         return newFiles;
     }
 
-    public String getOutputDirectory() {
+    String getOutputDirectory() {
         return outputDirectory;
     }
 
-    public boolean isOverwrite() {
+    boolean isOverwrite() {
         return overwrite;
     }
 
