@@ -52,16 +52,16 @@ import org.jdom.Element;
         -->
         <forecast-steps>33</forecast-steps>
 
-        <!-- Defines the name of the time variable to use. Time variables are expected to store data in
-             seconds since 1970 format.
+        <!-- Defines the name of the time variable to use as reference time. Time variables are expected to store
+             data in seconds since 1970 format.
         -->
         <time-variable-name>acquisition-time</time-variable-name>
 
-        <!-- Defines the name of the longitude variable to use. Data is expected in decimal degrees east.
+        <!-- Defines the name of the longitude variable to use as reference. Data is expected in decimal degrees east.
         -->
         <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
 
-        <!-- Defines the name of the latitude variable to use. Data is expected in decimal degrees east.
+        <!-- Defines the name of the latitude variable to use as reference. Data is expected in decimal degrees north.
         -->
         <latitude-variable-name>animal-sst_insitu.lat</latitude-variable-name>
 
