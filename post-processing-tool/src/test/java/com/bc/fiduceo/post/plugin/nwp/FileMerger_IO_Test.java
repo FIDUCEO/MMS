@@ -96,8 +96,8 @@ public class FileMerger_IO_Test {
         try (NetcdfFile analysis = NetcdfFile.open(analysisFile.getAbsolutePath())) {
             final int[] centerTimes = fileMerger.mergeAnalysisFile(netcdfFileWriter, analysis);
             assertEquals(9, centerTimes.length);
-            assertEquals(1073433600, centerTimes[0]);
-            assertEquals(1073584800, centerTimes[7]);
+            assertEquals(1073692800, centerTimes[0]);
+            assertEquals(1074103200, centerTimes[7]);
 
             netcdfFileWriter.flush();
 
@@ -120,8 +120,8 @@ public class FileMerger_IO_Test {
         try (NetcdfFile analysis = NetcdfFile.open(forecastFile.getAbsolutePath())) {
             final int[] centerTimes = fileMerger.mergeForecastFile(netcdfFileWriter, analysis);
             assertEquals(9, centerTimes.length);
-            assertEquals(1073444400, centerTimes[0]);
-            assertEquals(1073520000, centerTimes[7]);
+            assertEquals(1073692800, centerTimes[0]);
+            assertEquals(1074092400, centerTimes[7]);
 
             netcdfFileWriter.flush();
 

@@ -79,7 +79,7 @@ class FileMerger {
 
             final int[] sourceStart = {timeStep - anPastTimeStepCount, 0, i, 0};
             NwpUtils.copyValues(analysisVariablesMap, netcdfFileWriter, i, sourceStart, anSourceShape);
-            centerTimes[i] = analysisTimeArray.getInt(i);
+            centerTimes[i] = analysisTimeArray.getInt(timeStep);
         }
 
         return centerTimes;
@@ -122,7 +122,7 @@ class FileMerger {
 
             final int[] sourceStart = {timeStep - fcPastTimeStepCount, 0, i, 0};
             NwpUtils.copyValues(forecastVariablesMap, netcdfFileWriter, i, sourceStart, fcSourceShape);
-            centerTimes[i] = forecastTimeArray.getInt(i);
+            centerTimes[i] = forecastTimeArray.getInt(timeStep);
         }
 
         return centerTimes;
