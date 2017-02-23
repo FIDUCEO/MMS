@@ -224,13 +224,12 @@ public class TestUtil {
         return testFile;
     }
 
-    public static File copyFileTOTestDir(File sourceFile) throws IOException {
+    public static File copyFileDir(File sourceFile, File targetDirectory) throws IOException {
         assertTrue(sourceFile.isFile());
 
         final String name = sourceFile.getName();
-        final File testDir = getTestDir();
-        final File targetFile = new File(testDir, name);
-        assertTrue(targetFile.createNewFile());
+        final File targetFile = new File(targetDirectory, name);
+        targetFile.createNewFile();
 
         Files.copy(sourceFile.toPath(), targetFile.toPath(), REPLACE_EXISTING);
 

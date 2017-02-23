@@ -26,7 +26,6 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -35,12 +34,11 @@ import ucar.nc2.NetcdfFileWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
-@Ignore
 public class FileMerger_IO_Test {
 
     private File testDataDirectory;
@@ -51,16 +49,24 @@ public class FileMerger_IO_Test {
 
     @Before
     public void setUp() throws IOException, InvalidRangeException {
-        TestUtil.createTestDirectory();
+        // @todo 2 tb/tb clean up this messy set-up 2017-02-23
+        final String tempDirPath = System.getProperty("java.io.tmpdir");
+        final File tempDir = new File(tempDirPath);
         testDataDirectory = TestUtil.getTestDataDirectory();
 
         final String mmd06Path = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "mmd06c", "animal-sst_amsre-aq", "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc"}, true);
         final File mmd06OriginalFile = new File(mmd06Path);
         assertTrue(mmd06OriginalFile.isFile());
-        final File mmd06File = TestUtil.copyFileTOTestDir(mmd06OriginalFile);
+        final File mmd06File = TestUtil.copyFileDir(mmd06OriginalFile, tempDir);
+        final File renamedFile = new File(mmd06File.getParent(), new Date().getTime() + mmd06File.getName());
+        if (!mmd06File.renameTo(renamedFile)) {
+            fail("unable to rename file");
+        }
+        renamedFile.deleteOnExit();
+        mmd06File.deleteOnExit();
 
         netcdfFile = NetCDFUtils.openReadOnly(mmd06OriginalFile.getAbsolutePath());
-        netcdfFileWriter = NetcdfFileWriter.openExisting(mmd06File.getAbsolutePath());
+        netcdfFileWriter = NetcdfFileWriter.openExisting(renamedFile.getAbsolutePath());
         netcdfFileWriter.setRedefineMode(true);
 
         configuration = new Configuration();
@@ -82,8 +88,6 @@ public class FileMerger_IO_Test {
         if (netcdfFileWriter != null) {
             netcdfFileWriter.close();
         }
-
-        TestUtil.deleteTestDirectory();
     }
 
     @Test
