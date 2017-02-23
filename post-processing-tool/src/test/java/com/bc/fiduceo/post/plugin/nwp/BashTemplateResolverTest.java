@@ -24,9 +24,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BashTemplateResolverTest {
 
@@ -63,8 +61,27 @@ public class BashTemplateResolverTest {
 
     @Test
     public void testIsResolved_unresolved() {
-
         final BashTemplateResolver resolver = new BashTemplateResolver(new Properties());
         assertFalse(resolver.isResolved(CDO_MATCHUP_AN_TEMPLATE));
+    }
+
+    @Test
+    public void testResolve_static_resolved() {
+        final Properties properties = new Properties();
+        properties.put("CDO", "/fiduceo/bin/cdo_dir");
+
+        final String resolved = BashTemplateResolver.resolve("huhu, ${CDO}", properties);
+        assertEquals("huhu, /fiduceo/bin/cdo_dir", resolved);
+    }
+
+    @Test
+    public void testResolve_static_unresolved() {
+        final Properties properties = new Properties();
+
+        try {
+            BashTemplateResolver.resolve("huhu, ${CDO}", properties);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }
