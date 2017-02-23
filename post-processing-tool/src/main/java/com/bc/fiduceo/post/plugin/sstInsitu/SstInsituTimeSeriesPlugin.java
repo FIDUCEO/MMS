@@ -24,13 +24,13 @@ import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
-public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin{
+public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin {
 
-    public static final String TAG_NAME_SST_INSITU_TIME_SERIES = "sst-insitu-time-series";
-    public static final String TAG_NAME_VERSION = "version";
-    public static final String TAG_NAME_TIME_RANGE_SECONDS = "time-range-in-seconds";
-    public static final String TAG_NAME_TIME_SERIES_SIZE = "time-series-size";
-    public static final String TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE = "secondary-sensor-matchup-time-variable";
+    static final String TAG_NAME_SST_INSITU_TIME_SERIES = "sst-insitu-time-series";
+    static final String TAG_NAME_VERSION = "version";
+    static final String TAG_NAME_TIME_RANGE_SECONDS = "time-range-in-seconds";
+    static final String TAG_NAME_TIME_SERIES_SIZE = "time-series-size";
+    static final String TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE = "secondary-sensor-matchup-time-variable";
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
