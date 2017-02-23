@@ -235,6 +235,7 @@ public class TestUtil {
         Files.copy(sourceFile.toPath(), targetFile.toPath(), REPLACE_EXISTING);
 
         assertTrue(targetFile.isFile());
+
         return targetFile;
     }
 

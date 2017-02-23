@@ -566,4 +566,21 @@ public class NwpPostProcessingPluginTest {
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("Toti", configuration.getFcTotalPrecipName());
     }
+
+    @Test
+    public void testCreateConfiguration_fcMeanSeaLevelPressureName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-mean-pressure-name>press</fc-mean-pressure-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("press", configuration.getFcMeanSeaLevelPressureName());
+    }
 }

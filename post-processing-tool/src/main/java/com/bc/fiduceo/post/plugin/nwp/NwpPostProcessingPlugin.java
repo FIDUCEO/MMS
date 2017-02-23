@@ -165,6 +165,11 @@ import org.jdom.Element;
         -->
         <fc-total-precip-name>matchup.nwp.fc.total_precipitation</fc-total-precip-name>
 
+        <!-- Defines the name of the target variable for forecast mean sea level pressure.
+             Default: matchup.nwp.fc.mean_sea_level_pressure
+        -->
+        <fc-mean-pressure-name>matchup.nwp.fc.mean_sea_level_pressure</fc-mean-pressure-name>
+
     </nwp>
  */
 
@@ -318,6 +323,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element fcTotalPrecipElement = rootElement.getChild("fc-total-precip-name");
         if (fcTotalPrecipElement != null) {
             configuration.setFcTotalPrecipName(fcTotalPrecipElement.getValue().trim());
+        }
+
+        final Element fcMeanPressureElement = rootElement.getChild("fc-mean-pressure-name");
+        if (fcMeanPressureElement != null) {
+            configuration.setFcMeanSeaLevelPressureName(fcMeanPressureElement.getValue().trim());
         }
 
         return configuration;

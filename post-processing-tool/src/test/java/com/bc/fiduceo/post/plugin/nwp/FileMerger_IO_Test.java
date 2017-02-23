@@ -26,6 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
+@Ignore
 public class FileMerger_IO_Test {
 
     private File testDataDirectory;
@@ -65,7 +67,6 @@ public class FileMerger_IO_Test {
         configuration.setTimeVariableName("animal-sst_acquisition_time");
 
         templateVariables = new TemplateVariables(configuration);
-
 
         final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
         postProcessing.prepare(netcdfFile, netcdfFileWriter);
