@@ -21,8 +21,6 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import ucar.nc2.NetcdfFile;
-
 import java.io.File;
 
 class Configuration {
@@ -74,15 +72,15 @@ class Configuration {
         fc10mEastWindName = "matchup.nwp.fc.10m_east_wind_component";
         fc10mNorthWindName = "matchup.nwp.fc.10m_north_wind_component";
         fc2mTemperatureName = "matchup.nwp.fc.2m_temperature";
-        fc2mDewPointName =  "matchup.nwp.fc.2m_dew_point";
-        fcDownSurfSolarRadiationName =  "matchup.nwp.fc.downward_surface_solar_radiation";
-        fcDownSurfThermalRadiationName =  "matchup.nwp.fc.downward_surface_thermal_radiation";
-        fcSurfSolarRadiationName =  "matchup.nwp.fc.surface_solar_radiation";
-        fcSurfThermalRadiationName =  "matchup.nwp.fc.surface_thermal_radiation";
-        fcTurbStressEastName =  "matchup.nwp.fc.turbulent_stress_east_component";
-        fcTurbStressNorthName =  "matchup.nwp.fc.turbulent_stress_north_component";
-        fcEvaporationName =  "matchup.nwp.fc.evaporation";
-        fcTotalPrecipName =  "matchup.nwp.fc.total_precipitation";
+        fc2mDewPointName = "matchup.nwp.fc.2m_dew_point";
+        fcDownSurfSolarRadiationName = "matchup.nwp.fc.downward_surface_solar_radiation";
+        fcDownSurfThermalRadiationName = "matchup.nwp.fc.downward_surface_thermal_radiation";
+        fcSurfSolarRadiationName = "matchup.nwp.fc.surface_solar_radiation";
+        fcSurfThermalRadiationName = "matchup.nwp.fc.surface_thermal_radiation";
+        fcTurbStressEastName = "matchup.nwp.fc.turbulent_stress_east_component";
+        fcTurbStressNorthName = "matchup.nwp.fc.turbulent_stress_north_component";
+        fcEvaporationName = "matchup.nwp.fc.evaporation";
+        fcTotalPrecipName = "matchup.nwp.fc.total_precipitation";
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -126,7 +124,7 @@ class Configuration {
     }
 
     void setTimeVariableName(String timeVariableName) {
-        this.timeVariableName =  timeVariableName;
+        this.timeVariableName = timeVariableName;
     }
 
     String getTimeVariableName() {
@@ -134,7 +132,7 @@ class Configuration {
     }
 
     void setAnSeaIceFractionName(String anSeaIceFractionName) {
-        this.anSeaIceFractionName =  anSeaIceFractionName;
+        this.anSeaIceFractionName = anSeaIceFractionName;
     }
 
     String getAnSeaIceFractionName() {
@@ -142,7 +140,7 @@ class Configuration {
     }
 
     void setAnSSTName(String anSSTName) {
-        this.anSSTName =  anSSTName;
+        this.anSSTName = anSSTName;
     }
 
     String getAnSSTName() {
@@ -150,7 +148,7 @@ class Configuration {
     }
 
     void setAnEastWindName(String anEastWindName) {
-        this.anEastWindName =  anEastWindName;
+        this.anEastWindName = anEastWindName;
     }
 
     String getAnEastWindName() {
@@ -158,7 +156,7 @@ class Configuration {
     }
 
     void setAnNorthWindName(String anNorthWindName) {
-        this.anNorthWindName =  anNorthWindName;
+        this.anNorthWindName = anNorthWindName;
     }
 
     String getAnNorthWindName() {
@@ -166,7 +164,7 @@ class Configuration {
     }
 
     void setFcSSTName(String fcSSTName) {
-        this.fcSSTName =  fcSSTName;
+        this.fcSSTName = fcSSTName;
     }
 
     String getFcSSTName() {
@@ -174,7 +172,7 @@ class Configuration {
     }
 
     void setFcSurfSensibleHeatFluxName(String fcSurfSensibleHeatFluxName) {
-        this.fcSurfSensibleHeatFluxName =  fcSurfSensibleHeatFluxName;
+        this.fcSurfSensibleHeatFluxName = fcSurfSensibleHeatFluxName;
     }
 
     String getFcSurfSensibleHeatFluxName() {
@@ -182,7 +180,7 @@ class Configuration {
     }
 
     void setFcSurfLatentHeatFluxName(String fcSurfLatentHeatFluxName) {
-        this.fcSurfLatentHeatFluxName =  fcSurfLatentHeatFluxName;
+        this.fcSurfLatentHeatFluxName = fcSurfLatentHeatFluxName;
     }
 
     String getFcSurfLatentHeatFluxName() {
@@ -190,7 +188,7 @@ class Configuration {
     }
 
     void setFcMeanSeaLevelPressureName(String fcMeanSeaLevelPressureName) {
-        this.fcMeanSeaLevelPressureName =  fcMeanSeaLevelPressureName;
+        this.fcMeanSeaLevelPressureName = fcMeanSeaLevelPressureName;
     }
 
     String getFcMeanSeaLevelPressureName() {
@@ -198,7 +196,7 @@ class Configuration {
     }
 
     void setFcBoundaryLayerHeightName(String fcBoundaryLayerHeightName) {
-        this.fcBoundaryLayerHeightName =  fcBoundaryLayerHeightName;
+        this.fcBoundaryLayerHeightName = fcBoundaryLayerHeightName;
     }
 
     String getFcBoundaryLayerHeightName() {
@@ -206,7 +204,7 @@ class Configuration {
     }
 
     void setFc10mEastWindName(String fc10mEastWindName) {
-        this.fc10mEastWindName =  fc10mEastWindName;
+        this.fc10mEastWindName = fc10mEastWindName;
     }
 
     String getFc10mEastWindName() {
@@ -214,7 +212,7 @@ class Configuration {
     }
 
     void setFc10mNorthWindName(String fc10mNorthWindName) {
-        this.fc10mNorthWindName =  fc10mNorthWindName;
+        this.fc10mNorthWindName = fc10mNorthWindName;
     }
 
     String getFc10mNorthWindName() {
@@ -222,7 +220,7 @@ class Configuration {
     }
 
     void setFc2mTemperatureName(String fc2mTemperatureName) {
-        this.fc2mTemperatureName =  fc2mTemperatureName;
+        this.fc2mTemperatureName = fc2mTemperatureName;
     }
 
     String getFc2mTemperatureName() {
@@ -230,7 +228,7 @@ class Configuration {
     }
 
     void setFc2mDewPointName(String fc2mDewPointName) {
-        this.fc2mDewPointName =  fc2mDewPointName;
+        this.fc2mDewPointName = fc2mDewPointName;
     }
 
     String getFc2mDewPointName() {
@@ -238,7 +236,7 @@ class Configuration {
     }
 
     void setFcDownSurfSolarRadiationName(String fcDownSurfSolarRadiationName) {
-        this.fcDownSurfSolarRadiationName =  fcDownSurfSolarRadiationName;
+        this.fcDownSurfSolarRadiationName = fcDownSurfSolarRadiationName;
     }
 
     String getFcDownSurfSolarRadiationName() {
@@ -246,7 +244,7 @@ class Configuration {
     }
 
     void setFcDownSurfThermalRadiationName(String fcDownSurfThermalRadiationName) {
-        this.fcDownSurfThermalRadiationName =  fcDownSurfThermalRadiationName;
+        this.fcDownSurfThermalRadiationName = fcDownSurfThermalRadiationName;
     }
 
     String getFcDownSurfThermalRadiationName() {
@@ -254,7 +252,7 @@ class Configuration {
     }
 
     void setFcSurfSolarRadiationName(String fcSurfSolarRadiationName) {
-        this.fcSurfSolarRadiationName =  fcSurfSolarRadiationName;
+        this.fcSurfSolarRadiationName = fcSurfSolarRadiationName;
     }
 
     String getFcSurfSolarRadiationName() {
@@ -262,7 +260,7 @@ class Configuration {
     }
 
     void setFcSurfThermalRadiationName(String fcSurfThermalRadiationName) {
-        this.fcSurfThermalRadiationName =  fcSurfThermalRadiationName;
+        this.fcSurfThermalRadiationName = fcSurfThermalRadiationName;
     }
 
     String getFcSurfThermalRadiationName() {
@@ -270,7 +268,7 @@ class Configuration {
     }
 
     void setFcTurbStressEastName(String fcTurbStressEastName) {
-        this.fcTurbStressEastName =  fcTurbStressEastName;
+        this.fcTurbStressEastName = fcTurbStressEastName;
     }
 
     String getFcTurbStressEastName() {
@@ -278,7 +276,7 @@ class Configuration {
     }
 
     void setFcTurbStressNorthName(String fcTurbStressNorthName) {
-        this.fcTurbStressNorthName =  fcTurbStressNorthName;
+        this.fcTurbStressNorthName = fcTurbStressNorthName;
     }
 
     String getFcTurbStressNorthName() {
@@ -286,7 +284,7 @@ class Configuration {
     }
 
     void setFcEvaporationName(String fcEvaporationName) {
-        this.fcEvaporationName =  fcEvaporationName;
+        this.fcEvaporationName = fcEvaporationName;
     }
 
     String getFcEvaporationName() {
@@ -294,7 +292,7 @@ class Configuration {
     }
 
     void setFcTotalPrecipName(String fcTotalPrecipName) {
-        this.fcTotalPrecipName =  fcTotalPrecipName;
+        this.fcTotalPrecipName = fcTotalPrecipName;
     }
 
     String getFcTotalPrecipName() {
@@ -302,7 +300,7 @@ class Configuration {
     }
 
     void setLongitudeVariableName(String longitudeVariableName) {
-        this.longitudeVariableName =  longitudeVariableName;
+        this.longitudeVariableName = longitudeVariableName;
     }
 
     String getLongitudeVariableName() {
@@ -310,7 +308,7 @@ class Configuration {
     }
 
     void setLatitudeVariableName(String latitudeVariableName) {
-        this.latitudeVariableName =  latitudeVariableName;
+        this.latitudeVariableName = latitudeVariableName;
     }
 
     String getLatitudeVariableName() {

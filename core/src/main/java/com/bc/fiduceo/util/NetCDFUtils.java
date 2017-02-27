@@ -132,6 +132,13 @@ public class NetCDFUtils {
         return variable;
     }
 
+    // @todo 2 tb/tb add test 2017-02-27
+    public static boolean hasVariable(NetcdfFileWriter fileWriter, String name) {
+        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final Variable variable = fileWriter.findVariable(escapedName);
+        return variable != null;
+    }
+
     /**
      * Method to open NetcdfFile using a read only RandomAccessFile.
      * This is needed because opening a netcdf file with NetcdfFile.open(<String>) changes the file size.

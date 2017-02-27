@@ -77,11 +77,19 @@ class NwpPostProcessing extends PostProcessing {
             throw new RuntimeException("Expected dimension not present in file: 'matchup_count'");
         }
 
-        writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
-        writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
+        if (!writer.hasDimension(null, "matchup.nwp.an.time")) {
+            writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
+        }
+        if (!writer.hasDimension(null, "matchup.nwp.fc.time")) {
+            writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
+        }
 
-        writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
-        writer.addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
+        if (!NetCDFUtils.hasVariable(writer, "matchup.nwp.an.t0")) {
+            writer.addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
+        }
+        if (!NetCDFUtils.hasVariable(writer, "matchup.nwp.fc.t0")) {
+            writer.addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
+        }
 
         final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
         for (final TemplateVariable templateVariable : allVariables) {

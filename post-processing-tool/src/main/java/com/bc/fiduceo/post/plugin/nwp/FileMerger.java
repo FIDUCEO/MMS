@@ -59,7 +59,7 @@ class FileMerger {
         final Array analysisTimeArray = analysisTime.read();
 
         final String timeVariableName = configuration.getTimeVariableName();
-        final Variable mmdTime = netcdfFileWriter.findVariable(timeVariableName);
+        final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
         final Array mmdTimeArray = mmdTime.read();
 
         final int analysisSteps = configuration.getAnalysisSteps();
@@ -102,7 +102,7 @@ class FileMerger {
         final Array forecastTimeArray = forecastTime.read();
 
         final String timeVariableName = configuration.getTimeVariableName();
-        final Variable mmdTime = netcdfFileWriter.findVariable(timeVariableName);
+        final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
         final Array mmdTimeArray = mmdTime.read();
 
         final int forecastSteps = configuration.getForecastSteps();

@@ -103,7 +103,7 @@ import org.jdom.Element;
         <!-- Defines the name of the target variable for forecast boundary layer height.
              Default: matchup.nwp.fc.boundary_layer_height
         -->
-        <fc-surf-boundary-layer-height-name>matchup.nwp.fc.boundary_layer_height</fc-surf-boundary-layer-height-name>
+        <fc-boundary-layer-height-name>matchup.nwp.fc.boundary_layer_height</fc-boundary-layer-height-name>
 
         <!-- Defines the name of the target variable for forecast 10m east wind component.
              Default: matchup.nwp.fc.10m_east_wind_component
