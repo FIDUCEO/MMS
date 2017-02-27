@@ -44,12 +44,12 @@ class FileMerger {
 
     /**
      * Merges the ERA-interim analysis file into the target MMD. Returns the NWP data center times per matchup as seconds since 1970.
-     * @param netcdfFileWriter the MMD file writer
-     * @param analysisFile the projected and re-gridded ERA-interim analysis file
-     * @return the extraction center times per matchup
      *
-     * @throws IOException when something goes wrong
-     * @throws InvalidRangeException internal error 
+     * @param netcdfFileWriter the MMD file writer
+     * @param analysisFile     the projected and re-gridded ERA-interim analysis file
+     * @return the extraction center times per matchup
+     * @throws IOException           when something goes wrong
+     * @throws InvalidRangeException internal error
      */
     int[] mergeAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> analysisVariablesMap = getAnalysisVariablesMap(netcdfFileWriter, analysisFile);
@@ -60,7 +60,7 @@ class FileMerger {
 
         final String timeVariableName = configuration.getTimeVariableName();
         final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
-        final Array mmdTimeArray = mmdTime.read();
+        final Array mmdTimeArray = extractCenterVector(mmdTime);
 
         final int analysisSteps = configuration.getAnalysisSteps();
         final int anPastTimeStepCount = NwpUtils.computePastTimeStepCount(analysisSteps);
@@ -85,13 +85,29 @@ class FileMerger {
         return centerTimes;
     }
 
+    static Array extractCenterVector(Variable variable) throws IOException, InvalidRangeException {
+        final int rank = variable.getRank();
+        if (rank == 1) {
+            return variable.read();
+        } else if (rank == 3) {
+            final int[] shape = variable.getShape();
+            final int[] offset = {0, shape[1] / 2, shape[2] / 2};
+            shape[1] = 1;
+            shape[2] = 1;
+            return variable.read(offset, shape);
+        }
+
+        throw new RuntimeException("unsupported rank of time variable: " + variable.getFullName());
+
+    }
+
     /**
      * Merges the ERA-interim forecast file into the target MMD. Returns the NWP data center times per matchup as seconds since 1970.
-     * @param netcdfFileWriter the MMD file writer
-     * @param forecastFile the projected and re-gridded ERA-interim forecast file
-     * @return the extraction center times per matchup
      *
-     * @throws IOException when something goes wrong
+     * @param netcdfFileWriter the MMD file writer
+     * @param forecastFile     the projected and re-gridded ERA-interim forecast file
+     * @return the extraction center times per matchup
+     * @throws IOException           when something goes wrong
      * @throws InvalidRangeException internal error
      */
     int[] mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) throws IOException, InvalidRangeException {
@@ -103,7 +119,7 @@ class FileMerger {
 
         final String timeVariableName = configuration.getTimeVariableName();
         final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
-        final Array mmdTimeArray = mmdTime.read();
+        final Array mmdTimeArray = extractCenterVector(mmdTime);
 
         final int forecastSteps = configuration.getForecastSteps();
         final int fcPastTimeStepCount = NwpUtils.computePastTimeStepCount(forecastSteps);
@@ -138,7 +154,7 @@ class FileMerger {
         return getVariableVariableMap(netcdfFileWriter, forecastFile, forecastVariables);
     }
 
-    private Map<Variable, Variable> getVariableVariableMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile, List<TemplateVariable> templateVariables ) {
+    private Map<Variable, Variable> getVariableVariableMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile, List<TemplateVariable> templateVariables) {
         final Map<Variable, Variable> variablesMap = new HashMap<>();
         for (final TemplateVariable analysisVariable : templateVariables) {
             final String targetName = analysisVariable.getName();

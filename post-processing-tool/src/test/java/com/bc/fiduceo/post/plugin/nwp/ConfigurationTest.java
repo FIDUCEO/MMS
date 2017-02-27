@@ -84,6 +84,22 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetAnCenterTimeName() {
+        final String timeVariableName = "center_minute";
+
+        config.setAnCenterTimeName(timeVariableName);
+        assertEquals(timeVariableName, config.getAnCenterTimeName());
+    }
+
+    @Test
+    public void testSetGetFcCenterTimeName() {
+        final String timeVariableName = "forecast_day";
+
+        config.setFcCenterTimeName(timeVariableName);
+        assertEquals(timeVariableName, config.getFcCenterTimeName());
+    }
+
+    @Test
     public void testSetGetLongitudeVariableName() {
         final String variableName = "longi-tuhude";
 
@@ -275,6 +291,9 @@ public class ConfigurationTest {
         assertEquals(33, config.getForecastSteps());
         assertNull(config.getNWPAuxDir());
         assertNull(config.getTimeVariableName());
+
+        assertEquals("matchup.nwp.an.t0", config.getAnCenterTimeName());
+        assertEquals("matchup.nwp.fc.t0", config.getFcCenterTimeName());
 
         assertEquals("matchup.nwp.an.sea_ice_fraction", config.getAnSeaIceFractionName());
         assertEquals("matchup.nwp.an.sea_surface_temperature", config.getAnSSTName());

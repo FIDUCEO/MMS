@@ -54,11 +54,16 @@ class Configuration {
     private String fcTotalPrecipName;
     private String longitudeVariableName;
     private String latitudeVariableName;
+    private String anCenterTimeName;
+    private String fcCenterTimeName;
 
     Configuration() {
         deleteOnExit = true;
         analysisSteps = 17;
         forecastSteps = 33;
+
+        anCenterTimeName = "matchup.nwp.an.t0";
+        fcCenterTimeName = "matchup.nwp.fc.t0";
 
         anSeaIceFractionName = "matchup.nwp.an.sea_ice_fraction";
         anSSTName = "matchup.nwp.an.sea_surface_temperature";
@@ -129,6 +134,22 @@ class Configuration {
 
     String getTimeVariableName() {
         return timeVariableName;
+    }
+
+    void setAnCenterTimeName(String anCenterTimeName) {
+        this.anCenterTimeName = anCenterTimeName;
+    }
+
+    String getAnCenterTimeName() {
+        return anCenterTimeName;
+    }
+
+    void setFcCenterTimeName(String fcCenterTimeName) {
+        this.fcCenterTimeName = fcCenterTimeName;
+    }
+
+    String getFcCenterTimeName() {
+        return fcCenterTimeName;
     }
 
     void setAnSeaIceFractionName(String anSeaIceFractionName) {

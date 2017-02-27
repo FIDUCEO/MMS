@@ -178,6 +178,40 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
+    public void testCreateConfiguration_anCenterTimeName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <analysis-center-time-variable-name>watch_me_now</analysis-center-time-variable-name>" +
+                "" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("watch_me_now", configuration.getAnCenterTimeName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcCenterTimeName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <forecast-center-time-variable-name>in_two_minutes</forecast-center-time-variable-name>" +
+                "" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("in_two_minutes", configuration.getFcCenterTimeName());
+    }
+
+    @Test
     public void testCreateConfiguration_longitudeVariableName() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <longitude-variable-name>lons_my_dear</longitude-variable-name>" +
