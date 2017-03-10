@@ -138,7 +138,7 @@ public class AMSRE_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(34, variables.size());
+            assertEquals(36, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("Time", variable.getShortName());
@@ -195,6 +195,10 @@ public class AMSRE_Reader_IO_Test {
             variable = variables.get(33);
             assertEquals("Res1_Surf", variable.getShortName());
             assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(35);
+            assertEquals("Geostationary_Reflection_Longitude", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
         } finally {
             reader.close();
         }
@@ -274,6 +278,11 @@ public class AMSRE_Reader_IO_Test {
             NCTestUtils.assertValueAt(75, 4, 1, array);
             NCTestUtils.assertValueAt(94, 4, 2, array);
             NCTestUtils.assertValueAt(130, 4, 3, array);
+
+            array = reader.readRaw(93, 1152, interval, "Geostationary_Reflection_Latitude");
+            NCTestUtils.assertValueAt(-5372, 2, 2, array);
+            NCTestUtils.assertValueAt(-5409, 3, 2, array);
+            NCTestUtils.assertValueAt(-5380, 2, 3, array);
         } finally {
             reader.close();
         }
@@ -373,6 +382,11 @@ public class AMSRE_Reader_IO_Test {
             NCTestUtils.assertValueAt(11, 4, 2, array);
             NCTestUtils.assertValueAt(11, 5, 2, array);
             NCTestUtils.assertValueAt(11, 6, 2, array);
+
+            array = reader.readScaled(101, 647, interval, "Geostationary_Reflection_Longitude");
+            NCTestUtils.assertValueAt(-78.58999824337661, 0, 3, array);
+            NCTestUtils.assertValueAt(-78.08999825455248, 1, 3, array);
+            NCTestUtils.assertValueAt(-77.58999826572835, 2, 3, array);
         } finally {
             reader.close();
         }
