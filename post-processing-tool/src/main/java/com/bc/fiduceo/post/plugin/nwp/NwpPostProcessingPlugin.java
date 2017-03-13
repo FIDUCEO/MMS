@@ -98,7 +98,7 @@ import org.jdom.Element;
         <!-- Defines the name of the target variable for analysis total column water vapour.
              Default: matchup.nwp.an.total_column_water_vapour
         -->
-        <an-total-colum-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-colum-water-vapour-name>
+        <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-column-water-vapour-name>
 
          <!-- Defines the name of the target variable for forecast sea surface temperature.
              Default: matchup.nwp.fc.sea_surface_temperature
@@ -188,7 +188,7 @@ import org.jdom.Element;
         <!-- Defines the name of the target variable for forecast total column water vapour.
              Default: matchup.nwp.fc.total_column_water_vapour
         -->
-        <fc-total-colum-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-colum-water-vapour-name>
+        <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-column-water-vapour-name>
 
     </nwp>
  */
@@ -275,7 +275,7 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             configuration.setAnNorthWindName(anNorthWindElement.getValue().trim());
         }
 
-        final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-colum-water-vapour-name");
+        final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-column-water-vapour-name");
         if (anTotalColumnWaterVapourElement != null) {
             configuration.setAnTotalColumnWaterVapourName(anTotalColumnWaterVapourElement.getValue().trim());
         }
@@ -363,6 +363,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element fcMeanPressureElement = rootElement.getChild("fc-mean-pressure-name");
         if (fcMeanPressureElement != null) {
             configuration.setFcMeanSeaLevelPressureName(fcMeanPressureElement.getValue().trim());
+        }
+
+        final Element fcTotalColumnWaterVapour = rootElement.getChild("fc-total-column-water-vapour-name");
+        if (fcTotalColumnWaterVapour != null) {
+            configuration.setFcTotalColumnWaterVapourName(fcTotalColumnWaterVapour.getValue().trim());
         }
 
         return configuration;

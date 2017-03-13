@@ -332,7 +332,7 @@ public class NwpPostProcessingPluginTest {
     @Test
     public void testCreateConfiguration_anTotalColumnWaterVapourName() throws JDOMException, IOException {
         final String XML = "<nwp>" +
-                "    <an-total-colum-water-vapour-name>steamy_steamy</an-total-colum-water-vapour-name>" +
+                "    <an-total-column-water-vapour-name>steamy_steamy</an-total-column-water-vapour-name>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
@@ -633,5 +633,22 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("press", configuration.getFcMeanSeaLevelPressureName());
+    }
+
+    @Test
+    public void testCreateConfiguration_fcTotalColumnWaterVapourName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-total-column-water-vapour-name>steamy_beamy</fc-total-column-water-vapour-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("steamy_beamy", configuration.getFcTotalColumnWaterVapourName());
     }
 }
