@@ -82,6 +82,7 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assert2DVariable("matchup.nwp.an.sea_surface_temperature", 1, 2, 293.451416015625, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_east_wind_component", 2, 3, 6.577442169189453, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_north_wind_component", 3, 4, -3.9324848651885986, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.total_column_water_vapour", 4, 5, 40.191993713378906, mmd);
 
             NCTestUtils.assertVectorVariable("matchup.nwp.fc.t0", 5, 1073876400, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.sea_surface_temperature", 4, 6, 293.3771057128906, mmd);
@@ -101,6 +102,7 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assert2DVariable("matchup.nwp.fc.turbulent_stress_north_component", 18, 2, -338.94049072265625, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.evaporation", 19, 3, -4.630652256309986E-4, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_precipitation", 20, 4, 8.657717262394726E-5, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.total_column_water_vapour", 21, 5, 28.09221076965332, mmd);
         }
     }
 

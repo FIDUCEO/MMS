@@ -92,7 +92,7 @@ public class FileMerger_IO_Test {
 
     @Test
     public void testMergeAnalysisFile_MMD6() throws IOException, InvalidRangeException {
-        final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis1007035016016011699.nc"}, true);
+        final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis6328067588332403209.nc"}, true);
         final File analysisFile = new File(analysisPath);
         assertTrue(analysisFile.isFile());
 
@@ -111,12 +111,13 @@ public class FileMerger_IO_Test {
             NCTestUtils.assert2DVariable("matchup.nwp.an.sea_surface_temperature", 1, 1, 293.1509094238281, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_east_wind_component", 2, 2, 3.2551252841949463, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_north_wind_component", 3, 3, 4.974652290344238, netcdfFile);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.total_column_water_vapour", 4, 4, 43.44807815551758, netcdfFile);
         }
     }
 
     @Test
     public void testMergeForecastFile_MMD6() throws IOException, InvalidRangeException {
-        final String forecastPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "forecast6637079242589816197.nc"}, true);
+        final String forecastPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "forecast3878092999500197052.nc"}, true);
         final File forecastFile = new File(forecastPath);
         assertTrue(forecastFile.isFile());
 
@@ -148,6 +149,7 @@ public class FileMerger_IO_Test {
             NCTestUtils.assert2DVariable("matchup.nwp.fc.turbulent_stress_north_component", 14, 5, -5850.00830078125, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.evaporation", 15, 6, -4.936744808219373E-4, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_precipitation", 16, 7, 0.0037760320119559765, netcdfFile);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.total_column_water_vapour", 17, 8, 48.54024124145508, netcdfFile);
         }
     }
 }

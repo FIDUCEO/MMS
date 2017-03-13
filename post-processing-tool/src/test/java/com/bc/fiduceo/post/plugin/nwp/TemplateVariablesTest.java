@@ -42,9 +42,9 @@ public class TemplateVariablesTest {
     @Test
     public void testGetAnalysisVariables() {
         final List<TemplateVariable> analysisVars = templateVariables.getAnalysisVariables();
-        assertEquals(4, analysisVars.size());
+        assertEquals(5, analysisVars.size());
 
-        final TemplateVariable variable = analysisVars.get(2);
+        TemplateVariable variable = analysisVars.get(2);
         assertEquals("matchup.nwp.an.10m_east_wind_component", variable.getName());
         assertEquals("U10", variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.an.time", variable.getDimensions());
@@ -52,12 +52,18 @@ public class TemplateVariablesTest {
 
         final List<Attribute> attributes = variable.getAttributes();
         assertEquals(5, attributes.size());
+
+        variable = analysisVars.get(4);
+        assertEquals("matchup.nwp.an.total_column_water_vapour", variable.getName());
+        assertEquals("TCWV", variable.getOriginalName());
+        assertEquals("matchup_count matchup.nwp.an.time", variable.getDimensions());
+        assertEquals(DataType.FLOAT, variable.getDataType());
     }
 
     @Test
     public void testGetForecastVariables() {
         final List<TemplateVariable> forecastVariables = templateVariables.getForecastVariables();
-        assertEquals(17, forecastVariables.size());
+        assertEquals(18, forecastVariables.size());
 
         TemplateVariable variable = forecastVariables.get(5);
         assertEquals("matchup.nwp.fc.surface_solar_radiation", variable.getName());
@@ -81,6 +87,6 @@ public class TemplateVariablesTest {
     @Test
     public void testGetAllVariables() {
         final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
-        assertEquals(21, allVariables.size());
+        assertEquals(23, allVariables.size());
     }
 }

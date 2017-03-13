@@ -86,6 +86,14 @@ class TemplateVariables {
         northWindVariable.addAttribute("source", "GRIB data");
         variables.add(northWindVariable);
 
+        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(configuration.getAnTotalColumnWaterVapourName(), "TCWV", DataType.FLOAT, anDimensions);
+        totalColumnWaterVapourVariable.addAttribute("standard_name", "lwe_thickness_of_atmosphere_water_vapour_content");
+        totalColumnWaterVapourVariable.addAttribute("long_name", "Total column water vapour");
+        totalColumnWaterVapourVariable.addAttribute("units", "kg m**-2");
+        totalColumnWaterVapourVariable.addAttribute("_FillValue", 2.0E20);
+        totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
+        variables.add(totalColumnWaterVapourVariable);
+
         return variables;
     }
 
@@ -224,6 +232,14 @@ class TemplateVariables {
         sstkVariable.addAttribute("_FillValue", 2.0E20);
         sstkVariable.addAttribute("source", "GRIB data");
         variables.add(sstkVariable);
+
+        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(configuration.getFcTotalColumnWaterVapourName(), "TCWV", DataType.FLOAT, fcDimensions);
+        totalColumnWaterVapourVariable.addAttribute("standard_name", "lwe_thickness_of_atmosphere_water_vapour_content");
+        totalColumnWaterVapourVariable.addAttribute("long_name", "Total column water vapour");
+        totalColumnWaterVapourVariable.addAttribute("units", "kg m**-2");
+        totalColumnWaterVapourVariable.addAttribute("_FillValue", 2.0E20);
+        totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
+        variables.add(totalColumnWaterVapourVariable);
 
         return variables;
     }

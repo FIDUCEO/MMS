@@ -95,6 +95,11 @@ import org.jdom.Element;
         -->
         <an-north-wind-name>an_sea-surface-temperature</an-north-wind-name>
 
+        <!-- Defines the name of the target variable for analysis total column water vapour.
+             Default: matchup.nwp.an.total_column_water_vapour
+        -->
+        <an-total-colum-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-colum-water-vapour-name>
+
          <!-- Defines the name of the target variable for forecast sea surface temperature.
              Default: matchup.nwp.fc.sea_surface_temperature
         -->
@@ -180,6 +185,11 @@ import org.jdom.Element;
         -->
         <fc-mean-pressure-name>matchup.nwp.fc.mean_sea_level_pressure</fc-mean-pressure-name>
 
+        <!-- Defines the name of the target variable for forecast total column water vapour.
+             Default: matchup.nwp.fc.total_column_water_vapour
+        -->
+        <fc-total-colum-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-colum-water-vapour-name>
+
     </nwp>
  */
 
@@ -263,6 +273,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element anNorthWindElement = rootElement.getChild("an-north-wind-name");
         if (anNorthWindElement != null) {
             configuration.setAnNorthWindName(anNorthWindElement.getValue().trim());
+        }
+
+        final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-colum-water-vapour-name");
+        if (anTotalColumnWaterVapourElement != null) {
+            configuration.setAnTotalColumnWaterVapourName(anTotalColumnWaterVapourElement.getValue().trim());
         }
 
         final Element fcSSTElement = rootElement.getChild("fc-sst-name");

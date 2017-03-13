@@ -56,6 +56,8 @@ class Configuration {
     private String latitudeVariableName;
     private String anCenterTimeName;
     private String fcCenterTimeName;
+    private String anTotalColumnWaterVapourName;
+    private String fcTotalColumnWaterVapourName;
 
     Configuration() {
         deleteOnExit = true;
@@ -69,6 +71,7 @@ class Configuration {
         anSSTName = "matchup.nwp.an.sea_surface_temperature";
         anEastWindName = "matchup.nwp.an.10m_east_wind_component";
         anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
+        anTotalColumnWaterVapourName =  "matchup.nwp.an.total_column_water_vapour";
         fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
         fcSurfSensibleHeatFluxName = "matchup.nwp.fc.surface_sensible_heat_flux";
         fcSurfLatentHeatFluxName = "matchup.nwp.fc.surface_latent_heat_flux";
@@ -86,6 +89,7 @@ class Configuration {
         fcTurbStressNorthName = "matchup.nwp.fc.turbulent_stress_north_component";
         fcEvaporationName = "matchup.nwp.fc.evaporation";
         fcTotalPrecipName = "matchup.nwp.fc.total_precipitation";
+        fcTotalColumnWaterVapourName = "matchup.nwp.fc.total_column_water_vapour";
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -182,6 +186,14 @@ class Configuration {
 
     String getAnNorthWindName() {
         return anNorthWindName;
+    }
+
+    String getAnTotalColumnWaterVapourName() {
+        return anTotalColumnWaterVapourName;
+    }
+
+    void setAnTotalColumnWaterVapourName(String anTotalColumnWaterVapour) {
+        this.anTotalColumnWaterVapourName = anTotalColumnWaterVapour;
     }
 
     void setFcSSTName(String fcSSTName) {
@@ -320,6 +332,14 @@ class Configuration {
         return fcTotalPrecipName;
     }
 
+    void setFcTotalColumnWaterVapourName(String fcTotalColumnWaterVapourName) {
+        this.fcTotalColumnWaterVapourName = fcTotalColumnWaterVapourName;
+    }
+
+    String getFcTotalColumnWaterVapourName() {
+        return fcTotalColumnWaterVapourName;
+    }
+
     void setLongitudeVariableName(String longitudeVariableName) {
         this.longitudeVariableName = longitudeVariableName;
     }
@@ -348,4 +368,6 @@ class Configuration {
         }
         return true;
     }
+
+
 }

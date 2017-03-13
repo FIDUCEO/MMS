@@ -148,6 +148,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetAnTotalColumnWaterVapourName() {
+        final String variableName = "foggy";
+
+        config.setAnTotalColumnWaterVapourName(variableName);
+        assertEquals(variableName, config.getAnTotalColumnWaterVapourName());
+    }
+
+    @Test
     public void testSetGetFcSSTName() {
         final String variableName = "sea_surface_temp";
 
@@ -284,6 +292,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetFcTotalColumnWaterVapourName() {
+        final String variableName = "total_water_thing";
+
+        config.setFcTotalColumnWaterVapourName(variableName);
+        assertEquals(variableName, config.getFcTotalColumnWaterVapourName());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
@@ -299,6 +315,7 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.an.sea_surface_temperature", config.getAnSSTName());
         assertEquals("matchup.nwp.an.10m_east_wind_component", config.getAnEastWindName());
         assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
+        assertEquals("matchup.nwp.an.total_column_water_vapour", config.getAnTotalColumnWaterVapourName());
 
         assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
         assertEquals("matchup.nwp.fc.surface_sensible_heat_flux", config.getFcSurfSensibleHeatFluxName());
@@ -317,5 +334,6 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.fc.turbulent_stress_north_component", config.getFcTurbStressNorthName());
         assertEquals("matchup.nwp.fc.evaporation", config.getFcEvaporationName());
         assertEquals("matchup.nwp.fc.total_precipitation", config.getFcTotalPrecipName());
+        assertEquals("matchup.nwp.fc.total_column_water_vapour", config.getFcTotalColumnWaterVapourName());
     }
 }
