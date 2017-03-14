@@ -296,7 +296,7 @@ class PostProcessingTool {
             }
 
             final String shortName = v.getShortName();
-            final Variable nv = writer.addVariable(null, shortName, v.getDataType(), v.getDimensionsString());
+            final Variable nv = writer.addVariable(newGroup, shortName, v.getDataType(), v.getDimensionsString());
 
             for (Attribute att : v.getAttributes()) {
                 writer.addVariableAttribute(nv, att);

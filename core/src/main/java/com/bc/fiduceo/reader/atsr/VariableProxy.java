@@ -74,8 +74,12 @@ class VariableProxy extends VariablePrototype {
         }
 
         if (rasterDataNode.isNoDataValueUsed()) {
-            final double noDataValue = rasterDataNode.getNoDataValue();
-            attributes.add(new Attribute("_FillValue", noDataValue));
+            final Number fillValue = rasterDataNode.getNoDataValue();
+            attributes.add(new Attribute("_FillValue", fillValue));
+        } else if (getDataType().isNumeric()){
+            final Class classType = getDataType().getPrimitiveClassType();
+            final Number fillValue = NetCDFUtils.getDefaultFillValue(classType);
+            attributes.add(new Attribute("_FillValue", fillValue));
         }
         return attributes;
     }

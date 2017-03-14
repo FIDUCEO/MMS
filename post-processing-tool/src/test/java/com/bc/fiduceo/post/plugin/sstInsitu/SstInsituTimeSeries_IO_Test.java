@@ -202,14 +202,13 @@ public class SstInsituTimeSeries_IO_Test {
 
     @Test
     public void computeOneProduct() throws Exception {
-        final Logger logger = FiduceoLogger.getLogger();
         FiduceoLogger.setLevelSilent();
         configDir.mkdirs();
 
 
         final File systemConfigFile = new File(configDir, "system-config.xml");
         try (OutputStream stream = Files.newOutputStream(systemConfigFile.toPath())) {
-            final Document dom = new Document(
+            final Document systemConfig = new Document(
                         new Element("system-config").addContent(
                                     new Element("archive").addContent(Arrays.asList(
                                                 new Element("root-path").addContent(testDataDirectory.getAbsolutePath()),
@@ -217,12 +216,12 @@ public class SstInsituTimeSeries_IO_Test {
                                     ))
                         )
             );
-            new XMLOutputter(Format.getPrettyFormat()).output(dom, stream);
+            new XMLOutputter(Format.getPrettyFormat()).output(systemConfig, stream);
         }
 
         final File postProcessingConfigFile = new File(configDir, "processing-config.xml");
         try (OutputStream stream = Files.newOutputStream(postProcessingConfigFile.toPath())) {
-            final Document dom = new Document(
+            final Document postProcConfig = new Document(
                         new Element("post-processing-config").addContent(Arrays.asList(
                                     new Element("overwrite"),
                                     new Element("post-processings").addContent(
@@ -235,7 +234,7 @@ public class SstInsituTimeSeries_IO_Test {
                                     )
                         ))
             );
-            new XMLOutputter(Format.getPrettyFormat()).output(dom, stream);
+            new XMLOutputter(Format.getPrettyFormat()).output(postProcConfig, stream);
         }
 
         dataDir.mkdirs();
@@ -258,7 +257,6 @@ public class SstInsituTimeSeries_IO_Test {
         };
 
         PostProcessingToolMain.main(args);
-
 
         NetcdfFile netcdfFile = null;
         try {

@@ -43,6 +43,7 @@ import com.bc.fiduceo.matchup.writer.SourcePathWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -66,6 +67,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class MatchupTool {
 
@@ -192,11 +195,13 @@ class MatchupTool {
             varName = renames.containsKey(varName) ? renames.get(varName) : varName;
             final CenterXWritingIOVariable ioVariable = new CenterXWritingIOVariable();
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
-            ioVariable.setDataType(DataType.INT.toString());
+            final DataType dataType = DataType.INT;
+            ioVariable.setDataType(dataType.toString());
             ioVariable.setDimensionNames("matchup_count");
             final List<Attribute> attributes = ioVariable.getAttributes();
             final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "pixel original x location in satellite raster"));
+            attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
             ioVariablesList.add(ioVariable, sensorName);
         }
 
@@ -205,11 +210,13 @@ class MatchupTool {
             varName = renames.containsKey(varName) ? renames.get(varName) : varName;
             final CenterYWritingIOVariable ioVariable = new CenterYWritingIOVariable();
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
-            ioVariable.setDataType(DataType.INT.toString());
+            final DataType dataType = DataType.INT;
+            ioVariable.setDataType(dataType.toString());
             ioVariable.setDimensionNames("matchup_count");
             final List<Attribute> attributes = ioVariable.getAttributes();
             final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "pixel original y location in satellite raster"));
+            attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
             ioVariablesList.add(ioVariable, sensorName);
         }
 
@@ -383,12 +390,14 @@ class MatchupTool {
     private SphericalDistanceIOVariable createSphericalDistanceVariable() {
         final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable();
         variable.setTargetVariableName("matchup_spherical_distance");
-        variable.setDataType(DataType.FLOAT.toString());
+        final DataType dataType = DataType.FLOAT;
+        variable.setDataType(dataType.toString());
         variable.setDimensionNames("matchup_count");
 
         final List<Attribute> attributes = variable.getAttributes();
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
         attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
         return variable;
     }
 

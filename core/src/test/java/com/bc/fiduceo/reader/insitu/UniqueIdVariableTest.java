@@ -58,6 +58,7 @@ public class UniqueIdVariableTest {
         final List<Attribute> attributes = variable.getAttributes();
         assertEquals(3, attributes.size());
         assertEquals("_FillValue", attributes.get(0).getShortName());
+        assertEquals(-32768L, attributes.get(0).getNumericValue());
         assertEquals("long_name", attributes.get(1).getShortName());
         assertEquals("comment", attributes.get(2).getShortName());
     }

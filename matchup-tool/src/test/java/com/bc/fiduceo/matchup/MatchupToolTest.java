@@ -381,20 +381,26 @@ public class MatchupToolTest {
         assertEquals("int", variable.getDataType());
         assertEquals("matchup_count", variable.getDimensionNames());
         attributes = variable.getAttributes();
-        assertEquals(1, attributes.size());
+        assertEquals(2, attributes.size());
         attribute = attributes.get(0);
         assertEquals("description", attribute.getShortName());
         assertEquals("pixel original x location in satellite raster", attribute.getStringValue());
+        attribute = attributes.get(1);
+        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(-2147483647, attribute.getNumericValue());
 
         variable = ioVariables.get(1);
         assertEquals("sensorName_y", variable.getTargetVariableName());
         assertEquals("int", variable.getDataType());
         assertEquals("matchup_count", variable.getDimensionNames());
         attributes = variable.getAttributes();
-        assertEquals(1, attributes.size());
+        assertEquals(2, attributes.size());
         attribute = attributes.get(0);
         assertEquals("description", attribute.getShortName());
         assertEquals("pixel original y location in satellite raster", attribute.getStringValue());
+        attribute = attributes.get(1);
+        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(-2147483647, attribute.getNumericValue());
 
         variable = ioVariables.get(2);
         assertEquals("sensorName_file_name", variable.getTargetVariableName());
@@ -499,12 +505,14 @@ public class MatchupToolTest {
         assertEquals(4, ioVariables.size());
 
         final IOVariable xVariable = ioVariables.get(0);
-        assertEquals(1, xVariable.getAttributes().size());
+        assertEquals(2, xVariable.getAttributes().size());
         assertEquals("desc_r", xVariable.getAttributes().get(0).getShortName());
+        assertEquals("_FillValue", xVariable.getAttributes().get(1).getShortName());
 
         final IOVariable yVariable = ioVariables.get(1);
-        assertEquals(1, yVariable.getAttributes().size());
+        assertEquals(2, yVariable.getAttributes().size());
         assertEquals("description", yVariable.getAttributes().get(0).getShortName());
+        assertEquals("_FillValue", yVariable.getAttributes().get(1).getShortName());
 
         final IOVariable pathVariable = ioVariables.get(2);
         assertEquals(1, pathVariable.getAttributes().size());

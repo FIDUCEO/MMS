@@ -36,6 +36,8 @@ import java.io.IOException;
 
 public class NetCDFUtils {
 
+    public static final String CF_FILL_VALUE_NAME = "_FillValue";
+
     public static Number getDefaultFillValue(Array array) {
         final Class type = array.getDataType().getPrimitiveClassType();
         return getDefaultFillValue(type);
@@ -163,5 +165,18 @@ public class NetCDFUtils {
             throw new RuntimeException("Dimension not present in file: " + dimensionName);
         }
         return dimension.getLength();
+    }
+
+    public static void ensureFillValue(Variable variable) {
+        final Attribute attribute = variable.findAttribute(CF_FILL_VALUE_NAME);
+        if (attribute != null) {
+            return;
+        }
+
+        final DataType dataType = variable.getDataType();
+        if (dataType.isNumeric()) {
+            final Number fillValue = getDefaultFillValue(dataType.getPrimitiveClassType());
+            variable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, fillValue));
+        }
     }
 }

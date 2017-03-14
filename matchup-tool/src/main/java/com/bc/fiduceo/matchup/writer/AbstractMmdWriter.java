@@ -34,6 +34,7 @@ import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StopWatch;
 import ucar.ma2.Array;
@@ -44,7 +45,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
-import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -81,6 +81,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
      * @param ioVariablesList   the variables which has to be part of the mmd file
+     *
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
@@ -163,17 +164,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String primarySensorName, Path primaryObservationPath) throws IOException {
-        Reader reader = readerCache.get(primaryObservationPath.toString());
-        if (reader == null) {
-            reader = readerFactory.getReader(primarySensorName);
-            reader.open(primaryObservationPath.toFile());
-            readerCache.add(reader, primaryObservationPath.toString());
-        }
-
-        return reader;
-    }
-
     @Override
     public void write(Array data, String variableName, int zIndex) {
         final Array target = getTarget(variableName);
@@ -205,43 +195,18 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                "comment",
-                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                    "comment",
+                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             useCaseConfig.store(outputStream);
             netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "use-case-configuration",
-                    outputStream.toString()
+                        "use-case-configuration",
+                        outputStream.toString()
             ));
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
-        }
-    }
-
-    static void ensureFillValue(IOVariable variable) {
-        final String name = "_FillValue";
-        final List<Attribute> attributes = variable.getAttributes();
-        for (Attribute attribute : attributes) {
-            if (name.equals(attribute.getShortName())) {
-                return;
-            }
-        }
-
-        final DataType dataType = DataType.getType(variable.getDataType());
-        if (DataType.DOUBLE.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_DOUBLE));
-        } else if (DataType.FLOAT.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_FLOAT));
-        } else if (DataType.LONG.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_LONG));
-        } else if (DataType.INT.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_INT));
-        } else if (DataType.SHORT.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_SHORT));
-        } else if (DataType.BYTE.equals(dataType)) {
-            attributes.add(new Attribute(name, N3iosp.NC_FILL_BYTE));
         }
     }
 
@@ -289,14 +254,19 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         createDimensions(dimensions, numMatchups);
 
         for (final IOVariable ioVariable : ioVariables) {
-            ensureFillValue(ioVariable);
             final Variable variable = netcdfFileWriter.addVariable(null,
-                    ioVariable.getTargetVariableName(),
-                    DataType.getType(ioVariable.getDataType()),
-                    ioVariable.getDimensionNames());
+                                                                   ioVariable.getTargetVariableName(),
+                                                                   DataType.getType(ioVariable.getDataType()),
+                                                                   ioVariable.getDimensionNames());
             final List<Attribute> attributes = ioVariable.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
+            }
+            if(variable.getDataType().isNumeric()) {
+                final Attribute fillValueAtrribute = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME);
+                if (fillValueAtrribute == null) {
+                    throw new RuntimeException("Each numerical variable must own a CF conform fill value attribute.");
+                }
             }
         }
         netcdfFileWriter.create();
@@ -312,8 +282,19 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
+    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String primarySensorName, Path primaryObservationPath) throws IOException {
+        Reader reader = readerCache.get(primaryObservationPath.toString());
+        if (reader == null) {
+            reader = readerFactory.getReader(primarySensorName);
+            reader.open(primaryObservationPath.toFile());
+            readerCache.add(reader, primaryObservationPath.toString());
+        }
+
+        return reader;
+    }
+
     private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
-            throws IOException, InvalidRangeException {
+                throws IOException, InvalidRangeException {
         for (SampleSetIOVariable variable : sampleSetVariables) {
             variable.setSampleSet(sampleSet);
             variable.writeData(0, 0, null, zIndex);

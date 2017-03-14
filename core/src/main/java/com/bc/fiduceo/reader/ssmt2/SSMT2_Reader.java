@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.reader.ssmt2;
 
+import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -51,6 +53,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.ma2.Section;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -229,14 +232,14 @@ class SSMT2_Reader implements Reader {
         return new Dimension("lon", shape[1], shape[0]);
     }
 
-    HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
-        ensureInitialisation();
-        return readersMap;
-    }
-
     // package access for testing only tb 2016-09-09
     static String assembleDateString(String startDateString, String startTimeString) {
         return startDateString + "T" + startTimeString.substring(0, startTimeString.length() - 7);
+    }
+
+    HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
+        ensureInitialisation();
+        return readersMap;
     }
 
     private void splitAndCollect2DVariables(Variable variable) throws InvalidRangeException {
@@ -247,7 +250,8 @@ class SSMT2_Reader implements Reader {
 
         if (shape[1] == lenX) {
             variablesList.add(variable);
-            readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, lenX));
+            final Number fillValue = variable.findAttribute("_FillValue").getNumericValue();
+            readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, lenX, fillValue));
         } else if (shape[1] == chanels) {
             collect1dChannelsFrom2dVariable(variable);
         }
@@ -285,9 +289,12 @@ class SSMT2_Reader implements Reader {
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
             if (shape[0] != height
-                    || shape.length > 3) {
+                || shape.length > 3) {
                 continue;
             }
+
+            ensureFillValue(variable);
+
             if (shortName.equalsIgnoreCase("ancil_data")) {
                 collectAncilDataVariables(variable);
             } else if (shortName.equalsIgnoreCase("Temperature_misc_housekeeping")) {
@@ -313,7 +320,11 @@ class SSMT2_Reader implements Reader {
         variablesList.add(zenithVariable);
         arrayCache.inject(zenithVariable);
         final String shortName = zenithVariable.getShortName();
-        readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width));
+        readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, width, getFillValue(zenithVariable)));
+    }
+
+    private Number getFillValue(ZenithAngleVariable zenithVariable) {
+        return zenithVariable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME).getNumericValue();
     }
 
     private ZenithAngleVariable.SensorType getSensorType() throws IOException {
@@ -354,6 +365,7 @@ class SSMT2_Reader implements Reader {
             final Variable channelVariable = variable.section(section);
             final String channelName = baseName + (channel + 1);
             channelVariable.setName(channelName);
+            ensureFillValue(channelVariable);
             variablesList.add(channelVariable);
             final String[] offsetMapping = {"y", "x", "" + channel};
             readersMap.put(channelName, new Read2dFrom3d(() -> arrayCache.get(shortName), offsetMapping, fillValue));
@@ -371,10 +383,11 @@ class SSMT2_Reader implements Reader {
         for (int i = 0; i < numHousekeeping; i++) {
             origin[1] = i;
             final Section section = new Section(origin, shape);
-            final Variable ancilVariable = variable.section(section);
+            final Variable housekeepingVariable = variable.section(section);
             final String vName = baseName + "_thermistorcount" + String.format("%02d", i + 1);
-            ancilVariable.setName(vName);
-            variablesList.add(ancilVariable);
+            housekeepingVariable.setName(vName);
+            ensureFillValue(housekeepingVariable);
+            variablesList.add(housekeepingVariable);
             readersMap.put(vName, new Read1dFrom2d(arrayCache, baseName, i));
         }
     }
@@ -449,10 +462,11 @@ class SSMT2_Reader implements Reader {
                 origin[1] = channel;
                 origin[2] = calib;
                 final Section section = new Section(origin, shape);
-                final Variable channelVariable = variable.section(section);
+                final Variable channelCalibVariable = variable.section(section);
                 final String varName = baseName + channelPrefix + (channel + 1) + calibPrefix + (calib + 1);
-                channelVariable.setName(varName);
-                variablesList.add(channelVariable);
+                channelCalibVariable.setName(varName);
+                ensureFillValue(channelCalibVariable);
+                variablesList.add(channelCalibVariable);
                 final String[] offsetMapping = {"y", String.valueOf(channel), String.valueOf(calib)};
                 readersMap.put(varName, new Read1dFrom3dAndExpandTo2d(() -> arrayCache.get(baseName), offsetMapping, fillValue));
             }
@@ -554,33 +568,23 @@ class SSMT2_Reader implements Reader {
 
         private final int defaultWidth;
         private final String shortName;
-        private ArrayCache arrayCache;
-        private Array dataArray;
-        private Number fillValue;
-        private boolean needData = true;
+        private final Number fillValue;
+        private final ArrayCache arrayCache;
 
-        Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth) {
+        Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth, Number fillValue) {
             this.arrayCache = arrayCache;
             this.defaultWidth = defaultWidth;
             this.shortName = shortName;
+            this.fillValue = fillValue;
         }
 
         @Override
         public Array read(int centerX, int centerY, Interval interval) throws IOException {
-            if (needData) {
-                initData();
-            }
             try {
-                return RawDataReader.read(centerX, centerY, interval, fillValue, dataArray, defaultWidth);
+                return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), defaultWidth);
             } catch (InvalidRangeException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
-        }
-
-        void initData() throws IOException {
-            dataArray = arrayCache.get(shortName);
-            fillValue = NetCDFUtils.getDefaultFillValue(dataArray);
-            needData = false;
         }
     }
 
@@ -618,17 +622,17 @@ class SSMT2_Reader implements Reader {
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                    targetWidth, targetHeight,
-                    0, srcHeight,
-                    (y, x) -> {
-                        targetIdx.set(y, x);
-                        targetArray.setDouble(targetIdx, fillValue);
-                    },
-                    (y, x, yRaw, xRaw) -> {
-                        targetIdx.set(y, x);
-                        sourceIdx.set(yRaw, sourceChannel);
-                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                    }
+                      targetWidth, targetHeight,
+                      0, srcHeight,
+                      (y, x) -> {
+                          targetIdx.set(y, x);
+                          targetArray.setDouble(targetIdx, fillValue);
+                      },
+                      (y, x, yRaw, xRaw) -> {
+                          targetIdx.set(y, x);
+                          sourceIdx.set(yRaw, sourceChannel);
+                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                      }
             );
             return targetArray;
         }

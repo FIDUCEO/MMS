@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.core.Dimension;
@@ -29,15 +28,12 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
 import org.junit.*;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class AbstractMmdWriterTest {
@@ -79,197 +75,5 @@ public class AbstractMmdWriterTest {
         useCaseConfig.store(outputStream);
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
         verifyNoMoreInteractions(mockWriter);
-    }
-
-    @Test
-    public void testEnsureFillValue_Double() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.DOUBLE.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_DOUBLE, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Float() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.FLOAT.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_FLOAT, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Long() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.LONG.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_LONG, attribute.getNumericValue().longValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Integer() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.INT.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_INT, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Short() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.SHORT.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_SHORT, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Byte() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.BYTE.name());
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(N3iosp.NC_FILL_BYTE, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Double_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.DOUBLE.name());
-        final double fillValue = 1234.5678;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Float_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.FLOAT.name());
-        final float fillValue = 1234.5678f;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Long_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.LONG.name());
-        final long fillValue = 12345678912345678L;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getValue(0));
-    }
-
-    @Test
-    public void testEnsureFillValue_Integer_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.INT.name());
-        final int fillValue = 123456789;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Short_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.SHORT.name());
-        final short fillValue = 12345;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getNumericValue());
-    }
-
-    @Test
-    public void testEnsureFillValue_Byte_existing() throws Exception {
-        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
-        ioVariable.setDataType(DataType.BYTE.name());
-        final byte fillValue = 123;
-        ioVariable.setAttributes(Collections.singletonList(new Attribute(fillValueName, fillValue)));
-
-        AbstractMmdWriter.ensureFillValue(ioVariable);
-
-        final List<Attribute> attributes = ioVariable.getAttributes();
-        assertNotNull(attributes);
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
-        assertEquals(fillValueName, attribute.getShortName());
-        assertEquals(fillValue, attribute.getNumericValue());
     }
 }

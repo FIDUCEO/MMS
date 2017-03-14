@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.atsr;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
@@ -78,7 +79,11 @@ public class VariableProxyTest {
         proxy = new VariableProxy(band);
 
         final List<Attribute> attributes = proxy.getAttributes();
-        assertEquals(0, attributes.size());
+        assertEquals(1, attributes.size());
+
+        final Class dataType = proxy.getDataType().getPrimitiveClassType();
+        assertEquals("_FillValue", attributes.get(0).getShortName());
+        assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(0).getNumericValue());
     }
 
     @Test
@@ -90,7 +95,7 @@ public class VariableProxyTest {
         proxy = new VariableProxy(band);
 
         final List<Attribute> attributes = proxy.getAttributes();
-        assertEquals(2, attributes.size());
+        assertEquals(3, attributes.size());
 
         Attribute attribute = attributes.get(0);
         assertEquals("scale_factor", attribute.getShortName());
@@ -99,6 +104,10 @@ public class VariableProxyTest {
         attribute = attributes.get(1);
         assertEquals("add_offset", attribute.getShortName());
         assertEquals(0.86, attribute.getNumericValue().doubleValue(), 1e-8);
+
+        final Class dataType = proxy.getDataType().getPrimitiveClassType();
+        assertEquals("_FillValue", attributes.get(2).getShortName());
+        assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(2).getNumericValue());
     }
 
     @Test
@@ -109,11 +118,15 @@ public class VariableProxyTest {
         proxy = new VariableProxy(band);
 
         final List<Attribute> attributes = proxy.getAttributes();
-        assertEquals(1, attributes.size());
+        assertEquals(2, attributes.size());
 
         final Attribute attribute = attributes.get(0);
         assertEquals("scale_factor", attribute.getShortName());
         assertEquals(0.01, attribute.getNumericValue().doubleValue(), 1e-8);
+
+        final Class dataType = proxy.getDataType().getPrimitiveClassType();
+        assertEquals("_FillValue", attributes.get(1).getShortName());
+        assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(1).getNumericValue());
     }
 
     @Test
@@ -124,11 +137,16 @@ public class VariableProxyTest {
         proxy = new VariableProxy(band);
 
         final List<Attribute> attributes = proxy.getAttributes();
-        assertEquals(1, attributes.size());
+        assertEquals(2, attributes.size());
 
         final Attribute attribute = attributes.get(0);
         assertEquals("add_offset", attribute.getShortName());
         assertEquals(273.15, attribute.getNumericValue().doubleValue(), 1e-8);
+
+        final Class dataType = proxy.getDataType().getPrimitiveClassType();
+        assertEquals("_FillValue", attributes.get(1).getShortName());
+        assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(1).getNumericValue());
+
     }
 
     @Test

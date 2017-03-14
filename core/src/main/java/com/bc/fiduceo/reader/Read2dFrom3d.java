@@ -34,7 +34,7 @@ public class Read2dFrom3d extends WindowReader {
     private int xIndex;
     private int yIndex;
     private Array windowArray;
-    private Array sourceArray;
+        private Array sourceArray;
 
     public Read2dFrom3d(ArraySource arraySource, String[] offsetMapping, Number fillValue) {
         this.fillValue = fillValue;

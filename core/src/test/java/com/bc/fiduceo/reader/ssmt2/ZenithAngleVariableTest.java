@@ -105,10 +105,17 @@ public class ZenithAngleVariableTest {
         final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F12, 38);
 
         final List<Attribute> attributes = variable.getAttributes();
-        assertEquals(1, attributes.size());
-        final Attribute attribute = attributes.get(0);
+        assertEquals(2, attributes.size());
+
+        Attribute attribute;
+
+        attribute = attributes.get(0);
         assertEquals("units", attribute.getFullName());
         assertEquals("degrees", attribute.getStringValue());
+
+        attribute = attributes.get(1);
+        assertEquals("_FillValue", attribute.getFullName());
+        assertEquals("9.96921E36", attribute.getNumericValue().toString());
     }
 
     @Test

@@ -20,7 +20,11 @@
 
 package com.bc.fiduceo.util;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.*;
+import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -30,12 +34,6 @@ import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class NetCDFUtilsTest {
 
@@ -135,5 +133,106 @@ public class NetCDFUtilsTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testEnsureFillValue_DOUBLE() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.DOUBLE);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_DOUBLE)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_FLOAT() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.FLOAT);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_FLOAT)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_LONG() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.LONG);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_LONG)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_INT() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.INT);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_INT)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_SHORT() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.SHORT);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_SHORT)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_BYTE() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.getDataType()).thenReturn(DataType.BYTE);
+        when(mock.findAttribute(anyString())).thenReturn(null);
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        final InOrder order = inOrder(mock);
+        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).getDataType();
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_BYTE)));
+        verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testEnsureFillValue_DOUBLE_existingFillValue() throws Exception {
+        final Variable mock = mock(Variable.class);
+        when(mock.findAttribute(anyString())).thenReturn(new Attribute("name", "value"));
+
+        NetCDFUtils.ensureFillValue(mock);
+
+        verify(mock, times(1)).findAttribute("_FillValue");
+        verifyNoMoreInteractions(mock);
     }
 }

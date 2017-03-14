@@ -96,6 +96,13 @@ public interface Reader extends AutoCloseable {
      */
     ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 
+    /**
+     * Retrieves a {@link List list} of {@link Variable variables}.
+     * It is mandatory, that all the number data type variables has a CF conform <code>_FillValue</code> set.
+     * @return a {@link List list} of {@link Variable variables}.
+     * @throws InvalidRangeException
+     * @throws IOException
+     */
     List<Variable> getVariables() throws InvalidRangeException, IOException;
 
     /**

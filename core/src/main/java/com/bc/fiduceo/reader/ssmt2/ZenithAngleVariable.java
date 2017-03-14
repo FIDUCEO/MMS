@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.ssmt2;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariablePrototype;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -89,7 +90,7 @@ class ZenithAngleVariable extends VariablePrototype {
     public List<Attribute> getAttributes() {
         final List<Attribute> attributeList = new ArrayList<>();
         attributeList.add(new Attribute("units", "degrees"));
-
+        attributeList.add(createFillValueAttribute());
         return attributeList;
     }
 
@@ -108,8 +109,24 @@ class ZenithAngleVariable extends VariablePrototype {
                 }
             }
         }
-
         return dataArray;
+    }
+
+    @Override
+    public Attribute findAttribute(String name) {
+        final List<Attribute> attributes = getAttributes();
+        for (Attribute a : attributes) {
+            if (name.equals(a.getShortName())) {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    private Attribute createFillValueAttribute() {
+        final String name = NetCDFUtils.CF_FILL_VALUE_NAME;
+        final Number value = NetCDFUtils.getDefaultFillValue(getDataType().getPrimitiveClassType());
+        return new Attribute(name, value);
     }
 
     private float[] getLineData() {
