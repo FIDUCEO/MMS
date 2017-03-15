@@ -100,6 +100,11 @@ import org.jdom.Element;
         -->
         <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-column-water-vapour-name>
 
+        <!-- Defines the name of the target variable for analysis cloud liquid water content.
+             Default: matchup.nwp.an.cloud_liquid_water_content
+        -->
+        <an-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</an-cloud-liquid-water-content-name>
+
          <!-- Defines the name of the target variable for forecast sea surface temperature.
              Default: matchup.nwp.fc.sea_surface_temperature
         -->
@@ -278,6 +283,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-column-water-vapour-name");
         if (anTotalColumnWaterVapourElement != null) {
             configuration.setAnTotalColumnWaterVapourName(anTotalColumnWaterVapourElement.getValue().trim());
+        }
+
+        final Element anCloudLiquidWaterContentElement = rootElement.getChild("an-cloud-liquid-water-content-name");
+        if (anCloudLiquidWaterContentElement != null) {
+            configuration.setAnCloudLiquidWaterContentName(anCloudLiquidWaterContentElement.getValue().trim());
         }
 
         final Element fcSSTElement = rootElement.getChild("fc-sst-name");

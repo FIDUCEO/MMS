@@ -347,6 +347,23 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
+    public void testCreateConfiguration_anCloudLiquidWaterContentName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <an-cloud-liquid-water-content-name>water_flowing</an-cloud-liquid-water-content-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("water_flowing", configuration.getAnCloudLiquidWaterContentName());
+    }
+
+    @Test
     public void testCreateConfiguration_fcSSTName() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <fc-sst-name>temperature</fc-sst-name>" +
