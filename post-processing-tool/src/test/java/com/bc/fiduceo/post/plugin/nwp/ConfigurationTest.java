@@ -308,6 +308,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetFcCloudLiquidWaterContentName() {
+        final String variableName = "cloud_water_thing";
+
+        config.setFcCloudLiquidWaterContentName(variableName);
+        assertEquals(variableName, config.getFcCloudLiquidWaterContentName());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
@@ -344,5 +352,6 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.fc.evaporation", config.getFcEvaporationName());
         assertEquals("matchup.nwp.fc.total_precipitation", config.getFcTotalPrecipName());
         assertEquals("matchup.nwp.fc.total_column_water_vapour", config.getFcTotalColumnWaterVapourName());
+        assertEquals("matchup.nwp.fc.cloud_liquid_water_content", config.getFcCloudLiquidWaterContentName());
     }
 }

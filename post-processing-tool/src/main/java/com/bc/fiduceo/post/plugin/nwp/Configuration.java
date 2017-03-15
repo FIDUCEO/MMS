@@ -59,6 +59,7 @@ class Configuration {
     private String anTotalColumnWaterVapourName;
     private String fcTotalColumnWaterVapourName;
     private String anCloudLiquidWaterContentName;
+    private String fcCloudLiquidWaterContentName;
 
     Configuration() {
         deleteOnExit = true;
@@ -93,6 +94,7 @@ class Configuration {
         fcEvaporationName = "matchup.nwp.fc.evaporation";
         fcTotalPrecipName = "matchup.nwp.fc.total_precipitation";
         fcTotalColumnWaterVapourName = "matchup.nwp.fc.total_column_water_vapour";
+        fcCloudLiquidWaterContentName = "matchup.nwp.fc.cloud_liquid_water_content";
     }
 
     void setDeleteOnExit(boolean deleteOnExit) {
@@ -349,6 +351,14 @@ class Configuration {
 
     String getFcTotalColumnWaterVapourName() {
         return fcTotalColumnWaterVapourName;
+    }
+
+    void setFcCloudLiquidWaterContentName(String fcCloudLiquidWaterContentName) {
+        this.fcCloudLiquidWaterContentName = fcCloudLiquidWaterContentName;
+    }
+
+    String getFcCloudLiquidWaterContentName() {
+        return fcCloudLiquidWaterContentName;
     }
 
     void setLongitudeVariableName(String longitudeVariableName) {

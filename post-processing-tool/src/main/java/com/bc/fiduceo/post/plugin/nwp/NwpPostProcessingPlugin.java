@@ -195,6 +195,11 @@ import org.jdom.Element;
         -->
         <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-column-water-vapour-name>
 
+        <!-- Defines the name of the target variable for forecast cloud liquid water content.
+             Default: matchup.nwp.fc.cloud_liquid_water_content
+        -->
+        <fc-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</fc-cloud-liquid-water-content-name>
+
     </nwp>
  */
 
@@ -378,6 +383,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element fcTotalColumnWaterVapour = rootElement.getChild("fc-total-column-water-vapour-name");
         if (fcTotalColumnWaterVapour != null) {
             configuration.setFcTotalColumnWaterVapourName(fcTotalColumnWaterVapour.getValue().trim());
+        }
+
+        final Element fcCloudLiquidWaterContentElement = rootElement.getChild("fc-cloud-liquid-water-content-name");
+        if (fcCloudLiquidWaterContentElement != null) {
+            configuration.setFcCloudLiquidWaterContentName(fcCloudLiquidWaterContentElement.getValue().trim());
         }
 
         return configuration;

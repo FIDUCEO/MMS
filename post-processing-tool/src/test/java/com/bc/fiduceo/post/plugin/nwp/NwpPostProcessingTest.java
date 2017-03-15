@@ -115,9 +115,12 @@ public class NwpPostProcessingTest {
                 "/path/to/geo.file",
                 "/path/to/time.steps",
                 "/path/to/ggfs.file",
+                "/path/to/ggfm.file",
                 "/path/to/gafs_series",
                 "/path/to/ggfs_series",
                 "/path/to/ggfs_series_remap",
+                "/path/to/ggfm_series",
+                "/path/to/ggfm_series_remap",
                 "/path/to/forecast_file");
 
         assertEquals("/path/to/cdo/bin/cdo", fcTemplateProperties.getProperty("CDO"));
@@ -126,9 +129,12 @@ public class NwpPostProcessingTest {
         assertEquals("/path/to/geo.file", fcTemplateProperties.getProperty("GEO"));
         assertEquals("/path/to/time.steps", fcTemplateProperties.getProperty("GAFS_TIMESTEPS"));
         assertEquals("/path/to/ggfs.file", fcTemplateProperties.getProperty("GGFS_TIMESTEPS"));
+        assertEquals("/path/to/ggfm.file", fcTemplateProperties.getProperty("GGFM_TIMESTEPS"));
         assertEquals("/path/to/gafs_series", fcTemplateProperties.getProperty("GAFS_TIME_SERIES"));
         assertEquals("/path/to/ggfs_series", fcTemplateProperties.getProperty("GGFS_TIME_SERIES"));
         assertEquals("/path/to/ggfs_series_remap", fcTemplateProperties.getProperty("GGFS_TIME_SERIES_REMAPPED"));
+        assertEquals("/path/to/ggfm_series", fcTemplateProperties.getProperty("GGFM_TIME_SERIES"));
+        assertEquals("/path/to/ggfm_series_remap", fcTemplateProperties.getProperty("GGFM_TIME_SERIES_REMAPPED"));
         assertEquals("/path/to/forecast_file", fcTemplateProperties.getProperty("FC_TIME_SERIES"));
     }
 

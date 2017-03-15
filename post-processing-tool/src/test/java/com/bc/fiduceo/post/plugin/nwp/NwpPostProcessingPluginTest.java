@@ -668,4 +668,21 @@ public class NwpPostProcessingPluginTest {
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("steamy_beamy", configuration.getFcTotalColumnWaterVapourName());
     }
+
+    @Test
+    public void testCreateConfiguration_fcCloudLiquidWaterContentName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <fc-cloud-liquid-water-content-name>flooding-cloud</fc-cloud-liquid-water-content-name>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
+                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
+                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("flooding-cloud", configuration.getFcCloudLiquidWaterContentName());
+    }
 }

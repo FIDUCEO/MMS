@@ -118,7 +118,7 @@ public class FileMerger_IO_Test {
 
     @Test
     public void testMergeForecastFile_MMD6() throws IOException, InvalidRangeException {
-        final String forecastPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "forecast3878092999500197052.nc"}, true);
+        final String forecastPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "forecast6320193562301902094.nc"}, true);
         final File forecastFile = new File(forecastPath);
         assertTrue(forecastFile.isFile());
 

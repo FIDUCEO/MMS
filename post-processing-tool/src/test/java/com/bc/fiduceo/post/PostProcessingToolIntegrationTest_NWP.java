@@ -104,6 +104,7 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assert2DVariable("matchup.nwp.fc.evaporation", 19, 3, -4.630652256309986E-4, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_precipitation", 20, 4, 8.657717262394726E-5, mmd);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_column_water_vapour", 21, 5, 28.09221076965332, mmd);
+            NCTestUtils.assert2DVariable("matchup.nwp.fc.cloud_liquid_water_content", 22, 6, 0.0, mmd);
         }
     }
 
