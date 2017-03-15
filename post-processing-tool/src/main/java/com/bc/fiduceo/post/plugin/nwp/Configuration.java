@@ -58,6 +58,7 @@ class Configuration {
     private String fcCenterTimeName;
     private String anTotalColumnWaterVapourName;
     private String fcTotalColumnWaterVapourName;
+    private String anCloudLiquidWaterContentName;
 
     Configuration() {
         deleteOnExit = true;
@@ -71,7 +72,9 @@ class Configuration {
         anSSTName = "matchup.nwp.an.sea_surface_temperature";
         anEastWindName = "matchup.nwp.an.10m_east_wind_component";
         anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
-        anTotalColumnWaterVapourName =  "matchup.nwp.an.total_column_water_vapour";
+        anTotalColumnWaterVapourName = "matchup.nwp.an.total_column_water_vapour";
+        anCloudLiquidWaterContentName = "matchup.nwp.an.cloud_liquid_water_content";
+
         fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
         fcSurfSensibleHeatFluxName = "matchup.nwp.fc.surface_sensible_heat_flux";
         fcSurfLatentHeatFluxName = "matchup.nwp.fc.surface_latent_heat_flux";
@@ -194,6 +197,14 @@ class Configuration {
 
     void setAnTotalColumnWaterVapourName(String anTotalColumnWaterVapour) {
         this.anTotalColumnWaterVapourName = anTotalColumnWaterVapour;
+    }
+
+    void setAnCloudLiquidWaterContentName(String anCloudLiquidWaterContentName) {
+        this.anCloudLiquidWaterContentName = anCloudLiquidWaterContentName;
+    }
+
+    String getAnCloudLiquidWaterContentName() {
+        return anCloudLiquidWaterContentName;
     }
 
     void setFcSSTName(String fcSSTName) {
@@ -368,6 +379,4 @@ class Configuration {
         }
         return true;
     }
-
-
 }

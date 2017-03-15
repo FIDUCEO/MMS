@@ -94,6 +94,14 @@ class TemplateVariables {
         totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
         variables.add(totalColumnWaterVapourVariable);
 
+        final TemplateVariable clwcVariable = new TemplateVariable(configuration.getAnCloudLiquidWaterContentName(), NwpPostProcessing.CLWC_NAME, DataType.FLOAT, anDimensions);
+        clwcVariable.addAttribute("standard_name", "specific_cloud_liquid_water_content");
+        clwcVariable.addAttribute("long_name", "Grid-box mean specific cloud liquid water content (mass of condensate / mass of moist air)");
+        clwcVariable.addAttribute("units", "kg kg**-1");
+        clwcVariable.addAttribute("_FillValue", -9.0e33);
+        clwcVariable.addAttribute("source", "GRIB data");
+        variables.add(clwcVariable);
+
         return variables;
     }
 

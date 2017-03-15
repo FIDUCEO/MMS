@@ -88,19 +88,25 @@ public class NwpPostProcessingTest {
 
     @Test
     public void testCreateAnalysisFileTemplateProperties() {
-         final Properties analysisTemplateProperties = NwpPostProcessing.createAnalysisFileTemplateProperties("/home/tome/CiDiOh",
-                 "/home/tom/geo_file",
-                 "/home/tom/time/steps",
-                 "/home/tom/time-series",
-                 "/usr/data/analysis-file");
+        final Properties analysisTemplateProperties = NwpPostProcessing.createAnalysisFileTemplateProperties("/home/tome/CiDiOh",
+                "/home/tom/geo_file",
+                "/home/tom/time/steps",
+                "/home/tom/time-series",
+                "/home/tom/time/gam_steps",
+                "/home/tom/gam_time-series",
+                "/home/tom/gam_remapped",
+                "/usr/data/analysis-file");
 
-         assertEquals("/home/tome/CiDiOh/cdo", analysisTemplateProperties.getProperty("CDO"));
-         assertEquals("-M -R", analysisTemplateProperties.getProperty("CDO_OPTS"));
-         assertEquals("1970-01-01,00:00:00,seconds", analysisTemplateProperties.getProperty("REFTIME"));
-         assertEquals("/home/tom/geo_file", analysisTemplateProperties.getProperty("GEO"));
-         assertEquals("/home/tom/time/steps", analysisTemplateProperties.getProperty("GGAS_TIMESTEPS"));
-         assertEquals("/home/tom/time-series", analysisTemplateProperties.getProperty("GGAS_TIME_SERIES"));
-         assertEquals("/usr/data/analysis-file", analysisTemplateProperties.getProperty("AN_TIME_SERIES"));
+        assertEquals("/home/tome/CiDiOh/cdo", analysisTemplateProperties.getProperty("CDO"));
+        assertEquals("-M -R", analysisTemplateProperties.getProperty("CDO_OPTS"));
+        assertEquals("1970-01-01,00:00:00,seconds", analysisTemplateProperties.getProperty("REFTIME"));
+        assertEquals("/home/tom/geo_file", analysisTemplateProperties.getProperty("GEO"));
+        assertEquals("/home/tom/time/steps", analysisTemplateProperties.getProperty("GGAS_TIMESTEPS"));
+        assertEquals("/home/tom/time-series", analysisTemplateProperties.getProperty("GGAS_TIME_SERIES"));
+        assertEquals("/home/tom/time/gam_steps", analysisTemplateProperties.getProperty("GGAM_TIMESTEPS"));
+        assertEquals("/home/tom/gam_time-series", analysisTemplateProperties.getProperty("GGAM_TIME_SERIES"));
+        assertEquals("/home/tom/gam_remapped", analysisTemplateProperties.getProperty("GGAM_TIME_SERIES_REMAPPED"));
+        assertEquals("/usr/data/analysis-file", analysisTemplateProperties.getProperty("AN_TIME_SERIES"));
     }
 
     @Test

@@ -92,7 +92,7 @@ public class FileMerger_IO_Test {
 
     @Test
     public void testMergeAnalysisFile_MMD6() throws IOException, InvalidRangeException {
-        final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis6328067588332403209.nc"}, true);
+        final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis8419652569230325841.nc"}, true);
         final File analysisFile = new File(analysisPath);
         assertTrue(analysisFile.isFile());
 
@@ -112,6 +112,7 @@ public class FileMerger_IO_Test {
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_east_wind_component", 2, 2, 3.2551252841949463, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.an.10m_north_wind_component", 3, 3, 4.974652290344238, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.an.total_column_water_vapour", 4, 4, 43.44807815551758, netcdfFile);
+            NCTestUtils.assert2DVariable("matchup.nwp.an.cloud_liquid_water_content", 5, 5, 0.0, netcdfFile);
         }
     }
 

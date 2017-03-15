@@ -49,10 +49,15 @@ class NwpPostProcessing extends PostProcessing {
     private static final int SEVENTY_TWO_HOURS_IN_SECONDS = 72 * 60 * 60;
     private static final int FOURTY_EIGHT_HOURS_IN_SECONDS = 48 * 60 * 60;
 
+    // grib files have a strange naming pattern - we introduce constants that refers to the physical entity tb 2017-03-15
+    static final String CLWC_NAME = "var246";
+
     private static final String CDO_MATCHUP_AN_TEMPLATE =
             "#! /bin/sh\n" +
                     "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GGAS_TIMESTEPS} ${GGAS_TIME_SERIES} && " +
-                    "${CDO} ${CDO_OPTS} -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname,CI,SSTK,TCWV,U10,V10 ${GGAS_TIME_SERIES} ${AN_TIME_SERIES}\n";
+                    "${CDO} ${CDO_OPTS} -f nc2 mergetime ${GGAM_TIMESTEPS} ${GGAM_TIME_SERIES} && " +
+                    "${CDO} ${CDO_OPTS} -f nc2 setreftime,${REFTIME} -remapbil,${GEO} -selname," + CLWC_NAME + " ${GGAM_TIME_SERIES} ${GGAM_TIME_SERIES_REMAPPED} && " +
+                    "${CDO} ${CDO_OPTS} -f nc2 merge -setreftime,${REFTIME} -remapbil,${GEO} -selname,CI,SSTK,TCWV,U10,V10 ${GGAS_TIME_SERIES} ${GGAM_TIME_SERIES_REMAPPED} ${AN_TIME_SERIES}\n";
 
     private static final String CDO_MATCHUP_FC_TEMPLATE =
             "#! /bin/sh\n" +
@@ -161,12 +166,16 @@ class NwpPostProcessing extends PostProcessing {
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
         final File ggasTimeSeriesFile = NwpUtils.createTempFile("ggas", ".nc", configuration.isDeleteOnExit());
+        final File ggamTimeSeriesFile = NwpUtils.createTempFile("ggam", ".nc", configuration.isDeleteOnExit());
+        final File ggamRemappedTimeSeriesFile = NwpUtils.createTempFile("ggar", ".nc", configuration.isDeleteOnExit());
         final File analysisFile = NwpUtils.createTempFile("analysis", ".nc", configuration.isDeleteOnExit());
 
-        final String timeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
+        final String ggasTimeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
+        final String ggamTimeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggam", nwpDataDirectories, "ggam[0-9]*.grb", 0);
 
-        final Properties templateProperties = createAnalysisFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), timeStepFiles,
-                ggasTimeSeriesFile.getAbsolutePath(), analysisFile.getAbsolutePath());
+        final Properties templateProperties = createAnalysisFileTemplateProperties(configuration.getCDOHome(), geoFile.getAbsolutePath(), ggasTimeStepFiles,
+                ggasTimeSeriesFile.getAbsolutePath(), ggamTimeStepFiles, ggamTimeSeriesFile.getAbsolutePath(), ggamRemappedTimeSeriesFile.getAbsolutePath(),
+                analysisFile.getAbsolutePath());
 
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
         final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
@@ -256,10 +265,13 @@ class NwpPostProcessing extends PostProcessing {
 
     // package access for testing only tb 2017-01-11
     static Properties createAnalysisFileTemplateProperties(String cdoHome, String geoFileLocation, String ggasStepLocations, String ggasTimeSeriesLocation,
-                                                           String analysisTimeSeriesLocation) {
+                                                           String ggamStepLocations, String ggamTimeSeriesLocation, String ggamRemappedFileLocation, String analysisTimeSeriesLocation) {
         final Properties properties = createBaseTemplateProperties(cdoHome, geoFileLocation);
         properties.setProperty("GGAS_TIMESTEPS", ggasStepLocations);
         properties.setProperty("GGAS_TIME_SERIES", ggasTimeSeriesLocation);
+        properties.setProperty("GGAM_TIMESTEPS", ggamStepLocations);
+        properties.setProperty("GGAM_TIME_SERIES", ggamTimeSeriesLocation);
+        properties.setProperty("GGAM_TIME_SERIES_REMAPPED", ggamRemappedFileLocation);
         properties.setProperty("AN_TIME_SERIES", analysisTimeSeriesLocation);
         return properties;
     }

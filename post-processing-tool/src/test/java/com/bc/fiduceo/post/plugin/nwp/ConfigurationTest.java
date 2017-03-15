@@ -156,6 +156,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetAnCloudLiquidWaterContentName() {
+        final String variableName = "wet";
+
+        config.setAnCloudLiquidWaterContentName(variableName);
+        assertEquals(variableName, config.getAnCloudLiquidWaterContentName());
+    }
+
+    @Test
     public void testSetGetFcSSTName() {
         final String variableName = "sea_surface_temp";
 
@@ -316,6 +324,7 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.an.10m_east_wind_component", config.getAnEastWindName());
         assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
         assertEquals("matchup.nwp.an.total_column_water_vapour", config.getAnTotalColumnWaterVapourName());
+        assertEquals("matchup.nwp.an.cloud_liquid_water_content", config.getAnCloudLiquidWaterContentName());
 
         assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
         assertEquals("matchup.nwp.fc.surface_sensible_heat_flux", config.getFcSurfSensibleHeatFluxName());
