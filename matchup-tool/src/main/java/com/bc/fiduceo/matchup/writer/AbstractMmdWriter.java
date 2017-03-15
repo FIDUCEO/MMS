@@ -265,7 +265,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             if(variable.getDataType().isNumeric()) {
                 final Attribute fillValueAtrribute = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME);
                 if (fillValueAtrribute == null) {
-                    throw new RuntimeException("Each numerical variable must own a CF conform fill value attribute.");
+                    // @todo tb/** throw exception when the refactoring is finished 2017-03-17
+                    logger.warning("Variable does not have a fill value: " + variable.getFullName());
                 }
             }
         }
