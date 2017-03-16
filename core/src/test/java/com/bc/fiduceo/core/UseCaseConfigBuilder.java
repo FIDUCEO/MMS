@@ -89,7 +89,7 @@ public class UseCaseConfigBuilder {
     }
 
     public UseCaseConfigBuilder withSphericalDistanceVariable() {
-        addChild(getRootElement(), TAG_WRITE_DISTANCE, "true");
+        addChild(getRootElement(), TAG_NAME_WRITE_DISTANCE, "true");
         return this;
     }
 

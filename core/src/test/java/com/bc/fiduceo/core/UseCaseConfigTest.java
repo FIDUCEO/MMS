@@ -408,4 +408,65 @@ public class UseCaseConfigTest {
         final List<Dimension> result = useCaseConfig.getDimensions();
         assertEquals(2, result.size());
     }
+
+    @Test
+    public void testNumRandomSeedPoints_valid() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                                  "    <num-random-seed-points>432</num-random-seed-points>" +
+                                  "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertNotNull(useCaseConfig);
+        assertEquals("use-case RandomSeed", useCaseConfig.getName());
+        assertEquals(432, useCaseConfig.getNumRandomSeedPoints());
+    }
+
+    @Test
+    public void testNumRandomSeedPoints_empty() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                                  "    <num-random-seed-points>   </num-random-seed-points>" +
+                                  "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        try {
+            UseCaseConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException e) {
+            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' expected";
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNumRandomSeedPoints_zero() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                                  "    <num-random-seed-points> 0 </num-random-seed-points>" +
+                                  "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        try {
+            UseCaseConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException e) {
+            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' >= 1 expected. But was '0'.";
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNumRandomSeedPoints_negative() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                                  "    <num-random-seed-points>  -1 </num-random-seed-points>" +
+                                  "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        try {
+            UseCaseConfig.load(inputStream);
+            fail("RuntimeException expected");
+        } catch (RuntimeException e) {
+            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' >= 1 expected. But was '-1'.";
+            assertEquals(expected, e.getMessage());
+        }
+    }
 }

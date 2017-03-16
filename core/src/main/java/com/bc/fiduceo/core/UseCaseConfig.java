@@ -40,9 +40,10 @@ public class UseCaseConfig {
 
     public static final String TAG_NAME_ROOT = "use-case-config";
     public static final String TAG_NAME_OUTPUT_PATH = "output-path";
-    public static final String TAG_WRITE_DISTANCE = "write-distance";
+    public static final String TAG_NAME_WRITE_DISTANCE = "write-distance";
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
+    public static final String TAG_NAME_NUM_RANDOM_SEED_POINTS = "num-random-seed-points";
     public static final String TAG_NAME_PRIMARY = "primary";
     public static final String TAG_NAME_DATA_VERSION = "data-version";
     public static final String TAG_NAME_DIMENSIONS = "dimensions";
@@ -58,10 +59,17 @@ public class UseCaseConfig {
     private List<Dimension> dimensions;
     private String outputPath;
     private boolean writeDistance;
+    private int numRandomSeedPoints;
 
     public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
+    }
+
+    private UseCaseConfig(Document document) {
+        this();
+        this.document = document;
+        init();
     }
 
     public static UseCaseConfig load(InputStream inputStream) {
@@ -84,6 +92,10 @@ public class UseCaseConfig {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    public int getNumRandomSeedPoints() {
+        return numRandomSeedPoints;
     }
 
     public List<Sensor> getSensors() {
@@ -143,15 +155,6 @@ public class UseCaseConfig {
         throw new IllegalStateException("Dimensions for Sensor '" + sensorName + "' not available");
     }
 
-    boolean hasDimensionFor(String sensorName) {
-        for (Dimension dimension : dimensions) {
-            if (dimension.getName().equals(sensorName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean isWriteDistance() {
         return writeDistance;
     }
@@ -187,6 +190,14 @@ public class UseCaseConfig {
         return document.getRootElement().getChild(elemName);
     }
 
+    boolean hasDimensionFor(String sensorName) {
+        for (Dimension dimension : dimensions) {
+            if (dimension.getName().equals(sensorName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     private void init() {
@@ -224,21 +235,34 @@ public class UseCaseConfig {
             }
         }
 
-        final Element writeDistanceElement = rootElement.getChild("write-distance");
+        final Element writeDistanceElement = rootElement.getChild(TAG_NAME_WRITE_DISTANCE);
         if (writeDistanceElement != null) {
             final boolean writeDistance = Boolean.parseBoolean(writeDistanceElement.getValue());
             setWriteDistance(writeDistance);
         }
+
+        final Element seedPointsElem = rootElement.getChild(TAG_NAME_NUM_RANDOM_SEED_POINTS);
+        if (seedPointsElem != null) {
+            numRandomSeedPoints = getMadatoryPositiveIntegerValue(seedPointsElem);
+        }
+    }
+
+    private int getMadatoryPositiveIntegerValue(Element seedPointsElem) {
+        final String text = getMandatoryText(seedPointsElem);
+        final int i;
+        try {
+            i = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Integer value of element '" + seedPointsElem.getName() + "' >= 1 expected. But was '" + text + "'.", e);
+        }
+        if (i < 1) {
+            throw new RuntimeException("Value of element '" + seedPointsElem.getName() + "' >= 1 expected. But was '" + text + "'.");
+        }
+        return i;
     }
 
     private void setInvalidWithMessage(String message, ValidationResult validationResult) {
         validationResult.setValid(false);
         validationResult.addMessage(message);
-    }
-
-    private UseCaseConfig(Document document) {
-        this();
-        this.document = document;
-        init();
     }
 }

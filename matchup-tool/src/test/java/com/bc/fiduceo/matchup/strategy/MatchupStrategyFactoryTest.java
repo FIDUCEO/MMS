@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -65,6 +66,22 @@ public class MatchupStrategyFactoryTest {
 
         final AbstractMatchupStrategy strategy = MatchupStrategyFactory.get(useCaseConfig, Logger.getAnonymousLogger());
         assertTrue(strategy instanceof InsituPolarOrbitingMatchupStrategy);
+    }
+
+    @Test
+    public void testThatFactoryReturnsSeedPointStrategy() throws Exception {
+        final StringBuilder configString = new StringBuilder();
+        configString.append("<use-case-config name=\"use case 23\">");
+        configString.append("    <num-random-seed-points>");
+        configString.append("        114");
+        configString.append("    </num-random-seed-points>");
+        configString.append("</use-case-config>");
+
+
+        final UseCaseConfig config = UseCaseConfig.load(new ByteArrayInputStream(configString.toString().getBytes()));
+
+        final AbstractMatchupStrategy strategy = MatchupStrategyFactory.get(config, Logger.getAnonymousLogger());
+        assertTrue(strategy instanceof SeedPointMatchupStrategy);
     }
 
     // @todo 1 tb/tb add more tests - insitu not as primary sensor --> exception, etc ... 2016-11-04
