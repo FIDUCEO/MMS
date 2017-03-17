@@ -96,9 +96,12 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_analysisSteps() throws JDOMException, IOException {
+    public void testCreateConfiguration_TimeSeriesExtract_analysisAndForectastSteps() throws JDOMException, IOException {
         final String XML = "<nwp>" +
-                "    <analysis-steps>19</analysis-steps>" +
+                "    <time-series-extraction>" +
+                "        <analysis-steps>19</analysis-steps>" +
+                "        <forecast-steps>27</forecast-steps>" +
+                "    </time-series-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
@@ -110,12 +113,13 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals(19, configuration.getAnalysisSteps());
+        assertEquals(27, configuration.getForecastSteps());
+        assertTrue(configuration.isTimeSeriesExtraction());
     }
 
     @Test
-    public void testCreateConfiguration_forecastSteps() throws JDOMException, IOException {
+    public void testCreateConfiguration_TimeSeriesExtract_switchedOff() throws JDOMException, IOException {
         final String XML = "<nwp>" +
-                "    <forecast-steps>27</forecast-steps>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
@@ -126,7 +130,7 @@ public class NwpPostProcessingPluginTest {
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals(27, configuration.getForecastSteps());
+        assertFalse(configuration.isTimeSeriesExtraction());
     }
 
     @Test

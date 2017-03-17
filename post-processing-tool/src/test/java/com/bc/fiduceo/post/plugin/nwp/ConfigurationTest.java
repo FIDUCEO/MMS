@@ -316,6 +316,15 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetIsTimeSeriesExtraction() {
+         config.setTimeSeriesExtraction(true);
+         assertTrue(config.isTimeSeriesExtraction());
+
+        config.setTimeSeriesExtraction(false);
+        assertFalse(config.isTimeSeriesExtraction());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
@@ -323,6 +332,8 @@ public class ConfigurationTest {
         assertEquals(33, config.getForecastSteps());
         assertNull(config.getNWPAuxDir());
         assertNull(config.getTimeVariableName());
+
+        assertTrue(config.isTimeSeriesExtraction());
 
         assertEquals("matchup.nwp.an.t0", config.getAnCenterTimeName());
         assertEquals("matchup.nwp.fc.t0", config.getFcCenterTimeName());

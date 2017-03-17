@@ -42,15 +42,17 @@ import org.jdom.Element;
          -->
         <delete-on-exit>true</delete-on-exit>
 
-        <!-- Defines the number of time steps around the matchup time for
-             NWP analysis data (6 hr time resolution). Default is: 17.
-        -->
-        <analysis-steps>19</analysis-steps>
+        <time-series-extraction>
+            <!-- Defines the number of time steps around the matchup time for
+                 NWP analysis data (6 hr time resolution). Default is: 17.
+            -->
+            <analysis-steps>19</analysis-steps>
 
-         <!-- Defines the number of time steps around the matchup time for
-             NWP forecast data (3 hr time resolution). Default is: 33
-        -->
-        <forecast-steps>33</forecast-steps>
+             <!-- Defines the number of time steps around the matchup time for
+                 NWP forecast data (3 hr time resolution). Default is: 33
+            -->
+            <forecast-steps>33</forecast-steps>
+        </time-series-extraction>
 
         <!-- Defines the name of the time variable to use as reference time. Time variables are expected to store
              data in seconds since 1970 format.
@@ -234,16 +236,22 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final String nwpAuxDirValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "nwp-aux-dir");
         configuration.setNWPAuxDir(nwpAuxDirValue);
 
-        final Element analysisStepsElement = rootElement.getChild("analysis-steps");
-        if (analysisStepsElement != null) {
-            final String analysisStepsValue = analysisStepsElement.getValue().trim();
-            configuration.setAnalysisSteps(Integer.parseInt(analysisStepsValue));
-        }
+        final Element timeSeriesExtractionElement = rootElement.getChild("time-series-extraction");
+        if (timeSeriesExtractionElement != null) {
+            configuration.setTimeSeriesExtraction(true);
+            final Element analysisStepsElement = timeSeriesExtractionElement.getChild("analysis-steps");
+            if (analysisStepsElement != null) {
+                final String analysisStepsValue = analysisStepsElement.getValue().trim();
+                configuration.setAnalysisSteps(Integer.parseInt(analysisStepsValue));
+            }
 
-        final Element forecastStepsElement = rootElement.getChild("forecast-steps");
-        if (forecastStepsElement != null) {
-            final String forecastStepsValue = forecastStepsElement.getValue().trim();
-            configuration.setForecastSteps(Integer.parseInt(forecastStepsValue));
+            final Element forecastStepsElement = timeSeriesExtractionElement.getChild("forecast-steps");
+            if (forecastStepsElement != null) {
+                final String forecastStepsValue = forecastStepsElement.getValue().trim();
+                configuration.setForecastSteps(Integer.parseInt(forecastStepsValue));
+            }
+        }  else {
+            configuration.setTimeSeriesExtraction(false);
         }
 
         final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "time-variable-name");

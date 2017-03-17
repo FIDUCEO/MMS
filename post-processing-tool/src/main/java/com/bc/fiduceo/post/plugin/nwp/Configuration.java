@@ -60,11 +60,14 @@ class Configuration {
     private String fcTotalColumnWaterVapourName;
     private String anCloudLiquidWaterContentName;
     private String fcCloudLiquidWaterContentName;
+    private boolean timeSeriesExtraction;
 
     Configuration() {
         deleteOnExit = true;
         analysisSteps = 17;
         forecastSteps = 33;
+
+        timeSeriesExtraction = true;
 
         anCenterTimeName = "matchup.nwp.an.t0";
         fcCenterTimeName = "matchup.nwp.fc.t0";
@@ -377,6 +380,14 @@ class Configuration {
         return latitudeVariableName;
     }
 
+    void setTimeSeriesExtraction(boolean timeSeriesExtraction) {
+        this.timeSeriesExtraction = timeSeriesExtraction;
+    }
+
+    boolean isTimeSeriesExtraction() {
+        return timeSeriesExtraction;
+    }
+
     boolean verify() {
         final File cdoDir = new File(CDOHome);
         if (!cdoDir.isDirectory()) {
@@ -389,4 +400,5 @@ class Configuration {
         }
         return true;
     }
+
 }

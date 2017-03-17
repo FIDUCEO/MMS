@@ -21,19 +21,20 @@
 <post-processing-config>
 
     <create-new-files>
-        <output-directory>/group_workspaces/cems2/esacci_sst/mms_new/mmd/mmd06c_time_series/animal-sst_amsre-aq</output-directory>
+        <output-directory>/group_workspaces/cems2/esacci_sst/mms_new/mmd/mmd06c_time_series/animal-sst_amsre-aq
+        </output-directory>
     </create-new-files>
 
     <post-processings>
 
         <add-amsre-solar-angles>
-            <sun-elevation-variable name = "amsre.Sun_Elevation" />
-            <sun-azimuth-variable name = "amsre.Sun_Azimuth" />
-            <earth-incidence-variable name = "amsre.satellite_zenith_angle" />
-            <earth-azimuth-variable name = "amsre.satellite_azimuth_angle" />
+            <sun-elevation-variable name="amsre.Sun_Elevation"/>
+            <sun-azimuth-variable name="amsre.Sun_Azimuth"/>
+            <earth-incidence-variable name="amsre.satellite_zenith_angle"/>
+            <earth-azimuth-variable name="amsre.satellite_azimuth_angle"/>
 
-            <sza-target-variable name = "amsre.solar_zenith_angle" />
-            <saa-target-variable name = "amsre.solar_azimuth_angle" />
+            <sza-target-variable name="amsre.solar_zenith_angle"/>
+            <saa-target-variable name="amsre.solar_azimuth_angle"/>
         </add-amsre-solar-angles>
 
         <sst-insitu-time-series>
@@ -49,8 +50,10 @@
 
             <delete-on-exit>true</delete-on-exit>
 
-            <analysis-steps>19</analysis-steps>
-            <forecast-steps>33</forecast-steps>
+            <time-series-extraction>
+                <analysis-steps>19</analysis-steps>
+                <forecast-steps>33</forecast-steps>
+            </time-series-extraction>
 
             <time-variable-name>acquisition-time</time-variable-name>
             <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
@@ -63,8 +66,10 @@
             <an-sst-name>matchup.nwp.an.sea_surface_temperature</an-sst-name>
             <an-east-wind-name>matchup.nwp.an.10m_east_wind_component</an-east-wind-name>
             <an-north-wind-name>matchup.nwp.an.10m_north_wind_component</an-north-wind-name>
-            <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-column-water-vapour-name>
-            <an-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</an-cloud-liquid-water-content-name>
+            <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour
+            </an-total-column-water-vapour-name>
+            <an-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content
+            </an-cloud-liquid-water-content-name>
 
             <fc-sst-name>matchup.nwp.fc.sea_surface_temperature</fc-sst-name>
             <fc-surf-sensible-heat-flux-name>matchup.nwp.fc.surface_sensible_heat_flux</fc-surf-sensible-heat-flux-name>
@@ -74,8 +79,10 @@
             <fc-10m-north-wind-name>matchup.nwp.fc.10m_north_wind_component</fc-10m-north-wind-name>
             <fc-2m-temperature-name>matchup.nwp.fc.2m-temperature</fc-2m-temperature-name>
             <fc-2m-dew-point-name>matchup.nwp.fc.2m_dew_point</fc-2m-dew-point-name>
-            <fc-down-surf-solar-radiation-name>matchup.nwp.fc.downward_surface_solar_radiation</fc-down-surf-solar-radiation-name>
-            <fc-down-surf-thermal-radiation-name>matchup.nwp.fc.downward_surface_thermal_radiation</fc-down-surf-thermal-radiation-name>
+            <fc-down-surf-solar-radiation-name>matchup.nwp.fc.downward_surface_solar_radiation
+            </fc-down-surf-solar-radiation-name>
+            <fc-down-surf-thermal-radiation-name>matchup.nwp.fc.downward_surface_thermal_radiation
+            </fc-down-surf-thermal-radiation-name>
             <fc-surf-solar-radiation-name>matchup.nwp.fc.surface_solar_radiation</fc-surf-solar-radiation-name>
             <fc-surf-thermal-radiation-name>matchup.nwp.fc.surface_thermal_radiation</fc-surf-thermal-radiation-name>
             <fc-turb-stress-east-name>matchup.nwp.fc.turbulent_stress_east_component</fc-turb-stress-east-name>
@@ -83,8 +90,10 @@
             <fc-evaporation-name>matchup.nwp.fc.evaporation</fc-evaporation-name>
             <fc-total-precip-name>matchup.nwp.fc.total_precipitation</fc-total-precip-name>
             <fc-mean-pressure-name>matchup.nwp.fc.mean_sea_level_pressure</fc-mean-pressure-name>
-            <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-column-water-vapour-name>
-            <fc-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</fc-cloud-liquid-water-content-name>
+            <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour
+            </fc-total-column-water-vapour-name>
+            <fc-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content
+            </fc-cloud-liquid-water-content-name>
         </nwp>
 
     </post-processings>
