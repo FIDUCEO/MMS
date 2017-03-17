@@ -38,15 +38,21 @@ public class ProcessRunner_IO_Test {
 
     @Test
     public void testWriteExecutableScript() throws IOException {
-        final File file = ProcessRunner.writeExecutableScript("the stupid executable script", "cdo", "sh", true);
+        final TempFileManager tempFileManager = new TempFileManager();
 
-        assertTrue(file.isFile());
-        assertTrue(file.canExecute());
+        try {
+            final File file = ProcessRunner.writeExecutableScript("the stupid executable script", tempFileManager);
 
-        final FileReader reader = new FileReader(file);
-        final int length = (int) file.length();
-        final char[] chars = new char[length];
-        assertEquals(length, reader.read(chars));
-        assertEquals("the stupid executable script", new String(chars));
+            assertTrue(file.isFile());
+            assertTrue(file.canExecute());
+
+            final FileReader reader = new FileReader(file);
+            final int length = (int) file.length();
+            final char[] chars = new char[length];
+            assertEquals(length, reader.read(chars));
+            assertEquals("the stupid executable script", new String(chars));
+        } finally {
+            tempFileManager.cleanup();
+        }
     }
 }

@@ -46,8 +46,8 @@ class GeoFile {
         this.numMatchups = numMatchups;
     }
 
-    void create(boolean deleteOnExit) throws IOException {
-        tempFile = NwpUtils.createTempFile("geo", ".nc", deleteOnExit);
+    void create(TempFileManager tempFileManager) throws IOException {
+        tempFile = tempFileManager.create("geo", ".nc");
 
         writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, tempFile.getAbsolutePath());
         writer.setLargeFile(true);

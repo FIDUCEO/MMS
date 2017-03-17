@@ -71,10 +71,12 @@ class NwpPostProcessing extends PostProcessing {
 
     private final Configuration configuration;
     private final TemplateVariables templateVariables;
+    private final TempFileManager tempFileManager;
 
     NwpPostProcessing(Configuration configuration) {
         this.configuration = configuration;
         templateVariables = new TemplateVariables(configuration);
+        tempFileManager = new TempFileManager();
     }
 
     @Override
@@ -141,16 +143,20 @@ class NwpPostProcessing extends PostProcessing {
             if (forecastNetCDF != null) {
                 forecastNetCDF.close();
             }
+
+            if (configuration.isDeleteOnExit()) {
+                tempFileManager.cleanup();
+            }
         }
     }
 
     private File createForecastFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
-        final File gafsTimeSeriesFile = NwpUtils.createTempFile("gafs", ".nc", configuration.isDeleteOnExit());
-        final File ggfsTimeSeriesFile = NwpUtils.createTempFile("ggfs", ".nc", configuration.isDeleteOnExit());
-        final File ggfrTimeSeriesFile = NwpUtils.createTempFile("ggfr", ".nc", configuration.isDeleteOnExit());
-        final File ggfmTimeSeriesFile = NwpUtils.createTempFile("ggfm", ".nc", configuration.isDeleteOnExit());
-        final File ggfmRemapTimeSeriesFile = NwpUtils.createTempFile("ggfmr", ".nc", configuration.isDeleteOnExit());
-        final File forecastFile = NwpUtils.createTempFile("forecast", ".nc", configuration.isDeleteOnExit());
+        final File gafsTimeSeriesFile = tempFileManager.create("gafs", "nc");
+        final File ggfsTimeSeriesFile = tempFileManager.create("ggfs", "nc");
+        final File ggfrTimeSeriesFile = tempFileManager.create("ggfr", "nc");
+        final File ggfmTimeSeriesFile = tempFileManager.create("ggfm", "nc");
+        final File ggfmRemapTimeSeriesFile = tempFileManager.create("ggfmr", "nc");
+        final File forecastFile = tempFileManager.create("forecast", "nc");
 
         final String gafsTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/gafs", nwpDataDirectories, "gafs[0-9]*.nc", 0);
         final String ggfsTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggfs", nwpDataDirectories, "ggfs[0-9]*.nc", 0);
@@ -162,7 +168,7 @@ class NwpPostProcessing extends PostProcessing {
                 forecastFile.getAbsolutePath());
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_FC_TEMPLATE, templateProperties);
 
-        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileManager);
 
         final ProcessRunner processRunner = new ProcessRunner();
         processRunner.execute(scriptFile.getPath());
@@ -171,10 +177,10 @@ class NwpPostProcessing extends PostProcessing {
     }
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
-        final File ggasTimeSeriesFile = NwpUtils.createTempFile("ggas", ".nc", configuration.isDeleteOnExit());
-        final File ggamTimeSeriesFile = NwpUtils.createTempFile("ggam", ".nc", configuration.isDeleteOnExit());
-        final File ggamRemappedTimeSeriesFile = NwpUtils.createTempFile("ggar", ".nc", configuration.isDeleteOnExit());
-        final File analysisFile = NwpUtils.createTempFile("analysis", ".nc", configuration.isDeleteOnExit());
+        final File ggasTimeSeriesFile = tempFileManager.create("ggas", "nc");
+        final File ggamTimeSeriesFile = tempFileManager.create("ggam", "nc");
+        final File ggamRemappedTimeSeriesFile = tempFileManager.create("ggar", "nc");
+        final File analysisFile = tempFileManager.create("analysis", "nc");
 
         final String ggasTimeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
         final String ggamTimeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggam", nwpDataDirectories, "ggam[0-9]*.grb", 0);
@@ -184,7 +190,7 @@ class NwpPostProcessing extends PostProcessing {
                 analysisFile.getAbsolutePath());
 
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
-        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, "cdo", "sh", configuration.isDeleteOnExit());
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileManager);
 
         final ProcessRunner processRunner = new ProcessRunner();
         processRunner.execute(scriptFile.getPath());
@@ -212,7 +218,7 @@ class NwpPostProcessing extends PostProcessing {
 
         final GeoFile geoFile = new GeoFile(matchupCount);
         try {
-            geoFile.create(configuration.isDeleteOnExit());
+            geoFile.create(tempFileManager);
             geoFile.write(longitudes, latitudes);
         } finally {
             geoFile.close();

@@ -119,7 +119,7 @@ public class PostProcessingToolIntegrationTest_NWP {
                 "    </create-new-files>\n" +
                 "    <post-processings>\n" +
                 "        <nwp>\n" +
-                "            <cdo-home>/home/tom/Dev/cdo_installation/bin</cdo-home>\n" + // @todo move to test-confug tb 2017-01-11
+                "            <cdo-home>/home/tom/Dev/cdo_installation/bin</cdo-home>\n" + // @todo move to test-config tb 2017-01-11
                 "            <nwp-aux-dir>" + eraInterimDir.getAbsolutePath() + "</nwp-aux-dir>\n" +
                 "            <delete-on-exit>true</delete-on-exit>\n" +
                 "            <analysis-steps>19</analysis-steps>\n" +

@@ -225,7 +225,7 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element deleteOnExitElement = rootElement.getChild("delete-on-exit");
         if (deleteOnExitElement != null) {
             final String deleteOnExitValue = deleteOnExitElement.getValue().trim();
-            configuration.setDeleteOnExit(Boolean.getBoolean(deleteOnExitValue));
+            configuration.setDeleteOnExit(Boolean.parseBoolean(deleteOnExitValue));
         }
 
         final String cdoHomeValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "cdo-home");

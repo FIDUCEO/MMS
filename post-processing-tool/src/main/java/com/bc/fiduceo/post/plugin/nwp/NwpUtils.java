@@ -70,14 +70,6 @@ class NwpUtils {
         return sb.toString();
     }
 
-    static File createTempFile(String prefix, String suffix, boolean deleteOnExit) throws IOException {
-        final File tempFile = File.createTempFile(prefix, suffix);
-        if (deleteOnExit) {
-            tempFile.deleteOnExit();
-        }
-        return tempFile;
-    }
-
     // package public for testing
     static int computeFutureTimeStepCount(int timeStepCount) {
         return ((timeStepCount - 1) / 8) * 3;

@@ -22,6 +22,8 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -33,20 +35,30 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class GeoFile_IO_Test {
+
+    private TempFileManager tempFileManager;
+
+    @Before
+    public void setUp() {
+        tempFileManager = new TempFileManager();
+    }
+
+    @After
+    public void tearDown() {
+        tempFileManager.cleanup();
+    }
 
     @Test
     public void testCreate() throws IOException {
         final GeoFile geoFile = new GeoFile(1208);
 
-        File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(false);
-            file = geoFile.getFile();
+            geoFile.create(tempFileManager);
+            final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
             geoFileNC = NetcdfFile.open(file.getAbsolutePath());
@@ -69,11 +81,6 @@ public class GeoFile_IO_Test {
             if (geoFileNC != null) {
                 geoFileNC.close();
             }
-            if (file != null) {
-                if (!file.delete()) {
-                    fail("unable to delete test file");
-                }
-            }
         }
     }
 
@@ -86,11 +93,10 @@ public class GeoFile_IO_Test {
         final Array longitudesArray = Array.factory(longitudes);
         final Array latitudesArray = Array.factory(latitudes);
 
-        File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(true);
-            file = geoFile.getFile();
+            geoFile.create(tempFileManager);
+            final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
             geoFile.write(longitudesArray, latitudesArray);
@@ -114,11 +120,6 @@ public class GeoFile_IO_Test {
             if (geoFileNC != null) {
                 geoFileNC.close();
             }
-            if (file != null) {
-                if (!file.delete()) {
-                    fail("unable to delete test file");
-                }
-            }
         }
     }
 
@@ -131,11 +132,10 @@ public class GeoFile_IO_Test {
         final Array longitudesArray = Array.factory(DataType.FLOAT, new int[]{2, 3, 3}, longitudes);
         final Array latitudesArray = Array.factory(DataType.FLOAT, new int[]{2, 3, 3}, latitudes);
 
-        File file = null;
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(false);
-            file = geoFile.getFile();
+            geoFile.create(tempFileManager);
+            final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
             geoFile.write(longitudesArray, latitudesArray);
@@ -158,11 +158,6 @@ public class GeoFile_IO_Test {
             geoFile.close();
             if (geoFileNC != null) {
                 geoFileNC.close();
-            }
-            if (file != null) {
-                if (!file.delete()) {
-                    fail("unable to delete test file");
-                }
             }
         }
     }

@@ -32,8 +32,8 @@ class ProcessRunner {
 
     private final Logger logger;
 
-    static File writeExecutableScript(String shellScript, String prefix, String suffix, boolean deleteOnExit) throws IOException {
-        final File scriptFile = NwpUtils.createTempFile(prefix, suffix, deleteOnExit);
+    static File writeExecutableScript(String shellScript, TempFileManager tempFileManager) throws IOException {
+        final File scriptFile = tempFileManager.create("cdo", "sh");
 
         final boolean executable = scriptFile.setExecutable(true);
         if (!executable) {
