@@ -68,12 +68,12 @@ import org.jdom.Element;
         <!-- Defines the name of variable for analysis center times. Valuesa re in seconds since 1970-01-01.
              Default: matchup.nwp.an.t0
         -->
-        <analysis-center-time-variable-name>acquisition-time</analysis-center-stime-variable-name>
+        <analysis-center-time-variable-name>acquisition-time</analysis-center-time-variable-name>
 
         <!-- Defines the name of variable for forecast center times. Valuesa re in seconds since 1970-01-01.
              Default: matchup.nwp.fc.t0
         -->
-        <forecast-center-time-variable-name>acquisition-time</forecast-center-stime-variable-name>
+        <forecast-center-time-variable-name>acquisition-time</forecast-center-time-variable-name>
 
         <!-- Defines the name of the target variable for analysis sea-ice-fraction.
              Default: matchup.nwp.an.sea_ice_fraction

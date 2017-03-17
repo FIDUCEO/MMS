@@ -43,6 +43,50 @@
             <secondary-sensor-matchup-time-variable>amsre.acquisition_time</secondary-sensor-matchup-time-variable>
         </sst-insitu-time-series>
 
+        <nwp>
+            <cdo-home>/usr/local/bin/cdo</cdo-home>
+            <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>
+
+            <delete-on-exit>true</delete-on-exit>
+
+            <analysis-steps>19</analysis-steps>
+            <forecast-steps>33</forecast-steps>
+
+            <time-variable-name>acquisition-time</time-variable-name>
+            <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
+            <latitude-variable-name>animal-sst_insitu.lat</latitude-variable-name>
+
+            <analysis-center-time-variable-name>matchup.nwp.an.t0</analysis-center-time-variable-name>
+            <forecast-center-time-variable-name>matchup.nwp.fc.t0</forecast-center-time-variable-name>
+
+            <an-sea-ice-fraction-name>matchup.nwp.an.sea_ice_fraction</an-sea-ice-fraction-name>
+            <an-sst-name>matchup.nwp.an.sea_surface_temperature</an-sst-name>
+            <an-east-wind-name>matchup.nwp.an.10m_east_wind_component</an-east-wind-name>
+            <an-north-wind-name>matchup.nwp.an.10m_north_wind_component</an-north-wind-name>
+            <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-column-water-vapour-name>
+            <an-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</an-cloud-liquid-water-content-name>
+
+            <fc-sst-name>matchup.nwp.fc.sea_surface_temperature</fc-sst-name>
+            <fc-surf-sensible-heat-flux-name>matchup.nwp.fc.surface_sensible_heat_flux</fc-surf-sensible-heat-flux-name>
+            <fc-surf-latent-heat-flux-name>matchup.nwp.fc.surface_latent_heat_flux</fc-surf-latent-heat-flux-name>
+            <fc-boundary-layer-height-name>matchup.nwp.fc.boundary_layer_height</fc-boundary-layer-height-name>
+            <fc-10m-east-wind-name>matchup.nwp.fc.10m_east_wind_component</fc-10m-east-wind-name>
+            <fc-10m-north-wind-name>matchup.nwp.fc.10m_north_wind_component</fc-10m-north-wind-name>
+            <fc-2m-temperature-name>matchup.nwp.fc.2m-temperature</fc-2m-temperature-name>
+            <fc-2m-dew-point-name>matchup.nwp.fc.2m_dew_point</fc-2m-dew-point-name>
+            <fc-down-surf-solar-radiation-name>matchup.nwp.fc.downward_surface_solar_radiation</fc-down-surf-solar-radiation-name>
+            <fc-down-surf-thermal-radiation-name>matchup.nwp.fc.downward_surface_thermal_radiation</fc-down-surf-thermal-radiation-name>
+            <fc-surf-solar-radiation-name>matchup.nwp.fc.surface_solar_radiation</fc-surf-solar-radiation-name>
+            <fc-surf-thermal-radiation-name>matchup.nwp.fc.surface_thermal_radiation</fc-surf-thermal-radiation-name>
+            <fc-turb-stress-east-name>matchup.nwp.fc.turbulent_stress_east_component</fc-turb-stress-east-name>
+            <fc-turb-stress-north-name>matchup.nwp.fc.turbulent_stress_north_component</fc-turb-stress-north-name>
+            <fc-evaporation-name>matchup.nwp.fc.evaporation</fc-evaporation-name>
+            <fc-total-precip-name>matchup.nwp.fc.total_precipitation</fc-total-precip-name>
+            <fc-mean-pressure-name>matchup.nwp.fc.mean_sea_level_pressure</fc-mean-pressure-name>
+            <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-column-water-vapour-name>
+            <fc-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</fc-cloud-liquid-water-content-name>
+        </nwp>
+
     </post-processings>
 
 </post-processing-config>
