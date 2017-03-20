@@ -27,10 +27,8 @@ class Configuration {
 
     private boolean deleteOnExit;
     private String CDOHome;
-    private int analysisSteps;
-    private int forecastSteps;
     private String NWPAuxDir;
-    private String timeVariableName;
+
     private String anSeaIceFractionName;
     private String anSSTName;
     private String anEastWindName;
@@ -52,22 +50,16 @@ class Configuration {
     private String fcTurbStressNorthName;
     private String fcEvaporationName;
     private String fcTotalPrecipName;
-    private String longitudeVariableName;
-    private String latitudeVariableName;
     private String anCenterTimeName;
     private String fcCenterTimeName;
     private String anTotalColumnWaterVapourName;
     private String fcTotalColumnWaterVapourName;
     private String anCloudLiquidWaterContentName;
     private String fcCloudLiquidWaterContentName;
-    private boolean timeSeriesExtraction;
+    private TimeSeriesConfiguration timeSeriesConfiguration;
 
     Configuration() {
         deleteOnExit = true;
-        analysisSteps = 17;
-        forecastSteps = 33;
-
-        timeSeriesExtraction = true;
 
         anCenterTimeName = "matchup.nwp.an.t0";
         fcCenterTimeName = "matchup.nwp.fc.t0";
@@ -116,36 +108,12 @@ class Configuration {
         return CDOHome;
     }
 
-    void setAnalysisSteps(int analysisSteps) {
-        this.analysisSteps = analysisSteps;
-    }
-
-    int getAnalysisSteps() {
-        return analysisSteps;
-    }
-
-    void setForecastSteps(int forecastSteps) {
-        this.forecastSteps = forecastSteps;
-    }
-
-    int getForecastSteps() {
-        return forecastSteps;
-    }
-
     void setNWPAuxDir(String NWPAuxDir) {
         this.NWPAuxDir = NWPAuxDir;
     }
 
     String getNWPAuxDir() {
         return NWPAuxDir;
-    }
-
-    void setTimeVariableName(String timeVariableName) {
-        this.timeVariableName = timeVariableName;
-    }
-
-    String getTimeVariableName() {
-        return timeVariableName;
     }
 
     void setAnCenterTimeName(String anCenterTimeName) {
@@ -364,28 +332,9 @@ class Configuration {
         return fcCloudLiquidWaterContentName;
     }
 
-    void setLongitudeVariableName(String longitudeVariableName) {
-        this.longitudeVariableName = longitudeVariableName;
-    }
-
-    String getLongitudeVariableName() {
-        return longitudeVariableName;
-    }
-
-    void setLatitudeVariableName(String latitudeVariableName) {
-        this.latitudeVariableName = latitudeVariableName;
-    }
-
-    String getLatitudeVariableName() {
-        return latitudeVariableName;
-    }
-
-    void setTimeSeriesExtraction(boolean timeSeriesExtraction) {
-        this.timeSeriesExtraction = timeSeriesExtraction;
-    }
 
     boolean isTimeSeriesExtraction() {
-        return timeSeriesExtraction;
+        return timeSeriesConfiguration != null;
     }
 
     boolean verify() {
@@ -401,4 +350,11 @@ class Configuration {
         return true;
     }
 
+    void setTimeSeriesConfiguration(TimeSeriesConfiguration timeSeriesConfiguration) {
+        this.timeSeriesConfiguration = timeSeriesConfiguration;
+    }
+
+    TimeSeriesConfiguration getTimeSeriesConfiguration() {
+        return timeSeriesConfiguration;
+    }
 }

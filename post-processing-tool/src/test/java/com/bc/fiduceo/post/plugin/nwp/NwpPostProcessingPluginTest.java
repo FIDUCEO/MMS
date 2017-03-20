@@ -52,9 +52,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -68,9 +65,6 @@ public class NwpPostProcessingPluginTest {
                 "    <cdo-home>/in/this/directory</cdo-home>" +
                 "" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -82,9 +76,6 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_missing_cdoHome() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -96,25 +87,98 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_TimeSeriesExtract_analysisAndForectastSteps() throws JDOMException, IOException {
+    public void testCreateConfiguration_TimeSeriesExtract_allRelevantVariables() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <time-series-extraction>" +
                 "        <analysis-steps>19</analysis-steps>" +
                 "        <forecast-steps>27</forecast-steps>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>long_John</longitude-variable-name>" +
+                "        <latitude-variable-name>cafe_latte</latitude-variable-name>" +
                 "    </time-series-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals(19, configuration.getAnalysisSteps());
-        assertEquals(27, configuration.getForecastSteps());
+
         assertTrue(configuration.isTimeSeriesExtraction());
+        
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+        assertNotNull(timeSeriesConfiguration);
+        assertEquals(19, timeSeriesConfiguration.getAnalysisSteps());
+        assertEquals(27, timeSeriesConfiguration.getForecastSteps());
+        assertEquals("the_time", timeSeriesConfiguration.getTimeVariableName());
+        assertEquals("long_John", timeSeriesConfiguration.getLongitudeVariableName());
+        assertEquals("cafe_latte", timeSeriesConfiguration.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testCreateConfiguration_TimeSeriesExtract_missingTimeVariable() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <time-series-extraction>" +
+                "        <analysis-steps>19</analysis-steps>" +
+                "        <forecast-steps>27</forecast-steps>" +
+                "        <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
+                "        <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "    </time-series-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_TimeSeriesExtract_missingLongitudeVariable() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <time-series-extraction>" +
+                "        <analysis-steps>19</analysis-steps>" +
+                "        <forecast-steps>27</forecast-steps>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
+                "    </time-series-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_TimeSeriesExtract_missingLatitudeVariable() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <time-series-extraction>" +
+                "        <analysis-steps>19</analysis-steps>" +
+                "        <forecast-steps>27</forecast-steps>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>long_John</longitude-variable-name>" +
+                "    </time-series-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @Test
@@ -123,9 +187,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -139,9 +200,6 @@ public class NwpPostProcessingPluginTest {
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -153,8 +211,6 @@ public class NwpPostProcessingPluginTest {
     public void testCreateConfiguration_missing_nwpAuxDir() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -166,31 +222,12 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_timeVariableName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <time-variable-name>big_ben</time-variable-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("big_ben", configuration.getTimeVariableName());
-    }
-
-    @Test
     public void testCreateConfiguration_anCenterTimeName() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <analysis-center-time-variable-name>watch_me_now</analysis-center-time-variable-name>" +
                 "" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -203,66 +240,13 @@ public class NwpPostProcessingPluginTest {
         final String XML = "<nwp>" +
                 "    <forecast-center-time-variable-name>in_two_minutes</forecast-center-time-variable-name>" +
                 "" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("in_two_minutes", configuration.getFcCenterTimeName());
-    }
-
-    @Test
-    public void testCreateConfiguration_longitudeVariableName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <longitude-variable-name>lons_my_dear</longitude-variable-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("lons_my_dear", configuration.getLongitudeVariableName());
-    }
-
-    @Test
-    public void testCreateConfiguration_longitudeVariableName_missing() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        try {
-            NwpPostProcessingPlugin.createConfiguration(rootElement);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
-    public void testCreateConfiguration_latitudeVariableName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <latitude-variable-name>latida</latitude-variable-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("latida", configuration.getLatitudeVariableName());
     }
 
     @Test
@@ -272,9 +256,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -289,9 +270,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -306,9 +284,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -323,9 +298,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -340,9 +312,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -357,9 +326,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -374,9 +340,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -391,9 +354,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -408,9 +368,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -425,9 +382,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -442,9 +396,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -459,9 +410,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -476,9 +424,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -493,9 +438,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -510,9 +452,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -527,9 +466,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -544,9 +480,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -561,9 +494,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -578,9 +508,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -595,9 +522,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -612,9 +536,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -629,9 +550,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -646,9 +564,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -663,9 +578,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
@@ -680,9 +592,6 @@ public class NwpPostProcessingPluginTest {
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
                 "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "    <time-variable-name>we need this, its mandatory</time-variable-name>" +
-                "    <longitude-variable-name>we need this, its mandatory</longitude-variable-name>" +
-                "    <latitude-variable-name>we need this, its mandatory</latitude-variable-name>" +
                 "</nwp>";
         final Element rootElement = TestUtil.createDomElement(XML);
 

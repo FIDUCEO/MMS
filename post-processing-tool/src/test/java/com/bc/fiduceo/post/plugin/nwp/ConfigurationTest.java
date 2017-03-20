@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -64,26 +65,6 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testSetGetAnalysisSteps() {
-        config.setAnalysisSteps(19);
-        assertEquals(19, config.getAnalysisSteps());
-    }
-
-    @Test
-    public void testSetGetForecastSteps() {
-        config.setForecastSteps(31);
-        assertEquals(31, config.getForecastSteps());
-    }
-
-    @Test
-    public void testSetGetTimeVariableName() {
-        final String timeVariableName = "clock";
-
-        config.setTimeVariableName(timeVariableName);
-        assertEquals(timeVariableName, config.getTimeVariableName());
-    }
-
-    @Test
     public void testSetGetAnCenterTimeName() {
         final String timeVariableName = "center_minute";
 
@@ -97,22 +78,6 @@ public class ConfigurationTest {
 
         config.setFcCenterTimeName(timeVariableName);
         assertEquals(timeVariableName, config.getFcCenterTimeName());
-    }
-
-    @Test
-    public void testSetGetLongitudeVariableName() {
-        final String variableName = "longi-tuhude";
-
-        config.setLongitudeVariableName(variableName);
-        assertEquals(variableName, config.getLongitudeVariableName());
-    }
-
-    @Test
-    public void testSetGetLatitudeVariableName() {
-        final String variableName = "lat-popat";
-
-        config.setLatitudeVariableName(variableName);
-        assertEquals(variableName, config.getLatitudeVariableName());
     }
 
     @Test
@@ -316,24 +281,29 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testSetIsTimeSeriesExtraction() {
-         config.setTimeSeriesExtraction(true);
-         assertTrue(config.isTimeSeriesExtraction());
+    public void testIsTimeSeriesExtraction() {
+        config.setTimeSeriesConfiguration(new TimeSeriesConfiguration());
+        assertTrue(config.isTimeSeriesExtraction());
 
-        config.setTimeSeriesExtraction(false);
+        config.setTimeSeriesConfiguration(null);
         assertFalse(config.isTimeSeriesExtraction());
+    }
+
+    @Test
+    public void testSetGetTimeSeriesConfiguration() {
+        final TimeSeriesConfiguration timeSeriesConfiguration = new TimeSeriesConfiguration();
+
+        config.setTimeSeriesConfiguration(timeSeriesConfiguration);
+        assertNotNull(config.getTimeSeriesConfiguration());
     }
 
     @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
-        assertEquals(17, config.getAnalysisSteps());
-        assertEquals(33, config.getForecastSteps());
         assertNull(config.getNWPAuxDir());
-        assertNull(config.getTimeVariableName());
 
-        assertTrue(config.isTimeSeriesExtraction());
+        assertFalse(config.isTimeSeriesExtraction());
 
         assertEquals("matchup.nwp.an.t0", config.getAnCenterTimeName());
         assertEquals("matchup.nwp.fc.t0", config.getFcCenterTimeName());

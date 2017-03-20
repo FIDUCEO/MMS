@@ -185,9 +185,13 @@ public class NwpPostProcessingTest {
 
     private Configuration createConfiguration() {
         final Configuration configuration = new Configuration();
+        final TimeSeriesConfiguration timeSeriesConfiguration = new TimeSeriesConfiguration();
 
-        configuration.setAnalysisSteps(13);
-        configuration.setForecastSteps(14);
+        timeSeriesConfiguration.setAnalysisSteps(13);
+        timeSeriesConfiguration.setForecastSteps(14);
+
+        configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
+        
         return configuration;
     }
 }

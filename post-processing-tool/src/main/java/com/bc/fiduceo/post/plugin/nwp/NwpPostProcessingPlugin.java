@@ -236,26 +236,7 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final String nwpAuxDirValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "nwp-aux-dir");
         configuration.setNWPAuxDir(nwpAuxDirValue);
 
-        final Element timeSeriesExtractionElement = rootElement.getChild("time-series-extraction");
-        if (timeSeriesExtractionElement != null) {
-            configuration.setTimeSeriesExtraction(true);
-            final Element analysisStepsElement = timeSeriesExtractionElement.getChild("analysis-steps");
-            if (analysisStepsElement != null) {
-                final String analysisStepsValue = analysisStepsElement.getValue().trim();
-                configuration.setAnalysisSteps(Integer.parseInt(analysisStepsValue));
-            }
-
-            final Element forecastStepsElement = timeSeriesExtractionElement.getChild("forecast-steps");
-            if (forecastStepsElement != null) {
-                final String forecastStepsValue = forecastStepsElement.getValue().trim();
-                configuration.setForecastSteps(Integer.parseInt(forecastStepsValue));
-            }
-        }  else {
-            configuration.setTimeSeriesExtraction(false);
-        }
-
-        final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "time-variable-name");
-        configuration.setTimeVariableName(timeVariableName);
+        parseTimeExtractionConfiguration(rootElement, configuration);
 
         final Element anCenterTimeVariableName = rootElement.getChild("analysis-center-time-variable-name");
         if (anCenterTimeVariableName != null) {
@@ -266,12 +247,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         if (fcCenterTimeVariableName != null) {
             configuration.setFcCenterTimeName(fcCenterTimeVariableName.getValue().trim());
         }
-
-        final String longitudeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "longitude-variable-name");
-        configuration.setLongitudeVariableName(longitudeVariableName);
-
-        final String latitudeVariableName = JDomUtils.getMandatoryChildTextTrim(rootElement, "latitude-variable-name");
-        configuration.setLatitudeVariableName(latitudeVariableName);
 
         final Element anSeaIceFractionElement = rootElement.getChild("an-sea-ice-fraction-name");
         if (anSeaIceFractionElement != null) {
@@ -399,5 +374,37 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         }
 
         return configuration;
+    }
+
+    private static void parseTimeExtractionConfiguration(Element rootElement, Configuration configuration) {
+        final Element timeSeriesExtractionElement = rootElement.getChild("time-series-extraction");
+        if (timeSeriesExtractionElement != null) {
+            final TimeSeriesConfiguration timeSeriesConfiguration = new TimeSeriesConfiguration();
+
+            final Element analysisStepsElement = timeSeriesExtractionElement.getChild("analysis-steps");
+            if (analysisStepsElement != null) {
+                final String analysisStepsValue = analysisStepsElement.getValue().trim();
+                timeSeriesConfiguration.setAnalysisSteps(Integer.parseInt(analysisStepsValue));
+            }
+
+            final Element forecastStepsElement = timeSeriesExtractionElement.getChild("forecast-steps");
+            if (forecastStepsElement != null) {
+                final String forecastStepsValue = forecastStepsElement.getValue().trim();
+                timeSeriesConfiguration.setForecastSteps(Integer.parseInt(forecastStepsValue));
+            }
+
+            final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "time-variable-name");
+            timeSeriesConfiguration.setTimeVariableName(timeVariableName);
+
+            final String longitudeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "longitude-variable-name");
+            timeSeriesConfiguration.setLongitudeVariableName(longitudeVariableName);
+
+            final String latitudeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "latitude-variable-name");
+            timeSeriesConfiguration.setLatitudeVariableName(latitudeVariableName);
+
+            configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
+        }  else {
+            configuration.setTimeSeriesConfiguration(null);
+        }
     }
 }

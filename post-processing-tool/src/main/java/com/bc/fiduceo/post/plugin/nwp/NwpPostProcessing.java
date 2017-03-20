@@ -86,11 +86,13 @@ class NwpPostProcessing extends PostProcessing {
             throw new RuntimeException("Expected dimension not present in file: 'matchup_count'");
         }
 
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
         if (!writer.hasDimension(null, "matchup.nwp.an.time")) {
-            writer.addDimension(null, "matchup.nwp.an.time", configuration.getAnalysisSteps());
+            writer.addDimension(null, "matchup.nwp.an.time", timeSeriesConfiguration.getAnalysisSteps());
         }
         if (!writer.hasDimension(null, "matchup.nwp.fc.time")) {
-            writer.addDimension(null, "matchup.nwp.fc.time", configuration.getForecastSteps());
+            writer.addDimension(null, "matchup.nwp.fc.time", timeSeriesConfiguration.getForecastSteps());
         }
 
         writer.addVariable(null, configuration.getAnCenterTimeName(), DataType.INT, "matchup_count");
@@ -199,7 +201,8 @@ class NwpPostProcessing extends PostProcessing {
     }
 
     private List<String> extractNwpDataDirectories(NetcdfFile reader) throws IOException {
-        final Variable timeVariable = NetCDFUtils.getVariable(reader, configuration.getTimeVariableName());
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getTimeVariableName());
         final Array timeArray = timeVariable.read();
 
         final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
@@ -208,10 +211,12 @@ class NwpPostProcessing extends PostProcessing {
     }
 
     private File writeGeoFile(NetcdfFile reader) throws IOException, InvalidRangeException {
-        final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.getLongitudeVariableName());
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
+        final Variable lonVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLongitudeVariableName());
         final Array longitudes = lonVariable.read();
 
-        final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.getLatitudeVariableName());
+        final Variable latVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLatitudeVariableName());
         final Array latitudes = latVariable.read();
 
         final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);

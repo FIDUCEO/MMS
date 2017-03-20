@@ -70,7 +70,9 @@ public class FileMerger_IO_Test {
         netcdfFileWriter.setRedefineMode(true);
 
         configuration = new Configuration();
-        configuration.setTimeVariableName("animal-sst_acquisition_time");
+        final TimeSeriesConfiguration timeSeriesConfiguration = new TimeSeriesConfiguration();
+        timeSeriesConfiguration.setTimeVariableName("animal-sst_acquisition_time");
+        configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
 
         templateVariables = new TemplateVariables(configuration);
 

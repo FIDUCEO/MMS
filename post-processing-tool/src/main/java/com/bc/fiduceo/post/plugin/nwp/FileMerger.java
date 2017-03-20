@@ -53,16 +53,18 @@ class FileMerger {
      */
     int[] mergeAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> analysisVariablesMap = getAnalysisVariablesMap(netcdfFileWriter, analysisFile);
-        final int[] anSourceShape = {configuration.getAnalysisSteps(), 1, 1, 1};
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
+        final int[] anSourceShape = {timeSeriesConfiguration.getAnalysisSteps(), 1, 1, 1};
 
         final Variable analysisTime = NetCDFUtils.getVariable(analysisFile, "t");
         final Array analysisTimeArray = analysisTime.read();
 
-        final String timeVariableName = configuration.getTimeVariableName();
+        final String timeVariableName = timeSeriesConfiguration.getTimeVariableName();
         final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
         final Array mmdTimeArray = extractCenterVector(mmdTime);
 
-        final int analysisSteps = configuration.getAnalysisSteps();
+        final int analysisSteps = timeSeriesConfiguration.getAnalysisSteps();
         final int anPastTimeStepCount = NwpUtils.computePastTimeStepCount(analysisSteps);
         final int anFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(analysisSteps);
 
@@ -112,16 +114,18 @@ class FileMerger {
      */
     int[] mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> forecastVariablesMap = getForecastVariablesMap(netcdfFileWriter, forecastFile);
-        final int[] fcSourceShape = {configuration.getForecastSteps(), 1, 1, 1};
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
+        final int[] fcSourceShape = {timeSeriesConfiguration.getForecastSteps(), 1, 1, 1};
 
         final Variable forecastTime = NetCDFUtils.getVariable(forecastFile, "t");
         final Array forecastTimeArray = forecastTime.read();
 
-        final String timeVariableName = configuration.getTimeVariableName();
+        final String timeVariableName = timeSeriesConfiguration.getTimeVariableName();
         final Variable mmdTime = NetCDFUtils.getVariable(netcdfFileWriter, timeVariableName);
         final Array mmdTimeArray = extractCenterVector(mmdTime);
 
-        final int forecastSteps = configuration.getForecastSteps();
+        final int forecastSteps = timeSeriesConfiguration.getForecastSteps();
         final int fcPastTimeStepCount = NwpUtils.computePastTimeStepCount(forecastSteps);
         final int fcFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(forecastSteps);
 
