@@ -29,7 +29,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class NwpPostProcessingPluginTest {
 
@@ -95,6 +99,15 @@ public class NwpPostProcessingPluginTest {
                 "        <time-variable-name>the_time</time-variable-name>" +
                 "        <longitude-variable-name>long_John</longitude-variable-name>" +
                 "        <latitude-variable-name>cafe_latte</latitude-variable-name>" +
+                "" +
+                "        <an-ci-name>nogger</an-ci-name>" +
+                "        <an-sstk-name>sea_surface_T</an-sstk-name>" +
+                "        <fc-sstk-name>the_sea_fore</fc-sstk-name>" +
+                "        <an-u10-name>blow_to_russia</an-u10-name>" +
+                "        <fc-u10-name>blow_eastern</fc-u10-name>" +
+                "        <an-v10-name>to_iceland</an-v10-name>" +
+                "        <fc-v10-name>to_greenland</fc-v10-name>" +
+                "        <fc-msl-name>pressure</fc-msl-name>" +
                 "    </time-series-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -105,7 +118,7 @@ public class NwpPostProcessingPluginTest {
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
 
         assertTrue(configuration.isTimeSeriesExtraction());
-        
+
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
         assertNotNull(timeSeriesConfiguration);
         assertEquals(19, timeSeriesConfiguration.getAnalysisSteps());
@@ -113,6 +126,15 @@ public class NwpPostProcessingPluginTest {
         assertEquals("the_time", timeSeriesConfiguration.getTimeVariableName());
         assertEquals("long_John", timeSeriesConfiguration.getLongitudeVariableName());
         assertEquals("cafe_latte", timeSeriesConfiguration.getLatitudeVariableName());
+
+        assertEquals("nogger", timeSeriesConfiguration.getAn_CI_name());
+        assertEquals("sea_surface_T", timeSeriesConfiguration.getAn_SSTK_name());
+        assertEquals("the_sea_fore", timeSeriesConfiguration.getFc_SSTK_name());
+        assertEquals("blow_to_russia", timeSeriesConfiguration.getAn_U10_name());
+        assertEquals("blow_eastern", timeSeriesConfiguration.getFc_U10_name());
+        assertEquals("to_iceland", timeSeriesConfiguration.getAn_V10_name());
+        assertEquals("to_greenland", timeSeriesConfiguration.getFc_V10_name());
+        assertEquals("pressure", timeSeriesConfiguration.getFc_MSL_name());
     }
 
     @Test
@@ -250,62 +272,6 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_anSeaIceFractionName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <an-sea-ice-fraction-name>nogger</an-sea-ice-fraction-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("nogger", configuration.getAnSeaIceFractionName());
-    }
-
-    @Test
-    public void testCreateConfiguration_anSSTName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <an-sst-name>quite_warm</an-sst-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("quite_warm", configuration.getAnSSTName());
-    }
-
-    @Test
-    public void testCreateConfiguration_anEastWindName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <an-east-wind-name>breeze</an-east-wind-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("breeze", configuration.getAnEastWindName());
-    }
-
-    @Test
-    public void testCreateConfiguration_anNorthWindName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <an-north-wind-name>from_ice_land</an-north-wind-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("from_ice_land", configuration.getAnNorthWindName());
-    }
-
-    @Test
     public void testCreateConfiguration_anTotalColumnWaterVapourName() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <an-total-column-water-vapour-name>steamy_steamy</an-total-column-water-vapour-name>" +
@@ -331,20 +297,6 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("water_flowing", configuration.getAnCloudLiquidWaterContentName());
-    }
-
-    @Test
-    public void testCreateConfiguration_fcSSTName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <fc-sst-name>temperature</fc-sst-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("temperature", configuration.getFcSSTName());
     }
 
     @Test
@@ -387,34 +339,6 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("christine", configuration.getFcBoundaryLayerHeightName());
-    }
-
-    @Test
-    public void testCreateConfiguration_fc10mEastWindName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <fc-10m-east-wind-name>out-of-russia</fc-10m-east-wind-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("out-of-russia", configuration.getFc10mEastWindName());
-    }
-
-    @Test
-    public void testCreateConfiguration_fc10mNorthWindName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <fc-10m-north-wind-name>from Sweden</fc-10m-north-wind-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("from Sweden", configuration.getFc10mNorthWindName());
     }
 
     @Test
@@ -555,20 +479,6 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertEquals("Toti", configuration.getFcTotalPrecipName());
-    }
-
-    @Test
-    public void testCreateConfiguration_fcMeanSeaLevelPressureName() throws JDOMException, IOException {
-        final String XML = "<nwp>" +
-                "    <fc-mean-pressure-name>press</fc-mean-pressure-name>" +
-                "" +
-                "    <cdo-home>we need this, its mandatory</cdo-home>" +
-                "    <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>" +
-                "</nwp>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
-        assertEquals("press", configuration.getFcMeanSeaLevelPressureName());
     }
 
     @Test

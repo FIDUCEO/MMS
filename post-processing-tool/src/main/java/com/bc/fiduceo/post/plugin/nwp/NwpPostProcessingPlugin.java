@@ -26,184 +26,7 @@ import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
-/* The XML template for this post processing class looks like:
-
-    <nwp>
-        <!-- Directory hosting the CDO executables
-        -->
-        <cdo-home>/usr/local/bin/cdo</cdo-home>
-
-        <!-- Defines the directory where the ERAInterim auxiliary files are located
-        -->
-        <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>
-
-        <!-- Set whether to delete all temporary files after processing or not.
-             Default value is: true
-         -->
-        <delete-on-exit>true</delete-on-exit>
-
-        <time-series-extraction>
-            <!-- Defines the number of time steps around the matchup time for
-                 NWP analysis data (6 hr time resolution). Default is: 17.
-            -->
-            <analysis-steps>19</analysis-steps>
-
-             <!-- Defines the number of time steps around the matchup time for
-                 NWP forecast data (3 hr time resolution). Default is: 33
-            -->
-            <forecast-steps>33</forecast-steps>
-        </time-series-extraction>
-
-        <!-- Defines the name of the time variable to use as reference time. Time variables are expected to store
-             data in seconds since 1970 format.
-        -->
-        <time-variable-name>acquisition-time</time-variable-name>
-
-        <!-- Defines the name of the longitude variable to use as reference. Data is expected in decimal degrees east.
-        -->
-        <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
-
-        <!-- Defines the name of the latitude variable to use as reference. Data is expected in decimal degrees north.
-        -->
-        <latitude-variable-name>animal-sst_insitu.lat</latitude-variable-name>
-
-        <!-- Defines the name of variable for analysis center times. Valuesa re in seconds since 1970-01-01.
-             Default: matchup.nwp.an.t0
-        -->
-        <analysis-center-time-variable-name>acquisition-time</analysis-center-time-variable-name>
-
-        <!-- Defines the name of variable for forecast center times. Valuesa re in seconds since 1970-01-01.
-             Default: matchup.nwp.fc.t0
-        -->
-        <forecast-center-time-variable-name>acquisition-time</forecast-center-time-variable-name>
-
-        <!-- Defines the name of the target variable for analysis sea-ice-fraction.
-             Default: matchup.nwp.an.sea_ice_fraction
-        -->
-        <an-sea-ice-fraction-name>an_sea-ice-fraction</an-sea-ice-fraction-name>
-
-        <!-- Defines the name of the target variable for analysis sea surface temperature.
-             Default: matchup.nwp.an.sea_surface_temperature
-        -->
-        <an-sst-name>an_sea-surface-temperature</an-sst-name>
-
-        <!-- Defines the name of the target variable for analysis 10m east wind component.
-             Default: matchup.nwp.an.10m_east_wind_component
-        -->
-        <an-east-wind-name>an_sea-surface-temperature</an-east-wind-name>
-
-        <!-- Defines the name of the target variable for analysis 10m north wind component.
-             Default: matchup.nwp.an.10m_north_wind_component
-        -->
-        <an-north-wind-name>an_sea-surface-temperature</an-north-wind-name>
-
-        <!-- Defines the name of the target variable for analysis total column water vapour.
-             Default: matchup.nwp.an.total_column_water_vapour
-        -->
-        <an-total-column-water-vapour-name>matchup.nwp.an.total_column_water_vapour</an-total-column-water-vapour-name>
-
-        <!-- Defines the name of the target variable for analysis cloud liquid water content.
-             Default: matchup.nwp.an.cloud_liquid_water_content
-        -->
-        <an-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</an-cloud-liquid-water-content-name>
-
-         <!-- Defines the name of the target variable for forecast sea surface temperature.
-             Default: matchup.nwp.fc.sea_surface_temperature
-        -->
-        <fc-sst-name>fc_sea-surface-temperature</fc-sst-name>
-
-        <!-- Defines the name of the target variable for forecast surface sensible heat flux.
-             Default: matchup.nwp.fc.surface_sensible_heat_flux
-        -->
-        <fc-surf-sensible-heat-flux-name>matchup.nwp.fc.surface_sensible_heat_flux</fc-surf-sensible-heat-flux-name>
-
-        <!-- Defines the name of the target variable for forecast latent sensible heat flux.
-             Default: matchup.nwp.fc.surface_latent_heat_flux
-        -->
-        <fc-surf-latent-heat-flux-name>matchup.nwp.fc.surface_latent_heat_flux</fc-surf-latent-heat-flux-name>
-
-        <!-- Defines the name of the target variable for forecast boundary layer height.
-             Default: matchup.nwp.fc.boundary_layer_height
-        -->
-        <fc-boundary-layer-height-name>matchup.nwp.fc.boundary_layer_height</fc-boundary-layer-height-name>
-
-        <!-- Defines the name of the target variable for forecast 10m east wind component.
-             Default: matchup.nwp.fc.10m_east_wind_component
-        -->
-        <fc-10m-east-wind-name>matchup.nwp.fc.10m_east_wind_component</fc-10m-east-wind-name>
-
-        <!-- Defines the name of the target variable for forecast 10m north wind component.
-             Default: matchup.nwp.fc.10m_north_wind_component
-        -->
-        <fc-10m-north-wind-name>matchup.nwp.fc.10m_north_wind_component</fc-10m-north-wind-name>
-
-        <!-- Defines the name of the target variable for forecast 2m temperature.
-             Default: matchup.nwp.fc.2m_temperature
-        -->
-        <fc-2m-temperature-name>matchup.nwp.fc.2m-temperature</fc-2m-temperature-name>
-
-        <!-- Defines the name of the target variable for forecast 2m dew point.
-             Default: matchup.nwp.fc.2m_dew_point
-        -->
-        <fc-2m-dew-point-name>matchup.nwp.fc.2m_dew_point</fc-2m-dew-point-name>
-
-        <!-- Defines the name of the target variable for forecast downward surface solar radiation.
-             Default: matchup.nwp.fc.downward_surface_solar_radiation
-        -->
-        <fc-down-surf-solar-radiation-name>matchup.nwp.fc.downward_surface_solar_radiation</fc-down-surf-solar-radiation-name>
-
-        <!-- Defines the name of the target variable for forecast downward surface thermal radiation.
-             Default: matchup.nwp.fc.downward_surface_thermal_radiation
-        -->
-        <fc-down-surf-thermal-radiation-name>matchup.nwp.fc.downward_surface_thermal_radiation</fc-down-surf-thermal-radiation-name>
-
-        <!-- Defines the name of the target variable for forecast surface solar radiation.
-             Default: matchup.nwp.fc.surface_solar_radiation
-        -->
-        <fc-surf-solar-radiation-name>matchup.nwp.fc.surface_solar_radiation</fc-surf-solar-radiation-name>
-
-        <!-- Defines the name of the target variable for forecast surface thermal radiation.
-             Default: matchup.nwp.fc.surface_thermal_radiation
-        -->
-        <fc-surf-thermal-radiation-name>matchup.nwp.fc.surface_thermal_radiation</fc-surf-thermal-radiation-name>
-
-        <!-- Defines the name of the target variable for forecast turbulent stress east component.
-             Default: matchup.nwp.fc.turbulent_stress_east_component
-        -->
-        <fc-turb-stress-east-name>matchup.nwp.fc.turbulent_stress_east_component</fc-turb-stress-east-name>
-
-        <!-- Defines the name of the target variable for forecast turbulent stress north component.
-             Default: matchup.nwp.fc.turbulent_stress_north_component
-        -->
-        <fc-turb-stress-north-name>matchup.nwp.fc.turbulent_stress_north_component</fc-turb-stress-north-name>
-
-        <!-- Defines the name of the target variable for forecast evaporation.
-             Default: matchup.nwp.fc.evaporation
-        -->
-        <fc-evaporation-name>matchup.nwp.fc.evaporation</fc-evaporation-name>
-
-        <!-- Defines the name of the target variable for forecast total precipitation.
-             Default: matchup.nwp.fc.total_precipitation
-        -->
-        <fc-total-precip-name>matchup.nwp.fc.total_precipitation</fc-total-precip-name>
-
-        <!-- Defines the name of the target variable for forecast mean sea level pressure.
-             Default: matchup.nwp.fc.mean_sea_level_pressure
-        -->
-        <fc-mean-pressure-name>matchup.nwp.fc.mean_sea_level_pressure</fc-mean-pressure-name>
-
-        <!-- Defines the name of the target variable for forecast total column water vapour.
-             Default: matchup.nwp.fc.total_column_water_vapour
-        -->
-        <fc-total-column-water-vapour-name>matchup.nwp.fc.total_column_water_vapour</fc-total-column-water-vapour-name>
-
-        <!-- Defines the name of the target variable for forecast cloud liquid water content.
-             Default: matchup.nwp.fc.cloud_liquid_water_content
-        -->
-        <fc-cloud-liquid-water-content-name>matchup.nwp.an.cloud_liquid_water_content</fc-cloud-liquid-water-content-name>
-
-    </nwp>
- */
+// @todo 2 tb/tb add example XML config as comment here 2017-03-20
 
 public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
@@ -248,26 +71,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             configuration.setFcCenterTimeName(fcCenterTimeVariableName.getValue().trim());
         }
 
-        final Element anSeaIceFractionElement = rootElement.getChild("an-sea-ice-fraction-name");
-        if (anSeaIceFractionElement != null) {
-            configuration.setAnSeaIceFractionName(anSeaIceFractionElement.getValue().trim());
-        }
-
-        final Element anSSTElement = rootElement.getChild("an-sst-name");
-        if (anSSTElement != null) {
-            configuration.setAnSSTName(anSSTElement.getValue().trim());
-        }
-
-        final Element anEastWindElement = rootElement.getChild("an-east-wind-name");
-        if (anEastWindElement != null) {
-            configuration.setAnEastWindName(anEastWindElement.getValue().trim());
-        }
-
-        final Element anNorthWindElement = rootElement.getChild("an-north-wind-name");
-        if (anNorthWindElement != null) {
-            configuration.setAnNorthWindName(anNorthWindElement.getValue().trim());
-        }
-
         final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-column-water-vapour-name");
         if (anTotalColumnWaterVapourElement != null) {
             configuration.setAnTotalColumnWaterVapourName(anTotalColumnWaterVapourElement.getValue().trim());
@@ -276,11 +79,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element anCloudLiquidWaterContentElement = rootElement.getChild("an-cloud-liquid-water-content-name");
         if (anCloudLiquidWaterContentElement != null) {
             configuration.setAnCloudLiquidWaterContentName(anCloudLiquidWaterContentElement.getValue().trim());
-        }
-
-        final Element fcSSTElement = rootElement.getChild("fc-sst-name");
-        if (fcSSTElement != null) {
-            configuration.setFcSSTName(fcSSTElement.getValue().trim());
         }
 
         final Element fcSurfSensibleHeatFluxElement = rootElement.getChild("fc-surf-sensible-heat-flux-name");
@@ -296,16 +94,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final Element fcBoundaryLayerHeightElement = rootElement.getChild("fc-boundary-layer-height-name");
         if (fcBoundaryLayerHeightElement != null) {
             configuration.setFcBoundaryLayerHeightName(fcBoundaryLayerHeightElement.getValue().trim());
-        }
-
-        final Element fc10mEastWindElement = rootElement.getChild("fc-10m-east-wind-name");
-        if (fc10mEastWindElement != null) {
-            configuration.setFc10mEastWindName(fc10mEastWindElement.getValue().trim());
-        }
-
-        final Element fc10mNorthWindElement = rootElement.getChild("fc-10m-north-wind-name");
-        if (fc10mNorthWindElement != null) {
-            configuration.setFc10mNorthWindName(fc10mNorthWindElement.getValue().trim());
         }
 
         final Element fc2mTemperatureElement = rootElement.getChild("fc-2m-temperature-name");
@@ -358,11 +146,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             configuration.setFcTotalPrecipName(fcTotalPrecipElement.getValue().trim());
         }
 
-        final Element fcMeanPressureElement = rootElement.getChild("fc-mean-pressure-name");
-        if (fcMeanPressureElement != null) {
-            configuration.setFcMeanSeaLevelPressureName(fcMeanPressureElement.getValue().trim());
-        }
-
         final Element fcTotalColumnWaterVapour = rootElement.getChild("fc-total-column-water-vapour-name");
         if (fcTotalColumnWaterVapour != null) {
             configuration.setFcTotalColumnWaterVapourName(fcTotalColumnWaterVapour.getValue().trim());
@@ -401,6 +184,46 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
             final String latitudeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "latitude-variable-name");
             timeSeriesConfiguration.setLatitudeVariableName(latitudeVariableName);
+
+            final Element anSeaIceFractionElement = timeSeriesExtractionElement.getChild("an-ci-name");
+            if (anSeaIceFractionElement != null) {
+                timeSeriesConfiguration.setAn_CI_name(anSeaIceFractionElement.getValue().trim());
+            }
+
+            final Element anSSTElement = timeSeriesExtractionElement.getChild("an-sstk-name");
+            if (anSSTElement != null) {
+                timeSeriesConfiguration.setAn_SSTK_name(anSSTElement.getValue().trim());
+            }
+
+            final Element fcSSTElement = timeSeriesExtractionElement.getChild("fc-sstk-name");
+            if (fcSSTElement != null) {
+                timeSeriesConfiguration.setFc_SSTK_name(fcSSTElement.getValue().trim());
+            }
+
+            final Element anEastWindElement = timeSeriesExtractionElement.getChild("an-u10-name");
+            if (anEastWindElement != null) {
+                timeSeriesConfiguration.setAn_U10_name(anEastWindElement.getValue().trim());
+            }
+
+            final Element fc10mEastWindElement = timeSeriesExtractionElement.getChild("fc-u10-name");
+            if (fc10mEastWindElement != null) {
+                timeSeriesConfiguration.setFc_U10_name(fc10mEastWindElement.getValue().trim());
+            }
+
+            final Element anNorthWindElement = timeSeriesExtractionElement.getChild("an-v10-name");
+            if (anNorthWindElement != null) {
+                timeSeriesConfiguration.setAn_V10_name(anNorthWindElement.getValue().trim());
+            }
+
+            final Element fc10mNorthWindElement = timeSeriesExtractionElement.getChild("fc-v10-name");
+            if (fc10mNorthWindElement != null) {
+                timeSeriesConfiguration.setFc_V10_name(fc10mNorthWindElement.getValue().trim());
+            }
+
+            final Element fcMeanPressureElement = timeSeriesExtractionElement.getChild("fc-msl-name");
+            if (fcMeanPressureElement != null) {
+                timeSeriesConfiguration.setFc_MSL_name(fcMeanPressureElement.getValue().trim());
+            }
 
             configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
         }  else {

@@ -150,6 +150,7 @@ public class NwpPostProcessingTest {
         when(writer.addVariable(anyObject(), anyString(), anyObject(), anyString())).thenReturn(variable);
 
         final Configuration configuration = createConfiguration();
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
         final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
         postProcessing.prepare(netcdfFile, writer);
 
@@ -159,13 +160,13 @@ public class NwpPostProcessingTest {
         verify(writer, times(1)).addVariable(null, "matchup.nwp.an.t0", DataType.INT, "matchup_count");
         verify(writer, times(1)).addVariable(null, "matchup.nwp.fc.t0", DataType.INT, "matchup_count");
 
-        verify(writer, times(1)).addVariable(null, configuration.getAnSeaIceFractionName(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
-        verify(writer, times(1)).addVariable(null, configuration.getAnEastWindName(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
-        verify(writer, times(1)).addVariable(null, configuration.getAnNorthWindName(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
-        verify(writer, times(1)).addVariable(null, configuration.getAnSSTName(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
 
         verify(writer, times(1)).addVariable(null, configuration.getFcEvaporationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcSSTName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcTotalPrecipName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFc2mTemperatureName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcBoundaryLayerHeightName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
@@ -174,11 +175,11 @@ public class NwpPostProcessingTest {
         verify(writer, times(1)).addVariable(null, configuration.getFcTurbStressEastName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcTurbStressNorthName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFc2mDewPointName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFc10mEastWindName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFc10mNorthWindName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcDownSurfSolarRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcDownSurfThermalRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcMeanSeaLevelPressureName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_MSL_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcSurfLatentHeatFluxName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, configuration.getFcSurfSensibleHeatFluxName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
     }

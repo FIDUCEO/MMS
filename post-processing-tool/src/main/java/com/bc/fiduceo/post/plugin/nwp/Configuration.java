@@ -29,17 +29,9 @@ class Configuration {
     private String CDOHome;
     private String NWPAuxDir;
 
-    private String anSeaIceFractionName;
-    private String anSSTName;
-    private String anEastWindName;
-    private String anNorthWindName;
-    private String fcSSTName;
     private String fcSurfSensibleHeatFluxName;
     private String fcSurfLatentHeatFluxName;
-    private String fcMeanSeaLevelPressureName;
     private String fcBoundaryLayerHeightName;
-    private String fc10mEastWindName;
-    private String fc10mNorthWindName;
     private String fc2mTemperatureName;
     private String fc2mDewPointName;
     private String fcDownSurfSolarRadiationName;
@@ -64,20 +56,12 @@ class Configuration {
         anCenterTimeName = "matchup.nwp.an.t0";
         fcCenterTimeName = "matchup.nwp.fc.t0";
 
-        anSeaIceFractionName = "matchup.nwp.an.sea_ice_fraction";
-        anSSTName = "matchup.nwp.an.sea_surface_temperature";
-        anEastWindName = "matchup.nwp.an.10m_east_wind_component";
-        anNorthWindName = "matchup.nwp.an.10m_north_wind_component";
         anTotalColumnWaterVapourName = "matchup.nwp.an.total_column_water_vapour";
         anCloudLiquidWaterContentName = "matchup.nwp.an.cloud_liquid_water_content";
 
-        fcSSTName = "matchup.nwp.fc.sea_surface_temperature";
         fcSurfSensibleHeatFluxName = "matchup.nwp.fc.surface_sensible_heat_flux";
         fcSurfLatentHeatFluxName = "matchup.nwp.fc.surface_latent_heat_flux";
-        fcMeanSeaLevelPressureName = "matchup.nwp.fc.mean_sea_level_pressure";
         fcBoundaryLayerHeightName = "matchup.nwp.fc.boundary_layer_height";
-        fc10mEastWindName = "matchup.nwp.fc.10m_east_wind_component";
-        fc10mNorthWindName = "matchup.nwp.fc.10m_north_wind_component";
         fc2mTemperatureName = "matchup.nwp.fc.2m_temperature";
         fc2mDewPointName = "matchup.nwp.fc.2m_dew_point";
         fcDownSurfSolarRadiationName = "matchup.nwp.fc.downward_surface_solar_radiation";
@@ -132,38 +116,6 @@ class Configuration {
         return fcCenterTimeName;
     }
 
-    void setAnSeaIceFractionName(String anSeaIceFractionName) {
-        this.anSeaIceFractionName = anSeaIceFractionName;
-    }
-
-    String getAnSeaIceFractionName() {
-        return anSeaIceFractionName;
-    }
-
-    void setAnSSTName(String anSSTName) {
-        this.anSSTName = anSSTName;
-    }
-
-    String getAnSSTName() {
-        return anSSTName;
-    }
-
-    void setAnEastWindName(String anEastWindName) {
-        this.anEastWindName = anEastWindName;
-    }
-
-    String getAnEastWindName() {
-        return anEastWindName;
-    }
-
-    void setAnNorthWindName(String anNorthWindName) {
-        this.anNorthWindName = anNorthWindName;
-    }
-
-    String getAnNorthWindName() {
-        return anNorthWindName;
-    }
-
     String getAnTotalColumnWaterVapourName() {
         return anTotalColumnWaterVapourName;
     }
@@ -178,14 +130,6 @@ class Configuration {
 
     String getAnCloudLiquidWaterContentName() {
         return anCloudLiquidWaterContentName;
-    }
-
-    void setFcSSTName(String fcSSTName) {
-        this.fcSSTName = fcSSTName;
-    }
-
-    String getFcSSTName() {
-        return fcSSTName;
     }
 
     void setFcSurfSensibleHeatFluxName(String fcSurfSensibleHeatFluxName) {
@@ -204,36 +148,12 @@ class Configuration {
         return fcSurfLatentHeatFluxName;
     }
 
-    void setFcMeanSeaLevelPressureName(String fcMeanSeaLevelPressureName) {
-        this.fcMeanSeaLevelPressureName = fcMeanSeaLevelPressureName;
-    }
-
-    String getFcMeanSeaLevelPressureName() {
-        return fcMeanSeaLevelPressureName;
-    }
-
     void setFcBoundaryLayerHeightName(String fcBoundaryLayerHeightName) {
         this.fcBoundaryLayerHeightName = fcBoundaryLayerHeightName;
     }
 
     String getFcBoundaryLayerHeightName() {
         return fcBoundaryLayerHeightName;
-    }
-
-    void setFc10mEastWindName(String fc10mEastWindName) {
-        this.fc10mEastWindName = fc10mEastWindName;
-    }
-
-    String getFc10mEastWindName() {
-        return fc10mEastWindName;
-    }
-
-    void setFc10mNorthWindName(String fc10mNorthWindName) {
-        this.fc10mNorthWindName = fc10mNorthWindName;
-    }
-
-    String getFc10mNorthWindName() {
-        return fc10mNorthWindName;
     }
 
     void setFc2mTemperatureName(String fc2mTemperatureName) {

@@ -81,38 +81,6 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testSetGetAnSeaIceFractionName() {
-        final String variableName = "fraction";
-
-        config.setAnSeaIceFractionName(variableName);
-        assertEquals(variableName, config.getAnSeaIceFractionName());
-    }
-
-    @Test
-    public void testSetGetAnSSTName() {
-        final String variableName = "sea_surface_temp";
-
-        config.setAnSSTName(variableName);
-        assertEquals(variableName, config.getAnSSTName());
-    }
-
-    @Test
-    public void testSetGetAnEastWind() {
-        final String variableName = "eastern_wind";
-
-        config.setAnEastWindName(variableName);
-        assertEquals(variableName, config.getAnEastWindName());
-    }
-
-    @Test
-    public void testSetGetAnNorthWind() {
-        final String variableName = "cold";
-
-        config.setAnNorthWindName(variableName);
-        assertEquals(variableName, config.getAnNorthWindName());
-    }
-
-    @Test
     public void testSetGetAnTotalColumnWaterVapourName() {
         final String variableName = "foggy";
 
@@ -126,14 +94,6 @@ public class ConfigurationTest {
 
         config.setAnCloudLiquidWaterContentName(variableName);
         assertEquals(variableName, config.getAnCloudLiquidWaterContentName());
-    }
-
-    @Test
-    public void testSetGetFcSSTName() {
-        final String variableName = "sea_surface_temp";
-
-        config.setFcSSTName(variableName);
-        assertEquals(variableName, config.getFcSSTName());
     }
 
     @Test
@@ -153,35 +113,11 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testSetGetFcMeanSeaLevelPressureName() {
-        final String variableName = "sea-level-pressure";
-
-        config.setFcMeanSeaLevelPressureName(variableName);
-        assertEquals(variableName, config.getFcMeanSeaLevelPressureName());
-    }
-
-    @Test
     public void testSetGetFcBoundaryLayerHeightName() {
         final String variableName = "high_rise";
 
         config.setFcBoundaryLayerHeightName(variableName);
         assertEquals(variableName, config.getFcBoundaryLayerHeightName());
-    }
-
-    @Test
-    public void testSetGetFc10mEastWindName() {
-        final String variableName = "storm";
-
-        config.setFc10mEastWindName(variableName);
-        assertEquals(variableName, config.getFc10mEastWindName());
-    }
-
-    @Test
-    public void testSetGetFc10mNorthWindName() {
-        final String variableName = "blow-wind-blow";
-
-        config.setFc10mNorthWindName(variableName);
-        assertEquals(variableName, config.getFc10mNorthWindName());
     }
 
     @Test
@@ -308,20 +244,12 @@ public class ConfigurationTest {
         assertEquals("matchup.nwp.an.t0", config.getAnCenterTimeName());
         assertEquals("matchup.nwp.fc.t0", config.getFcCenterTimeName());
 
-        assertEquals("matchup.nwp.an.sea_ice_fraction", config.getAnSeaIceFractionName());
-        assertEquals("matchup.nwp.an.sea_surface_temperature", config.getAnSSTName());
-        assertEquals("matchup.nwp.an.10m_east_wind_component", config.getAnEastWindName());
-        assertEquals("matchup.nwp.an.10m_north_wind_component", config.getAnNorthWindName());
         assertEquals("matchup.nwp.an.total_column_water_vapour", config.getAnTotalColumnWaterVapourName());
         assertEquals("matchup.nwp.an.cloud_liquid_water_content", config.getAnCloudLiquidWaterContentName());
 
-        assertEquals("matchup.nwp.fc.sea_surface_temperature", config.getFcSSTName());
         assertEquals("matchup.nwp.fc.surface_sensible_heat_flux", config.getFcSurfSensibleHeatFluxName());
         assertEquals("matchup.nwp.fc.surface_latent_heat_flux", config.getFcSurfLatentHeatFluxName());
-        assertEquals("matchup.nwp.fc.mean_sea_level_pressure", config.getFcMeanSeaLevelPressureName());
         assertEquals("matchup.nwp.fc.boundary_layer_height", config.getFcBoundaryLayerHeightName());
-        assertEquals("matchup.nwp.fc.10m_east_wind_component", config.getFc10mEastWindName());
-        assertEquals("matchup.nwp.fc.10m_north_wind_component", config.getFc10mNorthWindName());
         assertEquals("matchup.nwp.fc.2m_temperature", config.getFc2mTemperatureName());
         assertEquals("matchup.nwp.fc.2m_dew_point", config.getFc2mDewPointName());
         assertEquals("matchup.nwp.fc.downward_surface_solar_radiation", config.getFcDownSurfSolarRadiationName());

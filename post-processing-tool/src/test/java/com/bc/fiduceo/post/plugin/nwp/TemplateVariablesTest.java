@@ -36,7 +36,10 @@ public class TemplateVariablesTest {
 
     @Before
     public void setUp() {
-        templateVariables = new TemplateVariables(new Configuration());
+        final Configuration configuration = new Configuration();
+        configuration.setTimeSeriesConfiguration(new TimeSeriesConfiguration());
+        
+        templateVariables = new TemplateVariables(configuration);
     }
 
     @Test

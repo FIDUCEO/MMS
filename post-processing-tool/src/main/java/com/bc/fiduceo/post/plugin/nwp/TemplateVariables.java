@@ -57,20 +57,22 @@ class TemplateVariables {
         final ArrayList<TemplateVariable> variables = new ArrayList<>();
         final String anDimensions = "matchup_count matchup.nwp.an.time";
 
-        final TemplateVariable seaIceFractionVariable = new TemplateVariable(configuration.getAnSeaIceFractionName(), "CI", DataType.FLOAT, anDimensions);
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
+        final TemplateVariable seaIceFractionVariable = new TemplateVariable(timeSeriesConfiguration.getAn_CI_name(), "CI", DataType.FLOAT, anDimensions);
         seaIceFractionVariable.addAttribute("long_name", "Sea-ice cover");
         seaIceFractionVariable.addAttribute("_FillValue", 2.0E20);
         seaIceFractionVariable.addAttribute("source", "GRIB data");
         variables.add(seaIceFractionVariable);
 
-        final TemplateVariable sstVariable = new TemplateVariable(configuration.getAnSSTName(), "SSTK", DataType.FLOAT, anDimensions);
+        final TemplateVariable sstVariable = new TemplateVariable(timeSeriesConfiguration.getAn_SSTK_name(), "SSTK", DataType.FLOAT, anDimensions);
         sstVariable.addAttribute("long_name", "Sea surface temperature");
         sstVariable.addAttribute("units", "K");
         sstVariable.addAttribute("_FillValue", 2.0E20);
         sstVariable.addAttribute("source", "GRIB data");
         variables.add(sstVariable);
 
-        final TemplateVariable eastWindVariable = new TemplateVariable(configuration.getAnEastWindName(), "U10", DataType.FLOAT, anDimensions);
+        final TemplateVariable eastWindVariable = new TemplateVariable(timeSeriesConfiguration.getAn_U10_name(), "U10", DataType.FLOAT, anDimensions);
         eastWindVariable.addAttribute("standard_name", "eastward_wind");
         eastWindVariable.addAttribute("long_name", "10 metre U wind component");
         eastWindVariable.addAttribute("units", "m s**-1");
@@ -78,7 +80,7 @@ class TemplateVariables {
         eastWindVariable.addAttribute("source", "GRIB data");
         variables.add(eastWindVariable);
 
-        final TemplateVariable northWindVariable = new TemplateVariable(configuration.getAnNorthWindName(), "V10", DataType.FLOAT, anDimensions);
+        final TemplateVariable northWindVariable = new TemplateVariable(timeSeriesConfiguration.getAn_V10_name(), "V10", DataType.FLOAT, anDimensions);
         northWindVariable.addAttribute("standard_name", "northward_wind");
         northWindVariable.addAttribute("long_name", "10 metre V wind component");
         northWindVariable.addAttribute("units", "m s**-1");
@@ -108,6 +110,8 @@ class TemplateVariables {
     private ArrayList<TemplateVariable> createForecastVariables(Configuration configuration) {
         final ArrayList<TemplateVariable> variables = new ArrayList<>();
         final String fcDimensions = "matchup_count matchup.nwp.fc.time";
+
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
         final TemplateVariable evaporationVariable = new TemplateVariable(configuration.getFcEvaporationName(), "E", DataType.FLOAT, fcDimensions);
         evaporationVariable.addAttribute("standard_name", "lwe_thickness_of_water_evaporation_amount");
@@ -187,7 +191,7 @@ class TemplateVariables {
         tpVariable.addAttribute("source", "GRIB data");
         variables.add(tpVariable);
 
-        final TemplateVariable u10Variable = new TemplateVariable(configuration.getFc10mEastWindName(), "U10", DataType.FLOAT, fcDimensions);
+        final TemplateVariable u10Variable = new TemplateVariable(timeSeriesConfiguration.getFc_U10_name(), "U10", DataType.FLOAT, fcDimensions);
         u10Variable.addAttribute("standard_name", "eastward_wind");
         u10Variable.addAttribute("long_name", "10 metre U wind component");
         u10Variable.addAttribute("units", "m s**-1");
@@ -195,7 +199,7 @@ class TemplateVariables {
         u10Variable.addAttribute("source", "GRIB data");
         variables.add(u10Variable);
 
-        final TemplateVariable v10Variable = new TemplateVariable(configuration.getFc10mNorthWindName(), "V10", DataType.FLOAT, fcDimensions);
+        final TemplateVariable v10Variable = new TemplateVariable(timeSeriesConfiguration.getFc_V10_name(), "V10", DataType.FLOAT, fcDimensions);
         v10Variable.addAttribute("standard_name", "northward_wind");
         v10Variable.addAttribute("long_name", "10 metre V wind component");
         v10Variable.addAttribute("units", "m s**-1");
@@ -226,7 +230,7 @@ class TemplateVariables {
         blhVariable.addAttribute("source", "GRIB data");
         variables.add(blhVariable);
 
-        final TemplateVariable mslVariable = new TemplateVariable(configuration.getFcMeanSeaLevelPressureName(), "MSL", DataType.FLOAT, fcDimensions);
+        final TemplateVariable mslVariable = new TemplateVariable(timeSeriesConfiguration.getFc_MSL_name(), "MSL", DataType.FLOAT, fcDimensions);
         mslVariable.addAttribute("standard_name", "air_pressure_at_sea_level");
         mslVariable.addAttribute("long_name", "Mean sea-level pressure");
         mslVariable.addAttribute("units", "Pa");
@@ -234,7 +238,7 @@ class TemplateVariables {
         mslVariable.addAttribute("source", "GRIB data");
         variables.add(mslVariable);
 
-        final TemplateVariable sstkVariable = new TemplateVariable(configuration.getFcSSTName(), "SSTK", DataType.FLOAT, fcDimensions);
+        final TemplateVariable sstkVariable = new TemplateVariable(timeSeriesConfiguration.getFc_SSTK_name(), "SSTK", DataType.FLOAT, fcDimensions);
         sstkVariable.addAttribute("long_name", "Sea surface temperature");
         sstkVariable.addAttribute("units", "K");
         sstkVariable.addAttribute("_FillValue", 2.0E20);
