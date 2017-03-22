@@ -88,7 +88,7 @@ class TemplateVariables {
         northWindVariable.addAttribute("source", "GRIB data");
         variables.add(northWindVariable);
 
-        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(configuration.getAnTotalColumnWaterVapourName(), "TCWV", DataType.FLOAT, anDimensions);
+        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(timeSeriesConfiguration.getAn_TCWV_name(), "TCWV", DataType.FLOAT, anDimensions);
         totalColumnWaterVapourVariable.addAttribute("standard_name", "lwe_thickness_of_atmosphere_water_vapour_content");
         totalColumnWaterVapourVariable.addAttribute("long_name", "Total column water vapour");
         totalColumnWaterVapourVariable.addAttribute("units", "kg m**-2");
@@ -96,7 +96,7 @@ class TemplateVariables {
         totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
         variables.add(totalColumnWaterVapourVariable);
 
-        final TemplateVariable clwcVariable = new TemplateVariable(configuration.getAnCloudLiquidWaterContentName(), NwpPostProcessing.CLWC_NAME, DataType.FLOAT, anDimensions);
+        final TemplateVariable clwcVariable = new TemplateVariable(timeSeriesConfiguration.getAn_CLWC_name(), NwpPostProcessing.CLWC_NAME, DataType.FLOAT, anDimensions);
         clwcVariable.addAttribute("standard_name", "specific_cloud_liquid_water_content");
         clwcVariable.addAttribute("long_name", "Grid-box mean specific cloud liquid water content (mass of condensate / mass of moist air)");
         clwcVariable.addAttribute("units", "kg kg**-1");
@@ -113,7 +113,7 @@ class TemplateVariables {
 
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
-        final TemplateVariable evaporationVariable = new TemplateVariable(configuration.getFcEvaporationName(), "E", DataType.FLOAT, fcDimensions);
+        final TemplateVariable evaporationVariable = new TemplateVariable(timeSeriesConfiguration.getFc_E_name(), "E", DataType.FLOAT, fcDimensions);
         evaporationVariable.addAttribute("standard_name", "lwe_thickness_of_water_evaporation_amount");
         evaporationVariable.addAttribute("long_name", "Evaporation");
         evaporationVariable.addAttribute("units", "m of water");
@@ -121,7 +121,7 @@ class TemplateVariables {
         evaporationVariable.addAttribute("source", "GRIB data");
         variables.add(evaporationVariable);
 
-        final TemplateVariable sshfVariable = new TemplateVariable(configuration.getFcSurfSensibleHeatFluxName(), "SSHF", DataType.FLOAT, fcDimensions);
+        final TemplateVariable sshfVariable = new TemplateVariable(timeSeriesConfiguration.getFc_SSHF_name(), "SSHF", DataType.FLOAT, fcDimensions);
         sshfVariable.addAttribute("standard_name", "surface_upward_sensible_heat_flux");
         sshfVariable.addAttribute("long_name", "Surface sensible heat flux");
         sshfVariable.addAttribute("units", "W m**-2 s");
@@ -129,7 +129,7 @@ class TemplateVariables {
         sshfVariable.addAttribute("source", "GRIB data");
         variables.add(sshfVariable);
 
-        final TemplateVariable slhfVariable = new TemplateVariable(configuration.getFcSurfLatentHeatFluxName(), "SLHF", DataType.FLOAT, fcDimensions);
+        final TemplateVariable slhfVariable = new TemplateVariable(timeSeriesConfiguration.getFc_SLHF_name(), "SLHF", DataType.FLOAT, fcDimensions);
         slhfVariable.addAttribute("standard_name", "surface_upward_latent_heat_flux");
         slhfVariable.addAttribute("long_name", "Surface latent heat flux");
         slhfVariable.addAttribute("units", "W m**-2 s");
@@ -137,7 +137,7 @@ class TemplateVariables {
         slhfVariable.addAttribute("source", "GRIB data");
         variables.add(slhfVariable);
 
-        final TemplateVariable ssrdVariable = new TemplateVariable(configuration.getFcDownSurfSolarRadiationName(), "SSRD", DataType.FLOAT, fcDimensions);
+        final TemplateVariable ssrdVariable = new TemplateVariable(timeSeriesConfiguration.getFc_SSRD_name(), "SSRD", DataType.FLOAT, fcDimensions);
         ssrdVariable.addAttribute("standard_name", "surface_downwelling_shortwave_flux_in_air");
         ssrdVariable.addAttribute("long_name", "Surface solar radiation downwards");
         ssrdVariable.addAttribute("units", "W m**-2 s");
@@ -145,14 +145,14 @@ class TemplateVariables {
         ssrdVariable.addAttribute("source", "GRIB data");
         variables.add(ssrdVariable);
 
-        final TemplateVariable strdVariable = new TemplateVariable(configuration.getFcDownSurfThermalRadiationName(), "STRD", DataType.FLOAT, fcDimensions);
+        final TemplateVariable strdVariable = new TemplateVariable(timeSeriesConfiguration.getFc_STRD_name(), "STRD", DataType.FLOAT, fcDimensions);
         strdVariable.addAttribute("long_name", "Surface thermal radiation downwards");
         strdVariable.addAttribute("units", "W m**-2 s");
         strdVariable.addAttribute("_FillValue", 2.0E20);
         strdVariable.addAttribute("source", "GRIB data");
         variables.add(strdVariable);
 
-        final TemplateVariable ssrVariable = new TemplateVariable(configuration.getFcSurfSolarRadiationName(), "SSR", DataType.FLOAT, fcDimensions);
+        final TemplateVariable ssrVariable = new TemplateVariable(timeSeriesConfiguration.getFc_SSR_name(), "SSR", DataType.FLOAT, fcDimensions);
         ssrVariable.addAttribute("standard_name", "surface_net_upward_longwave_flux");
         ssrVariable.addAttribute("long_name", "Surface solar radiation");
         ssrVariable.addAttribute("units", "W m**-2 s");
@@ -160,7 +160,7 @@ class TemplateVariables {
         ssrVariable.addAttribute("source", "GRIB data");
         variables.add(ssrVariable);
 
-        final TemplateVariable strVariable = new TemplateVariable(configuration.getFcSurfThermalRadiationName(), "STR", DataType.FLOAT, fcDimensions);
+        final TemplateVariable strVariable = new TemplateVariable(timeSeriesConfiguration.getFc_STR_name(), "STR", DataType.FLOAT, fcDimensions);
         strVariable.addAttribute("standard_name", "surface_net_upward_shortwave_flux");
         strVariable.addAttribute("long_name", "Surface thermal radiation");
         strVariable.addAttribute("units", "W m**-2 s");
@@ -168,7 +168,7 @@ class TemplateVariables {
         strVariable.addAttribute("source", "GRIB data");
         variables.add(strVariable);
 
-        final TemplateVariable ewssVariable = new TemplateVariable(configuration.getFcTurbStressEastName(), "EWSS", DataType.FLOAT, fcDimensions);
+        final TemplateVariable ewssVariable = new TemplateVariable(timeSeriesConfiguration.getFc_EWSS_name(), "EWSS", DataType.FLOAT, fcDimensions);
         ewssVariable.addAttribute("standard_name", "surface_downward_eastward_stress");
         ewssVariable.addAttribute("long_name", "East-west surface stress");
         ewssVariable.addAttribute("units", "N m**-2 s");
@@ -176,7 +176,7 @@ class TemplateVariables {
         ewssVariable.addAttribute("source", "GRIB data");
         variables.add(ewssVariable);
 
-        final TemplateVariable nsssVariable = new TemplateVariable(configuration.getFcTurbStressNorthName(), "NSSS", DataType.FLOAT, fcDimensions);
+        final TemplateVariable nsssVariable = new TemplateVariable(timeSeriesConfiguration.getFc_NSSS_name(), "NSSS", DataType.FLOAT, fcDimensions);
         nsssVariable.addAttribute("standard_name", "surface_downward_northward_stress");
         nsssVariable.addAttribute("long_name", "North-south surface stress");
         nsssVariable.addAttribute("units", "N m**-2 s");
@@ -184,7 +184,7 @@ class TemplateVariables {
         nsssVariable.addAttribute("source", "GRIB data");
         variables.add(nsssVariable);
 
-        final TemplateVariable tpVariable = new TemplateVariable(configuration.getFcTotalPrecipName(), "TP", DataType.FLOAT, fcDimensions);
+        final TemplateVariable tpVariable = new TemplateVariable(timeSeriesConfiguration.getFc_TP_name(), "TP", DataType.FLOAT, fcDimensions);
         tpVariable.addAttribute("long_name", "Total precipitation");
         tpVariable.addAttribute("units", "m");
         tpVariable.addAttribute("_FillValue", 2.0E20);
@@ -207,7 +207,7 @@ class TemplateVariables {
         v10Variable.addAttribute("source", "GRIB data");
         variables.add(v10Variable);
 
-        final TemplateVariable d2Variable = new TemplateVariable(configuration.getFc2mDewPointName(), "D2", DataType.FLOAT, fcDimensions);
+        final TemplateVariable d2Variable = new TemplateVariable(timeSeriesConfiguration.getFc_D2_name(), "D2", DataType.FLOAT, fcDimensions);
         d2Variable.addAttribute("standard_name", "dew_point_temperature");
         d2Variable.addAttribute("long_name", "2 metre dewpoint temperature");
         d2Variable.addAttribute("units", "K");
@@ -215,7 +215,7 @@ class TemplateVariables {
         d2Variable.addAttribute("source", "GRIB data");
         variables.add(d2Variable);
 
-        final TemplateVariable t2Variable = new TemplateVariable(configuration.getFc2mTemperatureName(), "T2", DataType.FLOAT, fcDimensions);
+        final TemplateVariable t2Variable = new TemplateVariable(timeSeriesConfiguration.getFc_T2_name(), "T2", DataType.FLOAT, fcDimensions);
         t2Variable.addAttribute("standard_name", "air_temperature");
         t2Variable.addAttribute("long_name", "2 metre temperature");
         t2Variable.addAttribute("units", "K");
@@ -223,7 +223,7 @@ class TemplateVariables {
         t2Variable.addAttribute("source", "GRIB data");
         variables.add(t2Variable);
 
-        final TemplateVariable blhVariable = new TemplateVariable(configuration.getFcBoundaryLayerHeightName(), "BLH", DataType.FLOAT, fcDimensions);
+        final TemplateVariable blhVariable = new TemplateVariable(timeSeriesConfiguration.getFc_BLH_name(), "BLH", DataType.FLOAT, fcDimensions);
         blhVariable.addAttribute("long_name", "Boundary layer height");
         blhVariable.addAttribute("units", "m");
         blhVariable.addAttribute("_FillValue", 2.0E20);
@@ -245,7 +245,7 @@ class TemplateVariables {
         sstkVariable.addAttribute("source", "GRIB data");
         variables.add(sstkVariable);
 
-        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(configuration.getFcTotalColumnWaterVapourName(), "TCWV", DataType.FLOAT, fcDimensions);
+        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(timeSeriesConfiguration.getFc_TCWV_name(), "TCWV", DataType.FLOAT, fcDimensions);
         totalColumnWaterVapourVariable.addAttribute("standard_name", "lwe_thickness_of_atmosphere_water_vapour_content");
         totalColumnWaterVapourVariable.addAttribute("long_name", "Total column water vapour");
         totalColumnWaterVapourVariable.addAttribute("units", "kg m**-2");
@@ -253,7 +253,7 @@ class TemplateVariables {
         totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
         variables.add(totalColumnWaterVapourVariable);
 
-        final TemplateVariable clwcVariable = new TemplateVariable(configuration.getFcCloudLiquidWaterContentName(), NwpPostProcessing.CLWC_NAME, DataType.FLOAT, fcDimensions);
+        final TemplateVariable clwcVariable = new TemplateVariable(timeSeriesConfiguration.getFc_CLWC_name(), NwpPostProcessing.CLWC_NAME, DataType.FLOAT, fcDimensions);
         clwcVariable.addAttribute("standard_name", "specific_cloud_liquid_water_content");
         clwcVariable.addAttribute("long_name", "Grid-box mean specific cloud liquid water content (mass of condensate / mass of moist air)");
         clwcVariable.addAttribute("units", "kg kg**-1");

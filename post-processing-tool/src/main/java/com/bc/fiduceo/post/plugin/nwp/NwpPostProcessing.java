@@ -95,8 +95,8 @@ class NwpPostProcessing extends PostProcessing {
             writer.addDimension(null, "matchup.nwp.fc.time", timeSeriesConfiguration.getForecastSteps());
         }
 
-        writer.addVariable(null, configuration.getAnCenterTimeName(), DataType.INT, "matchup_count");
-        writer.addVariable(null, configuration.getFcCenterTimeName(), DataType.INT, "matchup_count");
+        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, "matchup_count");
+        writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, "matchup_count");
 
         final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
         for (final TemplateVariable templateVariable : allVariables) {
@@ -131,10 +131,11 @@ class NwpPostProcessing extends PostProcessing {
             final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, analysisNetCDF);
             final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
 
-            Variable variable = NetCDFUtils.getVariable(writer, configuration.getAnCenterTimeName());
+            final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+            Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
             writer.write(variable, Array.factory(analysisCenterTimes));
 
-            variable = NetCDFUtils.getVariable(writer, configuration.getFcCenterTimeName());
+            variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
             writer.write(variable, Array.factory(forecastCenterTimes));
 
         } finally {

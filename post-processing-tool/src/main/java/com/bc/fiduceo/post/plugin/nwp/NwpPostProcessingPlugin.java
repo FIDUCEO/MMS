@@ -61,101 +61,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
         parseTimeExtractionConfiguration(rootElement, configuration);
 
-        final Element anCenterTimeVariableName = rootElement.getChild("analysis-center-time-variable-name");
-        if (anCenterTimeVariableName != null) {
-            configuration.setAnCenterTimeName(anCenterTimeVariableName.getValue().trim());
-        }
-
-        final Element fcCenterTimeVariableName = rootElement.getChild("forecast-center-time-variable-name");
-        if (fcCenterTimeVariableName != null) {
-            configuration.setFcCenterTimeName(fcCenterTimeVariableName.getValue().trim());
-        }
-
-        final Element anTotalColumnWaterVapourElement = rootElement.getChild("an-total-column-water-vapour-name");
-        if (anTotalColumnWaterVapourElement != null) {
-            configuration.setAnTotalColumnWaterVapourName(anTotalColumnWaterVapourElement.getValue().trim());
-        }
-
-        final Element anCloudLiquidWaterContentElement = rootElement.getChild("an-cloud-liquid-water-content-name");
-        if (anCloudLiquidWaterContentElement != null) {
-            configuration.setAnCloudLiquidWaterContentName(anCloudLiquidWaterContentElement.getValue().trim());
-        }
-
-        final Element fcSurfSensibleHeatFluxElement = rootElement.getChild("fc-surf-sensible-heat-flux-name");
-        if (fcSurfSensibleHeatFluxElement != null) {
-            configuration.setFcSurfSensibleHeatFluxName(fcSurfSensibleHeatFluxElement.getValue().trim());
-        }
-
-        final Element fcSurfLatentHeatFluxElement = rootElement.getChild("fc-surf-latent-heat-flux-name");
-        if (fcSurfLatentHeatFluxElement != null) {
-            configuration.setFcSurfLatentHeatFluxName(fcSurfLatentHeatFluxElement.getValue().trim());
-        }
-
-        final Element fcBoundaryLayerHeightElement = rootElement.getChild("fc-boundary-layer-height-name");
-        if (fcBoundaryLayerHeightElement != null) {
-            configuration.setFcBoundaryLayerHeightName(fcBoundaryLayerHeightElement.getValue().trim());
-        }
-
-        final Element fc2mTemperatureElement = rootElement.getChild("fc-2m-temperature-name");
-        if (fc2mTemperatureElement != null) {
-            configuration.setFc2mTemperatureName(fc2mTemperatureElement.getValue().trim());
-        }
-
-        final Element fc2mDewPointElement = rootElement.getChild("fc-2m-dew-point-name");
-        if (fc2mDewPointElement != null) {
-            configuration.setFc2mDewPointName(fc2mDewPointElement.getValue().trim());
-        }
-
-        final Element fcDownSurfSolarRadiationElement = rootElement.getChild("fc-down-surf-solar-radiation-name");
-        if (fcDownSurfSolarRadiationElement != null) {
-            configuration.setFcDownSurfSolarRadiationName(fcDownSurfSolarRadiationElement.getValue().trim());
-        }
-
-        final Element fcDownSurfThermalRadiationElement = rootElement.getChild("fc-down-surf-thermal-radiation-name");
-        if (fcDownSurfThermalRadiationElement != null) {
-            configuration.setFcDownSurfThermalRadiationName(fcDownSurfThermalRadiationElement.getValue().trim());
-        }
-
-        final Element fcSurfSolarRadiationElement = rootElement.getChild("fc-surf-solar-radiation-name");
-        if (fcSurfSolarRadiationElement != null) {
-            configuration.setFcSurfSolarRadiationName(fcSurfSolarRadiationElement.getValue().trim());
-        }
-
-        final Element fcSurfThermalRadiationElement = rootElement.getChild("fc-surf-thermal-radiation-name");
-        if (fcSurfThermalRadiationElement != null) {
-            configuration.setFcSurfThermalRadiationName(fcSurfThermalRadiationElement.getValue().trim());
-        }
-
-        final Element fcTurbStressEastElement = rootElement.getChild("fc-turb-stress-east-name");
-        if (fcTurbStressEastElement != null) {
-            configuration.setFcTurbStressEastName(fcTurbStressEastElement.getValue().trim());
-        }
-
-        final Element fcTurbStressNorthElement = rootElement.getChild("fc-turb-stress-north-name");
-        if (fcTurbStressNorthElement != null) {
-            configuration.setFcTurbStressNorthName(fcTurbStressNorthElement.getValue().trim());
-        }
-
-        final Element fcEvaporationElement = rootElement.getChild("fc-evaporation-name");
-        if (fcEvaporationElement != null) {
-            configuration.setFcEvaporationName(fcEvaporationElement.getValue().trim());
-        }
-
-        final Element fcTotalPrecipElement = rootElement.getChild("fc-total-precip-name");
-        if (fcTotalPrecipElement != null) {
-            configuration.setFcTotalPrecipName(fcTotalPrecipElement.getValue().trim());
-        }
-
-        final Element fcTotalColumnWaterVapour = rootElement.getChild("fc-total-column-water-vapour-name");
-        if (fcTotalColumnWaterVapour != null) {
-            configuration.setFcTotalColumnWaterVapourName(fcTotalColumnWaterVapour.getValue().trim());
-        }
-
-        final Element fcCloudLiquidWaterContentElement = rootElement.getChild("fc-cloud-liquid-water-content-name");
-        if (fcCloudLiquidWaterContentElement != null) {
-            configuration.setFcCloudLiquidWaterContentName(fcCloudLiquidWaterContentElement.getValue().trim());
-        }
-
         return configuration;
     }
 
@@ -174,6 +79,16 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             if (forecastStepsElement != null) {
                 final String forecastStepsValue = forecastStepsElement.getValue().trim();
                 timeSeriesConfiguration.setForecastSteps(Integer.parseInt(forecastStepsValue));
+            }
+
+            final Element anCenterTimeVariableName = timeSeriesExtractionElement.getChild("analysis-center-time-name");
+            if (anCenterTimeVariableName != null) {
+                timeSeriesConfiguration.setAnCenterTimeName(anCenterTimeVariableName.getValue().trim());
+            }
+
+            final Element fcCenterTimeVariableName = timeSeriesExtractionElement.getChild("forecast-center-time-name");
+            if (fcCenterTimeVariableName != null) {
+                timeSeriesConfiguration.setFcCenterTimeName(fcCenterTimeVariableName.getValue().trim());
             }
 
             final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "time-variable-name");
@@ -223,6 +138,91 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             final Element fcMeanPressureElement = timeSeriesExtractionElement.getChild("fc-msl-name");
             if (fcMeanPressureElement != null) {
                 timeSeriesConfiguration.setFc_MSL_name(fcMeanPressureElement.getValue().trim());
+            }
+
+            final Element fc2mTemperatureElement = timeSeriesExtractionElement.getChild("fc-t2-name");
+            if (fc2mTemperatureElement != null) {
+                timeSeriesConfiguration.setFc_T2_name(fc2mTemperatureElement.getValue().trim());
+            }
+
+            final Element fc2mDewPointElement = timeSeriesExtractionElement.getChild("fc-d2-name");
+            if (fc2mDewPointElement != null) {
+                timeSeriesConfiguration.setFc_D2_name(fc2mDewPointElement.getValue().trim());
+            }
+
+            final Element fcTotalPrecipElement = timeSeriesExtractionElement.getChild("fc-tp-name");
+            if (fcTotalPrecipElement != null) {
+                timeSeriesConfiguration.setFc_TP_name(fcTotalPrecipElement.getValue().trim());
+            }
+
+            final Element anCloudLiquidWaterContentElement = timeSeriesExtractionElement.getChild("an-clwc-name");
+            if (anCloudLiquidWaterContentElement != null) {
+                timeSeriesConfiguration.setAn_CLWC_name(anCloudLiquidWaterContentElement.getValue().trim());
+            }
+
+            final Element fcCloudLiquidWaterContentElement = timeSeriesExtractionElement.getChild("fc-clwc-name");
+            if (fcCloudLiquidWaterContentElement != null) {
+                timeSeriesConfiguration.setFc_CLWC_name(fcCloudLiquidWaterContentElement.getValue().trim());
+            }
+
+            final Element anTotalColumnWaterVapourElement = timeSeriesExtractionElement.getChild("an-tcwv-name");
+            if (anTotalColumnWaterVapourElement != null) {
+                timeSeriesConfiguration.setAn_TCWV_name(anTotalColumnWaterVapourElement.getValue().trim());
+            }
+
+            final Element fcTotalColumnWaterVapour = timeSeriesExtractionElement.getChild("fc-tcwv-name");
+            if (fcTotalColumnWaterVapour != null) {
+                timeSeriesConfiguration.setFc_TCWV_name(fcTotalColumnWaterVapour.getValue().trim());
+            }
+
+            final Element fcSurfSensibleHeatFluxElement = timeSeriesExtractionElement.getChild("fc-sshf-name");
+            if (fcSurfSensibleHeatFluxElement != null) {
+                timeSeriesConfiguration.setFc_SSHF_name(fcSurfSensibleHeatFluxElement.getValue().trim());
+            }
+
+            final Element fcSurfLatentHeatFluxElement = timeSeriesExtractionElement.getChild("fc-slhf-name");
+            if (fcSurfLatentHeatFluxElement != null) {
+                timeSeriesConfiguration.setFc_SLHF_name(fcSurfLatentHeatFluxElement.getValue().trim());
+            }
+
+            final Element fcBoundaryLayerHeightElement = timeSeriesExtractionElement.getChild("fc-blh-name");
+            if (fcBoundaryLayerHeightElement != null) {
+                timeSeriesConfiguration.setFc_BLH_name(fcBoundaryLayerHeightElement.getValue().trim());
+            }
+
+            final Element fcDownSurfSolarRadiationElement = timeSeriesExtractionElement.getChild("fc-ssrd-name");
+            if (fcDownSurfSolarRadiationElement != null) {
+                timeSeriesConfiguration.setFc_SSRD_name(fcDownSurfSolarRadiationElement.getValue().trim());
+            }
+
+            final Element fcDownSurfThermalRadiationElement = timeSeriesExtractionElement.getChild("fc-strd-name");
+            if (fcDownSurfThermalRadiationElement != null) {
+                timeSeriesConfiguration.setFc_STRD_name(fcDownSurfThermalRadiationElement.getValue().trim());
+            }
+
+            final Element fcSurfSolarRadiationElement = timeSeriesExtractionElement.getChild("fc-ssr-name");
+            if (fcSurfSolarRadiationElement != null) {
+                timeSeriesConfiguration.setFc_SSR_name(fcSurfSolarRadiationElement.getValue().trim());
+            }
+
+            final Element fcSurfThermalRadiationElement = timeSeriesExtractionElement.getChild("fc-str-name");
+            if (fcSurfThermalRadiationElement != null) {
+                timeSeriesConfiguration.setFc_STR_name(fcSurfThermalRadiationElement.getValue().trim());
+            }
+
+            final Element fcTurbStressEastElement = timeSeriesExtractionElement.getChild("fc-ewss-name");
+            if (fcTurbStressEastElement != null) {
+                timeSeriesConfiguration.setFc_EWSS_name(fcTurbStressEastElement.getValue().trim());
+            }
+
+            final Element fcTurbStressNorthElement = timeSeriesExtractionElement.getChild("fc-nsss-name");
+            if (fcTurbStressNorthElement != null) {
+                timeSeriesConfiguration.setFc_NSSS_name(fcTurbStressNorthElement.getValue().trim());
+            }
+
+            final Element fcEvaporationElement = timeSeriesExtractionElement.getChild("fc-e-name");
+            if (fcEvaporationElement != null) {
+                timeSeriesConfiguration.setFc_E_name(fcEvaporationElement.getValue().trim());
             }
 
             configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);

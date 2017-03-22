@@ -45,6 +45,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class NwpPostProcessingTest {
@@ -154,6 +155,9 @@ public class NwpPostProcessingTest {
         final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
         postProcessing.prepare(netcdfFile, writer);
 
+        verify(writer, times(1)).hasDimension(null, "matchup.nwp.an.time");
+        verify(writer, times(1)).hasDimension(null, "matchup.nwp.fc.time");
+
         verify(writer, times(1)).addDimension(null, "matchup.nwp.an.time", 13);
         verify(writer, times(1)).addDimension(null, "matchup.nwp.fc.time", 14);
 
@@ -165,23 +169,29 @@ public class NwpPostProcessingTest {
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
 
-        verify(writer, times(1)).addVariable(null, configuration.getFcEvaporationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_E_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcTotalPrecipName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFc2mTemperatureName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcBoundaryLayerHeightName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcSurfSolarRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcSurfThermalRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcTurbStressEastName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcTurbStressNorthName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFc2mDewPointName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_TP_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_T2_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_BLH_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SSR_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_STR_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_EWSS_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_NSSS_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_D2_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcDownSurfSolarRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcDownSurfThermalRadiationName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SSRD_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_STRD_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_MSL_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcSurfLatentHeatFluxName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
-        verify(writer, times(1)).addVariable(null, configuration.getFcSurfSensibleHeatFluxName(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SLHF_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_SSHF_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_CLWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_CLWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_TCWV_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
+        verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getFc_TCWV_name(), DataType.FLOAT, "matchup_count matchup.nwp.fc.time");
+
+        verifyNoMoreInteractions(writer);
     }
 
     private Configuration createConfiguration() {
