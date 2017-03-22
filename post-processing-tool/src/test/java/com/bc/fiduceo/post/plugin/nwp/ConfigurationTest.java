@@ -82,11 +82,29 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetSensorExtractConfiguration() {
+        final SensorExtractConfiguration sensorExtractConfiguration = new SensorExtractConfiguration();
+
+        config.setSensorExtractConfiguration(sensorExtractConfiguration);
+        assertNotNull(config.getSensorExtractConfiguration());
+    }
+
+    @Test
+    public void testIsSensorExtraction() {
+        config.setSensorExtractConfiguration(new SensorExtractConfiguration());
+        assertTrue(config.isSensorExtraction());
+
+        config.setSensorExtractConfiguration(null);
+        assertFalse(config.isSensorExtraction());
+    }
+
+    @Test
     public void testDefaultValues() {
         assertTrue(config.isDeleteOnExit());
         assertNull(config.getCDOHome());
         assertNull(config.getNWPAuxDir());
 
         assertFalse(config.isTimeSeriesExtraction());
+        assertFalse(config.isSensorExtraction());
     }
 }

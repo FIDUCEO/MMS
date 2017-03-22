@@ -36,6 +36,7 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         if (configuration.verify()) {
             return new NwpPostProcessing(configuration);
         }
+        // @todo 3 tb/** shouldn't we throw an exception here? Or at least log something meaningful? 2017-03-22
         return null;
     }
 
@@ -49,7 +50,7 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
         final Element deleteOnExitElement = rootElement.getChild("delete-on-exit");
         if (deleteOnExitElement != null) {
-            final String deleteOnExitValue = deleteOnExitElement.getValue().trim();
+            final String deleteOnExitValue = getElementValueTrimmed(deleteOnExitElement);
             configuration.setDeleteOnExit(Boolean.parseBoolean(deleteOnExitValue));
         }
 
@@ -60,8 +61,25 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         configuration.setNWPAuxDir(nwpAuxDirValue);
 
         parseTimeExtractionConfiguration(rootElement, configuration);
+        parseSensorExtractionConfiguration(rootElement, configuration);
 
         return configuration;
+    }
+
+    private static void parseSensorExtractionConfiguration(Element rootElement, Configuration configuration) {
+        final Element sensorExtractionElement = rootElement.getChild("sensor-extraction");
+        if (sensorExtractionElement != null) {
+            final SensorExtractConfiguration sensorExtractConfig = new SensorExtractConfiguration();
+
+            final Element anSeaIceFractionElement = sensorExtractionElement.getChild("an-ci-name");
+            if (anSeaIceFractionElement != null) {
+                sensorExtractConfig.setAn_CI_name(getElementValueTrimmed(anSeaIceFractionElement));
+            }
+
+            configuration.setSensorExtractConfiguration(sensorExtractConfig);
+        } else {
+            configuration.setSensorExtractConfiguration(null);
+        }
     }
 
     private static void parseTimeExtractionConfiguration(Element rootElement, Configuration configuration) {
@@ -71,24 +89,24 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
             final Element analysisStepsElement = timeSeriesExtractionElement.getChild("analysis-steps");
             if (analysisStepsElement != null) {
-                final String analysisStepsValue = analysisStepsElement.getValue().trim();
+                final String analysisStepsValue = getElementValueTrimmed(analysisStepsElement);
                 timeSeriesConfiguration.setAnalysisSteps(Integer.parseInt(analysisStepsValue));
             }
 
             final Element forecastStepsElement = timeSeriesExtractionElement.getChild("forecast-steps");
             if (forecastStepsElement != null) {
-                final String forecastStepsValue = forecastStepsElement.getValue().trim();
+                final String forecastStepsValue = getElementValueTrimmed(forecastStepsElement);
                 timeSeriesConfiguration.setForecastSteps(Integer.parseInt(forecastStepsValue));
             }
 
             final Element anCenterTimeVariableName = timeSeriesExtractionElement.getChild("analysis-center-time-name");
             if (anCenterTimeVariableName != null) {
-                timeSeriesConfiguration.setAnCenterTimeName(anCenterTimeVariableName.getValue().trim());
+                timeSeriesConfiguration.setAnCenterTimeName(getElementValueTrimmed(anCenterTimeVariableName));
             }
 
             final Element fcCenterTimeVariableName = timeSeriesExtractionElement.getChild("forecast-center-time-name");
             if (fcCenterTimeVariableName != null) {
-                timeSeriesConfiguration.setFcCenterTimeName(fcCenterTimeVariableName.getValue().trim());
+                timeSeriesConfiguration.setFcCenterTimeName(getElementValueTrimmed(fcCenterTimeVariableName));
             }
 
             final String timeVariableName = JDomUtils.getMandatoryChildTextTrim(timeSeriesExtractionElement, "time-variable-name");
@@ -102,132 +120,136 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
             final Element anSeaIceFractionElement = timeSeriesExtractionElement.getChild("an-ci-name");
             if (anSeaIceFractionElement != null) {
-                timeSeriesConfiguration.setAn_CI_name(anSeaIceFractionElement.getValue().trim());
+                timeSeriesConfiguration.setAn_CI_name(getElementValueTrimmed(anSeaIceFractionElement));
             }
 
             final Element anSSTElement = timeSeriesExtractionElement.getChild("an-sstk-name");
             if (anSSTElement != null) {
-                timeSeriesConfiguration.setAn_SSTK_name(anSSTElement.getValue().trim());
+                timeSeriesConfiguration.setAn_SSTK_name(getElementValueTrimmed(anSSTElement));
             }
 
             final Element fcSSTElement = timeSeriesExtractionElement.getChild("fc-sstk-name");
             if (fcSSTElement != null) {
-                timeSeriesConfiguration.setFc_SSTK_name(fcSSTElement.getValue().trim());
+                timeSeriesConfiguration.setFc_SSTK_name(getElementValueTrimmed(fcSSTElement));
             }
 
             final Element anEastWindElement = timeSeriesExtractionElement.getChild("an-u10-name");
             if (anEastWindElement != null) {
-                timeSeriesConfiguration.setAn_U10_name(anEastWindElement.getValue().trim());
+                timeSeriesConfiguration.setAn_U10_name(getElementValueTrimmed(anEastWindElement));
             }
 
             final Element fc10mEastWindElement = timeSeriesExtractionElement.getChild("fc-u10-name");
             if (fc10mEastWindElement != null) {
-                timeSeriesConfiguration.setFc_U10_name(fc10mEastWindElement.getValue().trim());
+                timeSeriesConfiguration.setFc_U10_name(getElementValueTrimmed(fc10mEastWindElement));
             }
 
             final Element anNorthWindElement = timeSeriesExtractionElement.getChild("an-v10-name");
             if (anNorthWindElement != null) {
-                timeSeriesConfiguration.setAn_V10_name(anNorthWindElement.getValue().trim());
+                timeSeriesConfiguration.setAn_V10_name(getElementValueTrimmed(anNorthWindElement));
             }
 
             final Element fc10mNorthWindElement = timeSeriesExtractionElement.getChild("fc-v10-name");
             if (fc10mNorthWindElement != null) {
-                timeSeriesConfiguration.setFc_V10_name(fc10mNorthWindElement.getValue().trim());
+                timeSeriesConfiguration.setFc_V10_name(getElementValueTrimmed(fc10mNorthWindElement));
             }
 
             final Element fcMeanPressureElement = timeSeriesExtractionElement.getChild("fc-msl-name");
             if (fcMeanPressureElement != null) {
-                timeSeriesConfiguration.setFc_MSL_name(fcMeanPressureElement.getValue().trim());
+                timeSeriesConfiguration.setFc_MSL_name(getElementValueTrimmed(fcMeanPressureElement));
             }
 
             final Element fc2mTemperatureElement = timeSeriesExtractionElement.getChild("fc-t2-name");
             if (fc2mTemperatureElement != null) {
-                timeSeriesConfiguration.setFc_T2_name(fc2mTemperatureElement.getValue().trim());
+                timeSeriesConfiguration.setFc_T2_name(getElementValueTrimmed(fc2mTemperatureElement));
             }
 
             final Element fc2mDewPointElement = timeSeriesExtractionElement.getChild("fc-d2-name");
             if (fc2mDewPointElement != null) {
-                timeSeriesConfiguration.setFc_D2_name(fc2mDewPointElement.getValue().trim());
+                timeSeriesConfiguration.setFc_D2_name(getElementValueTrimmed(fc2mDewPointElement));
             }
 
             final Element fcTotalPrecipElement = timeSeriesExtractionElement.getChild("fc-tp-name");
             if (fcTotalPrecipElement != null) {
-                timeSeriesConfiguration.setFc_TP_name(fcTotalPrecipElement.getValue().trim());
+                timeSeriesConfiguration.setFc_TP_name(getElementValueTrimmed(fcTotalPrecipElement));
             }
 
             final Element anCloudLiquidWaterContentElement = timeSeriesExtractionElement.getChild("an-clwc-name");
             if (anCloudLiquidWaterContentElement != null) {
-                timeSeriesConfiguration.setAn_CLWC_name(anCloudLiquidWaterContentElement.getValue().trim());
+                timeSeriesConfiguration.setAn_CLWC_name(getElementValueTrimmed(anCloudLiquidWaterContentElement));
             }
 
             final Element fcCloudLiquidWaterContentElement = timeSeriesExtractionElement.getChild("fc-clwc-name");
             if (fcCloudLiquidWaterContentElement != null) {
-                timeSeriesConfiguration.setFc_CLWC_name(fcCloudLiquidWaterContentElement.getValue().trim());
+                timeSeriesConfiguration.setFc_CLWC_name(getElementValueTrimmed(fcCloudLiquidWaterContentElement));
             }
 
             final Element anTotalColumnWaterVapourElement = timeSeriesExtractionElement.getChild("an-tcwv-name");
             if (anTotalColumnWaterVapourElement != null) {
-                timeSeriesConfiguration.setAn_TCWV_name(anTotalColumnWaterVapourElement.getValue().trim());
+                timeSeriesConfiguration.setAn_TCWV_name(getElementValueTrimmed(anTotalColumnWaterVapourElement));
             }
 
             final Element fcTotalColumnWaterVapour = timeSeriesExtractionElement.getChild("fc-tcwv-name");
             if (fcTotalColumnWaterVapour != null) {
-                timeSeriesConfiguration.setFc_TCWV_name(fcTotalColumnWaterVapour.getValue().trim());
+                timeSeriesConfiguration.setFc_TCWV_name(getElementValueTrimmed(fcTotalColumnWaterVapour));
             }
 
             final Element fcSurfSensibleHeatFluxElement = timeSeriesExtractionElement.getChild("fc-sshf-name");
             if (fcSurfSensibleHeatFluxElement != null) {
-                timeSeriesConfiguration.setFc_SSHF_name(fcSurfSensibleHeatFluxElement.getValue().trim());
+                timeSeriesConfiguration.setFc_SSHF_name(getElementValueTrimmed(fcSurfSensibleHeatFluxElement));
             }
 
             final Element fcSurfLatentHeatFluxElement = timeSeriesExtractionElement.getChild("fc-slhf-name");
             if (fcSurfLatentHeatFluxElement != null) {
-                timeSeriesConfiguration.setFc_SLHF_name(fcSurfLatentHeatFluxElement.getValue().trim());
+                timeSeriesConfiguration.setFc_SLHF_name(getElementValueTrimmed(fcSurfLatentHeatFluxElement));
             }
 
             final Element fcBoundaryLayerHeightElement = timeSeriesExtractionElement.getChild("fc-blh-name");
             if (fcBoundaryLayerHeightElement != null) {
-                timeSeriesConfiguration.setFc_BLH_name(fcBoundaryLayerHeightElement.getValue().trim());
+                timeSeriesConfiguration.setFc_BLH_name(getElementValueTrimmed(fcBoundaryLayerHeightElement));
             }
 
             final Element fcDownSurfSolarRadiationElement = timeSeriesExtractionElement.getChild("fc-ssrd-name");
             if (fcDownSurfSolarRadiationElement != null) {
-                timeSeriesConfiguration.setFc_SSRD_name(fcDownSurfSolarRadiationElement.getValue().trim());
+                timeSeriesConfiguration.setFc_SSRD_name(getElementValueTrimmed(fcDownSurfSolarRadiationElement));
             }
 
             final Element fcDownSurfThermalRadiationElement = timeSeriesExtractionElement.getChild("fc-strd-name");
             if (fcDownSurfThermalRadiationElement != null) {
-                timeSeriesConfiguration.setFc_STRD_name(fcDownSurfThermalRadiationElement.getValue().trim());
+                timeSeriesConfiguration.setFc_STRD_name(getElementValueTrimmed(fcDownSurfThermalRadiationElement));
             }
 
             final Element fcSurfSolarRadiationElement = timeSeriesExtractionElement.getChild("fc-ssr-name");
             if (fcSurfSolarRadiationElement != null) {
-                timeSeriesConfiguration.setFc_SSR_name(fcSurfSolarRadiationElement.getValue().trim());
+                timeSeriesConfiguration.setFc_SSR_name(getElementValueTrimmed(fcSurfSolarRadiationElement));
             }
 
             final Element fcSurfThermalRadiationElement = timeSeriesExtractionElement.getChild("fc-str-name");
             if (fcSurfThermalRadiationElement != null) {
-                timeSeriesConfiguration.setFc_STR_name(fcSurfThermalRadiationElement.getValue().trim());
+                timeSeriesConfiguration.setFc_STR_name(getElementValueTrimmed(fcSurfThermalRadiationElement));
             }
 
             final Element fcTurbStressEastElement = timeSeriesExtractionElement.getChild("fc-ewss-name");
             if (fcTurbStressEastElement != null) {
-                timeSeriesConfiguration.setFc_EWSS_name(fcTurbStressEastElement.getValue().trim());
+                timeSeriesConfiguration.setFc_EWSS_name(getElementValueTrimmed(fcTurbStressEastElement));
             }
 
             final Element fcTurbStressNorthElement = timeSeriesExtractionElement.getChild("fc-nsss-name");
             if (fcTurbStressNorthElement != null) {
-                timeSeriesConfiguration.setFc_NSSS_name(fcTurbStressNorthElement.getValue().trim());
+                timeSeriesConfiguration.setFc_NSSS_name(getElementValueTrimmed(fcTurbStressNorthElement));
             }
 
             final Element fcEvaporationElement = timeSeriesExtractionElement.getChild("fc-e-name");
             if (fcEvaporationElement != null) {
-                timeSeriesConfiguration.setFc_E_name(fcEvaporationElement.getValue().trim());
+                timeSeriesConfiguration.setFc_E_name(getElementValueTrimmed(fcEvaporationElement));
             }
 
             configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
-        }  else {
+        } else {
             configuration.setTimeSeriesConfiguration(null);
         }
+    }
+
+    private static String getElementValueTrimmed(Element element) {
+        return element.getValue().trim();
     }
 }

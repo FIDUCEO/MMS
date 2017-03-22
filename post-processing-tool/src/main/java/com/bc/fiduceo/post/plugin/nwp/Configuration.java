@@ -30,6 +30,7 @@ class Configuration {
     private String NWPAuxDir;
 
     private TimeSeriesConfiguration timeSeriesConfiguration;
+    private SensorExtractConfiguration sensorExtractConfiguration;
 
     Configuration() {
         deleteOnExit = true;
@@ -63,6 +64,26 @@ class Configuration {
         return timeSeriesConfiguration != null;
     }
 
+    boolean isSensorExtraction() {
+        return sensorExtractConfiguration != null;
+    }
+
+    void setTimeSeriesConfiguration(TimeSeriesConfiguration timeSeriesConfiguration) {
+        this.timeSeriesConfiguration = timeSeriesConfiguration;
+    }
+
+    TimeSeriesConfiguration getTimeSeriesConfiguration() {
+        return timeSeriesConfiguration;
+    }
+
+    void setSensorExtractConfiguration(SensorExtractConfiguration sensorExtractConfiguration) {
+        this.sensorExtractConfiguration = sensorExtractConfiguration;
+    }
+
+    SensorExtractConfiguration getSensorExtractConfiguration() {
+        return sensorExtractConfiguration;
+    }
+
     boolean verify() {
         final File cdoDir = new File(CDOHome);
         if (!cdoDir.isDirectory()) {
@@ -76,11 +97,5 @@ class Configuration {
         return true;
     }
 
-    void setTimeSeriesConfiguration(TimeSeriesConfiguration timeSeriesConfiguration) {
-        this.timeSeriesConfiguration = timeSeriesConfiguration;
-    }
 
-    TimeSeriesConfiguration getTimeSeriesConfiguration() {
-        return timeSeriesConfiguration;
-    }
 }

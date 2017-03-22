@@ -243,6 +243,7 @@ public class NwpPostProcessingPluginTest {
         }
     }
 
+
     @Test
     public void testCreateConfiguration_TimeSeriesExtract_switchedOff() throws JDOMException, IOException {
         final String XML = "<nwp>" +
@@ -254,6 +255,39 @@ public class NwpPostProcessingPluginTest {
 
         final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
         assertFalse(configuration.isTimeSeriesExtraction());
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_allRelevantVariables() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <an-ci-name>ice_cold</an-ci-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        final SensorExtractConfiguration sensorConfig = configuration.getSensorExtractConfiguration();
+        assertNotNull(sensorConfig);
+
+        assertEquals("ice_cold", sensorConfig.getAn_CI_name());
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_switchedOff() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertFalse(configuration.isSensorExtraction());
     }
 
     @Test
