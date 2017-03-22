@@ -35,7 +35,81 @@ public class SobolSamplingPointGeneratorTest {
 
     @Before
     public void setUp() {
-        generator = new SobolSamplingPointGenerator();
+        generator = new SobolSamplingPointGenerator(false);
+    }
+
+    @Test
+    public void testEquidistantDistribution_degree() throws Exception {
+        final boolean sphericalDistribution = false;
+        generator = new SobolSamplingPointGenerator(sphericalDistribution);
+
+        final int numPoints = 200000;
+        final List<SamplingPoint> samples = generator.createSamples(numPoints, 0, 0, 100);
+        int count90n60n = 0;
+        int count60n30n = 0;
+        int count30n0n = 0;
+        int count0n30s = 0;
+        int count30s60s = 0;
+        int count60s90s = 0;
+        for (SamplingPoint sample : samples) {
+            final double lat = sample.getLat();
+            if (lat>=60) {
+                count90n60n++;
+            } else if (lat >= 30) {
+                count60n30n++;
+            } else if (lat >= 0) {
+                count30n0n++;
+            } else if (lat >= -30) {
+                count0n30s++;
+            } else if (lat >= -60) {
+                count30s60s++;
+            } else {
+                count60s90s++;
+            }
+        }
+        assertEquals(33333, count90n60n, 1);
+        assertEquals(33333, count60n30n, 1);
+        assertEquals(33333, count30n0n, 1);
+        assertEquals(33333, count0n30s, 1);
+        assertEquals(33333, count30s60s, 1);
+        assertEquals(33333, count60s90s, 1);
+    }
+
+    @Test
+    public void testEquidistantDistribution_sphericalDistance() throws Exception {
+        final boolean sphericalDistribution = true;
+        generator = new SobolSamplingPointGenerator(sphericalDistribution);
+
+        final int numPoints = 200000;
+        final List<SamplingPoint> samples = generator.createSamples(numPoints, 0, 0, 100);
+        int count90n60n = 0;
+        int count60n30n = 0;
+        int count30n0n = 0;
+        int count0n30s = 0;
+        int count30s60s = 0;
+        int count60s90s = 0;
+        for (SamplingPoint sample : samples) {
+            final double lat = sample.getLat();
+            if (lat>=60) {
+                count90n60n++;
+            } else if (lat >= 30) {
+                count60n30n++;
+            } else if (lat >= 0) {
+                count30n0n++;
+            } else if (lat >= -30) {
+                count0n30s++;
+            } else if (lat >= -60) {
+                count30s60s++;
+            } else {
+                count60s90s++;
+            }
+        }
+        assertEquals(13395, count90n60n);
+        assertEquals(36593, count60n30n);
+        assertEquals(50004, count30n0n);
+        assertEquals(50000, count0n30s);
+        assertEquals(36620, count30s60s);
+        assertEquals(13388, count60s90s);
     }
 
     @Test

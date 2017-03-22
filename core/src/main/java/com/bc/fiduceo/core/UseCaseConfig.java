@@ -98,6 +98,10 @@ public class UseCaseConfig {
         return numRandomSeedPoints;
     }
 
+    public void setNumRandomSeedPoints(int numRandomSeedPoints) {
+        this.numRandomSeedPoints = numRandomSeedPoints;
+    }
+
     public List<Sensor> getSensors() {
         return sensors;
     }
@@ -243,7 +247,7 @@ public class UseCaseConfig {
 
         final Element seedPointsElem = rootElement.getChild(TAG_NAME_NUM_RANDOM_SEED_POINTS);
         if (seedPointsElem != null) {
-            numRandomSeedPoints = getMadatoryPositiveIntegerValue(seedPointsElem);
+            setNumRandomSeedPoints(getMadatoryPositiveIntegerValue(seedPointsElem));
         }
     }
 

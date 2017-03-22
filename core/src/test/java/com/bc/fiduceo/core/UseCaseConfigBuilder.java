@@ -93,6 +93,11 @@ public class UseCaseConfigBuilder {
         return this;
     }
 
+    public UseCaseConfigBuilder withRandomSeedPoints(int numRandomSeedPoints) {
+        addChild(getRootElement(), TAG_NAME_NUM_RANDOM_SEED_POINTS, numRandomSeedPoints);
+        return this;
+    }
+
     public UseCaseConfig createConfig() {
         return load(getStream());
     }

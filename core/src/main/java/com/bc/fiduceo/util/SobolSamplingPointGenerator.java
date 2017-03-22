@@ -27,22 +27,40 @@ import java.util.List;
 
 public class SobolSamplingPointGenerator {
 
+    private final boolean sphericalDistribution;
+
+    public SobolSamplingPointGenerator(boolean sphericalDistribution) {
+        this.sphericalDistribution = sphericalDistribution;
+    }
+
     public List<SamplingPoint> createSamples(int sampleCount, int sampleSkip, long startTime, long stopTime) {
-        final SobolSequenceGenerator sequenceGenerator = new SobolSequenceGenerator(3);
+        final SobolSequenceGenerator sequenceGenerator;
+        if (sphericalDistribution) {
+            sequenceGenerator = new SobolSequenceGenerator(4);
+        } else {
+            sequenceGenerator = new SobolSequenceGenerator(3);
+        }
         sequenceGenerator.skip(sampleSkip);
         final List<SamplingPoint> sampleList = new ArrayList<>(sampleCount);
 
-        for (int i = 0; i < sampleCount; i++) {
+        int count = 0;
+        while (count < sampleCount) {
             final double[] sample = sequenceGenerator.nextVector();
             final double x = sample[0];
             final double y = sample[1];
             final double t = sample[2];
-
-            final double lon = createLon(x);
             final double lat = createLat(y);
+            if (sphericalDistribution) {
+                final double random = sample[3];
+                final double cos = Math.cos(Math.toRadians(lat));
+                if (random > cos) {
+                    continue;
+                }
+            }
+            final double lon = createLon(x);
             final long time = createTime(t, startTime, stopTime);
-
             sampleList.add(new SamplingPoint(lon, lat, time));
+            count++;
         }
 
         return sampleList;

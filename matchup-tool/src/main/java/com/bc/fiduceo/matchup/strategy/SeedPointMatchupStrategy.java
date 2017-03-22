@@ -16,12 +16,41 @@
  */
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.SamplingPoint;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.matchup.condition.ConditionEngine;
+import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
+import com.bc.fiduceo.matchup.screening.ScreeningEngine;
+import com.bc.fiduceo.math.Intersection;
+import com.bc.fiduceo.math.IntersectionEngine;
+import com.bc.fiduceo.math.TimeInfo;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.SobolSamplingPointGenerator;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.InvalidRangeException;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
@@ -32,6 +61,158 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
-        return null;
+        final MatchupCollection matchupCollection = new MatchupCollection();
+
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
+
+        final int numRandomSeedPoints = useCaseConfig.getNumRandomSeedPoints();
+        if (numRandomSeedPoints < 1) {
+            throw new RuntimeException("Number of random seed points greater than zero expected.");
+        }
+
+        final ConditionEngine conditionEngine = new ConditionEngine();
+        final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
+        conditionEngine.configure(useCaseConfig);
+
+        final ScreeningEngine screeningEngine = new ScreeningEngine(context);
+
+        final GeometryFactory geometryFactory = context.getGeometryFactory();
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+
+        final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
+        final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
+
+        final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(true);
+        final long contextStart = context.getStartDate().getTime();
+        final long contextEnd = context.getEndDate().getTime();
+        final List<SamplingPoint> seedPoints = sobolSamplingPointGenerator.createSamples(numRandomSeedPoints, 0, contextStart, contextEnd);
+
+        final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
+        for (final SatelliteObservation primaryObservation : primaryObservations) {
+            try (final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
+                final Date primaryStartTime = primaryObservation.getStartTime();
+                final Date primaryStopTime = primaryObservation.getStopTime();
+
+                // @todo 2 tb/tb extract method
+                final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
+                final boolean isPrimarySegmented = AbstractMatchupStrategy.isSegmented(primaryGeoBounds);
+                final Geometry[] primaryGeometries;
+                if (isPrimarySegmented) {
+                    primaryGeometries = ((GeometryCollection) primaryGeoBounds).getGeometries();
+                } else {
+                    primaryGeometries = new Geometry[]{primaryGeoBounds};
+                }
+
+                final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
+
+                final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
+                primaryReader.open(primaryObservationDataFilePath.toFile());
+
+                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryStartTime);
+                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryStopTime);
+                final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+
+                final MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
+                if (primaryMatchups == null) {
+                    continue;
+                }
+
+                for (final SatelliteObservation secondaryObservation : secondaryObservations) {
+                    try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
+                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+
+                        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
+                        if (intersectingIntervals.length == 0) {
+                            continue;
+                        }
+
+                        final MatchupSet matchupSet = new MatchupSet();
+                        matchupSet.setPrimaryObservationPath(primaryObservationDataFilePath);
+                        matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
+
+                        // @todo 2 tb/tb extract method
+                        final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
+                        final boolean isSecondarySegmented = AbstractMatchupStrategy.isSegmented(secondaryGeoBounds);
+
+                        for (final Intersection intersection : intersectingIntervals) {
+                            final TimeInfo timeInfo = intersection.getTimeInfo();
+                            if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
+                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
+
+                                if (secondaryPixelLocator == null) {
+                                    logger.warning("Unable to create valid pixel locators. Skipping intersection segment.");
+                                    continue;
+                                }
+
+                                final List<SampleSet> primarySampleSets = new ArrayList<>();
+                                for (SampleSet sampleSet : primaryMatchups.getSampleSets()) {
+                                    final Sample p = sampleSet.getPrimary();
+                                    final SampleSet newSet = new SampleSet();
+                                    newSet.setPrimary(new Sample(p.x, p.y, p.lon,p.lat,p.time));
+                                    primarySampleSets.add(newSet);
+                                }
+
+                                SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primarySampleSets, secondaryReader.getTimeLocator());
+                                matchupSet.setSampleSets(completeSamples);
+
+                                if (matchupSet.getNumObservations() > 0) {
+                                    applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, matchupSet, secondaryReader);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return matchupCollection;
+    }
+
+    private MatchupSet getPrimaryMatchupSet(Reader primaryReader, List<SamplingPoint> primarySeedPoints, Path primaryObservationDataFilePath) throws IOException {
+        final MatchupSet primaryMatchups = new MatchupSet();
+        final PixelLocator primaryPixelLocator = primaryReader.getPixelLocator();
+        if (primaryPixelLocator == null) {
+            logger.warning("Unable to create valid pixel locators. Skipping primary observation '"+ primaryObservationDataFilePath.toString() + "'.");
+            return null;
+        }
+
+        final Dimension primProductSize = primaryReader.getProductSize();
+        final TimeLocator primTimeLocator = primaryReader.getTimeLocator();
+        for (SamplingPoint psp : primarySeedPoints) {
+            final Point2D[] locations = primaryPixelLocator.getPixelLocation(psp.getLon(), psp.getLat());
+            for (Point2D loc : locations) {
+                final double x1 = loc.getX();
+                final double y1 = loc.getY();
+                if (x1 >= 0 && y1 >= 0
+                    && x1 < primProductSize.getNx()
+                    && y1 < primProductSize.getNy()) {
+                    final int x = (int) Math.floor(x1);
+                    final int y = (int) Math.floor(y1);
+                    final Point2D geo = primaryPixelLocator.getGeoLocation(x+0.5, y+0.5, null);
+                    primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));
+                }
+            }
+        }
+        return primaryMatchups;
+    }
+
+    private List<SamplingPoint> getPrimarySeedPoints(GeometryFactory geometryFactory, List<SamplingPoint> seedPoints, Date primaryStartTime, Date primaryStopTime, Geometry[] primaryGeometries) {
+        final List<SamplingPoint> primaryPoints = new ArrayList<>();
+        for (SamplingPoint seedPoint : seedPoints) {
+            final long time = seedPoint.getTime();
+            final double lat = seedPoint.getLat();
+            final double lon = seedPoint.getLon();
+            final Point point = geometryFactory.createPoint(lon, lat);
+            if (time >= primaryStartTime.getTime() && time <= primaryStopTime.getTime()) {
+                for (Geometry geometry : primaryGeometries) {
+                    if (geometry.getIntersection(point) != null) {
+                        primaryPoints.add(seedPoint);
+                        break;
+                    }
+                }
+            }
+        }
+        return primaryPoints;
     }
 }
