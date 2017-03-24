@@ -47,7 +47,7 @@ public class ReaderFactory {
 
     public Reader getReader(String sensorPlatformKey) {
         if (StringUtils.isNullOrEmpty(sensorPlatformKey)) {
-            throw new IllegalArgumentException("The reader support sensor key most be well define");
+            throw new IllegalArgumentException("No sensor key supplied to select data reader.");
         }
 
         final ReaderPlugin readerPlugin = getReaderPluginSafe(sensorPlatformKey);

@@ -106,8 +106,8 @@ public class ReaderFactoryTest {
     public void testGetReaderEmptyKey() throws Exception {
         try {
             readerFactory.getReader("");
-            fail("The key is empty");
-        } catch (IllegalArgumentException expect) {
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
         }
     }
 

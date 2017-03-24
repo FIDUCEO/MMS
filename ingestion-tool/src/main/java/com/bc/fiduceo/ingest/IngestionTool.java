@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.ingest;
 
-import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -54,6 +52,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class IngestionTool {
 
@@ -186,11 +186,12 @@ class IngestionTool {
     }
 
     // package access for testing only tb 2016-03-14
-    static  Matcher getMatcher(Path filePath, Pattern pattern) {
+    static Matcher getMatcher(Path filePath, Pattern pattern) {
         final String fileName = filePath.getFileName().toString();
         return pattern.matcher(fileName);
     }
 
+    // @todo 3 tb/** add tests here - maybe extract easy to test sub-methods 2017-03-23
     private ToolContext initializeContext(CommandLine commandLine, Path confDirPath) throws IOException, SQLException {
         final ToolContext context = new ToolContext();
 
@@ -198,12 +199,16 @@ class IngestionTool {
         if (StringUtils.isNotNullAndNotEmpty(startTime)) {
             final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
             context.setStartDate(startDate);
+        } else {
+            throw new RuntimeException("Start date parameter missing");
         }
 
         final String endTime = commandLine.getOptionValue("end");
         if (StringUtils.isNotNullAndNotEmpty(endTime)) {
             final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
             context.setEndDate(endDate);
+        } else {
+            throw new RuntimeException("End date parameter missing");
         }
 
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
