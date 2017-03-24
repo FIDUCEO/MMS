@@ -33,8 +33,29 @@ import static org.junit.Assert.assertEquals;
 public class BorderDistanceConditionTest {
 
     @Test
-    public void testApply_emptySampleSet() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(3, 6);
+    public void testApply_emptySampleSet_primary() {
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.usePrimary = true;
+        configuration.primary_x = 3;
+        configuration.primary_y = 2;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
+        final MatchupSet matchupSet = new MatchupSet();
+
+        final ConditionEngineContext context = createContext();
+        condition.apply(matchupSet, context);
+
+        assertEquals(0, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_emptySampleSet_secondary() {
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.useSecondary = true;
+        configuration.secondary_x = 3;
+        configuration.secondary_y = 2;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
 
         final ConditionEngineContext context = createContext();
@@ -45,7 +66,12 @@ public class BorderDistanceConditionTest {
 
     @Test
     public void testApply_onlyPrimary_leftUpper() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(2, 4);
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.usePrimary = true;
+        configuration.primary_x = 3;
+        configuration.primary_y = 4;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(1, 675, 45, 109));   // <- this one gets removed primary x too small
@@ -61,7 +87,12 @@ public class BorderDistanceConditionTest {
 
     @Test
     public void testApply_onlyPrimary_rightLower() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(3, 5);
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.usePrimary = true;
+        configuration.primary_x = 3;
+        configuration.primary_y = 5;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(98, 675, 45, 109));   // <- this one gets removed primary x too large
@@ -77,7 +108,15 @@ public class BorderDistanceConditionTest {
 
     @Test
     public void testApply_both() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(5, 5);
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.usePrimary = true;
+        configuration.primary_x = 5;
+        configuration.primary_y = 5;
+        configuration.useSecondary = true;
+        configuration.secondary_x = 5;
+        configuration.secondary_y = 5;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(33, 675, 45, 109));
@@ -93,7 +132,12 @@ public class BorderDistanceConditionTest {
 
     @Test
     public void testApply_onlySecondary_leftUpper() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(4, 2);
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.useSecondary = true;
+        configuration.secondary_x = 4;
+        configuration.secondary_y = 2;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(13, 675, 3, 109));   // <- this one gets removed x too small
@@ -109,7 +153,12 @@ public class BorderDistanceConditionTest {
 
     @Test
     public void testApply_onlySecondary_rightLower() {
-        final BorderDistanceCondition condition = new BorderDistanceCondition(4, 4);
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.useSecondary = true;
+        configuration.secondary_x = 4;
+        configuration.secondary_y = 4;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         sampleSets.add(createSampleSet(62, 675, 45, 109));
@@ -121,6 +170,26 @@ public class BorderDistanceConditionTest {
         condition.apply(matchupSet, context);
 
         assertEquals(1, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_no_condition_set() {
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+        configuration.usePrimary = false;
+        configuration.useSecondary = false;
+
+        final BorderDistanceCondition condition = new BorderDistanceCondition(configuration);
+        final MatchupSet matchupSet = new MatchupSet();
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        sampleSets.add(createSampleSet(62, 675, 45, 109));
+        sampleSets.add(createSampleSet(34, 81, 108, 205));
+        sampleSets.add(createSampleSet(23, 435, 55, 2998));
+
+        final ConditionEngineContext context = createContext();
+
+        condition.apply(matchupSet, context);
+
+        assertEquals(3, matchupSet.getNumObservations());
     }
 
     private ConditionEngineContext createContext() {

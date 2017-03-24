@@ -23,23 +23,63 @@ package com.bc.fiduceo.matchup.condition;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
+/* The XML template for this condition class looks like:
+
+    <border-distance>
+        <primary>
+            <nx>2</nx>
+            <ny>3</ny>
+        </primary>
+        <secondary>
+            <nx>5</nx>
+            <ny>4</ny>
+        </secondary>
+    </border-distance>
+ */
 
 public class BorderDistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public Condition createCondition(Element element) {
-        if (!getConditionName().equals(element.getName())) {
-            throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
-        }
+        final BorderDistanceCondition.Configuration configuration = parseConfiguration(element);
 
-        final String nx = JDomUtils.getMandatoryChildTextTrim(element, "nx");
-        final String ny = JDomUtils.getMandatoryChildTextTrim(element, "ny");
-
-        return new BorderDistanceCondition(Integer.parseInt(nx), Integer.parseInt(ny));
+        return new BorderDistanceCondition(configuration.primary_x, configuration.primary_y);
     }
 
     @Override
     public String getConditionName() {
         return "border-distance";
+    }
+
+    BorderDistanceCondition.Configuration parseConfiguration(Element element) {
+        if (!getConditionName().equals(element.getName())) {
+            throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
+        }
+
+        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+
+        final Element primaryElement = element.getChild("primary");
+        if (primaryElement != null) {
+            configuration.usePrimary = true;
+
+            final String nx = JDomUtils.getMandatoryChildTextTrim(primaryElement, "nx");
+            configuration.primary_x = Integer.parseInt(nx);
+
+            final String ny = JDomUtils.getMandatoryChildTextTrim(primaryElement, "ny");
+            configuration.primary_y = Integer.parseInt(ny);
+        }
+
+        final Element secondaryElement = element.getChild("secondary");
+        if (secondaryElement != null) {
+            configuration.useSecondary = true;
+
+            final String nx = JDomUtils.getMandatoryChildTextTrim(secondaryElement, "nx");
+            configuration.secondary_x = Integer.parseInt(nx);
+
+            final String ny = JDomUtils.getMandatoryChildTextTrim(secondaryElement, "ny");
+            configuration.secondary_y = Integer.parseInt(ny);
+        }
+
+        return configuration;
     }
 }
