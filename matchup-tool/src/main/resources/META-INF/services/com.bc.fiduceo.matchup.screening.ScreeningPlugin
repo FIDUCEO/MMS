@@ -4,3 +4,4 @@ com.bc.fiduceo.matchup.screening.AtsrAngularScreeningPlugin
 com.bc.fiduceo.matchup.screening.BuehlerCloudScreeningPlugin
 com.bc.fiduceo.matchup.screening.HIRS_LZADeltaScreeningPlugin
 com.bc.fiduceo.matchup.screening.PixelValueScreeningPlugin
+com.bc.fiduceo.matchup.screening.WindowValueScreeningPlugin

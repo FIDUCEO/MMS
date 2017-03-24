@@ -152,7 +152,7 @@ public class VariablePrototype extends Variable {
 
     @Override
     public Attribute findAttribute(String name) {
-        throw new RuntimeException("not implemented");
+        return null;
     }
 
     @Override

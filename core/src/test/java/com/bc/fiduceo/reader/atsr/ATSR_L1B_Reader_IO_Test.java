@@ -517,8 +517,8 @@ public class ATSR_L1B_Reader_IO_Test {
             array = reader.readScaled(511, 236, interval, "confid_flags_nadir");
             NCTestUtils.assertValueAt(8, 1, 2, array);
             NCTestUtils.assertValueAt(8, 2, 2, array);
-            NCTestUtils.assertValueAt(-2, 3, 2, array);
-            NCTestUtils.assertValueAt(-2, 4, 2, array);
+            NCTestUtils.assertValueAt(65534, 3, 2, array);
+            NCTestUtils.assertValueAt(65534, 4, 2, array);
 
             array = reader.readScaled(146, 0, interval, "btemp_fward_0370");
             NCTestUtils.assertValueAt(-0.019999999552965164, 4, 0, array);
@@ -552,6 +552,47 @@ public class ATSR_L1B_Reader_IO_Test {
             array = reader.readScaled(203, 4160, interval, "longitude");
             NCTestUtils.assertValueAt(-120.4134292602539, 2, 2, array);
             NCTestUtils.assertValueAt(-120.42435455322266, 3, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_AATSR_borderPixel() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(511, 232, interval, "btemp_nadir_1200");
+            NCTestUtils.assertValueAt(268.45001220703125, 0, 0, array);
+            NCTestUtils.assertValueAt(267.67999267578125, 1, 0, array);
+            NCTestUtils.assertValueAt(267.29998779296875, 2, 0, array);
+            NCTestUtils.assertValueAt(-0.02, 3, 0, array);
+            NCTestUtils.assertValueAt(-0.019999999552965164, 4, 0, array);
+
+
+            array = reader.readScaled(511, 2845, interval, "cloud_flags_nadir");
+            NCTestUtils.assertValueAt(2402, 0, 0, array);
+            NCTestUtils.assertValueAt(2402, 1, 0, array);
+            NCTestUtils.assertValueAt(354, 2, 0, array);
+            NCTestUtils.assertValueAt(65534, 3, 0, array);
+            NCTestUtils.assertValueAt(65534, 4, 0, array);
+
+            array = reader.readScaled(106, 43519, interval, "cloud_flags_nadir");
+            NCTestUtils.assertValueAt(34, 0, 0, array);
+            NCTestUtils.assertValueAt(34, 0, 1, array);
+            NCTestUtils.assertValueAt(34, 0, 2, array);
+            NCTestUtils.assertValueAt(65534, 0, 3, array);
+            NCTestUtils.assertValueAt(65534, 0, 4, array);
+
+            array = reader.readScaled(1, 2845, interval, "cloud_flags_nadir");
+            NCTestUtils.assertValueAt(65534, 0, 0, array);
+            NCTestUtils.assertValueAt(3554, 1, 0, array);
+            NCTestUtils.assertValueAt(3554, 2, 0, array);
+            NCTestUtils.assertValueAt(3554, 3, 0, array);
+            NCTestUtils.assertValueAt(3554, 4, 0, array);
         } finally {
             reader.close();
         }

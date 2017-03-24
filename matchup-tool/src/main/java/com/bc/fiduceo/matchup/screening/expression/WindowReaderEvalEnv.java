@@ -85,6 +85,7 @@ public class WindowReaderEvalEnv implements EvalEnv, WindowVariableSymbol.NoData
 
     private void readWindow(String name) throws IOException, InvalidRangeException {
         final Array array = reader.readScaled(centerX, centerY, interval, name);
+        System.out.println("x: "+ centerX + "  y: " + centerY);
         windowArrayMap.put(name, array);
     }
 }
