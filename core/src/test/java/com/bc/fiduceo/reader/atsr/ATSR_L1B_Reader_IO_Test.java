@@ -649,6 +649,46 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_AATSR_corner_pixels() throws IOException, InvalidRangeException {
+        final File file = getAatsrFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(0, 0, interval, "confid_flags_nadir");
+            NCTestUtils.assertValueAt(-2, 0, 2, array);
+            NCTestUtils.assertValueAt(-2, 1, 2, array);
+            NCTestUtils.assertValueAt(4, 2, 2, array);
+            NCTestUtils.assertValueAt(4, 3, 2, array);
+            NCTestUtils.assertValueAt(4, 4, 2, array);
+
+            array = reader.readRaw(511, 0, interval, "confid_flags_fward");
+            NCTestUtils.assertValueAt(4, 0, 2, array);
+            NCTestUtils.assertValueAt(4, 1, 2, array);
+            NCTestUtils.assertValueAt(4, 2, 2, array);
+            NCTestUtils.assertValueAt(-2, 3, 2, array);
+            NCTestUtils.assertValueAt(-2, 4, 2, array);
+
+            array = reader.readRaw(511, 43519, interval, "cloud_flags_nadir");
+            NCTestUtils.assertValueAt(34, 0, 2, array);
+            NCTestUtils.assertValueAt(34, 1, 2, array);
+            NCTestUtils.assertValueAt(34, 2, 2, array);
+            NCTestUtils.assertValueAt(-2, 3, 2, array);
+            NCTestUtils.assertValueAt(-2, 4, 2, array);
+
+            array = reader.readRaw(0, 43519, interval, "cloud_flags_fward");
+            NCTestUtils.assertValueAt(-2, 0, 2, array);
+            NCTestUtils.assertValueAt(-2, 1, 2, array);
+            NCTestUtils.assertValueAt(34, 2, 2, array);
+            NCTestUtils.assertValueAt(34, 3, 2, array);
+            NCTestUtils.assertValueAt(34, 4, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetPixelLocator_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
