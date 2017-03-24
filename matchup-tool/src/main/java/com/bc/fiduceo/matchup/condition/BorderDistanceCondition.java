@@ -32,16 +32,8 @@ class BorderDistanceCondition implements Condition {
 
     private final Configuration configuration;
 
-
     BorderDistanceCondition(Configuration configuration) {
         this.configuration = configuration;
-    }
-
-    BorderDistanceCondition(int deltaX, int deltaY) {
-        this.configuration = new Configuration();
-
-        configuration.primary_x = deltaX;
-        configuration.primary_y = deltaY;
     }
 
     @Override

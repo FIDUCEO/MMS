@@ -43,7 +43,7 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
     public Condition createCondition(Element element) {
         final BorderDistanceCondition.Configuration configuration = parseConfiguration(element);
 
-        return new BorderDistanceCondition(configuration.primary_x, configuration.primary_y);
+        return new BorderDistanceCondition(configuration);
     }
 
     @Override
