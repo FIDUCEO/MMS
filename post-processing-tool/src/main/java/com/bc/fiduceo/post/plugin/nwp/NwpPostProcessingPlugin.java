@@ -76,6 +76,91 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
                 sensorExtractConfig.setAn_CI_name(getElementValueTrimmed(anSeaIceFractionElement));
             }
 
+            final Element anSnowAlbedoElement = sensorExtractionElement.getChild("an-asn-name");
+            if (anSnowAlbedoElement != null) {
+                sensorExtractConfig.setAn_ASN_name(getElementValueTrimmed(anSnowAlbedoElement));
+            }
+
+            final Element anSSTKElement = sensorExtractionElement.getChild("an-sstk-name");
+            if (anSSTKElement != null) {
+                sensorExtractConfig.setAn_SSTK_name(getElementValueTrimmed(anSSTKElement));
+            }
+
+            final Element anTCWVElement = sensorExtractionElement.getChild("an-tcwv-name");
+            if (anTCWVElement != null) {
+                sensorExtractConfig.setAn_TCWV_name(getElementValueTrimmed(anTCWVElement));
+            }
+
+            final Element anMSLElement = sensorExtractionElement.getChild("an-msl-name");
+            if (anMSLElement != null) {
+                sensorExtractConfig.setAn_MSL_name(getElementValueTrimmed(anMSLElement));
+            }
+
+            final Element anTCCElement = sensorExtractionElement.getChild("an-tcc-name");
+            if (anTCCElement != null) {
+                sensorExtractConfig.setAn_TCC_name(getElementValueTrimmed(anTCCElement));
+            }
+
+            final Element anEastWindElement = sensorExtractionElement.getChild("an-u10-name");
+            if (anEastWindElement != null) {
+                sensorExtractConfig.setAn_U10_name(getElementValueTrimmed(anEastWindElement));
+            }
+
+            final Element anNorthWindElement = sensorExtractionElement.getChild("an-v10-name");
+            if (anNorthWindElement != null) {
+                sensorExtractConfig.setAn_V10_name(getElementValueTrimmed(anNorthWindElement));
+            }
+
+            final Element anT2Element = sensorExtractionElement.getChild("an-t2-name");
+            if (anT2Element != null) {
+                sensorExtractConfig.setAn_T2_name(getElementValueTrimmed(anT2Element));
+            }
+
+            final Element anD2Element = sensorExtractionElement.getChild("an-d2-name");
+            if (anD2Element != null) {
+                sensorExtractConfig.setAn_D2_name(getElementValueTrimmed(anD2Element));
+            }
+
+            final Element anAlbedoElement = sensorExtractionElement.getChild("an-al-name");
+            if (anAlbedoElement != null) {
+                sensorExtractConfig.setAn_AL_name(getElementValueTrimmed(anAlbedoElement));
+            }
+
+            final Element anSKTElement = sensorExtractionElement.getChild("an-skt-name");
+            if (anSKTElement != null) {
+                sensorExtractConfig.setAn_SKT_name(getElementValueTrimmed(anSKTElement));
+            }
+
+            final Element anTempProfileElement = sensorExtractionElement.getChild("an-t-name");
+            if (anTempProfileElement != null) {
+                sensorExtractConfig.setAn_T_name(getElementValueTrimmed(anTempProfileElement));
+            }
+
+            final Element anVapourProfileElement = sensorExtractionElement.getChild("an-q-name");
+            if (anVapourProfileElement != null) {
+                sensorExtractConfig.setAn_Q_name(getElementValueTrimmed(anVapourProfileElement));
+            }
+
+            final Element anOzoneProfileElement = sensorExtractionElement.getChild("an-o3-name");
+            if (anOzoneProfileElement != null) {
+                sensorExtractConfig.setAn_O3_name(getElementValueTrimmed(anOzoneProfileElement));
+            }
+
+            final Element anCLWCElement = sensorExtractionElement.getChild("an-clwc-name");
+            if (anCLWCElement != null) {
+                sensorExtractConfig.setAn_CLWC_name(getElementValueTrimmed(anCLWCElement));
+            }
+
+            final Element anCIWCElement = sensorExtractionElement.getChild("an-ciwc-name");
+            if (anCIWCElement != null) {
+                sensorExtractConfig.setAn_CIWC_name(getElementValueTrimmed(anCIWCElement));
+            }
+
+            final Element anTotalPrecipElement = sensorExtractionElement.getChild("an-tp-name");
+            if (anTotalPrecipElement != null) {
+                sensorExtractConfig.setAn_TP_name(getElementValueTrimmed(anTotalPrecipElement));
+            }
+
             configuration.setSensorExtractConfiguration(sensorExtractConfig);
         } else {
             configuration.setSensorExtractConfiguration(null);

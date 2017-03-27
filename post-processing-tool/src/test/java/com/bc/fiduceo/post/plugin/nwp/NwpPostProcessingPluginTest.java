@@ -262,6 +262,23 @@ public class NwpPostProcessingPluginTest {
         final String XML = "<nwp>" +
                 "    <sensor-extraction>" +
                 "        <an-ci-name>ice_cold</an-ci-name>" +
+                "        <an-asn-name>snowy_gleam</an-asn-name>" +
+                "        <an-sstk-name>ocean_temp</an-sstk-name>" +
+                "        <an-tcwv-name>cloudy_thing</an-tcwv-name>" +
+                "        <an-msl-name>sea_level_p</an-msl-name>" +
+                "        <an-tcc-name>cloudy_thing</an-tcc-name>" +
+                "        <an-u10-name>east_wind</an-u10-name>" +
+                "        <an-v10-name>north_wind</an-v10-name>" +
+                "        <an-t2-name>temp_at_height</an-t2-name>" +
+                "        <an-d2-name>dewy</an-d2-name>" +
+                "        <an-al-name>albe_do</an-al-name>" +
+                "        <an-skt-name>skin_temp</an-skt-name>" +
+                "        <an-t-name>temp_profile</an-t-name>" +
+                "        <an-q-name>vapour_profile</an-q-name>" +
+                "        <an-o3-name>ozone_profile</an-o3-name>" +
+                "        <an-clwc-name>cloud_water_profile</an-clwc-name>" +
+                "        <an-ciwc-name>cloud_ice_profile</an-ciwc-name>" +
+                "        <an-tp-name>total_precip</an-tp-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -275,6 +292,23 @@ public class NwpPostProcessingPluginTest {
         assertNotNull(sensorConfig);
 
         assertEquals("ice_cold", sensorConfig.getAn_CI_name());
+        assertEquals("snowy_gleam", sensorConfig.getAn_ASN_name());
+        assertEquals("ocean_temp", sensorConfig.getAn_SSTK_name());
+        assertEquals("cloudy_thing", sensorConfig.getAn_TCWV_name());
+        assertEquals("sea_level_p", sensorConfig.getAn_MSL_name());
+        assertEquals("cloudy_thing", sensorConfig.getAn_TCC_name());
+        assertEquals("east_wind", sensorConfig.getAn_U10_name());
+        assertEquals("north_wind", sensorConfig.getAn_V10_name());
+        assertEquals("temp_at_height", sensorConfig.getAn_T2_name());
+        assertEquals("dewy", sensorConfig.getAn_D2_name());
+        assertEquals("albe_do", sensorConfig.getAn_AL_name());
+        assertEquals("skin_temp", sensorConfig.getAn_SKT_name());
+        assertEquals("temp_profile", sensorConfig.getAn_T_name());
+        assertEquals("vapour_profile", sensorConfig.getAn_Q_name());
+        assertEquals("ozone_profile", sensorConfig.getAn_O3_name());
+        assertEquals("cloud_water_profile", sensorConfig.getAn_CLWC_name());
+        assertEquals("cloud_ice_profile", sensorConfig.getAn_CIWC_name());
+        assertEquals("total_precip", sensorConfig.getAn_TP_name());
     }
 
     @Test
