@@ -18,8 +18,6 @@
  */
 package com.bc.fiduceo.matchup.screening;
 
-import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
@@ -37,12 +35,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
+
 
 public class WindowValueScreening implements Screening {
 
     private final Configuration configuration;
 
-    public WindowValueScreening(Configuration configuration) {
+    WindowValueScreening(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -128,12 +128,12 @@ public class WindowValueScreening implements Screening {
 
     static class Configuration {
 
-        public String primaryExpression;
-        public Double primaryPercentage;
-        public Evaluate primaryEvaluate;
-        public String secondaryExpression;
-        public Double secondaryPercentage;
-        public Evaluate secondaryEvaluate;
+        String primaryExpression;
+        Double primaryPercentage;
+        Evaluate primaryEvaluate;
+        String secondaryExpression;
+        Double secondaryPercentage;
+        Evaluate secondaryEvaluate;
     }
 
     enum Evaluate {

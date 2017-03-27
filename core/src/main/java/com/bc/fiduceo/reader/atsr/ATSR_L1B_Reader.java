@@ -186,10 +186,9 @@ class ATSR_L1B_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
-        final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
+        final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(interval);
-        final Array readArray = createReadingArray(targetDataType, shape);
-        final Array targetArray = Array.factory(targetDataType, shape);
+        final Array readArray = createReadingArray(sourceDataType, shape);
 
         final int width = interval.getX();
         final int height = interval.getY();
@@ -199,10 +198,7 @@ class ATSR_L1B_Reader implements Reader {
 
         readProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final double noDataValue = getGeophysicalNoDataValue(dataNode);
-        copyTargetData(readArray, targetArray, width, height, xOffset, yOffset, noDataValue);
-
-        return targetArray;
+        return readArray;
     }
 
     @Override
@@ -324,6 +320,8 @@ class ATSR_L1B_Reader implements Reader {
         switch (targetDataType) {
             case FLOAT:
                 return Array.factory(DataType.FLOAT, shape);
+            case INT:
+                return Array.factory(DataType.INT, shape);
             case SHORT:
                 return Array.factory(DataType.INT, shape);
             default:
@@ -351,12 +349,38 @@ class ATSR_L1B_Reader implements Reader {
         }
     }
 
-    private void readProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final DataType dataType = readArray.getDataType();
+    private void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
+
+        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
+        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
+
+        final DataType dataType = targetArray.getDataType();
+        final Array readingArray = createReadingArray(dataType, new int[]{intersection.width, intersection.height});
+
         if (dataType == FLOAT) {
-            dataNode.readPixels(xOffset, yOffset, width, height, (float[]) readArray.getStorage());
-        } else if (dataType == INT) {
-            dataNode.readPixels(xOffset, yOffset, width, height, (int[]) readArray.getStorage());
+            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (float[]) readingArray.getStorage());
+        } else if (dataType == INT || dataType == SHORT) {
+            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (int[]) readingArray.getStorage());
+        }
+
+        final double noDataValue = getGeophysicalNoDataValue(dataNode);
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final Index index = targetArray.getIndex();
+        int readIndex = 0;
+        for (int y = 0; y < width; y++) {
+            final int currentY = yOffset + y;
+            for (int x = 0; x < height; x++) {
+                final int currentX = xOffset + x;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readingArray.getObject(readIndex));
+                    ++readIndex;
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
         }
     }
 
@@ -380,6 +404,8 @@ class ATSR_L1B_Reader implements Reader {
         final ProductData productData;
         if (dataType == FLOAT) {
             productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, rasterSize);
+        } else if (dataType == INT) {
+            productData = ProductData.createInstance(ProductData.TYPE_INT32, rasterSize);
         } else if (dataType == SHORT) {
             productData = ProductData.createInstance(ProductData.TYPE_INT16, rasterSize);
         } else {

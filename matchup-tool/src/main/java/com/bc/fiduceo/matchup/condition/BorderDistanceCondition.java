@@ -28,61 +28,47 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/* The XML template for this condition class looks like:
-
-    <border-distance>
-        <nx>
-            2
-        </nx>
-        <ny>
-            2
-        </ny>
-    </border-distance>
- */
-
 class BorderDistanceCondition implements Condition {
 
-    private final int deltaX;
-    private final int deltaY;
+    private final Configuration configuration;
 
-    BorderDistanceCondition(int deltaX, int deltaY) {
-        this.deltaX = deltaX;
-        this.deltaY = deltaY;
+    BorderDistanceCondition(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
     public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
-        final int minX = deltaX;
-        final int minY = deltaY;
-
         final Dimension primarySize = context.getPrimarySize();
-        final int maxXPrimary = primarySize.getNx() - 1 - deltaX;
-        final int maxYPrimary = primarySize.getNy() - 1 - deltaY;
+        final int maxXPrimary = primarySize.getNx() - 1 - configuration.primary_x;
+        final int maxYPrimary = primarySize.getNy() - 1 - configuration.primary_y;
 
         final Dimension secondarySize = context.getSecondarySize();
-        final int maxXSecondary = secondarySize.getNx() - 1 - deltaX;
-        final int maxYSecondary = secondarySize.getNy() - 1 - deltaY;
-
+        final int maxXSecondary = secondarySize.getNx() - 1 - configuration.secondary_x;
+        final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
 
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
-            final Sample primary = sampleSet.getPrimary();
-            if (primary.x < minX || primary.x > maxXPrimary) {
-                continue;
+            if (configuration.usePrimary) {
+                final Sample primary = sampleSet.getPrimary();
+                if (primary.x < configuration.primary_x || primary.x > maxXPrimary) {
+                    continue;
+                }
+
+                if (primary.y < configuration.primary_y || primary.y > maxYPrimary) {
+                    continue;
+                }
             }
 
-            if (primary.y < minY || primary.y > maxYPrimary) {
-                continue;
-            }
+            if (configuration.useSecondary) {
+                final Sample secondary = sampleSet.getSecondary();
+                if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {
+                    continue;
+                }
 
-            final Sample secondary = sampleSet.getSecondary();
-            if (secondary.x < minX || secondary.x > maxXSecondary) {
-                continue;
-            }
-
-            if (secondary.y < minY || secondary.y > maxYSecondary) {
-                continue;
+                if (secondary.y < configuration.secondary_y || secondary.y > maxYSecondary) {
+                    continue;
+                }
             }
 
             targetSamples.add(sampleSet);
@@ -90,5 +76,14 @@ class BorderDistanceCondition implements Condition {
 
         matchupSet.setSampleSets(targetSamples);
         sourceSamples.clear();
+    }
+
+    static class Configuration {
+        int primary_x;
+        int primary_y;
+        int secondary_x;
+        int secondary_y;
+        boolean usePrimary;
+        boolean useSecondary;
     }
 }
