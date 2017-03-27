@@ -27,10 +27,7 @@ import org.junit.*;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
@@ -47,12 +44,31 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetDefaultFillValue_Aray_Long() throws Exception {
+    public void testGetDefaultFillValue_Array_Long() throws Exception {
         final Array array = mock(Array.class);
         when(array.getDataType()).thenReturn(DataType.LONG);
 
         final Number value = NetCDFUtils.getDefaultFillValue(array);
         assertEquals(N3iosp.NC_FILL_LONG, value);
+    }
+
+    @Test
+    public void testGetDefaultFillValue() {
+        assertEquals(N3iosp.NC_FILL_DOUBLE, NetCDFUtils.getDefaultFillValue(double.class));
+        assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(float.class));
+        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(long.class));
+        assertEquals(N3iosp.NC_FILL_INT, NetCDFUtils.getDefaultFillValue(int.class));
+        assertEquals(N3iosp.NC_FILL_SHORT, NetCDFUtils.getDefaultFillValue(short.class));
+        assertEquals(N3iosp.NC_FILL_BYTE, NetCDFUtils.getDefaultFillValue(byte.class));
+    }
+
+    @Test
+    public void testGetDefaultFillValue_invalidInput() {
+        try {
+            NetCDFUtils.getDefaultFillValue(String.class);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
     }
 
     @Test
@@ -234,5 +250,87 @@ public class NetCDFUtilsTest {
 
         verify(mock, times(1)).findAttribute("_FillValue");
         verifyNoMoreInteractions(mock);
+    }
+
+    @Test
+    public void testGetVariable_reader() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Variable variable = mock(Variable.class);
+
+        when(netcdfFile.findVariable(null, "schneckchen")).thenReturn(variable);
+
+        final Variable resultVariable = NetCDFUtils.getVariable(netcdfFile, "schneckchen");
+        assertSame(variable, resultVariable);
+
+        verify(netcdfFile, times(1)).findVariable(null, "schneckchen");
+        verifyNoMoreInteractions(netcdfFile);
+    }
+
+    @Test
+    public void testGetVariable_reader_escapedName() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Variable variable = mock(Variable.class);
+
+        when(netcdfFile.findVariable(null, "schneck\\.chen")).thenReturn(variable);
+
+        final Variable resultVariable = NetCDFUtils.getVariable(netcdfFile, "schneck.chen");
+        assertSame(variable, resultVariable);
+
+        verify(netcdfFile, times(1)).findVariable(null, "schneck\\.chen");
+        verifyNoMoreInteractions(netcdfFile);
+    }
+
+    @Test
+    public void testGetVariable_reader_variableNotPresent() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+
+        when(netcdfFile.findVariable(null, "not_there")).thenReturn(null);
+
+        try {
+            NetCDFUtils.getVariable(netcdfFile, "not_there");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
+    }
+
+    @Test
+    public void testGetVariable_writer() {
+        final NetcdfFileWriter fileWriter = mock(NetcdfFileWriter.class);
+        final Variable variable = mock(Variable.class);
+
+        when(fileWriter.findVariable("var-iable")).thenReturn(variable);
+
+        final Variable resultVariable = NetCDFUtils.getVariable(fileWriter, "var-iable");
+        assertSame(variable, resultVariable);
+
+        verify(fileWriter, times(1)).findVariable("var-iable");
+        verifyNoMoreInteractions(fileWriter);
+    }
+
+    @Test
+    public void testGetVariable_writer_escapedName() {
+        final NetcdfFileWriter fileWriter = mock(NetcdfFileWriter.class);
+        final Variable variable = mock(Variable.class);
+
+        when(fileWriter.findVariable("var\\.iable")).thenReturn(variable);
+
+        final Variable resultVariable = NetCDFUtils.getVariable(fileWriter, "var.iable");
+        assertSame(variable, resultVariable);
+
+        verify(fileWriter, times(1)).findVariable("var\\.iable");
+        verifyNoMoreInteractions(fileWriter);
+    }
+
+    @Test
+    public void testGetVariable_writer_variableNotPresent() {
+        final NetcdfFileWriter fileWriter = mock(NetcdfFileWriter.class);
+
+        when(fileWriter.findVariable("not_there")).thenReturn(null);
+
+        try {
+            NetCDFUtils.getVariable(fileWriter, "not_there");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
     }
 }

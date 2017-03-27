@@ -59,7 +59,7 @@ public class SystemConfig {
         }
     }
 
-    SystemConfig() {
+    public SystemConfig() {
         geometryLibraryType = "S2";
     }
 

@@ -134,13 +134,6 @@ public class NetCDFUtils {
         return variable;
     }
 
-    // @todo 2 tb/tb add test 2017-02-27
-    public static boolean hasVariable(NetcdfFileWriter fileWriter, String name) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
-        final Variable variable = fileWriter.findVariable(escapedName);
-        return variable != null;
-    }
-
     /**
      * Method to open NetcdfFile using a read only RandomAccessFile.
      * This is needed because opening a netcdf file with NetcdfFile.open(<String>) changes the file size.
@@ -154,12 +147,7 @@ public class NetCDFUtils {
         return NetcdfFile.open(raf, absFileLocation, null, null);
     }
 
-    public static NetcdfFile openReadWrite(final String absFileLocation) throws IOException {
-        final RandomAccessFile raf = new RandomAccessFile(absFileLocation, "rw");
-        return NetcdfFile.open(raf, absFileLocation, null, null);
-    }
-
-    public static int getDimensionLength(String dimensionName, NetcdfFile netcdfFile) {
+   public static int getDimensionLength(String dimensionName, NetcdfFile netcdfFile) {
         final Dimension dimension = netcdfFile.findDimension(dimensionName);
         if (dimension == null) {
             throw new RuntimeException("Dimension not present in file: " + dimensionName);

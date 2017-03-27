@@ -27,11 +27,8 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -43,15 +40,13 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
@@ -639,6 +634,31 @@ public class AVHRR_GAC_Reader_IO_Test {
             assertNotNull(productSize);
             assertEquals(409, productSize.getNx());
             assertEquals(13670, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_NOAA17() throws IOException {
+        final File avhrrNOAA17Path = createAvhrrNOAA17File();
+
+        try {
+            reader.open(avhrrNOAA17Path);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(-67.608, -4.931);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(3.4619535609602408, pixelLocation[0].getX(), 1e-8);
+            assertEquals(14.308903527451893, pixelLocation[0].getY(), 1e-8);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(3.5, 14.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(-67.60800170898438, geoLocation.getX(), 1e-8);
+            assertEquals(-4.931000232696533, geoLocation.getY(), 1e-8);
         } finally {
             reader.close();
         }

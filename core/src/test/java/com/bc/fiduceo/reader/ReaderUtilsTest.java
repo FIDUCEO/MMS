@@ -24,9 +24,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ReaderUtilsTest {
 
@@ -58,6 +56,15 @@ public class ReaderUtilsTest {
     public void testGetDefaultFillValue_ProductData_byte() {
         final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_INT8);
         assertEquals(N3iosp.NC_FILL_BYTE, fillValue.byteValue(), 1e-8);
+    }
+
+    @Test
+    public void testGetDefaultFillValue_ProductData_invalidType() {
+        try {
+            ReaderUtils.getDefaultFillValue(ProductData.TYPE_UTC);
+            fail("RuntimeException expected");
+        } catch(RuntimeException expected) {
+        }
     }
 
     @Test

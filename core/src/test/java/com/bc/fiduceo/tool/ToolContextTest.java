@@ -41,16 +41,20 @@
 package com.bc.fiduceo.tool;
 
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
+import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.junit.*;
+import com.bc.fiduceo.reader.ReaderFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 public class ToolContextTest {
 
@@ -97,5 +101,21 @@ public class ToolContextTest {
 
         context.setGeometryFactory(geometryFactory);
         assertSame(geometryFactory, context.getGeometryFactory());
+    }
+
+    @Test
+    public void testSetGetSystemConfig() {
+        final SystemConfig systemConfig = new SystemConfig();
+
+        context.setSystemConfig(systemConfig);
+        assertSame(systemConfig, context.getSystemConfig());
+    }
+
+    @Test
+    public void testSetGetReaderFactory() {
+        final ReaderFactory readerFactory = mock(ReaderFactory.class);
+
+        context.setReaderFactory(readerFactory);
+        assertSame(readerFactory, context.getReaderFactory());
     }
 }

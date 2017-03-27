@@ -214,8 +214,6 @@ public class AVHRR_GAC_Reader implements Reader {
             if (!boundingGeometry.isValid()) {
                 throw new RuntimeException("Invalid bounding geometry detected");
             }
-            final int height = longitudes.getShape()[0];
-            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, NUM_SPLITS));
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
         } else {
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);

@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.reader.ssmt2;
 
-import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -31,29 +29,11 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
-import com.bc.fiduceo.reader.Read2dFrom3d;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
-import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.ma2.Section;
-import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -63,6 +43,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
 
 class SSMT2_Reader implements Reader {
 
@@ -289,7 +271,7 @@ class SSMT2_Reader implements Reader {
             String shortName = variable.getShortName();
             int[] shape = variable.getShape();
             if (shape[0] != height
-                || shape.length > 3) {
+                    || shape.length > 3) {
                 continue;
             }
 
@@ -622,17 +604,17 @@ class SSMT2_Reader implements Reader {
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
             fillArray(offsetX, offsetY,
-                      targetWidth, targetHeight,
-                      0, srcHeight,
-                      (y, x) -> {
-                          targetIdx.set(y, x);
-                          targetArray.setDouble(targetIdx, fillValue);
-                      },
-                      (y, x, yRaw, xRaw) -> {
-                          targetIdx.set(y, x);
-                          sourceIdx.set(yRaw, sourceChannel);
-                          targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
-                      }
+                    targetWidth, targetHeight,
+                    0, srcHeight,
+                    (y, x) -> {
+                        targetIdx.set(y, x);
+                        targetArray.setDouble(targetIdx, fillValue);
+                    },
+                    (y, x, yRaw, xRaw) -> {
+                        targetIdx.set(y, x);
+                        sourceIdx.set(yRaw, sourceChannel);
+                        targetArray.setDouble(targetIdx, dataArray.getDouble(sourceIdx));
+                    }
             );
             return targetArray;
         }

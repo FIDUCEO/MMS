@@ -25,7 +25,6 @@ import com.bc.fiduceo.geometry.Geometry;
 public class Geometries {
     private Geometry boundingGeometry;
     private Geometry timeAxesGeometry;
-    private Integer subsetHeight;
 
     public Geometry getBoundingGeometry() {
         return boundingGeometry;
@@ -41,13 +40,5 @@ public class Geometries {
 
     public void setTimeAxesGeometry(Geometry timeAxesGeometry) {
         this.timeAxesGeometry = timeAxesGeometry;
-    }
-
-    public Integer getSubsetHeight() {
-        return subsetHeight;
-    }
-
-    public void setSubsetHeight(Integer subsetHeight) {
-        this.subsetHeight = subsetHeight;
     }
 }

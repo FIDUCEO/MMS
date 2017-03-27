@@ -243,8 +243,6 @@ public class HIRS_L1C_Reader implements Reader {
             if (!boundingGeometry.isValid()) {
                 throw new RuntimeException("Invalid bounding geometry detected");
             }
-            final int height = lon.getShape()[0];
-            geometries.setSubsetHeight(boundingPolygonCreator.getSubsetHeight(height, 2));
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(lon, lat, 2);
         } else {
             timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lon, lat);

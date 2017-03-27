@@ -146,6 +146,15 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
+    public void testGetSourceArray() throws IOException {
+        openFile("ship-sst", "insitu_2_WMOID_DBBH_19780118_20151025.nc");
+
+        final Array array = insituReader.getSourceArray("insitu.sst_track_flag");
+        assertNotNull(array);
+        assertEquals(3, array.getInt(0));
+    }
+
+    @Test
     public void testInsituType_drifter() throws Exception {
         openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
         assertEquals("drifter", insituReader.getInsituType());
@@ -298,8 +307,6 @@ public class SSTInsituReader_IO_Test {
         assertEquals("-32768", array.getObject(7).toString());
         assertEquals("-32768", array.getObject(8).toString());
     }
-
-
 
     @Test
     public void testGetProductSize_drifter() throws Exception {

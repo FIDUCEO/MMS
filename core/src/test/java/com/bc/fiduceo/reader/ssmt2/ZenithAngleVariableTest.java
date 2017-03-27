@@ -29,8 +29,7 @@ import ucar.nc2.Attribute;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ZenithAngleVariableTest {
 
@@ -116,6 +115,23 @@ public class ZenithAngleVariableTest {
         attribute = attributes.get(1);
         assertEquals("_FillValue", attribute.getFullName());
         assertEquals("9.96921E36", attribute.getNumericValue().toString());
+    }
+
+    @Test
+    public void testFindAttribute() {
+        final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F14, 39);
+
+        final Attribute attribute = variable.findAttribute("_FillValue");
+        assertNotNull(attribute);
+        assertEquals("_FillValue", attribute.getFullName());
+    }
+
+    @Test
+    public void testFindAttribute_notPresent() {
+        final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F15, 40);
+
+        final Attribute attribute = variable.findAttribute("not_present");
+        assertNull(attribute);
     }
 
     @Test
