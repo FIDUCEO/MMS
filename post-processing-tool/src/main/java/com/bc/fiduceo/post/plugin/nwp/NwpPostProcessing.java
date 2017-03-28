@@ -22,13 +22,12 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.core.TimeRange;
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -37,12 +36,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 class NwpPostProcessing extends PostProcessing {
 
@@ -81,76 +75,133 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Dimension matchupCountDimension = reader.findDimension("matchup_count");
+        final Dimension matchupCountDimension = reader.findDimension(Constants.MATCHUP_COUNT);
         if (matchupCountDimension == null) {
-            throw new RuntimeException("Expected dimension not present in file: 'matchup_count'");
+            throw new RuntimeException("Expected dimension not present in file: " + Constants.MATCHUP_COUNT);
         }
 
-        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
-
-        if (!writer.hasDimension(null, "matchup.nwp.an.time")) {
-            writer.addDimension(null, "matchup.nwp.an.time", timeSeriesConfiguration.getAnalysisSteps());
-        }
-        if (!writer.hasDimension(null, "matchup.nwp.fc.time")) {
-            writer.addDimension(null, "matchup.nwp.fc.time", timeSeriesConfiguration.getForecastSteps());
+        final Context context = createContext(reader, writer);
+        if (configuration.isTimeSeriesExtraction()) {
+            final Strategy timeSeries = StrategyFactory.getTimeSeries();
+            timeSeries.prepare(context);
         }
 
-        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, "matchup_count");
-        writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, "matchup_count");
-
-        final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
-        for (final TemplateVariable templateVariable : allVariables) {
-            final Variable variable = writer.addVariable(null, templateVariable.getName(), templateVariable.getDataType(), templateVariable.getDimensions());
-            final List<Attribute> attributes = templateVariable.getAttributes();
-            variable.addAll(attributes);
+        if (configuration.isSensorExtraction()) {
+            final Strategy sensorExtracts = StrategyFactory.getSensorExtracts();
+            sensorExtracts.prepare(context);
         }
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final List<String> nwpDataDirectories = extractNwpDataDirectories(reader);
+        final Context context = createContext(reader, writer);
 
-        final File geoFile = writeGeoFile(reader);
-
-        final File analysisFile;
-        final File forecastFile;
         try {
-            analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
-            forecastFile = createForecastFile(geoFile, nwpDataDirectories);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
-        }
+            if (configuration.isTimeSeriesExtraction()) {
+                final Strategy timeSeries = StrategyFactory.getTimeSeries();
+                final File geoFile = timeSeries.writeGeoFile(context);
 
-        NetcdfFile analysisNetCDF = null;
-        NetcdfFile forecastNetCDF = null;
-        try {
-            final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
-            analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
-            forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
-            final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, analysisNetCDF);
-            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
+                // ------------------------ move to strategy -------------------------------------------
+                final List<String> nwpDataDirectories = extractNwpDataDirectories(reader);
+                final File analysisFile;
+                final File forecastFile;
+                try {
+                    analysisFile = createAnalysisFile(geoFile, nwpDataDirectories);
+                    forecastFile = createForecastFile(geoFile, nwpDataDirectories);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new IOException(e.getMessage());
+                }
 
-            final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
-            Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
-            writer.write(variable, Array.factory(analysisCenterTimes));
+                NetcdfFile analysisNetCDF = null;
+                NetcdfFile forecastNetCDF = null;
+                try {
+                    final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+                    analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
+                    forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
+                    final int[] analysisCenterTimes = fileMerger.mergeAnalysisFile(writer, analysisNetCDF);
+                    final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
 
-            variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
-            writer.write(variable, Array.factory(forecastCenterTimes));
+                    final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+                    Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
+                    writer.write(variable, Array.factory(analysisCenterTimes));
+
+                    variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
+                    writer.write(variable, Array.factory(forecastCenterTimes));
+
+                } finally {
+                    if (analysisNetCDF != null) {
+                        analysisNetCDF.close();
+                    }
+
+                    if (forecastNetCDF != null) {
+                        forecastNetCDF.close();
+                    }
+
+
+                }
+            }
+
+            if (configuration.isSensorExtraction()) {
+                final Strategy sensorExtracts = StrategyFactory.getSensorExtracts();
+                final File geoFile = sensorExtracts.writeGeoFile(context);
+
+            }
 
         } finally {
-            if (analysisNetCDF != null) {
-                analysisNetCDF.close();
-            }
-
-            if (forecastNetCDF != null) {
-                forecastNetCDF.close();
-            }
-
             if (configuration.isDeleteOnExit()) {
                 tempFileManager.cleanup();
             }
         }
+    }
+
+    // package access for testing only tb 2017-01-06
+    static TimeRange extractTimeRange(Array timesArray, Number fillValue) {
+        int startTimeSeconds = Integer.MAX_VALUE;
+        int endTimeSeconds = Integer.MIN_VALUE;
+        final int fill = fillValue.intValue();
+
+        for (int i = 0; i < timesArray.getSize(); i++) {
+            final int currentTime = timesArray.getInt(i);
+            if (currentTime == fill) {
+                continue;
+            }
+
+            if (currentTime > endTimeSeconds) {
+                endTimeSeconds = currentTime;
+            }
+            if (currentTime < startTimeSeconds) {
+                startTimeSeconds = currentTime;
+            }
+        }
+
+        final Date startDate = TimeUtils.create(startTimeSeconds * 1000L);
+        final Date endDate = TimeUtils.create(endTimeSeconds * 1000L);
+        return new TimeRange(startDate, endDate);
+    }
+
+    // package access for testing only tb 2017-01-06
+    static List<String> toDirectoryNamesList(TimeRange timeRange) {
+        final Date startDate = timeRange.getStartDate();
+        final Date extractStartDate = TimeUtils.addSeconds(-SEVENTY_TWO_HOURS_IN_SECONDS, startDate);
+        final Date beginningOfDay = TimeUtils.getBeginningOfDay(extractStartDate);
+
+        final Date stopDate = timeRange.getStopDate();
+        final Date extractStopDate = TimeUtils.addSeconds(FOURTY_EIGHT_HOURS_IN_SECONDS, stopDate);
+
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(beginningOfDay);
+
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        final List<String> directoryNameList = new ArrayList<>();
+        while (!utcCalendar.getTime().after(extractStopDate)) {
+            directoryNameList.add(simpleDateFormat.format(utcCalendar.getTime()));
+            utcCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        return directoryNameList;
     }
 
     private File createForecastFile(File geoFile, List<String> nwpDataDirectories) throws IOException, InterruptedException {
@@ -211,74 +262,16 @@ class NwpPostProcessing extends PostProcessing {
         return toDirectoryNamesList(timeRange);
     }
 
-    private File writeGeoFile(NetcdfFile reader) throws IOException, InvalidRangeException {
-        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+    private Context createContext(NetcdfFile reader, NetcdfFileWriter writer) {
+        final Context context = new Context();
 
-        final Variable lonVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLongitudeVariableName());
-        final Array longitudes = lonVariable.read();
+        context.setReader(reader);
+        context.setWriter(writer);
+        context.setConfiguration(configuration);
+        context.setTempFileManager(tempFileManager);
+        context.setTemplateVariables(templateVariables);
 
-        final Variable latVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLatitudeVariableName());
-        final Array latitudes = latVariable.read();
-
-        final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", reader);
-
-        final GeoFile geoFile = new GeoFile(matchupCount);
-        try {
-            geoFile.create(tempFileManager);
-            geoFile.write(longitudes, latitudes);
-        } finally {
-            geoFile.close();
-        }
-        return geoFile.getFile();
-    }
-
-    // package access for testing only tb 2017-01-06
-    static TimeRange extractTimeRange(Array timesArray, Number fillValue) {
-        int startTimeSeconds = Integer.MAX_VALUE;
-        int endTimeSeconds = Integer.MIN_VALUE;
-        final int fill = fillValue.intValue();
-
-        for (int i = 0; i < timesArray.getSize(); i++) {
-            final int currentTime = timesArray.getInt(i);
-            if (currentTime == fill) {
-                continue;
-            }
-
-            if (currentTime > endTimeSeconds) {
-                endTimeSeconds = currentTime;
-            }
-            if (currentTime < startTimeSeconds) {
-                startTimeSeconds = currentTime;
-            }
-        }
-
-        final Date startDate = TimeUtils.create(startTimeSeconds * 1000L);
-        final Date endDate = TimeUtils.create(endTimeSeconds * 1000L);
-        return new TimeRange(startDate, endDate);
-    }
-
-    // package access for testing only tb 2017-01-06
-    static List<String> toDirectoryNamesList(TimeRange timeRange) {
-        final Date startDate = timeRange.getStartDate();
-        final Date extractStartDate = TimeUtils.addSeconds(-SEVENTY_TWO_HOURS_IN_SECONDS, startDate);
-        final Date beginningOfDay = TimeUtils.getBeginningOfDay(extractStartDate);
-
-        final Date stopDate = timeRange.getStopDate();
-        final Date extractStopDate = TimeUtils.addSeconds(FOURTY_EIGHT_HOURS_IN_SECONDS, stopDate);
-
-        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-        utcCalendar.setTime(beginningOfDay);
-
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        final List<String> directoryNameList = new ArrayList<>();
-        while (!utcCalendar.getTime().after(extractStopDate)) {
-            directoryNameList.add(simpleDateFormat.format(utcCalendar.getTime()));
-            utcCalendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        return directoryNameList;
+        return context;
     }
 
     // package access for testing only tb 2017-01-11

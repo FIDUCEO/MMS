@@ -20,6 +20,7 @@
 package com.bc.fiduceo.post.plugin.distance;
 
 import com.bc.fiduceo.math.Distance;
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
@@ -48,8 +49,6 @@ class SphericalDistance extends PostProcessing {
     final String secoLonScaleAttrName;
     final String secoLonOffsetAttrName;
 
-    private final String matchupDimName = "matchup_count";
-
     SphericalDistance(String targetVarName, String targetDataType,
                       String primLatVar, String primLatScaleAttrName, String primLatOffsetAttrName,
                       String primLonVar, String primLonScaleAttrName, String primLonOffsetAttrName,
@@ -73,13 +72,13 @@ class SphericalDistance extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), matchupDimName);
+        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), Constants.MATCHUP_COUNT);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final int count = NetCDFUtils.getDimensionLength(matchupDimName, netcdfFile);
+        final int count = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
         final Variable primLons = netcdfFile.findVariable(null, primLonVar);
@@ -120,7 +119,7 @@ class SphericalDistance extends PostProcessing {
     }
 
     private Array getCenterPosArray(Variable variable, String scaleAttrName, String offsetAttrName) throws IOException, InvalidRangeException {
-        final int countIdx = variable.findDimensionIndex(matchupDimName);
+        final int countIdx = variable.findDimensionIndex(Constants.MATCHUP_COUNT);
         final int[] shape = variable.getShape();
         final int[] index = new int[shape.length];
         for (int i = 0; i < shape.length; i++) {

@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
@@ -42,7 +43,6 @@ class SstInsituTimeSeries extends PostProcessing {
 
     static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
-    private static final String MATCHUP_COUNT = "matchup_count";
     static final String MATCHUP = "matchup";
 
     // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
@@ -69,7 +69,7 @@ class SstInsituTimeSeries extends PostProcessing {
         sensorType = extractSensorType(reader);
         fileNameVariable = getInsituFileNameVariable(reader, sensorType);
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
-        matchupCount = NetCDFUtils.getDimensionLength(MATCHUP_COUNT, reader);
+        matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
         final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
         insituReaderCache = new InsituReaderCache(getContext());
         final Reader insituReader = insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);

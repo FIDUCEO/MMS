@@ -77,7 +77,7 @@ public class PostProcessingToolMain_IO_Test {
                                             new Element("target").addContent(Arrays.asList(
                                                         new Element("data-type").addContent("Float"),
                                                         new Element("var-name").addContent("post_dist"),
-                                                        new Element("dim-name").addContent("matchup_count")
+                                                        new Element("dim-name").addContent(Constants.MATCHUP_COUNT)
                                             )),
                                             new Element("primary-lat-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Latitude"),
                                             new Element("primary-lon-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Longitude"),

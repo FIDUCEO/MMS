@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -69,7 +70,7 @@ class FileMerger {
         final int anFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(analysisSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
@@ -130,7 +131,7 @@ class FileMerger {
         final int fcFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(forecastSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
