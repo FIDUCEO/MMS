@@ -10,6 +10,11 @@ class SensorExtractionStrategy extends Strategy {
     }
 
     @Override
+    void compute(Context context) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     File writeGeoFile(Context context) {
         throw new RuntimeException("not implemented");
     }

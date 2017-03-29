@@ -64,7 +64,7 @@ public class TemplateVariablesTest {
 
         variable = analysisVars.get(5);
         assertEquals("matchup.nwp.an.cloud_liquid_water_content", variable.getName());
-        assertEquals(NwpPostProcessing.CLWC_NAME, variable.getOriginalName());
+        assertEquals(Constants.CLWC_NAME, variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.an.time", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
@@ -94,7 +94,7 @@ public class TemplateVariablesTest {
 
         variable = forecastVariables.get(18);
         assertEquals("matchup.nwp.fc.cloud_liquid_water_content", variable.getName());
-        assertEquals(NwpPostProcessing.CLWC_NAME, variable.getOriginalName());
+        assertEquals(Constants.CLWC_NAME, variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.fc.time", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
