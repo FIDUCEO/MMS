@@ -40,6 +40,7 @@ class SensorExtractConfiguration {
     private String an_CLWC_name;
     private String an_CIWC_name;
     private String an_TP_name;
+    private String timeVariableName;
 
     SensorExtractConfiguration() {
         an_CI_name = "amsre.nwp.cloud_ice_water";
@@ -213,5 +214,13 @@ class SensorExtractConfiguration {
 
     String getAn_TP_name() {
         return an_TP_name;
+    }
+
+    void setTimeVariableName(String timeVariableName) {
+        this.timeVariableName = timeVariableName;
+    }
+
+    String getTimeVariableName() {
+        return timeVariableName;
     }
 }

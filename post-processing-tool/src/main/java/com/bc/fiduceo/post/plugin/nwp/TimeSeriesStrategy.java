@@ -1,7 +1,6 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
@@ -20,7 +19,6 @@ import java.util.Properties;
 import static com.bc.fiduceo.post.plugin.nwp.Constants.CLWC_NAME;
 
 class TimeSeriesStrategy extends Strategy {
-
 
 
     private static final String CDO_MATCHUP_AN_TEMPLATE =
@@ -68,8 +66,9 @@ class TimeSeriesStrategy extends Strategy {
     @Override
     void compute(Context context) throws IOException, InvalidRangeException {
         final Configuration configuration = context.getConfiguration();
-        final List<String> nwpDataDirectories = extractNwpDataDirectories(configuration.getTimeSeriesConfiguration(), context.getReader());
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
+        final List<String> nwpDataDirectories = extractNwpDataDirectories(timeSeriesConfiguration.getTimeVariableName(), context.getReader());
         final File geoFile = writeGeoFile(context);
 
         final File analysisFile;
@@ -94,7 +93,7 @@ class TimeSeriesStrategy extends Strategy {
             final int[] analysisCenterTimes = fileMerger.mergeTimeSeriesAnalysisFile(writer, analysisNetCDF);
             final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
 
-            final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
+
             Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
             writer.write(variable, Array.factory(analysisCenterTimes));
 
@@ -190,15 +189,6 @@ class TimeSeriesStrategy extends Strategy {
         processRunner.execute(scriptFile.getPath());
 
         return forecastFile;
-    }
-
-    private List<String> extractNwpDataDirectories(TimeSeriesConfiguration timeSeriesConfiguration, NetcdfFile reader) throws IOException {
-        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getTimeVariableName());
-        final Array timeArray = timeVariable.read();
-
-        final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
-        final TimeRange timeRange = Strategy.extractTimeRange(timeArray, fillValue);
-        return Strategy.toDirectoryNamesList(timeRange);
     }
 
     // package access for testing only tb 2017-01-11

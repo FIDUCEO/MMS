@@ -35,6 +35,14 @@ public class SensorExtractConfigurationTest {
     }
 
     @Test
+    public void testSetGetTimeVariableName() {
+        final String variableName = "ti-hime";
+
+        config.setTimeVariableName(variableName);
+        assertEquals(variableName, config.getTimeVariableName());
+    }
+
+    @Test
     public void testSetGetAn_CI_name() {
         final String variableName = "fraction";
 

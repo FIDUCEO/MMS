@@ -1,9 +1,12 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.core.TimeRange;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +23,15 @@ abstract class Strategy {
     abstract void compute(Context context) throws IOException, InvalidRangeException;
 
     abstract File writeGeoFile(Context context) throws IOException, InvalidRangeException;
+
+    List<String> extractNwpDataDirectories(String variableName, NetcdfFile reader) throws IOException {
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, variableName);
+        final Array timeArray = timeVariable.read();
+
+        final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
+        final TimeRange timeRange = Strategy.extractTimeRange(timeArray, fillValue);
+        return Strategy.toDirectoryNamesList(timeRange);
+    }
 
     // package access for testing only tb 2017-01-06
     static List<String> toDirectoryNamesList(TimeRange timeRange) {
