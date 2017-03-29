@@ -28,33 +28,43 @@ import java.util.List;
 
 class TemplateVariables {
 
-    private final List<TemplateVariable> analysisVariables;
-    private final List<TemplateVariable> forecastVariables;
+    private final List<TemplateVariable> timeSeriesAnalysisVariables;
+    private final List<TemplateVariable> timeSeriesForecastVariables;
+    private final List<TemplateVariable> sensorExtractVariables;
 
     TemplateVariables(Configuration configuration) {
-        analysisVariables = createAnalysisVariables(configuration);
-        forecastVariables = createForecastVariables(configuration);
+        timeSeriesAnalysisVariables = createAnalysisVariables(configuration);
+        timeSeriesForecastVariables = createForecastVariables(configuration);
+        sensorExtractVariables = createSensorExtractVariables(configuration);
     }
 
-    List<TemplateVariable> getAnalysisVariables() {
-        return analysisVariables;
+    List<TemplateVariable> getTimeSeriesAnalysisVariables() {
+        return timeSeriesAnalysisVariables;
     }
 
-    List<TemplateVariable> getForecastVariables() {
-        return forecastVariables;
+    List<TemplateVariable> getTimeSeriesForecastVariables() {
+        return timeSeriesForecastVariables;
     }
 
-    List<TemplateVariable> getAllVariables() {
+    List<TemplateVariable> getAllTimeSeriesVariables() {
         final ArrayList<TemplateVariable> allVariables = new ArrayList<>();
 
-        allVariables.addAll(analysisVariables);
-        allVariables.addAll(forecastVariables);
+        allVariables.addAll(timeSeriesAnalysisVariables);
+        allVariables.addAll(timeSeriesForecastVariables);
 
         return allVariables;
     }
 
+    List<TemplateVariable> getSensorExtractVariables() {
+        return sensorExtractVariables;
+    }
+
     private ArrayList<TemplateVariable> createAnalysisVariables(Configuration configuration) {
         final ArrayList<TemplateVariable> variables = new ArrayList<>();
+        if (!configuration.isTimeSeriesExtraction()) {
+            return variables;
+        }
+
         final String anDimensions = "matchup_count matchup.nwp.an.time";
 
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
@@ -109,6 +119,10 @@ class TemplateVariables {
 
     private ArrayList<TemplateVariable> createForecastVariables(Configuration configuration) {
         final ArrayList<TemplateVariable> variables = new ArrayList<>();
+        if (!configuration.isTimeSeriesExtraction()) {
+            return variables;
+        }
+
         final String fcDimensions = "matchup_count matchup.nwp.fc.time";
 
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
@@ -260,6 +274,152 @@ class TemplateVariables {
         clwcVariable.addAttribute("_FillValue", -9.0e33);
         clwcVariable.addAttribute("source", "GRIB data");
         variables.add(clwcVariable);
+
+        return variables;
+    }
+
+    private List<TemplateVariable> createSensorExtractVariables(Configuration configuration) {
+        final ArrayList<TemplateVariable> variables = new ArrayList<>();
+        if (!configuration.isSensorExtraction()) {
+            return variables;
+        }
+
+        final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
+        final String extractDimensions = "matchup_count matchup.nwp.ny matchup.nwp.nx";
+        final String profileDimensions = "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx";
+
+        final TemplateVariable seaIceFractionVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CI_name(), "CI", DataType.FLOAT, extractDimensions);
+        seaIceFractionVariable.addAttribute("long_name", "Sea-ice cover");
+        seaIceFractionVariable.addAttribute("_FillValue", 2.0E20);
+        seaIceFractionVariable.addAttribute("source", "GRIB data");
+        variables.add(seaIceFractionVariable);
+
+        final TemplateVariable sstVariable = new TemplateVariable(sensorExtractConfiguration.getAn_SSTK_name(), "SSTK", DataType.FLOAT, extractDimensions);
+        sstVariable.addAttribute("long_name", "Sea surface temperature");
+        sstVariable.addAttribute("units", "K");
+        sstVariable.addAttribute("_FillValue", 2.0E20);
+        sstVariable.addAttribute("source", "GRIB data");
+        variables.add(sstVariable);
+
+        final TemplateVariable u10Variable = new TemplateVariable(sensorExtractConfiguration.getAn_U10_name(), "U10", DataType.FLOAT, extractDimensions);
+        u10Variable.addAttribute("standard_name", "eastward_wind");
+        u10Variable.addAttribute("long_name", "10 metre U wind component");
+        u10Variable.addAttribute("units", "m s**-1");
+        u10Variable.addAttribute("_FillValue", 2.0E20);
+        u10Variable.addAttribute("source", "GRIB data");
+        variables.add(u10Variable);
+
+        final TemplateVariable v10Variable = new TemplateVariable(sensorExtractConfiguration.getAn_V10_name(), "V10", DataType.FLOAT, extractDimensions);
+        v10Variable.addAttribute("standard_name", "northward_wind");
+        v10Variable.addAttribute("long_name", "10 metre V wind component");
+        v10Variable.addAttribute("units", "m s**-1");
+        v10Variable.addAttribute("_FillValue", 2.0E20);
+        v10Variable.addAttribute("source", "GRIB data");
+        variables.add(v10Variable);
+
+        final TemplateVariable mslVariable = new TemplateVariable(sensorExtractConfiguration.getAn_MSL_name(), "MSL", DataType.FLOAT, extractDimensions);
+        mslVariable.addAttribute("standard_name", "air_pressure_at_sea_level");
+        mslVariable.addAttribute("long_name", "Mean sea-level pressure");
+        mslVariable.addAttribute("units", "Pa");
+        mslVariable.addAttribute("_FillValue", 2.0E20);
+        mslVariable.addAttribute("source", "GRIB data");
+        variables.add(mslVariable);
+
+        final TemplateVariable t2Variable = new TemplateVariable(sensorExtractConfiguration.getAn_T2_name(), "T2", DataType.FLOAT, extractDimensions);
+        t2Variable.addAttribute("standard_name", "air_temperature");
+        t2Variable.addAttribute("long_name", "2 metre temperature");
+        t2Variable.addAttribute("units", "K");
+        t2Variable.addAttribute("_FillValue", 2.0E20);
+        t2Variable.addAttribute("source", "GRIB data");
+        variables.add(t2Variable);
+
+        final TemplateVariable d2Variable = new TemplateVariable(sensorExtractConfiguration.getAn_D2_name(), "D2", DataType.FLOAT, extractDimensions);
+        d2Variable.addAttribute("standard_name", "dew_point_temperature");
+        d2Variable.addAttribute("long_name", "2 metre dewpoint temperature");
+        d2Variable.addAttribute("units", "K");
+        d2Variable.addAttribute("_FillValue", 2.0E20);
+        d2Variable.addAttribute("source", "GRIB data");
+        variables.add(d2Variable);
+
+        final TemplateVariable tpVariable = new TemplateVariable(sensorExtractConfiguration.getAn_TP_name(), "TP", DataType.FLOAT, extractDimensions);
+        tpVariable.addAttribute("long_name", "Total precipitation");
+        tpVariable.addAttribute("units", "m");
+        tpVariable.addAttribute("_FillValue", 2.0E20);
+        tpVariable.addAttribute("source", "GRIB data");
+        variables.add(tpVariable);
+
+        final TemplateVariable clwcVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CLWC_name(), Constants.CLWC_NAME, DataType.FLOAT, profileDimensions);
+        clwcVariable.addAttribute("standard_name", "specific_cloud_liquid_water_content");
+        clwcVariable.addAttribute("long_name", "Grid-box mean specific cloud liquid water content (mass of condensate / mass of moist air)");
+        clwcVariable.addAttribute("units", "kg kg**-1");
+        clwcVariable.addAttribute("_FillValue", -9.0e33);
+        clwcVariable.addAttribute("source", "GRIB data");
+        variables.add(clwcVariable);
+
+        final TemplateVariable totalColumnWaterVapourVariable = new TemplateVariable(sensorExtractConfiguration.getAn_TCWV_name(), "TCWV", DataType.FLOAT, extractDimensions);
+        totalColumnWaterVapourVariable.addAttribute("standard_name", "lwe_thickness_of_atmosphere_water_vapour_content");
+        totalColumnWaterVapourVariable.addAttribute("long_name", "Total column water vapour");
+        totalColumnWaterVapourVariable.addAttribute("units", "kg m**-2");
+        totalColumnWaterVapourVariable.addAttribute("_FillValue", 2.0E20);
+        totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
+        variables.add(totalColumnWaterVapourVariable);
+
+        final TemplateVariable tccVariable = new TemplateVariable(sensorExtractConfiguration.getAn_TCC_name(), "TCC", DataType.FLOAT, extractDimensions);
+        tccVariable.addAttribute("standard_name", "cloud_area_fraction");
+        tccVariable.addAttribute("long_name", "Total cloud cover");
+        tccVariable.addAttribute("units", "(0 - 1)");
+        tccVariable.addAttribute("_FillValue", 2.0E20);
+        tccVariable.addAttribute("source", "GRIB data");
+        variables.add(tccVariable);
+
+        final TemplateVariable alVariable = new TemplateVariable(sensorExtractConfiguration.getAn_AL_name(), "AL", DataType.FLOAT, extractDimensions);
+        alVariable.addAttribute("standard_name", "surface_albedo");
+        alVariable.addAttribute("long_name", "Albedo");
+        alVariable.addAttribute("units", "(0 - 1)");
+        alVariable.addAttribute("_FillValue", 2.0E20);
+        alVariable.addAttribute("source", "GRIB data");
+        variables.add(alVariable);
+
+        final TemplateVariable sktVariable = new TemplateVariable(sensorExtractConfiguration.getAn_SKT_name(), "SKT", DataType.FLOAT, extractDimensions);
+        sktVariable.addAttribute("long_name", "Skin temperature");
+        sktVariable.addAttribute("units", "K");
+        sktVariable.addAttribute("_FillValue", 2.0E20);
+        sktVariable.addAttribute("source", "GRIB data");
+        variables.add(sktVariable);
+
+        final TemplateVariable lnspVariable = new TemplateVariable(sensorExtractConfiguration.getAn_LNSP_name(), "LNSP", DataType.FLOAT, extractDimensions);
+        lnspVariable.addAttribute("long_name", "Logarithm of surface pressure");
+        lnspVariable.addAttribute("_FillValue", -9.0E33);
+        lnspVariable.addAttribute("source", "GRIB data");
+        variables.add(lnspVariable);
+
+        final TemplateVariable temperatureProfileVariable = new TemplateVariable(sensorExtractConfiguration.getAn_T_name(), "T", DataType.FLOAT, profileDimensions);
+        temperatureProfileVariable.addAttribute("long_name", "Temperature");
+        temperatureProfileVariable.addAttribute("_FillValue", -9.0E33);
+        temperatureProfileVariable.addAttribute("units", "K");
+        temperatureProfileVariable.addAttribute("source", "GRIB data");
+        variables.add(temperatureProfileVariable);
+
+        final TemplateVariable wvProfileVariable = new TemplateVariable(sensorExtractConfiguration.getAn_Q_name(), "Q", DataType.FLOAT, profileDimensions);
+        wvProfileVariable.addAttribute("long_name", "Specific humidity");
+        wvProfileVariable.addAttribute("_FillValue", -9.0E33);
+        wvProfileVariable.addAttribute("units", "kg kg**-1");
+        wvProfileVariable.addAttribute("source", "GRIB data");
+        variables.add(wvProfileVariable);
+
+        final TemplateVariable o3ProfileVariable = new TemplateVariable(sensorExtractConfiguration.getAn_O3_name(), "O3", DataType.FLOAT, profileDimensions);
+        o3ProfileVariable.addAttribute("long_name", "Ozone mass mixing ratio");
+        o3ProfileVariable.addAttribute("_FillValue", -9.0E33);
+        o3ProfileVariable.addAttribute("units", "kg kg**-1");
+        o3ProfileVariable.addAttribute("source", "GRIB data");
+        variables.add(o3ProfileVariable);
+
+        final TemplateVariable ciwcProfileVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CIWC_name(), "CIWC", DataType.FLOAT, profileDimensions);
+        ciwcProfileVariable.addAttribute("long_name", "Cloud ice water content");
+        ciwcProfileVariable.addAttribute("_FillValue", -9.0E33);
+        ciwcProfileVariable.addAttribute("units", "kg kg**-1");
+        ciwcProfileVariable.addAttribute("source", "GRIB data");
+        variables.add(ciwcProfileVariable);
 
         return variables;
     }

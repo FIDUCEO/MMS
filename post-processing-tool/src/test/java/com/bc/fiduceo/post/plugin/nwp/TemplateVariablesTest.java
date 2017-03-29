@@ -38,13 +38,14 @@ public class TemplateVariablesTest {
     public void setUp() {
         final Configuration configuration = new Configuration();
         configuration.setTimeSeriesConfiguration(new TimeSeriesConfiguration());
-        
+        configuration.setSensorExtractConfiguration(new SensorExtractConfiguration());
+
         templateVariables = new TemplateVariables(configuration);
     }
 
     @Test
-    public void testGetAnalysisVariables() {
-        final List<TemplateVariable> analysisVars = templateVariables.getAnalysisVariables();
+    public void testGetTimeSeriesAnalysisVariables() {
+        final List<TemplateVariable> analysisVars = templateVariables.getTimeSeriesAnalysisVariables();
         assertEquals(6, analysisVars.size());
 
         TemplateVariable variable = analysisVars.get(2);
@@ -70,8 +71,16 @@ public class TemplateVariablesTest {
     }
 
     @Test
-    public void testGetForecastVariables() {
-        final List<TemplateVariable> forecastVariables = templateVariables.getForecastVariables();
+    public void testGetTimeSeriesAnalysisVariables_noTimeSeriesConfig() {
+        final TemplateVariables templateVariables = new TemplateVariables(new Configuration());
+
+        final List<TemplateVariable> timeSeriesAnalysisVariables = templateVariables.getTimeSeriesAnalysisVariables();
+        assertEquals(0, timeSeriesAnalysisVariables.size());
+    }
+
+    @Test
+    public void testGetTimeSeriesForecastVariables() {
+        final List<TemplateVariable> forecastVariables = templateVariables.getTimeSeriesForecastVariables();
         assertEquals(19, forecastVariables.size());
 
         TemplateVariable variable = forecastVariables.get(5);
@@ -100,8 +109,53 @@ public class TemplateVariablesTest {
     }
 
     @Test
-    public void testGetAllVariables() {
-        final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
+    public void testGetTimeSeriesForecastVariables_noTimeSeriesConfig() {
+        final TemplateVariables templateVariables = new TemplateVariables(new Configuration());
+
+        final List<TemplateVariable> timeSeriesAnalysisVariables = templateVariables.getTimeSeriesForecastVariables();
+        assertEquals(0, timeSeriesAnalysisVariables.size());
+    }
+
+    @Test
+    public void testGetAllTimeSeriesVariables() {
+        final List<TemplateVariable> allVariables = templateVariables.getAllTimeSeriesVariables();
         assertEquals(25, allVariables.size());
     }
+
+    @Test
+    public void testGetAllTimeSeriesVariables_noTimeSeriesConfig() {
+        final TemplateVariables templateVariables = new TemplateVariables(new Configuration());
+
+        final List<TemplateVariable> timeSeriesAnalysisVariables = templateVariables.getAllTimeSeriesVariables();
+        assertEquals(0, timeSeriesAnalysisVariables.size());
+    }
+
+    @Test
+    public void testGetSensorExtractVariables() {
+        final List<TemplateVariable> sensorExtractVariables = templateVariables.getSensorExtractVariables();
+        assertEquals(18, sensorExtractVariables.size());
+
+        TemplateVariable variable = sensorExtractVariables.get(2);
+        assertEquals("amsre.nwp.10m_east_wind_component", variable.getName());
+        assertEquals("U10", variable.getOriginalName());
+        assertEquals("matchup_count matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = sensorExtractVariables.get(8);
+        assertEquals("amsre.nwp.cloud_liquid_water", variable.getName());
+        assertEquals("var246", variable.getOriginalName());
+        assertEquals("matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+    }
+
+
+    @Test
+    public void testGetSensorExtractVariables_noSensorExtractConfig() {
+        final TemplateVariables templateVariables = new TemplateVariables(new Configuration());
+
+        final List<TemplateVariable> sensorExtractVariables = templateVariables.getSensorExtractVariables();
+        assertEquals(0, sensorExtractVariables.size());
+    }
 }
+
+

@@ -150,12 +150,12 @@ class FileMerger {
     }
 
     private Map<Variable, Variable> getAnalysisVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) {
-        final List<TemplateVariable> analysisVariables = templateVariables.getAnalysisVariables();
+        final List<TemplateVariable> analysisVariables = templateVariables.getTimeSeriesAnalysisVariables();
         return getVariableVariableMap(netcdfFileWriter, analysisFile, analysisVariables);
     }
 
     private Map<Variable, Variable> getForecastVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) {
-        final List<TemplateVariable> forecastVariables = templateVariables.getForecastVariables();
+        final List<TemplateVariable> forecastVariables = templateVariables.getTimeSeriesForecastVariables();
         return getVariableVariableMap(netcdfFileWriter, forecastFile, forecastVariables);
     }
 

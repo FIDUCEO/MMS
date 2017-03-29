@@ -57,7 +57,7 @@ class TimeSeriesStrategy extends Strategy {
         writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.MATCHUP_COUNT);
 
         final TemplateVariables templateVariables = context.getTemplateVariables();
-        final List<TemplateVariable> allVariables = templateVariables.getAllVariables();
+        final List<TemplateVariable> allVariables = templateVariables.getAllTimeSeriesVariables();
         for (final TemplateVariable templateVariable : allVariables) {
             final Variable variable = writer.addVariable(null, templateVariable.getName(), templateVariable.getDataType(), templateVariable.getDimensions());
             final List<Attribute> attributes = templateVariable.getAttributes();
