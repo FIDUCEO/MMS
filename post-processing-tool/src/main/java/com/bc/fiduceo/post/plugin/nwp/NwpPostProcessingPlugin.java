@@ -71,6 +71,33 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         if (sensorExtractionElement != null) {
             final SensorExtractConfiguration sensorExtractConfig = new SensorExtractConfiguration();
 
+            final Element timeVariableElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "time-variable-name");
+            sensorExtractConfig.setTimeVariableName(getElementValueTrimmed(timeVariableElement));
+
+            final Element xDimElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "x-dimension");
+            sensorExtractConfig.setX_Dimension(getElementValueInt(xDimElement));
+
+            final Element xDimNameElement = sensorExtractionElement.getChild("x-dimension-name");
+            if (xDimNameElement != null) {
+                sensorExtractConfig.setX_DimensionName(getElementValueTrimmed(xDimNameElement));
+            }
+
+            final Element yDimElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "y-dimension");
+            sensorExtractConfig.setY_Dimension(getElementValueInt(yDimElement));
+
+            final Element yDimNameElement = sensorExtractionElement.getChild("y-dimension-name");
+            if (yDimNameElement != null) {
+                sensorExtractConfig.setY_DimensionName(getElementValueTrimmed(yDimNameElement));
+            }
+
+            final Element zDimElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "z-dimension");
+            sensorExtractConfig.setZ_Dimension(getElementValueInt(zDimElement));
+
+            final Element zDimNameElement = sensorExtractionElement.getChild("z-dimension-name");
+            if (zDimNameElement != null) {
+                sensorExtractConfig.setZ_DimensionName(getElementValueTrimmed(zDimNameElement));
+            }
+
             final Element anSeaIceFractionElement = sensorExtractionElement.getChild("an-ci-name");
             if (anSeaIceFractionElement != null) {
                 sensorExtractConfig.setAn_CI_name(getElementValueTrimmed(anSeaIceFractionElement));
@@ -336,5 +363,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
     private static String getElementValueTrimmed(Element element) {
         return element.getValue().trim();
+    }
+
+    private static int getElementValueInt(Element element) {
+        final String stringValue = getElementValueTrimmed(element);
+
+        return Integer.parseInt(stringValue);
     }
 }

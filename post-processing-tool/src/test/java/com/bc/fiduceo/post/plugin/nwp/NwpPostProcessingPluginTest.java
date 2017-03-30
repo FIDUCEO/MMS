@@ -279,6 +279,14 @@ public class NwpPostProcessingPluginTest {
                 "        <an-clwc-name>cloud_water_profile</an-clwc-name>" +
                 "        <an-ciwc-name>cloud_ice_profile</an-ciwc-name>" +
                 "        <an-tp-name>total_precip</an-tp-name>" +
+                "" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <x-dimension>17</x-dimension>" +
+                "        <x-dimension-name>exxi</x-dimension-name>" +
+                "        <y-dimension>18</y-dimension>" +
+                "        <y-dimension-name>ypsi</y-dimension-name>" +
+                "        <z-dimension>19</z-dimension>" +
+                "        <z-dimension-name>zenzi</z-dimension-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -309,6 +317,98 @@ public class NwpPostProcessingPluginTest {
         assertEquals("cloud_water_profile", sensorConfig.getAn_CLWC_name());
         assertEquals("cloud_ice_profile", sensorConfig.getAn_CIWC_name());
         assertEquals("total_precip", sensorConfig.getAn_TP_name());
+
+        assertEquals("the_time", sensorConfig.getTimeVariableName());
+        assertEquals(17, sensorConfig.getX_Dimension());
+        assertEquals("exxi", sensorConfig.getX_DimensionName());
+        assertEquals(18, sensorConfig.getY_Dimension());
+        assertEquals("ypsi", sensorConfig.getY_DimensionName());
+        assertEquals(19, sensorConfig.getZ_Dimension());
+        assertEquals("zenzi", sensorConfig.getZ_DimensionName());
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingTimeVariable() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <x-dimension>17</x-dimension>" +
+                "        <y-dimension>18</y-dimension>" +
+                "        <z-dimension>19</z-dimension>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingXDimension() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <y-dimension>18</y-dimension>" +
+                "        <z-dimension>19</z-dimension>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingYDimension() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <x-dimension>18</x-dimension>" +
+                "        <z-dimension>19</z-dimension>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingZDimension() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <x-dimension>18</x-dimension>" +
+                "        <y-dimension>19</y-dimension>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @Test

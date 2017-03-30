@@ -41,6 +41,12 @@ class SensorExtractConfiguration {
     private String an_CIWC_name;
     private String an_TP_name;
     private String timeVariableName;
+    private int x_Dimension;
+    private int y_Dimension;
+    private int z_Dimension;
+    private String x_DimensionName;
+    private String y_DimensionName;
+    private String z_DimensionName;
 
     SensorExtractConfiguration() {
         an_CI_name = "amsre.nwp.cloud_ice_water";
@@ -62,6 +68,10 @@ class SensorExtractConfiguration {
         an_CLWC_name = "amsre.nwp.cloud_liquid_water";
         an_CIWC_name = "amsre.nwp.cloud_ice_water";
         an_TP_name = "amsre.nwp.total_precip";
+
+        x_DimensionName = "amsre.nwp.nx";
+        y_DimensionName = "amsre.nwp.ny";
+        z_DimensionName = "amsre.nwp.nz";
     }
 
     void setAn_CI_name(String an_CI_name) {
@@ -222,5 +232,53 @@ class SensorExtractConfiguration {
 
     String getTimeVariableName() {
         return timeVariableName;
+    }
+
+    void setX_Dimension(int x_Dimension) {
+        this.x_Dimension = x_Dimension;
+    }
+
+    int getX_Dimension() {
+        return x_Dimension;
+    }
+
+    void setY_Dimension(int y_Dimension) {
+        this.y_Dimension = y_Dimension;
+    }
+
+    int getY_Dimension() {
+        return y_Dimension;
+    }
+
+    void setZ_Dimension(int z_Dimension) {
+        this.z_Dimension = z_Dimension;
+    }
+
+    int getZ_Dimension() {
+        return z_Dimension;
+    }
+
+     void setX_DimensionName(String x_DimensionName) {
+        this.x_DimensionName = x_DimensionName;
+    }
+
+    String getX_DimensionName() {
+        return x_DimensionName;
+    }
+
+    void setY_DimensionName(String y_DimensionName) {
+        this.y_DimensionName = y_DimensionName;
+    }
+
+    String getY_DimensionName() {
+        return y_DimensionName;
+    }
+
+    void setZ_DimensionName(String z_DimensionName) {
+        this.z_DimensionName = z_DimensionName;
+    }
+
+    String getZ_DimensionName() {
+        return z_DimensionName;
     }
 }

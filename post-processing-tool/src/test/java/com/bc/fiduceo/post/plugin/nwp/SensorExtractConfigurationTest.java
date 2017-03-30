@@ -195,6 +195,54 @@ public class SensorExtractConfigurationTest {
     }
 
     @Test
+    public void testSetGetXDimension() {
+        final int xDim = 23;
+
+        config.setX_Dimension(xDim);
+        assertEquals(xDim, config.getX_Dimension());
+    }
+
+    @Test
+    public void testSetGetYDimension() {
+        final int yDim = 24;
+
+        config.setY_Dimension(yDim);
+        assertEquals(yDim, config.getY_Dimension());
+    }
+
+    @Test
+    public void testSetGetZDimension() {
+        final int zDim = 25;
+
+        config.setZ_Dimension(zDim);
+        assertEquals(zDim, config.getZ_Dimension());
+    }
+
+    @Test
+    public void testSetGet_X_DimensionName() {
+         final String name = "ex-dimm";
+
+         config.setX_DimensionName(name);
+         assertEquals(name, config.getX_DimensionName());
+    }
+
+    @Test
+    public void testSetGet_Y_DimensionName() {
+        final String name = "ey-dim";
+
+        config.setY_DimensionName(name);
+        assertEquals(name, config.getY_DimensionName());
+    }
+
+    @Test
+    public void testSetGet_Z_DimensionName() {
+        final String name = "ezih-dim";
+
+        config.setZ_DimensionName(name);
+        assertEquals(name, config.getZ_DimensionName());
+    }
+
+    @Test
     public void testGetDefaultValues() {
         assertEquals("amsre.nwp.cloud_ice_water", config.getAn_CI_name());
         assertEquals("amsre.nwp.snow_albedo", config.getAn_ASN_name());
@@ -215,5 +263,9 @@ public class SensorExtractConfigurationTest {
         assertEquals("amsre.nwp.cloud_liquid_water", config.getAn_CLWC_name());
         assertEquals("amsre.nwp.cloud_ice_water", config.getAn_CIWC_name());
         assertEquals("amsre.nwp.total_precip", config.getAn_TP_name());
+
+        assertEquals("amsre.nwp.nx", config.getX_DimensionName());
+        assertEquals("amsre.nwp.ny", config.getY_DimensionName());
+        assertEquals("amsre.nwp.nz", config.getZ_DimensionName());
     }
 }

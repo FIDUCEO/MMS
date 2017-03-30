@@ -364,6 +364,13 @@ class TemplateVariables {
         totalColumnWaterVapourVariable.addAttribute("source", "GRIB data");
         variables.add(totalColumnWaterVapourVariable);
 
+        final TemplateVariable asnVariable = new TemplateVariable(sensorExtractConfiguration.getAn_ASN_name(), "ASN", DataType.FLOAT, extractDimensions);
+        asnVariable.addAttribute("long_name", "Snow albedo");
+        asnVariable.addAttribute("units", "(0 - 1)");
+        asnVariable.addAttribute("_FillValue", 2.0E20);
+        asnVariable.addAttribute("source", "GRIB data");
+        variables.add(asnVariable);
+
         final TemplateVariable tccVariable = new TemplateVariable(sensorExtractConfiguration.getAn_TCC_name(), "TCC", DataType.FLOAT, extractDimensions);
         tccVariable.addAttribute("standard_name", "cloud_area_fraction");
         tccVariable.addAttribute("long_name", "Total cloud cover");

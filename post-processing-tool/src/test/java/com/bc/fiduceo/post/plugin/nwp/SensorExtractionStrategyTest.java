@@ -1,0 +1,98 @@
+/*
+ * Copyright (C) 2017 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU General Public License as published by the Free
+ *  Software Foundation; either version 3 of the License, or (at your option)
+ *  any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ *  more details.
+ *
+ *  A copy of the GNU General Public License should have been supplied along
+ *  with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
+package com.bc.fiduceo.post.plugin.nwp;
+
+import org.junit.Test;
+import ucar.ma2.DataType;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+public class SensorExtractionStrategyTest {
+
+    @Test
+    public void testPrepare() {
+        final SensorExtractionStrategy strategy = new SensorExtractionStrategy();
+
+        final Variable variable = mock(Variable.class);
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.addVariable(anyObject(), anyString(), anyObject(), anyString())).thenReturn(variable);
+
+        final Context context = new Context();
+        final Configuration configuration = createConfiguration();
+        context.setConfiguration(configuration);
+        context.setTemplateVariables(new TemplateVariables(configuration));
+        context.setWriter(writer);
+
+        strategy.prepare(context);
+
+        final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
+        
+        verify(writer, times(1)).hasDimension(null, "amsre.nwp.nx");
+        verify(writer, times(1)).addDimension(null, "amsre.nwp.nx", 9);
+
+        verify(writer, times(1)).hasDimension(null, "amsre.nwp.ny");
+        verify(writer, times(1)).addDimension(null, "amsre.nwp.ny", 10);
+
+        verify(writer, times(1)).hasDimension(null, "amsre.nwp.nz");
+        verify(writer, times(1)).addDimension(null, "amsre.nwp.nz", 11);
+
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_MSL_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T2_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_D2_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TP_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CLWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCWV_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_ASN_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CIWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCC_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_AL_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SKT_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_LNSP_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_Q_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_O3_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+
+        verifyNoMoreInteractions(writer);
+    }
+
+    private Configuration createConfiguration() {
+        final Configuration configuration = new Configuration();
+        final SensorExtractConfiguration sensorExtractConfiguration = new SensorExtractConfiguration();
+        sensorExtractConfiguration.setX_Dimension(9);
+        sensorExtractConfiguration.setY_Dimension(10);
+        sensorExtractConfiguration.setZ_Dimension(11);
+        configuration.setSensorExtractConfiguration(sensorExtractConfiguration);
+        return configuration;
+    }
+}

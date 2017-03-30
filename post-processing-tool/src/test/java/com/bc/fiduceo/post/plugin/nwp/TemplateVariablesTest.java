@@ -133,7 +133,7 @@ public class TemplateVariablesTest {
     @Test
     public void testGetSensorExtractVariables() {
         final List<TemplateVariable> sensorExtractVariables = templateVariables.getSensorExtractVariables();
-        assertEquals(18, sensorExtractVariables.size());
+        assertEquals(19, sensorExtractVariables.size());
 
         TemplateVariable variable = sensorExtractVariables.get(2);
         assertEquals("amsre.nwp.10m_east_wind_component", variable.getName());
@@ -145,6 +145,12 @@ public class TemplateVariablesTest {
         assertEquals("amsre.nwp.cloud_liquid_water", variable.getName());
         assertEquals("var246", variable.getOriginalName());
         assertEquals("matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = sensorExtractVariables.get(10);
+        assertEquals("amsre.nwp.snow_albedo", variable.getName());
+        assertEquals("ASN", variable.getOriginalName());
+        assertEquals("matchup_count matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
 
