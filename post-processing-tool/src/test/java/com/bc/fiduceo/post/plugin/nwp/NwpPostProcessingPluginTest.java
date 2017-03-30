@@ -287,6 +287,8 @@ public class NwpPostProcessingPluginTest {
                 "        <y-dimension-name>ypsi</y-dimension-name>" +
                 "        <z-dimension>19</z-dimension>" +
                 "        <z-dimension-name>zenzi</z-dimension-name>" +
+                "        <longitude-variable-name>longi-tude</longitude-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -325,6 +327,9 @@ public class NwpPostProcessingPluginTest {
         assertEquals("ypsi", sensorConfig.getY_DimensionName());
         assertEquals(19, sensorConfig.getZ_Dimension());
         assertEquals("zenzi", sensorConfig.getZ_DimensionName());
+
+        assertEquals("longi-tude", sensorConfig.getLongitudeVariableName());
+        assertEquals("lati-tude", sensorConfig.getLatitudeVariableName());
     }
 
     @Test
@@ -334,6 +339,8 @@ public class NwpPostProcessingPluginTest {
                 "        <x-dimension>17</x-dimension>" +
                 "        <y-dimension>18</y-dimension>" +
                 "        <z-dimension>19</z-dimension>" +
+                "        <longitude-variable-name>longi-tude</longitude-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -355,6 +362,8 @@ public class NwpPostProcessingPluginTest {
                 "        <y-dimension>18</y-dimension>" +
                 "        <z-dimension>19</z-dimension>" +
                 "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>longi-tude</longitude-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -376,6 +385,8 @@ public class NwpPostProcessingPluginTest {
                 "        <x-dimension>18</x-dimension>" +
                 "        <z-dimension>19</z-dimension>" +
                 "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>longi-tude</longitude-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +
@@ -397,6 +408,54 @@ public class NwpPostProcessingPluginTest {
                 "        <x-dimension>18</x-dimension>" +
                 "        <y-dimension>19</y-dimension>" +
                 "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>longi-tude</longitude-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingLongitudeName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <x-dimension>18</x-dimension>" +
+                "        <y-dimension>19</y-dimension>" +
+                "        <z-dimension>19</z-dimension>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <latitude-variable-name>lati-tude</latitude-variable-name>" +
+                "    </sensor-extraction>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            NwpPostProcessingPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SensorExtract_missingLatitudeName() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <sensor-extraction>" +
+                "        <x-dimension>18</x-dimension>" +
+                "        <y-dimension>19</y-dimension>" +
+                "        <z-dimension>19</z-dimension>" +
+                "        <time-variable-name>the_time</time-variable-name>" +
+                "        <longitude-variable-name>lon-tude</longitude-variable-name>" +
                 "    </sensor-extraction>" +
                 "" +
                 "    <cdo-home>we need this, its mandatory</cdo-home>" +

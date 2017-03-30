@@ -243,6 +243,22 @@ public class SensorExtractConfigurationTest {
     }
 
     @Test
+    public void testSetGetLongitudeVariablename() {
+         final String name = "along";
+
+         config.setLongitudeVariableName(name);
+         assertEquals(name, config.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testSetGetLatitudeVariablename() {
+        final String name = "alatte";
+
+        config.setLatitudeVariableName(name);
+        assertEquals(name, config.getLatitudeVariableName());
+    }
+
+    @Test
     public void testGetDefaultValues() {
         assertEquals("amsre.nwp.cloud_ice_water", config.getAn_CI_name());
         assertEquals("amsre.nwp.snow_albedo", config.getAn_ASN_name());

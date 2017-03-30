@@ -130,8 +130,8 @@ class TimeSeriesStrategy extends Strategy {
         final GeoFile geoFile = new GeoFile(matchupCount);
         try {
             final TempFileManager tempFileManager = context.getTempFileManager();
-            geoFile.create(tempFileManager);
-            geoFile.write(longitudes, latitudes);
+            geoFile.createTimeSeries(tempFileManager);
+            geoFile.writeTimeSeries(longitudes, latitudes);
         } finally {
             geoFile.close();
         }

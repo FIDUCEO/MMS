@@ -52,12 +52,12 @@ public class GeoFile_IO_Test {
     }
 
     @Test
-    public void testCreate() throws IOException {
+    public void testCreateTimeSeries() throws IOException {
         final GeoFile geoFile = new GeoFile(1208);
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(tempFileManager);
+            geoFile.createTimeSeries(tempFileManager);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -85,7 +85,7 @@ public class GeoFile_IO_Test {
     }
 
     @Test
-    public void testWrite() throws IOException, InvalidRangeException {
+    public void testWriteTimeSeries() throws IOException, InvalidRangeException {
         final GeoFile geoFile = new GeoFile(14);
         final float[] longitudes = {115.39925f, 108.04573f, 108.04573f, 107.99058f, 97.13357f, 97.13357f, 97.13357f, 89.25099f, 89.25099f, 89.25099f, 98.02876f, 98.02876f, 99.472626f, 99.472626f};
         final float[] latitudes = {-46.212715f, -47.560722f, -47.560722f, -47.57288f, -49.25582f, -49.25582f, -49.25582f, -49.821648f, -49.821648f, -49.821648f, -48.872658f, -48.872658f, -48.64003f, -48.64003f};
@@ -95,11 +95,11 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(tempFileManager);
+            geoFile.createTimeSeries(tempFileManager);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
-            geoFile.write(longitudesArray, latitudesArray);
+            geoFile.writeTimeSeries(longitudesArray, latitudesArray);
 
             geoFile.close();
 
@@ -124,7 +124,7 @@ public class GeoFile_IO_Test {
     }
 
     @Test
-    public void testWrite_3dLonLats() throws IOException, InvalidRangeException {
+    public void testWriteTimeSeries_3dLonLats() throws IOException, InvalidRangeException {
         final GeoFile geoFile = new GeoFile(2);
         final float[] longitudes = {-156.35783f, -156.38275f, -156.40768f, -156.38489f, -156.4098f, -156.43472f, -156.4121f, -156.437f, -156.4619f, -158.20874f, -158.23456f, -158.26039f, -158.23567f, -158.26147f, -158.2873f, -158.26251f, -158.2883f, -158.3141f};
         final float[] latitudes = {71.39814f, 71.384605f, 71.37107f, 71.403175f, 71.38964f, 71.3761f, 71.40825f, 71.3947f, 71.38115f, 70.86857f, 70.85323f, 70.8379f, 70.87337f, 70.85803f, 70.8427f, 70.87809f, 70.86274f, 70.8474f};
@@ -134,11 +134,11 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.create(tempFileManager);
+            geoFile.createTimeSeries(tempFileManager);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
-            geoFile.write(longitudesArray, latitudesArray);
+            geoFile.writeTimeSeries(longitudesArray, latitudesArray);
 
             geoFile.close();
 
@@ -154,6 +154,42 @@ public class GeoFile_IO_Test {
 
             NCTestUtils.assertVectorVariable("grid_imask", 0, 1, geoFileNC);
             NCTestUtils.assertVectorVariable("grid_imask", 1, 1, geoFileNC);
+        } finally {
+            geoFile.close();
+            if (geoFileNC != null) {
+                geoFileNC.close();
+            }
+        }
+    }
+
+    @Test
+    public void testCreateSensorExtract() throws IOException {
+        final GeoFile geoFile = new GeoFile(714);
+        final SensorExtractConfiguration sensorExtractConfiguration = new SensorExtractConfiguration();
+        sensorExtractConfiguration.setX_Dimension(3);
+        sensorExtractConfiguration.setY_Dimension(5);
+
+        NetcdfFile geoFileNC = null;
+        try {
+            geoFile.createSensorExtract(tempFileManager, sensorExtractConfiguration);
+            final File file = geoFile.getFile();
+            assertTrue(file.isFile());
+
+            geoFileNC = NetcdfFile.open(file.getAbsolutePath());
+            NCTestUtils.assertDimension("grid_size", 714 * 3 * 5, geoFileNC);
+            NCTestUtils.assertDimension("grid_matchup", 714, geoFileNC);
+            NCTestUtils.assertDimension("grid_nx", 3, geoFileNC);
+            NCTestUtils.assertDimension("grid_ny", 5, geoFileNC);
+            NCTestUtils.assertDimension("grid_corners", 4, geoFileNC);
+            NCTestUtils.assertDimension("grid_rank", 2, geoFileNC);
+
+            NCTestUtils.assertVariablePresent("grid_dims", DataType.INT, "grid_rank", geoFileNC);
+            NCTestUtils.assertVariablePresent("grid_center_lat", DataType.FLOAT, "grid_size", geoFileNC);
+            NCTestUtils.assertVariablePresent("grid_center_lon", DataType.FLOAT, "grid_size", geoFileNC);
+            NCTestUtils.assertVariablePresent("grid_imask", DataType.INT, "grid_size", geoFileNC);
+            NCTestUtils.assertVariablePresent("grid_corner_lat", DataType.FLOAT, "grid_size grid_corners", geoFileNC);
+            NCTestUtils.assertVariablePresent("grid_corner_lon", DataType.FLOAT, "grid_size grid_corners", geoFileNC);
+
         } finally {
             geoFile.close();
             if (geoFileNC != null) {

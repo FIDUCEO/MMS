@@ -25,6 +25,7 @@ import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -84,6 +85,18 @@ public class SensorExtractionStrategyTest {
         verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_O3_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
 
         verifyNoMoreInteractions(writer);
+    }
+
+    @Test
+    public void testCalculateStride() {
+        assertEquals(1, SensorExtractionStrategy.calculateStride(108, 0));
+        assertEquals(1, SensorExtractionStrategy.calculateStride(108, 1));
+
+        assertEquals(107, SensorExtractionStrategy.calculateStride(108, 2));
+        assertEquals(53, SensorExtractionStrategy.calculateStride(108, 3));
+
+        assertEquals(200, SensorExtractionStrategy.calculateStride(201, 2));
+        assertEquals(149, SensorExtractionStrategy.calculateStride(300, 3));
     }
 
     private Configuration createConfiguration() {

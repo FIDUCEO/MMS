@@ -47,6 +47,8 @@ class SensorExtractConfiguration {
     private String x_DimensionName;
     private String y_DimensionName;
     private String z_DimensionName;
+    private String longitudeVariableName;
+    private String latitudeVariableName;
 
     SensorExtractConfiguration() {
         an_CI_name = "amsre.nwp.cloud_ice_water";
@@ -280,5 +282,21 @@ class SensorExtractConfiguration {
 
     String getZ_DimensionName() {
         return z_DimensionName;
+    }
+
+    void setLongitudeVariableName(String longitudeVariableName) {
+        this.longitudeVariableName = longitudeVariableName;
+    }
+
+    String getLongitudeVariableName() {
+        return longitudeVariableName;
+    }
+
+    void setLatitudeVariableName(String latitudeVariableName) {
+        this.latitudeVariableName = latitudeVariableName;
+    }
+
+    String getLatitudeVariableName() {
+        return latitudeVariableName;
     }
 }

@@ -1,6 +1,8 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
@@ -45,11 +47,31 @@ class SensorExtractionStrategy extends Strategy {
         final Configuration configuration = context.getConfiguration();
         final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
 
-        final List<String> nwpDataDirectories = extractNwpDataDirectories(sensorExtractConfiguration.getTimeVariableName(), context.getReader());
+        final NetcdfFile reader = context.getReader();
+        final List<String> nwpDataDirectories = extractNwpDataDirectories(sensorExtractConfiguration.getTimeVariableName(), reader);
+
+        final Variable lonVariable = NetCDFUtils.getVariable(reader, sensorExtractConfiguration.getLongitudeVariableName());
+        final Variable latVariable = NetCDFUtils.getVariable(reader, sensorExtractConfiguration.getLatitudeVariableName());
+
+        final int[] shape = lonVariable.getShape();
+
+        final int strideX = calculateStride(shape[2], sensorExtractConfiguration.getX_Dimension());
+        final int strideY = calculateStride(shape[1], sensorExtractConfiguration.getY_Dimension());
     }
 
     @Override
     File writeGeoFile(Context context) {
         throw new RuntimeException("not implemented");
+    }
+
+    // package access for testing only tb 2015-12-08
+    static int calculateStride(int n, int nwpN) {
+        int stride;
+        if (nwpN > 1) {
+            stride = (n - 1) / (nwpN - 1);
+        } else {
+            stride = 1;
+        }
+        return stride;
     }
 }

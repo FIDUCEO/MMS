@@ -74,6 +74,12 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
             final Element timeVariableElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "time-variable-name");
             sensorExtractConfig.setTimeVariableName(getElementValueTrimmed(timeVariableElement));
 
+            final Element longitudeVariableElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "longitude-variable-name");
+            sensorExtractConfig.setLongitudeVariableName(getElementValueTrimmed(longitudeVariableElement));
+
+            final Element latitudeVariableElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "latitude-variable-name");
+            sensorExtractConfig.setLatitudeVariableName(getElementValueTrimmed(latitudeVariableElement));
+
             final Element xDimElement = JDomUtils.getMandatoryChild(sensorExtractionElement, "x-dimension");
             sensorExtractConfig.setX_Dimension(getElementValueInt(xDimElement));
 

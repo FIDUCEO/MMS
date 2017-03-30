@@ -46,38 +46,30 @@ class GeoFile {
         this.numMatchups = numMatchups;
     }
 
-    void create(TempFileManager tempFileManager) throws IOException {
+    void createTimeSeries(TempFileManager tempFileManager) throws IOException {
         tempFile = tempFileManager.create("geo", ".nc");
 
-        writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, tempFile.getAbsolutePath());
-        writer.setLargeFile(true);
+        createWriter();
 
-        writer.addDimension(null, "grid_size", numMatchups);
-        writer.addDimension(null, "grid_matchup", numMatchups);
-        writer.addDimension(null, "grid_ny", 1);
-        writer.addDimension(null, "grid_nx", 1);
-        writer.addDimension(null, "grid_corners", 4);
-        writer.addDimension(null, "grid_rank", 2);
+        createDimensionsAndVariables(1, 1);
 
-        gridDims = writer.addVariable(null, "grid_dims", DataType.INT, "grid_rank");
-
-        gridCenterLat = writer.addVariable(null, "grid_center_lat", DataType.FLOAT, "grid_size");
-        gridCenterLat.addAttribute(new Attribute("units", "degrees"));
-
-        gridCenterLon = writer.addVariable(null, "grid_center_lon", DataType.FLOAT, "grid_size");
-        gridCenterLon.addAttribute(new Attribute("units", "degrees"));
-
-        gridMask = writer.addVariable(null, "grid_imask", DataType.INT, "grid_size");
-        // @todo 2 tb/tb why is this written? Can't we just skip these variables? 2017-01-09
-        writer.addVariable(null, "grid_corner_lat", DataType.FLOAT, "grid_size grid_corners");
-        writer.addVariable(null, "grid_corner_lon", DataType.FLOAT, "grid_size grid_corners");
-        writer.addGroupAttribute(null, new Attribute("title", "MMD geo-location in SCRIP format"));
-
-        writer.create();
-        writer.flush();
+        createNetcdf();
     }
 
-    void write(Array longitudesArray, Array latitudesArray) throws IOException, InvalidRangeException {
+
+    void createSensorExtract(TempFileManager tempFileManager, SensorExtractConfiguration config) throws IOException {
+        tempFile = tempFileManager.create("geo", ".nc");
+
+        createWriter();
+
+        final int x_dimension = config.getX_Dimension();
+        final int y_dimension = config.getY_Dimension();
+        createDimensionsAndVariables(x_dimension, y_dimension);
+
+        createNetcdf();
+    }
+
+    void writeTimeSeries(Array longitudesArray, Array latitudesArray) throws IOException, InvalidRangeException {
         writer.write(gridDims, Array.factory(new int[]{1, numMatchups}));
 
         int[] sourceStart;
@@ -130,5 +122,40 @@ class GeoFile {
 
     File getFile() {
         return tempFile;
+    }
+
+
+    private void createWriter() throws IOException {
+        writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, tempFile.getAbsolutePath());
+        writer.setLargeFile(true);
+    }
+
+    private void createNetcdf() throws IOException {
+        writer.create();
+        writer.flush();
+    }
+
+    private void createDimensionsAndVariables(int x_dimension, int y_dimension) {
+        writer.addDimension(null, "grid_size", numMatchups * x_dimension * y_dimension);
+        writer.addDimension(null, "grid_matchup", numMatchups);
+
+        writer.addDimension(null, "grid_nx", x_dimension);
+        writer.addDimension(null, "grid_ny", y_dimension);
+
+        writer.addDimension(null, "grid_corners", 4);
+        writer.addDimension(null, "grid_rank", 2);
+
+        gridDims = writer.addVariable(null, "grid_dims", DataType.INT, "grid_rank");
+        gridCenterLat = writer.addVariable(null, "grid_center_lat", DataType.FLOAT, "grid_size");
+        gridCenterLat.addAttribute(new Attribute("units", "degrees"));
+
+        gridCenterLon = writer.addVariable(null, "grid_center_lon", DataType.FLOAT, "grid_size");
+        gridCenterLon.addAttribute(new Attribute("units", "degrees"));
+
+        gridMask = writer.addVariable(null, "grid_imask", DataType.INT, "grid_size");
+        // @todo 2 tb/tb why is this written? Can't we just skip these variables? 2017-03-30
+        writer.addVariable(null, "grid_corner_lat", DataType.FLOAT, "grid_size grid_corners");
+        writer.addVariable(null, "grid_corner_lon", DataType.FLOAT, "grid_size grid_corners");
+        writer.addGroupAttribute(null, new Attribute("title", "MMD geo-location in SCRIP format"));
     }
 }
