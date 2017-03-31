@@ -43,6 +43,7 @@ import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.SobolSamplingPointGenerator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -107,6 +108,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
                 final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
                 primaryReader.open(primaryObservationDataFilePath.toFile());
+
+//                following lines are for test purposes only
+//                >>>>>  start  <<<<<
+//                final Dimension productSize = primaryReader.getProductSize();
+//                final int numScanlines = productSize.getNy();
+//                final int numPoints = primarySeedPoints.size();
+//                System.out.println("Num Scanlines: " + numScanlines + "   num seed points: " + numPoints);
+//                final int equation = (int) (1.0 * numPoints / numScanlines * 2280);
+//                System.out.println("Equates to " + equation + " seed points at 2280 scanlines per MHS orbit");
+//                >>>>>  e n d  <<<<<
 
                 final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryStartTime);
                 final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryStopTime);

@@ -32,9 +32,6 @@ import java.util.List;
 
 final class SamplingPointPlotter {
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 400;
-
     private List<SamplingPoint> samples;
     private String filePath;
     private boolean show = false;
@@ -42,6 +39,18 @@ final class SamplingPointPlotter {
     private boolean series = false;
     private String windowTitle;
     private String mapStrategyName;
+    private final int width;
+    private final int height;
+
+    public SamplingPointPlotter() {
+        width = 800;
+        height = 400;
+    }
+
+    public SamplingPointPlotter(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
 
     SamplingPointPlotter samples(List<SamplingPoint> samples) {
         this.samples = samples;
@@ -94,7 +103,7 @@ final class SamplingPointPlotter {
     }
 
     private BufferedImage drawImage(MapStrategy strategy) {
-        final BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_BYTE_BINARY);
+        final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
         final JComponent component;
         if (live) {
             component = showImage(image);
@@ -164,11 +173,11 @@ final class SamplingPointPlotter {
     private MapStrategy getMapStrategy() {
         //noinspection IfCanBeSwitch
         if ("timlat".equals(mapStrategyName)) {
-            return new TimeLatMapStrategy(WIDTH, HEIGHT);
+            return new TimeLatMapStrategy(width, height);
         } else if ("lonlat".equals(mapStrategyName)) {
-            return new LonLatMapStrategy(WIDTH, HEIGHT);
+            return new LonLatMapStrategy(width, height);
         } else {
-            return new LonLatMapStrategy(WIDTH, HEIGHT);
+            return new LonLatMapStrategy(width, height);
         }
     }
 }
