@@ -92,7 +92,6 @@ class GeoFile {
         final Array lonWriteArray = Array.factory(new float[]{0.f});
         final Array latWriteArray = Array.factory(new float[]{0.f});
 
-
         for (int i = 0; i < numMatchups; i++) {
             targetStart[0] = i;
             sourceStart[0] = i;
@@ -110,6 +109,39 @@ class GeoFile {
 
             writer.write(gridCenterLon, targetStart, lonWriteArray);
             writer.write(gridCenterLat, targetStart, latWriteArray);
+            writer.write(gridMask, targetStart, maskData);
+        }
+    }
+
+    void writeSensorExtract(Array longitudesArray, Array latitudesArray, int strideX, int strideY, SensorExtractConfiguration config) throws IOException, InvalidRangeException {
+        final int x_dimension = config.getX_Dimension();
+        final int y_dimension = config.getY_Dimension();
+
+        writer.write(gridDims, Array.factory(new int[]{x_dimension, y_dimension * numMatchups}));
+
+        final int[] shape = longitudesArray.getShape();
+        final int nx = shape[2];
+        final int ny = shape[1];
+
+        final int[] sourceStart = {0, (ny >> 1) - (y_dimension >> 1) * strideY, (nx >> 1) - (x_dimension >> 1) * strideX};
+        final int[] sourceShape = {1, y_dimension * strideY, x_dimension * strideX};
+        final int[] sourceStride = {1, strideY, strideX};
+        final int[] targetStart = {0};
+        final int[] targetShape = {y_dimension * x_dimension};
+        final Array maskData = Array.factory(DataType.INT, targetShape);
+
+        for (int i = 0; i < numMatchups; i++) {
+            sourceStart[0] = i;
+            targetStart[0] = i * y_dimension * x_dimension;
+            final Array latData = latitudesArray.section(sourceStart, sourceShape, sourceStride);
+            final Array lonData = longitudesArray.section(sourceStart, sourceShape, sourceStride);
+            for (int k = 0; k < targetShape[0]; k++) {
+                final float lat = latData.getFloat(k);
+                final float lon = lonData.getFloat(k);
+                maskData.setInt(k, lat >= -90.0f && lat <= 90.0f && lon >= -180.0f && lat <= 180.0f ? 1 : 0);
+            }
+            writer.write(gridCenterLat, targetStart, latData.reshape(targetShape));
+            writer.write(gridCenterLon, targetStart, lonData.reshape(targetShape));
             writer.write(gridMask, targetStart, maskData);
         }
     }

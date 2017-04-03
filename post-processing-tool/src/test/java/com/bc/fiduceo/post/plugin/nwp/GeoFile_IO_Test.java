@@ -197,4 +197,48 @@ public class GeoFile_IO_Test {
             }
         }
     }
+
+    @Test
+    public void testWriteSensorExtract() throws IOException, InvalidRangeException {
+        final GeoFile geoFile = new GeoFile(2);
+        final float[] longitudes = {-156.35783f, -156.38275f, -156.40768f, -156.38489f, -156.4098f, -156.43472f, -156.4121f, -156.437f, -156.4619f, -158.20874f, -158.23456f, -158.26039f, -158.23567f, -158.26147f, -158.2873f, -158.26251f, -158.2883f, -158.3141f};
+        final float[] latitudes = {71.39814f, 71.384605f, 71.37107f, 71.403175f, 71.38964f, 71.3761f, 71.40825f, 71.3947f, 71.38115f, 70.86857f, 70.85323f, 70.8379f, 70.87337f, 70.85803f, 70.8427f, 70.87809f, 70.86274f, 70.8474f};
+
+        final Array longitudesArray = Array.factory(DataType.FLOAT, new int[]{2, 3, 3}, longitudes);
+        final Array latitudesArray = Array.factory(DataType.FLOAT, new int[]{2, 3, 3}, latitudes);
+
+
+        final SensorExtractConfiguration sensorExtractConfiguration = new SensorExtractConfiguration();
+        sensorExtractConfiguration.setX_Dimension(3);
+        sensorExtractConfiguration.setY_Dimension(3);
+
+        NetcdfFile geoFileNC = null;
+        try {
+            geoFile.createSensorExtract(tempFileManager, sensorExtractConfiguration);
+            final File file = geoFile.getFile();
+            assertTrue(file.isFile());
+
+            geoFile.writeSensorExtract(longitudesArray, latitudesArray, 1, 1, sensorExtractConfiguration);
+
+            geoFile.close();
+
+            geoFileNC = NetcdfFile.open(file.getAbsolutePath());
+            NCTestUtils.assertVectorVariable("grid_dims", 0, 3, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_dims", 1, 6, geoFileNC);
+
+            NCTestUtils.assertVectorVariable("grid_center_lat", 0, 71.39813995361328, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lat", 1, 71.38460540771484, geoFileNC);
+
+            NCTestUtils.assertVectorVariable("grid_center_lon", 2, -156.40768432617188, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_center_lon", 3, -156.3848876953125, geoFileNC);
+
+            NCTestUtils.assertVectorVariable("grid_imask", 4, 1, geoFileNC);
+            NCTestUtils.assertVectorVariable("grid_imask", 5, 1, geoFileNC);
+        } finally {
+            geoFile.close();
+            if (geoFileNC != null) {
+                geoFileNC.close();
+            }
+        }
+    }
 }

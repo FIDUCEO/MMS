@@ -113,8 +113,7 @@ class TimeSeriesStrategy extends Strategy {
         }
     }
 
-    @Override
-    File writeGeoFile(Context context) throws IOException, InvalidRangeException {
+    private File writeGeoFile(Context context) throws IOException, InvalidRangeException {
         final Configuration configuration = context.getConfiguration();
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
