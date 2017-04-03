@@ -93,7 +93,6 @@ class TimeSeriesStrategy extends Strategy {
             final int[] analysisCenterTimes = fileMerger.mergeTimeSeriesAnalysisFile(writer, analysisNetCDF);
             final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
 
-
             Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
             writer.write(variable, Array.factory(analysisCenterTimes));
 
@@ -218,12 +217,4 @@ class TimeSeriesStrategy extends Strategy {
         return properties;
     }
 
-    private static Properties createBaseTemplateProperties(String cdoHome, String geoFileLocation) {
-        final Properties properties = new Properties();
-        properties.setProperty("CDO", cdoHome + "/cdo");
-        properties.setProperty("CDO_OPTS", "-M -R");
-        properties.setProperty("REFTIME", "1970-01-01,00:00:00,seconds");
-        properties.setProperty("GEO", geoFileLocation);
-        return properties;
-    }
 }

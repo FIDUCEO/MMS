@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.TimeZone;
 
 abstract class Strategy {
@@ -81,5 +82,14 @@ abstract class Strategy {
         final Date startDate = TimeUtils.create(startTimeSeconds * 1000L);
         final Date endDate = TimeUtils.create(endTimeSeconds * 1000L);
         return new TimeRange(startDate, endDate);
+    }
+
+    static Properties createBaseTemplateProperties(String cdoHome, String geoFileLocation) {
+        final Properties properties = new Properties();
+        properties.setProperty("CDO", cdoHome + "/cdo");
+        properties.setProperty("CDO_OPTS", "-M -R");
+        properties.setProperty("REFTIME", "1970-01-01,00:00:00,seconds");
+        properties.setProperty("GEO", geoFileLocation);
+        return properties;
     }
 }

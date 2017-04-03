@@ -25,7 +25,10 @@ import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.util.Properties;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -53,7 +56,7 @@ public class SensorExtractionStrategyTest {
         strategy.prepare(context);
 
         final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
-        
+
         verify(writer, times(1)).hasDimension(null, "amsre.nwp.nx");
         verify(writer, times(1)).addDimension(null, "amsre.nwp.nx", 9);
 
@@ -97,6 +100,32 @@ public class SensorExtractionStrategyTest {
 
         assertEquals(200, SensorExtractionStrategy.calculateStride(201, 2));
         assertEquals(149, SensorExtractionStrategy.calculateStride(300, 3));
+    }
+
+    @Test
+    public void testCreateAnalysisProperties() {
+        final Properties properties = SensorExtractionStrategy.createAnalysisFileTemplateProperties("cdo-home", "geo-file", "ggas-steps", "ggam_time",
+                "spam_steps", "gafs_steps", "ggas_series", "ggam_series", "spam_serise", "gafs_series", "ggam_series_rem", "spam_series_rem",
+                "gafs_series_rem", "nwp_file");
+
+        assertNotNull(properties);
+        assertEquals("cdo-home/cdo", properties.getProperty("CDO"));
+        assertEquals("-M -R", properties.getProperty("CDO_OPTS"));
+        assertEquals("1970-01-01,00:00:00,seconds", properties.getProperty("REFTIME"));
+        assertEquals("geo-file", properties.getProperty("GEO"));
+
+        assertEquals("ggas-steps", properties.getProperty("GGAS_TIMESTEPS"));
+        assertEquals("ggam_time", properties.getProperty("GGAM_TIMESTEPS"));
+        assertEquals("spam_steps", properties.getProperty("SPAM_TIMESTEPS"));
+        assertEquals("gafs_steps", properties.getProperty("GAFS_TIMESTEPS"));
+        assertEquals("ggas_series", properties.getProperty("GGAS_TIME_SERIES"));
+        assertEquals("ggam_series", properties.getProperty("GGAM_TIME_SERIES"));
+        assertEquals("spam_serise", properties.getProperty("SPAM_TIME_SERIES"));
+        assertEquals("gafs_series", properties.getProperty("GAFS_TIME_SERIES"));
+        assertEquals("ggam_series_rem", properties.getProperty("GGAM_TIME_SERIES_REMAPPED"));
+        assertEquals("spam_series_rem", properties.getProperty("SPAM_TIME_SERIES_REMAPPED"));
+        assertEquals("gafs_series_rem", properties.getProperty("GAFS_TIME_SERIES_REMAPPED"));
+        assertEquals("nwp_file", properties.getProperty("NWP_TIME_SERIES"));
     }
 
     private Configuration createConfiguration() {

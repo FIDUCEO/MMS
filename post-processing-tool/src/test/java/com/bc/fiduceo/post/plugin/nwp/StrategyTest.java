@@ -9,6 +9,7 @@ import ucar.ma2.Array;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -52,4 +53,14 @@ public class StrategyTest {
         TestUtil.assertCorrectUTCDate(1977, 12, 3, 12, 26, 40, timeRange.getStopDate());
     }
 
+    @Test
+    public void testCreateBaseTemplateProperties() {
+        final Properties properties = Strategy.createBaseTemplateProperties("CDO-HOME", "geo_file_loc");
+        assertNotNull(properties);
+
+        assertEquals("CDO-HOME/cdo", properties.getProperty("CDO"));
+        assertEquals("-M -R", properties.getProperty("CDO_OPTS"));
+        assertEquals("1970-01-01,00:00:00,seconds", properties.getProperty("REFTIME"));
+        assertEquals("geo_file_loc", properties.getProperty("GEO"));
+    }
 }
