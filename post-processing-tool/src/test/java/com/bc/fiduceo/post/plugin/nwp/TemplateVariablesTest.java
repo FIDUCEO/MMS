@@ -138,19 +138,19 @@ public class TemplateVariablesTest {
         TemplateVariable variable = sensorExtractVariables.get(2);
         assertEquals("amsre.nwp.10m_east_wind_component", variable.getName());
         assertEquals("U10", variable.getOriginalName());
-        assertEquals("matchup_count matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals("matchup_count amsre.nwp.ny amsre.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
 
         variable = sensorExtractVariables.get(8);
         assertEquals("amsre.nwp.cloud_liquid_water", variable.getName());
         assertEquals("var246", variable.getOriginalName());
-        assertEquals("matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals("matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
 
         variable = sensorExtractVariables.get(10);
         assertEquals("amsre.nwp.snow_albedo", variable.getName());
         assertEquals("ASN", variable.getOriginalName());
-        assertEquals("matchup_count matchup.nwp.ny matchup.nwp.nx", variable.getDimensions());
+        assertEquals("matchup_count amsre.nwp.ny amsre.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
 

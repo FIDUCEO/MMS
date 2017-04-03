@@ -63,26 +63,26 @@ public class SensorExtractionStrategyTest {
         verify(writer, times(1)).hasDimension(null, "amsre.nwp.nz");
         verify(writer, times(1)).addDimension(null, "amsre.nwp.nz", 11);
 
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SSTK_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_V10_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_MSL_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T2_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_D2_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TP_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CLWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCWV_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SSTK_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_V10_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_MSL_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T2_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_D2_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TP_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CLWC_name(), DataType.FLOAT, "matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCWV_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
 
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_ASN_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CIWC_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCC_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_AL_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SKT_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_LNSP_name(), DataType.FLOAT, "matchup_count matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_Q_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
-        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_O3_name(), DataType.FLOAT, "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_ASN_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_CIWC_name(), DataType.FLOAT, "matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_TCC_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_AL_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_SKT_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_LNSP_name(), DataType.FLOAT, "matchup_count amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_T_name(), DataType.FLOAT, "matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_Q_name(), DataType.FLOAT, "matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx");
+        verify(writer, times(1)).addVariable(null, sensorExtractConfiguration.getAn_O3_name(), DataType.FLOAT, "matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx");
 
         verifyNoMoreInteractions(writer);
     }

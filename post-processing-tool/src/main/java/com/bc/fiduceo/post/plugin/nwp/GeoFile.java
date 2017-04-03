@@ -47,7 +47,7 @@ class GeoFile {
     }
 
     void createTimeSeries(TempFileManager tempFileManager) throws IOException {
-        tempFile = tempFileManager.create("geo", ".nc");
+        tempFile = tempFileManager.create("geo", "nc");
 
         createWriter();
 
@@ -58,7 +58,7 @@ class GeoFile {
 
 
     void createSensorExtract(TempFileManager tempFileManager, SensorExtractConfiguration config) throws IOException {
-        tempFile = tempFileManager.create("geo", ".nc");
+        tempFile = tempFileManager.create("geo", "nc");
 
         createWriter();
 
@@ -124,7 +124,7 @@ class GeoFile {
         final int ny = shape[1];
 
         final int[] sourceStart = {0, (ny >> 1) - (y_dimension >> 1) * strideY, (nx >> 1) - (x_dimension >> 1) * strideX};
-        final int[] sourceShape = {1, y_dimension * strideY, x_dimension * strideX};
+        final int[] sourceShape = {1, y_dimension, x_dimension};
         final int[] sourceStride = {1, strideY, strideX};
         final int[] targetStart = {0};
         final int[] targetShape = {y_dimension * x_dimension};

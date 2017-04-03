@@ -108,8 +108,6 @@ class TimeSeriesStrategy extends Strategy {
             if (forecastNetCDF != null) {
                 forecastNetCDF.close();
             }
-
-
         }
     }
 

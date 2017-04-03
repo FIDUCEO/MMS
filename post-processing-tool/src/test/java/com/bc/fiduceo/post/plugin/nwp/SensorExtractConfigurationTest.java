@@ -260,7 +260,7 @@ public class SensorExtractConfigurationTest {
 
     @Test
     public void testGetDefaultValues() {
-        assertEquals("amsre.nwp.cloud_ice_water", config.getAn_CI_name());
+        assertEquals("amsre.nwp.seaice_fraction", config.getAn_CI_name());
         assertEquals("amsre.nwp.snow_albedo", config.getAn_ASN_name());
         assertEquals("amsre.nwp.sea_surface_temperature", config.getAn_SSTK_name());
         assertEquals("amsre.nwp.total_column_water_vapour", config.getAn_TCWV_name());

@@ -60,10 +60,10 @@ public class PostProcessingToolIntegrationTest_NWP {
     }
 
     @Test
-    public void testAddNWPVariables() throws ParseException, IOException, InvalidRangeException {
+    public void testAddNWPVariables_timeSeries() throws ParseException, IOException, InvalidRangeException {
         final File inputDir = getInputDirectory();
 
-        writeConfiguration();
+        writeConfiguration_timeSeries();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2004-008", "-end", "2004-012",
                 "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
@@ -108,7 +108,19 @@ public class PostProcessingToolIntegrationTest_NWP {
         }
     }
 
-    private void writeConfiguration() throws IOException {
+    @Test
+    public void testAddNWPVariables_sensorExtract() throws ParseException, IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory();
+
+        writeConfiguration_sensorExtract();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2004-008", "-end", "2004-012",
+                "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
+
+        PostProcessingToolMain.main(args);
+    }
+
+    private void writeConfiguration_timeSeries() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File eraInterimDir = new File(testDataDirectory, "era-interim/v1");
         final String postProcessingConfig = "<post-processing-config>\n" +
@@ -130,6 +142,43 @@ public class PostProcessingToolIntegrationTest_NWP {
                 "                <latitude-variable-name>animal-sst_insitu.lon</latitude-variable-name>\n" +
                 "            </time-series-extraction>\n" +
                 "        </nwp>" +
+                "    </post-processings>\n" +
+                "</post-processing-config>";
+
+        final File postProcessingConfigFile = new File(configDir, "post-processing-config.xml");
+        if (!postProcessingConfigFile.createNewFile()) {
+            fail("unable to create test file");
+        }
+        TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
+    }
+
+    private void writeConfiguration_sensorExtract() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File eraInterimDir = new File(testDataDirectory, "era-interim/v1");
+        final String postProcessingConfig = "<post-processing-config>\n" +
+                "    <create-new-files>\n" +
+                "        <output-directory>\n" +
+                testDirectory.getAbsolutePath() +
+                "        </output-directory>\n" +
+                "    </create-new-files>\n" +
+                "    <post-processings>\n" +
+                "        <nwp>\n" +
+                "            <cdo-home>/home/tom/Dev/cdo_installation/bin</cdo-home>\n" + // @todo 2 tb/tb move to test-config 2017-01-11
+                "            <nwp-aux-dir>" + eraInterimDir.getAbsolutePath() + "</nwp-aux-dir>\n" +
+                "            <delete-on-exit>true</delete-on-exit>\n" +
+                "\n" +
+                "            <sensor-extraction>\n" +
+                "                <time-variable-name>amsre.acquisition_time</time-variable-name>\n" +
+                "                <x-dimension>5</x-dimension>\n" +
+                "                <x-dimension-name>amsre.nwp.nx</x-dimension-name>\n" +
+                "                <y-dimension>5</y-dimension>\n" +
+                "                <y-dimension-name>amsre.nwp.ny</y-dimension-name>\n" +
+                "                <z-dimension>60</z-dimension>\n" +
+                "                <z-dimension-name>amsre.nwp.nz</z-dimension-name>\n" +
+                "                <longitude-variable-name>amsre.longitude</longitude-variable-name>\n" +
+                "                <latitude-variable-name>amsre.latitude</latitude-variable-name>\n" +
+                "            </sensor-extraction>\n" +
+                "        </nwp>\n" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";
 

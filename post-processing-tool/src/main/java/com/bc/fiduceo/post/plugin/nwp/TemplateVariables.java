@@ -285,8 +285,11 @@ class TemplateVariables {
         }
 
         final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
-        final String extractDimensions = "matchup_count matchup.nwp.ny matchup.nwp.nx";
-        final String profileDimensions = "matchup_count matchup.nwp.nz matchup.nwp.ny matchup.nwp.nx";
+        final String x_dimensionName = sensorExtractConfiguration.getX_DimensionName();
+        final String y_dimensionName = sensorExtractConfiguration.getY_DimensionName();
+        final String z_dimensionName = sensorExtractConfiguration.getZ_DimensionName();
+        final String extractDimensions = "matchup_count " + y_dimensionName + " " + x_dimensionName;
+        final String profileDimensions = "matchup_count " + z_dimensionName + " " + y_dimensionName + " " + x_dimensionName;
 
         final TemplateVariable seaIceFractionVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CI_name(), "CI", DataType.FLOAT, extractDimensions);
         seaIceFractionVariable.addAttribute("long_name", "Sea-ice cover");

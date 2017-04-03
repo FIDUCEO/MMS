@@ -51,7 +51,7 @@ class SensorExtractConfiguration {
     private String latitudeVariableName;
 
     SensorExtractConfiguration() {
-        an_CI_name = "amsre.nwp.cloud_ice_water";
+        an_CI_name = "amsre.nwp.seaice_fraction";
         an_ASN_name = "amsre.nwp.snow_albedo";
         an_SSTK_name = "amsre.nwp.sea_surface_temperature";
         an_TCWV_name = "amsre.nwp.total_column_water_vapour";
