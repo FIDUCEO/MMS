@@ -143,7 +143,7 @@ public class TemplateVariablesTest {
 
         variable = sensorExtractVariables.get(8);
         assertEquals("amsre.nwp.cloud_liquid_water", variable.getName());
-        assertEquals("var246", variable.getOriginalName());
+        assertEquals("CLWC", variable.getOriginalName());
         assertEquals("matchup_count amsre.nwp.nz amsre.nwp.ny amsre.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
 
@@ -153,7 +153,6 @@ public class TemplateVariablesTest {
         assertEquals("matchup_count amsre.nwp.ny amsre.nwp.nx", variable.getDimensions());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
-
 
     @Test
     public void testGetSensorExtractVariables_noSensorExtractConfig() {

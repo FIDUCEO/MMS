@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
+import org.esa.snap.core.util.math.FracIndex;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
@@ -147,6 +148,82 @@ class FileMerger {
         }
 
         return centerTimes;
+    }
+
+    /**
+     * Merges the ERA-interim sensor extract analysis file into the target MMD.
+     *
+     * @param netcdfFileWriter the MMD file writer
+     * @param analysisFile     the projected and re-gridded ERA-interim analysis file
+     * @throws IOException           when something goes wrong
+     * @throws InvalidRangeException internal error
+     */
+    void mergeSensorExtractAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
+        final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
+
+        final int x_dim = NetCDFUtils.getDimensionLength("x", analysisFile);
+        final int y_dim = NetCDFUtils.getDimensionLength("y", analysisFile) / matchupCount;
+        //final int z_dim = NetCDFUtils.getDimensionLength("lev", analysisFile);
+
+        final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
+        final String targetTimeVariableName = sensorExtractConfiguration.getTimeVariableName();
+        final Variable targetTimeVariable = NetCDFUtils.getVariable(netcdfFileWriter, targetTimeVariableName);
+        final Array targetTimes = targetTimeVariable.read();
+        final int targetTimeFillValue = NetCDFUtils.getFillValue(targetTimeVariable).intValue();
+
+        final Variable nwpTimeVariable = NetCDFUtils.getVariable(analysisFile, "t");
+        final Array nwpTime = nwpTimeVariable.read();
+
+        final int[] sourceShape = {1, 0, y_dim, x_dim};
+        for (int i = 0; i < matchupCount; i++) {
+            final int targetTime = targetTimes.getInt(i);
+            if (targetTime == targetTimeFillValue) {
+                continue;
+            }
+
+            final int[] sourceStart = {0, 0, i * y_dim, 0};
+            final FracIndex fi = NwpUtils.getInterpolationIndex(nwpTime, targetTime);
+
+            final List<TemplateVariable> sensorExtractVariables = templateVariables.getSensorExtractVariables();
+            for (final TemplateVariable variable : sensorExtractVariables) {
+                final Variable nwpVariable = NetCDFUtils.getVariable(analysisFile, variable.getOriginalName());
+
+                final float fillValue = NetCDFUtils.getFillValue(nwpVariable).floatValue();
+                final float valid_min = NetCDFUtils.getAttributeFloat(nwpVariable, "valid_min", Float.NEGATIVE_INFINITY);
+                final float valid_max = NetCDFUtils.getAttributeFloat(nwpVariable, "valid_max", Float.POSITIVE_INFINITY);
+
+                sourceStart[0] = fi.i;
+                sourceShape[1] = nwpVariable.getShape(1);
+
+                final Array slice1 = nwpVariable.read(sourceStart, sourceShape);
+                sourceStart[0] = fi.i + 1;
+                final Array slice2 = nwpVariable.read(sourceStart, sourceShape);
+                for (int k = 0; k < slice1.getSize(); k++) {
+                    final float v1 = slice1.getFloat(k);
+                    final float v2 = slice2.getFloat(k);
+                    final boolean invalid1 = v1 == fillValue || v1 < valid_min || v1 > valid_max;
+                    final boolean invalid2 = v2 == fillValue || v2 < valid_min || v2 > valid_max;
+                    if (invalid1 && invalid2) {
+                        slice2.setFloat(k, fillValue);
+                    } else //noinspection StatementWithEmptyBody
+                        if (invalid1) {
+                        // do nothing, value is already set
+                    } else if (invalid2) {
+                        slice2.setFloat(k, v1);
+                    } else {
+                        slice2.setDouble(k, (1.0 - fi.f) * v1 + fi.f * v2);
+                    }
+                }
+
+                final Variable targetVariable = NetCDFUtils.getVariable(netcdfFileWriter, variable.getName());
+                final int[] targetShape = targetVariable.getShape();
+                targetShape[0] = 1;
+                final int[] targetStart = new int[targetShape.length];
+                targetStart[0] = i;
+                netcdfFileWriter.write(targetVariable, targetStart, slice2.reshape(targetShape));
+            }
+        }
     }
 
     private Map<Variable, Variable> getAnalysisVariablesMap(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) {

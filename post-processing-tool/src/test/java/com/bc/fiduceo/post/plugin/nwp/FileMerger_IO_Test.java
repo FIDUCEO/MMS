@@ -74,6 +74,16 @@ public class FileMerger_IO_Test {
         timeSeriesConfiguration.setTimeVariableName("animal-sst_acquisition_time");
         configuration.setTimeSeriesConfiguration(timeSeriesConfiguration);
 
+        final SensorExtractConfiguration sensorExtractConfiguration = new SensorExtractConfiguration();
+        sensorExtractConfiguration.setTimeVariableName("amsre.acquisition_time");
+        sensorExtractConfiguration.setX_Dimension(5);
+        sensorExtractConfiguration.setX_DimensionName("amsre.nwp.nx");
+        sensorExtractConfiguration.setY_Dimension(5);
+        sensorExtractConfiguration.setY_DimensionName("amsre.nwp.ny");
+        sensorExtractConfiguration.setZ_Dimension(60);
+        sensorExtractConfiguration.setZ_DimensionName("amsre.nwp.nz");
+        configuration.setSensorExtractConfiguration(sensorExtractConfiguration);
+
         templateVariables = new TemplateVariables(configuration);
 
         final NwpPostProcessing postProcessing = new NwpPostProcessing(configuration);
@@ -93,7 +103,7 @@ public class FileMerger_IO_Test {
     }
 
     @Test
-    public void testMergeAnalysisFile_MMD6() throws IOException, InvalidRangeException {
+    public void testMergeTimeSeriesAnalysisFile_MMD6() throws IOException, InvalidRangeException {
         final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis8419652569230325841.nc"}, true);
         final File analysisFile = new File(analysisPath);
         assertTrue(analysisFile.isFile());
@@ -119,7 +129,7 @@ public class FileMerger_IO_Test {
     }
 
     @Test
-    public void testMergeForecastFile_MMD6() throws IOException, InvalidRangeException {
+    public void testMergeTimeSeriesForecastFile_MMD6() throws IOException, InvalidRangeException {
         final String forecastPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "forecast6320193562301902094.nc"}, true);
         final File forecastFile = new File(forecastPath);
         assertTrue(forecastFile.isFile());
@@ -153,6 +163,48 @@ public class FileMerger_IO_Test {
             NCTestUtils.assert2DVariable("matchup.nwp.fc.evaporation", 15, 6, -4.936744808219373E-4, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_precipitation", 16, 7, 0.0037760320119559765, netcdfFile);
             NCTestUtils.assert2DVariable("matchup.nwp.fc.total_column_water_vapour", 17, 8, 48.54024124145508, netcdfFile);
+        }
+    }
+
+    @Test
+    public void testMergeSensorExtractAnalysisFile_MMD6() throws IOException, InvalidRangeException {
+        final String analysisPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "post-processing", "nwp_preprocessed", "analysis5081985403420613282.nc"}, true);
+        final File analysisFile = new File(analysisPath);
+        assertTrue(analysisFile.isFile());
+
+        final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+
+        try (NetcdfFile analysis = NetcdfFile.open(analysisFile.getAbsolutePath())) {
+            fileMerger.mergeSensorExtractAnalysisFile(netcdfFileWriter, analysis);
+
+            netcdfFileWriter.flush();
+
+            final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
+            NCTestUtils.assert3DVariable("amsre.nwp.10m_east_wind_component", 0, 0, 0, 4.763412952423096, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.10m_north_wind_component", 1, 0, 1, -9.792949676513672, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.2m_dew_point", 2, 0, 2, 277.72613525390625, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.2m_temperature", 3, 0, 3, 277.7873840332031, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.albedo", 4, 0, 4, 0.06999999, netcdfFile);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.cloud_ice_water", 0, 1, 5, 0, 0.0, netcdfFile);
+            NCTestUtils.assert4DVariable("amsre.nwp.cloud_liquid_water", 1, 1, 6, 1, 0.0, netcdfFile);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.log_surface_pressure", 2, 1, 7, 11.511722564697266, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.mean_sea_level_pressure", 3, 1, 8, 99756.4765625, netcdfFile);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.ozone_profile", 4, 1, 0, 2, 1.1798357490988565E-6, netcdfFile);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.sea_surface_temperature", 0, 2, 1, 276.1256103515625, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.seaice_fraction", 1, 2, 2, 0.0, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.skin_temperature", 2, 2, 3, 276.2798767089844, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.snow_albedo", 3, 2, 4, 0.8499984741210938, netcdfFile);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.temperature_profile", 4, 2, 5, 3, 276.8033447265625, netcdfFile);
+            NCTestUtils.assert4DVariable("amsre.nwp.water_vapour_profile", 0, 3, 6, 4, 3.81598465537536E-6, netcdfFile);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.total_cloud_cover", 1, 3, 7, 1.0, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.total_column_water_vapour", 2, 3, 8, 18.6469783782959, netcdfFile);
+            NCTestUtils.assert3DVariable("amsre.nwp.total_precip", 3, 3, 0, 2.6574492221698165E-4, netcdfFile);
         }
     }
 }

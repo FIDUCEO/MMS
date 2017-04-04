@@ -351,7 +351,7 @@ class TemplateVariables {
         tpVariable.addAttribute("source", "GRIB data");
         variables.add(tpVariable);
 
-        final TemplateVariable clwcVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CLWC_name(), Constants.CLWC_NAME, DataType.FLOAT, profileDimensions);
+        final TemplateVariable clwcVariable = new TemplateVariable(sensorExtractConfiguration.getAn_CLWC_name(), "CLWC", DataType.FLOAT, profileDimensions);
         clwcVariable.addAttribute("standard_name", "specific_cloud_liquid_water_content");
         clwcVariable.addAttribute("long_name", "Grid-box mean specific cloud liquid water content (mass of condensate / mass of moist air)");
         clwcVariable.addAttribute("units", "kg kg**-1");

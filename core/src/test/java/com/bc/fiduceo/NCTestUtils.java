@@ -68,6 +68,13 @@ public class NCTestUtils {
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
+    public static void assert4DVariable(String variableName, int x, int y, int z, int p, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Variable variable = mmd.findVariable(escapedName);
+        assertNotNull("NetCDF Variable '" + variableName + "' expected", variable);
+        final Array data = variable.read(new int[]{p, z, y, x}, new int[]{1, 1, 1, 1});
+        assertEquals(expected, data.getDouble(0), 1e-8);
+    }
 
     public static void assertVariablePresent(String variableName, DataType dataType, String dimNames, NetcdfFile geoFileNC) {
         final String escapedName = NetcdfFile.makeValidCDLName(variableName);

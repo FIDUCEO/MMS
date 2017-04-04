@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import org.esa.snap.core.util.math.FracIndex;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFileWriter;
@@ -95,6 +96,21 @@ class NwpUtils {
         }
 
         return timeStep;
+    }
+
+    // package access for testing only tb 2017-04-04
+    static FracIndex getInterpolationIndex(Array sourceTimes, int targetTime) {
+        for (int i = 1; i < sourceTimes.getSize(); i++) {
+            final double maxTime = sourceTimes.getDouble(i);
+            final double minTime = sourceTimes.getDouble(i - 1);
+            if (targetTime >= minTime && targetTime <= maxTime) {
+                final FracIndex index = new FracIndex();
+                index.i = i - 1;
+                index.f = (targetTime - minTime) / (maxTime - minTime);
+                return index;
+            }
+        }
+        throw new RuntimeException("Not enough time steps in NWP time series.");
     }
 
     static void copyValues(Map<Variable, Variable> map,

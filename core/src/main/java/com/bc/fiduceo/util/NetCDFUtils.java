@@ -109,11 +109,19 @@ public class NetCDFUtils {
     }
 
     public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile) throws IOException {
-        final Attribute startDateAttribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (startDateAttribute == null) {
+        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (globalAttribute == null) {
             throw new IOException("Required global attribute not found: " + attributeName);
         }
-        return startDateAttribute.getStringValue();
+        return globalAttribute.getStringValue();
+    }
+
+    public static float getAttributeFloat(Variable variable, String name, float defaultValue) {
+        final Attribute attribute = variable.findAttribute(name);
+        if (attribute == null) {
+            return defaultValue;
+        }
+        return attribute.getNumericValue().floatValue();
     }
 
     public static Variable getVariable(NetcdfFile reader, String name) {

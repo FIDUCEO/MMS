@@ -333,4 +333,24 @@ public class NetCDFUtilsTest {
         } catch (RuntimeException expected){
         }
     }
+
+    @Test
+    public void testGetAttributeFloat_attributeValue() {
+        final Attribute attribute = mock(Attribute.class);
+        final Variable variable = mock(Variable.class);
+
+        when(variable.findAttribute("schlumpf")).thenReturn(attribute);
+        when(attribute.getNumericValue()).thenReturn(1.87645f);
+
+        final float attributeFloat = NetCDFUtils.getAttributeFloat(variable, "schlumpf", -12.8f);
+        assertEquals(1.87645f, attributeFloat, 1e-8);
+    }
+
+    @Test
+    public void testGetAttributeFloat_defaultValue() {
+        final Variable variable = mock(Variable.class);
+
+        final float attributeFloat = NetCDFUtils.getAttributeFloat(variable, "schlimm", -12.8f);
+        assertEquals(-12.8f, attributeFloat, 1e-8);
+    }
 }
