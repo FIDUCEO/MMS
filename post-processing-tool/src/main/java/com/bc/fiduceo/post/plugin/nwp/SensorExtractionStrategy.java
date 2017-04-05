@@ -75,6 +75,21 @@ class SensorExtractionStrategy extends Strategy {
             throw new IOException(e.getMessage());
         }
 
+        final TemplateVariables templateVariables = context.getTemplateVariables();
+        final NetcdfFileWriter writer = context.getWriter();
+
+        final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+        NetcdfFile analysisNetCDF = null;
+
+        try {
+            analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
+            fileMerger.mergeSensorExtractAnalysisFile(writer, analysisNetCDF);
+        }   finally {
+            if (analysisNetCDF != null) {
+                analysisNetCDF.close();
+            }
+        }
+
     }
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories, Context context) throws IOException, InterruptedException {

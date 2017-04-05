@@ -83,11 +83,11 @@ class TimeSeriesStrategy extends Strategy {
 
         NetcdfFile analysisNetCDF = null;
         NetcdfFile forecastNetCDF = null;
-        try {
-            final TemplateVariables templateVariables = context.getTemplateVariables();
-            final NetcdfFileWriter writer = context.getWriter();
+        final TemplateVariables templateVariables = context.getTemplateVariables();
+        final NetcdfFileWriter writer = context.getWriter();
 
-            final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+        final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
+        try {
             analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
             forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
             final int[] analysisCenterTimes = fileMerger.mergeTimeSeriesAnalysisFile(writer, analysisNetCDF);
@@ -98,7 +98,6 @@ class TimeSeriesStrategy extends Strategy {
 
             variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
             writer.write(variable, Array.factory(forecastCenterTimes));
-
         } finally {
             if (analysisNetCDF != null) {
                 analysisNetCDF.close();

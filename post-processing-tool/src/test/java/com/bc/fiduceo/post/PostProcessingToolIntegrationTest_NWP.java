@@ -118,6 +118,36 @@ public class PostProcessingToolIntegrationTest_NWP {
                 "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
 
         PostProcessingToolMain.main(args);
+
+        final File targetFile = new File(testDirectory, "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assert3DVariable("amsre.nwp.10m_east_wind_component", 1, 0, 1, 6.077203273773193, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.10m_north_wind_component", 2, 0, 2, -10.37724781036377, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.2m_dew_point", 3, 0, 3, 277.2325439453125, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.2m_temperature", 4, 0, 4, 278.2607421875, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.albedo", 0, 1, 5, 0.06999999, mmd);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.cloud_ice_water", 1, 1, 6, 1, 0.0, mmd);
+            NCTestUtils.assert4DVariable("amsre.nwp.cloud_liquid_water", 2, 1, 7, 2, 0.0, mmd);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.log_surface_pressure", 3, 1, 8, 11.510656356811523, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.mean_sea_level_pressure", 4, 1, 0, 100534.4765625, mmd);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.ozone_profile", 0, 2, 1, 3, 2.187581230828073E-6, mmd);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.sea_surface_temperature", 0, 3, 2, 276.4276428222656, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.seaice_fraction", 1, 3, 3, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.skin_temperature", 2, 3, 4, 276.2925109863281, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.snow_albedo", 3, 3, 5, 0.8499984741210938, mmd);
+
+            NCTestUtils.assert4DVariable("amsre.nwp.temperature_profile", 4, 3, 6, 4, 273.0578918457031, mmd);
+            NCTestUtils.assert4DVariable("amsre.nwp.water_vapour_profile", 0, 4, 7, 5, 3.7358231566031463E-6, mmd);
+
+            NCTestUtils.assert3DVariable("amsre.nwp.total_cloud_cover", 1, 4, 8, 1.0, mmd);
+            NCTestUtils.assert3DVariable("amsre.nwp.total_column_water_vapour", 2, 4, 0, 19.767866134643555, mmd);
+        }
     }
 
     private void writeConfiguration_timeSeries() throws IOException {
