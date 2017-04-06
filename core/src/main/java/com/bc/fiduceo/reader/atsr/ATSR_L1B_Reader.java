@@ -215,8 +215,9 @@ class ATSR_L1B_Reader implements Reader {
         final int halfHeight = height / 2;
         final int halfWidth = width / 2;
         int writeOffset = 0;
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         for (int yRead = y - halfHeight; yRead <= y + halfHeight; yRead++) {
-            int lineTimeSeconds = Integer.MIN_VALUE;
+            int lineTimeSeconds = fillValue;
             if (yRead >= 0 && yRead < sceneRasterHeight) {
                 pixelPos.setLocation(x, yRead + 0.5);
                 final double lineMjd = sceneTimeCoding.getMJD(pixelPos);
@@ -228,7 +229,7 @@ class ATSR_L1B_Reader implements Reader {
                 if (xRead >= 0 && xRead < sceneRasterWidth) {
                     timeArray[writeOffset] = lineTimeSeconds;
                 } else {
-                    timeArray[writeOffset] = Integer.MIN_VALUE;
+                    timeArray[writeOffset] = fillValue;
                 }
                 ++writeOffset;
             }

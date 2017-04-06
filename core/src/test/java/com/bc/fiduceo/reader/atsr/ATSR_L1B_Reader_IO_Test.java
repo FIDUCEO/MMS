@@ -411,7 +411,7 @@ public class ATSR_L1B_Reader_IO_Test {
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 268, interval);
             assertNotNull(acquisitionTime);
 
-            NCTestUtils.assertValueAt(-2147483648, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
             NCTestUtils.assertValueAt(1139987373, 1, 1, acquisitionTime);
             NCTestUtils.assertValueAt(1139987373, 3, 4, acquisitionTime);
         } finally {
@@ -432,7 +432,7 @@ public class ATSR_L1B_Reader_IO_Test {
 
             NCTestUtils.assertValueAt(1139993860, 0, 0, acquisitionTime);
             NCTestUtils.assertValueAt(1139993861, 1, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(-2147483648, 2, 4, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 2, 4, acquisitionTime);
         } finally {
             reader.close();
         }
