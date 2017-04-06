@@ -428,7 +428,7 @@ public class MatchupToolTest {
         assertEquals("_FillValue", attribute.getShortName());
         assertEquals(DataType.INT, attribute.getDataType());
         assertEquals(1, attribute.getValues().getSize());
-        assertEquals(-2147483648, attribute.getValues().getInt(0));
+        assertEquals(-2147483647, attribute.getValues().getInt(0));
     }
 
     @Test

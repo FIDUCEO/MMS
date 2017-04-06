@@ -92,7 +92,8 @@ public interface Reader extends AutoCloseable {
      * @param x the center x position of the window reading process.
      * @param y the center y position of the window reading process.
      * @param interval the window sizes.
-     * @return an {@link Array} of acquisition time values per pixel
+     * @return an {@link Array} of acquisition time values per pixel. Pixels not containing a valid acquisition time
+     * are set to -2147483647 (the NetCDF default fill value for integer)
      */
     ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException;
 

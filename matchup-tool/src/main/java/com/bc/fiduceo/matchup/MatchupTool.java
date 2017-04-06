@@ -181,18 +181,13 @@ class MatchupTool {
 
         final ReaderContainer readerContainer = ioVariablesList.getReaderContainer(sensorName);
 
-        final String targetSensorName;
-        if (sensorRenames.containsKey(sensorName)) {
-            targetSensorName = sensorRenames.get(sensorName);
-        } else {
-            targetSensorName = sensorName;
-        }
+        final String targetSensorName = sensorRenames.getOrDefault(sensorName, sensorName);
 
         String varName;
 
         varName = "x";
         if (!excludes.contains(varName)) {
-            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            varName = renames.getOrDefault(varName, varName);
             final CenterXWritingIOVariable ioVariable = new CenterXWritingIOVariable();
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             final DataType dataType = DataType.INT;
@@ -207,7 +202,7 @@ class MatchupTool {
 
         varName = "y";
         if (!excludes.contains(varName)) {
-            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            varName = renames.getOrDefault(varName, varName);
             final CenterYWritingIOVariable ioVariable = new CenterYWritingIOVariable();
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             final DataType dataType = DataType.INT;
@@ -222,7 +217,7 @@ class MatchupTool {
 
         varName = "file_name";
         if (!excludes.contains(varName)) {
-            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            varName = renames.getOrDefault(varName, varName);
             final SourcePathWritingIOVariable ioVariable = new SourcePathWritingIOVariable(readerContainer);
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             ioVariable.setDataType(DataType.CHAR.toString());
@@ -235,7 +230,7 @@ class MatchupTool {
 
         varName = "acquisition_time";
         if (!excludes.contains(varName)) {
-            varName = renames.containsKey(varName) ? renames.get(varName) : varName;
+            varName = renames.getOrDefault(varName, varName);
             final AcquisitionTimeReadingIOVariable ioVariable = new AcquisitionTimeReadingIOVariable(readerContainer);
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             ioVariable.setDataType(DataType.INT.toString());
@@ -247,7 +242,7 @@ class MatchupTool {
             attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, UNIT_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "seconds since 1970-01-01"));
             attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, "_FillValue");
-            attributes.add(new Attribute(attName, -2147483648));
+            attributes.add(new Attribute(attName, NetCDFUtils.getDefaultFillValue(int.class)));
             ioVariablesList.add(ioVariable, sensorName);
         }
     }

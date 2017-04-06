@@ -189,11 +189,19 @@ class AMSRE_Reader implements Reader {
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         final Array rawTimeTAI = readRaw(x, y, interval, "Time");
-        final Array acquisitionTimeUtc = Array.factory(DataType.INT, rawTimeTAI.getShape());
+        final String groupName = getGroupNameForVariable("Time");
+        final double taiFillValue = getFillValue(groupName, "Time").doubleValue();
 
+        final int acquisitionTimeFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        final Array acquisitionTimeUtc = Array.factory(DataType.INT, rawTimeTAI.getShape());
         for (int i = 0; i < rawTimeTAI.getSize(); i++) {
-            final Date utcDate = TimeUtils.tai1993ToUtc(rawTimeTAI.getDouble(i));
-            acquisitionTimeUtc.setInt(i, (int) (utcDate.getTime() * 0.001));
+            final double rawTimeTAIDouble = rawTimeTAI.getDouble(i);
+            if (rawTimeTAIDouble != taiFillValue) {
+                final Date utcDate = TimeUtils.tai1993ToUtc(rawTimeTAIDouble);
+                acquisitionTimeUtc.setInt(i, (int) (utcDate.getTime() * 0.001));
+            } else {
+                acquisitionTimeUtc.setInt(i, acquisitionTimeFillValue);
+            }
         }
 
         return (ArrayInt.D2) acquisitionTimeUtc;

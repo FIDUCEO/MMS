@@ -26,7 +26,7 @@ abstract class Strategy {
 
     abstract void compute(Context context) throws IOException, InvalidRangeException;
 
-    List<String> extractNwpDataDirectories(String variableName, NetcdfFile reader) throws IOException {
+    static List<String> extractNwpDataDirectories(String variableName, NetcdfFile reader) throws IOException {
         final Variable timeVariable = NetCDFUtils.getVariable(reader, variableName);
         final Array timeArray = timeVariable.read();
 

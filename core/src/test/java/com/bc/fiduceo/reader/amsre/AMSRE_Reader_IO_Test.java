@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -410,6 +411,33 @@ public class AMSRE_Reader_IO_Test {
             assertEquals(1108620199, acquisitionTime.getInt(index));
             index.set(2, 0);
             assertEquals(1108620200, acquisitionTime.getInt(index));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_withFillValue() throws IOException, InvalidRangeException {
+        final File file = getAmsreFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 1107, interval);
+            assertNotNull(acquisitionTime);
+            final Index index = acquisitionTime.getIndex();
+
+            index.set(0, 0);
+            assertEquals(NetCDFUtils.getDefaultFillValue(int.class), acquisitionTime.getInt(index));
+            index.set(1, 0);
+            assertEquals(-2147483647, acquisitionTime.getInt(index));
+            index.set(2, 0);
+            assertEquals(-2147483647, acquisitionTime.getInt(index));
+            index.set(0, 1);
+            assertEquals(1108620196, acquisitionTime.getInt(index));
+            index.set(1, 1);
+            assertEquals(1108620197, acquisitionTime.getInt(index));
         } finally {
             reader.close();
         }
