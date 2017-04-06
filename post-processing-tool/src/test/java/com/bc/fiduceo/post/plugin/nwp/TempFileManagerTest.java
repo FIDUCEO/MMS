@@ -21,6 +21,8 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestUtil;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,13 @@ public class TempFileManagerTest {
     @Before
     public void setUp() {
         fileManager = new TempFileManager();
+
+        TestUtil.createTestDirectory();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtil.deleteTestDirectory();
     }
     
     @Test
@@ -63,11 +72,50 @@ public class TempFileManagerTest {
     }
 
     @Test
-    public void testCreatAndCleanup() throws IOException {
+    public void testCreateAndCleanup() throws IOException {
         final File file_1 = fileManager.create("ggam", "nc");
         final File file_2 = fileManager.create("ggap", "nc");
         final File file_3 = fileManager.create("cdo", "sh");
         
+        assertTrue(file_1.isFile());
+        assertTrue(file_2.isFile());
+        assertTrue(file_3.isFile());
+
+        fileManager.cleanup();
+
+        assertFalse(file_1.isFile());
+        assertFalse(file_2.isFile());
+        assertFalse(file_3.isFile());
+    }
+
+    @Test
+    public void testCreate_customDir() throws IOException {
+        final File testDir = TestUtil.getTestDir();
+        fileManager.setTempDir(testDir.getAbsolutePath());
+
+        final File tempFile = fileManager.create("ggam", "nc");
+        assertNotNull(tempFile);
+
+        try {
+            assertTrue(tempFile.isFile());
+
+            assertTrue(tempFile.getAbsolutePath().startsWith(testDir.getAbsolutePath()));
+        } finally {
+            if (!tempFile.delete()) {
+                fail("unable to delete temp file");
+            }
+        }
+    }
+
+    @Test
+    public void testCreateAndCleanup_customDir() throws IOException {
+        final File testDir = TestUtil.getTestDir();
+        fileManager.setTempDir(testDir.getAbsolutePath());
+
+        final File file_1 = fileManager.create("ggam", "nc");
+        final File file_2 = fileManager.create("ggap", "nc");
+        final File file_3 = fileManager.create("cdo", "sh");
+
         assertTrue(file_1.isFile());
         assertTrue(file_2.isFile());
         assertTrue(file_3.isFile());

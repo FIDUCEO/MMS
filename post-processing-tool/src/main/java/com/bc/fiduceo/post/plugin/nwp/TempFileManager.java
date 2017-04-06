@@ -20,21 +20,25 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import org.geotools.data.FIDFeatureReader;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class TempFileManager {
 
     private final List<File> tempFileList;
+    private File tempDir;
 
     TempFileManager() {
         tempFileList = new ArrayList<>();
     }
 
     File create(String prefix, String extension) throws IOException {
-        final File tempFile = File.createTempFile(prefix, "." + extension);
+        final File tempFile = createFile(prefix, extension);
 
         tempFileList.add(tempFile);
 
@@ -48,5 +52,24 @@ class TempFileManager {
                 System.out.println("Unable to delete file: " + tempFile.getAbsolutePath());
             }
         }
+    }
+
+    void setTempDir(String tempDir) {
+        this.tempDir = new File(tempDir);
+    }
+
+    private File createFile(String prefix, String extension) throws IOException {
+        if (tempDir == null) {
+            return File.createTempFile(prefix, "." + extension);
+        }
+
+        final long time = new Date().getTime();
+        final String fileName = prefix + Long.toString(time) + "." + extension;
+        final File tempFile = new File(tempDir, fileName);
+        if (!tempFile.createNewFile()) {
+            throw new RuntimeException("Unable to create temp file");
+        }
+
+        return tempFile;
     }
 }

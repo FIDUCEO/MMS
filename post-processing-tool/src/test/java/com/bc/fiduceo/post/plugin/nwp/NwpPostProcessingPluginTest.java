@@ -77,6 +77,20 @@ public class NwpPostProcessingPluginTest {
     }
 
     @Test
+    public void testCreateConfiguration_tempDir() throws JDOMException, IOException {
+        final String XML = "<nwp>" +
+                "    <temp-dir>/home/Tom</temp-dir>" +
+                "" +
+                "    <cdo-home>we need this, its mandatory</cdo-home>" +
+                "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +
+                "</nwp>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = NwpPostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("/home/Tom", configuration.getTempDir());
+    }
+
+    @Test
     public void testCreateConfiguration_missing_cdoHome() throws JDOMException, IOException {
         final String XML = "<nwp>" +
                 "    <nwp-aux-dir>we need this, its mandatory</nwp-aux-dir>" +

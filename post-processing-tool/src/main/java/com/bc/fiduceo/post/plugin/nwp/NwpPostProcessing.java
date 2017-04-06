@@ -23,6 +23,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -40,6 +41,11 @@ class NwpPostProcessing extends PostProcessing {
         this.configuration = configuration;
         templateVariables = new TemplateVariables(configuration);
         tempFileManager = new TempFileManager();
+
+        final String tempDir = configuration.getTempDir();
+        if (StringUtils.isNotNullAndNotEmpty(tempDir)) {
+            tempFileManager.setTempDir(tempDir);
+        }
     }
 
     @Override

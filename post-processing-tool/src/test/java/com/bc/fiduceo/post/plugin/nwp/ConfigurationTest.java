@@ -65,6 +65,14 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetTempDir() {
+        final String tempDir = "/tmp/dir";
+
+        config.setTempDir(tempDir);
+        assertEquals(tempDir, config.getTempDir());
+    }
+
+    @Test
     public void testIsTimeSeriesExtraction() {
         config.setTimeSeriesConfiguration(new TimeSeriesConfiguration());
         assertTrue(config.isTimeSeriesExtraction());
