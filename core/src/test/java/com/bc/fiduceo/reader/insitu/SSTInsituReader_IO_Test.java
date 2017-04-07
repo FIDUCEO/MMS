@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.insitu;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -237,15 +238,16 @@ public class SSTInsituReader_IO_Test {
         assertArrayEquals(new int[]{3, 3}, array.getShape());
         assertEquals(9, array.getSize());
         assertEquals(DataType.FLOAT, array.getDataType());
-        assertEquals("-32768.0", array.getObject(0).toString());
-        assertEquals("-32768.0", array.getObject(1).toString());
-        assertEquals("-32768.0", array.getObject(2).toString());
-        assertEquals("-32768.0", array.getObject(3).toString());
-        assertEquals("41.7", array.getObject(4).toString());
-        assertEquals("-32768.0", array.getObject(5).toString());
-        assertEquals("-32768.0", array.getObject(6).toString());
-        assertEquals("-32768.0", array.getObject(7).toString());
-        assertEquals("-32768.0", array.getObject(8).toString());
+        
+        NCTestUtils.assertValueAt(-32768, 0, 0, array);
+        NCTestUtils.assertValueAt(-32768, 1, 0, array);
+        NCTestUtils.assertValueAt(-32768, 2, 0, array);
+        NCTestUtils.assertValueAt(-32768, 0, 1, array);
+        NCTestUtils.assertValueAt(41.70000076293945, 1, 1, array);
+        NCTestUtils.assertValueAt(-32768, 2, 1, array);
+        NCTestUtils.assertValueAt(-32768, 0, 2, array);
+        NCTestUtils.assertValueAt(-32768, 1, 2, array);
+        NCTestUtils.assertValueAt(-32768, 2, 2, array);
     }
 
     @Test
@@ -258,15 +260,16 @@ public class SSTInsituReader_IO_Test {
         assertArrayEquals(new int[]{3, 3}, array.getShape());
         assertEquals(9, array.getSize());
         assertEquals(DataType.FLOAT, array.getDataType());
-        assertEquals("-32768.0", array.getObject(0).toString());
-        assertEquals("-32768.0", array.getObject(1).toString());
-        assertEquals("-32768.0", array.getObject(2).toString());
-        assertEquals("-32768.0", array.getObject(3).toString());
-        assertEquals("27.4", array.getObject(4).toString());
-        assertEquals("-32768.0", array.getObject(5).toString());
-        assertEquals("-32768.0", array.getObject(6).toString());
-        assertEquals("-32768.0", array.getObject(7).toString());
-        assertEquals("-32768.0", array.getObject(8).toString());
+
+        NCTestUtils.assertValueAt(-32768, 0, 0, array);
+        NCTestUtils.assertValueAt(-32768, 1, 0, array);
+        NCTestUtils.assertValueAt(-32768, 2, 0, array);
+        NCTestUtils.assertValueAt(-32768, 0, 1, array);
+        NCTestUtils.assertValueAt(27.399999618530273, 1, 1, array);
+        NCTestUtils.assertValueAt(-32768, 2, 1, array);
+        NCTestUtils.assertValueAt(-32768, 0, 2, array);
+        NCTestUtils.assertValueAt(-32768, 1, 2, array);
+        NCTestUtils.assertValueAt(-32768, 2, 2, array);
     }
 
     @Test
@@ -276,15 +279,16 @@ public class SSTInsituReader_IO_Test {
 
         assertNotNull(idArray);
         assertEquals(DataType.LONG, idArray.getDataType());
-        assertEquals(-32768, idArray.getLong(0));
-        assertEquals(-32768, idArray.getLong(1));
-        assertEquals(-32768, idArray.getLong(2));
-        assertEquals(-32768, idArray.getLong(3));
-        assertEquals(1991070000000011L, idArray.getLong(4));
-        assertEquals(-32768, idArray.getLong(5));
-        assertEquals(-32768, idArray.getLong(6));
-        assertEquals(-32768, idArray.getLong(7));
-        assertEquals(-32768, idArray.getLong(8));
+
+        NCTestUtils.assertValueAt(-32768, 0, 0, idArray);
+        NCTestUtils.assertValueAt(-32768, 1, 0, idArray);
+        NCTestUtils.assertValueAt(-32768, 2, 0, idArray);
+        NCTestUtils.assertValueAt(-32768, 0, 1, idArray);
+        NCTestUtils.assertValueAt(1991070000000011L, 1, 1, idArray);
+        NCTestUtils.assertValueAt(-32768, 2, 1, idArray);
+        NCTestUtils.assertValueAt(-32768, 0, 2, idArray);
+        NCTestUtils.assertValueAt(-32768, 1, 2, idArray);
+        NCTestUtils.assertValueAt(-32768, 2, 2, idArray);
     }
 
     @Test
@@ -297,15 +301,16 @@ public class SSTInsituReader_IO_Test {
         assertArrayEquals(new int[]{3, 3}, array.getShape());
         assertEquals(9, array.getSize());
         assertEquals(DataType.INT, array.getDataType());
-        assertEquals("-32768", array.getObject(0).toString());
-        assertEquals("-32768", array.getObject(1).toString());
-        assertEquals("-32768", array.getObject(2).toString());
-        assertEquals("-32768", array.getObject(3).toString());
-        assertEquals("1080945900", array.getObject(4).toString());
-        assertEquals("-32768", array.getObject(5).toString());
-        assertEquals("-32768", array.getObject(6).toString());
-        assertEquals("-32768", array.getObject(7).toString());
-        assertEquals("-32768", array.getObject(8).toString());
+        
+        NCTestUtils.assertValueAt(-2147483647, 0, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 1, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 0, 1, array);
+        NCTestUtils.assertValueAt(1080945900, 1, 1, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 1, array);
+        NCTestUtils.assertValueAt(-2147483647, 0, 2, array);
+        NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
     }
 
     @Test

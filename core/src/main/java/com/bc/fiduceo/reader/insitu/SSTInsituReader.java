@@ -151,13 +151,14 @@ public class SSTInsituReader implements Reader {
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         final Array acquisitionTime_1978 = readRaw(x, y, interval, "insitu.time");
         final int fillValue = fillValueMap.get("insitu.time").intValue();
+        final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final Array acquisitionTime_1970 = Array.factory(acquisitionTime_1978.getDataType(), acquisitionTime_1978.getShape());
         for (int i = 0; i < acquisitionTime_1978.getSize(); i++) {
             final int time1978 = acquisitionTime_1978.getInt(i);
             if (time1978 != fillValue) {
                 acquisitionTime_1970.setInt(i, time1978 + secondsSince1978);
             } else {
-                acquisitionTime_1970.setInt(i, fillValue);
+                acquisitionTime_1970.setInt(i, targetFillValue);
             }
         }
         return (ArrayInt.D2) acquisitionTime_1970;
