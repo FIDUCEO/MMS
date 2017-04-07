@@ -26,7 +26,12 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -35,7 +40,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
@@ -475,22 +479,33 @@ public class HIRS_L1C_Reader_IO_Test {
             final Interval interval = new Interval(5, 5);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(22, 124, interval);
             assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();     // index takes arguments as (y, x) tb 2016-08-03
 
-            index.set(0, 0);
-            assertEquals(1314118493, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(1314118493, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1314118499, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1314118506, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1314118512, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1314118518, 0, 4, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
 
-            index.set(1, 1);
-            assertEquals(1314118499, acquisitionTime.getInt(index));
+    @Test
+    public void testReadAcquisitionTime_METOPA_borderPixel() throws IOException, InvalidRangeException {
+        final File file = getMetopAFile();
 
-            index.set(2, 2);
-            assertEquals(1314118506, acquisitionTime.getInt(index));
+        try {
+            reader.open(file);
 
-            index.set(3, 1);
-            assertEquals(1314118512, acquisitionTime.getInt(index));
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(22, 945, interval);
+            assertNotNull(acquisitionTime);
 
-            index.set(4, 0);
-            assertEquals(1314118518, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(1314123747, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1314123754, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1314123760, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 0, 4, acquisitionTime);
         } finally {
             reader.close();
         }
