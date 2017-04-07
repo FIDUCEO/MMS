@@ -63,8 +63,10 @@ class TempFileManager {
             return File.createTempFile(prefix, "." + extension);
         }
 
+        final long nanoTime = System.nanoTime();
         final long time = new Date().getTime();
-        final String fileName = prefix + Long.toString(time) + "." + extension;
+        final String fileName = prefix + Long.toString(time) +"_" + Long.toString(Math.abs(nanoTime)) + "." + extension;
+        System.out.println("fileName = " + fileName);
         final File tempFile = new File(tempDir, fileName);
         if (!tempFile.createNewFile()) {
             throw new RuntimeException("Unable to create temp file");
