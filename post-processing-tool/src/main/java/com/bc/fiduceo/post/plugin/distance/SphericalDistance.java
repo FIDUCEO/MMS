@@ -33,7 +33,6 @@ import java.io.IOException;
 
 class SphericalDistance extends PostProcessing {
 
-    // @todo 3 tb/** maybe extract a configuration class here? 2016-12-23
     final String targetVarName;
     final String targetDataType;
     final String primLatVar;
