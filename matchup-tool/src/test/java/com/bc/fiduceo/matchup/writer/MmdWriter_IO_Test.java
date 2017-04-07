@@ -288,7 +288,7 @@ public class MmdWriter_IO_Test {
             NCTestUtils.assertVectorVariable("avhrr-n10_x", 0, 0.0, netcdfFile);
             NCTestUtils.assertVectorVariable("avhrr-n10_y", 1, 8982.0, netcdfFile);
             NCTestUtils.assertStringVariable("avhrr-n10_file_name", 2, "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc", netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, -1.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 3, -2147483647, netcdfFile);
 
             NCTestUtils.assertVectorVariable("avhrr-n11_x", 4, 408.0, netcdfFile);
             NCTestUtils.assertVectorVariable("avhrr-n11_y", 5, 824.0, netcdfFile);

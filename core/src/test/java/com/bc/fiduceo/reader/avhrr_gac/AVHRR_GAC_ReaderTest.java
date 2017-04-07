@@ -113,7 +113,24 @@ public class AVHRR_GAC_ReaderTest {
         final int[] expectedSeconds = {1, 2, 3, 4, 6, 7};
 
         // test
-        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970);
+        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970, -128.5f);
+
+        // verifiying
+        assertNotNull(acquisitionTime);
+        assertArrayEquals(expectedSeconds, (int[]) acquisitionTime.getStorage());
+    }
+
+    @Test
+    public void testConvertToAcquisitionTime_1970_01_01_useFillValue() throws Exception {
+        final int startTimeMilliSecondsSince1970 = 0;
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+                new float[]{1.1f, 2.2f, -19.7f},
+                new float[]{4.4f, 5.5f, -19.7f},
+        });
+        final int[] expectedSeconds = {1, 2, -2147483647, 4, 6, -2147483647};
+
+        // test
+        final Array acquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970, -19.7f);
 
         // verifiying
         assertNotNull(acquisitionTime);
@@ -132,7 +149,7 @@ public class AVHRR_GAC_ReaderTest {
         final int[] expectedSeconds = {1 + v, 2 + v, 3 + v, 4 + v, 6 + v, 7 + v};
 
         // test
-        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970);
+        final Array aquisitionTime = AVHRR_GAC_Reader.convertToAcquisitionTime(rawData, startTimeMilliSecondsSince1970, -128.5f);
 
         // verifiying
         assertEquals(1427114096000L, startTimeMilliSecondsSince1970);

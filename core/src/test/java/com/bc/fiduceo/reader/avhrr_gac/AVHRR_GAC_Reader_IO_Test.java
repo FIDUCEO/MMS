@@ -31,6 +31,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -260,6 +261,23 @@ public class AVHRR_GAC_Reader_IO_Test {
 
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(38, 213, new Interval(1, 1));
             NCTestUtils.assertValueAt(1175414652, 0, 0, acquisitionTime);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_NOAA17_borderPixel() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA17File();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(408, 209, new Interval(3, 3));
+            NCTestUtils.assertValueAt(1175398598, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1175398598, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(NetCDFUtils.getDefaultFillValue(int.class).intValue(), 2, 2, acquisitionTime);
 
         } finally {
             reader.close();

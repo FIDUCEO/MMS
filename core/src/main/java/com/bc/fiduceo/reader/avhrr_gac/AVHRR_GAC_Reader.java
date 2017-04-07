@@ -181,7 +181,8 @@ public class AVHRR_GAC_Reader implements Reader {
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         final Array raw = readRaw(x, y, interval, "dtime");
-        return convertToAcquisitionTime(raw, startTimeMilliSecondsSince1970);
+        final Number fillValue = getFillValue("dtime");
+        return convertToAcquisitionTime(raw, startTimeMilliSecondsSince1970, fillValue.floatValue());
     }
 
     @Override
@@ -266,7 +267,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
     }
 
-    static ArrayInt.D2 convertToAcquisitionTime(Array rawData, long startTimeMilliSecondsSince1970) {
+    static ArrayInt.D2 convertToAcquisitionTime(Array rawData, long startTimeMilliSecondsSince1970, float fillValue) {
         final int rank = rawData.getRank();
 
         if (rank == 0) {
@@ -282,14 +283,18 @@ public class AVHRR_GAC_Reader implements Reader {
         int width = shape[1];
         final ArrayInt.D2 times = new ArrayInt.D2(height, width);
 
+        final int timesFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final Index index = rawData.getIndex();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 index.set(i, j);
                 final float seconds = rawData.getFloat(index);
-
-                final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
-                times.set(i, j, secondsSince1970);
+                if (seconds != fillValue) {
+                    final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
+                    times.set(i, j, secondsSince1970);
+                } else {
+                    times.set(i, j, timesFillValue);
+                }
             }
         }
         return times;
