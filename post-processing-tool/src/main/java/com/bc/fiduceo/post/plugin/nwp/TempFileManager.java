@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
-import org.geotools.data.FIDFeatureReader;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,8 +63,7 @@ class TempFileManager {
 
         final long nanoTime = System.nanoTime();
         final long time = new Date().getTime();
-        final String fileName = prefix + Long.toString(time) +"_" + Long.toString(Math.abs(nanoTime)) + "." + extension;
-        System.out.println("fileName = " + fileName);
+        final String fileName = prefix + Long.toString(time) + "_" + Long.toString(Math.abs(nanoTime)) + "." + extension;
         final File tempFile = new File(tempDir, fileName);
         if (!tempFile.createNewFile()) {
             throw new RuntimeException("Unable to create temp file");
