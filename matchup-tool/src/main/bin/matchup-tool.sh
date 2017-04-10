@@ -33,6 +33,9 @@ fi
 # Other values
 # -======================-
 
+# immediately exit when something goes wrong - so that pmonitor receives the correct exit-code
+set -e
+
 export LIBDIR="$INSTALLDIR"/lib
 export OLD_CLASSPATH="$CLASSPATH"
 CLASSPATH="$LIBDIR/*:$LIBDIR"
