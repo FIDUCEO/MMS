@@ -7,6 +7,7 @@
 # adapt if necessary tb 2016-04-03
 
 export MMS_HOME='/group_workspaces/cems2/fiduceo/Software/mms'
+export MMS_TEMP_DIR='/group_workspaces/cems2/fiduceo/Software/mms/temp'
 export MMS_PYTHON_EXEC='/usr/bin/python'
 export MMS_JAVA_EXEC='/group_workspaces/cems2/fiduceo/Software/jdk1.8.0_73/bin/java'
 export MMS_ENV_NAME='mms-env.sh'

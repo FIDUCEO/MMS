@@ -7,6 +7,7 @@
 # adapt if necessary tb 2016-12-01
 
 export MMS_HOME='/group_workspaces/cems2/esacci_sst/mms_new'
+export MMS_TEMP_DIR='/group_workspaces/cems2/esacci_sst/mms_new/temp'
 export MMS_PYTHON_EXEC='/usr/bin/python'
 export MMS_JAVA_EXEC='/group_workspaces/cems2/esacci_sst/mms_new/software/jdk1.8.0_111/bin/java'
 export MMS_ENV_NAME='mms-env-sst.sh'
