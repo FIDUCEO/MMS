@@ -30,31 +30,31 @@ import java.util.Map;
 
 public final class PostProcessingFactory {
 
-    private static PostProcessingFactory conditionFactory;
-    private final HashMap<String, PostProcessingPlugin> conditionPluginMap = new HashMap<>();
+    private static PostProcessingFactory postProcessingFactory;
+    private final HashMap<String, PostProcessingPlugin> postProcessingPluginMap = new HashMap<>();
 
     private PostProcessingFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        final ServiceRegistry<PostProcessingPlugin> conditionPlugins = serviceRegistryManager.getServiceRegistry(PostProcessingPlugin.class);
-        SnapCoreActivator.loadServices(conditionPlugins);
+        final ServiceRegistry<PostProcessingPlugin> postProcessingPlugins = serviceRegistryManager.getServiceRegistry(PostProcessingPlugin.class);
+        SnapCoreActivator.loadServices(postProcessingPlugins);
 
-        for (PostProcessingPlugin plugin : conditionPlugins.getServices()) {
+        for (PostProcessingPlugin plugin : postProcessingPlugins.getServices()) {
             final String key = plugin.getPostProcessingName();
-            conditionPluginMap.put(key, plugin);
+            postProcessingPluginMap.put(key, plugin);
         }
     }
 
     public static PostProcessingFactory get() {
-        if (conditionFactory == null) {
-            conditionFactory = new PostProcessingFactory();
+        if (postProcessingFactory == null) {
+            postProcessingFactory = new PostProcessingFactory();
         }
-        return conditionFactory;
+        return postProcessingFactory;
     }
 
     public PostProcessing getPostProcessing(Element element) {
         final String name = element.getName();
 
-        final PostProcessingPlugin plugin = conditionPluginMap.get(name);
+        final PostProcessingPlugin plugin = postProcessingPluginMap.get(name);
         if (plugin == null) {
             throw new IllegalArgumentException("PostProcessing for name '" + name + "' not available.");
         }
@@ -63,6 +63,6 @@ public final class PostProcessingFactory {
 
     // package access for testing only se 2016-11-28
     Map<String, PostProcessingPlugin> getPlugins() {
-        return Collections.unmodifiableMap(conditionPluginMap);
+        return Collections.unmodifiableMap(postProcessingPluginMap);
     }
 }
