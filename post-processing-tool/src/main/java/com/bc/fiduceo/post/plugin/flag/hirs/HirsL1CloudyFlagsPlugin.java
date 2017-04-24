@@ -21,12 +21,20 @@ import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
 
-    public static final String TAG_NAME_HIRS_L1_CLOUDY_FLAGS = "hirs-l1-cloudy-flags";
+    public static final String TAG_NAME_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
     public static final String TAG_NAME_BT_11_1_µM_VAR_NAME = "hirs-11_1-um-var-name";
     public static final String TAG_NAME_BT_6_5_µM_VAR_NAME = "hirs-6_5-um-var-name";
     public static final String TAG_NAME_FLAG_VAR_NAME = "hirs-cloud-flags-var-name";
+    public static final String TAG_NAME_LATITUDE_VAR_NAME = "hirs-latitude-var-name";
+    public static final String TAG_NAME_LONGITUDE_VAR_NAME = "hirs-longitude-var-name";
+    public static final String TAG_NAME_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
+    private FileSystem fileSystem;
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
@@ -43,11 +51,36 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
         final Element flagsVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_FLAG_VAR_NAME);
         final String flagVarName = JDomUtils.getMandatoryText(flagsVarElem).trim();
 
-        return new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName);
+        final Element latVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_LATITUDE_VAR_NAME);
+        final String latVarName = JDomUtils.getMandatoryText(latVarElem).trim();
+
+        final Element lonVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_LONGITUDE_VAR_NAME);
+        final String lonVarName = JDomUtils.getMandatoryText(lonVarElem).trim();
+
+        final Element distanceVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_DISTANCE_PRODUCT_FILE_PATH);
+        final String pathString = JDomUtils.getMandatoryText(distanceVarElem).trim();
+        final Path distanceFilePath;
+        if (fileSystem == null) {
+            distanceFilePath = Paths.get(pathString);
+        } else {
+            distanceFilePath = fileSystem.getPath(pathString);
+        }
+        final DistanceToLandMap distanceToLandMap = new DistanceToLandMap(distanceFilePath);
+
+        return new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, distanceToLandMap);
     }
 
     @Override
     public String getPostProcessingName() {
-        return TAG_NAME_HIRS_L1_CLOUDY_FLAGS;
+        return TAG_NAME_POST_PROCESSING_NAME;
+    }
+
+    /**
+     * for JUnit level tests only
+     *
+     * @param fileSystem
+     */
+    void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 }

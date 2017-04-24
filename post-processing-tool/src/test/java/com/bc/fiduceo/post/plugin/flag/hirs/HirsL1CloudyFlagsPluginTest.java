@@ -21,33 +21,51 @@ package com.bc.fiduceo.post.plugin.flag.hirs;
 
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_BT_11_1_µM_VAR_NAME;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_BT_6_5_µM_VAR_NAME;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_DISTANCE_PRODUCT_FILE_PATH;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_FLAG_VAR_NAME;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_HIRS_L1_CLOUDY_FLAGS;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_LATITUDE_VAR_NAME;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_LONGITUDE_VAR_NAME;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_NAME_POST_PROCESSING_NAME;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.jdom.Element;
 import org.junit.*;
 
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class HirsL1CloudyFlagsPluginTest {
 
     private HirsL1CloudyFlagsPlugin plugin;
     private Element element;
+    private FileSystem virtualFS;
 
     @Before
     public void setUp() throws Exception {
         plugin = new HirsL1CloudyFlagsPlugin();
-        element = new Element(TAG_NAME_HIRS_L1_CLOUDY_FLAGS).addContent(Arrays.asList(
+        element = new Element(TAG_NAME_POST_PROCESSING_NAME).addContent(Arrays.asList(
                     new Element(TAG_NAME_BT_11_1_µM_VAR_NAME).addContent("hirs-n18_bt_ch08"),
                     new Element(TAG_NAME_BT_6_5_µM_VAR_NAME).addContent("hirs-n18_bt_ch12"),
-                    new Element(TAG_NAME_FLAG_VAR_NAME).addContent("hirs-n18_cloudy_flags")
+                    new Element(TAG_NAME_FLAG_VAR_NAME).addContent("hirs-n18_cloudy_flags"),
+                    new Element(TAG_NAME_LATITUDE_VAR_NAME).addContent("hirs-n18_lat"),
+                    new Element(TAG_NAME_LONGITUDE_VAR_NAME).addContent("hirs-n18_lon"),
+                    new Element(TAG_NAME_DISTANCE_PRODUCT_FILE_PATH).addContent("/path/to/the/distance-NetCDF-file.nc")
         ));
+        virtualFS = Jimfs.newFileSystem(Configuration.unix());
+        final Path file = virtualFS.getPath("/path/to/the/distance-NetCDF-file.nc");
+        Files.createDirectories(file.getParent());
+        Files.write(file, "Da steht was drin".getBytes());
     }
 
     @Test
     public void testCreatePostProcessing() {
+        plugin.setFileSystem(virtualFS);
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertNotNull(postProcessing);
@@ -58,6 +76,8 @@ public class HirsL1CloudyFlagsPluginTest {
         assertEquals("hirs-n18_bt_ch08", hirsL1CloudyFlags.btVarName_11_1_µm);
         assertEquals("hirs-n18_bt_ch12", hirsL1CloudyFlags.btVarName_6_5_µm);
         assertEquals("hirs-n18_cloudy_flags", hirsL1CloudyFlags.flagVarName);
+        assertNotNull(hirsL1CloudyFlags.distanceToLandMap);
+        assertThat(hirsL1CloudyFlags.distanceToLandMap, is(instanceOf(DistanceToLandMap.class)));
     }
 
     @Test
@@ -177,6 +197,115 @@ public class HirsL1CloudyFlagsPluginTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Child element 'hirs-cloud-flags-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_DistanceFilePathIsMissing() throws Exception {
+        element.getChild(TAG_NAME_DISTANCE_PRODUCT_FILE_PATH).setText(null);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'distance-product-file-path' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_DistanceFilePathTextIsEmpty() throws Exception {
+        element.getChild(TAG_NAME_DISTANCE_PRODUCT_FILE_PATH).setText("");
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'distance-product-file-path' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_DistanceFilePathElementIsMissing() throws Exception {
+        element.removeChild(TAG_NAME_DISTANCE_PRODUCT_FILE_PATH);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Child element 'distance-product-file-path' expected", expected.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testCreatePostProcessing_LatitudeVarNameTextIsMissing() throws Exception {
+        element.getChild(TAG_NAME_LATITUDE_VAR_NAME).setText(null);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'hirs-latitude-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_LatitudeVarNameTextIsEmpty() throws Exception {
+    element.getChild(TAG_NAME_LATITUDE_VAR_NAME).setText("");
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'hirs-latitude-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_LatitudeVarNameElementIsMissing() throws Exception {
+        element.removeChild(TAG_NAME_LATITUDE_VAR_NAME);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Child element 'hirs-latitude-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_LongitudeVarNameTextIsMissing() throws Exception {
+        element.getChild(TAG_NAME_LONGITUDE_VAR_NAME).setText(null);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'hirs-longitude-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_LongitudeVarNameTextIsEmpty() throws Exception {
+        element.getChild(TAG_NAME_LONGITUDE_VAR_NAME).setText("");
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Value of element 'hirs-longitude-var-name' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreatePostProcessing_LongitudeVarNameElementIsMissing() throws Exception {
+        element.removeChild(TAG_NAME_LONGITUDE_VAR_NAME);
+
+        try {
+            plugin.createPostProcessing(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Child element 'hirs-longitude-var-name' expected", expected.getMessage());
         }
     }
 }

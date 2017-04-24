@@ -23,6 +23,7 @@ package com.bc.fiduceo.util;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -174,5 +175,61 @@ public class NetCDFUtils {
             final Number fillValue = getDefaultFillValue(dataType.getPrimitiveClassType());
             variable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         }
+    }
+
+    public static double getDoubleValueFromAttribute(Variable variable, String attrName, final double defaultValue) {
+        if (attrName != null) {
+            final Attribute attribute = variable.findAttribute(attrName);
+            if (attribute == null) {
+                throw new RuntimeException("No attribute with name '" + attrName + "'.");
+            }
+            final Number number = attribute.getNumericValue();
+            if (number == null) {
+                throw new RuntimeException("Attribute '" + attrName + "' does not own a number value.");
+            }
+            return number.doubleValue();
+        }
+        return defaultValue;
+    }
+
+    public static float getFloatValueFromAttribute(Variable variable, String attrName, final float defaultValue) {
+        if (attrName != null) {
+            final Attribute attribute = variable.findAttribute(attrName);
+            if (attribute == null) {
+                throw new RuntimeException("No attribute with name '" + attrName + "'.");
+            }
+            final Number number = attribute.getNumericValue();
+            if (number == null) {
+                throw new RuntimeException("Attribute '" + attrName + "' does not own a number value.");
+            }
+            return number.floatValue();
+        }
+        return defaultValue;
+    }
+
+    public static Array getCenterPosArrayFromMMDFile(NetcdfFile netcdfFile, String varShortName, String scaleAttrName, String offsetAttrName, String matchupCountDimName) throws IOException, InvalidRangeException {
+        final Variable variable = getVariable(netcdfFile, varShortName);
+
+        final int countIdx = variable.findDimensionIndex(matchupCountDimName);
+
+        final int[] shape = variable.getShape();
+        final int[] index = new int[shape.length];
+        for (int i = 0; i < shape.length; i++) {
+            int dimWith = shape[i];
+            if (i != countIdx) {
+                index[i] = dimWith / 2;
+                shape[i] = 1;
+            }
+        }
+
+        final Array array = variable.read(index, shape).reduce();
+
+        double scaleFactor = getDoubleValueFromAttribute(variable, scaleAttrName, 1);
+        double offset = getDoubleValueFromAttribute(variable, offsetAttrName, 0);
+        if (scaleFactor != 1d || offset != 0d) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 }

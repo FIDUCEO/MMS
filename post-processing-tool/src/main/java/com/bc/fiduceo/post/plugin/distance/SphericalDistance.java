@@ -19,6 +19,8 @@
 
 package com.bc.fiduceo.post.plugin.distance;
 
+import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
+
 import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
@@ -26,8 +28,9 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.nc2.*;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
@@ -80,15 +83,11 @@ class SphericalDistance extends PostProcessing {
         final int count = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
-        final Variable primLons = netcdfFile.findVariable(null, primLonVar);
-        final Variable primLats = netcdfFile.findVariable(null, primLatVar);
-        final Variable secoLons = netcdfFile.findVariable(null, secoLonVar);
-        final Variable secoLats = netcdfFile.findVariable(null, secoLatVar);
 
-        final Array p_lon = getCenterPosArray(primLons, primLonScaleAttrName, primLonOffsetAttrName);
-        final Array p_lat = getCenterPosArray(primLats, primLatScaleAttrName, primLatOffsetAttrName);
-        final Array s_lon = getCenterPosArray(secoLons, secoLonScaleAttrName, secoLonOffsetAttrName);
-        final Array s_lat = getCenterPosArray(secoLats, secoLatScaleAttrName, secoLatOffsetAttrName);
+        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, Constants.MATCHUP_COUNT);
+        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, Constants.MATCHUP_COUNT);
+        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, Constants.MATCHUP_COUNT);
+        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, Constants.MATCHUP_COUNT);
 
         Array target = Array.factory(DataType.getType(targetDataType), new int[]{count});
         for (int i = 0; i < count; i++) {
@@ -102,41 +101,4 @@ class SphericalDistance extends PostProcessing {
         writer.write(targetVar, target);
     }
 
-    static double getValueFromAttribute(Variable variable, String attrName, final int defaultValue) {
-        if (attrName != null) {
-            final Attribute attribute = variable.findAttribute(attrName);
-            if (attribute == null) {
-                throw new RuntimeException("No attribute with name '" + attrName + "'.");
-            }
-            final Number number = attribute.getNumericValue();
-            if (number == null) {
-                throw new RuntimeException("Attribute '" + attrName + "' does not own a number value.");
-            }
-            return number.doubleValue();
-        }
-        return defaultValue;
-    }
-
-    private Array getCenterPosArray(Variable variable, String scaleAttrName, String offsetAttrName) throws IOException, InvalidRangeException {
-        final int countIdx = variable.findDimensionIndex(Constants.MATCHUP_COUNT);
-        final int[] shape = variable.getShape();
-        final int[] index = new int[shape.length];
-        for (int i = 0; i < shape.length; i++) {
-            int dimWith = shape[i];
-            if (i != countIdx) {
-                index[i] = dimWith / 2;
-                shape[i] = 1;
-            }
-        }
-
-        final Array array = variable.read(index, shape).reduce();
-
-        double scaleFactor = getValueFromAttribute(variable, scaleAttrName, 1);
-        double offset = getValueFromAttribute(variable, offsetAttrName, 0);
-        if (scaleFactor != 1d || offset != 0d) {
-            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
-            return MAMath.convert2Unpacked(array, scaleOffset);
-        }
-        return array;
-    }
 }

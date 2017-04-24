@@ -17,49 +17,52 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.distance;
+package com.bc.fiduceo.util;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
 import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-public class SphericalDistanceTest {
+public class NetCDFUtilsTest_getFloatValueFromAttribute {
 
-    @Test
-    public void testGetValueFromAttribute() {
-        final Variable variable = mock(Variable.class);
-        final Attribute attribute = mock(Attribute.class);
+    private Variable variable;
+    private Attribute attribute;
 
-        when(variable.findAttribute("scale")).thenReturn(attribute);
-        when(attribute.getNumericValue()).thenReturn(24.4);
-
-        final double scaleFactor = SphericalDistance.getValueFromAttribute(variable, "scale", 1);
-
-        assertEquals("24.4", "" + scaleFactor);
+    @Before
+    public void setUp() throws Exception {
+        variable = mock(Variable.class);
+        attribute = mock(Attribute.class);
     }
 
     @Test
-    public void testGetValueFromAttribute_defaultValue() {
-        final Variable variable = mock(Variable.class);
+    public void testGetFloatValueFromAttribute() {
+        when(variable.findAttribute("_FillValue")).thenReturn(attribute);
+        when(attribute.getNumericValue()).thenReturn(-999.0);
 
-        final double scaleFactor = SphericalDistance.getValueFromAttribute(variable, null, 1);
+        final float fillValue = NetCDFUtils.getFloatValueFromAttribute(variable, "_FillValue", 1);
 
-        assertEquals("1.0", "" + scaleFactor);
+        assertThat(fillValue, is(equalTo(-999.0F)));
+    }
+
+    @Test
+    public void testGetFloatValueFromAttribute_defaultValue() {
+        final double scaleFactor = NetCDFUtils.getFloatValueFromAttribute(variable, null, 16.5F);
+
+        assertEquals("16.5", "" + scaleFactor);
 
         verifyZeroInteractions(variable);
     }
 
     @Test
-    public void testGetValueFromAttribute_noAttributeWithNameScale() {
-        final Variable variable = mock(Variable.class);
+    public void testGetFloatValueFromAttribute_noAttributeWithNameScale() {
         when(variable.findAttribute("scale")).thenReturn(null);
 
         try {
-            SphericalDistance.getValueFromAttribute(variable, "scale", 1);
+            NetCDFUtils.getFloatValueFromAttribute(variable, "scale", 1);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("No attribute with name 'scale'.", expected.getMessage());
@@ -67,13 +70,11 @@ public class SphericalDistanceTest {
     }
 
     @Test
-    public void testGetValueFromAttribute_noNumberValue() {
-        final Variable variable = mock(Variable.class);
-        final Attribute attribute = mock(Attribute.class);
+    public void testGetFloatValueFromAttribute_noNumberValue() {
         when(variable.findAttribute("scale")).thenReturn(attribute);
 
         try {
-            SphericalDistance.getValueFromAttribute(variable, "scale", 1);
+            NetCDFUtils.getFloatValueFromAttribute(variable, "scale", 1);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Attribute 'scale' does not own a number value.", expected.getMessage());
