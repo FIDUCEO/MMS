@@ -26,13 +26,13 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
-public class EumetsatIASIReaderPluginTest {
+public class IASI_ReaderPluginTest {
 
-    private EumetsatIASIReaderPlugin plugin;
+    private IASI_ReaderPlugin plugin;
 
     @Before
     public void setUp() throws Exception {
-        plugin = new EumetsatIASIReaderPlugin();
+        plugin = new IASI_ReaderPlugin();
     }
 
     @Test
@@ -51,7 +51,6 @@ public class EumetsatIASIReaderPluginTest {
     public void testCreateReader() throws Exception {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
-        assertTrue(reader instanceof EumetsatIASIReader);
-
+        assertTrue(reader instanceof IASI_Reader);
     }
 }

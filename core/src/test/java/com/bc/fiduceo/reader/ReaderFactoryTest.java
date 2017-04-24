@@ -24,7 +24,7 @@ import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
-import com.bc.fiduceo.reader.iasi.EumetsatIASIReader;
+import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof EumetsatIASIReader);
+        assertTrue(reader instanceof IASI_Reader);
     }
 
     @Test

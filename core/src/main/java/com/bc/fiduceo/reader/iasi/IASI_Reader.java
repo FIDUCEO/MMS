@@ -49,62 +49,58 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.util.NetCDFUtils;
-import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 
-public class EumetsatIASIReader implements Reader {
+public class IASI_Reader implements Reader {
 
-    // @todo 3 tb/tb move to config file 2015-12-09
-    private static final int GEO_INTERVAL_X = 6;
-    private static final int GEO_INTERVAL_Y = 6;
+    private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private ImageInputStream iis;
+    private GenericRecordHeader mphrHeader;
 
-    private NetcdfFile netcdfFile = null;
-    private BoundingPolygonCreator boundingPolygonCreator;
 
-    EumetsatIASIReader(GeometryFactory geometryFactory) {
-        final Interval interval = new Interval(GEO_INTERVAL_X, GEO_INTERVAL_Y);
-
-        boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
+    IASI_Reader(GeometryFactory geometryFactory) {
+        iis = null;
     }
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
+        // @todo 1 tb/tb check if already stream open, if so: throw 2017-04-24
+        iis = new FileImageInputStream(file);
+
+        mphrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
+        if (mphrHeader.recordClass != RecordClass.MPHR
+                || mphrHeader.instrumentGroup != InstrumentGroup.GENERIC
+                || mphrHeader.recordSubclass != 0) {
+            throw new IOException("Illegal Main Product Header Record");
+        }
     }
 
     @Override
     public void close() throws IOException {
-        netcdfFile.close();
+        if (iis != null) {
+            iis.close();
+            iis = null;
+        }
     }
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        final Date timeConverageStart = getGlobalAttributeAsDate("time_converage_start", netcdfFile);
-        final Date timeConverageEnd = getGlobalAttributeAsDate("time_converage_end", netcdfFile);
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final Variable latVariable = netcdfFile.findVariable("lat");
-        final Variable lonVariable = netcdfFile.findVariable("lon");
-        final Array latArray = latVariable.read();
-        final Array lonArray = lonVariable.read();
+        acquisitionInfo.setSensingStart(mphrHeader.recordStartTime.getAsDate());
+        acquisitionInfo.setSensingStop(mphrHeader.recordEndTime.getAsDate());
 
-        final AcquisitionInfo acquisitionInfo = boundingPolygonCreator.createIASIBoundingPolygon((ArrayFloat.D2) latArray, (ArrayFloat.D2) lonArray);
-        acquisitionInfo.setSensingStart(timeConverageStart);
-        acquisitionInfo.setSensingStop(timeConverageEnd);
         return acquisitionInfo;
     }
 
@@ -115,7 +111,7 @@ public class EumetsatIASIReader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override
@@ -148,10 +144,6 @@ public class EumetsatIASIReader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
-    static Date getGlobalAttributeAsDate(String timeCoverage, NetcdfFile netcdfFile) throws IOException {
-        final String attributeString = NetCDFUtils.getGlobalAttributeString(timeCoverage, netcdfFile);
-        return TimeUtils.parse(attributeString, DATE_FORMAT);
-    }
 
     @Override
     public Dimension getProductSize() {

@@ -41,13 +41,13 @@ import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class EumetsatIASIReaderPlugin  implements ReaderPlugin {
+public class IASI_ReaderPlugin implements ReaderPlugin {
 
     private static final String[] SENSOR_KEYS = new String[]{"iasi-ma", "iasi-mb"};
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new EumetsatIASIReader(geometryFactory);
+        return new IASI_Reader(geometryFactory);
     }
 
     @Override
