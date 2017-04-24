@@ -98,14 +98,8 @@ submit_job() {
     rm -f ${MMS_LOG}/${jobname}.out
     rm -f ${MMS_LOG}/${jobname}.err
 
-    if hostname | grep -qF 'lotus.jc.rl.ac.uk'
-    then
-        echo "${bsubmit}"
-        line=`${bsubmit}`
-    else
-        echo "ssh -A lotus.jc.rl.ac.uk ${bsubmit}"
-        line=`ssh -A lotus.jc.rl.ac.uk ${bsubmit}`
-    fi
+    echo "${bsubmit}"
+    line=`${bsubmit}`
 
     echo ${line}
     if echo ${line} | grep -qF 'is submitted'
