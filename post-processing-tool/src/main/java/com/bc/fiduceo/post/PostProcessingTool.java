@@ -96,7 +96,7 @@ class PostProcessingTool {
         return context;
     }
 
-    void runPostProcessing() throws IOException, InvalidRangeException {
+    void runPostProcessing() throws Exception {
         final Path inputDirectory = context.getMmdInputDirectory();
         final Pattern pattern = Pattern.compile("mmd\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
 
@@ -171,7 +171,7 @@ class PostProcessingTool {
         return fileStart >= startTime && fileStart <= endTime;
     }
 
-    void computeFiles(List<Path> mmdFiles) {
+    private void computeFiles(List<Path> mmdFiles) throws Exception {
         final PostProcessingConfig processingConfig = context.getProcessingConfig();
 
         final List<PostProcessing> processings = new ArrayList<>();
@@ -194,6 +194,10 @@ class PostProcessingTool {
                 e.printStackTrace();
             } finally {
                 manager.processingDone(mmdFile, ex);
+            }
+
+            if (ex != null) {
+                throw ex;  // do not hide exceptions, we need this one to propagate to the main-method tb 2017-04-24
             }
         }
     }

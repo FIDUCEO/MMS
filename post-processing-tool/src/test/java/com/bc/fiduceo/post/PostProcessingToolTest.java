@@ -19,22 +19,17 @@
 
 package com.bc.fiduceo.post;
 
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.plugin.DummyPostProcessingPlugin;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.hamcrest.CoreMatchers;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import ucar.nc2.Attribute;
@@ -44,14 +39,23 @@ import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Formatter;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
+
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.same;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class PostProcessingToolTest {
 
@@ -66,11 +70,11 @@ public class PostProcessingToolTest {
     @Before
     public void setUp() throws Exception {
         root = new Element(CONFIG).addContent(Arrays.asList(
-                    new Element(NEW_FILES).addContent(
-                                new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
-                    new Element(PROCESSINGS).addContent(
-                                new Element(DUMMY_NAME).addContent("C")
-                    )
+                new Element(NEW_FILES).addContent(
+                        new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
+                new Element(PROCESSINGS).addContent(
+                        new Element(DUMMY_NAME).addContent("C")
+                )
         ));
     }
 
@@ -135,16 +139,16 @@ public class PostProcessingToolTest {
 
         final String ls = System.lineSeparator();
         final String expected = "post-processing-tool version 1.2.2-SNAPSHOT" + ls +
-                                "" + ls +
-                                "usage: post-processing-tool <options>" + ls +
-                                "Valid options are:" + ls +
-                                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
-                                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year." + ls +
-                                "   -h,--help                   Prints the tool usage." + ls +
-                                "   -i,--input-dir <arg>        Defines the path to the input mmd files directory." + ls +
-                                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
-                                "                               configuration directory." + ls +
-                                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.";
+                "" + ls +
+                "usage: post-processing-tool <options>" + ls +
+                "Valid options are:" + ls +
+                "   -c,--config <arg>           Defines the configuration directory. Defaults to './config'." + ls +
+                "   -end,--end-date <arg>       Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year." + ls +
+                "   -h,--help                   Prints the tool usage." + ls +
+                "   -i,--input-dir <arg>        Defines the path to the input mmd files directory." + ls +
+                "   -j,--job-config <arg>       Defines the path to post processing job configuration file. Path is relative to the" + ls +
+                "                               configuration directory." + ls +
+                "   -start,--start-date <arg>   Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.";
         assertEquals(expected, out.toString().trim());
     }
 
@@ -189,14 +193,14 @@ public class PostProcessingToolTest {
         tool.addPostProcessingConfig(writer);
 
         final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                                "<post-processing-config>" +
-                                "  <create-new-files>" +
-                                "    <output-directory>An_Output_Directory</output-directory>" +
-                                "  </create-new-files>" +
-                                "  <post-processings>" +
-                                "    <dummy-post-processing>C</dummy-post-processing>" +
-                                "  </post-processings> " +
-                                "</post-processing-config>";
+                "<post-processing-config>" +
+                "  <create-new-files>" +
+                "    <output-directory>An_Output_Directory</output-directory>" +
+                "  </create-new-files>" +
+                "  <post-processings>" +
+                "    <dummy-post-processing>C</dummy-post-processing>" +
+                "  </post-processings> " +
+                "</post-processing-config>";
 
         final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
         verify(writer, times(1)).findGlobalAttribute(attName);
@@ -220,15 +224,15 @@ public class PostProcessingToolTest {
         tool.addPostProcessingConfig(writer);
 
         final String expected = prevoiusContent + " " +
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
-                                "<post-processing-config>" +
-                                "  <create-new-files>" +
-                                "    <output-directory>An_Output_Directory</output-directory>" +
-                                "  </create-new-files>" +
-                                "  <post-processings>" +
-                                "    <dummy-post-processing>C</dummy-post-processing>" +
-                                "  </post-processings> " +
-                                "</post-processing-config>";
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
+                "<post-processing-config>" +
+                "  <create-new-files>" +
+                "    <output-directory>An_Output_Directory</output-directory>" +
+                "  </create-new-files>" +
+                "  <post-processings>" +
+                "    <dummy-post-processing>C</dummy-post-processing>" +
+                "  </post-processings> " +
+                "</post-processing-config>";
 
         final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
         verify(writer, times(1)).findGlobalAttribute(attName);
@@ -284,40 +288,6 @@ public class PostProcessingToolTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Value of cmd-line parameter 'start' is missing.", expected.getMessage());
-        }
-    }
-
-    @Test
-    public void testThatPostProcessingToolInCaseOfExceptionsPrintsTheErrorMessageAndContinueWithTheNextFile() throws Exception {
-        final ArrayList<Path> mmdFiles = new ArrayList<>();
-        mmdFiles.add(Paths.get("nonExistingFileOne"));
-        mmdFiles.add(Paths.get("nonExistingFileTwo"));
-        mmdFiles.add(Paths.get("nonExistingFileThree"));
-
-        final Formatter formatter = new SimpleFormatter();
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final StreamHandler handler = new StreamHandler(stream, formatter);
-        final Logger logger = FiduceoLogger.getLogger();
-        FiduceoLogger.setLevelSilent();
-
-        try {
-            logger.addHandler(handler);
-
-            final PostProcessingContext context = new PostProcessingContext();
-            final PostProcessingConfig processingConfig = getConfig();
-            context.setProcessingConfig(processingConfig);
-
-            final PostProcessingTool postProcessingTool = new PostProcessingTool(context);
-
-            postProcessingTool.computeFiles(mmdFiles);
-
-            handler.close();
-            final String string = stream.toString();
-            assertThat(string, CoreMatchers.containsString("nonExistingFileOne"));
-            assertThat(string, CoreMatchers.containsString("nonExistingFileTwo"));
-            assertThat(string, CoreMatchers.containsString("nonExistingFileThree"));
-        } finally {
-            logger.removeHandler(handler);
         }
     }
 

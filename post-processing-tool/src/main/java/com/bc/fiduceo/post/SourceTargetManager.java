@@ -59,6 +59,7 @@ class SourceTargetManager {
         if (!overwrite) {
             return;
         }
+
         final Path tempFile = createTempFile(src);
         if (exception == null) {
             if (!tempFile.toFile().delete()) {
