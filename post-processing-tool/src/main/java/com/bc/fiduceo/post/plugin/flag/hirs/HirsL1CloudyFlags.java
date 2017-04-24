@@ -109,16 +109,19 @@ class HirsL1CloudyFlags extends PostProcessing {
 
         for (int z = 0; z < shape[0]; z++) {
             levelOrigin[0] = z;
-            if (isLandOrIceCovered(distanceToLandMap, lons.getDouble(z), lats.getDouble(z))) {
+            final boolean land = isLand(distanceToLandMap, lons.getDouble(z), lats.getDouble(z));
+            final boolean iceCoveredWater = !land && isIceCoveredWater();
+            final boolean water = !land && !iceCoveredWater;
+            if (land || iceCoveredWater) {
                 final Array levelData_11_1 = data11_1.section(levelOrigin, levelShape);
                 final MaximumAndFlags mf = getMaximumAndFlags(levelData_11_1, fillValue_11_1, 1);
                 final double spaceContrastThreshold = mf.maximum - DELTA_1_LAND_OR_ICE_COVERED;
-                byte flagsByte = mf.flags;
                 index.set0(z);
                 for (int y = 0; y < shape[1]; y++) {
                     index.set1(y);
                     for (int x = 0; x < shape[2]; x++) {
                         index.set2(x);
+                        byte flagsByte = mf.flags;
                         final float bt11_1 = data11_1.getFloat(index);
                         if (bt11_1 != fillValue_11_1
                             && spaceContrastThreshold > bt11_1) {
@@ -126,7 +129,7 @@ class HirsL1CloudyFlags extends PostProcessing {
                         }
                         final float bt6_5 = data6_5.getFloat(index);
                         if (bt6_5 != fillValue_6_5
-                                    && bt11_1 -bt6_5 < 25) {
+                            && bt11_1 - bt6_5 < 25) {
                             flagsByte += INTERCHANNEL_TEST_CLOUDY;
                         }
                         flags.setByte(index, flagsByte);
@@ -160,12 +163,14 @@ class HirsL1CloudyFlags extends PostProcessing {
         return new MaximumAndFlags(max, flags);
     }
 
-    static boolean isLandOrIceCovered(DistanceToLandMap distanceToLandMap, double lon, double lat) throws IOException {
+    static boolean isLand(DistanceToLandMap distanceToLandMap, double lon, double lat) throws IOException {
         final double distanceToLand = distanceToLandMap.getDistance(lon, lat);
-        final boolean land = distanceToLand < 0.3;
+        return distanceToLand < 0.3;
+    }
+
+    static boolean isIceCoveredWater() {
         //@todo 1 se/** - the "ice covered" check must be implemented. Ask UHH (Imke Hans or Martin Burgdorf)
-        final boolean iceCovered = false;
-        return land || iceCovered;
+        return false;
     }
 
     private int[] initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {

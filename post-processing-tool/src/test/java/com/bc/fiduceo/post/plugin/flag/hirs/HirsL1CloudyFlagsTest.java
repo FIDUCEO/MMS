@@ -113,14 +113,14 @@ public class HirsL1CloudyFlagsTest {
     }
 
     @Test
-    public void testIsLandOrIceCovered() throws Exception {
+    public void testIsLand() throws Exception {
         final DistanceToLandMap map = mock(DistanceToLandMap.class);
 
         when(map.getDistance(anyDouble(), anyDouble())).thenReturn(0.299999999999999);
-        assertThat(HirsL1CloudyFlags.isLandOrIceCovered(map, 1, 2), is(equalTo(true)));
+        assertThat(HirsL1CloudyFlags.isLand(map, 1, 2), is(equalTo(true)));
 
         when(map.getDistance(anyDouble(), anyDouble())).thenReturn(0.3);
-        assertThat(HirsL1CloudyFlags.isLandOrIceCovered(map, 1, 2), is(equalTo(false)));
+        assertThat(HirsL1CloudyFlags.isLand(map, 1, 2), is(equalTo(false)));
     }
 
     @Test
