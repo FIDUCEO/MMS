@@ -42,11 +42,11 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
@@ -58,6 +58,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -67,6 +68,8 @@ public class IASI_Reader implements Reader {
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
+    private MainProductHeaderRecord mainProductHeaderRecord;
+    private long firstMdrOffset;
 
 
     IASI_Reader(GeometryFactory geometryFactory) {
@@ -78,12 +81,7 @@ public class IASI_Reader implements Reader {
         // @todo 1 tb/tb check if already stream open, if so: throw 2017-04-24
         iis = new FileImageInputStream(file);
 
-        mphrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
-        if (mphrHeader.recordClass != RecordClass.MPHR
-                || mphrHeader.instrumentGroup != InstrumentGroup.GENERIC
-                || mphrHeader.recordSubclass != 0) {
-            throw new IOException("Illegal Main Product Header Record");
-        }
+        readHeader();
     }
 
     @Override
@@ -100,6 +98,8 @@ public class IASI_Reader implements Reader {
 
         acquisitionInfo.setSensingStart(mphrHeader.recordStartTime.getAsDate());
         acquisitionInfo.setSensingStop(mphrHeader.recordEndTime.getAsDate());
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
         return acquisitionInfo;
     }
@@ -148,5 +148,48 @@ public class IASI_Reader implements Reader {
     @Override
     public Dimension getProductSize() {
         throw new RuntimeException("Not yet implemented");
+    }
+
+    private void readHeader() throws IOException {
+        mphrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
+        if (mphrHeader.recordClass != RecordClass.MPHR
+                || mphrHeader.instrumentGroup != InstrumentGroup.GENERIC
+                || mphrHeader.recordSubclass != 0) {
+            throw new IOException("Illegal Main Product Header Record");
+        }
+
+        mainProductHeaderRecord = new MainProductHeaderRecord();
+        mainProductHeaderRecord.readRecord(iis);
+
+        final List<InternalPointerRecord> iprList = readInternalPointerRecordList();
+
+        for (final InternalPointerRecord ipr : iprList) {
+            if (ipr.targetRecordClass == RecordClass.GIADR) {
+                // @todo 1 tb(tb continue here 2017-04-25
+//                if (ipr.targetRecordSubclass == 0) {
+//                    iis.seek(ipr.targetRecordOffset);
+//                    GiadrQuality giadrQuality = new GiadrQuality();
+//                    giadrQuality.readRecord(iis);
+//                } else if (ipr.targetRecordSubclass == 1) {
+//                    iis.seek(ipr.targetRecordOffset);
+//                    giadrScaleFactors = new GiadrScaleFactors();
+//                    giadrScaleFactors.readRecord(iis);
+//                }
+            } else if (ipr.targetRecordClass == RecordClass.MDR) {
+                firstMdrOffset = ipr.targetRecordOffset;
+            }
+        }
+    }
+
+    private List<InternalPointerRecord> readInternalPointerRecordList() throws IOException {
+        final List<InternalPointerRecord> iprList = new ArrayList<>();
+        for (; ;) {
+            final InternalPointerRecord ipr = InternalPointerRecord.readInternalPointerRecord(iis);
+            iprList.add(ipr);
+            if (ipr.targetRecordClass == RecordClass.MDR) {
+                break;
+            }
+        }
+        return iprList;
     }
 }
