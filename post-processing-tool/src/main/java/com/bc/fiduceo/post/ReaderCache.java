@@ -16,77 +16,67 @@
  * A copy of the GNU General Public License should have been supplied along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.fiduceo.post.plugin.sstInsitu;
+package com.bc.fiduceo.post;
 
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.util.TimeUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-class InsituReaderCache {
+public abstract class ReaderCache {
 
     private final Archive archive;
     private final PostProcessingContext context;
     private final HashMap<String, Reader> cacheMap;
     private final TreeMap<Long, String> oldestMap;
 
-    InsituReaderCache(PostProcessingContext context) {
+    public ReaderCache(PostProcessingContext context) {
         this.context = context;
         archive = new Archive(context.getSystemConfig().getArchiveConfig());
         cacheMap = new HashMap<>();
         oldestMap = new TreeMap<>();
     }
 
-    Reader getInsituFileOpened(String insituFileName, String sensorType, String processingVersion) throws IOException {
-        if (cacheMap.containsKey(insituFileName)) {
-            renewTimestamp(insituFileName);
-            return cacheMap.get(insituFileName);
+    public Reader getFileOpened(String fileName, String sensorType, String processingVersion) throws IOException {
+        if (cacheMap.containsKey(fileName)) {
+            renewTimestamp(fileName);
+            return cacheMap.get(fileName);
         }
 
-        final Reader insituReader = openFile(insituFileName, sensorType, processingVersion);
+        final Reader reader = openFile(fileName, sensorType, processingVersion);
 
-        if (insituReader != null) {
-            addReaderToCache(insituFileName, insituReader);
+        if (reader != null) {
+            addReaderToCache(fileName, reader);
             removeOldestReader();
         }
-        return insituReader;
+        return reader;
     }
 
-    static Date[] extractStartEndDateFromInsituFilename(String insituFileName) {
-        final String[] strings = insituFileName.split("_");
-        final String start = strings[strings.length - 2];
-        final String end = strings[strings.length - 1].substring(0, 8);
-        final String pattern = "yyyyMMdd";
-        final Date[] startEnd = new Date[2];
-        startEnd[0] = TimeUtils.parse(start, pattern);
-        startEnd[1] = TimeUtils.parse(end, pattern);
-        return startEnd;
-    }
+    protected abstract int[] extractYearMonthDayFromFilename(String fileName);
 
-    private Reader openFile(String insituFileName, String sensorType, String processingVersion) throws IOException {
+    private Reader openFile(String fileName, String sensorType, String processingVersion) throws IOException {
         final SystemConfig systemConfig = context.getSystemConfig();
         final String geomType = systemConfig.getGeometryLibraryType();
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geomType));
-        final Reader insituReader = readerFactory.getReader(sensorType);
+        final Reader reader = readerFactory.getReader(sensorType);
 
-        final Path insituProductsDir = archive.createValidProductPath(processingVersion, sensorType, 1970,1,1);
-        insituReader.open(insituProductsDir.resolve(insituFileName).toFile());
-        return insituReader;
+        int[] ymd = extractYearMonthDayFromFilename(fileName);
+
+        final Path productsDir = archive.createValidProductPath(processingVersion, sensorType, ymd[0], ymd[1], ymd[2]);
+        reader.open(productsDir.resolve(fileName).toFile());
+        return reader;
     }
 
     private void removeOldestReader() throws IOException {
         // todo se/** 3 put maxCacheSize to configuration file
-        // todo se/** 3 an other solution to eliminate caching problems can be sorting of insitu file indexes
+        // todo se/** 3 an other solution to eliminate caching problems can be sorting of file indexes
         final int maxCacheSize = 70;
         if (oldestMap.size() > maxCacheSize) {
             final Map.Entry<Long, String> oldest = oldestMap.firstEntry();
@@ -95,23 +85,23 @@ class InsituReaderCache {
         }
     }
 
-    private void renewTimestamp(String insituFileName) {
+    private void renewTimestamp(String fileName) {
         for (Map.Entry<Long, String> oldest : oldestMap.entrySet()) {
-            if (oldest.getValue().equals(insituFileName)) {
+            if (oldest.getValue().equals(fileName)) {
                 oldestMap.remove(oldest.getKey());
                 break;
             }
         }
-        registerNameWithTimestamp(insituFileName);
+        registerNameWithTimestamp(fileName);
     }
 
-    private void addReaderToCache(String insituFileName, Reader insituReader) {
-        cacheMap.put(insituFileName, insituReader);
-        registerNameWithTimestamp(insituFileName);
+    private void addReaderToCache(String fileName, Reader reader) {
+        cacheMap.put(fileName, reader);
+        registerNameWithTimestamp(fileName);
     }
 
-    private String registerNameWithTimestamp(String insituFileName) {
-        return oldestMap.put(getTime(), insituFileName);
+    private String registerNameWithTimestamp(String fileName) {
+        return oldestMap.put(getTime(), fileName);
     }
 
     private long getTime() {

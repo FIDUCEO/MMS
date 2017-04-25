@@ -8,7 +8,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.PostProcessingContext;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -18,6 +20,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
 public class HirsL1CloudyFlagsTest {
@@ -28,6 +31,7 @@ public class HirsL1CloudyFlagsTest {
     private String flagVarName;
     private String latVarName;
     private String lonVarName;
+    private String sourceFileVarName;
     private DistanceToLandMap distanceToLandMap;
     private NetcdfFile netcdfFile;
     private NetcdfFile netcdfFileFromWriter;
@@ -40,13 +44,14 @@ public class HirsL1CloudyFlagsTest {
         flagVarName = "hirs-n18_flags_cloudy";
         latVarName = "hirs-n18_lat";
         lonVarName = "hirs-n18_lon";
+        sourceFileVarName = "hirs-n18_file_name";
 
         distanceToLandMap = mock(DistanceToLandMap.class);
         netcdfFile = mock(NetcdfFile.class);
         netcdfFileFromWriter = mock(NetcdfFile.class);
         netcdfFileWriter = mock(NetcdfFileWriter.class);
 
-        postProcessing = new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, distanceToLandMap);
+        postProcessing = new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, sourceFileVarName, distanceToLandMap);
     }
 
     @After
@@ -60,11 +65,12 @@ public class HirsL1CloudyFlagsTest {
 
     @Test
     public void testThatFinalFieldsAreSetInTheConstructor() throws Exception {
-        assertThat(postProcessing.btVarName_11_1_µm, is(equalTo("hirs-n18_bt_ch08")));
-        assertThat(postProcessing.btVarName_6_5_µm, is(equalTo("hirs-n18_bt_ch12")));
-        assertThat(postProcessing.flagVarName, is(equalTo("hirs-n18_flags_cloudy")));
-        assertThat(postProcessing.latVarName, is(equalTo("hirs-n18_lat")));
-        assertThat(postProcessing.lonVarName, is(equalTo("hirs-n18_lon")));
+        assertThat(postProcessing.btVarName_11_1_µm, is(equalTo(btVarName_11_1_µm)));
+        assertThat(postProcessing.btVarName_6_5_µm, is(equalTo(btVarName_6_5_µm)));
+        assertThat(postProcessing.flagVarName, is(equalTo(flagVarName)));
+        assertThat(postProcessing.latVarName, is(equalTo(latVarName)));
+        assertThat(postProcessing.lonVarName, is(equalTo(lonVarName)));
+        assertThat(postProcessing.sourceFileVarName, is(equalTo(sourceFileVarName)));
         assertThat(postProcessing.distanceToLandMap, is(sameInstance(distanceToLandMap)));
     }
 
@@ -140,5 +146,35 @@ public class HirsL1CloudyFlagsTest {
         mf = HirsL1CloudyFlags.getMaximumAndFlags(Array.factory(new float[]{4, 5, F, 6, 1, 6, F, 5, 3}), F, maxNumInvalidPixels);
         assertThat(mf.maximum, is(equalTo(6.0)));
         assertThat(mf.flags, is(equalTo((byte) 2))); // 2 means warning, because there are more invalids than maxNumInvalidPixels
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() throws Exception {
+        final PostProcessingContext processingContext = new PostProcessingContext();
+        processingContext.setSystemConfig(
+                    SystemConfig.load(
+                                new ByteArrayInputStream(
+                                            ("<system-config>" +
+                                             "    <geometry-library name = \"S2\" />" +
+                                             "    <archive>" +
+                                             "        <root-path>anyPath</root-path>" +
+                                             "        <rule sensors = \"hirs-n18\">anyRule</rule>" +
+                                             "    </archive>" +
+                                             "</system-config>").getBytes()
+                                )
+                    )
+        );
+
+        final HirsL1CloudyFlags.CloudRC readerCache = new HirsL1CloudyFlags.CloudRC(processingContext);
+        String hirsFileName;
+        int[] ymd;
+
+        hirsFileName = "189800453.NSS.HIRX.NN.D11233.S0808.E1003.B3221112.GC.nc";
+        ymd = readerCache.extractYearMonthDayFromFilename(hirsFileName);
+        assertArrayEquals(new int[]{2011, 8, 21}, ymd);
+
+        hirsFileName = "191062833.NSS.HIRX.NN.D88123.S1356.E1551.B3227172.WI.nc";
+        ymd = readerCache.extractYearMonthDayFromFilename(hirsFileName);
+        assertArrayEquals(new int[]{1988, 5, 2}, ymd);
     }
 }

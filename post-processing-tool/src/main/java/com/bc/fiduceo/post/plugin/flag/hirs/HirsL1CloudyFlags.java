@@ -20,6 +20,10 @@ import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.PostProcessingContext;
+import com.bc.fiduceo.post.ReaderCache;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.DataType;
@@ -33,6 +37,8 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 class HirsL1CloudyFlags extends PostProcessing {
 
@@ -47,14 +53,15 @@ class HirsL1CloudyFlags extends PostProcessing {
     final String btVarName_6_5_µm;
     final String latVarName;
     final String lonVarName;
+    final String sourceFileVarName;
     final DistanceToLandMap distanceToLandMap;
     private float fillValue_11_1;
     private float fillValue_6_5;
     private Variable var11_1µm;
     private Variable var6_5µm;
     private Variable varFlags;
+    private Variable sourceFileVar;
     private int[] levelShape;
-    private int[] levelOrigin;
     private Array data11_1;
     private Array data6_5;
     private Array flags;
@@ -62,18 +69,21 @@ class HirsL1CloudyFlags extends PostProcessing {
     private Array lats;
     private Array lons;
     private int[] shape;
+    private ReaderCache readerCache;
 
     public HirsL1CloudyFlags(final String btVarName_11_1_µm,
                              final String btVarName_6_5_µm,
                              final String flagVarName,
                              final String latVarName,
                              final String lonVarName,
+                             final String sourceFileVarName,
                              final DistanceToLandMap distanceToLandMap) {
         this.flagVarName = flagVarName;
         this.btVarName_11_1_µm = btVarName_11_1_µm;
         this.btVarName_6_5_µm = btVarName_6_5_µm;
         this.latVarName = latVarName;
         this.lonVarName = lonVarName;
+        this.sourceFileVarName = sourceFileVarName;
         this.distanceToLandMap = distanceToLandMap;
     }
 
@@ -106,15 +116,16 @@ class HirsL1CloudyFlags extends PostProcessing {
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         initDataForComputing(reader, writer);
+        int[] origin3D = {0, 0, 0};
 
         for (int z = 0; z < shape[0]; z++) {
-            levelOrigin[0] = z;
             final boolean land = isLand(distanceToLandMap, lons.getDouble(z), lats.getDouble(z));
             final boolean iceCoveredWater = !land && isIceCoveredWater();
             final boolean water = !land && !iceCoveredWater;
             if (land || iceCoveredWater) {
-                final Array levelData_11_1 = data11_1.section(levelOrigin, levelShape);
-                final MaximumAndFlags mf = getMaximumAndFlags(levelData_11_1, fillValue_11_1, 1);
+                origin3D[0] = z;
+                final Array domainData_11_1 = data11_1.section(origin3D, levelShape);
+                final MaximumAndFlags mf = getMaximumAndFlags(domainData_11_1, fillValue_11_1, 1);
                 final double spaceContrastThreshold = mf.maximum - DELTA_1_LAND_OR_ICE_COVERED;
                 index.set0(z);
                 for (int y = 0; y < shape[1]; y++) {
@@ -122,33 +133,28 @@ class HirsL1CloudyFlags extends PostProcessing {
                     for (int x = 0; x < shape[2]; x++) {
                         index.set2(x);
                         byte flagsByte = mf.flags;
-                        final float bt11_1 = data11_1.getFloat(index);
-                        if (bt11_1 != fillValue_11_1
-                            && spaceContrastThreshold > bt11_1) {
-                            flagsByte += SPACE_CONTRAST_TEST_CLOUDY;
-                        }
-                        final float bt6_5 = data6_5.getFloat(index);
-                        if (bt6_5 != fillValue_6_5
-                            && bt11_1 - bt6_5 < 25) {
-                            flagsByte += INTERCHANNEL_TEST_CLOUDY;
-                        }
+                        flagsByte += getCloudy_SpaceContrastTest(spaceContrastThreshold);
+                        flagsByte += getCloudy_InterChannelTest();
                         flags.setByte(index, flagsByte);
                     }
                 }
             } else {
-
+                String fileName = "";
+                String sensorType = "hirs-n18";
+                String processingVersion = "";
+                Reader srcReader = readerCache.getFileOpened(fileName, sensorType, processingVersion);
             }
         }
         writer.write(varFlags, flags);
     }
 
-    static MaximumAndFlags getMaximumAndFlags(Array levelData_11_1, float fillValue_11_1, int maxNumInvalidPixels) {
-        final IndexIterator iterator = levelData_11_1.getIndexIterator();
+    static MaximumAndFlags getMaximumAndFlags(Array domainData, float fillValue, int maxNumInvalidPixels) {
+        final IndexIterator iterator = domainData.getIndexIterator();
         int invalidCount = 0;
-        float max = fillValue_11_1;
+        float max = fillValue;
         while (iterator.hasNext()) {
             final float v = iterator.getFloatNext();
-            if (v == fillValue_11_1) {
+            if (v == fillValue) {
                 invalidCount++;
             } else {
                 max = Math.max(max, v);
@@ -173,17 +179,41 @@ class HirsL1CloudyFlags extends PostProcessing {
         return false;
     }
 
+    private byte getCloudy_SpaceContrastTest(double spaceContrastThreshold) {
+        final float bt11_1 = data11_1.getFloat(index);
+        boolean usable = bt11_1 != fillValue_11_1;
+        if (usable && spaceContrastThreshold > bt11_1) {
+            return SPACE_CONTRAST_TEST_CLOUDY;
+        }
+        return 0;
+    }
+
+    private byte getCloudy_InterChannelTest() {
+        final float bt11_1 = data11_1.getFloat(index);
+        final float bt6_5 = data6_5.getFloat(index);
+        boolean usable = bt11_1 != fillValue_11_1 && bt6_5 != fillValue_6_5;
+        if (usable && bt11_1 - bt6_5 < 25) {
+            return INTERCHANNEL_TEST_CLOUDY;
+        }
+        return 0;
+    }
+
     private int[] initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        readerCache = new CloudRC(getContext());
+
         var11_1µm = getVariable(writer, btVarName_11_1_µm);
-        var6_5µm = getVariable(writer, btVarName_6_5_µm);
-        varFlags = getVariable(writer, flagVarName);
         fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, "_FillValue", 0);
+
+        var6_5µm = getVariable(writer, btVarName_6_5_µm);
         fillValue_6_5 = getFloatValueFromAttribute(var6_5µm, "_FillValue", 0);
+
+        varFlags = getVariable(writer, flagVarName);
+
+        sourceFileVar = getVariable(writer, sourceFileVarName);
 
         shape = var11_1µm.getShape();
         levelShape = shape.clone();
         levelShape[0] = 1;
-        levelOrigin = new int[shape.length];
 
         data11_1 = var11_1µm.read();
         data6_5 = var6_5µm.read();
@@ -203,6 +233,27 @@ class HirsL1CloudyFlags extends PostProcessing {
         MaximumAndFlags(double maximum, byte flags) {
             this.maximum = maximum;
             this.flags = flags;
+        }
+    }
+
+    static class CloudRC extends ReaderCache {
+
+        public CloudRC(final PostProcessingContext context) {
+            super(context);
+        }
+
+        @Override
+        protected int[] extractYearMonthDayFromFilename(String fileName) {
+            final String[] strings = fileName.split("\\.");
+            final String datePart = strings[4].substring(1);
+            final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
+            final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+            utcCalendar.setTime(yyDDD);
+            return new int[] {
+            utcCalendar.get(Calendar.YEAR),
+            utcCalendar.get(Calendar.MONTH) +1,
+            utcCalendar.get(Calendar.DAY_OF_MONTH),
+            };
         }
     }
 }

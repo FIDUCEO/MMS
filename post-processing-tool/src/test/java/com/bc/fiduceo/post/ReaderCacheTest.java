@@ -17,30 +17,27 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.sstInsitu;
+package com.bc.fiduceo.post;
 
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
 import org.junit.runner.*;
 import ucar.nc2.Variable;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by Sabine on 04.01.2017.
  */
 @RunWith(IOTestRunner.class)
-public class InsituReaderCacheTest {
+public class ReaderCacheTest {
 
     private File testDataDirectory;
 
@@ -67,11 +64,16 @@ public class InsituReaderCacheTest {
         final String processingVersion = "v03.3";
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(inputStream));
-        final InsituReaderCache insituReaderCache = new InsituReaderCache(context);
+        final ReaderCache readerCache = new ReaderCache(context) {
+            @Override
+            protected int[] extractYearMonthDayFromFilename(String fileName) {
+                return new int[]{1970, 1, 1};
+            }
+        };
 
         // action
-        final Reader insituFileOpened = insituReaderCache
-                    .getInsituFileOpened("insitu_12_WMOID_11835_20040110_20040127.nc", "animal-sst", processingVersion);
+        final Reader insituFileOpened = readerCache
+                    .getFileOpened("insitu_12_WMOID_11835_20040110_20040127.nc", "animal-sst", processingVersion);
 
         //validation
         assertNotNull(insituFileOpened);
@@ -94,18 +96,5 @@ public class InsituReaderCacheTest {
             Variable variable = variables.get(i);
             assertEquals(i + ": " + expectedNames[i], i + ": " + variable.getShortName());
         }
-    }
-
-    @Test
-    public void extractStartEndDateFromInsituFilename() throws Exception {
-        final String begin = "19700325";
-        final String end = "19760625";
-
-        final Date[] dates = InsituReaderCache.extractStartEndDateFromInsituFilename(
-                    "anyNameWith_yyyyMMdd_atTheLastTwoPositions_" + begin + "_" + end + ".anyExtension");
-
-        assertEquals(2, dates.length);
-        assertEquals("25-Mar-1970 00:00:00", TimeUtils.format(dates[0]));
-        assertEquals("25-Jun-1976 00:00:00", TimeUtils.format(dates[1]));
     }
 }

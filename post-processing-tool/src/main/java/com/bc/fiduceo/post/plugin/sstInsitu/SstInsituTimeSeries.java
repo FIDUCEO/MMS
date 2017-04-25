@@ -20,6 +20,7 @@
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
 import com.bc.fiduceo.post.Constants;
+import com.bc.fiduceo.post.ReaderCache;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
@@ -55,7 +56,7 @@ class SstInsituTimeSeries extends PostProcessing {
     private String sensorType;
     private Variable fileNameVariable;
     private int filenameFieldSize;
-    private InsituReaderCache insituReaderCache;
+    private ReaderCache readerCache;
 
     SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize, String matchupTimeVarName) {
         this.processingVersion = processingVersion;
@@ -67,12 +68,17 @@ class SstInsituTimeSeries extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
-        fileNameVariable = getInsituFileNameVariable(reader, sensorType);
+        fileNameVariable = getFileNameVariable(reader, sensorType);
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
         final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
-        insituReaderCache = new InsituReaderCache(getContext());
-        final Reader insituReader = insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);
+        readerCache = new ReaderCache(getContext()) {
+            @Override
+            protected int[] extractYearMonthDayFromFilename(String fileName) {
+                return new int[]{1970, 1, 1};
+            }
+        };
+        final Reader insituReader = readerCache.getFileOpened(insituFileName, sensorType, processingVersion);
         addInsituVariables(writer, insituReader);
     }
 
@@ -96,7 +102,7 @@ class SstInsituTimeSeries extends PostProcessing {
 
         for (int i = 0; i < matchupCount; i++) {
             final String insituFileName = getInsituFileName(fileNameVariable, i, filenameFieldSize);
-            final SSTInsituReader insituReader = (SSTInsituReader) insituReaderCache.getInsituFileOpened(insituFileName, sensorType, processingVersion);
+            final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getFileOpened(insituFileName, sensorType, processingVersion);
             Range range = computeInsituRange(y1D[i], insituReader);
             final int[] origin1D = {range.min};
             final int timeSeriesLength = getTimeSeriesLength(range);
@@ -122,31 +128,6 @@ class SstInsituTimeSeries extends PostProcessing {
         }
     }
 
-    private Array createDeltaTime2D(int satelliteMatchupTime, Variable timeVar2D, Variable dtimeVar2D, int[] origin2D, int[] shape2D) throws IOException, InvalidRangeException {
-        final Array insituTimes = timeVar2D.read(origin2D, shape2D);
-        final Array deltaTimes = dtimeVar2D.read(origin2D, shape2D);
-        for (int j = 0; j < insituTimes.getSize(); j++) {
-            final int insituTime = insituTimes.getInt(j);
-            final int deltaTime = insituTime - satelliteMatchupTime;
-            deltaTimes.setInt(j, deltaTime);
-        }
-        return deltaTimes;
-    }
-
-    private Array createY2D(Range range, int[] shape2D) {
-        final int timeSeriesLength = getTimeSeriesLength(range);
-        final int[] y = new int[timeSeriesLength];
-        for (int j = 0; j < y.length; j++) {
-            y[j] = range.min + j;
-        }
-        final Array yData1D = Array.factory(y);
-        return yData1D.reshape(shape2D);
-    }
-
-    private int getTimeSeriesLength(Range range) {
-        return range.max - range.min + 1;
-    }
-
     static String getInsituFileName(Variable fileNameVar, int position, int filenameSize) throws IOException, InvalidRangeException {
         final Array nameArray = fileNameVar.read(new int[]{position, 0}, new int[]{1, filenameSize});
         final String insituFileName = String.valueOf((char[]) nameArray.getStorage()).trim();
@@ -156,20 +137,8 @@ class SstInsituTimeSeries extends PostProcessing {
         return insituFileName;
     }
 
-    static Variable getInsituFileNameVariable(NetcdfFile reader, final String sensorType) {
+    static Variable getFileNameVariable(NetcdfFile reader, final String sensorType) {
         return getVariable(reader, sensorType + "_file_name");
-    }
-
-    private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
-        return getVariable(reader, sensorType + "_y");
-    }
-
-    private static Variable getVariable(NetcdfFile reader, final String varName) {
-        final Variable fileNameVar = reader.findVariable(varName);
-        if (fileNameVar == null) {
-            throw new RuntimeException("Variable '" + varName + "' does not exist.");
-        }
-        return fileNameVar;
     }
 
     static String extractSensorType(NetcdfFile reader) {
@@ -219,6 +188,43 @@ class SstInsituTimeSeries extends PostProcessing {
 //        addVariablesAccordingToOldSstFileVersion(variables, dimString, writer);
         addVariables(variables, dimString, writer);
         addAditionalVariables(writer, dimString);
+    }
+
+    private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
+        return getVariable(reader, sensorType + "_y");
+    }
+
+    private static Variable getVariable(NetcdfFile reader, final String varName) {
+        final Variable fileNameVar = reader.findVariable(varName);
+        if (fileNameVar == null) {
+            throw new RuntimeException("Variable '" + varName + "' does not exist.");
+        }
+        return fileNameVar;
+    }
+
+    private Array createDeltaTime2D(int satelliteMatchupTime, Variable timeVar2D, Variable dtimeVar2D, int[] origin2D, int[] shape2D) throws IOException, InvalidRangeException {
+        final Array insituTimes = timeVar2D.read(origin2D, shape2D);
+        final Array deltaTimes = dtimeVar2D.read(origin2D, shape2D);
+        for (int j = 0; j < insituTimes.getSize(); j++) {
+            final int insituTime = insituTimes.getInt(j);
+            final int deltaTime = insituTime - satelliteMatchupTime;
+            deltaTimes.setInt(j, deltaTime);
+        }
+        return deltaTimes;
+    }
+
+    private Array createY2D(Range range, int[] shape2D) {
+        final int timeSeriesLength = getTimeSeriesLength(range);
+        final int[] y = new int[timeSeriesLength];
+        for (int j = 0; j < y.length; j++) {
+            y[j] = range.min + j;
+        }
+        final Array yData1D = Array.factory(y);
+        return yData1D.reshape(shape2D);
+    }
+
+    private int getTimeSeriesLength(Range range) {
+        return range.max - range.min + 1;
     }
 
     private void addVariables(List<Variable> variables, String dimString, NetcdfFileWriter writer) {

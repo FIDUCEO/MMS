@@ -16,9 +16,10 @@
  */
 package com.bc.fiduceo.post.plugin.flag.hirs;
 
+import static com.bc.fiduceo.util.JDomUtils.*;
+
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
-import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 
 import java.nio.file.FileSystem;
@@ -27,13 +28,14 @@ import java.nio.file.Paths;
 
 public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
 
-    public static final String TAG_NAME_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
-    public static final String TAG_NAME_BT_11_1_µM_VAR_NAME = "hirs-11_1-um-var-name";
-    public static final String TAG_NAME_BT_6_5_µM_VAR_NAME = "hirs-6_5-um-var-name";
-    public static final String TAG_NAME_FLAG_VAR_NAME = "hirs-cloud-flags-var-name";
-    public static final String TAG_NAME_LATITUDE_VAR_NAME = "hirs-latitude-var-name";
-    public static final String TAG_NAME_LONGITUDE_VAR_NAME = "hirs-longitude-var-name";
-    public static final String TAG_NAME_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
+    public static final String TAG_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
+    public static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
+    public static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
+    public static final String TAG_VAR_NAME_CLOUD_FLAGS = "hirs-var-name-cloud-flags";
+    public static final String TAG_VAR_NAME_LATITUDE = "hirs-var-name-latitude";
+    public static final String TAG_VAR_NAME_LONGITUDE = "hirs-var-name-longitude";
+    public static final String TAG_VAR_NAME_SOURCE_FILE_NAME = "hirs-var-name-source-file-name";
+    public static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
     private FileSystem fileSystem;
 
     @Override
@@ -42,23 +44,26 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getPostProcessingName() + "' expected.");
         }
 
-        final Element bt11_1µmVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_BT_11_1_µM_VAR_NAME);
-        final String btVarName_11_1_µm = JDomUtils.getMandatoryText(bt11_1µmVarElem).trim();
+        final Element bt11_1µmVarElem = getMandatoryChild(element, TAG_VAR_NAME_BT_11_1_µM);
+        final String btVarName_11_1_µm = getMandatoryText(bt11_1µmVarElem);
 
-        final Element bt6_5µmVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_BT_6_5_µM_VAR_NAME);
-        final String btVarName_6_5_µm = JDomUtils.getMandatoryText(bt6_5µmVarElem).trim();
+        final Element bt6_5µmVarElem = getMandatoryChild(element, TAG_VAR_NAME_BT_6_5_µM);
+        final String btVarName_6_5_µm = getMandatoryText(bt6_5µmVarElem);
 
-        final Element flagsVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_FLAG_VAR_NAME);
-        final String flagVarName = JDomUtils.getMandatoryText(flagsVarElem).trim();
+        final Element flagsVarElem = getMandatoryChild(element, TAG_VAR_NAME_CLOUD_FLAGS);
+        final String flagVarName = getMandatoryText(flagsVarElem);
 
-        final Element latVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_LATITUDE_VAR_NAME);
-        final String latVarName = JDomUtils.getMandatoryText(latVarElem).trim();
+        final Element latVarElem = getMandatoryChild(element, TAG_VAR_NAME_LATITUDE);
+        final String latVarName = getMandatoryText(latVarElem);
 
-        final Element lonVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_LONGITUDE_VAR_NAME);
-        final String lonVarName = JDomUtils.getMandatoryText(lonVarElem).trim();
+        final Element lonVarElem = getMandatoryChild(element, TAG_VAR_NAME_LONGITUDE);
+        final String lonVarName = getMandatoryText(lonVarElem);
 
-        final Element distanceVarElem = JDomUtils.getMandatoryChild(element, TAG_NAME_DISTANCE_PRODUCT_FILE_PATH);
-        final String pathString = JDomUtils.getMandatoryText(distanceVarElem).trim();
+        final Element sourceVarElem = getMandatoryChild(element, TAG_VAR_NAME_SOURCE_FILE_NAME);
+        final String sourceFileVarName = getMandatoryText(sourceVarElem);
+
+        final Element distanceVarElem = getMandatoryChild(element, TAG_DISTANCE_PRODUCT_FILE_PATH);
+        final String pathString = getMandatoryText(distanceVarElem);
         final Path distanceFilePath;
         if (fileSystem == null) {
             distanceFilePath = Paths.get(pathString);
@@ -67,12 +72,12 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
         }
         final DistanceToLandMap distanceToLandMap = new DistanceToLandMap(distanceFilePath);
 
-        return new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, distanceToLandMap);
+        return new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, sourceFileVarName, distanceToLandMap);
     }
 
     @Override
     public String getPostProcessingName() {
-        return TAG_NAME_POST_PROCESSING_NAME;
+        return TAG_POST_PROCESSING_NAME;
     }
 
     /**

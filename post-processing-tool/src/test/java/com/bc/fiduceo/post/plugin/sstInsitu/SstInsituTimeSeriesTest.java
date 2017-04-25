@@ -24,18 +24,16 @@ import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.MATCHUP;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
-import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.reader.Reader;
 import com.beust.jcommander.internal.Lists;
 import org.junit.*;
-import org.junit.runner.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -46,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-@RunWith(IOTestRunner.class)
 public class SstInsituTimeSeriesTest {
 
     @Test
@@ -88,7 +85,7 @@ public class SstInsituTimeSeriesTest {
         when(reader.findVariable("sensor-name_file_name")).thenReturn(expectedVariable);
 
         //action
-        final Variable fileNameVariable = SstInsituTimeSeries.getInsituFileNameVariable(reader, "sensor-name");
+        final Variable fileNameVariable = SstInsituTimeSeries.getFileNameVariable(reader, "sensor-name");
 
         assertSame(expectedVariable, fileNameVariable);
     }
@@ -105,7 +102,7 @@ public class SstInsituTimeSeriesTest {
         when(reader.getVariables()).thenReturn(variables);
 
         try {
-            SstInsituTimeSeries.getInsituFileNameVariable(reader, SstInsituTimeSeries.extractSensorType(reader));
+            SstInsituTimeSeries.getFileNameVariable(reader, SstInsituTimeSeries.extractSensorType(reader));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertThat(expected.getMessage(), is(equalTo("Variable 'sensor-name_file_name' does not exist.")));
@@ -212,7 +209,7 @@ public class SstInsituTimeSeriesTest {
         verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
         verify(writer, times(1)).addVariable(null, "insitu.dtime", DataType.INT, dimString);
         verify(insituReader, times(1)).getVariables();
-        verify(newVar, times(3)).addAll(any(Iterable.class));
+        verify(newVar, times(3)).addAll(isA(Iterable.class));
         verify(v3, times(1)).getShortName();
         verify(v3, times(1)).getDataType();
         verify(v3, times(1)).getAttributes();
