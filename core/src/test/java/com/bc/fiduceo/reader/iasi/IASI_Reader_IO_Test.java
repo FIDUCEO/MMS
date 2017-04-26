@@ -22,9 +22,11 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -47,6 +50,24 @@ public class IASI_Reader_IO_Test {
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
         reader = new IASI_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+    }
+
+    @Test
+    public void testOpen_alreadyOpenedStreamThrows() throws IOException {
+        final File iasiFile = getIasiFile();
+
+        try {
+            reader.open(iasiFile);
+
+            try {
+                reader.open(iasiFile);
+                fail("RuntimeException expected");
+            } catch(RuntimeException expected) {
+            }
+
+        } finally {
+            reader.close();
+        }
     }
 
     @Test
@@ -67,6 +88,59 @@ public class IASI_Reader_IO_Test {
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
+
+            // @todo 1 tb/tb continue with the geometries 2017-04-26
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize() throws IOException {
+        final File iasiFile = getIasiFile();
+
+        try {
+            reader.open(iasiFile);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(60, productSize.getNx());
+            assertEquals(1486, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator() throws IOException {
+        final File iasiFile = getIasiFile();
+
+        try {
+            reader.open(iasiFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+            assertTrue(timeLocator instanceof IASI_TimeLocator);
+
+            long time = timeLocator.getTimeFor(0, 0);
+            assertEquals(1451652474870L, time);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 12, 47, 54, 870, new Date(time));
+
+            time = timeLocator.getTimeFor(34, 744);
+            assertEquals(1451655454535L, time);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 34, 535, new Date(time));
+
+            time = timeLocator.getTimeFor(35, 744); // this pixel is within the same EFOV than the one before, acquired at the same time tb 2017-04-27
+            assertEquals(1451655454535L, time);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 34, 535, new Date(time));
+
+            time = timeLocator.getTimeFor(36, 744); // one EFOV further - approx 200 ms later tb 2017-04-27
+            assertEquals(1451655454749L, time);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 34, 749, new Date(time));
+
+            time = timeLocator.getTimeFor(59, 1485);
+            assertEquals(1451658417117L, time);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 14, 26, 57, 117, new Date(time));
         } finally {
             reader.close();
         }

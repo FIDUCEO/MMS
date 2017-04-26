@@ -66,10 +66,18 @@ public class IASI_Reader implements Reader {
 
     private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
+    private static final int SNOT = 30;
+
+    private static final int G_EPS_DAT_IASI_OFFSET = 9122;
+
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
     private MainProductHeaderRecord mainProductHeaderRecord;
+    private GiadrScaleFactors giadrScaleFactors;
+
     private long firstMdrOffset;
+    private long mdrSize;
+    private int mdrCount;
 
 
     IASI_Reader(GeometryFactory geometryFactory) {
@@ -78,7 +86,10 @@ public class IASI_Reader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        // @todo 1 tb/tb check if already stream open, if so: throw 2017-04-24
+        if (iis != null) {
+            throw new RuntimeException("Stream already opened");
+        }
+
         iis = new FileImageInputStream(file);
 
         readHeader();
@@ -120,8 +131,9 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
-    public TimeLocator getTimeLocator() {
-        throw new RuntimeException("not implemented");
+    public TimeLocator getTimeLocator() throws IOException {
+        final long[][] timeArray = readGEPSDatIasi();
+        return new IASI_TimeLocator(timeArray);
     }
 
     @Override
@@ -144,10 +156,12 @@ public class IASI_Reader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
-
     @Override
     public Dimension getProductSize() {
-        throw new RuntimeException("Not yet implemented");
+        final Dimension size = new Dimension();
+        size.setNx(60); // @todo 3 tb/tb extract constant 2017-04-27
+        size.setNy(2 * mdrCount);
+        return size;
     }
 
     private void readHeader() throws IOException {
@@ -165,25 +179,26 @@ public class IASI_Reader implements Reader {
 
         for (final InternalPointerRecord ipr : iprList) {
             if (ipr.targetRecordClass == RecordClass.GIADR) {
-                // @todo 1 tb(tb continue here 2017-04-25
-//                if (ipr.targetRecordSubclass == 0) {
-//                    iis.seek(ipr.targetRecordOffset);
-//                    GiadrQuality giadrQuality = new GiadrQuality();
-//                    giadrQuality.readRecord(iis);
-//                } else if (ipr.targetRecordSubclass == 1) {
-//                    iis.seek(ipr.targetRecordOffset);
-//                    giadrScaleFactors = new GiadrScaleFactors();
-//                    giadrScaleFactors.readRecord(iis);
-//                }
+                if (ipr.targetRecordSubclass == 0) {
+                    iis.seek(ipr.targetRecordOffset);
+                    GiadrQuality giadrQuality = new GiadrQuality();
+                    giadrQuality.readRecord(iis);
+                } else if (ipr.targetRecordSubclass == 1) {
+                    iis.seek(ipr.targetRecordOffset);
+                    giadrScaleFactors = new GiadrScaleFactors();
+                    giadrScaleFactors.readRecord(iis);
+                }
             } else if (ipr.targetRecordClass == RecordClass.MDR) {
                 firstMdrOffset = ipr.targetRecordOffset;
             }
         }
+
+        determineMdrCount(iis);
     }
 
     private List<InternalPointerRecord> readInternalPointerRecordList() throws IOException {
         final List<InternalPointerRecord> iprList = new ArrayList<>();
-        for (; ;) {
+        for (; ; ) {
             final InternalPointerRecord ipr = InternalPointerRecord.readInternalPointerRecord(iis);
             iprList.add(ipr);
             if (ipr.targetRecordClass == RecordClass.MDR) {
@@ -191,5 +206,39 @@ public class IASI_Reader implements Reader {
             }
         }
         return iprList;
+    }
+
+    private void determineMdrCount(ImageInputStream iis) throws IOException {
+        iis.seek(firstMdrOffset);
+        final GenericRecordHeader mdrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
+
+        mdrSize = mdrHeader.recordSize;
+        mdrCount = (int) ((iis.length() - firstMdrOffset) / mdrSize);
+    }
+
+    private long[][] readGEPSDatIasi() throws IOException {
+        final long[][] data = new long[mdrCount][];
+
+        for (int i = 0; i < mdrCount; i++) {
+            data[i] = readGEPSDatIasiMdr(i);
+        }
+
+        return data;
+    }
+
+    private long[] readGEPSDatIasiMdr(int mdrIndex) throws IOException {
+        final long[] data = new long[SNOT];
+        final long mdrOffset = getMdrOffset(mdrIndex);
+
+        iis.seek(mdrOffset + G_EPS_DAT_IASI_OFFSET);
+
+        for (int j = 0; j < SNOT; j++) {
+            data[j] = EpsMetopUtil.readShortCdsTime(iis).getAsCalendar().getTimeInMillis();
+        }
+        return data;
+    }
+
+    private long getMdrOffset(int i) {
+        return firstMdrOffset + (i * mdrSize);
     }
 }
