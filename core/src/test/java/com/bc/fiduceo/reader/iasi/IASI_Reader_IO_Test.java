@@ -54,7 +54,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testOpen_alreadyOpenedStreamThrows() throws IOException {
-        final File iasiFile = getIasiFile();
+        final File iasiFile = getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -71,8 +71,8 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo() throws IOException {
-        final File iasiFile = getIasiFile();
+    public void testReadAcquisitionInfo_MA() throws IOException {
+        final File iasiFile = getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -96,8 +96,33 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
+    public void testReadAcquisitionInfo_MB() throws IOException {
+        final File iasiFile = getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 12, 47, 56, 879, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 14, 26, 52, 463, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            // @todo 1 tb/tb continue with the geometries 2017-04-26
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetProductSize() throws IOException {
-        final File iasiFile = getIasiFile();
+        final File iasiFile = getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -113,7 +138,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator() throws IOException {
-        final File iasiFile = getIasiFile();
+        final File iasiFile = getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -146,8 +171,15 @@ public class IASI_Reader_IO_Test {
         }
     }
 
-    private File getIasiFile() {
+    private File getIasiFile_MA() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-ma", "v3-6N", "2016", "01", "IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private File getIasiFile_MB() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-mb", "v7-0N", "2014", "04", "IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;

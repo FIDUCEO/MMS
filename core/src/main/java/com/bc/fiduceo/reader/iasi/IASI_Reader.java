@@ -66,9 +66,13 @@ public class IASI_Reader implements Reader {
 
     private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
+    private static final int PN = 4;
     private static final int SNOT = 30;
 
     private static final int G_EPS_DAT_IASI_OFFSET = 9122;
+    private static final int G_GEO_SOND_LOC_OFFSET = 255893;
+
+    private static final double G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6;
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
@@ -111,6 +115,11 @@ public class IASI_Reader implements Reader {
         acquisitionInfo.setSensingStop(mphrHeader.recordEndTime.getAsDate());
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        final double[][][][] doubles = readGGeoSondLoc();
+        for (int line = 0; line < mdrCount; line++) {
+            double[][][] lineData = doubles[line];
+        }
 
         return acquisitionInfo;
     }
@@ -193,7 +202,7 @@ public class IASI_Reader implements Reader {
             }
         }
 
-        determineMdrCount(iis);
+        determineMdrParameter(iis);
     }
 
     private List<InternalPointerRecord> readInternalPointerRecordList() throws IOException {
@@ -208,7 +217,7 @@ public class IASI_Reader implements Reader {
         return iprList;
     }
 
-    private void determineMdrCount(ImageInputStream iis) throws IOException {
+    private void determineMdrParameter(ImageInputStream iis) throws IOException {
         iis.seek(firstMdrOffset);
         final GenericRecordHeader mdrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
 
@@ -235,6 +244,27 @@ public class IASI_Reader implements Reader {
         for (int j = 0; j < SNOT; j++) {
             data[j] = EpsMetopUtil.readShortCdsTime(iis).getAsCalendar().getTimeInMillis();
         }
+        return data;
+    }
+
+    private double[][][][] readGGeoSondLoc() throws IOException {
+        final double[][][][] data = new double[mdrCount][SNOT][PN][2];
+
+        for (int mdrIndex = 0; mdrIndex < mdrCount; mdrIndex++) {
+            final long mdrOffset = getMdrOffset(mdrIndex);
+            final int[] mdrBlock = new int[SNOT * PN * 2];
+
+            iis.seek(mdrOffset + G_GEO_SOND_LOC_OFFSET);
+            iis.readFully(mdrBlock, 0, mdrBlock.length);
+
+            for (int i = 0, j = 0; j < SNOT; j++) {
+                for (int k = 0; k < PN; k++) {
+                    data[mdrIndex][j][k][0] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
+                    data[mdrIndex][j][k][1] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
+                }
+            }
+        }
+
         return data;
     }
 

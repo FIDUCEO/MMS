@@ -25,10 +25,8 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.collect.Lists;
 import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 
@@ -49,51 +47,6 @@ public class BoundingPolygonCreator {
         this.intervalY = interval.getY();
 
         this.geometryFactory = geometryFactory;
-    }
-
-    public AcquisitionInfo createIASIBoundingPolygon(ArrayFloat.D2 arrayLatitude, ArrayFloat.D2 arrayLongitude) {
-        final int geoXTrack = arrayLatitude.getShape()[1] - 1;
-        final int geoTrack = arrayLatitude.getShape()[0] - 1;
-        final List<Point> coordinates = new ArrayList<>();
-
-        float lon = arrayLongitude.get(0, 0);
-        float lat = arrayLatitude.get(0, 0);
-        coordinates.add(geometryFactory.createPoint(lon, lat));
-
-        for (int x = 1; x < geoXTrack; x += intervalX) {
-            lon = arrayLongitude.get(0, x);
-            lat = arrayLatitude.get(0, x);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-
-        for (int y = 0; y <= geoTrack; y += intervalY) {
-            lon = arrayLongitude.get(y, geoXTrack);
-            lat = arrayLatitude.get(y, geoXTrack);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-            if ((y + intervalY) > geoTrack) {
-                lon = arrayLongitude.get(geoTrack, geoXTrack);
-                lat = arrayLatitude.get(geoTrack, geoXTrack);
-                coordinates.add(geometryFactory.createPoint(lon, lat));
-            }
-        }
-
-        for (int x = geoXTrack - 1; x > 0; x -= intervalX) {
-            lon = arrayLongitude.get(geoTrack, x);
-            lat = arrayLatitude.get(geoTrack, x);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-
-        for (int y = geoTrack; y >= 0; y -= intervalY) {
-            lon = arrayLongitude.get(y, 0);
-            lat = arrayLatitude.get(y, 0);
-            coordinates.add(geometryFactory.createPoint(lon, lat));
-        }
-        closePolygon(coordinates);
-
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        final Polygon polygon = geometryFactory.createPolygon(coordinates);
-        acquisitionInfo.setBoundingGeometry(polygon);
-        return acquisitionInfo;
     }
 
     public Geometry createBoundingGeometry(Array longitudes, Array latitudes) {
