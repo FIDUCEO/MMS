@@ -26,6 +26,7 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
+import ucar.ma2.ArrayChar;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.IndexIterator;
@@ -42,11 +43,14 @@ import java.util.Date;
 
 class HirsL1CloudyFlags extends PostProcessing {
 
-    public final static float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
-    public final static byte SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE = 1;
-    public final static byte SPACE_CONTRAST_TEST_WARNING = 2;
-    public final static byte SPACE_CONTRAST_TEST_CLOUDY = 4;
-    public final static byte INTERCHANNEL_TEST_CLOUDY = 8;
+    public static final float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
+    public static final float DELTA_1_WATER = 3.5f;
+    public static final byte SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE = 0x1;
+    public static final byte SPACE_CONTRAST_TEST_WARNING = 0x2;
+    public static final byte SPACE_CONTRAST_TEST_CLOUDY = 0x4;
+    public static final byte INTERCHANNEL_TEST_CLOUDY = 0x8;
+    public static final int DOMAIN_LAND_OR_ICE_NOT_USEABLE = 1;
+    public static final int DOMAIN_WATER_NOT_USEABLE = 20;
     private final static DataType FLAG_VAR_DATA_TYPE = DataType.BYTE;
     final String flagVarName;
     final String btVarName_11_1_µm;
@@ -60,16 +64,13 @@ class HirsL1CloudyFlags extends PostProcessing {
     private Variable var11_1µm;
     private Variable var6_5µm;
     private Variable varFlags;
-    private Variable sourceFileVar;
-    private int[] levelShape;
     private Array data11_1;
     private Array data6_5;
     private Array flags;
-    private Index index;
+    private ArrayChar sourcFileNames;
     private Array lats;
     private Array lons;
     private int[] shape;
-    private ReaderCache readerCache;
 
     public HirsL1CloudyFlags(final String btVarName_11_1_µm,
                              final String btVarName_6_5_µm,
@@ -116,33 +117,46 @@ class HirsL1CloudyFlags extends PostProcessing {
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         initDataForComputing(reader, writer);
-        int[] origin3D = {0, 0, 0};
+
+        final int[] levelShape = data11_1.getShape();
+        levelShape[0] =1;
+        final DomainDataProvider landIceDDP = new DomainDataProvider(DOMAIN_LAND_OR_ICE_NOT_USEABLE, DELTA_1_LAND_OR_ICE_COVERED) {
+            final int[] origin3D = {0, 0, 0};
+
+            @Override
+            public Array getDomainData_11_1(int z) throws InvalidRangeException {
+                origin3D[0] = z;
+                return data11_1.section(origin3D, levelShape);
+            }
+        };
+        final Domain domainLandIce = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, landIceDDP);
+        final DomainDataProvider waterDDP = new DomainDataProvider(DOMAIN_WATER_NOT_USEABLE, DELTA_1_WATER) {
+            private ReaderCache readerCache= new CloudRC(getContext());
+            final int[] origin2D = {0, 0};
+            final int[] fileNamesShape = sourcFileNames.getShape();
+            final int[] nameLevelShape = {1, fileNamesShape[1]};
+
+            @Override
+            Array getDomainData_11_1(int z) throws InvalidRangeException, IOException {
+//                origin2D[0] = z;
+//                final String fileName = sourcFileNames.getString(z);
+//                String sensorType = "hirs-n18";
+//                String processingVersion = "";
+//                Reader srcReader = readerCache.getFileOpened(fileName, sensorType, processingVersion);
+                return null;
+            }
+        };
+
+        final Domain domainWater = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, waterDDP);
 
         for (int z = 0; z < shape[0]; z++) {
             final boolean land = isLand(distanceToLandMap, lons.getDouble(z), lats.getDouble(z));
             final boolean iceCoveredWater = !land && isIceCoveredWater();
             final boolean water = !land && !iceCoveredWater;
             if (land || iceCoveredWater) {
-                origin3D[0] = z;
-                final Array domainData_11_1 = data11_1.section(origin3D, levelShape);
-                final MaximumAndFlags mf = getMaximumAndFlags(domainData_11_1, fillValue_11_1, 1);
-                final double spaceContrastThreshold = mf.maximum - DELTA_1_LAND_OR_ICE_COVERED;
-                index.set0(z);
-                for (int y = 0; y < shape[1]; y++) {
-                    index.set1(y);
-                    for (int x = 0; x < shape[2]; x++) {
-                        index.set2(x);
-                        byte flagsByte = mf.flags;
-                        flagsByte += getCloudy_SpaceContrastTest(spaceContrastThreshold);
-                        flagsByte += getCloudy_InterChannelTest();
-                        flags.setByte(index, flagsByte);
-                    }
-                }
+                domainLandIce.computeFlags(z);
             } else {
-                String fileName = "";
-                String sensorType = "hirs-n18";
-                String processingVersion = "";
-                Reader srcReader = readerCache.getFileOpened(fileName, sensorType, processingVersion);
+//                domainWater.computeFlags(z);
             }
         }
         writer.write(varFlags, flags);
@@ -179,28 +193,29 @@ class HirsL1CloudyFlags extends PostProcessing {
         return false;
     }
 
-    private byte getCloudy_SpaceContrastTest(double spaceContrastThreshold) {
-        final float bt11_1 = data11_1.getFloat(index);
-        boolean usable = bt11_1 != fillValue_11_1;
-        if (usable && spaceContrastThreshold > bt11_1) {
+    static byte getCloudy_SpaceContrastTest(double spaceContrastThreshold, final float value_11_1, float fillValue_11_1) {
+        // A pixel is classified cloudy if the pixel is useable (!= fill value) and value < threshold
+        // see chapter 2.2.2.1 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+        boolean usable = value_11_1 != fillValue_11_1;
+        if (usable && spaceContrastThreshold > value_11_1) {
             return SPACE_CONTRAST_TEST_CLOUDY;
         }
         return 0;
     }
 
-    private byte getCloudy_InterChannelTest() {
-        final float bt11_1 = data11_1.getFloat(index);
-        final float bt6_5 = data6_5.getFloat(index);
-        boolean usable = bt11_1 != fillValue_11_1 && bt6_5 != fillValue_6_5;
-        if (usable && bt11_1 - bt6_5 < 25) {
+    static byte getCloudy_InterChannelTest(final float value_11_1, float fillValue_11_1,
+                                           final float value_6_5, float fillValue_6_5) {
+        // A pixel is classified cloudy if both values are useable (!= fill value)
+        // and Math.abs(value_11_1 - value_6_5) < 25
+        // see chapter 2.2.2.2 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+        boolean usable = value_11_1 != fillValue_11_1 && value_6_5 != fillValue_6_5;
+        if (usable && Math.abs(value_11_1 - value_6_5) < 25) {
             return INTERCHANNEL_TEST_CLOUDY;
         }
         return 0;
     }
 
-    private int[] initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        readerCache = new CloudRC(getContext());
-
+    private void initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         var11_1µm = getVariable(writer, btVarName_11_1_µm);
         fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, "_FillValue", 0);
 
@@ -209,20 +224,17 @@ class HirsL1CloudyFlags extends PostProcessing {
 
         varFlags = getVariable(writer, flagVarName);
 
-        sourceFileVar = getVariable(writer, sourceFileVarName);
+        final Variable sourceFileVar = getVariable(writer, sourceFileVarName);
+        sourcFileNames = (ArrayChar) sourceFileVar.read();
 
         shape = var11_1µm.getShape();
-        levelShape = shape.clone();
-        levelShape[0] = 1;
 
         data11_1 = var11_1µm.read();
         data6_5 = var6_5µm.read();
         flags = varFlags.read();
-        index = flags.getIndex();
 
         lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, Constants.MATCHUP_COUNT);
         lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, Constants.MATCHUP_COUNT);
-        return shape;
     }
 
     static class MaximumAndFlags {
@@ -249,11 +261,64 @@ class HirsL1CloudyFlags extends PostProcessing {
             final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
             final Calendar utcCalendar = TimeUtils.getUTCCalendar();
             utcCalendar.setTime(yyDDD);
-            return new int[] {
-            utcCalendar.get(Calendar.YEAR),
-            utcCalendar.get(Calendar.MONTH) +1,
-            utcCalendar.get(Calendar.DAY_OF_MONTH),
-            };
+            return new int[]{
+                        utcCalendar.get(Calendar.YEAR),
+                        utcCalendar.get(Calendar.MONTH) + 1,
+                        utcCalendar.get(Calendar.DAY_OF_MONTH),
+                        };
         }
+    }
+
+    static class Domain {
+
+        private final float fillValue_11_1;
+        private final float fillValue_6_5;
+        private final Array data11_1um;
+        private final Array data6_5um;
+        private final Array flags;
+        private final int[] shape;
+        private final Index index;
+        private final DomainDataProvider ddp;
+
+        public Domain(Array data11_1, Array data6_5, Array flags, float fillValue_11_1, float fillValue_6_5, DomainDataProvider ddp) {
+            this.data11_1um = data11_1;
+            this.data6_5um = data6_5;
+            this.flags = flags;
+            this.fillValue_11_1 = fillValue_11_1;
+            this.fillValue_6_5 = fillValue_6_5;
+            shape = flags.getShape();
+            index = flags.getIndex();
+            this.ddp = ddp;
+        }
+
+        void computeFlags(int z) throws InvalidRangeException, IOException {
+            Array domainData_11_1 = ddp.getDomainData_11_1(z);
+            final MaximumAndFlags mf = getMaximumAndFlags(domainData_11_1, fillValue_11_1, ddp.maxNumUnuseable);
+            final double spaceContrastThreshold = mf.maximum - ddp.delta1;
+            index.set0(z);
+            for (int y = 0; y < shape[1]; y++) {
+                index.set1(y);
+                for (int x = 0; x < shape[2]; x++) {
+                    index.set2(x);
+                    byte flagsByte = mf.flags;
+                    flagsByte += getCloudy_SpaceContrastTest(spaceContrastThreshold, data11_1um.getFloat(index), fillValue_11_1);
+                    flagsByte += getCloudy_InterChannelTest(data11_1um.getFloat(index), fillValue_11_1, data6_5um.getFloat(index), fillValue_6_5);
+                    flags.setByte(index, flagsByte);
+                }
+            }
+        }
+    }
+
+    static abstract class DomainDataProvider {
+
+        final int maxNumUnuseable;
+        final float delta1;
+
+        public DomainDataProvider(int maxNumUnuseable, float delta1) {
+            this.maxNumUnuseable = maxNumUnuseable;
+            this.delta1 = delta1;
+        }
+
+        abstract Array getDomainData_11_1(int z) throws InvalidRangeException, IOException;
     }
 }

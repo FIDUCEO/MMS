@@ -177,4 +177,77 @@ public class HirsL1CloudyFlagsTest {
         ymd = readerCache.extractYearMonthDayFromFilename(hirsFileName);
         assertArrayEquals(new int[]{1988, 5, 2}, ymd);
     }
+
+    @Test
+    public void testGetCloudy_SpaceContrastTest() throws Exception {
+        final float threshold = 24.0f;
+        final float fillValue = -2.0f;
+        float value;
+        byte expected;
+
+        // A pixel is classified cloudy if the pixel is useable (!= fill value) and value < threshold
+        // see chapter 2.2.2.1 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+
+        // value is equal to fill value
+        value = fillValue;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_SpaceContrastTest(threshold, value, fillValue));
+
+        // value is useable but not less than threshold
+        value = threshold;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_SpaceContrastTest(threshold, value, fillValue));
+
+        // value is useable and less than threshold
+        value = threshold -0.00001f;
+        expected = HirsL1CloudyFlags.SPACE_CONTRAST_TEST_CLOUDY;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_SpaceContrastTest(threshold, value, fillValue));
+    }
+
+    @Test
+    public void testGetCloudy_InterChannelTest() throws Exception {
+        final float val_11_1 = 10.0f;
+        final float val_6_5 = 34.999f;  // 10 - 34.999 = -24.999 ... abs(-24.999) = 24.999 ... true = 24.999 < 25
+        final float fill_11_1 = -33.3f;
+        final float fill_6_5 = -99.9f;
+
+        byte expected;
+
+        // A pixel is classified cloudy if both values are useable (!= fill value)
+        // and Math.abs(value_11_1 - value_6_5) < 25
+        // see chapter 2.2.2.2 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+
+        float v1;
+        float v2;
+
+        // value 11.1µm and 6.5µm are unuseable (== fill value)
+        v1 = fill_11_1;
+        v2 = fill_6_5;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_InterChannelTest(v1, fill_11_1, v2, fill_6_5));
+
+        // value 11.1µm is unuseable (== fill value)
+        v1 = fill_11_1;
+        v2 = val_6_5;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_InterChannelTest(v1, fill_11_1, v2, fill_6_5));
+
+        // value 6.5µm is unuseable (== fill value)
+        v1 = fill_11_1;
+        v2 = val_6_5;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_InterChannelTest(v1, fill_11_1, v2, fill_6_5));
+
+        // both values are useable (!= fill value) but absolute difference is not less than 25
+        v1 = val_11_1;
+        v2 = val_6_5 + 1;
+        expected = 0x0;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_InterChannelTest(v1, fill_11_1, v2, fill_6_5));
+
+        // both values are useable (!= fill value)
+        v1 = val_11_1;
+        v2 = val_6_5;
+        expected = HirsL1CloudyFlags.INTERCHANNEL_TEST_CLOUDY;
+        assertEquals(expected, HirsL1CloudyFlags.getCloudy_InterChannelTest(v1, fill_11_1, v2, fill_6_5));
+    }
 }
