@@ -35,10 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -121,7 +118,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize() throws IOException {
+    public void testGetProductSize_MA() throws IOException {
         final File iasiFile = getIasiFile_MA();
 
         try {
@@ -137,7 +134,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetTimeLocator() throws IOException {
+    public void testGetTimeLocator_MA() throws IOException {
         final File iasiFile = getIasiFile_MA();
 
         try {
@@ -166,6 +163,59 @@ public class IASI_Reader_IO_Test {
             time = timeLocator.getTimeFor(59, 1485);
             assertEquals(1451658417117L, time);
             TestUtil.assertCorrectUTCDate(2016, 1, 1, 14, 26, 57, 117, new Date(time));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_MB() throws IOException {
+        final File iasiFile = getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+            assertTrue(timeLocator instanceof IASI_TimeLocator);
+
+            long time = timeLocator.getTimeFor(0, 0);
+            assertEquals(1398430076879L, time);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 12, 47, 56, 879, new Date(time));
+
+            time = timeLocator.getTimeFor(54, 844);
+            assertEquals(1398433458733L, time);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 13, 44, 18, 733, new Date(time));
+
+            time = timeLocator.getTimeFor(55, 844); // this pixel is within the same EFOV than the one before, acquired at the same time tb 2017-04-28
+            assertEquals(1398433458733L, time);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 13, 44, 18, 733, new Date(time));
+
+            time = timeLocator.getTimeFor(56, 844); // one EFOV further - approx 200 ms later tb 2017-04-27
+            assertEquals(1398433458948L, time);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 13, 44, 18, 948, new Date(time));
+
+            time = timeLocator.getTimeFor(59, 1483);
+            assertEquals(1398436011167L, time);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 14, 26, 51, 167, new Date(time));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_MB_twiceReturnsSameObject() throws IOException {
+        final File iasiFile = getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+            final TimeLocator timeLocator_1 = reader.getTimeLocator();
+            assertNotNull(timeLocator_1);
+
+            final TimeLocator timeLocator_2 = reader.getTimeLocator();
+            assertNotNull(timeLocator_2);
+
+            assertSame(timeLocator_1, timeLocator_2);
         } finally {
             reader.close();
         }

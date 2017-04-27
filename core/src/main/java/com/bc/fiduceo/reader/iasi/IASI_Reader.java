@@ -56,6 +56,7 @@ import ucar.nc2.Variable;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.management.relation.RoleUnresolved;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,11 +79,11 @@ public class IASI_Reader implements Reader {
     private GenericRecordHeader mphrHeader;
     private MainProductHeaderRecord mainProductHeaderRecord;
     private GiadrScaleFactors giadrScaleFactors;
+    private IASI_TimeLocator timeLocator;
 
     private long firstMdrOffset;
     private long mdrSize;
     private int mdrCount;
-
 
     IASI_Reader(GeometryFactory geometryFactory) {
         iis = null;
@@ -101,6 +102,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
+        timeLocator = null;
         if (iis != null) {
             iis.close();
             iis = null;
@@ -141,8 +143,11 @@ public class IASI_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        final long[][] timeArray = readGEPSDatIasi();
-        return new IASI_TimeLocator(timeArray);
+        if (timeLocator == null) {
+            final long[][] timeArray = readGEPSDatIasi();
+            timeLocator = new IASI_TimeLocator(timeArray);
+        }
+        return timeLocator;
     }
 
     @Override
@@ -220,6 +225,10 @@ public class IASI_Reader implements Reader {
     private void determineMdrParameter(ImageInputStream iis) throws IOException {
         iis.seek(firstMdrOffset);
         final GenericRecordHeader mdrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
+
+        if (mdrHeader.recordSubclassVersion != 5) {
+            throw new RuntimeException("Unsupported processing version");
+        }
 
         mdrSize = mdrHeader.recordSize;
         mdrCount = (int) ((iis.length() - firstMdrOffset) / mdrSize);
