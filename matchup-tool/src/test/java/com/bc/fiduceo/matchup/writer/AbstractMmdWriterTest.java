@@ -42,11 +42,11 @@ public class AbstractMmdWriterTest {
 
     @Test
     public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
-        final Sensor primarySensor = new Sensor("SensorName1");
+        final Sensor primarySensor = new Sensor("SensorName2");
         primarySensor.setPrimary(true);
         final List<Sensor> sensorList = Arrays.asList(
                 primarySensor,
-                new Sensor("SensorName2"),
+                new Sensor("SensorName1"),
                 new Sensor("SensorName3")
         );
 
@@ -74,6 +74,7 @@ public class AbstractMmdWriterTest {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
+        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("sensor-names", "SensorName2,SensorName1,SensorName3")));
         verifyNoMoreInteractions(mockWriter);
     }
 }

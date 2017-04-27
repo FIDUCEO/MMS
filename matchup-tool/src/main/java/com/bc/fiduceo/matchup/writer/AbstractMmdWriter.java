@@ -53,6 +53,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -208,6 +209,22 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
         }
+
+        netcdfFileWriter.addGroupAttribute(null, new Attribute(
+                    "sensor-names", getCommaSeparatedListOfSensors(useCaseConfig)
+        ));
+    }
+
+    static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
+        final StringBuilder sensors = new StringBuilder();
+        sensors.append(useCaseConfig.getPrimarySensor().getName());
+        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        final Iterator<Sensor> sensorIterator = additionalSensors.iterator();
+        while (sensorIterator.hasNext()) {
+            sensors.append(",");
+            sensors.append(sensorIterator.next().getName());
+        }
+        return sensors.toString();
     }
 
     // package access for testing only tb 2016-09-29
