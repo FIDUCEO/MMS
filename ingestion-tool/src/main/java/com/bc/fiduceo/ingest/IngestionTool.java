@@ -173,7 +173,7 @@ class IngestionTool {
         endOption.setArgName("Date");
         options.addOption(endOption);
 
-        final Option versionOption = new Option("v", "version", true, "Define the sensor version.");
+        final Option versionOption = new Option("v", "version", true, "Define the sensor data processing version.");
         options.addOption(versionOption);
 
         return options;

@@ -64,7 +64,7 @@ public class IngestionToolTest {
                 "   -h,--help                    Prints the tool usage." + ls +
                 "   -s,--sensor <arg>            Defines the sensor to be ingested." + ls +
                 "   -start,--start-time <Date>   Define the starting time of products to inject." + ls +
-                "   -v,--version <arg>           Define the sensor version." + ls, outputStream.toString());
+                "   -v,--version <arg>           Define the sensor data processing version." + ls, outputStream.toString());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class IngestionToolTest {
         assertNotNull(version);
         assertEquals("v", version.getOpt());
         assertEquals("version", version.getLongOpt());
-        assertEquals("Define the sensor version.", version.getDescription());
+        assertEquals("Define the sensor data processing version.", version.getDescription());
         assertTrue(version.hasArg());
     }
 
