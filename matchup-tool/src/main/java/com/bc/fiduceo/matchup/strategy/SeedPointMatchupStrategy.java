@@ -43,7 +43,6 @@ import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.SobolSamplingPointGenerator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -139,7 +138,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
                         final MatchupSet matchupSet = new MatchupSet();
                         matchupSet.setPrimaryObservationPath(primaryObservationDataFilePath);
+                        matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryProcessingVersion(secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
@@ -168,7 +169,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, matchupSet, secondaryReader);
+                                    applyConditionsAndScreenings(matchupCollection, matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
                                 }
                             }
                         }

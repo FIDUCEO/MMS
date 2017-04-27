@@ -247,10 +247,13 @@ public class MmdWriter_IO_Test {
     private static MatchupCollection createMatchupCollection_AVHRR(File testDataDirectory) {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final MatchupSet matchupSet = new MatchupSet();
-        final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", "v01.2", "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
+        final String processingVersion = "v01.2";
+        final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", processingVersion, "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
         matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
-        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", "v01.2", "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
+        matchupSet.setPrimaryProcessingVersion(processingVersion);
+        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", processingVersion, "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
         matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
+        matchupSet.setSecondaryProcessingVersion(processingVersion);
         for (int i = 0; i < 8; i++) {
             final SampleSet sampleSet = new SampleSet();
             sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));

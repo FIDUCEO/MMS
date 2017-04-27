@@ -63,7 +63,7 @@ public class IOVariablesList {
         return container;
     }
 
-    void setReaderAndPath(String sensorName, Reader reader, Path path) {
+    void setReaderAndPath(String sensorName, Reader reader, Path path, String processingVersion) {
         final ReaderContainer container = readerContainerMap.get(sensorName);
         if (container == null) {
             throw new RuntimeException("Invalid sensor name requested: " + sensorName);
@@ -71,6 +71,7 @@ public class IOVariablesList {
 
         container.setReader(reader);
         container.setSourcePath(path);
+        container.setProcessingVersion(processingVersion);
     }
 
     public void close() throws IOException {

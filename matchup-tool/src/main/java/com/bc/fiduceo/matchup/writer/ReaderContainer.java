@@ -24,6 +24,7 @@ public class ReaderContainer {
 
     private Reader reader;
     private Path sourcePath;
+    private String processingVersion;
 
     public void setReader(Reader reader) {
         this.reader = reader;
@@ -31,6 +32,14 @@ public class ReaderContainer {
 
     public Reader getReader() {
         return reader;
+    }
+
+    public void setProcessingVersion(String processingVersion) {
+        this.processingVersion = processingVersion;
+    }
+
+    public String getProcessingVersion() {
+        return processingVersion;
     }
 
     Path getSourcePath() {

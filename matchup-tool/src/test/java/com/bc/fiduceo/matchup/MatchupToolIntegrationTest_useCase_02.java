@@ -141,16 +141,20 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     }
 
     private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "1.02", "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
+        final String processingVersion = "1.02";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", processingVersion, "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
         final SatelliteObservation noaa18 = TestData.createObservation_AVHRR_GAC_NOAA_18(absolutePath, geometryFactory);
+        noaa18.setVersion(processingVersion);
         storage.insert(noaa18);
     }
 
     private void insert_AVHRR_GAC_NOAA17() throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
+        final String processingVersion = "1.01";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", processingVersion, "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
         final SatelliteObservation noaa17 = TestData.createObservation_AVHRR_GAC_NOAA_17(absolutePath, geometryFactory);
+        noaa17.setVersion(processingVersion);
         storage.insert(noaa17);
     }
 

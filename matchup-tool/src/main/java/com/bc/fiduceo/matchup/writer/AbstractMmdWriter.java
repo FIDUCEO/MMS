@@ -135,8 +135,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
                 final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
 
-                ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath);
-                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath);
+                ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
+                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion());
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
                 logger.info("Num matchups: " + set.getNumObservations());
@@ -348,6 +348,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             netcdfFileWriter.addDimension(null, getDimensionNameNy(dimension.getName()), dimension.getNy());
         }
         netcdfFileWriter.addDimension(null, "file_name", 128);
+        netcdfFileWriter.addDimension(null, "processing_version", 30);
         netcdfFileWriter.addDimension(null, "matchup_count", numMatchups);
     }
 

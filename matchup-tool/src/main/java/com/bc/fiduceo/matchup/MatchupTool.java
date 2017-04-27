@@ -38,6 +38,7 @@ import com.bc.fiduceo.matchup.writer.IOVariablesList;
 import com.bc.fiduceo.matchup.writer.MmdWriter;
 import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
+import com.bc.fiduceo.matchup.writer.ProcessingVersionWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.ReaderContainer;
 import com.bc.fiduceo.matchup.writer.SourcePathWritingIOVariable;
 import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
@@ -225,6 +226,19 @@ class MatchupTool {
             final List<Attribute> attributes = ioVariable.getAttributes();
             final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "file name of the original data file"));
+            ioVariablesList.add(ioVariable, sensorName);
+        }
+
+        varName = "processing_version";
+        if (!excludes.contains(varName)) {
+            varName = renames.getOrDefault(varName, varName);
+            final ProcessingVersionWritingIOVariable ioVariable = new ProcessingVersionWritingIOVariable(readerContainer);
+            ioVariable.setTargetVariableName(targetSensorName + separator + varName);
+            ioVariable.setDataType(DataType.CHAR.toString());
+            ioVariable.setDimensionNames("matchup_count processing_version");
+            final List<Attribute> attributes = ioVariable.getAttributes();
+            final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
+            attributes.add(new Attribute(attName, "the processing version of the original data file"));
             ioVariablesList.add(ioVariable, sensorName);
         }
 

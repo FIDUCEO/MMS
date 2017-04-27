@@ -30,6 +30,8 @@ public class MatchupSet {
 
     private Path primaryObservationPath;
     private Path secondaryObservationPath;
+    private String primaryProcessingVersion;
+    private String secondaryProcessingVersion;
 
     public MatchupSet() {
         sampleSets = new ArrayList<>();
@@ -68,5 +70,21 @@ public class MatchupSet {
 
     public void setSampleSets(List<SampleSet> sampleSets) {
         this.sampleSets = sampleSets;
+    }
+
+    public void setPrimaryProcessingVersion(String primaryProcessingVersion) {
+        this.primaryProcessingVersion = primaryProcessingVersion;
+    }
+
+    public String getPrimaryProcessingVersion() {
+        return primaryProcessingVersion;
+    }
+
+    public void setSecondaryProcessingVersion(String secondaryProcessingVersion) {
+        this.secondaryProcessingVersion = secondaryProcessingVersion;
+    }
+
+    public String getSecondaryProcessingVersion() {
+        return secondaryProcessingVersion;
     }
 }

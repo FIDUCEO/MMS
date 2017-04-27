@@ -102,6 +102,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
                 for (final MatchupSet matchupSet : matchupSets) {
                     matchupSet.setPrimaryObservationPath(insituPath);
+                    matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
                     final Path path = matchupSet.getSecondaryObservationPath();
 
                     if (!matchupSetsSatelliteOrder.containsKey(path)) {
@@ -135,7 +136,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     try (final Reader insituReader = readerFactory.getReader(sensorName)) {
                         insituReader.open(insituPath.toFile());
                         if (matchupSet.getNumObservations() > 0) {
-                            applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, insituReader, matchupSet, secondaryReader);
+                            applyConditionsAndScreenings(matchupCollection, matchupSet, conditionEngine, conditionEngineContext, screeningEngine, insituReader, secondaryReader);
                         }
                     }
                 }
@@ -183,6 +184,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 if (matchupSet == null) {
                     matchupSet = new MatchupSet();
                     matchupSet.setSecondaryObservationPath(candidate.getDataFilePath());
+                    matchupSet.setSecondaryProcessingVersion(candidate.getVersion());
 
                     observationsPerProduct.put(productName, matchupSet);
                 }

@@ -48,6 +48,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
     public static final int MHS_WIN_LEN = 5;
     public static final int HIRS_WIN_LEN = 9;
     public static final int FILENAME_LENGTH = 128;
+    public static final int PROCESSING_VERSION_LENGTH = 30;
     public static final int MATCHUP_COUNT = 261;
     public static final String PRIMARY_SENSOR_NAME = "mhs-n18";
     public static final String SECONDARY_SENSOR_NAME = "hirs-n18";
@@ -469,137 +470,145 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("file_name", FILENAME_LENGTH),
                     }),
-                      /* 69 */  new Expectation("hirs-n18_acquisition_time", new Dimension[]{
+                      /* 69 */  new Expectation("hirs-n18_processing_version", new Dimension[]{
+                    new Dimension("matchup_count", MATCHUP_COUNT),
+                    new Dimension("processing_version", PROCESSING_VERSION_LENGTH),
+                    }),
+                      /* 70 */  new Expectation("hirs-n18_acquisition_time", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("hirs-n18_ny", HIRS_WIN_LEN),
                     new Dimension("hirs-n18_nx", HIRS_WIN_LEN),
                     }),
-                      /* 70 */  new Expectation("mhs-n18_btemps_ch1", new Dimension[]{
+                      /* 71 */  new Expectation("mhs-n18_btemps_ch1", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 71 */  new Expectation("mhs-n18_btemps_ch2", new Dimension[]{
+                      /* 72 */  new Expectation("mhs-n18_btemps_ch2", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 72 */  new Expectation("mhs-n18_btemps_ch3", new Dimension[]{
+                      /* 73 */  new Expectation("mhs-n18_btemps_ch3", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 73 */  new Expectation("mhs-n18_btemps_ch4", new Dimension[]{
+                      /* 74 */  new Expectation("mhs-n18_btemps_ch4", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 74 */  new Expectation("mhs-n18_btemps_ch5", new Dimension[]{
+                      /* 75 */  new Expectation("mhs-n18_btemps_ch5", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 75 */  new Expectation("mhs-n18_chanqual_ch1", new Dimension[]{
+                      /* 76 */  new Expectation("mhs-n18_chanqual_ch1", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 76 */  new Expectation("mhs-n18_chanqual_ch2", new Dimension[]{
+                      /* 77 */  new Expectation("mhs-n18_chanqual_ch2", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 77 */  new Expectation("mhs-n18_chanqual_ch3", new Dimension[]{
+                      /* 78 */  new Expectation("mhs-n18_chanqual_ch3", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 78 */  new Expectation("mhs-n18_chanqual_ch4", new Dimension[]{
+                      /* 79 */  new Expectation("mhs-n18_chanqual_ch4", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 79 */  new Expectation("mhs-n18_chanqual_ch5", new Dimension[]{
+                      /* 80 */  new Expectation("mhs-n18_chanqual_ch5", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 80 */  new Expectation("mhs-n18_instrtemp", new Dimension[]{
+                      /* 81 */  new Expectation("mhs-n18_instrtemp", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 81 */  new Expectation("mhs-n18_qualind", new Dimension[]{
+                      /* 82 */  new Expectation("mhs-n18_qualind", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 82 */  new Expectation("mhs-n18_scanqual", new Dimension[]{
+                      /* 83 */  new Expectation("mhs-n18_scanqual", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 83 */  new Expectation("mhs-n18_scnlin", new Dimension[]{
+                      /* 84 */  new Expectation("mhs-n18_scnlin", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 84 */  new Expectation("mhs-n18_scnlindy", new Dimension[]{
+                      /* 85 */  new Expectation("mhs-n18_scnlindy", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 85 */  new Expectation("mhs-n18_scnlintime", new Dimension[]{
+                      /* 86 */  new Expectation("mhs-n18_scnlintime", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 86 */  new Expectation("mhs-n18_scnlinyr", new Dimension[]{
+                      /* 87 */  new Expectation("mhs-n18_scnlinyr", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 87 */  new Expectation("mhs-n18_Latitude", new Dimension[]{
+                      /* 88 */  new Expectation("mhs-n18_Latitude", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 88 */  new Expectation("mhs-n18_Longitude", new Dimension[]{
+                      /* 89 */  new Expectation("mhs-n18_Longitude", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 89 */  new Expectation("mhs-n18_Satellite_azimuth_angle", new Dimension[]{
+                      /* 90 */  new Expectation("mhs-n18_Satellite_azimuth_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 90 */  new Expectation("mhs-n18_Satellite_zenith_angle", new Dimension[]{
+                      /* 91 */  new Expectation("mhs-n18_Satellite_zenith_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 91 */  new Expectation("mhs-n18_Solar_azimuth_angle", new Dimension[]{
+                      /* 92 */  new Expectation("mhs-n18_Solar_azimuth_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 92 */  new Expectation("mhs-n18_Solar_zenith_angle", new Dimension[]{
+                      /* 93 */  new Expectation("mhs-n18_Solar_zenith_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
                     }),
-                      /* 93 */  new Expectation("mhs-n18_x", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
-                      /* 94 */  new Expectation("mhs-n18_y", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
-                      /* 95 */  new Expectation("mhs-n18_file_name", new Dimension[]{
+                      /* 94 */  new Expectation("mhs-n18_x", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
+                      /* 95 */  new Expectation("mhs-n18_y", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
+                      /* 96 */  new Expectation("mhs-n18_file_name", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("file_name", FILENAME_LENGTH),
                     }),
-                      /* 96 */  new Expectation("mhs-n18_acquisition_time", new Dimension[]{
+                      /* 97 */  new Expectation("mhs-n18_processing_version", new Dimension[]{
+                    new Dimension("matchup_count", MATCHUP_COUNT),
+                    new Dimension("processing_version", PROCESSING_VERSION_LENGTH),
+                    }),
+                      /* 98 */  new Expectation("mhs-n18_acquisition_time", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("mhs-n18_ny", MHS_WIN_LEN),
                     new Dimension("mhs-n18_nx", MHS_WIN_LEN),
-                    })
+                    }),
         };
     }
 

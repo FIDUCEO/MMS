@@ -48,6 +48,7 @@ public class MatchupToolIntegrationTest_useCase_24 extends AbstractUsecaseIntegr
     public static final int AMSUB_WIN_LEN = 9;
     public static final int HIRS_WIN_LEN = 9;
     public static final int FILENAME_LENGTH = 128;
+    public static final int PROCESSING_VERSION_LENGTH = 30;
     public static final int MATCHUP_COUNT = 42;
     public static final String PRIMARY_SENSOR_NAME = "amsub-n16";
     public static final String SECONDARY_SENSOR_NAME = "hirs-n16";
@@ -471,133 +472,142 @@ public class MatchupToolIntegrationTest_useCase_24 extends AbstractUsecaseIntegr
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("file_name", FILENAME_LENGTH),
                     }),
-                      /* 69 */  new Expectation("hirs-n16_acquisition_time", new Dimension[]{
+
+                      /* 69 */ new Expectation("hirs-n16_processing_version", new Dimension[]{
+                    new Dimension("matchup_count", MATCHUP_COUNT),
+                    new Dimension("processing_version", PROCESSING_VERSION_LENGTH),
+                    }),
+                      /* 70 */ new Expectation("hirs-n16_acquisition_time", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("hirs-n16_ny", HIRS_WIN_LEN),
                     new Dimension("hirs-n16_nx", HIRS_WIN_LEN),
                     }),
-                      /* 70 */  new Expectation("amsub-n16_btemps_ch16", new Dimension[]{
+                      /* 71 */  new Expectation("amsub-n16_btemps_ch16", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 71 */  new Expectation("amsub-n16_btemps_ch17", new Dimension[]{
+                      /* 72 */  new Expectation("amsub-n16_btemps_ch17", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 72 */  new Expectation("amsub-n16_btemps_ch18", new Dimension[]{
+                      /* 73 */  new Expectation("amsub-n16_btemps_ch18", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 73 */  new Expectation("amsub-n16_btemps_ch19", new Dimension[]{
+                      /* 74 */  new Expectation("amsub-n16_btemps_ch19", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 74 */  new Expectation("amsub-n16_btemps_ch20", new Dimension[]{
+                      /* 75 */  new Expectation("amsub-n16_btemps_ch20", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 75 */  new Expectation("amsub-n16_chanqual_ch16", new Dimension[]{
+                      /* 76 */  new Expectation("amsub-n16_chanqual_ch16", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 76 */  new Expectation("amsub-n16_chanqual_ch17", new Dimension[]{
+                      /* 77 */  new Expectation("amsub-n16_chanqual_ch17", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 77 */  new Expectation("amsub-n16_chanqual_ch18", new Dimension[]{
+                      /* 78 */  new Expectation("amsub-n16_chanqual_ch18", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 78 */  new Expectation("amsub-n16_chanqual_ch19", new Dimension[]{
+                      /* 79 */  new Expectation("amsub-n16_chanqual_ch19", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 79 */  new Expectation("amsub-n16_chanqual_ch20", new Dimension[]{
+                      /* 80 */  new Expectation("amsub-n16_chanqual_ch20", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 80 */  new Expectation("amsub-n16_instrtemp", new Dimension[]{
+                      /* 81 */  new Expectation("amsub-n16_instrtemp", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 81 */  new Expectation("amsub-n16_qualind", new Dimension[]{
+                      /* 82 */  new Expectation("amsub-n16_qualind", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 82 */  new Expectation("amsub-n16_scanqual", new Dimension[]{
+                      /* 83 */  new Expectation("amsub-n16_scanqual", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 83 */  new Expectation("amsub-n16_scnlin", new Dimension[]{
+                      /* 84 */  new Expectation("amsub-n16_scnlin", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 84 */  new Expectation("amsub-n16_scnlindy", new Dimension[]{
+                      /* 85 */  new Expectation("amsub-n16_scnlindy", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 85 */  new Expectation("amsub-n16_scnlintime", new Dimension[]{
+                      /* 86 */  new Expectation("amsub-n16_scnlintime", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 86 */  new Expectation("amsub-n16_scnlinyr", new Dimension[]{
+                      /* 87 */  new Expectation("amsub-n16_scnlinyr", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 87 */  new Expectation("amsub-n16_Latitude", new Dimension[]{
+                      /* 88 */  new Expectation("amsub-n16_Latitude", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 88 */  new Expectation("amsub-n16_Longitude", new Dimension[]{
+                      /* 89 */  new Expectation("amsub-n16_Longitude", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 89 */  new Expectation("amsub-n16_Satellite_azimuth_angle", new Dimension[]{
+                      /* 90 */  new Expectation("amsub-n16_Satellite_azimuth_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 90 */  new Expectation("amsub-n16_Satellite_zenith_angle", new Dimension[]{
+                      /* 91 */  new Expectation("amsub-n16_Satellite_zenith_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 91 */  new Expectation("amsub-n16_Solar_azimuth_angle", new Dimension[]{
+                      /* 92 */  new Expectation("amsub-n16_Solar_azimuth_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 92 */  new Expectation("amsub-n16_Solar_zenith_angle", new Dimension[]{
+                      /* 93 */  new Expectation("amsub-n16_Solar_zenith_angle", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),
                     }),
-                      /* 93 */  new Expectation("amsub-n16_x", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
-                      /* 94 */  new Expectation("amsub-n16_y", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
-                      /* 95 */  new Expectation("amsub-n16_file_name", new Dimension[]{
+                      /* 94 */  new Expectation("amsub-n16_x", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
+                      /* 95 */  new Expectation("amsub-n16_y", new Dimension[]{new Dimension("matchup_count", MATCHUP_COUNT)}),
+                      /* 96 */  new Expectation("amsub-n16_file_name", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("file_name", FILENAME_LENGTH),
                     }),
-                      /* 96 */  new Expectation("amsub-n16_acquisition_time", new Dimension[]{
+                      /* 97 */  new Expectation("amsub-n16_processing_version", new Dimension[]{
+                    new Dimension("matchup_count", MATCHUP_COUNT),
+                    new Dimension("processing_version", PROCESSING_VERSION_LENGTH),
+                    }),
+                      /* 98 */  new Expectation("amsub-n16_acquisition_time", new Dimension[]{
                     new Dimension("matchup_count", MATCHUP_COUNT),
                     new Dimension("amsub-n16_ny", AMSUB_WIN_LEN),
                     new Dimension("amsub-n16_nx", AMSUB_WIN_LEN),

@@ -93,7 +93,9 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                         final MatchupSet matchupSet = new MatchupSet();
                         matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
+                        matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryProcessingVersion(secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
@@ -118,7 +120,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    applyConditionsAndScreenings(matchupCollection, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, matchupSet, secondaryReader);
+                                    applyConditionsAndScreenings(matchupCollection, matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
                                 }
                             }
                         }

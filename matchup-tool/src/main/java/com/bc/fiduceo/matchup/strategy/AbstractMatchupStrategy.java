@@ -56,7 +56,10 @@ public abstract class AbstractMatchupStrategy {
 
     abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
 
-    void applyConditionsAndScreenings(MatchupCollection matchupCollection, ConditionEngine conditionEngine, ConditionEngineContext conditionEngineContext, ScreeningEngine screeningEngine, Reader primaryReader, MatchupSet matchupSet, Reader secondaryReader) throws IOException, InvalidRangeException {
+    void applyConditionsAndScreenings(MatchupCollection matchupCollection,MatchupSet matchupSet,
+                                      ConditionEngine conditionEngine, ConditionEngineContext conditionEngineContext,
+                                      ScreeningEngine screeningEngine,
+                                      Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
         final Dimension primarySize = primaryReader.getProductSize();
         conditionEngineContext.setPrimarySize(primarySize);
         final Dimension secondarySize = secondaryReader.getProductSize();

@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -72,5 +73,20 @@ public class MatchupSetTest {
         final SampleSet sampleSet = sampleSets.get(0);
         final Sample primary = sampleSet.getPrimary();
         assertEquals(expectedSample.lon, primary.lon, 1e-8);
+    }
+
+    @Test
+    public void testProperty_ProcessingVersion() throws Exception {
+        assertNull(matchupSet.getPrimaryProcessingVersion());
+        matchupSet.setPrimaryProcessingVersion("prim");
+        assertEquals("prim", matchupSet.getPrimaryProcessingVersion());
+        matchupSet.setPrimaryProcessingVersion(null);
+        assertNull(matchupSet.getPrimaryProcessingVersion());
+
+        assertNull(matchupSet.getSecondaryProcessingVersion());
+        matchupSet.setSecondaryProcessingVersion("sec");
+        assertEquals("sec", matchupSet.getSecondaryProcessingVersion());
+        matchupSet.setSecondaryProcessingVersion(null);
+        assertNull(matchupSet.getSecondaryProcessingVersion());
     }
 }
