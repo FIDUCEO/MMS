@@ -26,32 +26,51 @@ import java.util.Arrays;
 public class HirsL1CloudyFlagsTest {
 
     private HirsL1CloudyFlags postProcessing;
-    private String btVarName_11_1_µm;
-    private String btVarName_6_5_µm;
+    private String sensorName;
+    private String sourceFileVarName;
+    private String sourceXVarName;
+    private String sourceYVarName;
+    private String processingVersionVarName;
+    private String sourceBt11_1µmVarName;
+
     private String flagVarName;
     private String latVarName;
     private String lonVarName;
-    private String sourceFileVarName;
+    private String btVarName_11_1_µm;
+    private String btVarName_6_5_µm;
     private DistanceToLandMap distanceToLandMap;
+
     private NetcdfFile netcdfFile;
     private NetcdfFile netcdfFileFromWriter;
     private NetcdfFileWriter netcdfFileWriter;
 
     @Before
     public void setUp() throws Exception {
-        btVarName_11_1_µm = "hirs-n18_bt_ch08";
-        btVarName_6_5_µm = "hirs-n18_bt_ch12";
+        sensorName = "hirs-n18";
+        sourceFileVarName = "hirs-n18_file_name";
+        sourceXVarName = "hirs-n18_x";
+        sourceYVarName = "hirs-n18_y";
+        processingVersionVarName = "hirs-n18_processing_version";
+        sourceBt11_1µmVarName = "bt_ch08";
+
         flagVarName = "hirs-n18_flags_cloudy";
         latVarName = "hirs-n18_lat";
         lonVarName = "hirs-n18_lon";
-        sourceFileVarName = "hirs-n18_file_name";
-
+        btVarName_11_1_µm = "hirs-n18_bt_ch08";
+        btVarName_6_5_µm = "hirs-n18_bt_ch12";
         distanceToLandMap = mock(DistanceToLandMap.class);
+
         netcdfFile = mock(NetcdfFile.class);
         netcdfFileFromWriter = mock(NetcdfFile.class);
         netcdfFileWriter = mock(NetcdfFileWriter.class);
 
-        postProcessing = new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, sourceFileVarName, distanceToLandMap);
+        postProcessing = new HirsL1CloudyFlags(sensorName, sourceFileVarName,
+                                               sourceXVarName, sourceYVarName,
+                                               processingVersionVarName, sourceBt11_1µmVarName,
+                                               flagVarName,
+                                               latVarName, lonVarName,
+                                               btVarName_11_1_µm, btVarName_6_5_µm,
+                                               distanceToLandMap);
     }
 
     @After
@@ -65,12 +84,18 @@ public class HirsL1CloudyFlagsTest {
 
     @Test
     public void testThatFinalFieldsAreSetInTheConstructor() throws Exception {
-        assertThat(postProcessing.btVarName_11_1_µm, is(equalTo(btVarName_11_1_µm)));
-        assertThat(postProcessing.btVarName_6_5_µm, is(equalTo(btVarName_6_5_µm)));
+        assertThat(postProcessing.sensorName, is(equalTo(sensorName)));
+        assertThat(postProcessing.sourceFileVarName, is(equalTo(sourceFileVarName)));
+        assertThat(postProcessing.sourceXVarName, is(equalTo(sourceXVarName)));
+        assertThat(postProcessing.sourceYVarName, is(equalTo(sourceYVarName)));
+        assertThat(postProcessing.processingVersionVarName, is(equalTo(processingVersionVarName)));
+        assertThat(postProcessing.sourceBt_11_1_µm_VarName, is(equalTo(sourceBt11_1µmVarName)));
+
         assertThat(postProcessing.flagVarName, is(equalTo(flagVarName)));
         assertThat(postProcessing.latVarName, is(equalTo(latVarName)));
         assertThat(postProcessing.lonVarName, is(equalTo(lonVarName)));
-        assertThat(postProcessing.sourceFileVarName, is(equalTo(sourceFileVarName)));
+        assertThat(postProcessing.bt_11_1_µm_VarName, is(equalTo(btVarName_11_1_µm)));
+        assertThat(postProcessing.bt_6_5_µm_VarName, is(equalTo(btVarName_6_5_µm)));
         assertThat(postProcessing.distanceToLandMap, is(sameInstance(distanceToLandMap)));
     }
 
@@ -199,7 +224,7 @@ public class HirsL1CloudyFlagsTest {
         assertEquals(expected, HirsL1CloudyFlags.getCloudy_SpaceContrastTest(threshold, value, fillValue));
 
         // value is useable and less than threshold
-        value = threshold -0.00001f;
+        value = threshold - 0.00001f;
         expected = HirsL1CloudyFlags.SPACE_CONTRAST_TEST_CLOUDY;
         assertEquals(expected, HirsL1CloudyFlags.getCloudy_SpaceContrastTest(threshold, value, fillValue));
     }

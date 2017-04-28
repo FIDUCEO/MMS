@@ -50,6 +50,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class HIRS_L1C_Reader implements Reader {
@@ -61,13 +62,14 @@ public class HIRS_L1C_Reader implements Reader {
     private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     private final GeometryFactory geometryFactory;
-
+    private final HashMap<String, Number> fillValueCache;
     private NetcdfFile netcdfFile;
     private PixelLocator pixelLocator;
     private ArrayCache arrayCache;
 
     HIRS_L1C_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+        fillValueCache = new HashMap<>();
     }
 
     @Override
@@ -79,6 +81,7 @@ public class HIRS_L1C_Reader implements Reader {
     @Override
     public void close() throws IOException {
         arrayCache = null;
+        fillValueCache.clear();
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -155,7 +158,7 @@ public class HIRS_L1C_Reader implements Reader {
             array = array.section(offsets, shape);
         }
 
-        final Number fillValue = NetCDFUtils.getDefaultFillValue(array);
+        final Number fillValue = getFillValue(fullVariableName);
 
         final Dimension productSize = getProductSize();
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize.getNx());
@@ -199,6 +202,14 @@ public class HIRS_L1C_Reader implements Reader {
         final Array lon = arrayCache.get("lon");
         final int[] shape = lon.getShape();
         return new Dimension("lon", shape[1], shape[0]);
+    }
+
+    private Number getFillValue(String fullVariableName) {
+        if (!fillValueCache.containsKey(fullVariableName)) {
+            final Variable variable = NetCDFUtils.getVariable(netcdfFile, fullVariableName);
+            fillValueCache.put(fullVariableName, NetCDFUtils.getFillValue(variable));
+        }
+        return fillValueCache.get(fullVariableName);
     }
 
     private void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels) throws InvalidRangeException {
@@ -270,12 +281,12 @@ public class HIRS_L1C_Reader implements Reader {
         shape[1] = width;
         final Array result = Array.factory(scanpos.getElementType(), shape);
 
-        int originalX = centerX - width/2;
+        int originalX = centerX - width / 2;
 
         final Index index = result.getIndex();
         for (int x = 0; x < width; x++) {
             int value = fillValue.intValue();
-            if (originalX >= 0 && originalX < originalWidth ) {
+            if (originalX >= 0 && originalX < originalWidth) {
                 value = scanpos.getInt(originalX);
             }
             for (int y = 0; y < height; y++) {

@@ -18,6 +18,7 @@ package com.bc.fiduceo.post.plugin.flag.hirs;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingContext;
@@ -51,46 +52,61 @@ class HirsL1CloudyFlags extends PostProcessing {
     public static final byte INTERCHANNEL_TEST_CLOUDY = 0x8;
     public static final int DOMAIN_LAND_OR_ICE_NOT_USEABLE = 1;
     public static final int DOMAIN_WATER_NOT_USEABLE = 20;
+
     private final static DataType FLAG_VAR_DATA_TYPE = DataType.BYTE;
+    final String sensorName;
+    final String sourceFileVarName;
+    final String sourceXVarName;
+    final String sourceYVarName;
+    final String processingVersionVarName;
+    final String sourceBt_11_1_µm_VarName;
+
     final String flagVarName;
-    final String btVarName_11_1_µm;
-    final String btVarName_6_5_µm;
     final String latVarName;
     final String lonVarName;
-    final String sourceFileVarName;
+    final String bt_11_1_µm_VarName;
+    final String bt_6_5_µm_VarName;
     final DistanceToLandMap distanceToLandMap;
+
     private float fillValue_11_1;
     private float fillValue_6_5;
-    private Variable var11_1µm;
-    private Variable var6_5µm;
     private Variable varFlags;
     private Array data11_1;
     private Array data6_5;
     private Array flags;
     private ArrayChar sourcFileNames;
+    private ArrayChar processingVersions;
     private Array lats;
     private Array lons;
     private int[] shape;
+    private int[] xValues;
+    private int[] yValues;
 
-    public HirsL1CloudyFlags(final String btVarName_11_1_µm,
-                             final String btVarName_6_5_µm,
-                             final String flagVarName,
-                             final String latVarName,
-                             final String lonVarName,
-                             final String sourceFileVarName,
-                             final DistanceToLandMap distanceToLandMap) {
+    public HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
+                             String sourceXVarName, String sourceYVarName,
+                             String processingVersionVarName, String sourceBt11_1µmVarName,
+                             String flagVarName,
+                             String latVarName, String lonVarName,
+                             String btVarName_11_1_µm, String btVarName_6_5_µm,
+                             DistanceToLandMap distanceToLandMap) {
+        this.sensorName = sensorName;
+        this.sourceFileVarName = sourceFileVarName;
+        this.sourceXVarName = sourceXVarName;
+        this.sourceYVarName = sourceYVarName;
+        this.processingVersionVarName = processingVersionVarName;
+        sourceBt_11_1_µm_VarName = sourceBt11_1µmVarName;
+
         this.flagVarName = flagVarName;
-        this.btVarName_11_1_µm = btVarName_11_1_µm;
-        this.btVarName_6_5_µm = btVarName_6_5_µm;
         this.latVarName = latVarName;
         this.lonVarName = lonVarName;
-        this.sourceFileVarName = sourceFileVarName;
+        this.bt_11_1_µm_VarName = btVarName_11_1_µm;
+        this.bt_6_5_µm_VarName = btVarName_6_5_µm;
         this.distanceToLandMap = distanceToLandMap;
     }
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(reader, btVarName_11_1_µm);
+        final Variable variable = getVariable(reader, bt_11_1_µm_VarName);
         final String dimensions = variable.getDimensionsString();
         final Variable flagVar = writer.addVariable(null, flagVarName, FLAG_VAR_DATA_TYPE, dimensions);
 
@@ -119,7 +135,7 @@ class HirsL1CloudyFlags extends PostProcessing {
         initDataForComputing(reader, writer);
 
         final int[] levelShape = data11_1.getShape();
-        levelShape[0] =1;
+        levelShape[0] = 1;
         final DomainDataProvider landIceDDP = new DomainDataProvider(DOMAIN_LAND_OR_ICE_NOT_USEABLE, DELTA_1_LAND_OR_ICE_COVERED) {
             final int[] origin3D = {0, 0, 0};
 
@@ -131,19 +147,16 @@ class HirsL1CloudyFlags extends PostProcessing {
         };
         final Domain domainLandIce = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, landIceDDP);
         final DomainDataProvider waterDDP = new DomainDataProvider(DOMAIN_WATER_NOT_USEABLE, DELTA_1_WATER) {
-            private ReaderCache readerCache= new CloudRC(getContext());
             final int[] origin2D = {0, 0};
-            final int[] fileNamesShape = sourcFileNames.getShape();
-            final int[] nameLevelShape = {1, fileNamesShape[1]};
+            private ReaderCache readerCache = new CloudRC(getContext());
 
             @Override
             Array getDomainData_11_1(int z) throws InvalidRangeException, IOException {
-//                origin2D[0] = z;
-//                final String fileName = sourcFileNames.getString(z);
-//                String sensorType = "hirs-n18";
-//                String processingVersion = "";
-//                Reader srcReader = readerCache.getFileOpened(fileName, sensorType, processingVersion);
-                return null;
+                origin2D[0] = z;
+                final String fileName = sourcFileNames.getString(z);
+                final String version = processingVersions.getString(z);
+                Reader srcReader = readerCache.getFileOpened(fileName, sensorName, version);
+                return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_µm_VarName);
             }
         };
 
@@ -156,7 +169,7 @@ class HirsL1CloudyFlags extends PostProcessing {
             if (land || iceCoveredWater) {
                 domainLandIce.computeFlags(z);
             } else {
-//                domainWater.computeFlags(z);
+                domainWater.computeFlags(z);
             }
         }
         writer.write(varFlags, flags);
@@ -216,16 +229,22 @@ class HirsL1CloudyFlags extends PostProcessing {
     }
 
     private void initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        var11_1µm = getVariable(writer, btVarName_11_1_µm);
+        Variable var11_1µm = getVariable(writer, bt_11_1_µm_VarName);
         fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, "_FillValue", 0);
 
-        var6_5µm = getVariable(writer, btVarName_6_5_µm);
+        Variable var6_5µm = getVariable(writer, bt_6_5_µm_VarName);
         fillValue_6_5 = getFloatValueFromAttribute(var6_5µm, "_FillValue", 0);
 
         varFlags = getVariable(writer, flagVarName);
 
         final Variable sourceFileVar = getVariable(writer, sourceFileVarName);
         sourcFileNames = (ArrayChar) sourceFileVar.read();
+
+        final Variable versionVar = getVariable(writer, processingVersionVarName);
+        processingVersions = (ArrayChar) versionVar.read();
+
+        xValues = (int[]) getVariable(writer, sourceXVarName).read().getStorage();
+        yValues = (int[]) getVariable(writer, sourceYVarName).read().getStorage();
 
         shape = var11_1µm.getShape();
 

@@ -29,12 +29,18 @@ import java.nio.file.Paths;
 public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
 
     public static final String TAG_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
-    public static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
-    public static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
+    public static final String TAG_SENSOR_NAME = "hirs-sensor-name";
+    public static final String TAG_VAR_NAME_SOURCE_FILE_NAME = "hirs-var-name-source-file-name";
+    public static final String TAG_VAR_NAME_PROCESSING_VERSION = "hirs-var-name-processing-version";
+    public static final String TAG_VAR_NAME_SOURCE_X = "hirs-var-name-source-x";
+    public static final String TAG_VAR_NAME_SOURCE_Y = "hirs-var-name-source-y";
+    public static final String TAG_VAR_NAME_SOURCE_BT_11_1_mM = "hirs-var-name-source-11_1-um";
+
     public static final String TAG_VAR_NAME_CLOUD_FLAGS = "hirs-var-name-cloud-flags";
     public static final String TAG_VAR_NAME_LATITUDE = "hirs-var-name-latitude";
     public static final String TAG_VAR_NAME_LONGITUDE = "hirs-var-name-longitude";
-    public static final String TAG_VAR_NAME_SOURCE_FILE_NAME = "hirs-var-name-source-file-name";
+    public static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
+    public static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
     public static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
     private FileSystem fileSystem;
 
@@ -62,6 +68,21 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
         final Element sourceVarElem = getMandatoryChild(element, TAG_VAR_NAME_SOURCE_FILE_NAME);
         final String sourceFileVarName = getMandatoryText(sourceVarElem);
 
+        final Element processingVersionElem = getMandatoryChild(element, TAG_VAR_NAME_PROCESSING_VERSION);
+        final String processingVersionVarName = getMandatoryText(processingVersionElem);
+
+        final Element sourceXElem = getMandatoryChild(element, TAG_VAR_NAME_SOURCE_X);
+        final String sourceXVarName = getMandatoryText(sourceXElem);
+
+        final Element sourceYElem = getMandatoryChild(element, TAG_VAR_NAME_SOURCE_Y);
+        final String sourceYVarName = getMandatoryText(sourceYElem);
+
+        final Element sensorNameElem = getMandatoryChild(element, TAG_SENSOR_NAME);
+        final String sensorName = getMandatoryText(sensorNameElem);
+
+        final Element sourceBt11_1µmElem = getMandatoryChild(element, TAG_VAR_NAME_SOURCE_BT_11_1_mM);
+        final String sourceBt11_1µmVarName = getMandatoryText(sourceBt11_1µmElem);
+
         final Element distanceVarElem = getMandatoryChild(element, TAG_DISTANCE_PRODUCT_FILE_PATH);
         final String pathString = getMandatoryText(distanceVarElem);
         final Path distanceFilePath;
@@ -72,7 +93,8 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
         }
         final DistanceToLandMap distanceToLandMap = new DistanceToLandMap(distanceFilePath);
 
-        return new HirsL1CloudyFlags(btVarName_11_1_µm, btVarName_6_5_µm, flagVarName, latVarName, lonVarName, sourceFileVarName, distanceToLandMap);
+        return new HirsL1CloudyFlags(sensorName, sourceFileVarName, sourceXVarName, sourceYVarName, processingVersionVarName, sourceBt11_1µmVarName,flagVarName, latVarName, lonVarName, btVarName_11_1_µm, btVarName_6_5_µm,
+                                     distanceToLandMap);
     }
 
     @Override
