@@ -44,15 +44,14 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
-import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -127,15 +126,10 @@ public class IASI_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final GeolocationData geolocationData = readGeolocationData();
+        final Geometries geometries = createGeometries();
 
-        final BoundingPolygonCreator polygonCreator = new BoundingPolygonCreator(new Interval(6, 24), geometryFactory);
-        final Geometry boundingGeometry = polygonCreator.createBoundingGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2, true);
-        if (!boundingGeometry.isValid()) {
-            throw new RuntimeException("Unable to extract valid bounding geometry");
-        }
-
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+        acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
@@ -295,6 +289,23 @@ public class IASI_Reader implements Reader {
 
     private long getMdrOffset(int i) {
         return firstMdrOffset + (i * mdrSize);
+    }
+
+    private Geometries createGeometries() throws IOException {
+        final Geometries geometries = new Geometries();
+
+        final GeolocationData geolocationData = readGeolocationData();
+
+        final BoundingPolygonCreator polygonCreator = new BoundingPolygonCreator(new Interval(6, 24), geometryFactory);
+        final Geometry boundingGeometry = polygonCreator.createBoundingGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2, true);
+        if (!boundingGeometry.isValid()) {
+            throw new RuntimeException("Unable to extract valid bounding geometry");
+        }
+        geometries.setBoundingGeometry(boundingGeometry);
+
+        final Geometry timeAxisGeometry = polygonCreator.createTimeAxisGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        return geometries;
     }
 
     private GeolocationData readGeolocationData() throws IOException {

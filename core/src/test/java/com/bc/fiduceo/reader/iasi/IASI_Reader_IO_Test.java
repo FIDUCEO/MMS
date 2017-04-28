@@ -28,6 +28,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -96,13 +97,25 @@ public class IASI_Reader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
             assertTrue(boundingGeometry instanceof GeometryCollection);
-            final Point[] coordinates = boundingGeometry.getCoordinates();
+            Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(166, coordinates.length);
             assertEquals(-21.02281951904297, coordinates[3].getLon(), 1e-8);
             assertEquals(66.62924194335938, coordinates[3].getLat(), 1e-8);
 
             assertEquals(-26.05643653869629, coordinates[79].getLon(), 1e-8);
             assertEquals(48.4214973449707, coordinates[79].getLat(), 1e-8);
+
+            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = collection.getGeometries();
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 12, 47, 54, 870, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 26, 642, time);
         } finally {
             reader.close();
         }
@@ -130,13 +143,25 @@ public class IASI_Reader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
             assertTrue(boundingGeometry instanceof GeometryCollection);
-            final Point[] coordinates = boundingGeometry.getCoordinates();
+            Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(166, coordinates.length);
             assertEquals(-19.0395393371582, coordinates[2].getLon(), 1e-8);
             assertEquals(64.17292785644531, coordinates[2].getLat(), 1e-8);
 
             assertEquals(-29.8023567199707, coordinates[78].getLon(), 1e-8);
             assertEquals(41.484779357910156, coordinates[78].getLat(), 1e-8);
+
+            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = collection.getGeometries();
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 12, 47, 56, 879, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2014, 4, 25, 13, 37, 24, 671, time);
         } finally {
             reader.close();
         }
