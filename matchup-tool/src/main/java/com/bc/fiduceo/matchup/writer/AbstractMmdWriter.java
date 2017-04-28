@@ -82,7 +82,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      * @param matchupCollection the matchup data collection
      * @param context           the ToolContext
      * @param ioVariablesList   the variables which has to be part of the mmd file
-     *
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
@@ -196,22 +195,22 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     static void createUseCaseAttributes(NetcdfFileWriter netcdfFileWriter, UseCaseConfig useCaseConfig) {
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "comment",
-                    "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
+                "comment",
+                "This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'."
         ));
         try {
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             useCaseConfig.store(outputStream);
             netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                        "use-case-configuration",
-                        outputStream.toString()
+                    "use-case-configuration",
+                    outputStream.toString()
             ));
         } catch (IOException e) {
             throw new RuntimeException("should never come here");
         }
 
         netcdfFileWriter.addGroupAttribute(null, new Attribute(
-                    "sensor-names", getCommaSeparatedListOfSensors(useCaseConfig)
+                "sensor-names", getCommaSeparatedListOfSensors(useCaseConfig)
         ));
     }
 
@@ -272,14 +271,14 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
         for (final IOVariable ioVariable : ioVariables) {
             final Variable variable = netcdfFileWriter.addVariable(null,
-                                                                   ioVariable.getTargetVariableName(),
-                                                                   DataType.getType(ioVariable.getDataType()),
-                                                                   ioVariable.getDimensionNames());
+                    ioVariable.getTargetVariableName(),
+                    DataType.getType(ioVariable.getDataType()),
+                    ioVariable.getDimensionNames());
             final List<Attribute> attributes = ioVariable.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
             }
-            if(variable.getDataType().isNumeric()) {
+            if (variable.getDataType().isNumeric()) {
                 final Attribute fillValueAtrribute = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME);
                 if (fillValueAtrribute == null) {
                     // @todo tb/** throw exception when the refactoring is finished 2017-03-17
@@ -312,7 +311,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     }
 
     private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)
-                throws IOException, InvalidRangeException {
+            throws IOException, InvalidRangeException {
         for (SampleSetIOVariable variable : sampleSetVariables) {
             variable.setSampleSet(sampleSet);
             variable.writeData(0, 0, null, zIndex);
@@ -397,6 +396,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             netcdfFileWriter.write(variable, origin, dataToBeWritten);
         }
         flushCount++;
-        netcdfFileWriter.flush();
+        if (netcdfFileWriter != null) {
+            netcdfFileWriter.flush();
+        }
     }
 }
