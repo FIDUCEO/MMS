@@ -43,10 +43,15 @@ package com.bc.fiduceo.reader.iasi;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.GeometryUtil;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
@@ -56,7 +61,6 @@ import ucar.nc2.Variable;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import javax.management.relation.RoleUnresolved;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,11 +73,13 @@ public class IASI_Reader implements Reader {
 
     private static final int PN = 4;
     private static final int SNOT = 30;
+    private static final int LON = 0;
+    private static final int LAT = 1;
 
     private static final int G_EPS_DAT_IASI_OFFSET = 9122;
     private static final int G_GEO_SOND_LOC_OFFSET = 255893;
 
-    private static final double G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6;
+    private static final float G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6f;
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
@@ -81,11 +87,14 @@ public class IASI_Reader implements Reader {
     private GiadrScaleFactors giadrScaleFactors;
     private IASI_TimeLocator timeLocator;
 
+    private final GeometryFactory geometryFactory;
+
     private long firstMdrOffset;
     private long mdrSize;
     private int mdrCount;
 
     IASI_Reader(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
         iis = null;
     }
 
@@ -118,10 +127,15 @@ public class IASI_Reader implements Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final double[][][][] doubles = readGGeoSondLoc();
-        for (int line = 0; line < mdrCount; line++) {
-            double[][][] lineData = doubles[line];
+        final GeolocationData geolocationData = readGeolocationData();
+
+        final BoundingPolygonCreator polygonCreator = new BoundingPolygonCreator(new Interval(6, 24), geometryFactory);
+        final Geometry boundingGeometry = polygonCreator.createBoundingGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2, true);
+        if (!boundingGeometry.isValid()) {
+            throw new RuntimeException("Unable to extract valid bounding geometry");
         }
+
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
 
         return acquisitionInfo;
     }
@@ -256,20 +270,22 @@ public class IASI_Reader implements Reader {
         return data;
     }
 
-    private double[][][][] readGGeoSondLoc() throws IOException {
-        final double[][][][] data = new double[mdrCount][SNOT][PN][2];
+    private float[][][][] readGGeoSondLoc() throws IOException {
+        final float[][][][] data = new float[mdrCount][SNOT][PN][2];
+        final int[] mdrBlock = new int[SNOT * PN * 2];
 
         for (int mdrIndex = 0; mdrIndex < mdrCount; mdrIndex++) {
             final long mdrOffset = getMdrOffset(mdrIndex);
-            final int[] mdrBlock = new int[SNOT * PN * 2];
+            final float[][][] scanLineData = data[mdrIndex];
 
             iis.seek(mdrOffset + G_GEO_SOND_LOC_OFFSET);
             iis.readFully(mdrBlock, 0, mdrBlock.length);
 
             for (int i = 0, j = 0; j < SNOT; j++) {
+                final float[][] efovData = scanLineData[j];
                 for (int k = 0; k < PN; k++) {
-                    data[mdrIndex][j][k][0] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
-                    data[mdrIndex][j][k][1] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
+                    efovData[k][LON] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
+                    efovData[k][LAT] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
                 }
             }
         }
@@ -279,5 +295,47 @@ public class IASI_Reader implements Reader {
 
     private long getMdrOffset(int i) {
         return firstMdrOffset + (i * mdrSize);
+    }
+
+    private GeolocationData readGeolocationData() throws IOException {
+        final float[][] longitudes = new float[2 * mdrCount][2 * SNOT];
+        final float[][] latitudes = new float[2 * mdrCount][2 * SNOT];
+
+        final float[][][][] doubles = readGGeoSondLoc();
+        for (int line = 0; line < mdrCount; line++) {
+            float[][][] lineData = doubles[line];
+
+            final int targetLine = 2 * line;
+            final float[] longitudeLine_0 = longitudes[targetLine];
+            final float[] longitudeLine_1 = longitudes[targetLine + 1];
+
+            final float[] latitudeLine_0 = latitudes[targetLine];
+            final float[] latitudeLine_1 = latitudes[targetLine + 1];
+
+            for (int efov = 0; efov < SNOT; efov++) {
+                final float[][] efovData = lineData[efov];
+
+                final int pixelIndex = 2 * efov;
+                longitudeLine_0[pixelIndex] = efovData[3][LON];
+                longitudeLine_1[pixelIndex] = efovData[2][LON];
+                longitudeLine_0[pixelIndex + 1] = efovData[0][LON];
+                longitudeLine_1[pixelIndex + 1] = efovData[1][LON];
+
+                latitudeLine_0[pixelIndex] = efovData[3][LAT];
+                latitudeLine_1[pixelIndex] = efovData[2][LAT];
+                latitudeLine_0[pixelIndex + 1] = efovData[0][LAT];
+                latitudeLine_1[pixelIndex + 1] = efovData[1][LAT];
+            }
+        }
+
+        final GeolocationData geolocationData = new GeolocationData();
+        geolocationData.longitudes = Array.factory(longitudes);
+        geolocationData.latitudes = Array.factory(latitudes);
+        return geolocationData;
+    }
+
+    private class GeolocationData {
+        Array longitudes;
+        Array latitudes;
     }
 }

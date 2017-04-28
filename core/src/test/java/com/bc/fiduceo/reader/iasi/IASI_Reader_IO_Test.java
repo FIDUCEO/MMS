@@ -24,7 +24,11 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -35,7 +39,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -59,7 +67,7 @@ public class IASI_Reader_IO_Test {
             try {
                 reader.open(iasiFile);
                 fail("RuntimeException expected");
-            } catch(RuntimeException expected) {
+            } catch (RuntimeException expected) {
             }
 
         } finally {
@@ -86,7 +94,16 @@ public class IASI_Reader_IO_Test {
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
-            // @todo 1 tb/tb continue with the geometries 2017-04-26
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(166, coordinates.length);
+            assertEquals(-21.02281951904297, coordinates[3].getLon(), 1e-8);
+            assertEquals(66.62924194335938, coordinates[3].getLat(), 1e-8);
+
+            assertEquals(-26.05643653869629, coordinates[79].getLon(), 1e-8);
+            assertEquals(48.4214973449707, coordinates[79].getLat(), 1e-8);
         } finally {
             reader.close();
         }
@@ -111,7 +128,16 @@ public class IASI_Reader_IO_Test {
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
-            // @todo 1 tb/tb continue with the geometries 2017-04-26
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(166, coordinates.length);
+            assertEquals(-19.0395393371582, coordinates[2].getLon(), 1e-8);
+            assertEquals(64.17292785644531, coordinates[2].getLat(), 1e-8);
+
+            assertEquals(-29.8023567199707, coordinates[78].getLon(), 1e-8);
+            assertEquals(41.484779357910156, coordinates[78].getLat(), 1e-8);
         } finally {
             reader.close();
         }
