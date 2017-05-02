@@ -29,12 +29,14 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -217,6 +219,67 @@ public class IASI_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testGetPixelLocater_MA() throws IOException {
+        final File iasiFile = getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(-8.481149673461914, geoLocation.getX(), 1e-8);
+            assertEquals(62.769412994384766, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(59.5, 0.5, null);
+            assertEquals(-53.7663688659668, geoLocation.getX(), 1e-8);
+            assertEquals(69.9629135131836, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(21.5, 367.5, null);
+            assertEquals(-56.68997573852539, geoLocation.getX(), 1e-8);
+            assertEquals(-17.64765167236328, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-8.481149673461914, 62.769412994384766);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(0.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-53.7663688659668, 69.9629135131836);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(59.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-56.68997573852539, -17.64765167236328);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(21.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(367.5f, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocater_MA_twiceReturnsSameObject() throws IOException {
+        final File iasiFile = getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final PixelLocator pixelLocator_1 = reader.getPixelLocator();
+            assertNotNull(pixelLocator_1);
+
+            final PixelLocator pixelLocator_2 = reader.getPixelLocator();
+            assertNotNull(pixelLocator_2);
+
+            assertSame(pixelLocator_1, pixelLocator_2);
+        } finally {
+            reader.close();
+        }
+    }
+
 
     @Test
     public void testGetTimeLocator_MB() throws IOException {

@@ -87,7 +87,13 @@ class BcS2Polygon implements Polygon {
         final Object inner = geometry.getInner();
         if (inner instanceof S2LatLng) {
             final S2Point point = ((S2LatLng) inner).toPoint();
-            return googlePolygon.contains(point);
+            boolean contains = googlePolygon.contains(point);
+
+            if (!contains) {
+                contains = isVertexPoint(point);
+            }
+
+            return contains;
         }
         throw new RuntimeException("contains for geometry type not implemented");
     }
@@ -153,4 +159,18 @@ class BcS2Polygon implements Polygon {
         return coordinates;
     }
 
+    private boolean isVertexPoint(S2Point point) {
+        final int numLoops = googlePolygon.numLoops();
+        for (int i = 0; i < numLoops; i++) {
+            final S2Loop loop = googlePolygon.loop(i);
+            final int numVertices = loop.numVertices();
+            for (int k = 0; k < numVertices; k++) {
+                final S2Point vertex = loop.vertex(k);
+                if (vertex.equals(point)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

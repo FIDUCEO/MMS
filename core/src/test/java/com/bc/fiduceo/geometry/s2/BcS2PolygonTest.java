@@ -257,11 +257,11 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testContains_pointOnCorner_isOutside() {
+    public void testContains_pointOnCorner_isInsidee() {
         final BcS2Polygon polygon = createBcS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
         final BcS2Point point = createBcS2Point("POINT(0 0)");
 
-        assertFalse(polygon.contains(point));
+        assertTrue(polygon.contains(point));
     }
 
     @Test

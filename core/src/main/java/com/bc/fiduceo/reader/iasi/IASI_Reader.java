@@ -47,12 +47,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -85,6 +80,8 @@ public class IASI_Reader implements Reader {
     private MainProductHeaderRecord mainProductHeaderRecord;
     private GiadrScaleFactors giadrScaleFactors;
     private IASI_TimeLocator timeLocator;
+    private GeolocationData geolocationData;
+    private IASI_PixelLocator pixelLocator;
 
     private final GeometryFactory geometryFactory;
 
@@ -136,7 +133,12 @@ public class IASI_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            final GeolocationData geolocationData = getGeolocationData();
+
+            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
+        }
+        return pixelLocator;
     }
 
     @Override
@@ -181,7 +183,7 @@ public class IASI_Reader implements Reader {
     @Override
     public Dimension getProductSize() {
         final Dimension size = new Dimension();
-        size.setNx(60); // @todo 3 tb/tb extract constant 2017-04-27
+        size.setNx(2 * SNOT);
         size.setNy(2 * mdrCount);
         return size;
     }
@@ -234,12 +236,16 @@ public class IASI_Reader implements Reader {
         iis.seek(firstMdrOffset);
         final GenericRecordHeader mdrHeader = GenericRecordHeader.readGenericRecordHeader(iis);
 
-        if (mdrHeader.recordSubclassVersion != 5) {
-            throw new RuntimeException("Unsupported processing version");
-        }
+        checkRecordSubClass(mdrHeader);
 
         mdrSize = mdrHeader.recordSize;
         mdrCount = (int) ((iis.length() - firstMdrOffset) / mdrSize);
+    }
+
+    private void checkRecordSubClass(GenericRecordHeader mdrHeader) {
+        if (mdrHeader.recordSubclassVersion != 5) {
+            throw new RuntimeException("Unsupported processing version");
+        }
     }
 
     private long[][] readGEPSDatIasi() throws IOException {
@@ -294,7 +300,7 @@ public class IASI_Reader implements Reader {
     private Geometries createGeometries() throws IOException {
         final Geometries geometries = new Geometries();
 
-        final GeolocationData geolocationData = readGeolocationData();
+        final GeolocationData geolocationData = getGeolocationData();
 
         final BoundingPolygonCreator polygonCreator = new BoundingPolygonCreator(new Interval(6, 24), geometryFactory);
         final Geometry boundingGeometry = polygonCreator.createBoundingGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2, true);
@@ -306,6 +312,14 @@ public class IASI_Reader implements Reader {
         final Geometry timeAxisGeometry = polygonCreator.createTimeAxisGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         return geometries;
+    }
+
+    private GeolocationData getGeolocationData() throws IOException {
+        if (geolocationData == null) {
+            geolocationData = readGeolocationData();
+        }
+
+        return geolocationData;
     }
 
     private GeolocationData readGeolocationData() throws IOException {
@@ -345,7 +359,7 @@ public class IASI_Reader implements Reader {
         return geolocationData;
     }
 
-    private class GeolocationData {
+    static class GeolocationData {
         Array longitudes;
         Array latitudes;
     }
