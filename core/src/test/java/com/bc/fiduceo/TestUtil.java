@@ -123,6 +123,9 @@ public class TestUtil {
                 "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
                 "            insitu/SENSOR/VERSION" +
                 "        </rule>"  +
+                "        <rule sensors = \"iasi-ma, iasi-mb\">" +
+                "            SENSOR/VERSION/YEAR/MONTH" +
+                "        </rule>"  +
                 "    </archive>" +
                 "</system-config>";
 

@@ -639,6 +639,51 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_IASI_MA() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "iasi-ma", "-start", "2016-001", "-end", "2016-001", "-v", "v3-6N"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 12, 47, 54, 870, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 14, 26, 58, 414, observation.getStopTime());
+
+            assertEquals("iasi-ma", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-ma", "v3-6N", "2016", "01", "IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v3-6N", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+            assertEquals(TestData.IASI_MA_GEOMETRIES[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.IASI_MA_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 12, 47, 54, 870, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 26, 642, timeAxes[0].getEndTime());
+            assertEquals(TestData.IASI_MA_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
+
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 26, 642, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 1, 1, 14, 26, 58, 414, timeAxes[1].getEndTime());
+            assertEquals(TestData.IASI_MA_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {
         for (final SatelliteObservation observation : satelliteObservations) {
             if (observation.getDataFilePath().endsWith(name)) {

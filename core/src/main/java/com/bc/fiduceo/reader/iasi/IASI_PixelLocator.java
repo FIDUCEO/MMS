@@ -29,7 +29,7 @@ public class IASI_PixelLocator implements PixelLocator {
     private final Polygon lowerPolygon;
     private final GeometryFactory geometryFactory;
 
-    IASI_PixelLocator(IASI_Reader.GeolocationData geolocationData, GeometryFactory geometryFactory) {
+    IASI_PixelLocator(GeolocationData geolocationData, GeometryFactory geometryFactory) {
         longitudes = geolocationData.longitudes;
         latitudes = geolocationData.latitudes;
         this.geometryFactory = geometryFactory;

@@ -133,12 +133,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        if (pixelLocator == null) {
-            final GeolocationData geolocationData = getGeolocationData();
-
-            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
-        }
-        return pixelLocator;
+        return getPixelLocator_internal();
     }
 
     @Override
@@ -148,7 +143,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
-        throw new RuntimeException("not implemented");
+        return getPixelLocator_internal();
     }
 
     @Override
@@ -186,6 +181,15 @@ public class IASI_Reader implements Reader {
         size.setNx(2 * SNOT);
         size.setNy(2 * mdrCount);
         return size;
+    }
+
+    private PixelLocator getPixelLocator_internal() throws IOException {
+        if (pixelLocator == null) {
+            final GeolocationData geolocationData = getGeolocationData();
+
+            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
+        }
+        return pixelLocator;
     }
 
     private void readHeader() throws IOException {
@@ -357,10 +361,5 @@ public class IASI_Reader implements Reader {
         geolocationData.longitudes = Array.factory(longitudes);
         geolocationData.latitudes = Array.factory(latitudes);
         return geolocationData;
-    }
-
-    static class GeolocationData {
-        Array longitudes;
-        Array latitudes;
     }
 }

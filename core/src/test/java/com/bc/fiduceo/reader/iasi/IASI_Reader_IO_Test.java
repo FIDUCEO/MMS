@@ -348,6 +348,20 @@ public class IASI_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testSubsceneGetPixelLocater_MB() throws IOException {
+        final File iasiFile = getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(null);// we ignore the geometry tb 2017-05-03
+            assertNotNull(subScenePixelLocator);
+            assertTrue(subScenePixelLocator instanceof IASI_PixelLocator);
+        } finally {
+            reader.close();
+        }
+    }
 
     @Test
     public void testGetTimeLocator_MB() throws IOException {

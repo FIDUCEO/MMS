@@ -47,11 +47,15 @@
         - YEAR - the year
         - MONTH - the month
         - DAY - the day.
-        These will be epanded during processing to theit actual values. All other pathe elements are treated as
+        These will be epanded during processing to their actual values. All other pathe elements are treated as
         constant values. The separator character is always the forward slash "/"
         -->
         <rule sensors="drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst">
             insitu/SENSOR/VERSION
+        </rule>
+
+        <rule sensors = "iasi-ma, iasi-mb">
+            SENSOR/VERSION/YEAR/MONTH
         </rule>
     </archive>
 </system-config>
