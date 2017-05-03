@@ -23,8 +23,8 @@ package com.bc.fiduceo.matchup.condition;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.math.SphericalDistance;
 import org.esa.snap.core.util.math.RsMathUtils;
-import org.esa.snap.core.util.math.SphericalDistance;
 
 import java.util.ArrayList;
 import java.util.List;

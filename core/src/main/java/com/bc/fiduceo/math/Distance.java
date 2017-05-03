@@ -19,7 +19,6 @@
 package com.bc.fiduceo.math;
 
 import org.esa.snap.core.util.math.RsMathUtils;
-import org.esa.snap.core.util.math.SphericalDistance;
 
 public class Distance {
 

@@ -2,10 +2,14 @@ package com.bc.fiduceo.reader.iasi;
 
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.math.SphericalDistance;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import org.esa.snap.core.util.math.DistanceMeasure;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 
@@ -105,21 +109,31 @@ public class IASI_PixelLocator implements PixelLocator {
 
     private int getMinDistanceLine(SphericalDistance sphericalDistance, int start, int stop, int center) {
         double minDistance = Double.MAX_VALUE;
+        final int offsetLeft = center - 14;
+        final int offsetRight = center + 14;
+
         int lineIndex = 0;
         for (int i = start; i < stop; i++) {
-            longitudesIndex.set(i, center - 8);
+            longitudesIndex.set(i, offsetLeft);
             double lonCenter = longitudes.getDouble(longitudesIndex);
-            latitudesIndex.set(i, center - 8);
+            latitudesIndex.set(i, offsetLeft);
             double latCenter = latitudes.getDouble(latitudesIndex);
             final double distance_1 = sphericalDistance.distance(lonCenter, latCenter);
 
-            longitudesIndex.set(i, center + 8);
+            longitudesIndex.set(i, center);
             lonCenter = longitudes.getDouble(longitudesIndex);
-            latitudesIndex.set(i, center + 8);
+            latitudesIndex.set(i, center);
             latCenter = latitudes.getDouble(latitudesIndex);
             final double distance_2 = sphericalDistance.distance(lonCenter, latCenter);
 
-            final double distance = Math.min(distance_1, distance_2);
+            longitudesIndex.set(i, offsetRight);
+            lonCenter = longitudes.getDouble(longitudesIndex);
+            latitudesIndex.set(i, offsetRight);
+            latCenter = latitudes.getDouble(latitudesIndex);
+            final double distance_3 = sphericalDistance.distance(lonCenter, latCenter);
+
+            double distance = Math.min(distance_1, distance_2);
+            distance = Math.min(distance, distance_3);
             if (distance < minDistance) {
                 minDistance = distance;
                 lineIndex = i;
@@ -147,46 +161,5 @@ public class IASI_PixelLocator implements PixelLocator {
         }
 
         return pixelIndex;
-    }
-
-    // @todo 1 tb/tb discuss with Sabine and eventually migrate to our own class, discuss with SNAP team. 2017-05-02
-    private final class SphericalDistance implements DistanceMeasure {
-
-        private final double lon;
-        private final double lat;
-        private final double si;
-        private final double co;
-
-        /**
-         * Creates a new instance of this class.
-         *
-         * @param lon The reference longitude of this distance calculator.
-         * @param lat The reference latitude of this distance calculator.
-         */
-        public SphericalDistance(double lon, double lat) {
-            this.lon = lon;
-            this.lat = lat;
-            this.si = Math.sin(Math.toRadians(lat));
-            this.co = Math.cos(Math.toRadians(lat));
-        }
-
-        /**
-         * Returns the spherical distance (in Radian) of a given (lon, lat) point to
-         * the reference (lon, lat) point.
-         *
-         * @param lon The longitude.
-         * @param lat The latitude.
-         *
-         * @return the spherical distance (in Radian) of the given (lon, lat) point
-         * to the reference (lon, lat) point.
-         */
-        @Override
-        public double distance(double lon, double lat) {
-            if (this.lon == lon && this.lat == lat) {
-                return 0.0;
-            }
-            final double phi = Math.toRadians(lat);
-            return Math.acos(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
-        }
     }
 }

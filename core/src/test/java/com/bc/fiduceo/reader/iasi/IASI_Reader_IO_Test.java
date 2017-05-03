@@ -242,6 +242,10 @@ public class IASI_Reader_IO_Test {
             assertEquals(-56.68997573852539, geoLocation.getX(), 1e-8);
             assertEquals(-17.64765167236328, geoLocation.getY(), 1e-8);
 
+            geoLocation = pixelLocator.getGeoLocation(24.5, 628.5, null);
+            assertEquals(-94.60089111328125, geoLocation.getX(), 1e-8);
+            assertEquals(-76.91805267333984, geoLocation.getY(), 1e-8);
+
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(-8.481149673461914, 62.769412994384766);
             assertEquals(1, pixelLocation.length);
             assertEquals(0.5f, pixelLocation[0].getX(), 1e-8);
@@ -256,6 +260,70 @@ public class IASI_Reader_IO_Test {
             assertEquals(1, pixelLocation.length);
             assertEquals(21.5f, pixelLocation[0].getX(), 1e-8);
             assertEquals(367.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-94.60089111328125, -76.91805267333984);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(24.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(628.5, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocater_MB() throws IOException {
+        final File iasiFile = getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(-10.291940689086914, geoLocation.getX(), 1e-8);
+            assertEquals(61.35856628417969, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(59.5, 0.5, null);
+            assertEquals(-53.05204772949219, geoLocation.getX(), 1e-8);
+            assertEquals(68.13693237304688, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(21.5, 367.5, null);
+            assertEquals(-56.1817512512207, geoLocation.getX(), 1e-8);
+            assertEquals(-19.48737144470215, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(19.5, 628.5, null);
+            assertEquals(-93.76776885986328, geoLocation.getX(), 1e-8);
+            assertEquals(-79.11643981933594, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(18.5, 744.5, null);
+            assertEquals(135.94346618652344, geoLocation.getX(), 1e-8);
+            assertEquals(-70.93910217285156, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-10.291940689086914, 61.35856628417969);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(0.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-53.05204772949219, 68.13693237304688);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(59.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-56.1817512512207, -19.48737144470215);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(21.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(367.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-93.76776885986328, -79.11643981933594);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(19.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(628.5, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(135.94346618652344, -70.93910217285156);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(18.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(744.5, pixelLocation[0].getY(), 1e-8);
         } finally {
             reader.close();
         }
