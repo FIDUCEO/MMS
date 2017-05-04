@@ -20,32 +20,27 @@
 
 package com.bc.fiduceo.reader.iasi;
 
-import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.IOTestRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+@RunWith(IOTestRunner.class)
 public class MDRCache_IO_Test {
 
     private ImageInputStream iis;
 
     @Before
     public void setUp() throws IOException {
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-mb", "v7-0N", "2014", "04", "IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
+        final File file = IASI_TestUtil.getIasiFile_MB();
 
         iis = new FileImageInputStream(file);
     }
@@ -57,7 +52,7 @@ public class MDRCache_IO_Test {
 
     @Test
     public void testReadOneRecord() throws IOException {
-        final MDRCache mdrCache = new MDRCache(iis, 231818L);
+        final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
         final MDR_1C mdr = mdrCache.getRecord(0);
         assertNotNull(mdr);
@@ -65,7 +60,7 @@ public class MDRCache_IO_Test {
 
     @Test
     public void testReadOneRecord_twiceReturnsTheSameObject() throws IOException {
-        final MDRCache mdrCache = new MDRCache(iis, 231818L);
+        final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
         final MDR_1C mdr_1 = mdrCache.getRecord(167);
         assertNotNull(mdr_1);
@@ -78,7 +73,7 @@ public class MDRCache_IO_Test {
 
     @Test
     public void testReadOneRecord_coversTwoConsecutiveLines() throws IOException {
-        final MDRCache mdrCache = new MDRCache(iis, 231818L);
+        final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
         final MDR_1C mdr_216 = mdrCache.getRecord(216);
         assertNotNull(mdr_216);
@@ -91,7 +86,7 @@ public class MDRCache_IO_Test {
 
     @Test
     public void testReadRecordsUntilCacheIsFull() throws IOException {
-        final MDRCache mdrCache = new MDRCache(iis, 231818L);
+        final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
         final MDR_1C mdr_first = mdrCache.getRecord(216);
         assertNotNull(mdr_first);

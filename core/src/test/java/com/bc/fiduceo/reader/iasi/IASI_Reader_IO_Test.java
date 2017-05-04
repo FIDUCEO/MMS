@@ -50,18 +50,16 @@ import static org.junit.Assert.fail;
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
 
-    private File testDataDirectory;
     private IASI_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
         reader = new IASI_Reader(new GeometryFactory(GeometryFactory.Type.S2));
     }
 
     @Test
     public void testOpen_alreadyOpenedStreamThrows() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -79,7 +77,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_MA() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -125,7 +123,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_MB() throws IOException {
-        final File iasiFile = getIasiFile_MB();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
             reader.open(iasiFile);
@@ -171,7 +169,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetProductSize_MA() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -187,7 +185,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_MA() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -222,7 +220,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocater_MA() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -272,7 +270,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocater_MB() throws IOException {
-        final File iasiFile = getIasiFile_MB();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
             reader.open(iasiFile);
@@ -331,7 +329,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocater_MA_twiceReturnsSameObject() throws IOException {
-        final File iasiFile = getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
         try {
             reader.open(iasiFile);
@@ -350,7 +348,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testSubsceneGetPixelLocater_MB() throws IOException {
-        final File iasiFile = getIasiFile_MB();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
             reader.open(iasiFile);
@@ -365,7 +363,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_MB() throws IOException {
-        final File iasiFile = getIasiFile_MB();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
             reader.open(iasiFile);
@@ -400,7 +398,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_MB_twiceReturnsSameObject() throws IOException {
-        final File iasiFile = getIasiFile_MB();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
             reader.open(iasiFile);
@@ -414,19 +412,5 @@ public class IASI_Reader_IO_Test {
         } finally {
             reader.close();
         }
-    }
-
-    private File getIasiFile_MA() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-ma", "v3-6N", "2016", "01", "IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
-    }
-
-    private File getIasiFile_MB() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-mb", "v7-0N", "2014", "04", "IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
     }
 }

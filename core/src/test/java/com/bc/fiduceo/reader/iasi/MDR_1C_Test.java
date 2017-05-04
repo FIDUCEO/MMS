@@ -35,4 +35,19 @@ public class MDR_1C_Test {
         assertNotNull(raw_record);
         assertEquals(2728908, raw_record.length);
     }
+
+    @Test
+    public void testGetEFOVIndex() {
+        assertEquals(3, MDR_1C.getEFOVIndex(2, 0));
+        assertEquals(3, MDR_1C.getEFOVIndex(16, 0));
+
+        assertEquals(0, MDR_1C.getEFOVIndex(3, 0));
+        assertEquals(0, MDR_1C.getEFOVIndex(17, 0));
+
+        assertEquals(2, MDR_1C.getEFOVIndex(2, 1));
+        assertEquals(2, MDR_1C.getEFOVIndex(44, 1));
+
+        assertEquals(1, MDR_1C.getEFOVIndex(3, 1));
+        assertEquals(1, MDR_1C.getEFOVIndex(45, 1));
+    }
 }

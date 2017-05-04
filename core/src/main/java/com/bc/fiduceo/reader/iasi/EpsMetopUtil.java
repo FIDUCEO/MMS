@@ -36,4 +36,11 @@ class EpsMetopUtil {
 
         return new ProductData.UTC(day, (int) seconds, (int) micros);
     }
+
+    static long readOBT(ImageInputStream iis) throws IOException {
+        final int upper = iis.readUnsignedShort();
+        final long lower = iis.readUnsignedInt();
+
+        return lower | ((long) upper << 32);
+    }
 }

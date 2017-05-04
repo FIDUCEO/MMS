@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import javax.imageio.stream.ImageInputStream;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -50,5 +51,31 @@ public class EpsMetopUtilTest {
         assertEquals(47, calendar.get(Calendar.MINUTE));
         assertEquals(54, calendar.get(Calendar.SECOND));
         assertEquals(870, calendar.get(Calendar.MILLISECOND));
+    }
+
+    @Test
+    public void testReadOBT() throws IOException {
+        final ImageInputStream imageInputStream = mock(ImageInputStream.class);
+
+        // upper short is zero
+        when(imageInputStream.readUnsignedShort()).thenReturn(0);
+        when(imageInputStream.readUnsignedInt()).thenReturn(46074870L);
+
+        long obt = EpsMetopUtil.readOBT(imageInputStream);
+        assertEquals(46074870L, obt);
+
+        // lower int is zero, upper one
+        when(imageInputStream.readUnsignedShort()).thenReturn(1);
+        when(imageInputStream.readUnsignedInt()).thenReturn(0L);
+
+        obt = EpsMetopUtil.readOBT(imageInputStream);
+        assertEquals(4294967296L, obt);
+
+        // both
+        when(imageInputStream.readUnsignedShort()).thenReturn(128);
+        when(imageInputStream.readUnsignedInt()).thenReturn(2048L);
+
+        obt = EpsMetopUtil.readOBT(imageInputStream);
+        assertEquals(549755815936L, obt);
     }
 }
