@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
 import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.PN;
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.SS;
 
 class MDR_1C {
 
@@ -48,6 +49,16 @@ class MDR_1C {
     private static final long GGEO_SOND_ANGLES_METOP_OFFSET = 256853;
     private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
     private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
+    private static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
+    private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
+    private static final long G1S_SPECT_OFFSET = 276790;
+    private static final long GCS_RAD_ANAL_NB_OFFSET = 2365814;
+    private static final long IDEF_CS_MODE_OFFSET = 2727614;
+    private static final long GCS_IMG_CLASS_LIN_OFFSET = 2727618;
+    private static final long GCS_IMG_CLASS_COL_OFFSET = 2727678;
+    private static final long GEUM_AVHRR_CLOUD_FRAC_OFFSET = 2728548;
+    private static final long GEUM_AVHRR_LAND_FRAC_OFFSET = 2728668;
+    private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
 
     private static final int OBT_SIZE = 6;
     private static final int ONBOARD_UTC_SIZE = 6;
@@ -57,6 +68,10 @@ class MDR_1C {
     private static final int GGEO_SOND_LOC_SIZE = 8;    // two integers, lon + lat tb 2015-05-05
     private static final int GGEO_SOND_ANGLES_METOP_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
     private static final int GGEO_SOND_ANGLES_SUN_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
+    private static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-05-05
+    private static final int GCS_RAD_ANAL_NB_SIZE = 4;
+    private static final int GCS_IMG_CLASS_LIN_SIZE = 2;
+    private static final int GCS_IMG_CLASS_COL_SIZE = 2;
 
     private final byte[] raw_record;
 
@@ -237,6 +252,100 @@ class MDR_1C {
 
         stream.seek(EARTH_SATELLITE_DISTANCE_OFFSET);
         return (int) stream.readUnsignedInt();
+    }
+
+    int get_IDefNsfirst1b(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+
+        stream.seek(IDEF_NS_FIRST_1B_OFFSET);
+        return stream.readInt();
+    }
+
+    int get_IDefNslast1b(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+
+        stream.seek(IDEF_NS_LAST_1B_OFFSET);
+        return stream.readInt();
+    }
+
+    short[] get_GS1cSpect(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(G1S_SPECT_OFFSET + (mdrPos * PN + efovIndex) * G1S_SPECT_SIZE);
+
+        final short[] spectrum = new short[SS];
+        for (int i = 0; i < SS; i++) {
+            spectrum[i] = stream.readShort();
+        }
+        return spectrum;
+    }
+
+    int get_GCcsRadAnalNbClass(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GCS_RAD_ANAL_NB_OFFSET + (mdrPos * PN + efovIndex) * GCS_RAD_ANAL_NB_SIZE);
+
+        return stream.readInt();
+    }
+
+    int get_IDefCcsMode(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+
+        stream.seek(IDEF_CS_MODE_OFFSET);
+
+        return stream.readInt();
+    }
+
+    short get_GCcsImageClassifiedNbLin(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(GCS_IMG_CLASS_LIN_OFFSET + mdrPos * GCS_IMG_CLASS_LIN_SIZE);
+
+        return stream.readShort();
+    }
+
+    short get_GCcsImageClassifiedNbCol(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(GCS_IMG_CLASS_COL_OFFSET + mdrPos * GCS_IMG_CLASS_COL_SIZE);
+
+        return stream.readShort();
+    }
+
+    byte get_GEUMAvhrr1BCldFrac(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GEUM_AVHRR_CLOUD_FRAC_OFFSET + mdrPos * PN + efovIndex);
+
+        return (byte) stream.readUnsignedByte();
+    }
+
+    byte get_GEUMAvhrr1BLandFrac(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GEUM_AVHRR_LAND_FRAC_OFFSET + mdrPos * PN + efovIndex);
+
+        return (byte) stream.readUnsignedByte();
+    }
+
+    byte get_GEUMAvhrr1BQual(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GEUM_AVHRR_QUAL_OFFSET + mdrPos * PN + efovIndex);
+
+        return stream.readByte();
     }
 
     private int getMdrPos(int x) {

@@ -34,6 +34,7 @@ public class MDR_1C_IOTest {
         iis.seek(IASI_TestUtil.MDR_OFFSET_MA + 117 * MDR_1C.RECORD_SIZE);
         iis.read(mdr_1C.getRaw_record());
 
+        // general L1 data -----------------------------------
         assertEquals(0, mdr_1C.get_DEGRADED_INST_MDR(0, 0));
         assertEquals(0, mdr_1C.get_DEGRADED_PROC_MDR(1, 1));
         assertEquals(161, mdr_1C.get_GEPSIasiMode(2, 0));
@@ -60,6 +61,26 @@ public class MDR_1C_IOTest {
         assertEquals(49.31060028076172, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 0), 1e-8);
         assertEquals(137.09007263183594, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 1), 1e-8);
         assertEquals(7199344, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 0));
+
+        // l1c specific --------------------------------------------
+        // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
+        assertEquals(2581, mdr_1C.get_IDefNsfirst1b(21, 1));
+        assertEquals(11041, mdr_1C.get_IDefNslast1b(22, 0));
+
+        final short[] l1c_spec =  mdr_1C.get_GS1cSpect(23, 0);
+        assertEquals(8700, l1c_spec.length);
+        assertEquals(4089, l1c_spec[0]);
+        assertEquals(6022, l1c_spec[4267]);
+
+        assertEquals(6, mdr_1C.get_GCcsRadAnalNbClass(24, 1));
+        assertEquals(0, mdr_1C.get_IDefCcsMode(25, 0));
+        assertEquals(48, mdr_1C.get_GCcsImageClassifiedNbLin(26, 1));
+        assertEquals(69, mdr_1C.get_GCcsImageClassifiedNbCol(27, 0));
+        // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
+        // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
+        assertEquals(2, mdr_1C.get_GEUMAvhrr1BCldFrac(28, 1));
+        assertEquals(0, mdr_1C.get_GEUMAvhrr1BLandFrac(29, 0));
+        assertEquals(0, mdr_1C.get_GEUMAvhrr1BQual(30, 1));
     }
 
     @Test
@@ -71,6 +92,7 @@ public class MDR_1C_IOTest {
         iis.seek(IASI_TestUtil.MDR_OFFSET_MB + 608 * MDR_1C.RECORD_SIZE);
         iis.read(mdr_1C.getRaw_record());
 
+        // general L1 data -----------------------------------
         assertEquals(0, mdr_1C.get_DEGRADED_INST_MDR(0, 1));
         assertEquals(0, mdr_1C.get_DEGRADED_PROC_MDR(1, 0));
         assertEquals(161, mdr_1C.get_GEPSIasiMode(2, 1));
@@ -97,5 +119,25 @@ public class MDR_1C_IOTest {
         assertEquals(111.65995025634766, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 1), 1e-8);
         assertEquals(310.1988220214844, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 0), 1e-8);
         assertEquals(7194027, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 1));
+
+        // l1c specific --------------------------------------------
+        // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
+        assertEquals(2581, mdr_1C.get_IDefNsfirst1b(21, 0));
+        assertEquals(11041, mdr_1C.get_IDefNslast1b(22, 1));
+
+        final short[] l1c_spec =  mdr_1C.get_GS1cSpect(23, 1);
+        assertEquals(8700, l1c_spec.length);
+        assertEquals(4436, l1c_spec[0]);
+        assertEquals(3326, l1c_spec[4268]);
+
+        assertEquals(3, mdr_1C.get_GCcsRadAnalNbClass(24, 0));
+        assertEquals(0, mdr_1C.get_IDefCcsMode(25, 1));
+        assertEquals(49, mdr_1C.get_GCcsImageClassifiedNbLin(26, 0));
+        assertEquals(69, mdr_1C.get_GCcsImageClassifiedNbCol(27, 1));
+        // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
+        // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
+        assertEquals(0, mdr_1C.get_GEUMAvhrr1BCldFrac(28, 0));
+        assertEquals(100, mdr_1C.get_GEUMAvhrr1BLandFrac(29, 1));
+        assertEquals(0, mdr_1C.get_GEUMAvhrr1BQual(30, 0));
     }
 }

@@ -19,4 +19,5 @@ class EpsMetopConstants {
     static final float G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6f;
 
     static final int PN = 4;
+    static final int SS = 8700;
 }
