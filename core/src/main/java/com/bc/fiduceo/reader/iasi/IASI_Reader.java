@@ -65,15 +65,12 @@ public class IASI_Reader implements Reader {
 
     private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
-    private static final int PN = 4;
     private static final int SNOT = 30;
     private static final int LON = 0;
     private static final int LAT = 1;
 
     private static final int G_EPS_DAT_IASI_OFFSET = 9122;
     private static final int G_GEO_SOND_LOC_OFFSET = 255893;
-
-    private static final float G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6f;
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
@@ -275,8 +272,8 @@ public class IASI_Reader implements Reader {
     }
 
     private float[][][][] readGGeoSondLoc() throws IOException {
-        final float[][][][] data = new float[mdrCount][SNOT][PN][2];
-        final int[] mdrBlock = new int[SNOT * PN * 2];
+        final float[][][][] data = new float[mdrCount][SNOT][EpsMetopConstants.PN][2];
+        final int[] mdrBlock = new int[SNOT * EpsMetopConstants.PN * 2];
 
         for (int mdrIndex = 0; mdrIndex < mdrCount; mdrIndex++) {
             final long mdrOffset = getMdrOffset(mdrIndex);
@@ -287,9 +284,9 @@ public class IASI_Reader implements Reader {
 
             for (int i = 0, j = 0; j < SNOT; j++) {
                 final float[][] efovData = scanLineData[j];
-                for (int k = 0; k < PN; k++) {
-                    efovData[k][LON] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
-                    efovData[k][LAT] = mdrBlock[i++] * G_GEO_SOND_LOC_SCALING_FACTOR;
+                for (int k = 0; k < EpsMetopConstants.PN; k++) {
+                    efovData[k][LON] = mdrBlock[i++] * EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
+                    efovData[k][LAT] = mdrBlock[i++] * EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
                 }
             }
         }

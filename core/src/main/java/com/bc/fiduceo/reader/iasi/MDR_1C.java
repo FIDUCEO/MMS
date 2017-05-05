@@ -25,6 +25,9 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.PN;
+
 class MDR_1C {
 
     static final int RECORD_SIZE = 2728908;
@@ -41,12 +44,19 @@ class MDR_1C {
     private static final long GQIS_FLAG_QUAL_DET_OFFSET = 255620;
     private static final long GQIS_SYS_TEC_IIS_QUAL_OFFSET = 255885;
     private static final long GQIS_SYS_TEC_SOND_QUAL_OFFSET = 255889;
+    private static final long GGEO_SOND_LOC_OFFSET = 255893;
+    private static final long GGEO_SOND_ANGLES_METOP_OFFSET = 256853;
+    private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
+    private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
 
     private static final int OBT_SIZE = 6;
     private static final int ONBOARD_UTC_SIZE = 6;
     private static final int GEPS_DAT_IASI_SIZE = 6;
     private static final int GEPS_SP_SIZE = 4;
     private static final int GQIS_FLAG_QUAL_DET_SIZE = 2;
+    private static final int GGEO_SOND_LOC_SIZE = 8;    // two integers, lon + lat tb 2015-05-05
+    private static final int GGEO_SOND_ANGLES_METOP_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
+    private static final int GGEO_SOND_ANGLES_SUN_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
 
     private final byte[] raw_record;
 
@@ -127,9 +137,8 @@ class MDR_1C {
     int get_GEPS_SP(int x, int line) throws IOException {
         final ImageInputStream stream = getStream();
         final int mdrPos = getMdrPos(x);
-
+        
         stream.seek(GEPS_SP_OFFSET + mdrPos * GEPS_SP_SIZE);
-
         return stream.readInt();
     }
 
@@ -138,7 +147,7 @@ class MDR_1C {
         final int mdrPos = getMdrPos(x);
         final int efovIndex = getEFOVIndex(x, line);
 
-        stream.seek(GQIS_FLAG_QUAL_DET_OFFSET + mdrPos * 4 * GQIS_FLAG_QUAL_DET_SIZE + efovIndex);
+        stream.seek(GQIS_FLAG_QUAL_DET_OFFSET + (mdrPos * PN + efovIndex) * GQIS_FLAG_QUAL_DET_SIZE);
 
         return stream.readShort();
     }
@@ -154,6 +163,79 @@ class MDR_1C {
         final ImageInputStream stream = getStream();
 
         stream.seek(GQIS_SYS_TEC_SOND_QUAL_OFFSET);
+        return (int) stream.readUnsignedInt();
+    }
+
+    float get_GGeoSondLoc_Lon(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_LOC_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_LOC_SIZE);
+
+        final int lonInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * lonInt;
+    }
+
+    float get_GGeoSondLoc_Lat(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_LOC_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_LOC_SIZE + 4);
+
+        final int latInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * latInt;
+    }
+
+    float get_GGeoSondAnglesMETOP_Zenith(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_ANGLES_METOP_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_METOP_SIZE);
+
+        final int zenithInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * zenithInt;
+    }
+
+    float get_GGeoSondAnglesMETOP_Azimuth(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_ANGLES_METOP_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_METOP_SIZE + 4);
+
+        final int azimuthInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * azimuthInt;
+    }
+
+    float get_GGeoSondAnglesSUN_Zenith(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_ANGLES_SUN_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_SUN_SIZE);
+
+        final int zenithInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * zenithInt;
+    }
+
+    float get_GGeoSondAnglesSUN_Azimuth(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(GGEO_SOND_ANGLES_SUN_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_SUN_SIZE + 4);
+
+        final int azimuthInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * azimuthInt;
+    }
+
+    int get_EARTH_SATELLITE_DISTANCE(int x, int line) throws IOException {
+        final ImageInputStream stream = getStream();
+
+        stream.seek(EARTH_SATELLITE_DISTANCE_OFFSET);
         return (int) stream.readUnsignedInt();
     }
 

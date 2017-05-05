@@ -53,8 +53,14 @@ public class MDR_1C_IOTest {
         // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
         assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 0));
         assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 1));
+        assertEquals(-47.93063735961914, mdr_1C.get_GGeoSondLoc_Lon(14, 0), 1e-8);
+        assertEquals(13.088440895080566, mdr_1C.get_GGeoSondLoc_Lat(15, 1), 1e-8);
+        assertEquals(25.28335952758789, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 0), 1e-8);
+        assertEquals(285.3315124511719, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 1), 1e-8);
+        assertEquals(49.31060028076172, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 0), 1e-8);
+        assertEquals(137.09007263183594, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 1), 1e-8);
+        assertEquals(7199344, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 0));
     }
-
 
     @Test
     public void testAccessFields_MB() throws IOException {
@@ -84,5 +90,12 @@ public class MDR_1C_IOTest {
         // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
         assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 1));
         assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 0));
+        assertEquals(98.93218231201172, mdr_1C.get_GGeoSondLoc_Lon(14, 1), 1e-8);
+        assertEquals(38.758026123046875, mdr_1C.get_GGeoSondLoc_Lat(15, 0), 1e-8);
+        assertEquals(25.284067153930664, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 1), 1e-8);
+        assertEquals(71.94691467285156, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 0), 1e-8);
+        assertEquals(111.65995025634766, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 1), 1e-8);
+        assertEquals(310.1988220214844, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 0), 1e-8);
+        assertEquals(7194027, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 1));
     }
 }

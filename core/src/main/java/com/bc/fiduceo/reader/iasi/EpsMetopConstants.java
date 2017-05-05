@@ -2,17 +2,21 @@ package com.bc.fiduceo.reader.iasi;
 
 class EpsMetopConstants {
 
-    public static final String UNIT_DEG = "deg";
-    public static final String UNIT_M = "m";
-    public static final String UNIT_MM = "mm";
-    public static final String UNIT_KM = "km";
-    public static final String UNIT_M_PER_S = "m/s";
-    public static final String UNIT_KM_PER_S = "km/s";
-    public static final String UNIT_YEARS = "year";
-    public static final String UNIT_DAYS = "day";
-    public static final String UNIT_MINUTES = "min";
-    public static final String UNIT_MS = "ms";
-    public static final String UNIT_DATE = "date";
-    public static final String UNIT_BYTES = "bytes";
-    public static final String UNIT_BITS = "bits";
+    static final String UNIT_DEG = "deg";
+    static final String UNIT_M = "m";
+    static final String UNIT_MM = "mm";
+    static final String UNIT_KM = "km";
+    static final String UNIT_M_PER_S = "m/s";
+    static final String UNIT_KM_PER_S = "km/s";
+    static final String UNIT_YEARS = "year";
+    static final String UNIT_DAYS = "day";
+    static final String UNIT_MINUTES = "min";
+    static final String UNIT_MS = "ms";
+    static final String UNIT_DATE = "date";
+    static final String UNIT_BYTES = "bytes";
+    static final String UNIT_BITS = "bits";
+
+    static final float G_GEO_SOND_LOC_SCALING_FACTOR = 1.0E-6f;
+
+    static final int PN = 4;
 }
