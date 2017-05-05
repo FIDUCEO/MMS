@@ -61,17 +61,11 @@ class MDR_1C {
     private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
 
     private static final int OBT_SIZE = 6;
-    private static final int ONBOARD_UTC_SIZE = 6;
-    private static final int GEPS_DAT_IASI_SIZE = 6;
-    private static final int GEPS_SP_SIZE = 4;
-    private static final int GQIS_FLAG_QUAL_DET_SIZE = 2;
-    private static final int GGEO_SOND_LOC_SIZE = 8;    // two integers, lon + lat tb 2015-05-05
-    private static final int GGEO_SOND_ANGLES_METOP_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
-    private static final int GGEO_SOND_ANGLES_SUN_SIZE = 8;    // two integers, zenith + azimuth tb 2015-05-05
+    private static final int UTC_SIZE = 6;
+    private static final int SHORT_SIZE = 2;
+    private static final int INT_SIZE = 4;
+    private static final int DUAL_INT_SIZE = 8;
     private static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-05-05
-    private static final int GCS_RAD_ANAL_NB_SIZE = 4;
-    private static final int GCS_IMG_CLASS_LIN_SIZE = 2;
-    private static final int GCS_IMG_CLASS_COL_SIZE = 2;
 
     private final byte[] raw_record;
 
@@ -86,31 +80,19 @@ class MDR_1C {
     }
 
     byte get_DEGRADED_INST_MDR(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(DEGRADED_INST_MDR_OFFSET);
-
-        return stream.readByte();
+        return readPerScan_byte(DEGRADED_INST_MDR_OFFSET);
     }
 
     byte get_DEGRADED_PROC_MDR(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(DEGRADED_PROC_MDR_OFFSET);
-
-        return stream.readByte();
+        return readPerScan_byte(DEGRADED_PROC_MDR_OFFSET);
     }
 
     int get_GEPSIasiMode(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(GEPS_IASI_MODE_OFFSET);
-
-        return stream.readInt();
+        return readPerScan_int(GEPS_IASI_MODE_OFFSET);
     }
 
     int get_GEPSOPSProcessingMode(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(GEPS_OPS_PROC_MODE_OFFSET);
-
-        return stream.readInt();
+        return readPerScan_int(GEPS_OPS_PROC_MODE_OFFSET);
     }
 
     long get_OBT(int x, int line) throws IOException {
@@ -123,149 +105,67 @@ class MDR_1C {
     }
 
     long get_OnboardUTC(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(ONBOARD_UTC_OFFSET + mdrPos * ONBOARD_UTC_SIZE);
-
-        return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
+        return readPerEFOV_utc(x, ONBOARD_UTC_OFFSET);
     }
 
     long get_GEPSDatIasi(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(GEPS_DAT_IASI_OFFSET + mdrPos * GEPS_DAT_IASI_SIZE);
-
-        return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
+        return readPerEFOV_utc(x, GEPS_DAT_IASI_OFFSET);
     }
 
     byte get_GEPS_CCD(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(GEPS_CCD_OFFSET + mdrPos);
-
-        return stream.readByte();
+        return readPerEFOV_byte(x, GEPS_CCD_OFFSET);
     }
 
     int get_GEPS_SP(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        
-        stream.seek(GEPS_SP_OFFSET + mdrPos * GEPS_SP_SIZE);
-        return stream.readInt();
+        return readPerEFOV_int(x, GEPS_SP_OFFSET);
     }
 
     short get_GQisFlagQualDetailed(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GQIS_FLAG_QUAL_DET_OFFSET + (mdrPos * PN + efovIndex) * GQIS_FLAG_QUAL_DET_SIZE);
-
-        return stream.readShort();
+        return readPerPixel_short(x, line, GQIS_FLAG_QUAL_DET_OFFSET);
     }
 
     int get_GQisSysTecIISQual(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(GQIS_SYS_TEC_IIS_QUAL_OFFSET);
-        return (int) stream.readUnsignedInt();
+        return readPerScan_int(GQIS_SYS_TEC_IIS_QUAL_OFFSET);
     }
 
     int get_GQisSysTecSondQual(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(GQIS_SYS_TEC_SOND_QUAL_OFFSET);
-        return (int) stream.readUnsignedInt();
+        return readPerScan_int(GQIS_SYS_TEC_SOND_QUAL_OFFSET);
     }
 
     float get_GGeoSondLoc_Lon(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_LOC_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_LOC_SIZE);
-
-        final int lonInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * lonInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_LOC_OFFSET, 0);
     }
 
     float get_GGeoSondLoc_Lat(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_LOC_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_LOC_SIZE + 4);
-
-        final int latInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * latInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_LOC_OFFSET, 4);
     }
 
     float get_GGeoSondAnglesMETOP_Zenith(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_ANGLES_METOP_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_METOP_SIZE);
-
-        final int zenithInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * zenithInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_ANGLES_METOP_OFFSET, 0);
     }
 
     float get_GGeoSondAnglesMETOP_Azimuth(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_ANGLES_METOP_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_METOP_SIZE + 4);
-
-        final int azimuthInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * azimuthInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_ANGLES_METOP_OFFSET, 4);
     }
 
     float get_GGeoSondAnglesSUN_Zenith(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_ANGLES_SUN_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_SUN_SIZE);
-
-        final int zenithInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * zenithInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_ANGLES_SUN_OFFSET, 0);
     }
 
     float get_GGeoSondAnglesSUN_Azimuth(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GGEO_SOND_ANGLES_SUN_OFFSET + (mdrPos * PN + efovIndex) * GGEO_SOND_ANGLES_SUN_SIZE + 4);
-
-        final int azimuthInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * azimuthInt;
+        return readPerPixel_scaledAngle(x, line, GGEO_SOND_ANGLES_SUN_OFFSET, 4);
     }
 
     int get_EARTH_SATELLITE_DISTANCE(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(EARTH_SATELLITE_DISTANCE_OFFSET);
-        return (int) stream.readUnsignedInt();
+        return readPerScan_int(EARTH_SATELLITE_DISTANCE_OFFSET);
     }
 
     int get_IDefNsfirst1b(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(IDEF_NS_FIRST_1B_OFFSET);
-        return stream.readInt();
+        return readPerScan_int(IDEF_NS_FIRST_1B_OFFSET);
     }
 
     int get_IDefNslast1b(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(IDEF_NS_LAST_1B_OFFSET);
-        return stream.readInt();
+        return readPerScan_int(IDEF_NS_LAST_1B_OFFSET);
     }
 
     short[] get_GS1cSpect(int x, int line) throws IOException {
@@ -283,73 +183,123 @@ class MDR_1C {
     }
 
     int get_GCcsRadAnalNbClass(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GCS_RAD_ANAL_NB_OFFSET + (mdrPos * PN + efovIndex) * GCS_RAD_ANAL_NB_SIZE);
-
-        return stream.readInt();
+        return readPerPixel_int(x, line, GCS_RAD_ANAL_NB_OFFSET);
     }
 
     int get_IDefCcsMode(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-
-        stream.seek(IDEF_CS_MODE_OFFSET);
-
-        return stream.readInt();
+        return readPerScan_int(IDEF_CS_MODE_OFFSET);
     }
 
     short get_GCcsImageClassifiedNbLin(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(GCS_IMG_CLASS_LIN_OFFSET + mdrPos * GCS_IMG_CLASS_LIN_SIZE);
-
-        return stream.readShort();
+        return readPerEFOV_short(x, GCS_IMG_CLASS_LIN_OFFSET);
     }
 
     short get_GCcsImageClassifiedNbCol(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(GCS_IMG_CLASS_COL_OFFSET + mdrPos * GCS_IMG_CLASS_COL_SIZE);
-
-        return stream.readShort();
+        return readPerEFOV_short(x, GCS_IMG_CLASS_COL_OFFSET);
     }
 
     byte get_GEUMAvhrr1BCldFrac(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GEUM_AVHRR_CLOUD_FRAC_OFFSET + mdrPos * PN + efovIndex);
-
-        return (byte) stream.readUnsignedByte();
+        return readPerPixel_byte(x, line, GEUM_AVHRR_CLOUD_FRAC_OFFSET);
     }
 
     byte get_GEUMAvhrr1BLandFrac(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GEUM_AVHRR_LAND_FRAC_OFFSET + mdrPos * PN + efovIndex);
-
-        return (byte) stream.readUnsignedByte();
+        return readPerPixel_byte(x, line, GEUM_AVHRR_LAND_FRAC_OFFSET);
     }
 
     byte get_GEUMAvhrr1BQual(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(GEUM_AVHRR_QUAL_OFFSET + mdrPos * PN + efovIndex);
-
-        return stream.readByte();
+        return readPerPixel_byte(x, line, GEUM_AVHRR_QUAL_OFFSET);
     }
 
     private int getMdrPos(int x) {
         return x / 2;
+    }
+
+    private byte readPerScan_byte(long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        stream.seek(position);
+
+        return stream.readByte();
+    }
+
+    private int readPerScan_int(long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        stream.seek(position);
+
+        return stream.readInt();
+    }
+
+    private byte readPerEFOV_byte(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos);
+        return stream.readByte();
+    }
+
+    private short readPerEFOV_short(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * 2);
+        return stream.readShort();
+    }
+
+    private int readPerEFOV_int(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * 4);
+        return stream.readInt();
+    }
+
+    private long readPerEFOV_utc(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * UTC_SIZE);
+
+        return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
+    }
+
+    private byte readPerPixel_byte(int x, int line, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + mdrPos * PN + efovIndex);
+
+        return stream.readByte();
+    }
+
+    private short readPerPixel_short(int x, int line, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + (mdrPos * PN + efovIndex) * SHORT_SIZE);
+
+        return stream.readShort();
+    }
+
+    private int readPerPixel_int(int x, int line, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + (mdrPos * PN + efovIndex) * INT_SIZE);
+
+        return stream.readInt();
+    }
+
+    private float readPerPixel_scaledAngle(int x, int line, long position, int offset) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
+
+        final int lonInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * lonInt;
     }
 
     private ImageInputStream getStream() {
