@@ -298,8 +298,8 @@ class MDR_1C {
 
         stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
 
-        final int lonInt = stream.readInt();
-        return G_GEO_SOND_LOC_SCALING_FACTOR * lonInt;
+        final int angleInt = stream.readInt();
+        return G_GEO_SOND_LOC_SCALING_FACTOR * angleInt;
     }
 
     private ImageInputStream getStream() {
