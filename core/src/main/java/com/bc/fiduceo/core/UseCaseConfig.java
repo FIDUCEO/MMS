@@ -102,17 +102,13 @@ public class UseCaseConfig {
         this.numRandomSeedPoints = numRandomSeedPoints;
     }
 
-    // todo se multisensor
-    public List<Sensor> getSensors() {
+    protected List<Sensor> getSensors() {
         return sensors;
     }
 
-    // todo se multisensor
     protected void setSensors(List<Sensor> sensors) {
         this.sensors = sensors;
     }
-
-    // todo se multisensor
 
     /**
      * Retrieves the primary Sensor for this use-case.
@@ -128,7 +124,6 @@ public class UseCaseConfig {
         return null;
     }
 
-    // todo se multisensor
     public List<Sensor> getAdditionalSensors() {
         final ArrayList<Sensor> additionalSensorList = new ArrayList<>();
         for (final Sensor sensor : sensors) {
@@ -177,7 +172,6 @@ public class UseCaseConfig {
         if (StringUtils.isNullOrEmpty(name)) {
             setInvalidWithMessage("Use case name not configured.", validationResult);
         }
-
         int primaryCount = 0;
         for (Sensor sensor : sensors) {
             if (sensor.isPrimary()) {
@@ -187,17 +181,12 @@ public class UseCaseConfig {
         if (primaryCount > 1) {
             setInvalidWithMessage("More than one primary sensor configured.", validationResult);
         }
-
-        // todo se multisensor
-        if (getPrimarySensor() == null) {
+        if (primaryCount < 1) {
             setInvalidWithMessage("Primary sensor not configured.", validationResult);
         }
-        // todo se multisensor
         if (getAdditionalSensors().size() == 0) {
             setInvalidWithMessage("No additional sensor configured.", validationResult);
         }
-        // todo se multisensor
-        final List<Sensor> sensors = getSensors();
         for (final Sensor sensor : sensors) {
             if (!hasDimensionFor(sensor.getName())) {
                 setInvalidWithMessage("No dimensions for sensor '" + sensor.getName() + "' configured.", validationResult);

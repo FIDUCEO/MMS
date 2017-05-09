@@ -60,8 +60,7 @@ public class UseCaseConfigValidationTest {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
         final List<Sensor> sensors = useCaseConfig.getSensors();
-        final Sensor removed = sensors.remove(1);
-        assertTrue(removed.isPrimary());
+        assertTrue(sensors.remove(1).isPrimary());
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
@@ -91,8 +90,7 @@ public class UseCaseConfigValidationTest {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
         final List<Sensor> sensors = useCaseConfig.getSensors();
-        final Sensor removed = sensors.remove(0);
-        assertFalse(removed.isPrimary());
+        assertFalse(sensors.remove(0).isPrimary());
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
@@ -134,7 +132,9 @@ public class UseCaseConfigValidationTest {
         final UseCaseConfig useCaseConfig = createValidConfig();
 
         useCaseConfig.setOutputPath(null);
-        useCaseConfig.setSensors(Arrays.asList(useCaseConfig.getSensors().get(0)));
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        assertTrue(sensors.remove(1).isPrimary());
+
 
         final ValidationResult result = useCaseConfig.checkValid();
         assertFalse(result.isValid());
