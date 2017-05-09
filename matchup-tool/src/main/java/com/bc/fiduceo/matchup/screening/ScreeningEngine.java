@@ -46,8 +46,10 @@ public class ScreeningEngine {
     }
 
     public void process(MatchupSet matchupSet, final Reader primaryReader, final Reader secondaryReader) throws IOException, InvalidRangeException {
+        // todo se multisensor
         final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
+            // todo se multisensor
             screening.apply(matchupSet, primaryReader, secondaryReader, sc);
         }
     }
@@ -67,17 +69,20 @@ public class ScreeningEngine {
         }
     }
 
+    // todo se multisensor
     private Screening.ScreeningContext createScreeningContext() {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         return new Screening.ScreeningContext() {
             @Override
             public Dimension getPrimaryDimension() {
+                // todo se multisensor
                 final String name = useCaseConfig.getPrimarySensor().getName();
                 return useCaseConfig.getDimensionFor(name);
             }
 
             @Override
             public Dimension getSecondaryDimension() {
+                // todo se multisensor
                 final String name = useCaseConfig.getAdditionalSensors().get(0).getName();
                 return useCaseConfig.getDimensionFor(name);
             }

@@ -21,14 +21,14 @@
 package com.bc.fiduceo.core;
 
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
+import org.junit.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class UseCaseConfigValidationTest {
 
@@ -68,6 +68,22 @@ public class UseCaseConfigValidationTest {
         final List<String> messages = result.getMessages();
         assertEquals(1, messages.size());
         assertEquals("Primary sensor not configured.", messages.get(0));
+    }
+
+    @Test
+    public void testValidation_invalid_moreThanOnePrimary() {
+        final UseCaseConfig useCaseConfig = createValidConfig();
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        final Sensor secondPrimary = new Sensor("secondPrimary");
+        secondPrimary.setPrimary(true);
+        sensors.add(secondPrimary);
+
+        final ValidationResult result = useCaseConfig.checkValid();
+        assertFalse(result.isValid());
+        final ArrayList<String> expected = new ArrayList<>();
+        expected.add("More than one primary sensor configured.");
+        expected.add("No dimensions for sensor 'secondPrimary' configured.");
+        assertThat(result.getMessages(), is(equalTo(expected)));
     }
 
     @Test

@@ -22,6 +22,7 @@ package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.matchup.TestUseCaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,12 +34,12 @@ import static org.junit.Assert.assertTrue;
 
 public class MatchupStrategyFactoryTest {
 
-    private UseCaseConfig useCaseConfig;
+    private TestUseCaseConfig useCaseConfig;
     private ArrayList<Sensor> sensors;
 
     @Before
     public void setUp() {
-        useCaseConfig = new UseCaseConfig();
+        useCaseConfig = new TestUseCaseConfig();
         sensors = new ArrayList<>();
         useCaseConfig.setSensors(sensors);
     }

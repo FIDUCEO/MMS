@@ -83,6 +83,7 @@ public abstract class AbstractMatchupStrategy {
     }
 
     // package access for testing only tb 2016-03-14
+    // todo se multisensor
     static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
         final QueryParameter parameter = new QueryParameter();
         final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
@@ -93,7 +94,9 @@ public abstract class AbstractMatchupStrategy {
     }
 
     // package access for testing only tb 2016-03-14
+    // todo se multisensor
     static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
+        // todo se multisensor
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         if (additionalSensors.size() != 1) {
             throw new RuntimeException("Unable to run matchup with given sensor number");
@@ -114,8 +117,10 @@ public abstract class AbstractMatchupStrategy {
     }
 
     // package access for testing only tb 2016-02-23
+    // todo se multisensor
     static QueryParameter getPrimarySensorParameter(ToolContext context) {
         final QueryParameter parameter = new QueryParameter();
+        // todo se multisensor
         final Sensor primarySensor = context.getUseCaseConfig().getPrimarySensor();
         if (primarySensor == null) {
             throw new RuntimeException("primary sensor not present in configuration file");
@@ -136,6 +141,7 @@ public abstract class AbstractMatchupStrategy {
         }
     }
 
+    // todo se multisensor
     List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
         final QueryParameter parameter = getPrimarySensorParameter(context);
         logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
@@ -148,6 +154,7 @@ public abstract class AbstractMatchupStrategy {
         return primaryObservations;
     }
 
+    // todo se multisensor
     List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);

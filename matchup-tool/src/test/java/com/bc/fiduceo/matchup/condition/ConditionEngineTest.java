@@ -28,6 +28,7 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.matchup.TestUseCaseConfig;
 import com.bc.fiduceo.tool.ToolContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -199,7 +200,7 @@ public class ConditionEngineTest {
         toolContext.setStartDate(new Date(1000000000L));
         toolContext.setEndDate(new Date(1100000000L));
 
-        final UseCaseConfig useCaseConfig = new UseCaseConfig();
+        final TestUseCaseConfig useCaseConfig = new TestUseCaseConfig();
         final List<Dimension> dimensions = new ArrayList<>();
         dimensions.add(new Dimension("bla", 5, 6));
         dimensions.add(new Dimension("blubb", 7, 8));

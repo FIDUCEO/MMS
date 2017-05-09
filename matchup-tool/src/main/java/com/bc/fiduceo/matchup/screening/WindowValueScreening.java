@@ -38,6 +38,7 @@ import java.util.List;
 import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
 
 
+// todo se multisensor
 public class WindowValueScreening implements Screening {
 
     private final Configuration configuration;
@@ -52,6 +53,7 @@ public class WindowValueScreening implements Screening {
 
         final String primaryExpression = configuration.primaryExpression;
         if (StringUtils.isNotNullAndNotEmpty(primaryExpression)) {
+            // todo se multisensor
             final Dimension primaryDimension = context.getPrimaryDimension();
             final SampleFetcher primarySampleFetcher = SampleSet::getPrimary;
             final double percentage = configuration.primaryPercentage;
@@ -61,6 +63,7 @@ public class WindowValueScreening implements Screening {
 
         final String secondaryExpression = configuration.secondaryExpression;
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
+            // todo se multisensor
             final Dimension secondaryDimension = context.getSecondaryDimension();
             final SampleFetcher secondarySampleFetcher = SampleSet::getSecondary;
             final double percentage = configuration.secondaryPercentage;
@@ -126,6 +129,7 @@ public class WindowValueScreening implements Screening {
         Sample getSample(SampleSet sampleSet);
     }
 
+    // todo se multisensor
     static class Configuration {
 
         String primaryExpression;

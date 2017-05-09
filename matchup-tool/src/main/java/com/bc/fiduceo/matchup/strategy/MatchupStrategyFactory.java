@@ -33,7 +33,9 @@ public class MatchupStrategyFactory {
         if (useCaseConfig.getNumRandomSeedPoints()>0) {
             return new SeedPointMatchupStrategy(logger);
         }
+        // todo se multisensor
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+        // todo se multisensor
         final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
 
         // @todo 3 tb/** this is a piece of dirty code: we assume that the ReaderFactory singleton has already been created

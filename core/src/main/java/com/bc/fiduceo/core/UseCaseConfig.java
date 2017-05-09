@@ -102,13 +102,17 @@ public class UseCaseConfig {
         this.numRandomSeedPoints = numRandomSeedPoints;
     }
 
+    // todo se multisensor
     public List<Sensor> getSensors() {
         return sensors;
     }
 
-    public void setSensors(List<Sensor> sensors) {
+    // todo se multisensor
+    protected void setSensors(List<Sensor> sensors) {
         this.sensors = sensors;
     }
+
+    // todo se multisensor
 
     /**
      * Retrieves the primary Sensor for this use-case.
@@ -124,6 +128,7 @@ public class UseCaseConfig {
         return null;
     }
 
+    // todo se multisensor
     public List<Sensor> getAdditionalSensors() {
         final ArrayList<Sensor> additionalSensorList = new ArrayList<>();
         for (final Sensor sensor : sensors) {
@@ -172,12 +177,26 @@ public class UseCaseConfig {
         if (StringUtils.isNullOrEmpty(name)) {
             setInvalidWithMessage("Use case name not configured.", validationResult);
         }
+
+        int primaryCount = 0;
+        for (Sensor sensor : sensors) {
+            if (sensor.isPrimary()) {
+                primaryCount++;
+            }
+        }
+        if (primaryCount > 1) {
+            setInvalidWithMessage("More than one primary sensor configured.", validationResult);
+        }
+
+        // todo se multisensor
         if (getPrimarySensor() == null) {
             setInvalidWithMessage("Primary sensor not configured.", validationResult);
         }
+        // todo se multisensor
         if (getAdditionalSensors().size() == 0) {
             setInvalidWithMessage("No additional sensor configured.", validationResult);
         }
+        // todo se multisensor
         final List<Sensor> sensors = getSensors();
         for (final Sensor sensor : sensors) {
             if (!hasDimensionFor(sensor.getName())) {
@@ -211,9 +230,9 @@ public class UseCaseConfig {
         if (outputPath != null) {
             setOutputPath(outputPath.getValue());
         }
-        final Element sensors = rootElement.getChild(TAG_NAME_SENSORS);
-        if (sensors != null) {
-            final List<Element> sensorList = sensors.getChildren(TAG_NAME_SENSOR);
+        final Element sensorsElem = rootElement.getChild(TAG_NAME_SENSORS);
+        if (sensorsElem != null) {
+            final List<Element> sensorList = sensorsElem.getChildren(TAG_NAME_SENSOR);
             for (Element sensorElem : sensorList) {
                 final Element name = getMandatoryChild(sensorElem, TAG_NAME_NAME);
                 final Sensor sensor = new Sensor(name.getValue());
@@ -225,7 +244,7 @@ public class UseCaseConfig {
                 if (dataVersionElement != null) {
                     sensor.setDataVersion(dataVersionElement.getValue());
                 }
-                getSensors().add(sensor);
+                sensors.add(sensor);
             }
         }
         final Element dimensions = rootElement.getChild(TAG_NAME_DIMENSIONS);

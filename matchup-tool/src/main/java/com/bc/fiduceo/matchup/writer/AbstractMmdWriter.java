@@ -108,7 +108,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             initializeNetcdfFile(mmdFile, useCaseConfig, ioVariablesList.get(), matchupCollection.getNumMatchups());
             logger.info("Initialized target file");
 
+            // todo se multisensor
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
+            // todo se multisensor
             final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
             final String primarySensorName = primarySensor.getName();
             final String secondarySensorName = secondarySensor.getName();
@@ -216,7 +218,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
         final StringBuilder sensors = new StringBuilder();
+        // todo se multisensor
         sensors.append(useCaseConfig.getPrimarySensor().getName());
+        // todo se multisensor
         final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
         final Iterator<Sensor> sensorIterator = additionalSensors.iterator();
         while (sensorIterator.hasNext()) {

@@ -30,11 +30,19 @@ import java.io.IOException;
 
 public interface Screening {
 
-    void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException;
+    // todo se multisensor
+    void apply(MatchupSet matchupSet,
+               Reader primaryReader, // todo se multisensor
+               Reader secondaryReader, // todo se multisensor
+               ScreeningContext context // todo se multisensor
+    ) throws IOException, InvalidRangeException;
 
     interface ScreeningContext{
 
+        // todo se multisensor
         Dimension getPrimaryDimension();
+
+        // todo se multisensor
         Dimension getSecondaryDimension();
     }
 }

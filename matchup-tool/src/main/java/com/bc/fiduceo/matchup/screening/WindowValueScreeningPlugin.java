@@ -25,7 +25,9 @@ import org.jdom.Element;
 public class WindowValueScreeningPlugin implements ScreeningPlugin {
 
     public static final String ROOT_TAG_NAME = "window-value";
+    // todo se multisensor
     public static final String TAG_NAME_PRIMARY = "primary";
+    // todo se multisensor
     public static final String TAG_NAME_SECONDARY = "secondary";
     public static final String TAG_NAME_EXPRESSION = "expression";
     public static final String TAG_NAME_PERCENTAGE = "percentage";
@@ -34,6 +36,7 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
     @Override
     public Screening createScreening(Element element) {
         final WindowValueScreening.Configuration configuration = createConfiguration(element);
+        // todo se multisensor
         return new WindowValueScreening(configuration);
     }
 
