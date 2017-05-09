@@ -50,7 +50,7 @@ public class ScreeningEngine {
         final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
             // todo se multisensor
-            screening.apply(matchupSet, primaryReader, secondaryReader, sc);
+            screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, sc);
         }
     }
 

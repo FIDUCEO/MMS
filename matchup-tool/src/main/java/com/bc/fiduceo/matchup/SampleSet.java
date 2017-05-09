@@ -20,33 +20,33 @@
 
 package com.bc.fiduceo.matchup;
 
+// todo se multisensor
 public class SampleSet {
 
-    private static final int PRIMARY_INDEX = 0;
-    private static final int SECONDARY_INDEX = 1;
-
-    final private Sample[] samples;
+    private static final int SECONDARY_INDEX = 0;
+    private Sample primary;
+    private Sample[] secondary;
     private float sphericalDistance;
 
     public SampleSet() {
-        samples = new Sample[2];
+        secondary = new Sample[1];
         sphericalDistance = Float.MIN_VALUE;
     }
 
-    public void setPrimary(Sample primary) {
-        samples[PRIMARY_INDEX] = primary;
-    }
-
     public Sample getPrimary() {
-        return samples[PRIMARY_INDEX];
+        return primary;
     }
 
-    public void setSecondary(Sample secondary) {
-        samples[SECONDARY_INDEX] = secondary;
+    public void setPrimary(Sample primary) {
+        this.primary = primary;
     }
 
     public Sample getSecondary() {
-        return samples[SECONDARY_INDEX];
+        return secondary[SECONDARY_INDEX];
+    }
+
+    public void setSecondary(Sample secondary) {
+        this.secondary[SECONDARY_INDEX] = secondary;
     }
 
     public float getSphericalDistance() {

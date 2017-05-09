@@ -43,7 +43,7 @@ class AtsrAngularScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -61,7 +61,8 @@ class AtsrAngularScreening implements Screening {
             }
 
             final Sample secondary = sampleSet.getSecondary();
-            final Array satelliteZenithAngleArray = secondaryReader.readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
+            // todo se multisensor
+            final Array satelliteZenithAngleArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
             double satZenithAngle = satelliteZenithAngleArray.getDouble(0);
             if (secondary.x > 204) {
                 satZenithAngle *= -1.0;

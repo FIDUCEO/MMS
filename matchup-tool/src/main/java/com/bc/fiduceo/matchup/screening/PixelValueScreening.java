@@ -42,7 +42,7 @@ class PixelValueScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         if (configuration == null) {
             return;
         }
@@ -76,9 +76,11 @@ class PixelValueScreening implements Screening {
 
         if (StringUtils.isNotNullAndNotEmpty(configuration.secondaryExpression)) {
             List<SampleSet> keptSets = new ArrayList<>();
-            final ReaderNamespace readerNamespace = new ReaderNamespace(secondaryReader);
+            // todo se multisensor
+            final ReaderNamespace readerNamespace = new ReaderNamespace(secondaryReader[0]);
             final ParserImpl parser = new ParserImpl(readerNamespace);
-            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(secondaryReader);
+            // todo se multisensor
+            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(secondaryReader[0]);
 
             try {
                 final Term term = parser.parse(configuration.secondaryExpression);

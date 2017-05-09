@@ -45,13 +45,14 @@ class AngularScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
         for (final SampleSet sampleSet : sampleSets) {
 
-            if (shouldBeKept(sampleSet, primaryReader, secondaryReader)) {
+            // todo se multisensor
+            if (shouldBeKept(sampleSet, primaryReader, secondaryReader[0])) {
                 resultSet.add(sampleSet);
             }
         }

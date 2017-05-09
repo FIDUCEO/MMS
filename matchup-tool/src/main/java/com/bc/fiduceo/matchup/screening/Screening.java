@@ -32,8 +32,8 @@ public interface Screening {
 
     // todo se multisensor
     void apply(MatchupSet matchupSet,
-               Reader primaryReader, // todo se multisensor
-               Reader secondaryReader, // todo se multisensor
+               Reader primaryReader,
+               Reader[] secondaryReader,
                ScreeningContext context // todo se multisensor
     ) throws IOException, InvalidRangeException;
 

@@ -76,7 +76,7 @@ public class WindowValueScreeningTest {
         assertEquals(0, matchupSet.getNumObservations());
 
         final WindowValueScreening screening = new WindowValueScreening(new WindowValueScreening.Configuration());
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -151,7 +151,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, null, reader, screeningContext);
+        screening.apply(matchupSet, null, new Reader[]{reader}, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -177,7 +177,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, null, reader, screeningContext);
+        screening.apply(matchupSet, null, new Reader[]{reader}, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -208,7 +208,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, reader, reader, screeningContext);
+        screening.apply(matchupSet, reader, new Reader[]{reader}, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -240,7 +240,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, reader, reader, screeningContext);
+        screening.apply(matchupSet, reader, new Reader[]{reader}, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());

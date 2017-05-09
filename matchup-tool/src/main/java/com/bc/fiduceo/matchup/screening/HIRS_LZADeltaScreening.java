@@ -40,7 +40,7 @@ class HIRS_LZADeltaScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -50,8 +50,10 @@ class HIRS_LZADeltaScreening implements Screening {
             final Array primaryScanposArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "scanpos");
 
             final Sample secondary = sampleSet.getSecondary();
-            final Array secondLzaArray = secondaryReader.readScaled(secondary.x, secondary.y, singlePixel, "lza");
-            final Array secondScanPosArray = secondaryReader.readScaled(secondary.x, secondary.y, singlePixel, "scanpos");
+            // todo se multisensor
+            final Array secondLzaArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "lza");
+            // todo se multisensor
+            final Array secondScanPosArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "scanpos");
 
             double primaryLza = primaryLzaArray.getDouble(0);
             final int primaryScanpos = primaryScanposArray.getInt(0);

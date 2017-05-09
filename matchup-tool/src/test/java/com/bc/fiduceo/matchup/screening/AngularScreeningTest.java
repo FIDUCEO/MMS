@@ -58,7 +58,7 @@ public class AngularScreeningTest {
         assertEquals(0, matchupSet.getNumObservations());
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -92,7 +92,7 @@ public class AngularScreeningTest {
         configuration.primaryVariableName = "VZA";
         configuration.maxPrimaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -129,7 +129,7 @@ public class AngularScreeningTest {
         configuration.secondaryVariableName = "satellite_zenith";
         configuration.maxSecondaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -169,7 +169,7 @@ public class AngularScreeningTest {
         configuration.secondaryVariableName = "the_other_angle";
         configuration.maxSecondaryVZA = 9.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -208,7 +208,7 @@ public class AngularScreeningTest {
         configuration.secondaryVariableName = "the_other_angle";
         configuration.maxSecondaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -249,7 +249,7 @@ public class AngularScreeningTest {
         configuration.useDelta = true;
         configuration.maxAngleDelta = 5.5;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

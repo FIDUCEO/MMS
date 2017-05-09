@@ -48,7 +48,7 @@ public class WindowValueScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
         final String primaryExpression = configuration.primaryExpression;
@@ -68,7 +68,8 @@ public class WindowValueScreening implements Screening {
             final SampleFetcher secondarySampleFetcher = SampleSet::getSecondary;
             final double percentage = configuration.secondaryPercentage;
             final Evaluate evaluate = configuration.secondaryEvaluate;
-            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader, secondaryDimension, secondarySampleFetcher, percentage, evaluate);
+            // todo se multisensor
+            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader[0], secondaryDimension, secondarySampleFetcher, percentage, evaluate);
         }
 
         matchupSet.setSampleSets(sampleSets);

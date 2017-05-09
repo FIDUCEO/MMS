@@ -40,7 +40,7 @@ class AngularCosineProportionScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -50,7 +50,8 @@ class AngularCosineProportionScreening implements Screening {
             final double primaryVZA = szaPrimaryArray.getDouble(0);
 
             final Sample secondaryPixel = sampleSet.getSecondary();
-            final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
+            // todo se multisensor
+            final Array szaSecondaryArray = secondaryReader[0].readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
             final double secondaryVZA = szaSecondaryArray.getDouble(0);
 
             final double primaryCosine = Math.cos(primaryVZA * MathUtils.DTOR);

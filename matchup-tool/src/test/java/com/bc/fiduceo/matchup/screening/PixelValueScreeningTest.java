@@ -59,7 +59,7 @@ public class PixelValueScreeningTest {
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -99,7 +99,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -143,7 +143,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -187,7 +187,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, secondaryReader, null);
+        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
