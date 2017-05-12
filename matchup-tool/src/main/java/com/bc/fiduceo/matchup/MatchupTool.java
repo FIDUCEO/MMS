@@ -73,7 +73,7 @@ import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class MatchupTool {
 
-    private static final String UNIT_ATTRIBUTE_NAME = "unit";
+    private static final String UNIT_ATTRIBUTE_NAME = "units";
     private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
     private final Logger logger;

@@ -432,7 +432,7 @@ public class MatchupToolTest {
         assertEquals("description", attribute.getShortName());
         assertEquals("acquisition time of original pixel", attribute.getStringValue());
         attribute = attributes.get(1);
-        assertEquals("unit", attribute.getShortName());
+        assertEquals("units", attribute.getShortName());
         assertEquals("seconds since 1970-01-01", attribute.getStringValue());
         attribute = attributes.get(2);
         assertEquals("_FillValue", attribute.getShortName());
@@ -514,7 +514,7 @@ public class MatchupToolTest {
         configuration.setAttributeRename(sensorName, "x", "description", "desc_r");
         configuration.setAttributeRename(sensorName, "file_name", "description", "desc_r");
         configuration.setAttributeRename(sensorName, "processing_version", "description", "desc_r_2");
-        configuration.setAttributeRename(sensorName, "acquisition_time", "unit", "unit_r");
+        configuration.setAttributeRename(sensorName, "acquisition_time", "units", "unit_r");
         configuration.setAttributeRename(sensorName, null, "_FillValue", "_fill_value");
 
         MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
