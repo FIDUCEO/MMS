@@ -73,7 +73,7 @@ class MDRCache {
 
     private class Cache<K, V> extends LinkedHashMap<K, V> {
 
-        public static final float DEFAULT_LOAD_FACTOR_FROM_HASH_MAP = 0.75f;
+        static final float DEFAULT_LOAD_FACTOR_FROM_HASH_MAP = 0.75f;
         private final int maxCapacity;
 
         Cache(int maxCapacity) {

@@ -85,6 +85,7 @@ public class IASI_Reader implements Reader {
     private long firstMdrOffset;
     private long mdrSize;
     private int mdrCount;
+    private MDRCache mdrCache;
 
     IASI_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -100,6 +101,7 @@ public class IASI_Reader implements Reader {
         iis = new FileImageInputStream(file);
 
         readHeader();
+        mdrCache = new MDRCache(iis, firstMdrOffset);
     }
 
     @Override
@@ -140,6 +142,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+        // @todo 1 tb/tb implement correct sub-scene locators here 2015-05-15
         return getPixelLocator_internal();
     }
 
@@ -169,7 +172,37 @@ public class IASI_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() {
-        throw new RuntimeException("not implemented");
+        final ArrayList<Variable> variables = new ArrayList<>();
+        variables.add(new VariableProxy("DEGRADED_INST_MDR"));
+        variables.add(new VariableProxy("DEGRADED_PROC_MDR"));
+        variables.add(new VariableProxy("GEPSIasiMode"));
+        variables.add(new VariableProxy("GEPSOPSProcessingMode"));
+        variables.add(new VariableProxy("OBT"));
+        variables.add(new VariableProxy("OnboardUTC"));
+        variables.add(new VariableProxy("GEPSDatIasi"));
+        variables.add(new VariableProxy("GEPS_CCD"));
+        variables.add(new VariableProxy("GEPS_SP"));
+        variables.add(new VariableProxy("GQisFlagQualDetailed"));
+        variables.add(new VariableProxy("GQisSysTecIISQual"));
+        variables.add(new VariableProxy("GQisSysTecSondQual"));
+        variables.add(new VariableProxy("GGeoSondLoc_Lon"));
+        variables.add(new VariableProxy("GGeoSondLoc_Lat"));
+        variables.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith"));
+        variables.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth"));
+        variables.add(new VariableProxy("GGeoSondAnglesSUN_Zenith"));
+        variables.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth"));
+        variables.add(new VariableProxy("EARTH_SATELLITE_DISTANCE"));
+        variables.add(new VariableProxy("IDefNsfirst1b"));
+        variables.add(new VariableProxy("IDefNslast1b"));
+        variables.add(new VariableProxy("GS1cSpect"));
+        variables.add(new VariableProxy("GCcsRadAnalNbClass"));
+        variables.add(new VariableProxy("IDefCcsMode"));
+        variables.add(new VariableProxy("GCcsImageClassifiedNbLin"));
+        variables.add(new VariableProxy("GCcsImageClassifiedNbCol"));
+        variables.add(new VariableProxy("GEUMAvhrr1BCldFrac"));
+        variables.add(new VariableProxy("GEUMAvhrr1BLandFrac"));
+        variables.add(new VariableProxy("GEUMAvhrr1BQual"));
+        return variables;
     }
 
     @Override

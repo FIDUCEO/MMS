@@ -35,11 +35,13 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -178,6 +180,22 @@ public class IASI_Reader_IO_Test {
             assertNotNull(productSize);
             assertEquals(60, productSize.getNx());
             assertEquals(1486, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_MA() throws IOException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final List<Variable> variables = reader.getVariables();
+            assertNotNull(variables);
+            assertEquals(29, variables.size());
+            // @todo 1 tb/tb continue here 2015-05-15
         } finally {
             reader.close();
         }
