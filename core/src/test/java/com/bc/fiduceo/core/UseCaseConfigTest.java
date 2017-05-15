@@ -284,7 +284,7 @@ public class UseCaseConfigTest {
         sensorList.add(second);
         useCaseConfig.setSensors(sensorList);
 
-        final List<Sensor> additionalSensorList = useCaseConfig.getAdditionalSensors();
+        final List<Sensor> additionalSensorList = useCaseConfig.getSecondarySensors();
         assertEquals(1, additionalSensorList.size());
         assertEquals("first", additionalSensorList.get(0).getName());
     }
@@ -298,7 +298,7 @@ public class UseCaseConfigTest {
         sensorList.add(primary);
         useCaseConfig.setSensors(sensorList);
 
-        final List<Sensor> additionalSensorList = useCaseConfig.getAdditionalSensors();
+        final List<Sensor> additionalSensorList = useCaseConfig.getSecondarySensors();
         assertEquals(0, additionalSensorList.size());
     }
 
@@ -369,7 +369,7 @@ public class UseCaseConfigTest {
 
     @Test
     public void testConstruction() {
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        final List<Sensor> additionalSensors = useCaseConfig.getSecondarySensors();
         assertNotNull(additionalSensors);
         assertEquals(0, additionalSensors.size());
 

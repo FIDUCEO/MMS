@@ -25,9 +25,9 @@ import com.bc.fiduceo.math.Distance;
 
 class SphericalDistanceCalculator {
 
-    static double calculateKm(SampleSet sampleSet) {
+    static double calculateKm(final String secondarySensorName, SampleSet sampleSet) {
         final Sample primary = sampleSet.getPrimary();
-        final Sample secondary = sampleSet.getSecondary();
+        final Sample secondary = sampleSet.getSecondary(secondarySensorName);
         return Distance.computeSpericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
     }
 }

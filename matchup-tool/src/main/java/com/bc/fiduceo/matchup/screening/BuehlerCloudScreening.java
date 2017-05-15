@@ -124,7 +124,7 @@ class BuehlerCloudScreening implements Screening {
             if (primary) {
                 pixel = sampleSet.getPrimary();
             } else {
-                pixel = sampleSet.getSecondary();
+                pixel = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
             }
             final Array narrowChannelArray = reader.readScaled(pixel.x, pixel.y, singlePixel, narrowChannelName);
             final Array wideChannelArray = reader.readScaled(pixel.x, pixel.y, singlePixel, wideChannelName);

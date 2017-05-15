@@ -75,7 +75,6 @@ public class ScreeningEngine {
         return new Screening.ScreeningContext() {
             @Override
             public Dimension getPrimaryDimension() {
-                // todo se multisensor
                 final String name = useCaseConfig.getPrimarySensor().getName();
                 return useCaseConfig.getDimensionFor(name);
             }
@@ -83,8 +82,8 @@ public class ScreeningEngine {
             @Override
             public Dimension getSecondaryDimension() {
                 // todo se multisensor
-                final String name = useCaseConfig.getAdditionalSensors().get(0).getName();
-                return useCaseConfig.getDimensionFor(name);
+                final String sensorName = useCaseConfig.getSecondarySensors().get(0).getName();
+                return useCaseConfig.getDimensionFor(sensorName);
             }
         };
     }

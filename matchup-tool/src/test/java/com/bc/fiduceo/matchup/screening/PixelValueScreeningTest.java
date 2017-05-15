@@ -201,7 +201,7 @@ public class PixelValueScreeningTest {
         sampleSet.setPrimary(primary);
 
         final Sample secondary = new Sample(secondaryX, secondaryY, 7.0987, 8.876, 9014783);
-        sampleSet.setSecondary(secondary);
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
 
         return sampleSet;
     }

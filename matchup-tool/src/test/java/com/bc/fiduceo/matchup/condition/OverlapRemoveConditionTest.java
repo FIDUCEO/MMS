@@ -213,7 +213,7 @@ public class OverlapRemoveConditionTest {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(primaryX, primaryY, -22.5, 18.98, 111027));
-        sampleSet.setSecondary(new Sample(secondaryX, secondaryY, -23.5, 19.98, 121027));
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(secondaryX, secondaryY, -23.5, 19.98, 121027));
         sampleSets.add(sampleSet);
     }
 }

@@ -58,7 +58,7 @@ public class DistanceConditionTest {
     private SampleSet createSampleSet(double primaryLon, double primaryLat, double secondaryLon, double secondaryLat) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(0, 0, primaryLon, primaryLat, 0));
-        sampleSet.setSecondary(new Sample(0, 0, secondaryLon, secondaryLat, 0));
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(0, 0, secondaryLon, secondaryLat, 0));
         return sampleSet;
     }
 }

@@ -79,14 +79,13 @@ public class ConditionEngine {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        // todo se multisensor
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final Dimension primaryExtractSize = useCaseConfig.getDimensionFor(primarySensor.getName());
         conditionEngineContext.setPrimaryExtractSize(primaryExtractSize);
 
         // todo se multisensor
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        final Sensor secondarySensor = additionalSensors.get(0);
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+        final Sensor secondarySensor = secondarySensors.get(0);
         final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(secondarySensor.getName());
         conditionEngineContext.setSecondaryExtractSize(secondaryExtractSize);
 

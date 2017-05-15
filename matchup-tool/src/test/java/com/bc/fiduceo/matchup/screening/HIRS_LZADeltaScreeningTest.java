@@ -120,7 +120,7 @@ public class HIRS_LZADeltaScreeningTest {
         sampleSet.setPrimary(primary);
 
         final Sample secondary = new Sample(secondaryX, secondaryY, 6.0987, 7.876, 8014783);
-        sampleSet.setSecondary(secondary);
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
 
         return sampleSet;
     }

@@ -100,4 +100,28 @@ public class MDRCache_IO_Test {
         assertNotNull(mdr_second);
         assertNotSame(mdr_first, mdr_second);
     }
+
+    @Test
+    public void testReadRecords_MoreThanMaxCapacityCalls_StillTheSameRecord() throws IOException {
+        final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
+
+        final MDR_1C mdr_first = mdrCache.getRecord(150);
+        assertNotNull(mdr_first);
+
+        final int firstCalls = 20;
+        for (int i = 0; i < firstCalls; i++) {
+            final MDR_1C mdr_217 = mdrCache.getRecord(217 + i);
+            assertNotNull(mdr_217);
+        }
+
+        assertSame(mdr_first, mdrCache.getRecord(150));
+
+        // continue calls
+        for (int i = firstCalls; i < MDRCache.CAPACITY + 2; i++) {
+            final MDR_1C mdr_217 = mdrCache.getRecord(217 + i);
+            assertNotNull(mdr_217);
+        }
+
+        assertSame(mdr_first, mdrCache.getRecord(150));
+    }
 }

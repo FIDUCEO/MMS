@@ -124,7 +124,7 @@ public class UseCaseConfig {
         return null;
     }
 
-    public List<Sensor> getAdditionalSensors() {
+    public List<Sensor> getSecondarySensors() {
         final ArrayList<Sensor> additionalSensorList = new ArrayList<>();
         for (final Sensor sensor : sensors) {
             if (!sensor.isPrimary()) {
@@ -184,7 +184,7 @@ public class UseCaseConfig {
         if (primaryCount < 1) {
             setInvalidWithMessage("Primary sensor not configured.", validationResult);
         }
-        if (getAdditionalSensors().size() == 0) {
+        if (getSecondarySensors().size() == 0) {
             setInvalidWithMessage("No additional sensor configured.", validationResult);
         }
         for (final Sensor sensor : sensors) {

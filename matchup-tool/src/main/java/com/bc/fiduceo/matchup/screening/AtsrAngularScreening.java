@@ -60,7 +60,7 @@ class AtsrAngularScreening implements Screening {
                 fwardViewZenith *= -1.0;
             }
 
-            final Sample secondary = sampleSet.getSecondary();
+            final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
             // todo se multisensor
             final Array satelliteZenithAngleArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
             double satZenithAngle = satelliteZenithAngleArray.getDouble(0);

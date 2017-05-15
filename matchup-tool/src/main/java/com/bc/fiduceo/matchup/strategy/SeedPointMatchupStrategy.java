@@ -156,16 +156,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                     continue;
                                 }
 
-                                final List<SampleSet> primarySampleSets = new ArrayList<>();
-                                for (SampleSet sampleSet : primaryMatchups.getSampleSets()) {
-                                    final Sample p = sampleSet.getPrimary();
-                                    final SampleSet newSet = new SampleSet();
-                                    newSet.setPrimary(new Sample(p.x, p.y, p.lon,p.lat,p.time));
-                                    primarySampleSets.add(newSet);
-                                }
-
                                 SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primarySampleSets, secondaryReader.getTimeLocator());
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primaryMatchups.getSampleSets(), secondaryReader.getTimeLocator());
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
@@ -185,7 +177,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final MatchupSet primaryMatchups = new MatchupSet();
         final PixelLocator primaryPixelLocator = primaryReader.getPixelLocator();
         if (primaryPixelLocator == null) {
-            logger.warning("Unable to create valid pixel locators. Skipping primary observation '"+ primaryObservationDataFilePath.toString() + "'.");
+            logger.warning("Unable to create valid pixel locators. Skipping primary observation '" + primaryObservationDataFilePath.toString() + "'.");
             return null;
         }
 
@@ -201,7 +193,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                     && y1 < primProductSize.getNy()) {
                     final int x = (int) Math.floor(x1);
                     final int y = (int) Math.floor(y1);
-                    final Point2D geo = primaryPixelLocator.getGeoLocation(x+0.5, y+0.5, null);
+                    final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
                     primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));
                 }
             }

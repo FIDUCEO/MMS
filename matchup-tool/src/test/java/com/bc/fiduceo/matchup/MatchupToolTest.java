@@ -200,29 +200,6 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCalculateDistance() {
-        final MatchupSet matchupSet = new MatchupSet();
-        final SampleSet first = new SampleSet();
-        first.setPrimary(new Sample(3, 4, -128.446, -38.056, 5));
-        first.setSecondary(new Sample(6, 7, -128.438, -38.062, 8));
-
-        final SampleSet second = new SampleSet();
-        second.setPrimary(new Sample(9, 10, 55.306, 1.0887, 11));
-        second.setSecondary(new Sample(12, 13, 55.299, 1.092, 14));
-
-        matchupSet.getSampleSets().add(first);
-        matchupSet.getSampleSets().add(second);
-
-        MatchupTool.calculateDistance(matchupSet);
-
-        SampleSet sampleSet = matchupSet.getSampleSets().get(0);
-        assertEquals(0.9673157930374146f, sampleSet.getSphericalDistance(), 1e-8);
-
-        sampleSet = matchupSet.getSampleSets().get(1);
-        assertEquals(0.8603944182395935f, sampleSet.getSphericalDistance(), 1e-8);
-    }
-
-    @Test
     public void testGetVariable() {
         final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(null);
         ioVariable.setSourceVariableName("the_source_name");

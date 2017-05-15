@@ -49,7 +49,7 @@ class HIRS_LZADeltaScreening implements Screening {
             final Array primaryLzaArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "lza");
             final Array primaryScanposArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "scanpos");
 
-            final Sample secondary = sampleSet.getSecondary();
+            final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
             // todo se multisensor
             final Array secondLzaArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "lza");
             // todo se multisensor

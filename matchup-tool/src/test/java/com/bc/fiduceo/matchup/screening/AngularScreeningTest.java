@@ -262,7 +262,7 @@ public class AngularScreeningTest {
         final Sample primary = new Sample(primaryX, primaryY, 1.0987, 3.876, 1994783);
         sampleSet.setPrimary(primary);
         final Sample secondary = new Sample(secondaryX, secondaryY, 2.0987, 4.876, 2994783);
-        sampleSet.setSecondary(secondary);
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
 
         return sampleSet;
     }

@@ -31,9 +31,9 @@ public class SphericalDistanceCalculatorTest {
     public void testCalculate() {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(0, 1, 12.0876, 22.562, 3));
-        sampleSet.setSecondary(new Sample(4, 5, 12.0886, 22.572, 3));
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(4, 5, 12.0886, 22.572, 3));
 
-        final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
+        final double km = SphericalDistanceCalculator.calculateKm(SampleSet.ONLY_ONE_SECONDARY, sampleSet);
 
         assertEquals(1.1166796684265137f, (float) km, 1e-8);
     }

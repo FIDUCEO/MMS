@@ -54,6 +54,7 @@ class SampleCollector {
      *
      * @param sampleSets  the input data - will be empty after the operation!
      * @param timeLocator the time locator for the sample locations
+     *
      * @return the result list with the sampleSets that contain two observations
      */
     List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
@@ -68,12 +69,14 @@ class SampleCollector {
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
                 final long time = timeLocator.getTimeFor(x, y);
                 final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
-                sampleSet.setSecondary(sample);
+                // todo se multisensor .. important!
+                // ... why an iteration?
+                // ... why there is no condition to set secondary?
+                // ... the following call replaces the secondary sample from the first run of the loop
+                sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, sample);
                 toKeep.add(sampleSet);
             }
         }
-
-        sampleSets.clear();
 
         return toKeep;
     }

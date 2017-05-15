@@ -49,17 +49,17 @@ public class SampleSetTest {
     public void testSetSecondary() {
         final Sample sample = new Sample(6, 7, 8, 9, 10L);
 
-        sampleSet.setSecondary(sample);
-        final Sample result = sampleSet.getSecondary();
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, sample);
+        final Sample result = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
         assertNotNull(result);
         assertEquals(sample.x, result.x);
     }
 
     @Test
     public void testSetGetSphericalDistance() {
-        assertEquals(Float.MIN_VALUE, sampleSet.getSphericalDistance(), 1e-8);
+        assertEquals(Float.NaN, sampleSet.getSphericalDistance(SampleSet.ONLY_ONE_SECONDARY), 1e-8);
 
-        sampleSet.setSphericalDistance(23.78f);
-        assertEquals(23.78f, sampleSet.getSphericalDistance(), 1e-8);
+        sampleSet.setSphericalDistance(SampleSet.ONLY_ONE_SECONDARY, 23.78f);
+        assertEquals(23.78f, sampleSet.getSphericalDistance(SampleSet.ONLY_ONE_SECONDARY), 1e-8);
     }
 }

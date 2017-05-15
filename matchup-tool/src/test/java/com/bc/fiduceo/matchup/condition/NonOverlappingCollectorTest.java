@@ -122,8 +122,8 @@ public class NonOverlappingCollectorTest {
 
         final List<SampleSet> sampleSets = secondaryCollector.get();
         assertEquals(1, sampleSets.size());
-        assertEquals(107, sampleSets.get(0).getSecondary().x);
-        assertEquals(1812, sampleSets.get(0).getSecondary().y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).y);
     }
 
     @Test
@@ -183,11 +183,11 @@ public class NonOverlappingCollectorTest {
         final List<SampleSet> sampleSets = secondaryCollector.get();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(107, sampleSets.get(0).getSecondary().x);
-        assertEquals(1812, sampleSets.get(0).getSecondary().y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).y);
 
-        assertEquals(1107, sampleSets.get(1).getSecondary().x);
-        assertEquals(11812, sampleSets.get(1).getSecondary().y);
+        assertEquals(1107, sampleSets.get(1).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(11812, sampleSets.get(1).getSecondary(SampleSet.ONLY_ONE_SECONDARY).y);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class NonOverlappingCollectorTest {
     @Test
     public void testGetSample_secondary() {
         final SampleSet sampleSet = new SampleSet();
-        sampleSet.setSecondary(new Sample(2, 3, 4, 5, 6));
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(2, 3, 4, 5, 6));
 
         final Sample sample = secondaryCollector.getSample(sampleSet);
         assertNotNull(sample);
@@ -250,7 +250,7 @@ public class NonOverlappingCollectorTest {
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(createSample(primaryX, primaryY));
-        sampleSet.setSecondary(createSample(secondaryX, secondaryY));
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, createSample(secondaryX, secondaryY));
 
         return sampleSet;
     }

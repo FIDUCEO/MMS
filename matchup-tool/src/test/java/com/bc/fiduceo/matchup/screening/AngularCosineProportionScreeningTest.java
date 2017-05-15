@@ -110,7 +110,7 @@ public class AngularCosineProportionScreeningTest {
         sampleSet.setPrimary(primary);
 
         final Sample secondary = new Sample(secondaryX, secondaryY, 3.0987, 5.876, 3014783);
-        sampleSet.setSecondary(secondary);
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
 
         return sampleSet;
     }

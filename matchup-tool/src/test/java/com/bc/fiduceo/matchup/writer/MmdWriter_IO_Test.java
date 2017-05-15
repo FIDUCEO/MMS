@@ -258,7 +258,7 @@ public class MmdWriter_IO_Test {
         for (int i = 0; i < 8; i++) {
             final SampleSet sampleSet = new SampleSet();
             sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));
-            sampleSet.setSecondary(new Sample(408, 819 + i, 34.793, -67.246, 610071904));
+            sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(408, 819 + i, 34.793, -67.246, 610071904));
             matchupSet.getSampleSets().add(sampleSet);
         }
         matchupCollection.add(matchupSet);

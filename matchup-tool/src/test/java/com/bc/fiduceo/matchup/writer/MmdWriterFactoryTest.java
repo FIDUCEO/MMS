@@ -48,6 +48,15 @@ public class MmdWriterFactoryTest {
                 "      <" + TAG_NAME_NAME + ">avhrr-n07</" + TAG_NAME_NAME + ">" +
                 "    </" + TAG_NAME_SENSOR + ">" +
                 "    <" + TAG_NAME_SENSOR + ">" +
+                "      <" + TAG_NAME_NAME + ">sec-2</" + TAG_NAME_NAME + ">" +
+                "    </" + TAG_NAME_SENSOR + ">" +
+                "    <" + TAG_NAME_SENSOR + ">" +
+                "      <" + TAG_NAME_NAME + ">sec-4</" + TAG_NAME_NAME + ">" +
+                "    </" + TAG_NAME_SENSOR + ">" +
+                "    <" + TAG_NAME_SENSOR + ">" +
+                "      <" + TAG_NAME_NAME + ">sec-3</" + TAG_NAME_NAME + ">" +
+                "    </" + TAG_NAME_SENSOR + ">" +
+                "    <" + TAG_NAME_SENSOR + ">" +
                 "      <" + TAG_NAME_NAME + ">avhrr-n08</" + TAG_NAME_NAME + ">" +
                 "      <" + TAG_NAME_PRIMARY + ">true</" + TAG_NAME_PRIMARY + ">" +
                 "    </" + TAG_NAME_SENSOR + ">" +
@@ -61,7 +70,7 @@ public class MmdWriterFactoryTest {
         final Date endDate = TimeUtils.parseDOYEndOfDay("2011-251");
 
         final String fileName = MmdWriterFactory.createMMDFileName(useCaseConfig, startDate, endDate);
-        assertEquals("mmd-12_avhrr-n08_avhrr-n07_2011-245_2011-251.nc", fileName);
+        assertEquals("mmd-12_avhrr-n08_avhrr-n07_sec-2_sec-4_sec-3_2011-245_2011-251.nc", fileName);
     }
 
     @Test

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -72,10 +73,11 @@ class MDRCache {
 
     private class Cache<K, V> extends LinkedHashMap<K, V> {
 
+        public static final float DEFAULT_LOAD_FACTOR_FROM_HASH_MAP = 0.75f;
         private final int maxCapacity;
 
         Cache(int maxCapacity) {
-            super(maxCapacity + 1);
+            super(maxCapacity + 1, DEFAULT_LOAD_FACTOR_FROM_HASH_MAP, true);
             this.maxCapacity = maxCapacity;
         }
 

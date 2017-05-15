@@ -61,7 +61,7 @@ class BorderDistanceCondition implements Condition {
             }
 
             if (configuration.useSecondary) {
-                final Sample secondary = sampleSet.getSecondary();
+                final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
                 if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {
                     continue;
                 }

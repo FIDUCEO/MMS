@@ -197,8 +197,8 @@ public class BuehlerCloudScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(45, sampleSets.get(0).getSecondary().x);
-        assertEquals(46, sampleSets.get(1).getSecondary().x);
+        assertEquals(45, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(46, sampleSets.get(1).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
     }
 
     @Test
@@ -247,7 +247,7 @@ public class BuehlerCloudScreeningTest {
         sampleSet.setPrimary(primary);
 
         final Sample secondary = new Sample(secondaryX, secondaryY, 3.0987, 5.876, 3014783);
-        sampleSet.setSecondary(secondary);
+        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
 
         return sampleSet;
     }

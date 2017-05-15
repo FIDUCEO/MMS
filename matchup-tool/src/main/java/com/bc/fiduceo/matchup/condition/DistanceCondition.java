@@ -54,7 +54,7 @@ class DistanceCondition implements Condition {
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
-            final Sample secondary = sampleSet.getSecondary();
+            final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
             final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
             final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
             final double kmDistance = radDistance * MEAN_EARTH_RADIUS_IN_KM;

@@ -44,25 +44,18 @@ public class MmdWriterFactory {
         throw new IllegalStateException("Unsupported writer type requested");
     }
 
-    // todo se multisensor
     public static String createMMDFileName(UseCaseConfig useCaseConfig, Date startDate, Date endDate) {
         final StringBuilder nameBuilder = new StringBuilder();
 
         nameBuilder.append(useCaseConfig.getName());
         nameBuilder.append("_");
 
-        // todo se multisensor
         nameBuilder.append(useCaseConfig.getPrimarySensor().getName());
         nameBuilder.append("_");
 
-        // todo se multisensor
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
-        if (additionalSensors.size() > 0) {
-            for (final Sensor additionalSensor : additionalSensors) {
-                nameBuilder.append(additionalSensor.getName());
-                nameBuilder.append("_");
-            }
-        } else {
+        // todo se multisensor ... done
+        for (final Sensor additionalSensor : useCaseConfig.getSecondarySensors()) {
+            nameBuilder.append(additionalSensor.getName());
             nameBuilder.append("_");
         }
 

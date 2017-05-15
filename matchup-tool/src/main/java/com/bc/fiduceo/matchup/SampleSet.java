@@ -20,17 +20,21 @@
 
 package com.bc.fiduceo.matchup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // todo se multisensor
 public class SampleSet {
 
-    private static final int SECONDARY_INDEX = 0;
+    // todo se multisensor ... this should never be used
+    public static final String ONLY_ONE_SECONDARY = "0";
     private Sample primary;
-    private Sample[] secondary;
-    private float sphericalDistance;
+    private Map<String, Sample> secondary;
+    private Map<String, Float> sphericalDistance;
 
     public SampleSet() {
-        secondary = new Sample[1];
-        sphericalDistance = Float.MIN_VALUE;
+        secondary = new HashMap<>();
+        sphericalDistance = new HashMap<>();
     }
 
     public Sample getPrimary() {
@@ -41,19 +45,23 @@ public class SampleSet {
         this.primary = primary;
     }
 
-    public Sample getSecondary() {
-        return secondary[SECONDARY_INDEX];
+    // todo se multisensor ... done
+    public Sample getSecondary(String sensorName) {
+        return secondary.get(sensorName);
     }
 
-    public void setSecondary(Sample secondary) {
-        this.secondary[SECONDARY_INDEX] = secondary;
+    // todo se multisensor ... done
+    public void setSecondary(String sensorName, Sample secondary) {
+        this.secondary.put(sensorName, secondary);
     }
 
-    public float getSphericalDistance() {
-        return sphericalDistance;
+    // todo se multisensor ... done
+    public float getSphericalDistance(String sensorName) {
+        return sphericalDistance.getOrDefault(sensorName, Float.NaN);
     }
 
-    public void setSphericalDistance(float sphericalDistance) {
-        this.sphericalDistance = sphericalDistance;
+    // todo se multisensor ... done
+    public void setSphericalDistance(final String sensorName, float sphericalDistance) {
+        this.sphericalDistance.put(sensorName, sphericalDistance);
     }
 }

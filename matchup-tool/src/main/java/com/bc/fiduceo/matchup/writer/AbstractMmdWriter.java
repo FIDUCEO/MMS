@@ -108,10 +108,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             initializeNetcdfFile(mmdFile, useCaseConfig, ioVariablesList.get(), matchupCollection.getNumMatchups());
             logger.info("Initialized target file");
 
-            // todo se multisensor
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
             // todo se multisensor
-            final Sensor secondarySensor = useCaseConfig.getAdditionalSensors().get(0);
+            final Sensor secondarySensor = useCaseConfig.getSecondarySensors().get(0);
             final String primarySensorName = primarySensor.getName();
             final String secondarySensorName = secondarySensor.getName();
             final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
@@ -134,6 +133,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
 
+                // todo se multisensor
                 final Path secondaryObservationPath = set.getSecondaryObservationPath();
                 final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
 
@@ -146,7 +146,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
-                    writeMmdValues(sampleSet.getSecondary(), zIndex, secondaryVariables, secondaryInterval);
+                    writeMmdValues(sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY), zIndex, secondaryVariables, secondaryInterval);
                     writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
                     zIndex++;
                     if (zIndex % cacheSize == 0) {
@@ -218,10 +218,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
         final StringBuilder sensors = new StringBuilder();
-        // todo se multisensor
         sensors.append(useCaseConfig.getPrimarySensor().getName());
-        // todo se multisensor
-        final List<Sensor> additionalSensors = useCaseConfig.getAdditionalSensors();
+        // todo se multisensor ... done
+        final List<Sensor> additionalSensors = useCaseConfig.getSecondarySensors();
         final Iterator<Sensor> sensorIterator = additionalSensors.iterator();
         while (sensorIterator.hasNext()) {
             sensors.append(",");

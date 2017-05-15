@@ -28,10 +28,16 @@ import java.io.IOException;
 
 class SphericalDistanceIOVariable extends SampleSetIOVariable {
 
+    private final String sensorName;
+
+    public SphericalDistanceIOVariable(String secondarySensorName) {
+        sensorName = secondarySensorName;
+    }
+
     @Override
     public void writeData(int centerX, int centerY, Interval interval, int zIndex)
                 throws IOException, InvalidRangeException {
-        final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
+        final double km = SphericalDistanceCalculator.calculateKm(sensorName, sampleSet);
         target.write((float) km, targetVariableName, zIndex);
     }
 }

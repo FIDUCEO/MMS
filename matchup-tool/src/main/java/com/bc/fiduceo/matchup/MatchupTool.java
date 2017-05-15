@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.ValidationResult;
@@ -73,6 +74,8 @@ import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class MatchupTool {
 
+    public static final String SPERICAL_DISTANCE_VAR_NAME = "matchup_spherical_distance";
+
     private static final String UNIT_ATTRIBUTE_NAME = "units";
     private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
@@ -80,26 +83,6 @@ class MatchupTool {
 
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
-    }
-
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        runMatchupGeneration(context, mmdWriterConfig);
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION_NUMBER);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
     }
 
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
@@ -144,35 +127,27 @@ class MatchupTool {
         return null;
     }
 
-    // package access for testing only tb 2016-08-16
-    static void calculateDistance(MatchupSet matchupSet) {
-        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
-        for (final SampleSet sampleSet : sourceSamples) {
-            final double km = SphericalDistanceCalculator.calculateKm(sampleSet);
-            sampleSet.setSphericalDistance((float) km);
-        }
-    }
-
     static void createIOVariablesPerSensor(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
                                            final UseCaseConfig useCaseConfig, VariablesConfiguration variablesConfiguration)
-            throws IOException {
-
-        // todo se multisensor
-        final String primSensorName = useCaseConfig.getPrimarySensor().getName();
-        // todo se multisensor
-        final String secoSensorName = useCaseConfig.getAdditionalSensors().get(0).getName();
-        final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
-        final Dimension secoDim = useCaseConfig.getDimensionFor(secoSensorName);
+                throws IOException {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Path primaryPath = matchupSet.getPrimaryObservationPath();
         final Path secondaryPath = matchupSet.getSecondaryObservationPath();
 
+        final String primSensorName = useCaseConfig.getPrimarySensor().getName();
+        final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
         ioVariablesList.extractVariables(primSensorName, primaryPath, primDim, variablesConfiguration);
         createExtraVariables(primSensorName, ioVariablesList, variablesConfiguration);
 
-        ioVariablesList.extractVariables(secoSensorName, secondaryPath, secoDim, variablesConfiguration);
-        createExtraVariables(secoSensorName, ioVariablesList, variablesConfiguration);
+        // todo se multisensor ... done
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+        for (Sensor secondarySensor : secondarySensors) {
+            final String secondarySensorName = secondarySensor.getName();
+            final Dimension secoDim = useCaseConfig.getDimensionFor(secondarySensorName);
+            ioVariablesList.extractVariables(secondarySensorName, secondaryPath, secoDim, variablesConfiguration);
+            createExtraVariables(secondarySensorName, ioVariablesList, variablesConfiguration);
+        }
     }
 
     static void createExtraVariables(String sensorName, IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
@@ -331,6 +306,25 @@ class MatchupTool {
         return builder;
     }
 
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
+
+        runMatchupGeneration(context, mmdWriterConfig);
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION_NUMBER);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
+    }
 
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
         logger.info("Loading configuration ...");
@@ -388,7 +382,17 @@ class MatchupTool {
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {
-            ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable());
+            // todo se multisensor ... done
+            final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+            if (secondarySensors.size() > 1) {
+                final String primaryName = useCaseConfig.getPrimarySensor().getName();
+                for (Sensor secondarySensor : secondarySensors) {
+                    final String secondaryName = secondarySensor.getName();
+                    ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration, primaryName, secondaryName));
+                }
+            } else {
+                ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration));
+            }
         }
 
         try {
@@ -398,13 +402,30 @@ class MatchupTool {
         }
     }
 
-    private SphericalDistanceIOVariable createSphericalDistanceVariable() {
-        final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable();
-        variable.setTargetVariableName("matchup_spherical_distance");
+    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration) {
+        return createSphericalDistanceVariable(variablesConfiguration,false, null, null);
+    }
+
+    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
+        return createSphericalDistanceVariable(variablesConfiguration,true, primaryName, secondaryName);
+    }
+
+    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, boolean createVariableWithSensorNames, String primaryName, String secondaryName) {
+        final String targetVariableName;
+        // todo se multisensor ... done
+        if (createVariableWithSensorNames) {
+            final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+            final String p = sensorRenames.getOrDefault(primaryName, primaryName);
+            final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
+            targetVariableName = p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
+        } else {
+            targetVariableName = SPERICAL_DISTANCE_VAR_NAME;
+        }
+        final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable(secondaryName);
+        variable.setTargetVariableName(targetVariableName);
         final DataType dataType = DataType.FLOAT;
         variable.setDataType(dataType.toString());
         variable.setDimensionNames("matchup_count");
-
         final List<Attribute> attributes = variable.getAttributes();
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
         attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));

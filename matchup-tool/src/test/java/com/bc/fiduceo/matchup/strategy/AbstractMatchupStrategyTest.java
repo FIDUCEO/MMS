@@ -143,7 +143,7 @@ public class AbstractMatchupStrategyTest {
 
         final List<Sensor> additionalSensors = new ArrayList<>();
         additionalSensors.add(new Sensor("nasenmann"));
-        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+        when(config.getSecondarySensors()).thenReturn(additionalSensors);
 
         final Sensor secondarySensor = AbstractMatchupStrategy.getSecondarySensor(config);
         assertNotNull(secondarySensor);
@@ -155,7 +155,7 @@ public class AbstractMatchupStrategyTest {
         final UseCaseConfig config = mock(UseCaseConfig.class);
 
         final List<Sensor> additionalSensors = new ArrayList<>();
-        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+        when(config.getSecondarySensors()).thenReturn(additionalSensors);
 
         try {
             AbstractMatchupStrategy.getSecondarySensor(config);
@@ -170,7 +170,7 @@ public class AbstractMatchupStrategyTest {
 
         final List<Sensor> additionalSensors = new ArrayList<>();
         additionalSensors.add(new Sensor("the sensor"));
-        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+        when(config.getSecondarySensors()).thenReturn(additionalSensors);
 
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
@@ -189,7 +189,7 @@ public class AbstractMatchupStrategyTest {
 
         final List<Sensor> additionalSensors = new ArrayList<>();
         additionalSensors.add(new Sensor("the sensor", "version_string"));
-        when(config.getAdditionalSensors()).thenReturn(additionalSensors);
+        when(config.getSecondarySensors()).thenReturn(additionalSensors);
 
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-35");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-35");
