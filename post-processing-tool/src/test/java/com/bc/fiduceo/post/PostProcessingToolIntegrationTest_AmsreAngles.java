@@ -20,22 +20,19 @@
 
 package com.bc.fiduceo.post;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolIntegrationTest_AmsreAngles {

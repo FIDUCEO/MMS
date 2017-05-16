@@ -65,8 +65,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        final ConditionEngine conditionEngine = new ConditionEngine();
         final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
+        final ConditionEngine conditionEngine = new ConditionEngine();
         conditionEngine.configure(useCaseConfig);
 
         final ScreeningEngine screeningEngine = new ScreeningEngine(context);
@@ -78,18 +78,23 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
         final TimeInterval processingInterval = new TimeInterval(context.getStartDate(), context.getEndDate());
 
+        // @todo 2 se/?? ... renaming of class SatelliteObservation ... 2017-05-15
+        // see Trello https://trello.com/c/RvivyMUF
         final List<SatelliteObservation> insituObservations = getPrimaryObservations(context);
         if (insituObservations.size() == 0) {
             logger.warning("No insitu data in time interval:" + context.getStartDate() + " - " + context.getEndDate());
             return matchupCollection;
         }
 
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
-        final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+        final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
-        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = new HashMap<>();
+        final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
+        for (Sensor secondarySensor : secondarySensors) {
+            mapMatchupSetsSatelliteOrder.put(secondarySensor.getName(), new HashMap<>());
+        }
         final Map<Path, String> insituProduktSensorName = new HashMap<>();
 
         for (final SatelliteObservation insituObservation : insituObservations) {
@@ -99,21 +104,37 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             try (final Reader insituReader = readerFactory.getReader(sensorName)) {
                 insituReader.open(insituPath.toFile());
 
-                final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
-                for (final MatchupSet matchupSet : matchupSets) {
-                    matchupSet.setPrimaryObservationPath(insituPath);
-                    matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
-                    final Path path = matchupSet.getSecondaryObservationPath();
+                for (Sensor secondarySensor : secondarySensors) {
+                    final String secondarySensorName = secondarySensor.getName();
+                    final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName);
+                    final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secondarySensorName);
 
-                    if (!matchupSetsSatelliteOrder.containsKey(path)) {
-                        matchupSetsSatelliteOrder.put(path, new ArrayList<>());
+                    final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
+                    for (final MatchupSet matchupSet : matchupSets) {
+                        matchupSet.setPrimaryObservationPath(insituPath);
+                        matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
+                        final Path path = matchupSet.getSecondaryObservationPath();
+
+                        final List<MatchupSet> satelliteSets;
+                        if (matchupSetsSatelliteOrder.containsKey(path)) {
+                            satelliteSets = matchupSetsSatelliteOrder.get(path);
+                        } else {
+                            satelliteSets = new ArrayList<>();
+                            matchupSetsSatelliteOrder.put(path, satelliteSets);
+                        }
+
+                        satelliteSets.add(matchupSet);
                     }
-
-                    final List<MatchupSet> satelliteSets = matchupSetsSatelliteOrder.get(path);
-                    satelliteSets.add(matchupSet);
                 }
             }
         }
+
+
+        // todo se multisensor
+        final Sensor secondarySensor = useCaseConfig.getSecondarySensors().get(0);
+        final String secondarySensorName_CaseOneSecondary = secondarySensor.getName();
+        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secondarySensorName_CaseOneSecondary);
+
 
         for (Map.Entry<Path, List<MatchupSet>> pathListEntry : matchupSetsSatelliteOrder.entrySet()) {
             final Path secondaryPath = pathListEntry.getKey();

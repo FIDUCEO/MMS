@@ -60,19 +60,21 @@ class SampleCollector {
     List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
         Point2D geopos = new Point2D.Double();
         final List<SampleSet> toKeep = new ArrayList<>();
-        for (final SampleSet sampleSet : sampleSets) {
+        for (SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
-            for (Point2D pixelLocation : pixelLocations) {
+            for (int i = 0; i < pixelLocations.length; i++) {
+                Point2D pixelLocation = pixelLocations[i];
                 final int x = (int) pixelLocation.getX();
                 final int y = (int) pixelLocation.getY();
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
                 final long time = timeLocator.getTimeFor(x, y);
                 final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
+                if (i>0) {
+                    sampleSet = new SampleSet();
+                    sampleSet.setPrimary(primary);
+                }
                 // todo se multisensor .. important!
-                // ... why an iteration?
-                // ... why there is no condition to set secondary?
-                // ... the following call replaces the secondary sample from the first run of the loop
                 sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, sample);
                 toKeep.add(sampleSet);
             }

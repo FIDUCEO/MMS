@@ -51,6 +51,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
@@ -120,12 +121,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
                 final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryStartTime);
                 final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryStopTime);
-                final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+                final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 final MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
                 if (primaryMatchups == null) {
                     continue;
                 }
+
+                // todo se multisensor
+                final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+                final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                     try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {

@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
@@ -83,7 +84,13 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                 primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
-                final List<SatelliteObservation> secondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+                final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+
+                // todo se multisensor
+                final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+                final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
+
+
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                     try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());

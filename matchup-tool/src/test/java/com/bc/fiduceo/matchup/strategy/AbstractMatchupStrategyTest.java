@@ -20,6 +20,10 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -32,23 +36,11 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class AbstractMatchupStrategyTest {
 
@@ -138,33 +130,6 @@ public class AbstractMatchupStrategyTest {
     }
 
     @Test
-    public void testGetSecondarySensor() {
-        final UseCaseConfig config = mock(UseCaseConfig.class);
-
-        final List<Sensor> additionalSensors = new ArrayList<>();
-        additionalSensors.add(new Sensor("nasenmann"));
-        when(config.getSecondarySensors()).thenReturn(additionalSensors);
-
-        final Sensor secondarySensor = AbstractMatchupStrategy.getSecondarySensor(config);
-        assertNotNull(secondarySensor);
-        assertEquals("nasenmann", secondarySensor.getName());
-    }
-
-    @Test
-    public void testGetSecondarySensor_emptyList() {
-        final UseCaseConfig config = mock(UseCaseConfig.class);
-
-        final List<Sensor> additionalSensors = new ArrayList<>();
-        when(config.getSecondarySensors()).thenReturn(additionalSensors);
-
-        try {
-            AbstractMatchupStrategy.getSecondarySensor(config);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
     public void testGetSecondarySensorParameter() {
         final UseCaseConfig config = mock(UseCaseConfig.class);
 
@@ -175,7 +140,10 @@ public class AbstractMatchupStrategyTest {
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-34");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-34");
 
-        final QueryParameter parameter = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        final List<QueryParameter> parameters = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.size());
+        final QueryParameter parameter = parameters.get(0);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
         assertNull(parameter.getVersion());
@@ -194,7 +162,10 @@ public class AbstractMatchupStrategyTest {
         final Date startDate = TimeUtils.parseDOYBeginOfDay("1997-35");
         final Date endDate = TimeUtils.parseDOYEndOfDay("1997-35");
 
-        final QueryParameter parameter = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        final List<QueryParameter> parameters = AbstractMatchupStrategy.getSecondarySensorParameter(config, startDate, endDate);
+        assertNotNull(parameters);
+        assertEquals(1, parameters.size());
+        final QueryParameter parameter = parameters.get(0);
         assertNotNull(parameter);
         assertEquals("the sensor", parameter.getSensorName());
         assertEquals("version_string", parameter.getVersion());

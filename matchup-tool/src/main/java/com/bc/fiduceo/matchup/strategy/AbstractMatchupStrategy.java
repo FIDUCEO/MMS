@@ -42,8 +42,11 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class AbstractMatchupStrategy {
@@ -82,27 +85,18 @@ public abstract class AbstractMatchupStrategy {
         return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
     }
 
-    // package access for testing only tb 2016-03-14
-    // todo se multisensor
-    static QueryParameter getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
-        final QueryParameter parameter = new QueryParameter();
-        final Sensor secondarySensor = getSecondarySensor(useCaseConfig);
-        assignSensor(parameter, secondarySensor);
-        parameter.setStartTime(searchTimeStart);
-        parameter.setStopTime(searchTimeEnd);
-        return parameter;
-    }
+    static List<QueryParameter> getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {
+        final ArrayList<QueryParameter> queryParameters = new ArrayList<>();
 
-    // package access for testing only tb 2016-03-14
-    // todo se multisensor
-    static Sensor getSecondarySensor(UseCaseConfig useCaseConfig) {
-        // todo se multisensor
-        final List<Sensor> additionalSensors = useCaseConfig.getSecondarySensors();
-        if (additionalSensors.size() != 1) {
-            throw new RuntimeException("Unable to run matchup with given sensor number");
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+        for (Sensor secondarySensor : secondarySensors) {
+            final QueryParameter parameter = new QueryParameter();
+            assignSensor(parameter, secondarySensor);
+            parameter.setStartTime(searchTimeStart);
+            parameter.setStopTime(searchTimeEnd);
+            queryParameters.add(parameter);
         }
-
-        return additionalSensors.get(0);
+        return queryParameters;
     }
 
     // package access for testing only tb 2016-11-04
@@ -152,17 +146,19 @@ public abstract class AbstractMatchupStrategy {
         return primaryObservations;
     }
 
-    // todo se multisensor
-    List<SatelliteObservation> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
+    Map<String, List<SatelliteObservation>> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
+        final HashMap<String, List<SatelliteObservation>> mapSecondaryObservations = new HashMap<>();
+
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final QueryParameter parameter = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
-        logger.info("Requesting secondary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
-
         final Storage storage = context.getStorage();
-        final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
-
-        logger.info("Received " + secondaryObservations.size() + " secondary satellite observations");
-
-        return secondaryObservations;
+        final List<QueryParameter> parameters = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
+        for (QueryParameter parameter : parameters) {
+            final String sensorName = parameter.getSensorName();
+            logger.info("Requesting secondary data ... (" + sensorName + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+            final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
+            logger.info("Received " + secondaryObservations.size() + " secondary satellite observations of sensor type " + sensorName);
+            mapSecondaryObservations.put(sensorName, secondaryObservations);
+        }
+        return mapSecondaryObservations;
     }
 }
