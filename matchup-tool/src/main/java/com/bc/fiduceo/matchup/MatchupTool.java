@@ -403,7 +403,7 @@ class MatchupTool {
     }
 
     private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration) {
-        return createSphericalDistanceVariable(variablesConfiguration,false, null, null);
+        return createSphericalDistanceVariable(variablesConfiguration,false, null, SampleSet.ONLY_ONE_SECONDARY);
     }
 
     private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
