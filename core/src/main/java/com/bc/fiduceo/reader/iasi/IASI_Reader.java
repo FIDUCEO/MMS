@@ -48,9 +48,9 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -86,6 +86,7 @@ public class IASI_Reader implements Reader {
     private long mdrSize;
     private int mdrCount;
     private MDRCache mdrCache;
+    private List<Variable> variableList;
 
     IASI_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -172,46 +173,12 @@ public class IASI_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() {
-        final ArrayList<Variable> variables = new ArrayList<>();
-        variables.add(new VariableProxy("DEGRADED_INST_MDR"));
-        variables.add(new VariableProxy("DEGRADED_PROC_MDR"));
-        variables.add(new VariableProxy("GEPSIasiMode"));
-        variables.add(new VariableProxy("GEPSOPSProcessingMode"));
-        variables.add(new VariableProxy("OBT"));
-        variables.add(new VariableProxy("OnboardUTC"));
-        variables.add(new VariableProxy("GEPSDatIasi"));
-        variables.add(new VariableProxy("GEPS_CCD"));
-        variables.add(new VariableProxy("GEPS_SP"));
-        variables.add(new VariableProxy("GQisFlagQualDetailed"));
-        variables.add(new VariableProxy("GQisSysTecIISQual"));
-        variables.add(new VariableProxy("GQisSysTecSondQual"));
-        variables.add(new VariableProxy("GGeoSondLoc_Lon"));
-        variables.add(new VariableProxy("GGeoSondLoc_Lat"));
-        variables.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith"));
-        variables.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth"));
-        variables.add(new VariableProxy("GGeoSondAnglesSUN_Zenith"));
-        variables.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth"));
-        variables.add(new VariableProxy("EARTH_SATELLITE_DISTANCE"));
-        variables.add(new VariableProxy("IDefNsfirst1b"));
-        variables.add(new VariableProxy("IDefNslast1b"));
-        variables.add(new VariableProxy("GS1cSpect"));
-        variables.add(new VariableProxy("GCcsRadAnalNbClass"));
-        variables.add(new VariableProxy("IDefCcsMode"));
-        variables.add(new VariableProxy("GCcsImageClassifiedNbLin"));
-        variables.add(new VariableProxy("GCcsImageClassifiedNbCol"));
-        variables.add(new VariableProxy("GEUMAvhrr1BCldFrac"));
-        variables.add(new VariableProxy("GEUMAvhrr1BLandFrac"));
-        variables.add(new VariableProxy("GEUMAvhrr1BQual"));
-        return variables;
+        if (variableList == null) {
+            variableList = ceateVariableList();
+        }
+        return variableList;
     }
 
-    @Override
-    public Dimension getProductSize() {
-        final Dimension size = new Dimension();
-        size.setNx(2 * SNOT);
-        size.setNy(2 * mdrCount);
-        return size;
-    }
 
     private PixelLocator getPixelLocator_internal() throws IOException {
         if (pixelLocator == null) {
@@ -392,4 +359,159 @@ public class IASI_Reader implements Reader {
         geolocationData.latitudes = Array.factory(latitudes);
         return geolocationData;
     }
+
+    private List<Variable> ceateVariableList() {
+        List<Variable> variableList = new ArrayList<>();
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Quality of MDR has been degraded from nominal due to an instrument degradation"));
+        variableList.add(new VariableProxy("DEGRADED_INST_MDR", DataType.BYTE, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Quality of MDR has been degraded from nominal due to a processing degradation"));
+        variableList.add(new VariableProxy("DEGRADED_PROC_MDR", DataType.BYTE, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Instrument mode"));
+        variableList.add(new VariableProxy("GEPSIasiMode", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Processing mode"));
+        variableList.add(new VariableProxy("GEPSOPSProcessingMode", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "On Board Time (Coarse time + Fine time)"));
+        variableList.add(new VariableProxy("OBT", DataType.LONG, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Date of IASI measure (on board UTC)"));
+        attributes.add(new Attribute("units", "s"));
+        attributes.add(new Attribute("long_name", "On board UTC in in milliseconds since 1970-01-01 00:00:00"));
+        variableList.add(new VariableProxy("OnboardUTC", DataType.LONG, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Date of IASI measure (corrected UTC)"));
+        attributes.add(new Attribute("units", "s"));
+        attributes.add(new Attribute("long_name", "Corrected UTC in in milliseconds since 1970-01-01 00:00:00"));
+        variableList.add(new VariableProxy("GEPSDatIasi", DataType.LONG, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Corner Cube Direction for all observational targets."));
+        variableList.add(new VariableProxy("GEPS_CCD", DataType.BYTE, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Scan position for all observational targets."));
+        variableList.add(new VariableProxy("GEPS_SP", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Detailed quality flag for the system"));
+        attributes.add(new Attribute("standard_name", "status_flag"));
+        attributes.add(new Attribute("flag_masks", "1 2 4 8 16 32 64 128 256 512 1024 2048 4096"));
+        attributes.add(new Attribute("flag_meanings", "hardware spikes_b1 spikes_b2 spikes_b3 nzbd_cal_error onboard_general_qual overflow_underflow spectral_calib_error rad_post_calib_error summary_flag miss_sounder_data miss_iis_data miss_avhrr_data"));
+        variableList.add(new VariableProxy("GQisFlagQualDetailed", DataType.SHORT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "System-TEC quality index for IIS"));
+        variableList.add(new VariableProxy("GQisSysTecIISQual", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "System-TEC quality index for sounder"));
+        variableList.add(new VariableProxy("GQisSysTecSondQual", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Location of pixel centre in geodetic coordinates for each sounder pixel (lon)"));
+        attributes.add(new Attribute("standard_name", "longitude"));
+        attributes.add(new Attribute("units", "degrees_east"));
+        variableList.add(new VariableProxy("GGeoSondLoc_Lon", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Location of pixel centre in geodetic coordinates for each sounder pixel (lat)"));
+        attributes.add(new Attribute("standard_name", "latitude"));
+        attributes.add(new Attribute("units", "degrees_north"));
+        variableList.add(new VariableProxy("GGeoSondLoc_Lat", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (zenith)"));
+        attributes.add(new Attribute("standard_name", "sensor_zenith_angle"));
+        attributes.add(new Attribute("units", "degree"));
+        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (azimuth)"));
+        attributes.add(new Attribute("standard_name", "sensor_azimuth_angle"));
+        attributes.add(new Attribute("units", "degree"));
+        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (zenith)"));
+        attributes.add(new Attribute("standard_name", "solar_zenith_angle"));
+        attributes.add(new Attribute("units", "degree"));
+        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Zenith", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (azimuth)"));
+        attributes.add(new Attribute("standard_name", "solar_azimuth_angle"));
+        attributes.add(new Attribute("units", "degree"));
+        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Distance of satellite from Earth centre"));
+        attributes.add(new Attribute("units", "m"));
+        variableList.add(new VariableProxy("EARTH_SATELLITE_DISTANCE", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Number of the first sample of IASI 1C spectra (same as 1B)"));
+        variableList.add(new VariableProxy("IDefNsfirst1b", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Number of the last sample of IASI 1C spectra (same as 1B)"));
+        variableList.add(new VariableProxy("IDefNslast1b", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Level 1C spectra"));
+        attributes.add(new Attribute("units", "W/m2/sr/m-1"));
+        variableList.add(new VariableProxy("GS1cSpect", DataType.SHORT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Radiance Analysis: Number of identified classes in the sounder FOV"));
+        variableList.add(new VariableProxy("GCcsRadAnalNbClass", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Radiance Analysis: Image used is from AVHRR or IIS imager (degraded cases)"));
+        attributes.add(new Attribute("standard_name", "status_flag"));
+        attributes.add(new Attribute("flag_masks", "1"));
+        attributes.add(new Attribute("flag_meanings", "iis_image"));
+        variableList.add(new VariableProxy("IDefCcsMode", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Radiance Analysis: Number of useful lines"));
+        variableList.add(new VariableProxy("GCcsImageClassifiedNbLin", DataType.SHORT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Radiance Analysis: Number of useful columns"));
+        variableList.add(new VariableProxy("GCcsImageClassifiedNbCol", DataType.SHORT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Cloud fraction in IASI FOV from AVHRR 1B in IASI FOV"));
+        attributes.add(new Attribute("units", "%"));
+        variableList.add(new VariableProxy("GEUMAvhrr1BCldFrac", DataType.BYTE, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Land and Coast fraction in IASI FOV from AVHRR 1B"));
+        attributes.add(new Attribute("units", "%"));
+        variableList.add(new VariableProxy("GEUMAvhrr1BLandFrac", DataType.BYTE, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("description", "Quality indicator. If the quality is good, it gives the coverage of snow/ice."));
+        variableList.add(new VariableProxy("GEUMAvhrr1BQual", DataType.BYTE, attributes));
+        return variableList;
+    }
+
+    @Override
+    public Dimension getProductSize() {
+        final Dimension size = new Dimension();
+        size.setNx(2 * SNOT);
+        size.setNy(2 * mdrCount);
+        return size;
+    }
+
 }

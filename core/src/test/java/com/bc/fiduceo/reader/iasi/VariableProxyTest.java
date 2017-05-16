@@ -21,15 +21,25 @@
 package com.bc.fiduceo.reader.iasi;
 
 import org.junit.Test;
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class VariableProxyTest {
 
     @Test
-    public void testConstruction() {
-        final VariableProxy proxy = new VariableProxy("hepp!");
+    public void testConstructionAndGetter() {
+        final List<Attribute> attributes = new ArrayList<>();
+
+        final VariableProxy proxy = new VariableProxy("hepp!", DataType.BYTE, attributes);
 
         assertEquals("hepp!", proxy.getFullName());
+        assertEquals("hepp!", proxy.getShortName());
+        assertEquals(DataType.BYTE, proxy.getDataType());
+        assertEquals(0, proxy.getAttributes().size());
     }
 }

@@ -186,22 +186,6 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_MA() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
-
-        try {
-            reader.open(iasiFile);
-
-            final List<Variable> variables = reader.getVariables();
-            assertNotNull(variables);
-            assertEquals(29, variables.size());
-            // @todo 1 tb/tb continue here 2015-05-15
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Test
     public void testGetTimeLocator_MA() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA();
 
