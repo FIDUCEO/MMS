@@ -40,9 +40,11 @@
 
 package com.bc.fiduceo.reader.iasi;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -97,36 +99,49 @@ public class IASI_ReaderTest {
         Variable variable = variables.get(0);
         assertEquals("DEGRADED_INST_MDR", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
-        assertEquals("Quality of MDR has been degraded from nominal due to an instrument degradation", variable.getAttributes().get(0).getStringValue());
+        List<Attribute> attributes = variable.getAttributes();
+        assertEquals("Quality of MDR has been degraded from nominal due to an instrument degradation", attributes.get(0).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(byte.class), attributes.get(1).getNumericValue() );
 
         variable = variables.get(6);
         assertEquals("GEPSDatIasi", variable.getShortName());
         assertEquals(DataType.LONG, variable.getDataType());
-        assertEquals("Date of IASI measure (corrected UTC)", variable.getAttributes().get(0).getStringValue());
-        assertEquals("s", variable.getAttributes().get(1).getStringValue());
-        assertEquals("Corrected UTC in in milliseconds since 1970-01-01 00:00:00", variable.getAttributes().get(2).getStringValue());
+        attributes = variable.getAttributes();
+        assertEquals("Date of IASI measure (corrected UTC)", attributes.get(0).getStringValue());
+        assertEquals("s", attributes.get(1).getStringValue());
+        assertEquals("Corrected UTC in in milliseconds since 1970-01-01 00:00:00", attributes.get(2).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(long.class), attributes.get(3).getNumericValue() );
 
         variable = variables.get(12);
         assertEquals("GGeoSondLoc_Lon", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
-        assertEquals("Location of pixel centre in geodetic coordinates for each sounder pixel (lon)", variable.getAttributes().get(0).getStringValue());
-        assertEquals("longitude", variable.getAttributes().get(1).getStringValue());
-        assertEquals("degrees_east", variable.getAttributes().get(2).getStringValue());
+        attributes = variable.getAttributes();
+        assertEquals("Location of pixel centre in geodetic coordinates for each sounder pixel (lon)", attributes.get(0).getStringValue());
+        assertEquals("longitude", attributes.get(1).getStringValue());
+        assertEquals("degrees_east", attributes.get(2).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(float.class), attributes.get(3).getNumericValue() );
+
 
         variable = variables.get(18);
         assertEquals("EARTH_SATELLITE_DISTANCE", variable.getShortName());
         assertEquals(DataType.INT, variable.getDataType());
-        assertEquals("Distance of satellite from Earth centre", variable.getAttributes().get(0).getStringValue());
-        assertEquals("m", variable.getAttributes().get(1).getStringValue());
+        attributes = variable.getAttributes();
+        assertEquals("Distance of satellite from Earth centre", attributes.get(0).getStringValue());
+        assertEquals("m", attributes.get(1).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(int.class), attributes.get(2).getNumericValue() );
 
         variable = variables.get(24);
         assertEquals("GCcsImageClassifiedNbLin", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
-        assertEquals("Radiance Analysis: Number of useful lines", variable.getAttributes().get(0).getStringValue());
+        attributes = variable.getAttributes();
+        assertEquals("Radiance Analysis: Number of useful lines", attributes.get(0).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(short.class), attributes.get(1).getNumericValue() );
 
         variable = variables.get(28);
         assertEquals("GEUMAvhrr1BQual", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
-        assertEquals("Quality indicator. If the quality is good, it gives the coverage of snow/ice.", variable.getAttributes().get(0).getStringValue());
+        attributes = variable.getAttributes();
+        assertEquals("Quality indicator. If the quality is good, it gives the coverage of snow/ice.", attributes.get(0).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(byte.class), attributes.get(1).getNumericValue() );
     }
 }
