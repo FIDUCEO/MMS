@@ -22,6 +22,8 @@ package com.bc.fiduceo.reader.iasi;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -49,5 +51,14 @@ public class MDR_1C_Test {
 
         assertEquals(1, MDR_1C.getEFOVIndex(3, 1));
         assertEquals(1, MDR_1C.getEFOVIndex(45, 1));
+    }
+
+    @Test
+    public void testGetReadProxies() {
+         final HashMap<String, ReadProxy> proxies = MDR_1C.getReadProxies();
+         assertNotNull(proxies);
+         assertEquals(27, proxies.size());
+
+         // @todo 1 tb/tb add some checks for randomly picked proxies 2015-05-17
     }
 }

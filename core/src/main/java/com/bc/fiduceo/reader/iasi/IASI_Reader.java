@@ -47,10 +47,18 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -59,6 +67,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -88,6 +97,7 @@ public class IASI_Reader implements Reader {
     private int mdrCount;
     private MDRCache mdrCache;
     private List<Variable> variableList;
+    private HashMap<String, ReadProxy> proxiesMap;
 
     IASI_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -104,6 +114,8 @@ public class IASI_Reader implements Reader {
 
         readHeader();
         mdrCache = new MDRCache(iis, firstMdrOffset);
+        // @todo 3 move this to a factory when we extend the reader to support older/newer MDR versions
+        proxiesMap = MDR_1C.getReadProxies();
     }
 
     @Override
@@ -159,7 +171,26 @@ public class IASI_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("Not yet implemented");
+        final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
+        final int xOffset = centerX - interval.getX() / 2;
+        final int yOffset = centerY - interval.getY() / 2;
+
+        final ReadProxy readProxy = proxiesMap.get(variableName);
+        final int[] shape = new int[]{interval.getY(), interval.getX()};
+        final Array array = Array.factory(readProxy.getDataType(), shape);
+
+        final Index index = array.getIndex();
+        for (int y = 0; y < interval.getY(); y++) {
+            final int line = yOffset + y;
+
+            for (int x = 0; x < interval.getX(); x++) {
+                index.set(y, x);
+                final Object data = readProxy.read(xOffset + x, line % 2, mdRs[y]);
+                array.setObject(index, data);
+            }
+        }
+
+        return array;
     }
 
     @Override
@@ -321,6 +352,20 @@ public class IASI_Reader implements Reader {
         }
 
         return geolocationData;
+    }
+
+    private MDR_1C[] getMDRs(int centerY, int windowHeight) throws IOException {
+        final int lineStart = centerY - windowHeight / 2;
+        final int lineEnd = centerY + windowHeight / 2;
+
+        final MDR_1C[] mdrs = new MDR_1C[windowHeight];
+        int index = 0;
+        for (int line = lineStart; line <= lineEnd; line++) {
+            mdrs[index] = mdrCache.getRecord(line);
+            ++index;
+        }
+
+        return mdrs;
     }
 
     private GeolocationData readGeolocationData() throws IOException {

@@ -21,8 +21,10 @@
 package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
@@ -35,13 +37,13 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.nc2.Variable;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -411,6 +413,48 @@ public class IASI_Reader_IO_Test {
             assertNotNull(timeLocator_2);
 
             assertSame(timeLocator_1, timeLocator_2);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MA_perScan_byte() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(22, 108, new Interval(1, 1), "DEGRADED_INST_MDR");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(1, shape[0]);
+            assertEquals(1, shape[1]);
+
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MB_perScan_int() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(23, 109, new Interval(3, 1), "GEPSIasiMode");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(1, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(161, 0, 0, array);
+            NCTestUtils.assertValueAt(161, 1, 0, array);
+            NCTestUtils.assertValueAt(161, 2, 0, array);
         } finally {
             reader.close();
         }
