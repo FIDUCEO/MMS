@@ -23,8 +23,7 @@ package com.bc.fiduceo.matchup.condition;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.math.SphericalDistance;
-import org.esa.snap.core.util.math.RsMathUtils;
+import com.bc.fiduceo.math.Distance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +39,6 @@ import java.util.List;
 
 class DistanceCondition implements Condition {
 
-    private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
-
     private final double maxDistanceInKm;
 
     DistanceCondition(double maxDistanceInKm) {
@@ -55,9 +52,7 @@ class DistanceCondition implements Condition {
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
             final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
-            final SphericalDistance sphericalDistance = new SphericalDistance(primary.lon, primary.lat);
-            final double radDistance = sphericalDistance.distance(secondary.lon, secondary.lat);
-            final double kmDistance = radDistance * MEAN_EARTH_RADIUS_IN_KM;
+            final double kmDistance = Distance.computeSpericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
             if (kmDistance <= maxDistanceInKm) {
                 targetSamples.add(sampleSet);
             }

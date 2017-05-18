@@ -42,8 +42,6 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -104,8 +102,8 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         // todo se multisensor
-                        matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryProcessingVersion(secondaryObservation.getVersion());
+                        matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();

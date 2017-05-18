@@ -23,18 +23,18 @@ package com.bc.fiduceo.matchup;
 import java.util.HashMap;
 import java.util.Map;
 
-// todo se multisensor
+// todo se multisensor ... done
 public class SampleSet {
 
-    // todo se multisensor ... this should never be used
+    // todo se multisensor
+    // if the multi sensor refactoring is done, this constant should never be used
     public static final String ONLY_ONE_SECONDARY = "0";
+
     private Sample primary;
     private Map<String, Sample> secondary;
-    private Map<String, Float> sphericalDistance;
 
     public SampleSet() {
         secondary = new HashMap<>();
-        sphericalDistance = new HashMap<>();
     }
 
     public Sample getPrimary() {
@@ -53,15 +53,5 @@ public class SampleSet {
     // todo se multisensor ... done
     public void setSecondary(String sensorName, Sample secondary) {
         this.secondary.put(sensorName, secondary);
-    }
-
-    // todo se multisensor ... done
-    public float getSphericalDistance(String sensorName) {
-        return sphericalDistance.getOrDefault(sensorName, Float.NaN);
-    }
-
-    // todo se multisensor ... done
-    public void setSphericalDistance(final String sensorName, float sphericalDistance) {
-        this.sphericalDistance.put(sensorName, sphericalDistance);
     }
 }

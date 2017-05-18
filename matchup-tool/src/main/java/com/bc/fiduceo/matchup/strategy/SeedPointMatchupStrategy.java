@@ -144,8 +144,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                         final MatchupSet matchupSet = new MatchupSet();
                         matchupSet.setPrimaryObservationPath(primaryObservationDataFilePath);
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
-                        matchupSet.setSecondaryObservationPath(secondaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryProcessingVersion(secondaryObservation.getVersion());
+                        matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();

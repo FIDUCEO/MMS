@@ -133,7 +133,7 @@ class MatchupTool {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Path primaryPath = matchupSet.getPrimaryObservationPath();
-        final Path secondaryPath = matchupSet.getSecondaryObservationPath();
+        final Path secondaryPath = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
         final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
@@ -410,7 +410,9 @@ class MatchupTool {
         return createSphericalDistanceVariable(variablesConfiguration,true, primaryName, secondaryName);
     }
 
-    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, boolean createVariableWithSensorNames, String primaryName, String secondaryName) {
+    private SphericalDistanceIOVariable createSphericalDistanceVariable(
+                VariablesConfiguration variablesConfiguration, boolean createVariableWithSensorNames,
+                String primaryName, String secondaryName) {
         final String targetVariableName;
         // todo se multisensor ... done
         if (createVariableWithSensorNames) {

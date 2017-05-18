@@ -134,11 +134,11 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
 
                 // todo se multisensor
-                final Path secondaryObservationPath = set.getSecondaryObservationPath();
+                final Path secondaryObservationPath = set.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
                 final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
 
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
-                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion());
+                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY));
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
                 logger.info("Num matchups: " + set.getNumObservations());

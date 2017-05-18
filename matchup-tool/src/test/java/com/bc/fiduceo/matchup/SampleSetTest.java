@@ -54,12 +54,4 @@ public class SampleSetTest {
         assertNotNull(result);
         assertEquals(sample.x, result.x);
     }
-
-    @Test
-    public void testSetGetSphericalDistance() {
-        assertEquals(Float.NaN, sampleSet.getSphericalDistance(SampleSet.ONLY_ONE_SECONDARY), 1e-8);
-
-        sampleSet.setSphericalDistance(SampleSet.ONLY_ONE_SECONDARY, 23.78f);
-        assertEquals(23.78f, sampleSet.getSphericalDistance(SampleSet.ONLY_ONE_SECONDARY), 1e-8);
-    }
 }
