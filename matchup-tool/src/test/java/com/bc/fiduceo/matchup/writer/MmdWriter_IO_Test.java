@@ -253,8 +253,8 @@ public class MmdWriter_IO_Test {
         matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
         matchupSet.setPrimaryProcessingVersion(processingVersion);
         final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", processingVersion, "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
-        matchupSet.setSecondaryObservationPath(Paths.get(secondaryPath));
-        matchupSet.setSecondaryProcessingVersion(processingVersion);
+        matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, Paths.get(secondaryPath));
+        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, processingVersion);
         for (int i = 0; i < 8; i++) {
             final SampleSet sampleSet = new SampleSet();
             sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));

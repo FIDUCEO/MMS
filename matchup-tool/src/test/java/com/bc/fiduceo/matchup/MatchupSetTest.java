@@ -56,8 +56,8 @@ public class MatchupSetTest {
         final String secondaryPath = "/the/secondary/file.nc";
         when(path.toString()).thenReturn(secondaryPath);
 
-        matchupSet.setSecondaryObservationPath(path);
-        assertEquals(secondaryPath, matchupSet.getSecondaryObservationPath().toString());
+        matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, path);
+        assertEquals(secondaryPath, matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY).toString());
     }
 
     @Test
@@ -83,10 +83,10 @@ public class MatchupSetTest {
         matchupSet.setPrimaryProcessingVersion(null);
         assertNull(matchupSet.getPrimaryProcessingVersion());
 
-        assertNull(matchupSet.getSecondaryProcessingVersion());
-        matchupSet.setSecondaryProcessingVersion("sec");
-        assertEquals("sec", matchupSet.getSecondaryProcessingVersion());
-        matchupSet.setSecondaryProcessingVersion(null);
-        assertNull(matchupSet.getSecondaryProcessingVersion());
+        assertNull(matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY));
+        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, "sec");
+        assertEquals("sec", matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY));
+        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, null);
+        assertNull(matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY));
     }
 }

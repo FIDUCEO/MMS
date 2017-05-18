@@ -91,6 +91,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
+        Map<Path, List<MatchupSet>> matchupSetsInsituOrder = new HashMap<>();
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
         for (Sensor secondarySensor : secondarySensors) {
             mapMatchupSetsSatelliteOrder.put(secondarySensor.getName(), new HashMap<>());
@@ -113,7 +114,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     for (final MatchupSet matchupSet : matchupSets) {
                         matchupSet.setPrimaryObservationPath(insituPath);
                         matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
-                        final Path path = matchupSet.getSecondaryObservationPath();
+                        final Path path = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
 
                         final List<MatchupSet> satelliteSets;
                         if (matchupSetsSatelliteOrder.containsKey(path)) {
@@ -124,10 +125,28 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         }
 
                         satelliteSets.add(matchupSet);
+
+                        final List<MatchupSet> insituSets;
+                        if (matchupSetsInsituOrder.containsKey(insituPath)) {
+                            insituSets = matchupSetsInsituOrder.get(insituPath);
+                        } else {
+                            insituSets = new ArrayList<>();
+                            matchupSetsInsituOrder.put(insituPath, insituSets);
+                        }
+
+                        insituSets.add(matchupSet);
                     }
                 }
             }
         }
+
+
+        final String[] secSensorNames = new String[secondarySensors.size()];
+        for (int i = 0; i < secondarySensors.size(); i++) {
+            Sensor secondarySensor = secondarySensors.get(i);
+            secSensorNames[i] = secondarySensor.getName();
+        }
+        final SampleReceiverPermutator permutator = new SampleReceiverPermutator(secSensorNames);
 
 
         // todo se multisensor
@@ -204,8 +223,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 MatchupSet matchupSet = observationsPerProduct.get(productName);
                 if (matchupSet == null) {
                     matchupSet = new MatchupSet();
-                    matchupSet.setSecondaryObservationPath(candidate.getDataFilePath());
-                    matchupSet.setSecondaryProcessingVersion(candidate.getVersion());
+                    matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, candidate.getDataFilePath());
+                    matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, candidate.getVersion());
 
                     observationsPerProduct.put(productName, matchupSet);
                 }

@@ -22,19 +22,23 @@ package com.bc.fiduceo.matchup;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MatchupSet {
 
     private List<SampleSet> sampleSets;
 
     private Path primaryObservationPath;
-    private Path secondaryObservationPath;
     private String primaryProcessingVersion;
-    private String secondaryProcessingVersion;
+    private final Map<String, Path> secondaryObservationPath;
+    private final Map<String, String> secondaryProcessingVersion;
 
     public MatchupSet() {
         sampleSets = new ArrayList<>();
+        secondaryObservationPath = new HashMap<>();
+        secondaryProcessingVersion = new HashMap<>();
     }
 
     public Path getPrimaryObservationPath() {
@@ -45,12 +49,12 @@ public class MatchupSet {
         this.primaryObservationPath = primaryObservationPath;
     }
 
-    public Path getSecondaryObservationPath() {
-        return secondaryObservationPath;
+    public Path getSecondaryObservationPath(String sensorName) {
+        return secondaryObservationPath.get(sensorName);
     }
 
-    public void setSecondaryObservationPath(Path secondaryObservationPath) {
-        this.secondaryObservationPath = secondaryObservationPath;
+    public void setSecondaryObservationPath(String sensorName, Path secondaryObservationPath) {
+        this.secondaryObservationPath.put(sensorName, secondaryObservationPath);
     }
 
     public void addPrimary(Sample primarySample) {
@@ -80,11 +84,11 @@ public class MatchupSet {
         return primaryProcessingVersion;
     }
 
-    public void setSecondaryProcessingVersion(String secondaryProcessingVersion) {
-        this.secondaryProcessingVersion = secondaryProcessingVersion;
+    public void setSecondaryProcessingVersion(String sensorName, String secondaryProcessingVersion) {
+        this.secondaryProcessingVersion.put(sensorName, secondaryProcessingVersion);
     }
 
-    public String getSecondaryProcessingVersion() {
-        return secondaryProcessingVersion;
+    public String getSecondaryProcessingVersion(String sensorName) {
+        return secondaryProcessingVersion.get(sensorName);
     }
 }
