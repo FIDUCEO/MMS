@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class MDR_1C_Test {
 
@@ -59,6 +60,20 @@ public class MDR_1C_Test {
          assertNotNull(proxies);
          assertEquals(27, proxies.size());
 
-         // @todo 1 tb/tb add some checks for randomly picked proxies 2015-05-17
+        ReadProxy readProxy = proxies.get("GEPSDatIasi");
+        assertEquals(long.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("GGeoSondLoc_Lat");
+        assertEquals(int.class, readProxy.getDataType());
+        assertEquals(1e-6, readProxy.getScaleFactor(), 1e-8);
+
+        readProxy = proxies.get("GCcsRadAnalNbClass");
+        assertEquals(int.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("GEUMAvhrr1BCldFrac");
+        assertEquals(byte.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
     }
 }

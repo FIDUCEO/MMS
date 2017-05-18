@@ -487,6 +487,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "longitude"));
         attributes.add(new Attribute("units", "degrees_east"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondLoc_Lon", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
@@ -494,6 +495,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "latitude"));
         attributes.add(new Attribute("units", "degrees_north"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondLoc_Lat", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
@@ -501,6 +503,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "sensor_zenith_angle"));
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
@@ -508,6 +511,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "sensor_azimuth_angle"));
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
@@ -515,6 +519,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "solar_zenith_angle"));
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesSUN_Zenith", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
@@ -522,6 +527,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("standard_name", "solar_azimuth_angle"));
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute("scale_factor", 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
