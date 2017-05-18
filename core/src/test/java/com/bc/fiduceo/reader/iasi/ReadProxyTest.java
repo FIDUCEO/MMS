@@ -195,7 +195,7 @@ public class ReadProxyTest {
 
     @Test
     public void testDualIntPerPixel() throws IOException {
-        final ReadProxy.dualIntPerPixel dualIntPerPixel = new ReadProxy.dualIntPerPixel(19, 1);
+        final ReadProxy.dualIntPerPixel dualIntPerPixel = new ReadProxy.dualIntPerPixel(19, 1, 1e-6);
 
         assertEquals(int.class, dualIntPerPixel.getDataType());
 

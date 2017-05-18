@@ -627,4 +627,60 @@ public class IASI_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testReadScaled_MB_perScan_int_noScaling() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readScaled(23, 109, new Interval(3, 3), "GQisSysTecSondQual");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(1, 0, 0, array);
+            NCTestUtils.assertValueAt(1, 1, 0, array);
+            NCTestUtils.assertValueAt(1, 2, 0, array);
+            NCTestUtils.assertValueAt(1, 0, 1, array);
+            NCTestUtils.assertValueAt(1, 1, 1, array);
+            NCTestUtils.assertValueAt(1, 2, 1, array);
+            NCTestUtils.assertValueAt(1, 0, 2, array);
+            NCTestUtils.assertValueAt(1, 1, 2, array);
+            NCTestUtils.assertValueAt(1, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_MB_perPixel_dualInt_scaling() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readScaled(16, 854, new Interval(3, 3), "GGeoSondAnglesMETOP_Azimuth");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(79.946678, 0, 0, array);
+            NCTestUtils.assertValueAt(79.714484, 1, 0, array);
+            NCTestUtils.assertValueAt(79.620301, 2, 0, array);
+            NCTestUtils.assertValueAt(76.956385, 0, 1, array);
+            NCTestUtils.assertValueAt(76.48884, 1, 1, array);
+            NCTestUtils.assertValueAt(76.217804, 2, 1, array);
+            NCTestUtils.assertValueAt(79.96817, 0, 2, array);
+            NCTestUtils.assertValueAt(79.766999, 1, 2, array);
+            NCTestUtils.assertValueAt(79.677393, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
 }

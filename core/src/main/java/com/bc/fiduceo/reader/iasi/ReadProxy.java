@@ -25,15 +25,24 @@ import java.io.IOException;
 abstract class ReadProxy {
 
     final long offset;
-
+    final double scaleFactor;
 
     ReadProxy(long offset) {
+        this(offset,  Double.NaN);
+    }
+
+    ReadProxy(long offset, double scaleFactor) {
         this.offset = offset;
+        this.scaleFactor = scaleFactor;
     }
 
     abstract Class getDataType();
 
     abstract Object read(int x, int line, MDR_1C mdr_1C) throws IOException;
+
+    double getScaleFactor() {
+        return scaleFactor;
+    }
 
     static class bytePerScan extends ReadProxy {
         bytePerScan(long offset) {
@@ -178,8 +187,8 @@ abstract class ReadProxy {
     static class dualIntPerPixel extends ReadProxy {
         private final int fieldOffsetInBytes;
 
-        dualIntPerPixel(long offset, int fieldOffsetInBytes) {
-            super(offset);
+        dualIntPerPixel(long offset, int fieldOffsetInBytes, double scaleFactor) {
+            super(offset, scaleFactor);
             this.fieldOffsetInBytes = fieldOffsetInBytes;
         }
 

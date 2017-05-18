@@ -181,7 +181,7 @@ public class IASI_Reader implements Reader {
                 index.set(y, x);
                 final int xPosition = xOffset + x;
                 final Object data;
-                if (line < 0 || line >= productSize.getNy() || xPosition < 0 || xPosition >= productSize.getNx() ) {
+                if (line < 0 || line >= productSize.getNy() || xPosition < 0 || xPosition >= productSize.getNx()) {
                     data = fillValue;
                 } else {
                     data = readProxy.read(xPosition, line % 2, mdRs[y]);
@@ -195,7 +195,15 @@ public class IASI_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("Not yet implemented");
+        final ReadProxy readProxy = proxiesMap.get(variableName);
+
+        Array array = readRaw(centerX, centerY, interval, variableName);
+        final double scaleFactor = readProxy.getScaleFactor();
+        if (!Double.isNaN(scaleFactor)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
+            array = MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 
     @Override
