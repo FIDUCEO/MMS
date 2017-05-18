@@ -55,6 +55,10 @@ public class MDR_1C_IOTest {
         assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 0));
         assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 1));
         assertEquals(-47.93063735961914, mdr_1C.get_GGeoSondLoc_Lon(14, 0), 1e-8);
+        assertEquals(-48.13323974609375, mdr_1C.get_GGeoSondLoc_Lon(15, 0), 1e-8);
+        assertEquals(-48.46881866455078, mdr_1C.get_GGeoSondLoc_Lon(16, 0), 1e-8);
+        assertEquals(-48.6592903137207, mdr_1C.get_GGeoSondLoc_Lon(17, 0), 1e-8);
+        assertEquals(-48.976593017578125, mdr_1C.get_GGeoSondLoc_Lon(18, 0), 1e-8);
         assertEquals(13.088440895080566, mdr_1C.get_GGeoSondLoc_Lat(15, 1), 1e-8);
         assertEquals(25.28335952758789, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 0), 1e-8);
         assertEquals(285.3315124511719, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 1), 1e-8);
@@ -113,6 +117,8 @@ public class MDR_1C_IOTest {
         assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 1));
         assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 0));
         assertEquals(98.93218231201172, mdr_1C.get_GGeoSondLoc_Lon(14, 1), 1e-8);
+        assertEquals(99.1828384399414, mdr_1C.get_GGeoSondLoc_Lon(15, 1), 1e-8);
+        assertEquals(99.58789825439453, mdr_1C.get_GGeoSondLoc_Lon(16, 1), 1e-8);
         assertEquals(38.758026123046875, mdr_1C.get_GGeoSondLoc_Lat(15, 0), 1e-8);
         assertEquals(25.284067153930664, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 1), 1e-8);
         assertEquals(71.94691467285156, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 0), 1e-8);

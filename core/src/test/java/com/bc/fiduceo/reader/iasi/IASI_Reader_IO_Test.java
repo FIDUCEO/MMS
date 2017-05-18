@@ -459,4 +459,172 @@ public class IASI_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testReadRaw_MA_perScan_utc() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(24, 110, new Interval(3, 3), "GEPSDatIasi");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(1451652909236L, 0, 0, array);
+            NCTestUtils.assertValueAt(1451652917236L, 0, 1, array);
+            NCTestUtils.assertValueAt(1451652917236L, 0, 2, array);
+            NCTestUtils.assertValueAt(1451652909451L, 1, 0, array);
+            NCTestUtils.assertValueAt(1451652917451L, 1, 1, array);
+            NCTestUtils.assertValueAt(1451652917451L, 1, 2, array);
+            NCTestUtils.assertValueAt(1451652909451L, 2, 0, array);
+            NCTestUtils.assertValueAt(1451652917451L, 2, 1, array);
+            NCTestUtils.assertValueAt(1451652917451L, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MB_perPixel_short_upperBorder() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(24, 0, new Interval(3, 3), "GQisFlagQualDetailed");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 1, 0, array);
+            NCTestUtils.assertValueAt(-32767, 2, 0, array);
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MA_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(60, 111, new Interval(3, 3), "GGeoSondLoc_Lon");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(-56386416, 0, 0, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 0, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 0, array);
+            NCTestUtils.assertValueAt(-56426833, 0, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 1, array);
+            NCTestUtils.assertValueAt(-56450797, 0, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MB_perScan_perPixelInt_bottomBorder() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(16, 1485, new Interval(3, 3), "GCcsRadAnalNbClass");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(5, 0, 0, array);
+            NCTestUtils.assertValueAt(4, 1, 0, array);
+            NCTestUtils.assertValueAt(4, 2, 0, array);
+            NCTestUtils.assertValueAt(3, 0, 1, array);
+            NCTestUtils.assertValueAt(3, 1, 1, array);
+            NCTestUtils.assertValueAt(4, 2, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 0, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MB_perScan_perEVOFshort_leftBorder() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(0, 634, new Interval(3, 3), "GCcsImageClassifiedNbLin");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(90, 1, 0, array);
+            NCTestUtils.assertValueAt(90, 2, 0, array);
+            NCTestUtils.assertValueAt(-32767, 0, 1, array);
+            NCTestUtils.assertValueAt(90, 1, 1, array);
+            NCTestUtils.assertValueAt(90, 2, 1, array);
+            NCTestUtils.assertValueAt(-32767, 0, 2, array);
+            NCTestUtils.assertValueAt(90, 1, 2, array);
+            NCTestUtils.assertValueAt(90, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MB_perScan_perEVOFbyte_leftUpperCorner() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(0, 0, new Interval(3, 3), "GEUMAvhrr1BLandFrac");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(-127, 0, 0, array);
+            NCTestUtils.assertValueAt(-127, 1, 0, array);
+            NCTestUtils.assertValueAt(-127, 2, 0, array);
+            NCTestUtils.assertValueAt(-127, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(-127, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
 }

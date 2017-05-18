@@ -100,4 +100,10 @@ public class NCTestUtils {
         index.set(y, x);
         assertEquals(expected, array.getInt(index));
     }
+
+    public static void assertValueAt(long expected, int x, int y, Array array) {
+        final Index index = array.getIndex();
+        index.set(y, x);
+        assertEquals(expected, array.getLong(index));
+    }
 }

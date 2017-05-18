@@ -47,18 +47,10 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -174,9 +166,11 @@ public class IASI_Reader implements Reader {
         final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
         final int xOffset = centerX - interval.getX() / 2;
         final int yOffset = centerY - interval.getY() / 2;
+        final int[] shape = new int[]{interval.getY(), interval.getX()};
+        final Dimension productSize = getProductSize();
 
         final ReadProxy readProxy = proxiesMap.get(variableName);
-        final int[] shape = new int[]{interval.getY(), interval.getX()};
+        final Number fillValue = NetCDFUtils.getDefaultFillValue(readProxy.getDataType());
         final Array array = Array.factory(readProxy.getDataType(), shape);
 
         final Index index = array.getIndex();
@@ -185,7 +179,13 @@ public class IASI_Reader implements Reader {
 
             for (int x = 0; x < interval.getX(); x++) {
                 index.set(y, x);
-                final Object data = readProxy.read(xOffset + x, line % 2, mdRs[y]);
+                final int xPosition = xOffset + x;
+                final Object data;
+                if (line < 0 || line >= productSize.getNy() || xPosition < 0 || xPosition >= productSize.getNx() ) {
+                    data = fillValue;
+                } else {
+                    data = readProxy.read(xPosition, line % 2, mdRs[y]);
+                }
                 array.setObject(index, data);
             }
         }
