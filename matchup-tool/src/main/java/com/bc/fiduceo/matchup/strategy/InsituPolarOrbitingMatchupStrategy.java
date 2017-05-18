@@ -91,6 +91,14 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
+        // todo se multisensor
+        final Map<Path, SatelliteObservation> mapPathToSecObs = new HashMap<>();
+        for (List<SatelliteObservation> observations : mapSecondaryObservations.values()) {
+            for (SatelliteObservation observation : observations) {
+                mapPathToSecObs.put(observation.getDataFilePath(), observation);
+            }
+        }
+
         Map<Path, List<MatchupSet>> matchupSetsInsituOrder = new HashMap<>();
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
         for (Sensor secondarySensor : secondarySensors) {
@@ -154,6 +162,11 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final String secondarySensorName_CaseOneSecondary = secondarySensor.getName();
         final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secondarySensorName_CaseOneSecondary);
 
+        // todo se multisensor
+        final List<Map<Path, List<MatchupSet>>> satelliteOrderedMaps = new ArrayList<>();
+        for (String secSensorName : secSensorNames) {
+            satelliteOrderedMaps.add(mapMatchupSetsSatelliteOrder.get(secSensorName));
+        }
 
         for (Map.Entry<Path, List<MatchupSet>> pathListEntry : matchupSetsSatelliteOrder.entrySet()) {
             final Path secondaryPath = pathListEntry.getKey();

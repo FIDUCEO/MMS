@@ -214,6 +214,111 @@ public class SampleReceiverPermutatorTest {
     }
 
     @Test
+    public void noMatchupsIfOneOfTheSecondariesIsEmpty() throws Exception {
+        final SampleReceiverPermutator receiver = new SampleReceiverPermutator(senNameSec1, senNameSec2);
+        receiver.setCurrentPrimary(primaryObs1);
+        receiver.setPrimarySample(s1);
+        receiver.addSecondarySample(secSen1Obs1, s3);
+        receiver.addSecondarySample(secSen2Obs1, null);
+        receiver.setPrimarySample(s2);
+        receiver.addSecondarySample(secSen1Obs1, null);
+        receiver.addSecondarySample(secSen2Obs1, s3);
+
+        final MatchupCollection matchupCollection = receiver.getPermutations();
+        assertThat(matchupCollection, is(notNullValue()));
+        assertThat(matchupCollection.getNumMatchups(), is(0));
+    }
+
+    @Test
+    public void test2SecondarySensors_firstSecondary1Samples_secondSecondary2Sample_2Matchup() throws Exception {
+        final SampleReceiverPermutator receiver = new SampleReceiverPermutator(senNameSec1, senNameSec2);
+        receiver.setCurrentPrimary(primaryObs1);
+        receiver.setPrimarySample(s0);
+        receiver.addSecondarySample(secSen1Obs1, s1);
+        receiver.addSecondarySample(secSen2Obs1, s3);
+        receiver.addSecondarySample(secSen2Obs1, s4);
+
+        final MatchupCollection matchupCollection = receiver.getPermutations();
+        assertThat(matchupCollection, is(notNullValue()));
+        assertThat(matchupCollection.getNumMatchups(), is(2));
+
+        final List<MatchupSet> matchupSets = matchupCollection.getSets();
+        assertThat(matchupSets.size(), is(1));
+
+        final MatchupSet matchupSet = matchupSets.get(0);
+        assertThat(matchupSet, is(notNullValue()));
+        assertThat(matchupSet.getPrimaryObservationPath(), is(Paths.get("pp1")));
+        assertThat(matchupSet.getPrimaryProcessingVersion(), is("pp1v"));
+        assertThat(matchupSet.getSecondaryObservationPath(senNameSec1), is(Paths.get("s1p1")));
+        assertThat(matchupSet.getSecondaryProcessingVersion(senNameSec1), is("s1p1v"));
+        assertThat(matchupSet.getSecondaryObservationPath(senNameSec2), is(Paths.get("s2p1")));
+        assertThat(matchupSet.getSecondaryProcessingVersion(senNameSec2), is("s2p1v"));
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        assertThat(sampleSets, is(notNullValue()));
+        assertThat(sampleSets.size(), is(2));
+        Sample[][] expected = new Sample[][]{
+                    new Sample[]{s1, s3},
+                    new Sample[]{s1, s4},
+                    };
+
+        for (int i = 0; i < sampleSets.size(); i++) {
+            SampleSet sampleSet = sampleSets.get(i);
+            final String reason = "At pos i = " + i ;
+            assertThat(reason, sampleSet, is(notNullValue()));
+            assertThat(reason, sampleSet.getPrimary(), is(sameInstance(s0)));
+            assertThat(reason, sampleSet.getSecondary(senNameSec1), is(sameInstance(expected[i][0])));
+            assertThat(reason, sampleSet.getSecondary(senNameSec2), is(sameInstance(expected[i][1])));
+        }
+    }
+
+    @Test
+    public void _2SecondarySensors_firstSecondary2Samples_secondSecondary2Sample_4Matchup() throws Exception {
+        final SampleReceiverPermutator receiver = new SampleReceiverPermutator(senNameSec1, senNameSec2);
+        receiver.setCurrentPrimary(primaryObs1);
+        receiver.setPrimarySample(s0);
+        receiver.addSecondarySample(secSen1Obs1, s1);
+        receiver.addSecondarySample(secSen1Obs1, s2);
+        receiver.addSecondarySample(secSen2Obs1, s3);
+        receiver.addSecondarySample(secSen2Obs1, s4);
+
+        final MatchupCollection matchupCollection = receiver.getPermutations();
+        assertThat(matchupCollection, is(notNullValue()));
+        assertThat(matchupCollection.getNumMatchups(), is(4));
+
+        final List<MatchupSet> matchupSets = matchupCollection.getSets();
+        assertThat(matchupSets.size(), is(1));
+
+        final MatchupSet matchupSet = matchupSets.get(0);
+        assertThat(matchupSet, is(notNullValue()));
+        assertThat(matchupSet.getPrimaryObservationPath(), is(Paths.get("pp1")));
+        assertThat(matchupSet.getPrimaryProcessingVersion(), is("pp1v"));
+        assertThat(matchupSet.getSecondaryObservationPath(senNameSec1), is(Paths.get("s1p1")));
+        assertThat(matchupSet.getSecondaryProcessingVersion(senNameSec1), is("s1p1v"));
+        assertThat(matchupSet.getSecondaryObservationPath(senNameSec2), is(Paths.get("s2p1")));
+        assertThat(matchupSet.getSecondaryProcessingVersion(senNameSec2), is("s2p1v"));
+
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        assertThat(sampleSets, is(notNullValue()));
+        assertThat(sampleSets.size(), is(4));
+        Sample[][] expected = new Sample[][]{
+                    new Sample[]{s1, s3},
+                    new Sample[]{s1, s4},
+                    new Sample[]{s2, s3},
+                    new Sample[]{s2, s4},
+                    };
+
+        for (int i = 0; i < sampleSets.size(); i++) {
+            SampleSet sampleSet = sampleSets.get(i);
+            final String reason = "At pos i = " + i ;
+            assertThat(reason, sampleSet, is(notNullValue()));
+            assertThat(reason, sampleSet.getPrimary(), is(sameInstance(s0)));
+            assertThat(reason, sampleSet.getSecondary(senNameSec1), is(sameInstance(expected[i][0])));
+            assertThat(reason, sampleSet.getSecondary(senNameSec2), is(sameInstance(expected[i][1])));
+        }
+    }
+
+    @Test
     public void test2SecondarySensors_firstSecondary2Samples_secondSecondary0Sample_0Matchup() throws Exception {
         final SampleReceiverPermutator receiver = new SampleReceiverPermutator(senNameSec1, senNameSec2);
         receiver.setCurrentPrimary(primaryObs1);

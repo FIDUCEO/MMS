@@ -38,7 +38,7 @@ class SampleReceiverPermutator {
     private Map<SatelliteObservation, List<Sample>> currentSampleMap;
     private SatelliteObservation currentPrimaryObservation;
 
-    SampleReceiverPermutator(String ... secSensorNames) {
+    SampleReceiverPermutator(String... secSensorNames) {
         this.secSensorNames = secSensorNames;
         secMaps = new HashMap<>();
         for (String secSensorName : secSensorNames) {
@@ -76,14 +76,6 @@ class SampleReceiverPermutator {
         samples.add(sample);
     }
 
-    private void assertValidSecondarySensorType(SatelliteObservation secondary) {
-        final String name = secondary.getSensor().getName();
-        final boolean valid = ArrayUtils.isMemberOf(name, secSensorNames);
-        if (!valid) {
-            throw new RuntimeException("Illegal secondary sensor type.");
-        }
-    }
-
     MatchupCollection getPermutations() {
         createMatchupSetFor(currentPrimaryObservation, currentPrimaryMap);
         return matchupCollection;
@@ -96,6 +88,14 @@ class SampleReceiverPermutator {
      */
     MatchupCollection getMatchupCollection() {
         return matchupCollection;
+    }
+
+    private void assertValidSecondarySensorType(SatelliteObservation secondary) {
+        final String name = secondary.getSensor().getName();
+        final boolean valid = ArrayUtils.isMemberOf(name, secSensorNames);
+        if (!valid) {
+            throw new RuntimeException("Illegal secondary sensor type.");
+        }
     }
 
     private void createMatchupSetFor(SatelliteObservation primaryObs, Map<Sample, Map<SatelliteObservation, List<Sample>>> samplesMap) {
@@ -123,14 +123,14 @@ class SampleReceiverPermutator {
             }
 
 
-            SampleSet sampleSet = null;
+            final Sample[] secSamples = new Sample[secSensorNames.length];
             int depth = 0;
-            permuteWithSecundaries(primSample, depth, matchupSet, sampleSets, sampleSet);
+            permuteWithSecundaries(primSample, depth, matchupSet, sampleSets, secSamples);
         }
         matchupCollection.add(matchupSet);
     }
 
-    private void permuteWithSecundaries(Sample primSample, int depth, MatchupSet matchupSet, ArrayList<SampleSet> sampleSets, SampleSet sampleSet) {
+    private void permuteWithSecundaries(Sample primSample, int depth, MatchupSet matchupSet, ArrayList<SampleSet> sampleSets, Sample[] secSamples) {
         if (depth >= secSensorNames.length) {
             return;
         }
@@ -144,15 +144,25 @@ class SampleReceiverPermutator {
             matchupSet.setSecondaryProcessingVersion(secSensorName, secObs.getVersion());
             matchupSet.setSecondaryObservationPath(secSensorName, secObs.getDataFilePath());
             for (Sample sample : secEntry.getValue()) {
-                if (depth == 0) {
-                    sampleSet = new SampleSet();
-                    sampleSet.setPrimary(primSample);
-                }
+                secSamples[depth] = sample;
                 if (depth == secSensorNames.length - 1) {
-                    sampleSets.add(sampleSet);
+                    final SampleSet sampleSet = new SampleSet();
+                    sampleSet.setPrimary(primSample);
+                    boolean valid = true;
+                    for (int i = 0; i < secSamples.length; i++) {
+                        Sample secSample = secSamples[i];
+                        if (secSample == null) {
+                            valid = false;
+                            break;
+                        }
+                        sampleSet.setSecondary(secSensorNames[i], secSample);
+                    }
+                    if (valid) {
+                        sampleSets.add(sampleSet);
+                    }
                 }
-                sampleSet.setSecondary(secSensorName, sample);
-                permuteWithSecundaries(primSample, depth + 1, matchupSet, sampleSets, sampleSet);
+                permuteWithSecundaries(primSample, depth + 1, matchupSet, sampleSets, secSamples);
+                secSamples[depth] = null;
             }
         }
     }
