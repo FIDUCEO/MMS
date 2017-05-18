@@ -1,5 +1,25 @@
+ Test configuration
+********************
+The build command for Maven for the MS does execute a large number of unit-level and integration tests.
+We have made a tradeoff between build speed and test-coverage by excluding time-consuming test from the
+standard test set. To execute these tests, which cover intensive IO operations and exhaustive database
+test on all supported vendors, the Java VM has to be equipped with parameters that explicitely switch these tests on.
+
+-Dcom.bc.fiduceo.db.tests.execute=true
+Enables the database test suite. Requires a MongoDB and a PostGIS db-server to be accessible from the tests.
+
+-Dcom.bc.fiduceo.product.tests.execute=true
+Enables the IO tests suite. Requires testdata to be accessible to the tests (see below)
+
+When enabling these tests, the VM needs substantially more RAM, please allow 8GB:
+-Xmx8192M
+
+
+
  Test files:
 *************
-	You can find needed test files at:
+You can find needed test files at:
 	fs1:\projects\ongoing\Fiduceo\data\TestData
-	Interrested external developers pkleas connect Brockmann-Consult for a copy of the test data.
+
+Interested external developers please contact Brockmann-Consult to receive a copy of the test data.
+

@@ -121,7 +121,6 @@ public class IASI_ReaderTest {
         assertEquals("degrees_east", attributes.get(2).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(float.class), attributes.get(3).getNumericValue() );
 
-
         variable = variables.get(18);
         assertEquals("EARTH_SATELLITE_DISTANCE", variable.getShortName());
         assertEquals(DataType.INT, variable.getDataType());
