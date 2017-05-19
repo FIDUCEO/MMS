@@ -353,6 +353,7 @@ class MDR_1C {
         proxies.put("GGeoSondAnglesSUN_Azimuth", new ReadProxy.dualIntPerPixel(GGEO_SOND_ANGLES_SUN_OFFSET, 4, 1e-6));
         proxies.put("EARTH_SATELLITE_DISTANCE", new ReadProxy.intPerScan(EARTH_SATELLITE_DISTANCE_OFFSET));
         proxies.put("IDefNsfirst1b", new ReadProxy.intPerScan(IDEF_NS_FIRST_1B_OFFSET));
+        proxies.put("IDefNslast1b", new ReadProxy.intPerScan(IDEF_NS_LAST_1B_OFFSET));
         // @todo 1 tb/tb add spectrum here 2017-05-17
         proxies.put("GCcsRadAnalNbClass", new ReadProxy.intPerPixel(GCS_RAD_ANAL_NB_OFFSET));
         proxies.put("IDefCcsMode", new ReadProxy.intPerScan(IDEF_CS_MODE_OFFSET));

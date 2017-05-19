@@ -683,4 +683,33 @@ public class IASI_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testReadAcquisitionTime_MB_() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readAcquisitionTime(23, 109, new Interval(3, 3));
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(1398430511, 0, 0, array);
+            NCTestUtils.assertValueAt(1398430511, 1, 0, array);
+            NCTestUtils.assertValueAt(1398430512, 2, 0, array);
+            NCTestUtils.assertValueAt(1398430511, 0, 1, array);
+            NCTestUtils.assertValueAt(1398430511, 1, 1, array);
+            NCTestUtils.assertValueAt(1398430512, 2, 1, array);
+            NCTestUtils.assertValueAt(1398430519, 0, 2, array);
+            NCTestUtils.assertValueAt(1398430519, 1, 2, array);
+            NCTestUtils.assertValueAt(1398430520, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
 }

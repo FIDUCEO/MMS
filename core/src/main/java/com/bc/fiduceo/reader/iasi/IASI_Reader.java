@@ -208,7 +208,16 @@ public class IASI_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array timeInMillis = readRaw(x, y, interval, "GEPSDatIasi");
+        final Array timeInSeconds = Array.factory(int.class, timeInMillis.getShape());
+        final long size = timeInMillis.getSize();
+        for (int i = 0; i < size; i++) {
+            final long millis = timeInMillis.getLong(i);
+            final int seconds = (int) Math.round(millis * 0.001);
+            timeInSeconds.setInt(i, seconds);
+
+        }
+        return (ArrayInt.D2) timeInSeconds;
     }
 
     @Override
@@ -449,7 +458,7 @@ public class IASI_Reader implements Reader {
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Date of IASI measure (corrected UTC)"));
-        attributes.add(new Attribute("units", "s"));
+        attributes.add(new Attribute("units", "ms"));
         attributes.add(new Attribute("long_name", "Corrected UTC in in milliseconds since 1970-01-01 00:00:00"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(long.class)));
         variableList.add(new VariableProxy("GEPSDatIasi", DataType.LONG, attributes));
@@ -488,7 +497,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degrees_east"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondLoc_Lon", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondLoc_Lon", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Location of pixel centre in geodetic coordinates for each sounder pixel (lat)"));
@@ -496,7 +505,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degrees_north"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondLoc_Lat", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondLoc_Lat", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (zenith)"));
@@ -504,7 +513,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (azimuth)"));
@@ -512,7 +521,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (zenith)"));
@@ -520,7 +529,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Zenith", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Zenith", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (azimuth)"));
@@ -528,7 +537,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("units", "degree"));
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute("scale_factor", 1e-6));
-        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth", DataType.FLOAT, attributes));
+        variableList.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Distance of satellite from Earth centre"));
@@ -546,11 +555,12 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("IDefNslast1b", DataType.INT, attributes));
 
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute("description", "Level 1C spectra"));
-        attributes.add(new Attribute("units", "W/m2/sr/m-1"));
-        attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(short.class)));
-        variableList.add(new VariableProxy("GS1cSpect", DataType.SHORT, attributes));
+        // @todo 1 tb/tb reanimate 2017-05-20
+//        attributes = new ArrayList<>();
+//        attributes.add(new Attribute("description", "Level 1C spectra"));
+//        attributes.add(new Attribute("units", "W/m2/sr/m-1"));
+//        attributes.add(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(short.class)));
+//        variableList.add(new VariableProxy("GS1cSpect", DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Radiance Analysis: Number of identified classes in the sounder FOV"));

@@ -94,7 +94,7 @@ public class IASI_ReaderTest {
     public void testGetVariables() throws IOException {
         final List<Variable> variables = reader.getVariables();
         assertNotNull(variables);
-        assertEquals(29, variables.size());
+        assertEquals(28, variables.size());
 
         Variable variable = variables.get(0);
         assertEquals("DEGRADED_INST_MDR", variable.getShortName());
@@ -108,13 +108,13 @@ public class IASI_ReaderTest {
         assertEquals(DataType.LONG, variable.getDataType());
         attributes = variable.getAttributes();
         assertEquals("Date of IASI measure (corrected UTC)", attributes.get(0).getStringValue());
-        assertEquals("s", attributes.get(1).getStringValue());
+        assertEquals("ms", attributes.get(1).getStringValue());
         assertEquals("Corrected UTC in in milliseconds since 1970-01-01 00:00:00", attributes.get(2).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(long.class), attributes.get(3).getNumericValue());
 
         variable = variables.get(12);
         assertEquals("GGeoSondLoc_Lon", variable.getShortName());
-        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals(DataType.INT, variable.getDataType());
         attributes = variable.getAttributes();
         assertEquals("Location of pixel centre in geodetic coordinates for each sounder pixel (lon)", attributes.get(0).getStringValue());
         assertEquals("longitude", attributes.get(1).getStringValue());
@@ -131,13 +131,13 @@ public class IASI_ReaderTest {
         assertEquals(NetCDFUtils.getDefaultFillValue(int.class), attributes.get(2).getNumericValue());
 
         variable = variables.get(24);
-        assertEquals("GCcsImageClassifiedNbLin", variable.getShortName());
+        assertEquals("GCcsImageClassifiedNbCol", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
         attributes = variable.getAttributes();
-        assertEquals("Radiance Analysis: Number of useful lines", attributes.get(0).getStringValue());
+        assertEquals("Radiance Analysis: Number of useful columns", attributes.get(0).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(short.class), attributes.get(1).getNumericValue());
 
-        variable = variables.get(28);
+        variable = variables.get(27);
         assertEquals("GEUMAvhrr1BQual", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
         attributes = variable.getAttributes();

@@ -56,9 +56,9 @@ public class MDR_1C_Test {
 
     @Test
     public void testGetReadProxies() {
-         final HashMap<String, ReadProxy> proxies = MDR_1C.getReadProxies();
-         assertNotNull(proxies);
-         assertEquals(27, proxies.size());
+        final HashMap<String, ReadProxy> proxies = MDR_1C.getReadProxies();
+        assertNotNull(proxies);
+        assertEquals(28, proxies.size());
 
         ReadProxy readProxy = proxies.get("GEPSDatIasi");
         assertEquals(long.class, readProxy.getDataType());
@@ -69,6 +69,10 @@ public class MDR_1C_Test {
         assertEquals(1e-6, readProxy.getScaleFactor(), 1e-8);
 
         readProxy = proxies.get("GCcsRadAnalNbClass");
+        assertEquals(int.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("IDefNslast1b");
         assertEquals(int.class, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
 
