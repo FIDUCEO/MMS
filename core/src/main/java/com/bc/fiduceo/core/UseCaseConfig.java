@@ -255,11 +255,11 @@ public class UseCaseConfig {
 
         final Element seedPointsElem = rootElement.getChild(TAG_NAME_NUM_RANDOM_SEED_POINTS);
         if (seedPointsElem != null) {
-            setNumRandomSeedPoints(getMadatoryPositiveIntegerValue(seedPointsElem));
+            setNumRandomSeedPoints(getMandatoryPositiveIntegerValue(seedPointsElem));
         }
     }
 
-    private int getMadatoryPositiveIntegerValue(Element seedPointsElem) {
+    private int getMandatoryPositiveIntegerValue(Element seedPointsElem) {
         final String text = getMandatoryText(seedPointsElem);
         final int i;
         try {

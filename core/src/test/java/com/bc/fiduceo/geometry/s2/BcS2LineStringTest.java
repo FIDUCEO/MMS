@@ -29,11 +29,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BcS2LineStringTest {
 
@@ -66,7 +62,6 @@ public class BcS2LineStringTest {
         assertEquals("LINESTRING(63.43494882292201 65.90515744788931,71.56505117707799 40.14006614878386)",
                 bcS2LineString.toString());
     }
-
 
     @Test
     public void testGetCoordinates() {
@@ -105,5 +100,22 @@ public class BcS2LineStringTest {
 
         assertNotNull(bcS2LineString);
         assertTrue(bcS2LineString.isValid());
+    }
+
+    @Test
+    public void testGetIntersection() {
+        final ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(new S2Point(0.1, 0.2, 0.5));
+        final S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        final BcS2Point point = new BcS2Point(new S2LatLng());
+
+        try {
+            bcS2LineString.getIntersection(point);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
     }
 }

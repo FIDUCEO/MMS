@@ -34,17 +34,6 @@ public class Storage {
 
     private Driver driver;
 
-    Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
-        driver = createDriver(dataSource);
-        if (driver == null) {
-            throw new IllegalArgumentException("No database driver registered for URL `" + dataSource.getUrl() + "`");
-        }
-
-        driver.setGeometryFactory(geometryFactory);
-
-        driver.open(dataSource);
-    }
-
     public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
         return new Storage(dataSource, geometryFactory);
     }
@@ -85,6 +74,12 @@ public class Storage {
 
     public int insert(Sensor sensor) throws SQLException {
         return driver.insert(sensor);
+    }
+
+    private Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
+        driver = createDriver(dataSource);
+        driver.setGeometryFactory(geometryFactory);
+        driver.open(dataSource);
     }
 
     private Driver createDriver(BasicDataSource dataSource) {

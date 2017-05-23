@@ -74,13 +74,21 @@ public class DatabaseConfigTest {
         assertEquals("pass-word", dataSource.getPassword());
     }
 
+    @Test
+    public void testLoad_throwsWhenFileNotPresent() throws IOException {
+        try {
+            databaseConfig.loadFrom(testDirectory);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 
     @Test
     public void testGetDatasource_throwsWhenNotLoaded() {
         try {
             databaseConfig.getDataSource();
-            fail("RuntimeException eypected");
-        } catch (RuntimeException eypected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 }

@@ -89,7 +89,13 @@ public class BcS2GeometryFactoryTest {
         try {
             factory.parse("GEOMETRYCOLLECTION()");
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (RuntimeException expected) {
+        }
+
+        try {
+            factory.parse("LINEARRING(295895.3238300492 2251783.230814348, 296907.69382697035 2251783.230814348, 296907.69382697035 2252680.3463808503, 295895.3238300492 2252680.3463808503, 295895.3238300492 2251783.230814348 )");
+            fail("IllegalArgumentException expected");
+        } catch (RuntimeException expected) {
         }
     }
 

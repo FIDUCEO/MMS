@@ -43,9 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
 public class MongoDbDriverTest {
@@ -257,6 +255,17 @@ public class MongoDbDriverTest {
         final Geometry geometry = driver.convertToGeometry(jsonLineString);
         assertTrue(geometry instanceof LineString);
         assertEquals("LINESTRING(-12.000000000000002 7.999999999999998,-10.999999999999998 9.0,-9.999999999999998 10.0)", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testConvertToGeometry_unsupportedGeometry(){
+        final Document bretzelType = new Document("type", "Bretzel");
+
+        try {
+            driver.convertToGeometry(bretzelType);
+            fail("RuntimeException expecetd");
+        } catch (RuntimeException expecetd) {
+        }
     }
 
     @Test
