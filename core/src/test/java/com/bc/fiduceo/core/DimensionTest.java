@@ -23,7 +23,7 @@ package com.bc.fiduceo.core;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class DimensionTest {
 
@@ -43,7 +43,7 @@ public class DimensionTest {
     }
 
     @Test
-    public void testSetGetNx(){
+    public void testSetGetNx() {
         final int nx = 23;
 
         dimension.setNx(nx);
@@ -51,7 +51,7 @@ public class DimensionTest {
     }
 
     @Test
-    public void testSetGetNy(){
+    public void testSetGetNy() {
         final int ny = 19;
 
         dimension.setNy(ny);
@@ -60,8 +60,8 @@ public class DimensionTest {
 
     @Test
     public void testDefaultConstruction() {
-         assertEquals(Integer.MIN_VALUE, dimension.getNx());
-         assertEquals(Integer.MIN_VALUE, dimension.getNy());
+        assertEquals(Integer.MIN_VALUE, dimension.getNx());
+        assertEquals(Integer.MIN_VALUE, dimension.getNy());
     }
 
     @Test
@@ -71,5 +71,52 @@ public class DimensionTest {
         assertEquals("name", dimension.getName());
         assertEquals(12, dimension.getNx());
         assertEquals(13, dimension.getNy());
+    }
+
+    @SuppressWarnings("EqualsWithItself")
+    @Test
+    public void testEquals_sameObject() {
+        assertTrue(dimension.equals(dimension));
+    }
+
+    @SuppressWarnings("EqualsBetweenInconvertibleTypes")
+    @Test
+    public void testEquals_differentClass() {
+        assertFalse(dimension.equals(new Double(67.8)));
+    }
+
+    @Test
+    public void testEquals() {
+        final Dimension other = new Dimension(dimension.getName(), dimension.getNx(), dimension.getNy());
+        assertTrue(this.dimension.equals(other));
+
+        other.setName("wrong");
+        assertFalse(this.dimension.equals(other));
+
+        other.setName(dimension.getName());
+        other.setNx(dimension.getNx() + 2);
+        assertFalse(this.dimension.equals(other));
+
+        other.setNx(dimension.getNx());
+        other.setNy(dimension.getNy() + 1);
+        assertFalse(this.dimension.equals(other));
+
+        other.setNy(dimension.getNy());
+        assertTrue(this.dimension.equals(other));
+    }
+
+    @Test
+    public void testHashCode() {
+        dimension.setName(null);
+        assertEquals(29791, dimension.hashCode());
+
+        dimension.setName("Yo");
+        assertEquals(2787861, dimension.hashCode());
+
+        dimension.setNx(14);
+        assertEquals(-2144695353, dimension.hashCode());
+
+        dimension.setNy(12);
+        assertEquals(2788307, dimension.hashCode());
     }
 }
