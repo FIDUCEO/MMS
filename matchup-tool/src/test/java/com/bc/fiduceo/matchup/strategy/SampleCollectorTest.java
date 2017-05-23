@@ -20,6 +20,9 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
@@ -29,22 +32,12 @@ import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.isA;
-import static org.mockito.Mockito.when;
 
 public class SampleCollectorTest {
 

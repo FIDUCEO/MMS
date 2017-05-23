@@ -56,13 +56,21 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     private static final Interval singlePixel = new Interval(1, 1);
 
+    private String[] secSensorNames;
+    private Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder;
+    private Path[] paths;
+    private String[] versions;
+    private Sample[] samples;
+    private MatchupSet currentMatchupSet;
+    private MatchupCollection matchupCollection;
+
     InsituPolarOrbitingMatchupStrategy(Logger logger) {
         super(logger);
     }
 
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
-        final MatchupCollection matchupCollection = new MatchupCollection();
+        matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
@@ -86,23 +94,16 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             return matchupCollection;
         }
 
-        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+        secSensorNames = mapSecondaryObservations.keySet().toArray(new String[0]);
 
-        // todo se multisensor
-        final Map<Path, SatelliteObservation> mapPathToSecObs = new HashMap<>();
-        for (List<SatelliteObservation> observations : mapSecondaryObservations.values()) {
-            for (SatelliteObservation observation : observations) {
-                mapPathToSecObs.put(observation.getDataFilePath(), observation);
-            }
-        }
-
-        Map<Path, List<MatchupSet>> matchupSetsInsituOrder = new HashMap<>();
-        final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
-        for (Sensor secondarySensor : secondarySensors) {
-            mapMatchupSetsSatelliteOrder.put(secondarySensor.getName(), new HashMap<>());
+        final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsInsituOrder = new HashMap<>();
+        mapMatchupSetsSatelliteOrder = new HashMap<>();
+        for (String secSensorName : secSensorNames) {
+            mapMatchupSetsInsituOrder.put(secSensorName, new HashMap<>());
+            mapMatchupSetsSatelliteOrder.put(secSensorName, new HashMap<>());
         }
         final Map<Path, String> insituProduktSensorName = new HashMap<>();
 
@@ -113,23 +114,23 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             try (final Reader insituReader = readerFactory.getReader(sensorName)) {
                 insituReader.open(insituPath.toFile());
 
-                for (Sensor secondarySensor : secondarySensors) {
-                    final String secondarySensorName = secondarySensor.getName();
-                    final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName);
-                    final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secondarySensorName);
+                for (String secSensorName : secSensorNames) {
+                    final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secSensorName);
+                    final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = mapMatchupSetsInsituOrder.get(secSensorName);
+                    final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
 
                     final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
                     for (final MatchupSet matchupSet : matchupSets) {
                         matchupSet.setPrimaryObservationPath(insituPath);
                         matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
-                        final Path path = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
+                        final Path secPath = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
 
                         final List<MatchupSet> satelliteSets;
-                        if (matchupSetsSatelliteOrder.containsKey(path)) {
-                            satelliteSets = matchupSetsSatelliteOrder.get(path);
+                        if (matchupSetsSatelliteOrder.containsKey(secPath)) {
+                            satelliteSets = matchupSetsSatelliteOrder.get(secPath);
                         } else {
                             satelliteSets = new ArrayList<>();
-                            matchupSetsSatelliteOrder.put(path, satelliteSets);
+                            matchupSetsSatelliteOrder.put(secPath, satelliteSets);
                         }
 
                         satelliteSets.add(matchupSet);
@@ -148,53 +149,57 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             }
         }
 
-
-        final String[] secSensorNames = new String[secondarySensors.size()];
-        for (int i = 0; i < secondarySensors.size(); i++) {
-            Sensor secondarySensor = secondarySensors.get(i);
-            secSensorNames[i] = secondarySensor.getName();
-        }
-        final SampleReceiverPermutator permutator = new SampleReceiverPermutator(secSensorNames);
-
-
-        // todo se multisensor
-        final Sensor secondarySensor = useCaseConfig.getSecondarySensors().get(0);
-        final String secondarySensorName_CaseOneSecondary = secondarySensor.getName();
-        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secondarySensorName_CaseOneSecondary);
-
-        // todo se multisensor
-        final List<Map<Path, List<MatchupSet>>> satelliteOrderedMaps = new ArrayList<>();
         for (String secSensorName : secSensorNames) {
-            satelliteOrderedMaps.add(mapMatchupSetsSatelliteOrder.get(secSensorName));
-        }
+            final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = mapMatchupSetsInsituOrder.get(secSensorName);
+            final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
+            for (Map.Entry<Path, List<MatchupSet>> pathListEntry : matchupSetsSatelliteOrder.entrySet()) {
+                final Path secondaryPath = pathListEntry.getKey();
+                final List<MatchupSet> matchupSets = pathListEntry.getValue();
 
-        for (Map.Entry<Path, List<MatchupSet>> pathListEntry : matchupSetsSatelliteOrder.entrySet()) {
-            final Path secondaryPath = pathListEntry.getKey();
-            final List<MatchupSet> matchupSets = pathListEntry.getValue();
+                try (Reader secondaryReader = readerFactory.getReader(secSensorName)) {
+                    secondaryReader.open(secondaryPath.toFile());
 
-            try (Reader secondaryReader = readerFactory.getReader(secondarySensor.getName())) {
-                secondaryReader.open(secondaryPath.toFile());
+                    final PixelLocator pixelLocator = secondaryReader.getPixelLocator();
+                    final TimeLocator timeLocator = secondaryReader.getTimeLocator();
 
-                final PixelLocator pixelLocator = secondaryReader.getPixelLocator();
-                final TimeLocator timeLocator = secondaryReader.getTimeLocator();
+                    final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
 
-                final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
+                    for (MatchupSet matchupSet : matchupSets) {
+                        final Path insituPath = matchupSet.getPrimaryObservationPath();
+                        final String sensorName = insituProduktSensorName.get(insituPath);
+                        final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator);
+                        matchupSet.setSampleSets(completeSamples);
 
-                for (MatchupSet matchupSet : matchupSets) {
-                    final Path insituPath = matchupSet.getPrimaryObservationPath();
-                    final String sensorName = insituProduktSensorName.get(insituPath);
-                    final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator);
-                    matchupSet.setSampleSets(completeSamples);
-
-                    try (final Reader insituReader = readerFactory.getReader(sensorName)) {
-                        insituReader.open(insituPath.toFile());
-                        if (matchupSet.getNumObservations() > 0) {
-                            applyConditionsAndScreenings(matchupCollection, matchupSet, conditionEngine, conditionEngineContext, screeningEngine, insituReader, secondaryReader);
+                        try (final Reader insituReader = readerFactory.getReader(sensorName)) {
+                            insituReader.open(insituPath.toFile());
+                            if (matchupSet.getNumObservations() > 0) {
+                                applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, insituReader, secondaryReader);
+                                if (matchupSet.getNumObservations() == 0) {
+                                    matchupSets.remove(matchupSet);
+                                    matchupSetsInsituOrder.get(insituPath).remove(matchupSet);
+                                } else {
+                                    matchupCollection.add(matchupSet);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+
+        final int numSecSensors = secSensorNames.length;
+
+        if (numSecSensors <= 1) {
+            return matchupCollection;
+        }
+
+        matchupCollection = new MatchupCollection();
+
+        paths = new Path[numSecSensors + 1];
+        versions = new String[numSecSensors + 1];
+        samples = new Sample[numSecSensors + 1];
+
+        combineMatchups(0);
 
         return matchupCollection;
     }
@@ -223,7 +228,106 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return candidateList;
     }
 
-    private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval, List<SatelliteObservation> secondaryObservations, Reader insituReader) throws IOException, InvalidRangeException {
+    private void combineMatchups(int depth) {
+        final int primIdx = 0;
+        final int secIdx = depth + 1;
+        if (secIdx >= samples.length) {
+            final SampleSet sampleSet = createValidSampleSet();
+            if (sampleSet != null) {
+                getValidMatchupSet().getSampleSets().add(sampleSet);
+            }
+            return;
+        }
+        final String secSensorName = secSensorNames[secIdx - 1];
+        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
+        for (List<MatchupSet> matchupSets : matchupSetsSatelliteOrder.values()) {
+            for (MatchupSet matchupSet : matchupSets) {
+                final Path primaryPath = matchupSet.getPrimaryObservationPath();
+                if (secIdx == 1) {
+                    paths[primIdx] = primaryPath;
+                    versions[primIdx] = matchupSet.getPrimaryProcessingVersion();
+                } else if (!primaryPath.equals(paths[primIdx])) {
+                    continue;
+                }
+                paths[secIdx] = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
+                versions[secIdx] = matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY);
+                final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+                for (SampleSet sampleSet : sampleSets) {
+                    final Sample primary = sampleSet.getPrimary();
+                    if (secIdx == 1) {
+                        samples[primIdx] = primary;
+                    } else if (primary.time != samples[primIdx].time) {
+                        continue;
+                    }
+
+                    samples[secIdx] = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+                    combineMatchups(depth + 1);
+                    samples[secIdx] = null;
+                }
+                paths[secIdx] = null;
+                versions[secIdx] = null;
+            }
+        }
+    }
+
+    private SampleSet createValidSampleSet() {
+        for (Sample sample : samples) {
+            if (sample == null) {
+                return null;
+            }
+        }
+        final SampleSet sampleSet = new SampleSet();
+        for (int i = 0; i < samples.length; i++) {
+            if (i == 0) {
+                sampleSet.setPrimary(samples[i]);
+            } else {
+                sampleSet.setSecondary(secSensorNames[i - 1], samples[i]);
+            }
+        }
+        return sampleSet;
+    }
+
+    private MatchupSet getValidMatchupSet() {
+        if (!currentMatchupsetIsValid()) {
+            if (currentMatchupSet != null
+                && currentMatchupSet.getNumObservations() > 0) {
+                matchupCollection.add(currentMatchupSet);
+            }
+            currentMatchupSet = new MatchupSet();
+            for (int i = 0; i < paths.length; i++) {
+                final Path path = paths[i];
+                final String version = versions[i];
+                if (i == 0) {
+                    currentMatchupSet.setPrimaryObservationPath(path);
+                    currentMatchupSet.setPrimaryProcessingVersion(version);
+                } else {
+                    final String secSensorName = secSensorNames[i - 1];
+                    currentMatchupSet.setSecondaryObservationPath(secSensorName, path);
+                    currentMatchupSet.setSecondaryProcessingVersion(secSensorName, version);
+                }
+            }
+        }
+        return currentMatchupSet;
+    }
+
+    private boolean currentMatchupsetIsValid() {
+        return currentMatchupSet != null && pathsAreValid();
+
+    }
+
+    private boolean pathsAreValid() {
+        for (int i = 0; i < paths.length; i++) {
+            Path path = paths[i];
+            if (i == 0 && !path.equals(currentMatchupSet.getPrimaryObservationPath())
+                || !path.equals(currentMatchupSet.getSecondaryObservationPath(secSensorNames[i - 1]))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval,
+                                                          List<SatelliteObservation> secondaryObservations, Reader insituReader) throws IOException, InvalidRangeException {
         final HashMap<String, MatchupSet> observationsPerProduct = new HashMap<>();
 
         final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);

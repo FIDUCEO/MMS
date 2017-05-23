@@ -74,7 +74,7 @@ class SampleCollector {
                     sampleSet = new SampleSet();
                     sampleSet.setPrimary(primary);
                 }
-                // todo se multisensor .. important!
+                // todo se multisensor
                 sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, sample);
                 toKeep.add(sampleSet);
             }

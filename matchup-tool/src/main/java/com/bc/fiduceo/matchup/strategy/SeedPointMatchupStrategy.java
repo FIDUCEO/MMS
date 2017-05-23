@@ -166,7 +166,10 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    applyConditionsAndScreenings(matchupCollection, matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
+                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
+                                    if (matchupSet.getNumObservations() > 0) {
+                                        matchupCollection.add(matchupSet);
+                                    }
                                 }
                             }
                         }

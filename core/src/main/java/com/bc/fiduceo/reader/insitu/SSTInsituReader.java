@@ -47,7 +47,6 @@ import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 
 public class SSTInsituReader implements Reader {
 
-
     private NetcdfFile netcdfFile;
     private String insituType;
     private Map<String, Number> fillValueMap = new HashMap<>();

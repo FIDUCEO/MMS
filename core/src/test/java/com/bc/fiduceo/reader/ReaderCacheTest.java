@@ -18,22 +18,14 @@
  *
  */
 
-package com.bc.fiduceo.matchup.writer;
+package com.bc.fiduceo.reader;
 
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderFactory;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.*;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class ReaderCacheTest {
 

@@ -59,7 +59,7 @@ public abstract class AbstractMatchupStrategy {
 
     abstract public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException;
 
-    void applyConditionsAndScreenings(MatchupCollection matchupCollection,MatchupSet matchupSet,
+    void applyConditionsAndScreenings(MatchupSet matchupSet,
                                       ConditionEngine conditionEngine, ConditionEngineContext conditionEngineContext,
                                       ScreeningEngine screeningEngine,
                                       Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
@@ -74,10 +74,6 @@ public abstract class AbstractMatchupStrategy {
 
         screeningEngine.process(matchupSet, primaryReader, secondaryReader);
         logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
-
-        if (matchupSet.getNumObservations() > 0) {
-            matchupCollection.add(matchupSet);
-        }
     }
 
     // package access for testing only tb 2016-11-04

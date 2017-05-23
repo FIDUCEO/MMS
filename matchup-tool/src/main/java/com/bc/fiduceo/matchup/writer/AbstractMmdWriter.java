@@ -32,6 +32,7 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
