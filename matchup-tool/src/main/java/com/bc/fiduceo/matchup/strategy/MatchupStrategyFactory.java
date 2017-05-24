@@ -25,6 +25,9 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.ReaderFactory;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class MatchupStrategyFactory {
@@ -34,15 +37,24 @@ public class MatchupStrategyFactory {
             return new SeedPointMatchupStrategy(logger);
         }
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-        // todo se multisensor
-        final Sensor secondarySensor = useCaseConfig.getSecondarySensors().get(0);
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
 
         // @todo 3 tb/** this is a piece of dirty code: we assume that the ReaderFactory singleton has already been created
         // therefore we can use the null argument here. Improve this! 2016-11-04
         final ReaderFactory readerFactory = ReaderFactory.get(null);
         final DataType primaryType = readerFactory.getDataType(primarySensor.getName());
-        final DataType secondaryType = readerFactory.getDataType(secondarySensor.getName());
 
+        final Set<DataType> secondaryDataTypes = new HashSet<>();
+        for (Sensor secondarySensor : secondarySensors) {
+            final DataType secondaryType = readerFactory.getDataType(secondarySensor.getName());
+            secondaryDataTypes.add(secondaryType);
+        }
+
+        if (secondaryDataTypes.size() != 1) {
+            throw new RuntimeException("No matchup strategy registerd for a combination with different secondary data types");
+        }
+
+        final DataType secondaryType = secondaryDataTypes.iterator().next();
         if (primaryType == DataType.POLAR_ORBITING_SATELLITE && secondaryType == DataType.POLAR_ORBITING_SATELLITE) {
             return new PolarOrbitingMatchupStrategy(logger);
         } else if (primaryType == DataType.INSITU && secondaryType == DataType.POLAR_ORBITING_SATELLITE) {

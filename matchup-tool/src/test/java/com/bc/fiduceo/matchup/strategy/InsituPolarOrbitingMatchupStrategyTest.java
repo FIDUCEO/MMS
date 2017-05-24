@@ -20,17 +20,22 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import org.junit.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class InsituPolarOrbitingMatchupStrategyTest {
 
@@ -160,6 +165,163 @@ public class InsituPolarOrbitingMatchupStrategyTest {
         assertEquals(2, resultList.size());
         assertEquals("POLYGON((3.0000000000000004 0.0,3.0000000000000004 1.0,1.9999999999999996 1.0,2.0 0.0,3.0000000000000004 0.0))", geometryFactory.format(resultList.get(0).getGeoBounds()));
         assertEquals("POLYGON((3.5000000000000004 0.0,3.5 1.0,2.5000000000000004 1.0,2.5 0.0,3.5000000000000004 0.0))", geometryFactory.format(resultList.get(1).getGeoBounds()));
+    }
+
+    @Test
+    public void test_getValidMatchupSet() {
+        //preparation
+        final MatchupSet currentMatchupSet = new MatchupSet();
+        currentMatchupSet.addPrimary(new Sample(1, 2, 3, 4, 5));
+
+        final Path[] paths = {Paths.get("p1"), Paths.get("p2"), Paths.get("p3"), Paths.get("p4")};
+        final String[] versions = {"v1", "v2", "v3", "v4",};
+        final String[] secSensorNames = {"sec1", "sec2", "sec3"};
+        final MatchupCollection collection = new MatchupCollection();
+
+        //execution
+        final MatchupSet matchupSet = InsituPolarOrbitingMatchupStrategy.getValidMatchupSet(currentMatchupSet, paths, versions, secSensorNames, collection);
+
+        //verification
+        assertNotNull(matchupSet);
+        assertEquals(Paths.get("p1"), matchupSet.getPrimaryObservationPath());
+        assertEquals(Paths.get("p2"), matchupSet.getSecondaryObservationPath("sec1"));
+        assertEquals(Paths.get("p3"), matchupSet.getSecondaryObservationPath("sec2"));
+        assertEquals(Paths.get("p4"), matchupSet.getSecondaryObservationPath("sec3"));
+
+        assertEquals("v1", matchupSet.getPrimaryProcessingVersion());
+        assertEquals("v2", matchupSet.getSecondaryProcessingVersion("sec1"));
+        assertEquals("v3", matchupSet.getSecondaryProcessingVersion("sec2"));
+        assertEquals("v4", matchupSet.getSecondaryProcessingVersion("sec3"));
+
+        final List<MatchupSet> matchupSets = collection.getSets();
+        assertEquals(1, matchupSets.size());
+        assertSame(currentMatchupSet, matchupSets.get(0));
+    }
+
+    @Test
+    public void test_createValidSampleSet() {
+        //preparation
+        final String[] secSensorNames = {"sec2", "sec1"};
+        final Sample sample1 = new Sample(1, 2, 3, 4, 5);
+        final Sample sample2 = new Sample(2, 3, 4, 5, 6);
+        final Sample sample3 = new Sample(3, 4, 5, 6, 7);
+        final Sample[] samples = new Sample[]{sample1, sample2, sample3};
+
+        //execution
+        final SampleSet sampleSet = InsituPolarOrbitingMatchupStrategy.createValidSampleSet(samples, secSensorNames);
+
+        //verification
+        assertNotNull(sampleSet);
+        assertSame(sample1, sampleSet.getPrimary());
+        assertSame(sample3, sampleSet.getSecondary("sec1"));
+        assertSame(sample2, sampleSet.getSecondary("sec2"));
+    }
+
+    @Test
+    public void test_createValidSampleSet_OneOfTheSamplesIsEmpty() {
+        //preparation
+        final String[] secSensorNames = {"sec2", "sec1"};
+        final Sample sample1 = new Sample(1, 2, 3, 4, 5);
+        final Sample sample2 = null;
+        final Sample sample3 = new Sample(3, 4, 5, 6, 7);
+        final Sample[] samples = new Sample[]{sample1, sample2, sample3};
+
+        //execution
+        final SampleSet sampleSet = InsituPolarOrbitingMatchupStrategy
+                    .createValidSampleSet(samples, secSensorNames);
+
+        //verification
+        assertNull(sampleSet);
+    }
+
+    @Test
+    public void test_matchupsetIsValid_true() {
+        boolean isValid;
+
+        //preparation
+        final Path primaryPath = Paths.get("prime");
+        final Path firstSecPath = Paths.get("sec1");
+        final Path secondSecPath = Paths.get("sec2");
+        final Path[] paths = new Path[]{primaryPath, firstSecPath, secondSecPath};
+        final String[] secSensorNames = new String[]{"sec1", "sec2"};
+        final MatchupSet currentMatchupSet = new MatchupSet();
+        currentMatchupSet.setPrimaryObservationPath(primaryPath);
+        currentMatchupSet.setSecondaryObservationPath("sec1", firstSecPath);
+        currentMatchupSet.setSecondaryObservationPath("sec2", secondSecPath);
+
+        //execution
+        isValid = InsituPolarOrbitingMatchupStrategy.matchupsetIsValid(currentMatchupSet, paths, secSensorNames);
+
+        //verification
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void test_matchupsetIsValid_false_firstSecondaryObservationPathIsNull() {
+        boolean isValid;
+
+        //preparation
+        final Path primaryPath = Paths.get("prime");
+        final Path firstSecPath = Paths.get("sec1");
+        final Path secondSecPath = Paths.get("sec2");
+        final Path[] paths = new Path[]{primaryPath, firstSecPath, secondSecPath};
+        final String[] secSensorNames = new String[]{"sec1", "sec2"};
+        final MatchupSet currentMatchupSet = new MatchupSet();
+        currentMatchupSet.setPrimaryObservationPath(primaryPath);
+        currentMatchupSet.setSecondaryObservationPath("sec1", null);
+        currentMatchupSet.setSecondaryObservationPath("sec2", secondSecPath);
+
+        //execution
+        isValid = InsituPolarOrbitingMatchupStrategy.matchupsetIsValid(currentMatchupSet, paths, secSensorNames);
+
+        //verification
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void test_matchupsetIsValid_false_primaryObservationPathIsNull() {
+        boolean isValid;
+
+        //preparation
+        final Path primaryPath = Paths.get("prime");
+        final Path firstSecPath = Paths.get("sec1");
+        final Path secondSecPath = Paths.get("sec2");
+        final Path[] paths = new Path[]{primaryPath, firstSecPath, secondSecPath};
+        final String[] secSensorNames = new String[]{"sec1", "sec2"};
+        final MatchupSet currentMatchupSet = new MatchupSet();
+        currentMatchupSet.setPrimaryObservationPath(null);
+        currentMatchupSet.setSecondaryObservationPath("sec1", firstSecPath);
+        currentMatchupSet.setSecondaryObservationPath("sec2", secondSecPath);
+
+        //execution
+        isValid = InsituPolarOrbitingMatchupStrategy.matchupsetIsValid(currentMatchupSet, paths, secSensorNames);
+
+        //verification
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void test_matchupsetIsValid_false_secondSecondaryObservationPathIsNotEqualToThePathInPathsArray() {
+        final Path wrongSecondaryPath;
+        boolean isValid;
+
+        //preparation
+        final Path primaryPath = Paths.get("prime");
+        wrongSecondaryPath = primaryPath;
+        final Path firstSecPath = Paths.get("sec1");
+        final Path secondSecPath = Paths.get("sec2");
+        final Path[] paths = new Path[]{primaryPath, firstSecPath, secondSecPath};
+        final String[] secSensorNames = new String[]{"sec1", "sec2"};
+        final MatchupSet currentMatchupSet = new MatchupSet();
+        currentMatchupSet.setPrimaryObservationPath(primaryPath);
+        currentMatchupSet.setSecondaryObservationPath("sec1", firstSecPath);
+        currentMatchupSet.setSecondaryObservationPath("sec2", wrongSecondaryPath);
+
+        //execution
+        isValid = InsituPolarOrbitingMatchupStrategy.matchupsetIsValid(currentMatchupSet, paths, secSensorNames);
+
+        //verification
+        assertFalse(isValid);
     }
 
     private SatelliteObservation createSatelliteObservation(long startTime, long stopTime) {

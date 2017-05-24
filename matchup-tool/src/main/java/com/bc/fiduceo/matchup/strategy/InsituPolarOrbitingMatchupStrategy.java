@@ -55,6 +55,7 @@ import java.util.logging.Logger;
 class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     private static final Interval singlePixel = new Interval(1, 1);
+    private static final int PRIM_IDX = 0;
 
     private String[] secSensorNames;
     private Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder;
@@ -97,7 +98,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
-        secSensorNames = mapSecondaryObservations.keySet().toArray(new String[0]);
+        secSensorNames = mapSecondaryObservations.keySet().toArray(new String[]{});
 
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsInsituOrder = new HashMap<>();
         mapMatchupSetsSatelliteOrder = new HashMap<>();
@@ -228,49 +229,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return candidateList;
     }
 
-    private void combineMatchups(int depth) {
-        final int primIdx = 0;
-        final int secIdx = depth + 1;
-        if (secIdx >= samples.length) {
-            final SampleSet sampleSet = createValidSampleSet();
-            if (sampleSet != null) {
-                getValidMatchupSet().getSampleSets().add(sampleSet);
-            }
-            return;
-        }
-        final String secSensorName = secSensorNames[secIdx - 1];
-        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
-        for (List<MatchupSet> matchupSets : matchupSetsSatelliteOrder.values()) {
-            for (MatchupSet matchupSet : matchupSets) {
-                final Path primaryPath = matchupSet.getPrimaryObservationPath();
-                if (secIdx == 1) {
-                    paths[primIdx] = primaryPath;
-                    versions[primIdx] = matchupSet.getPrimaryProcessingVersion();
-                } else if (!primaryPath.equals(paths[primIdx])) {
-                    continue;
-                }
-                paths[secIdx] = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
-                versions[secIdx] = matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY);
-                final List<SampleSet> sampleSets = matchupSet.getSampleSets();
-                for (SampleSet sampleSet : sampleSets) {
-                    final Sample primary = sampleSet.getPrimary();
-                    if (secIdx == 1) {
-                        samples[primIdx] = primary;
-                    } else if (primary.time != samples[primIdx].time) {
-                        continue;
-                    }
-
-                    samples[secIdx] = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
-                    combineMatchups(depth + 1);
-                    samples[secIdx] = null;
-                }
-                paths[secIdx] = null;
-                versions[secIdx] = null;
-            }
-        }
-    }
-
-    private SampleSet createValidSampleSet() {
+    static SampleSet createValidSampleSet(Sample[] samples, String[] secSensorNames) {
         for (Sample sample : samples) {
             if (sample == null) {
                 return null;
@@ -278,7 +237,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
         final SampleSet sampleSet = new SampleSet();
         for (int i = 0; i < samples.length; i++) {
-            if (i == 0) {
+            if (i == PRIM_IDX) {
                 sampleSet.setPrimary(samples[i]);
             } else {
                 sampleSet.setSecondary(secSensorNames[i - 1], samples[i]);
@@ -287,8 +246,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return sampleSet;
     }
 
-    private MatchupSet getValidMatchupSet() {
-        if (!currentMatchupsetIsValid()) {
+    static MatchupSet getValidMatchupSet(MatchupSet currentMatchupSet, Path[] paths, String[] versions, String[] secSensorNames, MatchupCollection matchupCollection) {
+        if (!matchupsetIsValid(currentMatchupSet, paths, secSensorNames)) {
             if (currentMatchupSet != null
                 && currentMatchupSet.getNumObservations() > 0) {
                 matchupCollection.add(currentMatchupSet);
@@ -297,7 +256,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             for (int i = 0; i < paths.length; i++) {
                 final Path path = paths[i];
                 final String version = versions[i];
-                if (i == 0) {
+                if (i == PRIM_IDX) {
                     currentMatchupSet.setPrimaryObservationPath(path);
                     currentMatchupSet.setPrimaryProcessingVersion(version);
                 } else {
@@ -310,20 +269,64 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return currentMatchupSet;
     }
 
-    private boolean currentMatchupsetIsValid() {
-        return currentMatchupSet != null && pathsAreValid();
+    static boolean matchupsetIsValid(MatchupSet currentMatchupSet, Path[] paths, String[] secSensorNames) {
+        if (currentMatchupSet == null) {
+            return false;
+        }
 
-    }
-
-    private boolean pathsAreValid() {
         for (int i = 0; i < paths.length; i++) {
             Path path = paths[i];
-            if (i == 0 && !path.equals(currentMatchupSet.getPrimaryObservationPath())
-                || !path.equals(currentMatchupSet.getSecondaryObservationPath(secSensorNames[i - 1]))) {
+            if (i == PRIM_IDX) {
+                if (!path.equals(currentMatchupSet.getPrimaryObservationPath())) {
+                    return false;
+                }
+            } else if (!path.equals(currentMatchupSet.getSecondaryObservationPath(secSensorNames[i - 1]))) {
                 return false;
             }
         }
         return true;
+    }
+
+    private void combineMatchups(int depth) {
+        final int secIdx = depth + 1;
+        if (secIdx >= samples.length) {
+            final SampleSet sampleSet = createValidSampleSet(samples, secSensorNames);
+            if (sampleSet != null) {
+                final MatchupSet validMatchupSet = getValidMatchupSet(currentMatchupSet, paths, versions, secSensorNames, matchupCollection);
+                validMatchupSet.getSampleSets().add(sampleSet);
+            }
+            return;
+        }
+        final String secSensorName = secSensorNames[secIdx - 1];
+        final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
+        for (List<MatchupSet> matchupSets : matchupSetsSatelliteOrder.values()) {
+            for (MatchupSet matchupSet : matchupSets) {
+                final Path primaryPath = matchupSet.getPrimaryObservationPath();
+                if (secIdx == 1) {
+                    paths[PRIM_IDX] = primaryPath;
+                    versions[PRIM_IDX] = matchupSet.getPrimaryProcessingVersion();
+                } else if (!primaryPath.equals(paths[PRIM_IDX])) {
+                    continue;
+                }
+                paths[secIdx] = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
+                versions[secIdx] = matchupSet.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY);
+                final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+                for (SampleSet sampleSet : sampleSets) {
+                    final Sample primary = sampleSet.getPrimary();
+                    if (secIdx == 1) {
+                        samples[PRIM_IDX] = primary;
+                    } else if (primary.time != samples[PRIM_IDX].time) {
+                        continue;
+                    }
+
+                    samples[secIdx] = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+                    combineMatchups(depth + 1);
+                    samples[secIdx] = null;
+                }
+                paths[secIdx] = null;
+                versions[secIdx] = null;
+            }
+        }
     }
 
     private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval,
