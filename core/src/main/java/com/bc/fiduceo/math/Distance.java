@@ -24,7 +24,7 @@ public class Distance {
 
     private static final double MEAN_EARTH_RADIUS_IN_KM = RsMathUtils.MEAN_EARTH_RADIUS * 0.001;
 
-    public static double computeSpericalDistanceKm(double p_lon, double p_lat, double s_lon, double s_lat) {
+    public static double computeSphericalDistanceKm(double p_lon, double p_lat, double s_lon, double s_lat) {
         final SphericalDistance sphericalDistance = new SphericalDistance(p_lon, p_lat);
         final double radDistance = sphericalDistance.distance(s_lon, s_lat);
         return radDistance * MEAN_EARTH_RADIUS_IN_KM;

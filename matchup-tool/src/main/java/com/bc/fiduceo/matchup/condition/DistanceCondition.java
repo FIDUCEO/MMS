@@ -52,7 +52,7 @@ class DistanceCondition implements Condition {
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
             final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
-            final double kmDistance = Distance.computeSpericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
+            final double kmDistance = Distance.computeSphericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
             if (kmDistance <= maxDistanceInKm) {
                 targetSamples.add(sampleSet);
             }

@@ -49,7 +49,7 @@ public class IntersectionEngine {
                 final Intersection intersection = getIntersection(primaryGeometry, secondaryGeometry, primaryTimeAxes[primaryIndex], secondaryTimeAxes[secondaryIndex]);
                 if (intersection != null) {
                     intersection.setPrimaryGeometry(primaryGeometry);
-                    intersection.setSecundaryGeometry(secondaryGeometry);
+                    intersection.setSecondaryGeometry(secondaryGeometry);
                     intersectionList.add(intersection);
                 }
             }

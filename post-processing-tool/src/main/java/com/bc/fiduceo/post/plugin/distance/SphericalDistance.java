@@ -95,7 +95,7 @@ class SphericalDistance extends PostProcessing {
             final double pLat = p_lat.getDouble(i);
             final double sLon = s_lon.getDouble(i);
             final double sLat = s_lat.getDouble(i);
-            final double distanceKm = Distance.computeSpericalDistanceKm(pLon, pLat, sLon, sLat);
+            final double distanceKm = Distance.computeSphericalDistanceKm(pLon, pLat, sLon, sLat);
             target.setDouble(i, distanceKm);
         }
         writer.write(targetVar, target);
