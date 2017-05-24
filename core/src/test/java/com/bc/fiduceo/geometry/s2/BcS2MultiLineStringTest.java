@@ -2,6 +2,7 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTReader;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 import org.junit.Test;
@@ -10,10 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author muhammad.bc
@@ -53,7 +51,6 @@ public class BcS2MultiLineStringTest {
         assertTrue(multiLineString.isValid());
     }
 
-
     @Test
     public void testIsEmpty_NoPoint() {
         S2Point[] s2PointList = {new S2Point()};
@@ -67,7 +64,6 @@ public class BcS2MultiLineStringTest {
         assertNotNull(multiLineString);
         assertTrue(multiLineString.isEmpty());
     }
-
 
     @Test
     public void testIsEmpty_ZeroPointIntervals() {
@@ -99,6 +95,18 @@ public class BcS2MultiLineStringTest {
         final BcS2MultiLineString multiLineString = getCreateBcS2MultiLineString();
         assertNotNull(multiLineString);
         assertFalse(multiLineString.isEmpty());
+    }
+
+    @Test
+    public void testGetIntersection() {
+        final BcS2MultiLineString multiLineString = getCreateBcS2MultiLineString();
+        final BcS2Point point = new BcS2Point(new S2LatLng());
+
+        try {
+            multiLineString.getIntersection(point);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     private BcS2MultiLineString getCreateBcS2MultiLineString() {

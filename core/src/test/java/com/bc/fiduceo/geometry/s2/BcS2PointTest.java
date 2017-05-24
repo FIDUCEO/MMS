@@ -23,13 +23,12 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Point;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BcS2PointTest {
 
@@ -91,10 +90,41 @@ public class BcS2PointTest {
     }
 
     @Test
+    public void testIsValid() {
+        final S2LatLng s2LatLng = mock(S2LatLng.class);
+        when(s2LatLng.isValid()).thenReturn(false);
+
+        BcS2Point point = new BcS2Point(s2LatLng);
+        assertFalse(point.isValid());
+
+        when(s2LatLng.isValid()).thenReturn(true);
+        point = new BcS2Point(s2LatLng);
+        assertTrue(point.isValid());
+    }
+
+    @Test
+    public void testIsValid_noInnerObject() {
+        BcS2Point point = new BcS2Point(null);
+        assertFalse(point.isValid());
+    }
+
+    @Test
     public void testToString() {
         final BcS2Point bcS2Point = createS2Point(16, 88);
 
         assertEquals("POINT(88.0 16.0)", bcS2Point.toString());
+    }
+
+    @Test
+    public void testGetIntersection() {
+        final BcS2Point bcS2Point = createS2Point(16, 88);
+        final BcS2Point otherPoint = createS2Point(17, 85);
+
+        try {
+            bcS2Point.getIntersection(otherPoint);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @Test
@@ -110,6 +140,14 @@ public class BcS2PointTest {
         final BcS2Point bcS2Point_notEqual = createS2Point(18.0000001, 107.9999999);
         assertFalse(bcS2Point.equals(bcS2Point_notEqual));
         assertFalse(bcS2Point_notEqual.equals(bcS2Point));
+    }
+
+    @Test
+    public void testCreateFromPoint() {
+        final S2Point s2Point = new S2Point(0.4, 0.6, 0.7);
+
+        final BcS2Point bcS2Point = BcS2Point.createFrom(s2Point);
+        assertEquals("POINT(56.309932474020215 44.148947407668004)", bcS2Point.toString());
     }
 
     private BcS2Point createS2Point(double latDegrees, double lngDegrees) {

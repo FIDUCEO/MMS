@@ -1,23 +1,20 @@
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.geometry.s2.S2WKTReader;
 import com.bc.geometry.s2.S2WKTWriter;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polygon;
+import com.google.common.geometry.S2Polyline;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author tom.bc
@@ -132,22 +129,55 @@ public class BcS2PolygonTest {
         assertTrue(intersection.isEmpty());
     }
 
+    @Test
+    public void testGetIntersection_multiLineString_noIntersection() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-30 -30, -30 -35), (80 76, 82 78))");
 
-    // @todo 2 tb/tb implement the following tests 2016-09-23
-//    @Test
-//    public void testGetIntersection_multiLineString_noIntersection() {
-//        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
-//    }
-//
-//    @Test
-//    public void testGetIntersection_multiLineString_oneIntersection() {
-//
-//    }
-//
-//    @Test
-//    public void testGetIntersection_multiLineString_twoIntersection() {
-//
-//    }
+        final Geometry intersection = polygon.getIntersection(multiLineString);
+        assertTrue(intersection.isEmpty());
+    }
+
+    @Test
+    public void testGetIntersection_multiLineString_oneIntersection() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-20 -5, 20 -5), (80 76, 82 78))");
+
+        final Geometry intersection = polygon.getIntersection(multiLineString);
+        assertTrue(intersection instanceof LineString);
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(2, coordinates.length);
+        assertEquals("POINT(-9.999999999999998 -5.238747270748654)", coordinates[0].toString());
+        assertEquals("POINT(9.999999999999998 -5.238747270748654)", coordinates[1].toString());
+    }
+
+    @Test
+    public void testGetIntersection_multiLineString_twoIntersection() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-20 -5, 20 -5), (-20 5, 30 5))");
+
+        final Geometry intersection = polygon.getIntersection(multiLineString);
+        assertTrue(intersection instanceof LineString);
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(4, coordinates.length);
+        assertEquals("POINT(-9.999999999999998 -5.238747270748654)", coordinates[0].toString());
+        assertEquals("POINT(9.999999999999998 -5.238747270748654)", coordinates[1].toString());
+        assertEquals("POINT(-9.999999999999998 5.327071852971211)", coordinates[2].toString());
+        assertEquals("POINT(9.999999999999998 5.492998762169851)", coordinates[3].toString());
+    }
+
+    @Test
+    public void testGetIntersection_unsupportedGeometry() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryCollection geometryCollection = geometryFactory.createGeometryCollection(null);
+
+        try {
+            polygon.getIntersection(geometryCollection);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 
     @Test
     public void testGetCoordinates() {
@@ -257,11 +287,34 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testContains_pointOnCorner_isInsidee() {
+    public void testContains_pointOnCorner_isInside() {
         final BcS2Polygon polygon = createBcS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
         final BcS2Point point = createBcS2Point("POINT(0 0)");
 
         assertTrue(polygon.contains(point));
+    }
+
+    @Test
+    public void testContains_unsupportedGeometry() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+        final BcS2Polygon polygon_2 = createBcS2Polygon("POLYGON((1 0 , 2 0, 2 1, 1 1, 1 0))");
+
+        try {
+            polygon.contains(polygon_2);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testShiftLon() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0))");
+
+        try {
+            polygon.shiftLon(-3.9);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @Test
@@ -298,6 +351,15 @@ public class BcS2PolygonTest {
         assertEquals(2.0, points.get(6).getLat(), 1e-8);
     }
 
+    @Test
+    public void testGetCentroid() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+
+        final Point centroid = polygon.getCentroid();
+        assertEquals(0.0, centroid.getLat(), 1e-8);
+        assertEquals(0.0, centroid.getLon(), 1e-8);
+    }
+
     private BcS2Point createBcS2Point(String wellKnownText) {
         final S2Point s2Point = (S2Point) s2WKTReader.read(wellKnownText);
         return new BcS2Point(new S2LatLng(s2Point));
@@ -306,5 +368,11 @@ public class BcS2PolygonTest {
     private BcS2Polygon createBcS2Polygon(String wellKnownText) {
         S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);
         return new BcS2Polygon(polygon);
+    }
+
+    @SuppressWarnings("unchecked")
+    private BcS2MultiLineString createBcS2MultiLineString(String wellKnownText) {
+        List<S2Polyline> polylines = (List<S2Polyline>) s2WKTReader.read(wellKnownText);
+        return new BcS2MultiLineString(polylines);
     }
 }

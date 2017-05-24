@@ -36,11 +36,9 @@ class BcS2MultiPolygon implements MultiPolygon {
     private List<Polygon> polygonList;
 
 
-    @SuppressWarnings("unchecked")
-    public BcS2MultiPolygon(List<Polygon> polygonList) {
+    BcS2MultiPolygon(List<Polygon> polygonList) {
         this.polygonList = polygonList;
     }
-
 
     @Override
     public Geometry getIntersection(Geometry other) {
@@ -55,8 +53,7 @@ class BcS2MultiPolygon implements MultiPolygon {
 
     @Override
     public boolean isEmpty() {
-        final boolean listEmpty = polygonList.isEmpty();
-        if (listEmpty) {
+        if (polygonList.isEmpty()) {
             return true;
         }
 
@@ -70,7 +67,16 @@ class BcS2MultiPolygon implements MultiPolygon {
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        if (polygonList.isEmpty()) {
+            return false;
+        }
+
+        for (Polygon polygon : polygonList) {
+            if (!polygon.isValid()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

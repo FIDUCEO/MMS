@@ -116,6 +116,5 @@ public class BcS2LineStringTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-
     }
 }

@@ -66,6 +66,9 @@ class BcS2Point implements Point {
 
     @Override
     public boolean isValid() {
+        if (s2LatLng == null) {
+            return false;
+        }
         return s2LatLng.isValid();
     }
 

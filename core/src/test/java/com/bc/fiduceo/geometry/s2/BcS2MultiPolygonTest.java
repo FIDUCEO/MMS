@@ -20,6 +20,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author muhammad.bc
@@ -92,7 +94,6 @@ public class BcS2MultiPolygonTest {
         assertEquals("POLYGON((9.999999999999996 15.054701128833466,14.999999999999996 14.999999999999996,14.999999999999998 20.0,9.999999999999998 20.07030897931526,9.999999999999996 15.054701128833466))", S2WKTWriter.write(result.getInner()));
     }
 
-
     @SuppressWarnings("unchecked")
     @Test
     public void testIntersectMultiPolygon_LineString_intersectAllPolygons() {
@@ -160,6 +161,68 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
+    public void testIsValid_noPolygons() {
+        final BcS2MultiPolygon emptyMultiPolygon = new BcS2MultiPolygon(new ArrayList<>());
+        assertFalse(emptyMultiPolygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_onePolygon_valid() {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.isValid()).thenReturn(true);
+
+        final ArrayList<Polygon> polygonList = new ArrayList<>();
+        polygonList.add(polygon);
+        final BcS2MultiPolygon multiPolygon = new BcS2MultiPolygon(polygonList);
+
+        assertTrue(multiPolygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_onePolygon_invalid() {
+        final Polygon polygon = mock(Polygon.class);
+        when(polygon.isValid()).thenReturn(false);
+
+        final ArrayList<Polygon> polygonList = new ArrayList<>();
+        polygonList.add(polygon);
+        final BcS2MultiPolygon multiPolygon = new BcS2MultiPolygon(polygonList);
+
+        assertFalse(multiPolygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_twoPolygons_allValid() {
+        final Polygon polygon_1 = mock(Polygon.class);
+        when(polygon_1.isValid()).thenReturn(true);
+
+        final Polygon polygon_2 = mock(Polygon.class);
+        when(polygon_2.isValid()).thenReturn(true);
+
+        final ArrayList<Polygon> polygonList = new ArrayList<>();
+        polygonList.add(polygon_1);
+        polygonList.add(polygon_2);
+        final BcS2MultiPolygon multiPolygon = new BcS2MultiPolygon(polygonList);
+
+        assertTrue(multiPolygon.isValid());
+    }
+
+    @Test
+    public void testIsValid_twoPolygons_oneInvalid() {
+        final Polygon polygon_1 = mock(Polygon.class);
+        when(polygon_1.isValid()).thenReturn(false);
+
+        final Polygon polygon_2 = mock(Polygon.class);
+        when(polygon_2.isValid()).thenReturn(true);
+
+        final ArrayList<Polygon> polygonList = new ArrayList<>();
+        polygonList.add(polygon_1);
+        polygonList.add(polygon_2);
+        final BcS2MultiPolygon multiPolygon = new BcS2MultiPolygon(polygonList);
+
+        assertFalse(multiPolygon.isValid());
+    }
+
+    @Test
     public void testGetInner() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
 
@@ -167,6 +230,64 @@ public class BcS2MultiPolygonTest {
         assertNotNull(inner);
         assertTrue(inner instanceof List);
         assertEquals(2, ((List) inner).size());
+    }
+
+    @Test
+    public void testShiftLon(){
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 50 0, 50 20, 10 50)),((10 70, 50 70, 50 90, 10 90)))");
+
+        try {
+            multiPolygon.shiftLon(22.5);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testContains(){
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
+        final BcS2Point bcS2Point = createS2Point("POINT(14 25.4)");
+
+        try {
+            multiPolygon.contains(bcS2Point);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetDifference(){
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
+        final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((30 20, 45 30, 45 75, 30 75, 30 20))");
+
+        try {
+            multiPolygon.getDifference(bcS2Polygon);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetUnion(){
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 60 20, 10 50)),((10 70, 60 70, 60 90, 10 90)))");
+        final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((30 20, 55 30, 55 75, 30 75, 30 20))");
+
+        try {
+            multiPolygon.getUnion(bcS2Polygon);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetCentroid(){
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 30, 10 50)),((10 70, 60 70, 50 86, 10 90)))");
+
+        try {
+            multiPolygon.getCentroid();
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -180,8 +301,8 @@ public class BcS2MultiPolygonTest {
     }
 
     private BcS2Polygon createS2Polygon(String wellKnownText) {
-        S2Polygon polygon_1 = (S2Polygon) s2WKTReader.read(wellKnownText);
-        return new BcS2Polygon(polygon_1);
+        S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);
+        return new BcS2Polygon(polygon);
     }
 
     @SuppressWarnings("unchecked")
