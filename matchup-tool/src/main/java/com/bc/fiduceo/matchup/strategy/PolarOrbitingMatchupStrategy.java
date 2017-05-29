@@ -102,8 +102,8 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         // todo se multisensor
-                        matchupSet.setSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY, secondaryObservation.getVersion());
+                        matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getDataFilePath());
+                        matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();

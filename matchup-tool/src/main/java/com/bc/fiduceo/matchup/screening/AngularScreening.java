@@ -78,7 +78,7 @@ class AngularScreening implements Screening {
         }
 
         if (hasSecondary) {
-            final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+            final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
 
             secondaryVZA = szaSecondaryArray.getDouble(0);

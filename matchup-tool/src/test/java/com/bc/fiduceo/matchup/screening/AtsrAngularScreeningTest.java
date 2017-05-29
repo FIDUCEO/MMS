@@ -185,7 +185,7 @@ public class AtsrAngularScreeningTest {
         final Sample primary = new Sample(primaryX, primaryY, 2.0987, 3.876, 4994783);
         sampleSet.setPrimary(primary);
         final Sample secondary = new Sample(secondaryX, secondaryY, 5.0987, 6.876, 7994783);
-        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
+        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), secondary);
 
         return sampleSet;
     }

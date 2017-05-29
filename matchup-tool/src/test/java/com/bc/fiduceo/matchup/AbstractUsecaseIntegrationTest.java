@@ -49,6 +49,7 @@ abstract class AbstractUsecaseIntegrationTest {
 
     @Before
     public void setUp() throws SQLException, IOException {
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {
@@ -68,6 +69,7 @@ abstract class AbstractUsecaseIntegrationTest {
 
     @After
     public void tearDown() throws SQLException {
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         if (storage != null) {
             storage.clear();
             storage.close();

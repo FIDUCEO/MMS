@@ -65,7 +65,7 @@ public class WindowValueScreening implements Screening {
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
             // todo se multisensor
             final Dimension secondaryDimension = context.getSecondaryDimension();
-            final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+            final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final double percentage = configuration.secondaryPercentage;
             final Evaluate evaluate = configuration.secondaryEvaluate;
             // todo se multisensor

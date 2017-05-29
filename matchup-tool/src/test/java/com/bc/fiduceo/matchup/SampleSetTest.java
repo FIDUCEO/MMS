@@ -20,11 +20,11 @@
 
 package com.bc.fiduceo.matchup;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
+import org.junit.*;
 
 public class SampleSetTest {
 
@@ -32,7 +32,13 @@ public class SampleSetTest {
 
     @Before
     public void setUp() throws Exception {
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         sampleSet = new SampleSet();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
     }
 
     @Test
@@ -49,9 +55,33 @@ public class SampleSetTest {
     public void testSetSecondary() {
         final Sample sample = new Sample(6, 7, 8, 9, 10L);
 
-        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, sample);
-        final Sample result = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), sample);
+        final Sample result = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertNotNull(result);
         assertEquals(sample.x, result.x);
+    }
+
+    @Test
+    public void testOnlyOneSecondaryKey_defaultValue() throws Exception {
+        assertEquals("0000", SampleSet.getOnlyOneSecondaryKey());
+    }
+
+    @Test
+    public void testOnlyOneSecondaryKey_setToOtherValue() throws Exception {
+        SampleSet.setOnlyOneSecondaryKey("otherKey");
+        assertEquals("otherKey", SampleSet.getOnlyOneSecondaryKey());
+    }
+
+    @Test
+    public void testOnlyOneSecondaryKey_ExceptionIfSetTwice() throws Exception {
+        try {
+            SampleSet.setOnlyOneSecondaryKey("firstOtherKey");
+            SampleSet.setOnlyOneSecondaryKey("secondeOtherKey");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("Set the property \"ONLY_ONE_SECONDARY\" twice is not allowed.", expected.getMessage());
+        } catch (Exception e) {
+            fail("RuntimeException expected");
+        }
     }
 }

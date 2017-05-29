@@ -82,7 +82,7 @@ class NonOverlappingCollector {
             return sampleSet.getPrimary();
         }
 
-        return sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+        return sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
     }
 
     private boolean hasOverlap(Sample inputSample) {

@@ -133,7 +133,7 @@ class MatchupTool {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Path primaryPath = matchupSet.getPrimaryObservationPath();
-        final Path secondaryPath = matchupSet.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
+        final Path secondaryPath = matchupSet.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
         final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
@@ -350,6 +350,10 @@ class MatchupTool {
             throw new IllegalArgumentException("Use case configuration errors: " + builder.toString());
         }
         context.setUseCaseConfig(useCaseConfig);
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+        if (secondarySensors.size()==1) {
+            SampleSet.setOnlyOneSecondaryKey(secondarySensors.get(0).getName());
+        }
 
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
@@ -403,7 +407,7 @@ class MatchupTool {
     }
 
     private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration) {
-        return createSphericalDistanceVariable(variablesConfiguration,false, null, SampleSet.ONLY_ONE_SECONDARY);
+        return createSphericalDistanceVariable(variablesConfiguration,false, null, SampleSet.getOnlyOneSecondaryKey());
     }
 
     private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {

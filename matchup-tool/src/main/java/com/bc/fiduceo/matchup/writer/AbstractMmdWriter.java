@@ -135,11 +135,11 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
 
                 // todo se multisensor
-                final Path secondaryObservationPath = set.getSecondaryObservationPath(SampleSet.ONLY_ONE_SECONDARY);
+                final Path secondaryObservationPath = set.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
                 final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
 
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
-                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(SampleSet.ONLY_ONE_SECONDARY));
+                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey()));
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
                 logger.info("Num matchups: " + set.getNumObservations());
@@ -147,7 +147,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
-                    writeMmdValues(sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY), zIndex, secondaryVariables, secondaryInterval);
+                    writeMmdValues(sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey()), zIndex, secondaryVariables, secondaryInterval);
                     writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
                     zIndex++;
                     if (zIndex % cacheSize == 0) {

@@ -92,7 +92,7 @@ public class SampleCollectorTest {
             assertEquals("Index = " + i, expected.lat, primary.lat, 0.000001);
             assertEquals("Index = " + i, expected.time, primary.time);
 
-            assertNull(actual.getSecondary(SampleSet.ONLY_ONE_SECONDARY));
+            assertNull(actual.getSecondary(SampleSet.getOnlyOneSecondaryKey()));
         }
     }
 
@@ -110,7 +110,7 @@ public class SampleCollectorTest {
         Sample primary = sampleSet.getPrimary();
         assertEquals(2, primary.x);
 
-        Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+        Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertEquals(15, secondary.x);
         assertEquals(18, secondary.y);
         assertEquals(18015L, secondary.time);
@@ -118,7 +118,7 @@ public class SampleCollectorTest {
         sampleSet = sampleSets.get(1);
         primary = sampleSet.getPrimary();
         assertEquals(6, primary.x);
-        secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+        secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertEquals(19, secondary.x);
         assertEquals(22, secondary.y);
         assertEquals(22019L, secondary.time);
@@ -148,7 +148,7 @@ public class SampleCollectorTest {
         SampleSet sampleSet = sampleSets.get(0);
         Sample primary = sampleSet.getPrimary();
         assertSame(primaryTwo, primary);
-        final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+        final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertNotNull(secondary);
         assertEquals(34.321, secondary.lat, 1e-8);
         assertEquals(170.123, secondary.lon, 1e-8);

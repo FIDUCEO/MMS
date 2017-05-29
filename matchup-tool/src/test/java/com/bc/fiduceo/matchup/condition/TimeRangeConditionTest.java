@@ -59,7 +59,7 @@ public class TimeRangeConditionTest {
     private SampleSet createSampleSet(long primaryTime, long secondaryTime) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(0, 0, 0, 0, primaryTime));
-        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(0, 0, 0, 0, secondaryTime));
+        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(0, 0, 0, 0, secondaryTime));
         return sampleSet;
     }
 }

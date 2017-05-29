@@ -202,7 +202,7 @@ public class BorderDistanceConditionTest {
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(primaryX, primaryY, 0.0, 0.0, 0));
-        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, new Sample(secondaryX, secondaryY, 0.0, 0.0, 0));
+        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(secondaryX, secondaryY, 0.0, 0.0, 0));
         return sampleSet;
     }
 }

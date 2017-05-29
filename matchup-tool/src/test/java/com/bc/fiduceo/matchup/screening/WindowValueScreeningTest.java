@@ -156,7 +156,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class WindowValueScreeningTest {
         assertEquals(1, sampleSets.size());
 
         assertEquals(3, sampleSets.get(0).getPrimary().x);
-        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
     }
 
     @Test
@@ -246,7 +246,7 @@ public class WindowValueScreeningTest {
         assertEquals(1, sampleSets.size());
 
         assertEquals(3, sampleSets.get(0).getPrimary().x);
-        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.ONLY_ONE_SECONDARY).x);
+        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
     }
 
     void writeTestFile(Path nc4testfile) throws IOException, InvalidRangeException {
@@ -283,7 +283,7 @@ public class WindowValueScreeningTest {
         sampleSet.setPrimary(primary);
 
         final Sample secondary = new Sample(secondaryX, secondaryY, 7.0987, 8.876, 9014783);
-        sampleSet.setSecondary(SampleSet.ONLY_ONE_SECONDARY, secondary);
+        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), secondary);
 
         return sampleSet;
     }

@@ -51,7 +51,7 @@ class TimeDeltaCondition implements Condition {
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
-            final Sample secondary = sampleSet.getSecondary(SampleSet.ONLY_ONE_SECONDARY);
+            final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final long actualTimeDelta = Math.abs(primary.time - secondary.time);
             if (actualTimeDelta <= maxTimeDeltaInMillis) {
                 targetSamples.add(sampleSet);
