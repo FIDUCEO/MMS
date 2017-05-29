@@ -26,6 +26,8 @@ import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
+import com.bc.fiduceo.reader.modis.MxD06_Reader;
+import com.bc.fiduceo.reader.modis.MxD06_ReaderPlugin;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,7 +72,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetEumetsatIASIReader() throws Exception {
+    public void testGetIASIReader() throws Exception {
         final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
@@ -91,6 +93,14 @@ public class ReaderFactoryTest {
 
         assertNotNull(reader);
         assertTrue(reader instanceof SSTInsituReader);
+    }
+
+    @Test
+    public void testGetModisCloudReader() throws Exception {
+        final Reader reader = readerFactory.getReader("myd06-aq");
+
+        assertNotNull(reader);
+        assertTrue(reader instanceof MxD06_Reader);
     }
 
     @Test

@@ -25,13 +25,13 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -45,17 +45,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 public class AIRS_L1B_Reader implements Reader {
-
-    private static final String RANGE_BEGINNING_DATE = "RANGEBEGINNINGDATE";
-    private static final String RANGE_ENDING_DATE = "RANGEENDINGDATE";
-    private static final String RANGE_BEGINNING_TIME = "RANGEBEGINNINGTIME";
-    private static final String RANGE_ENDING_TIME = "RANGEENDINGTIME";
-    private static final String CORE_METADATA = "coremetadata";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
 
     private final Logger logger;
@@ -63,49 +55,6 @@ public class AIRS_L1B_Reader implements Reader {
 
     AIRS_L1B_Reader(GeometryFactory geometryFactory) {
         logger = FiduceoLogger.getLogger();
-    }
-
-    static String getElementValue(Element element, String attribute) {
-        if (element.getName().equals(attribute)) {
-            return element.getChild("VALUE").getValue();
-        }
-        for (Element subElement : element.getChildren()) {
-            if (subElement.getName().equals(attribute)) {
-                return subElement.getChild("VALUE").getValue();
-            } else {
-                final String elementValue = getElementValue(subElement, attribute);
-                if (StringUtils.isNotNullAndNotEmpty(elementValue)) {
-                    return elementValue;
-                }
-            }
-        }
-        return null;
-    }
-
-    // package access for testing only tb 2015-08-05
-    static Element getEosElement(String satelliteMeta) throws IOException {
-        String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
-        trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
-
-        final StringBuilder sb = new StringBuilder(trimmedMetaString.length());
-        final StringTokenizer lineFinder = new StringTokenizer(trimmedMetaString, "\t\n\r\f");
-        while (lineFinder.hasMoreTokens()) {
-            final String line = lineFinder.nextToken().trim();
-            sb.append(line);
-            sb.append("\n");
-        }
-        final EosCoreMetaParser parser = new EosCoreMetaParser();
-        return parser.parseFromString(sb.toString());
-    }
-
-    // package access for testing only tb 2015-08-05
-    static String getEosMetadata(String name, Group eosGroup) throws IOException {
-        final Variable structMetadataVar = eosGroup.findVariable(name);
-        if (structMetadataVar == null) {
-            return null;
-        }
-        final Array metadataArray = structMetadataVar.read();
-        return metadataArray.toString();
     }
 
     @Override
@@ -128,8 +77,8 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public AcquisitionInfo read() throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();
-        final String coreMateString = getEosMetadata(CORE_METADATA, rootGroup);
-        final Element eosElement = getEosElement(coreMateString);
+        final String coreMetaString = HdfEOSUtil.getEosMetadata(HdfEOSUtil.CORE_METADATA, rootGroup);
+        final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
 
         final NodeType nodeType = readNodeType();
 
@@ -147,8 +96,10 @@ public class AIRS_L1B_Reader implements Reader {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         acquisitionInfo.setNodeType(nodeType);
 
-        final Date sensingStart = parseDate(getElementValue(eosElement, RANGE_BEGINNING_DATE), getElementValue(eosElement, RANGE_BEGINNING_TIME));
-        final Date sensingStop = parseDate(getElementValue(eosElement, RANGE_ENDING_DATE), getElementValue(eosElement, RANGE_ENDING_TIME));
+        final Date sensingStart = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE),
+                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
+        final Date sensingStop = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_DATE),
+                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME));
 
         acquisitionInfo.setSensingStart(sensingStart);
         acquisitionInfo.setSensingStop(sensingStop);
@@ -196,19 +147,6 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public Dimension getProductSize() {
         throw new RuntimeException("Not yet implemented");
-    }
-
-    // package access for testing only tb 2016-01-08
-    Date parseDate(String dateString, String timeString) {
-        final String timeStringWithMillis = stripMicrosecs(timeString);
-        final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
-        return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
-    }
-
-    // @todo 3 tb/** make static, packagelocal and write tests for this method 2016-03-16
-    private String stripMicrosecs(String timeString) {
-        final int lastDotIndex = timeString.lastIndexOf('.');
-        return timeString.substring(0, lastDotIndex + 4);
     }
 
     private NodeType readNodeType() {

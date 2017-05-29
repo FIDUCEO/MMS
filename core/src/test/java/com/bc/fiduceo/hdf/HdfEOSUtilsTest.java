@@ -1,26 +1,27 @@
 /*
- * Copyright (C) 2016 Brockmann Consult GmbH
+ * Copyright (C) 2017 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU General Public License as published by the Free
+ *  Software Foundation; either version 3 of the License, or (at your option)
+ *  any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ *  more details.
  *
- * A copy of the GNU General Public License should have been supplied along
- * with this program; if not, see http://www.gnu.org/licenses/
+ *  A copy of the GNU General Public License should have been supplied along
+ *  with this program; if not, see http://www.gnu.org/licenses/
  *
  */
 
-package com.bc.fiduceo.reader.airs;
+package com.bc.fiduceo.hdf;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import org.jdom2.Content;
 import org.jdom2.Element;
 import org.junit.Test;
@@ -39,42 +40,15 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AIRS_L1B_ReaderTest {
-
-    @Test
-    public void testGetEosElement() throws IOException {
-        final Element eosElement = AIRS_L1B_Reader.getEosElement(EOS_CORE_META);
-        assertNotNull(eosElement);
-        List<Content> content = eosElement.getContent();
-        assertEquals(1, content.size());
-        Content subContent = content.get(0);
-        assertNotNull(subContent);
-        Element inventoryMetadataElement = eosElement.getChild("INVENTORYMETADATA");
-        content = inventoryMetadataElement.getContent();
-        assertEquals(10, content.size());
-    }
+public class HdfEOSUtilsTest {
 
     @Test
     public void testGetEosMetadata_groupNotPresent() throws IOException {
         final Group mockGroup = mock(Group.class);
         when(mockGroup.findVariable("whatever")).thenReturn(null);
 
-        final String metadata = AIRS_L1B_Reader.getEosMetadata("whatever", mockGroup);
+        final String metadata = HdfEOSUtil.getEosMetadata("whatever", mockGroup);
         assertNull(metadata);
-    }
-
-    @Test
-    public void testElementValue() throws IOException {
-        final Element mockElement = mock(Element.class);
-        final Element childElement = mock(Element.class);
-        when(childElement.getValue()).thenReturn("2015-08-03");
-
-        when(mockElement.getChild("VALUE")).thenReturn(childElement);
-        when(mockElement.getName()).thenReturn("RANGEENDINGDATE");
-
-        final String elementValue = AIRS_L1B_Reader.getElementValue(mockElement, "RANGEENDINGDATE");
-        assertNotNull(elementValue);
-        assertEquals("2015-08-03", elementValue);
     }
 
     @Test
@@ -89,16 +63,47 @@ public class AIRS_L1B_ReaderTest {
         when(mockVariable.read()).thenReturn(mockArray);
         when(mockGroup.findVariable("with_data")).thenReturn(mockVariable);
 
-        final String metadata = AIRS_L1B_Reader.getEosMetadata("with_data", mockGroup);
+        final String metadata = HdfEOSUtil.getEosMetadata("with_data", mockGroup);
         assertNotNull(metadata);
         assertEquals(expected, metadata);
     }
 
     @Test
-    public void testParseDate_fullFormat() throws ParseException {
-        final AIRS_L1B_Reader reader = new AIRS_L1B_Reader(null);
+    public void testGetEosElement() throws IOException {
+        final Element eosElement = HdfEOSUtil.getEosElement(EOS_CORE_META);
+        assertNotNull(eosElement);
+        List<Content> content = eosElement.getContent();
+        assertEquals(1, content.size());
+        Content subContent = content.get(0);
+        assertNotNull(subContent);
+        Element inventoryMetadataElement = eosElement.getChild("INVENTORYMETADATA");
+        content = inventoryMetadataElement.getContent();
+        assertEquals(10, content.size());
+    }
 
-        final Date date = reader.parseDate("2012-07-11", "14:33:54.876543Z");
+    @Test
+    public void testElementValue() throws IOException {
+        final Element mockElement = mock(Element.class);
+        final Element childElement = mock(Element.class);
+        when(childElement.getValue()).thenReturn("2015-08-03");
+
+        when(mockElement.getChild("VALUE")).thenReturn(childElement);
+        when(mockElement.getName()).thenReturn("RANGEENDINGDATE");
+
+        final String elementValue = HdfEOSUtil.getElementValue(mockElement, "RANGEENDINGDATE");
+        assertNotNull(elementValue);
+        assertEquals("2015-08-03", elementValue);
+    }
+
+    @Test
+    public void testStripMicroSecs() {
+        assertEquals("14:35:00.000", HdfEOSUtil.stripMicroSecs("14:35:00.000000"));
+        assertEquals("10:40:00.000", HdfEOSUtil.stripMicroSecs("10:40:00.000000"));
+    }
+
+    @Test
+    public void testParseDate_fullFormat() throws ParseException {
+        final Date date = HdfEOSUtil.parseDate("2012-07-11", "14:33:54.876543Z");
         TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
     }
 
