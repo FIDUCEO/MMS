@@ -124,7 +124,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                                 sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
 
                                 sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator());
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {

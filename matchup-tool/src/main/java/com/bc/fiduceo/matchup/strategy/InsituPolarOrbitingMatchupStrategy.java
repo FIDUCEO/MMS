@@ -119,7 +119,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     for (final MatchupSet matchupSet : matchupSets) {
                         matchupSet.setPrimaryObservationPath(insituPath);
                         matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
-                        final Path secPath = matchupSet.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
+                        final Path secPath = matchupSet.getSecondaryObservationPath(secSensorName);
 
                         final List<MatchupSet> satelliteSets;
                         if (matchupSetsSatelliteOrder.containsKey(secPath)) {
@@ -163,7 +163,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     for (MatchupSet matchupSet : matchupSets) {
                         final Path insituPath = matchupSet.getPrimaryObservationPath();
                         final String sensorName = insituProduktSensorName.get(insituPath);
-                        final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator);
+                        final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator, secSensorName);
                         matchupSet.setSampleSets(completeSamples);
 
                         try (final Reader insituReader = readerFactory.getReader(sensorName)) {
@@ -184,11 +184,6 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
 
         final int numSecSensors = secSensorNames.length;
-
-//        if (numSecSensors <= 1) {
-//            return matchupCollection;
-//        }
-
 
         final CombineBean combineBean = new CombineBean();
         combineBean.primarySensorName = primarySensorName;
@@ -315,14 +310,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
     }
 
     static void combineMatchupSets(int depth, CombineBean bean, List<MatchupSet> matchupSets) {
+        final String secSensorName = bean.secSensorNames[depth];
         int secIdx = depth + 1;
         for (MatchupSet matchupSet : matchupSets) {
             if (depth == 0) {
                 bean.paths[PRIM_IDX] = matchupSet.getPrimaryObservationPath();
                 bean.versions[PRIM_IDX] = matchupSet.getPrimaryProcessingVersion();
             }
-            bean.paths[secIdx] = matchupSet.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
-            bean.versions[secIdx] = matchupSet.getSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey());
+            bean.paths[secIdx] = matchupSet.getSecondaryObservationPath(secSensorName);
+            bean.versions[secIdx] = matchupSet.getSecondaryProcessingVersion(secSensorName);
             final List<SampleSet> sampleSets = matchupSet.getSampleSets();
             for (SampleSet sampleSet : sampleSets) {
                 final Sample primary = sampleSet.getPrimary();
@@ -332,7 +328,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     continue;
                 }
 
-                bean.samples[secIdx] = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+                bean.samples[secIdx] = sampleSet.getSecondary(secSensorName);
                 combineMatchups(depth + 1, bean);
                 bean.samples[secIdx] = null;
             }
@@ -351,12 +347,13 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
 
             for (SatelliteObservation candidate : candidatesByGeometry) {
+                final String secSensorName = candidate.getSensor().getName();
                 final String productName = candidate.getDataFilePath().getFileName().toString();
                 MatchupSet matchupSet = observationsPerProduct.get(productName);
                 if (matchupSet == null) {
                     matchupSet = new MatchupSet();
-                    matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), candidate.getDataFilePath());
-                    matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), candidate.getVersion());
+                    matchupSet.setSecondaryObservationPath(secSensorName, candidate.getDataFilePath());
+                    matchupSet.setSecondaryProcessingVersion(secSensorName, candidate.getVersion());
 
                     observationsPerProduct.put(productName, matchupSet);
                 }

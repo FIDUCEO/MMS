@@ -162,7 +162,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 }
 
                                 SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primaryMatchups.getSampleSets(), secondaryReader.getTimeLocator());
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primaryMatchups.getSampleSets(), secondaryReader.getTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {

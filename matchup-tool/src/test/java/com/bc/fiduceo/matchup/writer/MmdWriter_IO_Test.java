@@ -66,15 +66,19 @@ public class MmdWriter_IO_Test {
 
     private File testDir;
     private MmdWriterConfig writerConfig;
+    public static final String SEC_SENSOR_NAME = "avhrr-n11";
 
     @Before
     public void setUp() throws Exception {
         testDir = TestUtil.createTestDirectory();
         writerConfig = new MmdWriterConfig();
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
+        SampleSet.setOnlyOneSecondaryKey(SEC_SENSOR_NAME);
     }
 
     @After
     public void tearDown() throws Exception {
+        SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         TestUtil.deleteTestDirectory();
     }
 
@@ -252,13 +256,13 @@ public class MmdWriter_IO_Test {
         final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", processingVersion, "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
         matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
         matchupSet.setPrimaryProcessingVersion(processingVersion);
-        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n11", processingVersion, "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
-        matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), Paths.get(secondaryPath));
-        matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), processingVersion);
+        final String secondaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), SEC_SENSOR_NAME, processingVersion, "1989", "05", "02", "19890502001800-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
+        matchupSet.setSecondaryObservationPath(SEC_SENSOR_NAME, Paths.get(secondaryPath));
+        matchupSet.setSecondaryProcessingVersion(SEC_SENSOR_NAME, processingVersion);
         for (int i = 0; i < 8; i++) {
             final SampleSet sampleSet = new SampleSet();
             sampleSet.setPrimary(new Sample(0, 8981 + i, 34.726, -67.245, 610071188));
-            sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(408, 819 + i, 34.793, -67.246, 610071904));
+            sampleSet.setSecondary(SEC_SENSOR_NAME, new Sample(408, 819 + i, 34.793, -67.246, 610071904));
             matchupSet.getSampleSets().add(sampleSet);
         }
         matchupCollection.add(matchupSet);

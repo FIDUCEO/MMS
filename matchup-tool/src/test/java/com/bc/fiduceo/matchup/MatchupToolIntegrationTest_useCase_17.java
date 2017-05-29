@@ -151,7 +151,7 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            NCTestUtils.assertVectorVariable("matchup_spherical_distance", 0, 3.3357553482055664, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_amsub-n15_matchup_spherical_distance", 0, 3.3357553482055664, mmd);
         }
     }
 

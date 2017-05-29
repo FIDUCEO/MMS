@@ -55,9 +55,10 @@ class SampleCollector {
      * @param sampleSets  the input data - will be empty after the operation!
      * @param timeLocator the time locator for the sample locations
      *
+     * @param secSensorName
      * @return the result list with the sampleSets that contain two observations
      */
-    List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator) {
+    List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator, final String secSensorName) {
         Point2D geopos = new Point2D.Double();
         final List<SampleSet> toKeep = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {
@@ -75,7 +76,7 @@ class SampleCollector {
                     sampleSet.setPrimary(primary);
                 }
                 // todo se multisensor
-                sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), sample);
+                sampleSet.setSecondary(secSensorName, sample);
                 toKeep.add(sampleSet);
             }
         }

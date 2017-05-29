@@ -102,7 +102,7 @@ public class SampleCollectorTest {
         matchupSet.addPrimary(new Sample(2, 3, 4.5, 5.5, 100L));
         matchupSet.addPrimary(new Sample(6, 7, 8.5, 9.5, 200L));
 
-        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
+        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
 
         assertEquals(2, sampleSets.size());
 
@@ -141,7 +141,7 @@ public class SampleCollectorTest {
         matchupSet.addPrimary(primaryOne);
         matchupSet.addPrimary(primaryTwo);
 
-        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator());
+        final List<SampleSet> sampleSets = collector.addSecondarySamples(matchupSet.getSampleSets(), new TestTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
 
         assertEquals(1, sampleSets.size());
 

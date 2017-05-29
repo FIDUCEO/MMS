@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -110,19 +111,29 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             logger.info("Initialized target file");
 
             final Sensor primarySensor = useCaseConfig.getPrimarySensor();
-            // todo se multisensor
-            final Sensor secondarySensor = useCaseConfig.getSecondarySensors().get(0);
             final String primarySensorName = primarySensor.getName();
-            final String secondarySensorName = secondarySensor.getName();
             final List<IOVariable> primaryVariables = ioVariablesList.getVariablesFor(primarySensorName);
-            final List<IOVariable> secondaryVariables = ioVariablesList.getVariablesFor(secondarySensorName);
+            final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
+            final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
+
+            // todo se multisensor ... done
+            final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+            final int secSize = secondarySensors.size();
+            final String[] secSensorNames = new String[secSize];
+            final List<List<IOVariable>> secVariablesList = new ArrayList<>();
+            final Interval[] secIntervals = new Interval[secSize];
+            for (int i = 0; i < secondarySensors.size(); i++) {
+                Sensor secondarySensor = secondarySensors.get(i);
+                final String secondarySensorName = secondarySensor.getName();
+                secSensorNames[i] = secondarySensorName;
+                secVariablesList.add(ioVariablesList.getVariablesFor(secondarySensorName));
+                final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
+                secIntervals[i] = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
+            }
+
             final List<SampleSetIOVariable> sampleSetVariables = ioVariablesList.getSampleSetIOVariables();
             logger.info("Collected IO Variables");
 
-            final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
-            final Dimension secondaryDimension = useCaseConfig.getDimensionFor(secondarySensorName);
-            final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
-            final Interval secondaryInterval = new Interval(secondaryDimension.getNx(), secondaryDimension.getNy());
 
             final StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -133,21 +144,28 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             for (MatchupSet set : sets) {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
-
-                // todo se multisensor
-                final Path secondaryObservationPath = set.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
-                final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secondarySensorName, secondaryObservationPath);
-
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
-                ioVariablesList.setReaderAndPath(secondarySensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey()));
 
-                logger.info("writing samples for " + primaryObservationPath.getFileName() + " and " + secondaryObservationPath.getFileName());
+                logger.info("writing samples for " + primaryObservationPath.getFileName());
+                // todo se multisensor ... done
+                for (String secSensorName : secSensorNames) {
+                    final Path secondaryObservationPath = set.getSecondaryObservationPath(secSensorName);
+                    final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secSensorName, secondaryObservationPath);
+                    ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(secSensorName));
+                    logger.info("... and " + secondaryObservationPath.getFileName());
+                }
                 logger.info("Num matchups: " + set.getNumObservations());
+
 
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
-                    writeMmdValues(sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey()), zIndex, secondaryVariables, secondaryInterval);
+                    // todo se multisensor ... done
+                    for (int i = 0; i < secSensorNames.length; i++) {
+                        String secSensorName = secSensorNames[i];
+                        final List<IOVariable> secIOVariables = secVariablesList.get(i);
+                        writeMmdValues(sampleSet.getSecondary(secSensorName), zIndex, secIOVariables, secIntervals[i]);
+                    }
                     writeSampleSetVariables(sampleSet, sampleSetVariables, zIndex);
                     zIndex++;
                     if (zIndex % cacheSize == 0) {
@@ -304,14 +322,15 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     }
 
     private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String primarySensorName, Path primaryObservationPath) throws IOException {
-        Reader reader = readerCache.get(primaryObservationPath.toString());
-        if (reader == null) {
-            reader = readerFactory.getReader(primarySensorName);
+        final String path = primaryObservationPath.toString();
+        if (readerCache.containsKey(path)) {
+            return readerCache.get(path);
+        } else {
+            final Reader reader = readerFactory.getReader(primarySensorName);
             reader.open(primaryObservationPath.toFile());
-            readerCache.add(reader, primaryObservationPath.toString());
+            readerCache.add(reader, path);
+            return reader;
         }
-
-        return reader;
     }
 
     private void writeSampleSetVariables(SampleSet sampleSet, List<SampleSetIOVariable> sampleSetVariables, int zIndex)

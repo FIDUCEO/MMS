@@ -310,7 +310,7 @@ public class MatchupToolTest {
 
         final MatchupSet matchupSet = new MatchupSet();
         matchupSet.setPrimaryObservationPath(mockingPrimaryPath);
-        matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), mockingSecondaryPath);
+        matchupSet.setSecondaryObservationPath(secondarySensorName, mockingSecondaryPath);
 
         final MatchupCollection matchupCollection = new MatchupCollection();
         matchupCollection.add(matchupSet);

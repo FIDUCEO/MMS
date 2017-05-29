@@ -133,7 +133,6 @@ class MatchupTool {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Path primaryPath = matchupSet.getPrimaryObservationPath();
-        final Path secondaryPath = matchupSet.getSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey());
 
         final String primSensorName = useCaseConfig.getPrimarySensor().getName();
         final Dimension primDim = useCaseConfig.getDimensionFor(primSensorName);
@@ -145,6 +144,7 @@ class MatchupTool {
         for (Sensor secondarySensor : secondarySensors) {
             final String secondarySensorName = secondarySensor.getName();
             final Dimension secoDim = useCaseConfig.getDimensionFor(secondarySensorName);
+            final Path secondaryPath = matchupSet.getSecondaryObservationPath(secondarySensorName);
             ioVariablesList.extractVariables(secondarySensorName, secondaryPath, secoDim, variablesConfiguration);
             createExtraVariables(secondarySensorName, ioVariablesList, variablesConfiguration);
         }
@@ -351,7 +351,7 @@ class MatchupTool {
         }
         context.setUseCaseConfig(useCaseConfig);
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
-        if (secondarySensors.size()==1) {
+        if (secondarySensors.size() == 1) {
             SampleSet.setOnlyOneSecondaryKey(secondarySensors.get(0).getName());
         }
 
@@ -388,14 +388,10 @@ class MatchupTool {
         if (useCaseConfig.isWriteDistance()) {
             // todo se multisensor ... done
             final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
-            if (secondarySensors.size() > 1) {
-                final String primaryName = useCaseConfig.getPrimarySensor().getName();
-                for (Sensor secondarySensor : secondarySensors) {
-                    final String secondaryName = secondarySensor.getName();
-                    ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration, primaryName, secondaryName));
-                }
-            } else {
-                ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration));
+            final String primaryName = useCaseConfig.getPrimarySensor().getName();
+            for (Sensor secondarySensor : secondarySensors) {
+                final String secondaryName = secondarySensor.getName();
+                ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration, primaryName, secondaryName));
             }
         }
 
@@ -406,27 +402,15 @@ class MatchupTool {
         }
     }
 
-    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration) {
-        return createSphericalDistanceVariable(variablesConfiguration,false, null, SampleSet.getOnlyOneSecondaryKey());
-    }
-
-    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
-        return createSphericalDistanceVariable(variablesConfiguration,true, primaryName, secondaryName);
-    }
-
     private SphericalDistanceIOVariable createSphericalDistanceVariable(
-                VariablesConfiguration variablesConfiguration, boolean createVariableWithSensorNames,
+                VariablesConfiguration variablesConfiguration,
                 String primaryName, String secondaryName) {
         final String targetVariableName;
         // todo se multisensor ... done
-        if (createVariableWithSensorNames) {
-            final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
-            final String p = sensorRenames.getOrDefault(primaryName, primaryName);
-            final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
-            targetVariableName = p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
-        } else {
-            targetVariableName = SPERICAL_DISTANCE_VAR_NAME;
-        }
+        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+        final String p = sensorRenames.getOrDefault(primaryName, primaryName);
+        final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
+        targetVariableName = p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
         final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable(secondaryName);
         variable.setTargetVariableName(targetVariableName);
         final DataType dataType = DataType.FLOAT;
