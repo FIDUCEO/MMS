@@ -67,6 +67,7 @@ public class SSTInsituReader implements Reader {
 
         addIdVariableAndData();
 
+        // @todo extract method, parse from filename if not present tb 2017-05-29
         insituType = netcdfFile.findGlobalAttribute("dataset").getStringValue();
     }
 
