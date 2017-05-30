@@ -22,9 +22,11 @@ package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,8 +135,46 @@ public class MxD06_Reader_IO_Test {
             locations = coordinates[9].getCoordinates();
             time = timeAxes[0].getTime(locations[0]);
             TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 39, 54, 17, time);
+        } finally {
+            reader.close();
+        }
+    }
 
+    @Test
+    public void testGetProductSize_Terra() throws IOException {
+        final File file = getTerraFile();
 
+        try {
+            reader.open(file);
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(270, productSize.getNx());
+            assertEquals(406, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(270, productSize.getNx());
+            assertEquals(406, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
         } finally {
             reader.close();
         }

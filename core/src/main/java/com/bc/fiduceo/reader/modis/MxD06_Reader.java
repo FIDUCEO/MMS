@@ -47,6 +47,8 @@ public class MxD06_Reader implements Reader {
 
     private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
+    private static final String GEOLOCATION_GROUP = "mod06/Geolocation_Fields";
+
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
@@ -74,23 +76,8 @@ public class MxD06_Reader implements Reader {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         extractAcquisitionTimes(acquisitionInfo);
-
+        extractGeometries(acquisitionInfo);
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
-
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
-        final Array longitude = arrayCache.get("mod06/Geolocation_Fields", "Longitude");
-        final Array latitude = arrayCache.get("mod06/Geolocation_Fields", "Latitude");
-        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
-        if (!boundingGeometry.isValid()) {
-            throw new RuntimeException("Detected invalid bounding geometry");
-        }
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
-
-        final Geometries geometries = new Geometries();
-        geometries.setBoundingGeometry(boundingGeometry);
-        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
@@ -112,7 +99,16 @@ public class MxD06_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array time = arrayCache.get("mod06/Data_Fields", "Scan_Start_Time");
+        final int[] offsets = new int[] {0, 0};
+        final int[] shape = time.getShape();
+        shape[1] = 1;
+        try {
+            final Array section = time.section(offsets, shape);
+            return new MxD06_TimeLocator(section);
+        } catch (InvalidRangeException e) {
+           throw new IOException(e.getMessage());
+        }
     }
 
     @Override
@@ -137,7 +133,9 @@ public class MxD06_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
+        final int[] shape = longitude.getShape();
+        return new Dimension("shape", shape[1], shape[0]);
     }
 
     private void extractAcquisitionTimes(AcquisitionInfo acquisitionInfo) throws IOException {
@@ -153,5 +151,22 @@ public class MxD06_Reader implements Reader {
         final String rangeEndTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME);
         final Date sensingStop = HdfEOSUtil.parseDate(rangeEndDateElement, rangeEndTimeElement);
         acquisitionInfo.setSensingStop(sensingStop);
+    }
+
+    private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
+        final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
+        final Array latitude = arrayCache.get(GEOLOCATION_GROUP, "Latitude");
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
+        if (!boundingGeometry.isValid()) {
+            throw new RuntimeException("Detected invalid bounding geometry");
+        }
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
+        final Geometries geometries = new Geometries();
+        geometries.setBoundingGeometry(boundingGeometry);
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
     }
 }
