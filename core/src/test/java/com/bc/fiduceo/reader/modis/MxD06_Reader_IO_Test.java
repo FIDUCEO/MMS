@@ -23,7 +23,7 @@ package com.bc.fiduceo.reader.modis;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +68,26 @@ public class MxD06_Reader_IO_Test {
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(31, coordinates.length);
+            assertEquals(-67.80709838867188, coordinates[0].getLon(), 1e-8);
+            assertEquals(48.376953125, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-38.39603042602539, coordinates[24].getLon(), 1e-8);
+            assertEquals(44.151187896728516, coordinates[24].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Point[] locations = coordinates[0].getCoordinates();
+            Date time = timeAxes[0].getTime(locations[0]);
+            TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 35, 7, 198, time);
+
+            locations = coordinates[9].getCoordinates();
+            time = timeAxes[0].getTime(locations[0]);
+            TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 40, 0, 0, time);
 
         } finally {
             reader.close();
@@ -92,6 +112,27 @@ public class MxD06_Reader_IO_Test {
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(31, coordinates.length);
+            assertEquals(95.26064300537111, coordinates[0].getLon(), 1e-8);
+            assertEquals(-65.07981872558594, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(36.58618927001953, coordinates[24].getLon(), 1e-8);
+            assertEquals(-73.6755599975586, coordinates[24].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Point[] locations = coordinates[0].getCoordinates();
+            Date time = timeAxes[0].getTime(locations[0]);
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 35, 0, 0, time);
+
+            locations = coordinates[9].getCoordinates();
+            time = timeAxes[0].getTime(locations[0]);
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 39, 54, 17, time);
 
 
         } finally {

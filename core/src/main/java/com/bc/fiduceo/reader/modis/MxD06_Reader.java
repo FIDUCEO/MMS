@@ -23,13 +23,13 @@ package com.bc.fiduceo.reader.modis;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -45,15 +45,18 @@ import java.util.List;
 
 public class MxD06_Reader implements Reader {
 
+    private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
+    private ArrayCache arrayCache;
 
     MxD06_Reader(GeometryFactory geometryFactory) {
-
+        this.geometryFactory = geometryFactory;
     }
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
     }
 
     @Override
@@ -71,6 +74,21 @@ public class MxD06_Reader implements Reader {
         extractAcquisitionTimes(acquisitionInfo);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
+        final Array longitude = arrayCache.get("mod06/Geolocation_Fields", "Longitude");
+        final Array latitude = arrayCache.get("mod06/Geolocation_Fields", "Latitude");
+        final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
+        if (!boundingGeometry.isValid()) {
+            throw new RuntimeException("Detected invalid bounding geometry");
+        }
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+
+        final Geometries geometries = new Geometries();
+        geometries.setBoundingGeometry(boundingGeometry);
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
+        geometries.setTimeAxesGeometry(timeAxisGeometry);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
 
         return acquisitionInfo;
     }
