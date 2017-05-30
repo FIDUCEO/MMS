@@ -684,6 +684,44 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_MYD06_AQUA() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "myd06-aq", "-start", "2009-133", "-end", "2009-133", "-v", "v006"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("MYD06_L2.A2009133.1035.006.2014062050327.hdf", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 35, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 40, 0, 0, observation.getStopTime());
+
+            assertEquals("myd06-aq", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"myd06-aq", "v006", "2009", "133", "MYD06_L2.A2009133.1035.006.2014062050327.hdf"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v006", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof Polygon);
+
+            assertEquals(TestData.MYD06_AQUA_GEOMETRY, geometryFactory.format(geoBounds));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 35, 0, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 40, 0, 0, timeAxes[0].getEndTime());
+            assertEquals(TestData.MYD06_AQUA_AXIS_GEOMETRY, geometryFactory.format(timeAxes[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private SatelliteObservation getSatelliteObservation(String name, List<SatelliteObservation> satelliteObservations) {
         for (final SatelliteObservation observation : satelliteObservations) {
             if (observation.getDataFilePath().endsWith(name)) {

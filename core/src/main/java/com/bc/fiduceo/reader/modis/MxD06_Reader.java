@@ -45,6 +45,8 @@ import java.util.List;
 
 public class MxD06_Reader implements Reader {
 
+    private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
+
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
@@ -95,7 +97,7 @@ public class MxD06_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override

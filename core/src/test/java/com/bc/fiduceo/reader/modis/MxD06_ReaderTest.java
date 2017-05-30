@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,7 +33,11 @@ public class MxD06_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "M(O|Y)D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
+        final String expected = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
+
+        final MxD06_Reader reader = new MxD06_Reader(null); // we do not need a geometry factory for this test tb 2017-05-30
+        final String readerRexExp = reader.getRegEx();
+        assertEquals(expected, readerRexExp);
 
         final Pattern pattern = Pattern.compile(expected);
 
