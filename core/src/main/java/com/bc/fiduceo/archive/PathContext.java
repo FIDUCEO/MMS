@@ -40,6 +40,9 @@
 
 package com.bc.fiduceo.archive;
 
+import com.bc.fiduceo.util.TimeUtils;
+
+import java.util.Calendar;
 import java.util.HashMap;
 
 class PathContext {
@@ -53,6 +56,12 @@ class PathContext {
         map.put("YEAR", Integer.toString(year));
         map.put("MONTH", String.format("%02d", month));
         map.put("DAY", String.format("%02d", day));
+
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.set(Calendar.YEAR, year);
+        utcCalendar.set(Calendar.MONTH, month - 1);
+        utcCalendar.set(Calendar.DAY_OF_MONTH, day);
+        map.put("DAY_OF_YEAR", String.format("%02d", utcCalendar.get(Calendar.DAY_OF_YEAR)));
     }
 
     String getSegment(String pathElement) {

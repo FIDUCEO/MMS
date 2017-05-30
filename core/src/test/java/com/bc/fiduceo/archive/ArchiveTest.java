@@ -173,13 +173,13 @@ public class ArchiveTest {
         assertNotNull(productPaths);
         assertEquals(45, productPaths.length);
 
-        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile11_0.nc"}, false);
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "1.0", "amsub", "2016", "05", "productFile11_0.nc"}, false);
         assertEquals(expected, productPaths[0].toString());
 
-        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile12_14.nc"}, false);
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "1.0", "amsub", "2016", "05", "productFile12_14.nc"}, false);
         assertEquals(expected, productPaths[21].toString());
 
-        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","1.0","amsub","2016","05","productFile13_9.nc"}, false);
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "1.0", "amsub", "2016", "05", "productFile13_9.nc"}, false);
         assertEquals(expected, productPaths[44].toString());
     }
 
@@ -213,16 +213,57 @@ public class ArchiveTest {
         assertNotNull(productPaths);
         assertEquals(15, productPaths.length);
 
-        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile0.nc"}, false);
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "productFile0.nc"}, false);
         assertEquals(expected, productPaths[0].toString());
 
-        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile3.nc"}, false);
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "productFile3.nc"}, false);
         assertEquals(expected, productPaths[8].toString());
 
-        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot","in-situ","1.0","amsub","productFile9.nc"}, false);
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "productFile9.nc"}, false);
         assertEquals(expected, productPaths[14].toString());
     }
 
+    @Test
+    public void testGetWithStartAndEndDate_configuredPath_withDayOfYear() throws Exception {
+        // path: <root>/<version>/<sensor>/<year>/<day_of_year>
+        // preparation
+        final Path insituDir = Files.createDirectory(root.resolve("in-situ"));
+        final Path versionDir = Files.createDirectory(insituDir.resolve(processingVersion));
+        final Path sensorDir = Files.createDirectory(versionDir.resolve(sensorType));
+        final Path yearDir = Files.createDirectory(sensorDir.resolve("2016"));
+        final Path dayOfYearDir = Files.createDirectory(yearDir.resolve("134"));
+
+        for (int i = 0; i < 15; i++) {
+            Files.createFile(dayOfYearDir.resolve(String.format("productFile%d.nc", i)));
+        }
+
+        final Date startDate = getDate("2016-132");
+        final Date endDate = getDate("2016-135");
+
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        archiveConfig.setRootPath(root);
+        final String[] pathElements = {"in-situ", "VERSION", "SENSOR", "YEAR", "DAY_OF_YEAR"};
+        final HashMap<String, String[]> rules = new HashMap<>();
+        rules.put(sensorType, pathElements);
+        archiveConfig.setRules(rules);
+
+        final Archive configuredArchive = new Archive(archiveConfig);
+
+        // action
+        final Path[] productPaths = configuredArchive.get(startDate, endDate, processingVersion, sensorType);
+        // validation
+        assertNotNull(productPaths);
+        assertEquals(15, productPaths.length);
+
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "2016", "134", "productFile0.nc"}, false);
+        assertEquals(expected, productPaths[0].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "2016", "134", "productFile3.nc"}, false);
+        assertEquals(expected, productPaths[8].toString());
+
+        expected = TestUtil.assembleFileSystemPath(new String[]{"archiveRoot", "in-situ", "1.0", "amsub", "2016", "134", "productFile9.nc"}, false);
+        assertEquals(expected, productPaths[14].toString());
+    }
 
     @Test
     public void testGet_withNotExistingDir() throws IOException {
@@ -317,7 +358,7 @@ public class ArchiveTest {
         archiveConfig.setRules(rules);
 
         final Archive archive = new Archive(archiveConfig);
-        String expected = TestUtil.assembleFileSystemPath(new String[]{"C:","data","storage"}, false);
+        String expected = TestUtil.assembleFileSystemPath(new String[]{"C:", "data", "storage"}, false);
         assertEquals(expected, archive.getRootPath().toString());
 
         String[] sensorElements = archive.getPathElements("the_sensor");
