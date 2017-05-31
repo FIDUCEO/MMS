@@ -30,10 +30,13 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -201,6 +204,21 @@ public class MxD06_Reader_IO_Test {
             reader.close();
         }
     }
+
+    // @todo 1 tb/tb continue here 2017-05-31
+//    @Test
+//    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
+//        final File file = getTerraFile();
+//
+//        try {
+//            reader.open(file);
+//            final List<Variable> variables = reader.getVariables();
+//            assertEquals();
+//        } finally {
+//            reader.close();
+//        }
+//    }
+
 
     private File getTerraFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod06-te", "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, false);

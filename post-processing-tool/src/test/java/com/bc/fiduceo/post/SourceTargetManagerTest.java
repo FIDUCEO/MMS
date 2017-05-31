@@ -19,9 +19,6 @@
 
 package com.bc.fiduceo.post;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.plugin.DummyPostProcessingPlugin;
 import org.esa.snap.core.util.io.FileUtils;
@@ -29,20 +26,29 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-/**
- * Created by Sabine on 13.12.2016.
- */
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+
 public class SourceTargetManagerTest {
 
     private static final String CONFIG = PostProcessingConfig.TAG_NAME_ROOT;
@@ -54,7 +60,6 @@ public class SourceTargetManagerTest {
     private static final String DUMMY_NAME = DummyPostProcessingPlugin.DUMMY_POST_PROCESSING_NAME;
     private Element root;
     private Path testDir;
-    private Path srcDir;
     private Path srcFile;
     private Path outputDir;
     private String fileContent;
@@ -62,7 +67,7 @@ public class SourceTargetManagerTest {
     @Before
     public void setUp() throws Exception {
         testDir = TestUtil.createTestDirectory().toPath();
-        srcDir = testDir.resolve("srcDir");
+        final Path srcDir = testDir.resolve("srcDir");
 
         srcFile = srcDir.resolve("src.file");
         fileContent = "this is a test source file.";
@@ -75,12 +80,12 @@ public class SourceTargetManagerTest {
         Files.createDirectories(outputDir);
 
         root = new Element(CONFIG).addContent(Arrays.asList(
-                    new Element(NEW_FILES).addContent(
-                                new Element(OUTPUT_DIR).addContent(outputDir.toAbsolutePath().toString())
-                    ),
-                    new Element(PROCESSINGS).addContent(
-                                new Element(DUMMY_NAME).addContent("strong")
-                    )
+                new Element(NEW_FILES).addContent(
+                        new Element(OUTPUT_DIR).addContent(outputDir.toAbsolutePath().toString())
+                ),
+                new Element(PROCESSINGS).addContent(
+                        new Element(DUMMY_NAME).addContent("strong")
+                )
         ));
     }
 
@@ -129,7 +134,7 @@ public class SourceTargetManagerTest {
         final Path target = manager.getTargetPath(srcFile);
         final Path expectedTarget = srcFile;
         assertThat(target, is(equalTo(expectedTarget)));
-        assertFalse(Files.exists( target));
+        assertFalse(Files.exists(target));
     }
 
     @Test
@@ -215,6 +220,22 @@ public class SourceTargetManagerTest {
         is.read(buffer);
         is.close();
         assertEquals(fileContent, new String(buffer).trim());
+    }
+
+    @Test
+    public void testGetTargetPath_directoryNotExisting() throws Exception {
+        final PostProcessingConfig config = getConfig();
+        final File notExistingDir = new File(config.getOutputDirectory(), "not_existing_dir");
+        config.setOutputDirectory(notExistingDir.getAbsolutePath());
+
+        final SourceTargetManager sourceTargetManager = new SourceTargetManager(config);
+        final String targetFilePath = new File(notExistingDir, "target.file").getAbsolutePath();
+        final Path targetPath = sourceTargetManager.getTargetPath(Paths.get(targetFilePath));
+
+        assertTrue(notExistingDir.isDirectory());
+        assertEquals(targetFilePath, targetPath.toString());
+
+
     }
 
     private PostProcessingConfig getConfig() throws Exception {

@@ -51,7 +51,16 @@ class SourceTargetManager {
         if (overwrite) {
             return src;
         } else {
-            return Paths.get(outputDirectory).resolve(src.getFileName());
+            final Path outputDirPath = Paths.get(outputDirectory);
+
+            if (!Files.isDirectory(outputDirPath)) {
+                try {
+                    Files.createDirectories(outputDirPath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
+            return outputDirPath.resolve(src.getFileName());
         }
     }
 
@@ -82,8 +91,8 @@ class SourceTargetManager {
     private void loggErrorMessage(Path src, Path tempFile) {
         final Logger logger = FiduceoLogger.getLogger();
         logger.severe("Unable to restore the source file. After computation please remove the source file "
-                      + src.toAbsolutePath().toString() + " and replace it by removing the '.temp' extension from" +
-                      " the temporary file " + tempFile.toAbsolutePath().toString() + ".");
+                + src.toAbsolutePath().toString() + " and replace it by removing the '.temp' extension from" +
+                " the temporary file " + tempFile.toAbsolutePath().toString() + ".");
     }
 
     private Path createTempFile(Path src) {

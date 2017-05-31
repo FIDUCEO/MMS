@@ -78,6 +78,11 @@ public class PostProcessingConfig {
         return outputDirectory;
     }
 
+    // only used in tests tb 2017-05-31
+    void setOutputDirectory(String outputDirectory) {
+        this.outputDirectory = outputDirectory;
+    }
+
     boolean isOverwrite() {
         return overwrite;
     }

@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.post;
 
-import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -57,6 +55,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class PostProcessingTool {
 
@@ -219,13 +219,7 @@ class PostProcessingTool {
                 // open the file that way is needed because the standard open mechanism changes the file size
                 reader = NetCDFUtils.openReadOnly(absSource);
 
-                final String absTarget = target.toAbsolutePath().toString();
-                if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
-                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, absTarget);
-                } else {
-                    final Nc4Chunking chunking = Nc4ChunkingDefault.factory(Nc4Chunking.Strategy.standard, 5, true);
-                    writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
-                }
+                writer = createWriter(target, reader);
 
                 run(reader, writer, processings);
             } finally {
@@ -273,6 +267,19 @@ class PostProcessingTool {
         os.close();
 
         writer.addGroupAttribute(null, new Attribute(attName, os.toString()));
+    }
+
+    private NetcdfFileWriter createWriter(Path target, NetcdfFile reader) throws IOException {
+        NetcdfFileWriter writer;
+        final String absTarget = target.toAbsolutePath().toString();
+        if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
+            writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, absTarget);
+        } else {
+            final Nc4Chunking chunking = Nc4ChunkingDefault.factory(Nc4Chunking.Strategy.standard, 5, true);
+            writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
+        }
+
+        return writer;
     }
 
     private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup, int anon) throws IOException, InvalidRangeException {
