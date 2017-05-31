@@ -175,6 +175,28 @@ public class MxD06_Reader_IO_Test {
         try {
             reader.open(file);
             final TimeLocator timeLocator = reader.getTimeLocator();
+            assertEquals(1360161273778L, timeLocator.getTimeFor(0, 0));
+            assertEquals(1360161273778L, timeLocator.getTimeFor(269, 0));
+
+            assertEquals(1360161422969L, timeLocator.getTimeFor(76, 203));
+            assertEquals(1360161572161L, timeLocator.getTimeFor(145, 405));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertEquals(1242210874206L, timeLocator.getTimeFor(4, 0));
+            assertEquals(1242210874206L, timeLocator.getTimeFor(223, 0));
+
+            assertEquals(1242211023395L, timeLocator.getTimeFor(21, 202));
+            assertEquals(1242211172583L, timeLocator.getTimeFor(147, 405));
         } finally {
             reader.close();
         }

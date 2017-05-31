@@ -122,7 +122,7 @@ class AMSRE_Reader implements Reader {
     @Override
     public TimeLocator getTimeLocator() throws IOException {
         final Array timeArray = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Time");
-        return new AMSRE_TimeLocator(timeArray);
+        return new TimeLocator_TAI1993Vector(timeArray);
     }
 
     @Override

@@ -105,7 +105,7 @@ public class MxD06_Reader implements Reader {
         shape[1] = 1;
         try {
             final Array section = time.section(offsets, shape);
-            return new MxD06_TimeLocator(section);
+            return new TimeLocator_TAI1993Vector(section);
         } catch (InvalidRangeException e) {
            throw new IOException(e.getMessage());
         }

@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,7 +115,7 @@ public class AMSRE_Reader_IO_Test {
 
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
-            assertTrue(timeLocator instanceof AMSRE_TimeLocator);
+            assertTrue(timeLocator instanceof TimeLocator_TAI1993Vector);
 
             long time = timeLocator.getTimeFor(67, 0);
             assertEquals(1108618539107L, time);
