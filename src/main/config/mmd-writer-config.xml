@@ -44,46 +44,89 @@
     <!-- Defines renaming or excluding configuration for the target MMD for specific sensors -->
     <variables-configuration>
 
-        <sensor-rename source-name="amsre-aq" target-name="amsre" />
-        <separator sensor-names="amsre-aq" separator="." />
+        <!-- the following snippet renames AMSRE to SST-CCI notation -->
+        <sensor-rename source-name="amsre-aq" target-name="amsre"/>
+        <separator sensor-names="amsre-aq" separator="."/>
 
-        <sensors names = "amsre-aq">
-            <rename source-name = "Time" target-name = "time" />
-            <rename source-name = "Latitude" target-name = "latitude" />
-            <rename source-name = "Longitude" target-name = "longitude" />
-            <rename source-name = "89_0V_Res_1_TB" target-name = "brightness_temperature89V" />
-            <rename source-name = "89_0H_Res_1_TB" target-name = "brightness_temperature89H" />
-            <rename source-name = "36_5V_Res_1_TB" target-name = "brightness_temperature36V" />
-            <rename source-name = "36_5H_Res_1_TB" target-name = "brightness_temperature36H" />
-            <rename source-name = "23_8V_Res_1_TB" target-name = "brightness_temperature23V" />
-            <rename source-name = "23_8H_Res_1_TB" target-name = "brightness_temperature23H" />
-            <rename source-name = "18_7V_Res_1_TB" target-name = "brightness_temperature18V" />
-            <rename source-name = "18_7H_Res_1_TB" target-name = "brightness_temperature18H" />
-            <rename source-name = "10_7V_Res_1_TB" target-name = "brightness_temperature10V" />
-            <rename source-name = "10_7H_Res_1_TB" target-name = "brightness_temperature10H" />
-            <rename source-name = "6_9V_Res_1_TB" target-name = "brightness_temperature6V" />
-            <rename source-name = "6_9H_Res_1_TB" target-name = "brightness_temperature6H" />
-            <rename source-name = "Earth_Incidence" target-name = "satellite_zenith_angle" />
-            <rename source-name = "Earth_Azimuth" target-name = "satellite_azimuth_angle" />
-            <rename source-name = "Channel_Quality_Flag_89V" target-name = "pixel_data_quality89V" />
-            <rename source-name = "Channel_Quality_Flag_89H" target-name = "pixel_data_quality89H" />
-            <rename source-name = "Channel_Quality_Flag_36V" target-name = "pixel_data_quality36V" />
-            <rename source-name = "Channel_Quality_Flag_36H" target-name = "pixel_data_quality36H" />
-            <rename source-name = "Channel_Quality_Flag_23V" target-name = "pixel_data_quality23V" />
-            <rename source-name = "Channel_Quality_Flag_23H" target-name = "pixel_data_quality23H" />
-            <rename source-name = "Channel_Quality_Flag_18V" target-name = "pixel_data_quality18V" />
-            <rename source-name = "Channel_Quality_Flag_18H" target-name = "pixel_data_quality18H" />
-            <rename source-name = "Channel_Quality_Flag_10V" target-name = "pixel_data_quality10V" />
-            <rename source-name = "Channel_Quality_Flag_10H" target-name = "pixel_data_quality10H" />
-            <rename source-name = "Channel_Quality_Flag_6V" target-name = "pixel_data_quality6V" />
-            <rename source-name = "Channel_Quality_Flag_6H" target-name = "pixel_data_quality6H" />
-            <rename source-name = "Scan_Quality_Flag" target-name = "scan_data_quality" />
-            <rename source-name = "Land_Ocean_Flag_6" target-name = "land_ocean_flag_6" />
-            <rename source-name = "Res1_Surf" target-name = "percent_land" />
-            <rename source-name = "file_name" target-name = "l2a_filename" />
-            <rename source-name = "x" target-name = "matchup.elem" />
-            <rename source-name = "y" target-name = "matchup.line" />
+        <sensors names="amsre-aq">
+            <rename source-name="Time" target-name="time"/>
+            <rename source-name="Latitude" target-name="latitude"/>
+            <rename source-name="Longitude" target-name="longitude"/>
+            <rename source-name="89_0V_Res_1_TB" target-name="brightness_temperature89V"/>
+            <rename source-name="89_0H_Res_1_TB" target-name="brightness_temperature89H"/>
+            <rename source-name="36_5V_Res_1_TB" target-name="brightness_temperature36V"/>
+            <rename source-name="36_5H_Res_1_TB" target-name="brightness_temperature36H"/>
+            <rename source-name="23_8V_Res_1_TB" target-name="brightness_temperature23V"/>
+            <rename source-name="23_8H_Res_1_TB" target-name="brightness_temperature23H"/>
+            <rename source-name="18_7V_Res_1_TB" target-name="brightness_temperature18V"/>
+            <rename source-name="18_7H_Res_1_TB" target-name="brightness_temperature18H"/>
+            <rename source-name="10_7V_Res_1_TB" target-name="brightness_temperature10V"/>
+            <rename source-name="10_7H_Res_1_TB" target-name="brightness_temperature10H"/>
+            <rename source-name="6_9V_Res_1_TB" target-name="brightness_temperature6V"/>
+            <rename source-name="6_9H_Res_1_TB" target-name="brightness_temperature6H"/>
+            <rename source-name="Earth_Incidence" target-name="satellite_zenith_angle"/>
+            <rename source-name="Earth_Azimuth" target-name="satellite_azimuth_angle"/>
+            <rename source-name="Channel_Quality_Flag_89V" target-name="pixel_data_quality89V"/>
+            <rename source-name="Channel_Quality_Flag_89H" target-name="pixel_data_quality89H"/>
+            <rename source-name="Channel_Quality_Flag_36V" target-name="pixel_data_quality36V"/>
+            <rename source-name="Channel_Quality_Flag_36H" target-name="pixel_data_quality36H"/>
+            <rename source-name="Channel_Quality_Flag_23V" target-name="pixel_data_quality23V"/>
+            <rename source-name="Channel_Quality_Flag_23H" target-name="pixel_data_quality23H"/>
+            <rename source-name="Channel_Quality_Flag_18V" target-name="pixel_data_quality18V"/>
+            <rename source-name="Channel_Quality_Flag_18H" target-name="pixel_data_quality18H"/>
+            <rename source-name="Channel_Quality_Flag_10V" target-name="pixel_data_quality10V"/>
+            <rename source-name="Channel_Quality_Flag_10H" target-name="pixel_data_quality10H"/>
+            <rename source-name="Channel_Quality_Flag_6V" target-name="pixel_data_quality6V"/>
+            <rename source-name="Channel_Quality_Flag_6H" target-name="pixel_data_quality6H"/>
+            <rename source-name="Scan_Quality_Flag" target-name="scan_data_quality"/>
+            <rename source-name="Land_Ocean_Flag_6" target-name="land_ocean_flag_6"/>
+            <rename source-name="Res1_Surf" target-name="percent_land"/>
+            <rename source-name="file_name" target-name="l2a_filename"/>
+            <rename source-name="x" target-name="matchup.elem"/>
+            <rename source-name="y" target-name="matchup.line"/>
         </sensors>
 
+        <!-- the following snippet renames (A)ATSR to SST-CCI notation
+             In addition, the postprocessing -@todo 1 - has to be applied to generate zenith angles
+             from the elevation angle variables. -->
+        <sensor-rename source-name="atsr-e1" target-name="atsr.1"/>
+        <sensor-rename source-name="atsr-e2" target-name="atsr.2"/>
+        <sensor-rename source-name="aatsr-en" target-name="atsr.3"/>
+        <separator sensor-names="atsr-e1, atsr-e2, aatsr-en" separator="."/>
+        <sensors names="atsr-e1, atsr-e2, aatsr-en">
+            <rename source-name="btemp_fward_0370" target-name="brightness_temperature_37_forward"/>
+            <rename source-name="btemp_fward_1100" target-name="brightness_temperature_11_forward"/>
+            <rename source-name="btemp_fward_1200" target-name="brightness_temperature_12_forward"/>
+            <rename source-name="btemp_nadir_0370" target-name="brightness_temperature_37_nadir"/>
+            <rename source-name="btemp_nadir_1100" target-name="brightness_temperature_11_nadir"/>
+            <rename source-name="btemp_nadir_1200" target-name="brightness_temperature_12_nadir"/>
+            <rename source-name="cloud_flags_fward" target-name="cloud_flags_forward"/>
+            <rename source-name="confid_flags_fward" target-name="confidence_word_forward"/>
+            <rename source-name="confid_flags_nadir" target-name="confidence_word_nadir"/>
+            <rename source-name="reflec_fward_0550" target-name="reflectance_55_forward"/>
+            <rename source-name="reflec_fward_0670" target-name="reflectance_66_forward"/>
+            <rename source-name="reflec_fward_0870" target-name="reflectance_87_forward"/>
+            <rename source-name="reflec_fward_1600" target-name="reflectance_16_forward"/>
+            <rename source-name="reflec_nadir_0550" target-name="reflectance_55_nadir"/>
+            <rename source-name="reflec_nadir_0670" target-name="reflectance_66_nadir"/>
+            <rename source-name="reflec_nadir_0870" target-name="reflectance_87_nadir"/>
+            <rename source-name="reflec_nadir_1600" target-name="reflectance_16_nadir"/>
+            <rename source-name="sun_azimuth_fward" target-name="solar_azimuth_angle_forward"/>
+            <rename source-name="sun_azimuth_nadir" target-name="solar_azimuth_angle_nadir"/>
+            <rename source-name="view_azimuth_fward" target-name="satellite_azimuth_angle_forward"/>
+            <rename source-name="view_azimuth_nadir" target-name="satellite_azimuth_angle_nadir"/>
+
+            <rename source-name="file_name" target-name="l1b_filename"/>
+            <rename source-name="x" target-name="matchup.elem"/>
+            <rename source-name="y" target-name="matchup.line"/>
+
+            <exclude source-name="lat_corr_fward"/>
+            <exclude source-name="lat_corr_nadir"/>
+            <exclude source-name="lon_corr_fward"/>
+            <exclude source-name="lon_corr_nadir"/>
+            <exclude source-name="altitude"/>
+            <exclude source-name="cloud_flags_fward"/>
+            <exclude source-name="cloud_flags_nadir"/>
+        </sensors>
     </variables-configuration>
 </mmd-writer-config>
