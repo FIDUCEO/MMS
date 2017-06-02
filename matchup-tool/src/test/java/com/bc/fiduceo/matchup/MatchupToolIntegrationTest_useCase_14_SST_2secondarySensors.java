@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DbAndIOTestRunner.class)
-public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends AbstractUsecaseIntegrationTest {
+public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends AbstractUsecaseIntegrationTest {
 
     public static final String PRIM_SENSOR_NAME = "drifter-sst";
 
@@ -182,6 +182,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertVariablePresentAnd3DValueLong("hirs-n18_scanline_type", DataType.BYTE, hirs3DDims, 1, 0, 2, 0, mmd);
             assertVariablePresentAnd1DValueLong("hirs-n18_x", DataType.INT, _1DDims, 1, 55, mmd);
             assertVariablePresentAnd1DValueLong("hirs-n18_y", DataType.INT, _1DDims, 1, 767, mmd);
+
             assertStringVariable("hirs-n18_file_name", filenameDims, fn_Size, 2, "190455003.NSS.HIRX.NN.D11235.S0028.E0223.B3223536.WI.nc", mmd);
             assertStringVariable("hirs-n18_processing_version", versionDims, pv_Size, 2, "1.0", mmd);
             assertVariablePresentAnd3DValueLong("hirs-n18_acquisition_time", DataType.INT, hirs3DDims, 2, 2, 2, 1314064551, mmd);
@@ -197,6 +198,24 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch3", DataType.INT, mhs3DDims, 2, 0, 0, -2147483647, mmd);
             assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch4", DataType.INT, mhs3DDims, 0, 1, 0, 0, mmd);
             assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch5", DataType.INT, mhs3DDims, 1, 1, 0, 0, mmd);
+
+            assertVariablePresentAnd3DValueLong("mhs-n18_instrtemp", DataType.INT, mhs3DDims, 1, 1, 0, 29412, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_qualind", DataType.INT, mhs3DDims, 1, 1, 0, 0, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_scanqual", DataType.INT, mhs3DDims, 1, 1, 0, 0, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_scnlin", DataType.INT, mhs3DDims, 1, 1, 0, 1951, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_scnlindy", DataType.INT, mhs3DDims, 1, 1, 0, 235, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_scnlintime", DataType.INT, mhs3DDims, 1, 1, 0, 6956079, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_scnlinyr", DataType.INT, mhs3DDims, 1, 1, 0, 2011, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_Latitude", DataType.INT, mhs3DDims, 1, 1, 0, -323117, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_Longitude", DataType.INT, mhs3DDims, 1, 1, 0, -1555340, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_Satellite_azimuth_angle", DataType.INT, mhs3DDims, 1, 1, 0, 31052, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_Satellite_zenith_angle", DataType.INT, mhs3DDims, 1, 1, 0, 5957, mmd);
+            assertVariablePresentAnd1DValueLong("mhs-n18_x", DataType.INT, _1DDims, 1, 89, mmd);
+            assertVariablePresentAnd1DValueLong("mhs-n18_y", DataType.INT, _1DDims, 1, 1950, mmd);
+
+            assertStringVariable("mhs-n18_file_name", filenameDims, fn_Size, 2, "190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5", mmd);
+            assertStringVariable("mhs-n18_processing_version", versionDims, pv_Size, 2, "v1.0", mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_acquisition_time", DataType.INT, mhs3DDims, 2, 2, 2, -2147483647, mmd);
         }
     }
 
