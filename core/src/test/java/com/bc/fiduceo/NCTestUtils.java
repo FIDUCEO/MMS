@@ -36,56 +36,75 @@ import static org.junit.Assert.assertNotNull;
 public class NCTestUtils {
 
     public static void assertVectorVariable(String variableName, int index, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = netcdfFile.findVariable(escapedName);
+        final Variable variable = getVariable(variableName, netcdfFile);
         assertNotNull(variable);
         final Array data = variable.read(new int[]{index}, new int[]{1});
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
     public static void assertStringVariable(String variableName, int index, String expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = netcdfFile.findVariable(escapedName);
-        assertNotNull(variable);
-        final Array data = variable.read(new int[]{index, 0}, new int[]{1, 128});
+        final int defaultMaxStringSize = 128;
+        assertStringVariable(variableName, defaultMaxStringSize, index, expected, netcdfFile);
+    }
+
+    public static void assertStringVariable(String variableName, final int maxStringSize, int index, String expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final String dontCheckAssociatedDimensions = null;
+        assertStringVariable(variableName, dontCheckAssociatedDimensions, maxStringSize, index, expected, netcdfFile);
+    }
+
+    public static void assertStringVariable(String variableName, String dimNames, final int maxStringSize, int index, String expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = assertVariablePresent(variableName, DataType.CHAR, dimNames, netcdfFile);
+        final Array data = variable.read(new int[]{index, 0}, new int[]{1, maxStringSize});
         final char[] valueAsArray = (char[]) data.get1DJavaArray(char.class);
         assertEquals(expected, new String(valueAsArray).trim());
     }
 
-    public static void assert2DVariable(String variableName, int x, int y, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = mmd.findVariable(escapedName);
+    public static void assert2DVariable(String variableName, int x, int y, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = getVariable(variableName, netcdfFile);
         assertNotNull("NetCDF Variable '" + variableName + "' expected", variable);
         final Array data = variable.read(new int[]{y, x}, new int[]{1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
-    public static void assert3DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = mmd.findVariable(escapedName);
-        assertNotNull("NetCDF Variable '" + variableName + "' expected", variable);
-        final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
-        assertEquals(expected, data.getDouble(0), 1e-8);
+    public static void assertVariablePresentAnd1DValueLong(String variableName, final DataType dataType, String dimensions, int x, long expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = assertVariablePresent(variableName, dataType, dimensions, netcdfFile);
+        assert1DValueLong(x, expected, variable);
     }
 
-    public static void assert4DVariable(String variableName, int x, int y, int z, int p, double expected, NetcdfFile mmd) throws IOException, InvalidRangeException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = mmd.findVariable(escapedName);
+    public static void assertVariablePresentAnd3DValueLong(String variableName, final DataType dataType, String dimensions, int x, int y, int z, long expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = assertVariablePresent(variableName, dataType, dimensions, netcdfFile);
+        assert3DValueLong(x, y, z, expected, variable);
+    }
+
+    public static void assertVariablePresentAnd3DValueDouble(String variableName, final DataType dataType, String dimensions, int x, int y, int z, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = assertVariablePresent(variableName, dataType, dimensions, netcdfFile);
+        assert3DValueDouble(x, y, z, expected, variable);
+    }
+
+    public static void assert3DVariable(String variableName, int x, int y, int z, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = getVariable(variableName, netcdfFile);
+        assert3DValueDouble(x, y, z, expected, variable);
+    }
+
+    public static void assert4DVariable(String variableName, int x, int y, int z, int p, double expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+        final Variable variable = getVariable(variableName, netcdfFile);
         assertNotNull("NetCDF Variable '" + variableName + "' expected", variable);
         final Array data = variable.read(new int[]{p, z, y, x}, new int[]{1, 1, 1, 1});
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
-    public static void assertVariablePresent(String variableName, DataType dataType, String dimNames, NetcdfFile geoFileNC) {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Variable variable = geoFileNC.findVariable(escapedName);
+    public static Variable assertVariablePresent(String variableName, DataType dataType, String dimNames, NetcdfFile netcdfFile) {
+        final Variable variable = getVariable(variableName, netcdfFile);
         assertNotNull(variable);
         assertEquals(dataType, variable.getDataType());
-        assertEquals(dimNames, variable.getDimensionsString());
+        if (dimNames != null) {
+            assertDimensions(dimNames, variable);
+        }
+        return variable;
     }
 
-    public static void assertDimension(String dimensionName, int size, NetcdfFile geoFileNC) {
-        final int dimensionLength = NetCDFUtils.getDimensionLength(dimensionName, geoFileNC);
+    public static void assertDimension(String dimensionName, int size, NetcdfFile netcdfFile) {
+        final int dimensionLength = NetCDFUtils.getDimensionLength(dimensionName, netcdfFile);
         assertEquals(size, dimensionLength);
     }
 
@@ -105,5 +124,34 @@ public class NCTestUtils {
         final Index index = array.getIndex();
         index.set(y, x);
         assertEquals(expected, array.getLong(index));
+    }
+
+    public static Variable getVariable(String variableName, NetcdfFile netcdfFile) {
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        return netcdfFile.findVariable(escapedName);
+    }
+
+    public static void assert3DValueDouble(int x, int y, int z, double expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
+        assertEquals(expected, data.getDouble(0), 1e-8);
+    }
+
+    public static void assert1DValueLong(int x, long expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array array = variable.read();
+        final Index index = array.getIndex();
+        index.set(x);
+        assertEquals(expected, array.getLong(index));
+    }
+
+    public static void assert3DValueLong(int x, int y, int z, long expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});
+        assertEquals(expected, data.getLong(0));
+    }
+
+    public static void assertDimensions(String dimensions, Variable variable) {
+        assertEquals(dimensions, variable.getDimensionsString());
     }
 }

@@ -20,9 +20,9 @@
 
 package com.bc.fiduceo.matchup;
 
+import static com.bc.fiduceo.NCTestUtils.*;
 import static org.junit.Assert.*;
 
-import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -32,6 +32,7 @@ import com.bc.fiduceo.db.DbAndIOTestRunner;
 import org.apache.commons.cli.ParseException;
 import org.junit.*;
 import org.junit.runner.*;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
@@ -60,7 +61,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder
                     .withTimeDeltaSeconds(8000, SEC_SENSOR_NAME_1)
-                    .withMaxPixelDistanceKm(10.0f, SEC_SENSOR_NAME_1)
+                    .withMaxPixelDistanceKm(10.0f, SEC_SENSOR_NAME_2)
                     .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 
@@ -70,38 +71,68 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
         final File mmdFile = getMmdFilePath(useCaseConfig, "2011-233", "2011-239");
         assertTrue(mmdFile.isFile());
 
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 0, 0, 0, -22297, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 1, 0, 0, -15307, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 2, 0, 0, -17409, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_18_7V_Res_1_TB", 3, 0, 0, -12157, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_23_8H_Res_1_TB", 4, 0, 0, -12691, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_23_8V_Res_1_TB", 0, 1, 0, -9726, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_36_5H_Res_1_TB", 1, 1, 0, -11837, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_36_5V_Res_1_TB", 2, 1, 0, -8744, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_6_9H_Res_1_TB", 3, 1, 0, -23637, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_6_9V_Res_1_TB", 4, 1, 0, -16271, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_89_0H_Res_1_TB", 0, 2, 0, -6233, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_89_0V_Res_1_TB", 1, 2, 0, -5851, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Channel_Quality_Flag_10H", 2, 2, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Latitude", 3, 2, 0, -1051, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Longitude", 4, 2, 0, -1363, mmd);
-//
-//            NCTestUtils.assert3DVariable("drifter-sst_acquisition_time", 0, 0, 0, 1108599012, mmd);
-//            NCTestUtils.assertStringVariable("drifter-sst_file_name", 0, "insitu_0_WMOID_71612_20040223_20151010.nc", mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.lat", 0, 0, 0, -51.040000915527344, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.lon", 0, 0, 0, 18.610000610351562, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.mohc_id", 0, 0, 0, 392166, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sea_surface_temperature", 0, 0, 0, 1.7000000476837158, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_depth", 0, 0, 0, 0.2, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_qc_flag", 0, 0, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_track_flag", 0, 0, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_uncertainty", 0, 0, 0, 0.389, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.time", 0, 0, 0, 856138212, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.id", 0, 0, 0, 2005020000392166L, mmd);
-//            NCTestUtils.assertVectorVariable("drifter-sst_x", 0, 0, mmd);
-//            NCTestUtils.assertVectorVariable("drifter-sst_y", 0, 8485, mmd);
-//        }
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            assertDimension("drifter-sst_nx", 1, mmd);
+            assertDimension("drifter-sst_ny", 1, mmd);
+            assertDimension("hirs-n18_nx", 5, mmd);
+            assertDimension("hirs-n18_ny", 5, mmd);
+            assertDimension("mhs-n18_nx", 3, mmd);
+            assertDimension("mhs-n18_ny", 3, mmd);
+            final int fn_Size = 128;
+            assertDimension("file_name", fn_Size, mmd);
+            final int pv_Size = 30;
+            assertDimension("processing_version", pv_Size, mmd);
+            assertDimension("matchup_count", 4, mmd);
+
+            final String filenameDims = "matchup_count file_name";
+            final String versionDims = "matchup_count processing_version";
+            final String insitu1DDims = "matchup_count";
+            final String insitu3DDims = "matchup_count drifter-sst_ny drifter-sst_nx";
+
+            final String hirs3DDims = "matchup_count hirs-n18_ny hirs-n18_nx";
+
+            assertVariablePresentAnd3DValueLong("drifter-sst_insitu.time", DataType.INT, insitu3DDims, 0, 0, 0, 1061596188, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.lat", DataType.FLOAT, insitu3DDims, 0, 0, 1, -32.3f, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.lon", DataType.FLOAT, insitu3DDims, 0, 0, 3, -155.59f, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sea_surface_temperature", DataType.FLOAT, insitu3DDims, 0, 0, 1, 17.9f, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sst_uncertainty", DataType.FLOAT, insitu3DDims, 0, 0, 2, 0.389f, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sst_depth", DataType.FLOAT, insitu3DDims, 0, 0, 2, 0.2f, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sst_qc_flag", DataType.SHORT, insitu3DDims, 0, 0, 0, 0, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sst_track_flag", DataType.SHORT, insitu3DDims, 0, 0, 2, 3, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.mohc_id", DataType.INT, insitu3DDims, 0, 0, 1, 1031446, mmd);
+            assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.id", DataType.LONG, insitu3DDims, 0, 0, 2, 2011080001034085L, mmd);
+            assertVariablePresentAnd1DValueLong("drifter-sst_x", DataType.INT, insitu1DDims, 1, 0, mmd);
+            assertVariablePresentAnd1DValueLong("drifter-sst_y", DataType.INT, insitu1DDims, 1, 22482, mmd);
+            assertStringVariable("drifter-sst_file_name", filenameDims, fn_Size, 2, "insitu_0_WMOID_51939_20031105_20131121.nc", mmd);
+            assertStringVariable("drifter-sst_processing_version", versionDims, pv_Size, 2, "v03.3", mmd);
+            assertVariablePresentAnd3DValueLong("drifter-sst_acquisition_time", DataType.INT, insitu3DDims, 0, 0, 0, 1314056988, mmd);
+
+            assertVariablePresentAnd3DValueLong("hirs-n18_time", DataType.INT, hirs3DDims, 2, 2, 0, 1314064551, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_lat", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -32.3208, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_lon", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -155.4985, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch01", DataType.FLOAT, hirs3DDims, 1, 3, 2, 237.43939f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch02", DataType.FLOAT, hirs3DDims, 1, 3, 2, 224.90039f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch03", DataType.FLOAT, hirs3DDims, 1, 3, 2, 223.14154f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch04", DataType.FLOAT, hirs3DDims, 1, 3, 2, 223.25329f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch05", DataType.FLOAT, hirs3DDims, 1, 3, 2, 230.21084f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch06", DataType.FLOAT, hirs3DDims, 1, 3, 2, 243.05542f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch07", DataType.FLOAT, hirs3DDims, 1, 3, 2, 258.86190f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch08", DataType.FLOAT, hirs3DDims, 1, 3, 2, 282.95468f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch09", DataType.FLOAT, hirs3DDims, 1, 3, 2, 252.21335f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch10", DataType.FLOAT, hirs3DDims, 1, 3, 2, 277.46731f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch11", DataType.FLOAT, hirs3DDims, 1, 3, 2, 255.88241f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch12", DataType.FLOAT, hirs3DDims, 1, 3, 2, 231.09004f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch13", DataType.FLOAT, hirs3DDims, 1, 3, 2, 266.11725f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch14", DataType.FLOAT, hirs3DDims, 1, 3, 2, 249.75566f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch15", DataType.FLOAT, hirs3DDims, 1, 3, 2, 236.55244f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch16", DataType.FLOAT, hirs3DDims, 1, 3, 2, 230.91896f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch17", DataType.FLOAT, hirs3DDims, 1, 3, 2, 273.56720f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch18", DataType.FLOAT, hirs3DDims, 1, 3, 2, 285.74746f, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch19", DataType.FLOAT, hirs3DDims, 1, 3, 2, 288.67504f, mmd);
+
+
+
+        }
     }
 
     private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
