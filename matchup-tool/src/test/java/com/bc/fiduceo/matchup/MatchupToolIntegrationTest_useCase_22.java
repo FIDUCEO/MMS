@@ -49,8 +49,8 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(1200)  // 5 minutes
-                .withMaxPixelDistanceKm(5)
+                .withTimeDeltaSeconds(1200, null)  // 5 minutes
+                .withMaxPixelDistanceKm(5, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-22.xml");
 
@@ -114,8 +114,8 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_withAngularScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(1200)  // 5 minutes
-                .withMaxPixelDistanceKm(5)
+                .withTimeDeltaSeconds(1200, null)  // 5 minutes
+                .withMaxPixelDistanceKm(5, null)
                 .withAngularCosineScreening("Satellite_zenith_angle", "Satellite_zenith_angle", 0.01f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-22.xml");
@@ -133,8 +133,8 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_withCloudScreening() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(1200)  // 5 minutes
-                .withMaxPixelDistanceKm(5)
+                .withTimeDeltaSeconds(1200, null)  // 5 minutes
+                .withMaxPixelDistanceKm(5, null)
                 .withBuehlerCloudScreening("btemps_ch3", "btemps_ch4", "Satellite_zenith_angle", "tb_ch3", "tb_ch4", "Satellite_zenith_angle")
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-22.xml");

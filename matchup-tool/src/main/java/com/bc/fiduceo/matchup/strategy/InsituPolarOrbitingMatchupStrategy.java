@@ -37,6 +37,7 @@ import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
@@ -66,7 +67,6 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
-        MatchupCollection matchupCollection = new MatchupCollection();
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final String primarySensorName = useCaseConfig.getPrimarySensor().getName();
 
@@ -88,7 +88,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final List<SatelliteObservation> insituObservations = getPrimaryObservations(context);
         if (insituObservations.size() == 0) {
             logger.warning("No insitu data in time interval:" + context.getStartDate() + " - " + context.getEndDate());
-            return matchupCollection;
+            return new MatchupCollection();
         }
 
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
@@ -102,11 +102,9 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             mapMatchupSetsInsituOrder.put(secSensorName, new HashMap<>());
             mapMatchupSetsSatelliteOrder.put(secSensorName, new HashMap<>());
         }
-        final Map<Path, String> insituProduktSensorName = new HashMap<>();
 
         for (final SatelliteObservation insituObservation : insituObservations) {
             final Path insituPath = insituObservation.getDataFilePath();
-            insituProduktSensorName.put(insituPath, primarySensorName);
             try (final Reader insituReader = readerFactory.getReader(primarySensorName)) {
                 insituReader.open(insituPath.toFile());
 
@@ -146,7 +144,6 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
 
         for (String secSensorName : secSensorNames) {
-            final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = mapMatchupSetsInsituOrder.get(secSensorName);
             final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
             for (Map.Entry<Path, List<MatchupSet>> pathListEntry : matchupSetsSatelliteOrder.entrySet()) {
                 final Path secondaryPath = pathListEntry.getKey();
@@ -161,23 +158,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     final SampleCollector sampleCollector = new SampleCollector(context, pixelLocator);
 
                     for (MatchupSet matchupSet : matchupSets) {
-                        final Path insituPath = matchupSet.getPrimaryObservationPath();
-                        final String sensorName = insituProduktSensorName.get(insituPath);
                         final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), timeLocator, secSensorName);
                         matchupSet.setSampleSets(completeSamples);
-
-                        try (final Reader insituReader = readerFactory.getReader(sensorName)) {
-                            insituReader.open(insituPath.toFile());
-                            if (matchupSet.getNumObservations() > 0) {
-                                applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, insituReader, secondaryReader);
-                                if (matchupSet.getNumObservations() == 0) {
-                                    matchupSets.remove(matchupSet);
-                                    matchupSetsInsituOrder.get(insituPath).remove(matchupSet);
-                                } else {
-                                    matchupCollection.add(matchupSet);
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -196,6 +178,21 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         combineBean.mapMatchupSetsInsituOrder = mapMatchupSetsInsituOrder;
 
         combineMatchups(0, combineBean);
+
+        // @todo move the magic number to configuration file
+        final ReaderCache readerCache = new ReaderCache(50);
+        final List<MatchupSet> matchupSets = combineBean.matchupCollection.getSets();
+        for (MatchupSet matchupSet : matchupSets) {
+            final Path primaryObservationPath = matchupSet.getPrimaryObservationPath();
+            final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
+            final HashMap<String, Reader> secondaryReaders = new HashMap<>();
+            for (String secSensorName : secSensorNames) {
+                final Path secondaryObservationPath = matchupSet.getSecondaryObservationPath(secSensorName);
+                final Reader reader = getReaderCached(readerCache, readerFactory, secSensorName, secondaryObservationPath);
+                secondaryReaders.put(secSensorName, reader);
+            }
+            applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaders);
+        }
 
         return combineBean.matchupCollection;
     }
@@ -302,7 +299,9 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         } else {
             final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = bean.mapMatchupSetsInsituOrder.get(secSensorName);
             final List<MatchupSet> matchupSets = matchupSetsInsituOrder.get(bean.paths[PRIM_IDX]);
-            combineMatchupSets(depth, bean, matchupSets);
+            if (matchupSets != null) {
+                combineMatchupSets(depth, bean, matchupSets);
+            }
         }
         if (depth == 0 && bean.currentMatchupSet != null) {
             bean.matchupCollection.add(bean.currentMatchupSet);
@@ -361,6 +360,17 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             }
         }
         return new ArrayList<>(observationsPerProduct.values());
+    }
+
+    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String sensorName, Path observationPath) throws IOException {
+        if (readerCache.containsKey(observationPath)) {
+            return readerCache.get(observationPath);
+        } else {
+            final Reader reader = readerFactory.getReader(sensorName);
+            reader.open(observationPath.toFile());
+            readerCache.add(reader, observationPath);
+            return reader;
+        }
     }
 
     private List<Sample> getInsituSamples(TimeInterval processingInterval, Reader insituReader) throws IOException, InvalidRangeException {

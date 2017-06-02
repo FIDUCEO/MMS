@@ -40,6 +40,7 @@ import java.util.List;
 class DistanceCondition implements Condition {
 
     private final double maxDistanceInKm;
+    private String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
 
     DistanceCondition(double maxDistanceInKm) {
         this.maxDistanceInKm = maxDistanceInKm;
@@ -51,7 +52,7 @@ class DistanceCondition implements Condition {
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
-            final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+            final Sample secondary = sampleSet.getSecondary(getSecondarySensorName());
             final double kmDistance = Distance.computeSphericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
             if (kmDistance <= maxDistanceInKm) {
                 targetSamples.add(sampleSet);
@@ -60,4 +61,17 @@ class DistanceCondition implements Condition {
         matchupSet.setSampleSets(targetSamples);
         sourceSamples.clear();
     }
+
+    public double getMaxDistanceInKm() {
+        return maxDistanceInKm;
+    }
+
+    public String getSecondarySensorName() {
+        return secondarySensorName;
+    }
+
+    void setSecondarySensorName(String secondarySensorName) {
+        this.secondarySensorName = secondarySensorName;
+    }
+
 }

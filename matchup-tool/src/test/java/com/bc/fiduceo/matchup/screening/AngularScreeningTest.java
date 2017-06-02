@@ -30,6 +30,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,11 +43,16 @@ public class AngularScreeningTest {
 
     private AngularScreening screening;
     private AngularScreening.Configuration configuration;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
+
 
     @Before
     public void setUp() {
         screening = new AngularScreening();
         configuration = new AngularScreening.Configuration();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -54,11 +60,12 @@ public class AngularScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -87,12 +94,13 @@ public class AngularScreeningTest {
         when(secondaryReader.readScaled(eq(223), eq(254), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(224), eq(255), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(225), eq(256), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
         configuration.primaryVariableName = "VZA";
         configuration.maxPrimaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -124,12 +132,13 @@ public class AngularScreeningTest {
         when(secondaryReader.readScaled(eq(233), eq(264), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(234), eq(265), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(235), eq(266), anyObject(), eq("satellite_zenith"))).thenReturn(highAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.useSecondary = true;
         configuration.secondaryVariableName = "satellite_zenith";
         configuration.maxSecondaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -161,6 +170,7 @@ public class AngularScreeningTest {
         when(secondaryReader.readScaled(eq(243), eq(254), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(244), eq(255), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(245), eq(256), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
         configuration.primaryVariableName = "the_angle";
@@ -169,7 +179,7 @@ public class AngularScreeningTest {
         configuration.secondaryVariableName = "the_other_angle";
         configuration.maxSecondaryVZA = 9.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -200,6 +210,7 @@ public class AngularScreeningTest {
         when(secondaryReader.readScaled(eq(253), eq(264), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(254), eq(265), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
         when(secondaryReader.readScaled(eq(255), eq(266), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
         configuration.primaryVariableName = "the_angle";
@@ -208,7 +219,7 @@ public class AngularScreeningTest {
         configuration.secondaryVariableName = "the_other_angle";
         configuration.maxSecondaryVZA = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -243,13 +254,14 @@ public class AngularScreeningTest {
         when(secondaryReader.readScaled(eq(263), eq(274), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
         when(secondaryReader.readScaled(eq(264), eq(275), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(265), eq(276), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryVariableName = "the_angle";
         configuration.secondaryVariableName = "the_other_angle";
         configuration.useDelta = true;
         configuration.maxAngleDelta = 5.5;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

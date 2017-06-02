@@ -74,8 +74,8 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(2100)
-                    .withMaxPixelDistanceKm(1.41f)
+                    .withTimeDeltaSeconds(2100, null)
+                    .withMaxPixelDistanceKm(1.41f, null)
                     .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
                     .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
@@ -138,8 +138,8 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         TestUtil.writeMmdWriterConfig(configDir, writerConfigXml);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                    .withTimeDeltaSeconds(2100)
-                    .withMaxPixelDistanceKm(1.41f)
+                    .withTimeDeltaSeconds(2100, null)
+                    .withMaxPixelDistanceKm(1.41f, null)
                     .withPixelValueScreening(null, "(cloud_flags_nadir & 1 == 0) && (cloud_flags_fward & 1 == 0)")   // select AATSR water pixel tb 2016-09-08
                     .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");

@@ -20,21 +20,99 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryChildren;
+import static com.bc.fiduceo.util.JDomUtils.getValueFromNamesAttribute;
+
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.util.JDomUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/** The XML template for this condition class looks like:
+    <code>
+    <time-delta>
+        <time-delta-seconds>
+            300
+        </time-delta-seconds>
+    </time-delta>
+
+    or
+
+    <time-delta>
+        <time-delta-seconds names="name1, name2, ...">
+            300
+        </time-delta-seconds>
+    </time-delta>
+
+    or
+
+    <time-delta>
+        <time-delta-seconds names="name1">
+            300
+        </time-delta-seconds>
+        <time-delta-seconds names="name2">
+            250
+        </time-delta-seconds>
+        <time-delta-seconds names="name3,name4,...">
+            400
+        </time-delta-seconds>
+        ...
+    </time-delta>
+ </code>
+
+ */
 public class TimeDeltaConditionPlugin implements ConditionPlugin {
+
     public static final String TAG_NAME_CONDITION_NAME = "time-delta";
     public static final String TAG_NAME_TIME_DELTA_SECONDS = "time-delta-seconds";
 
     @Override
-    public TimeDeltaCondition createCondition(Element element) {
+    public Condition createCondition(Element element) {
         if (!getConditionName().equals(element.getName())) {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
         }
 
-        final String trimmed = JDomUtils.getMandatoryChildTextTrim(element, TAG_NAME_TIME_DELTA_SECONDS);
-        return new TimeDeltaCondition(Long.valueOf(trimmed) * 1000);
+        TimeDeltaCondition noSecondaryNameCondition = null;
+
+        final List<Element> children = getMandatoryChildren(element, TAG_NAME_TIME_DELTA_SECONDS);
+        final ArrayList<TimeDeltaCondition> conditions = new ArrayList<>();
+        for (Element child : children) {
+            final long maxTimeDeltaInMillis = Long.valueOf(JDomUtils.getMandatoryText(child)) * 1000;
+            final String names = getValueFromNamesAttribute(child);
+            if (StringUtils.isNullOrEmpty(names)) {
+                if (noSecondaryNameCondition != null) {
+                    throw new RuntimeException("In the mode 'no secondary sensor names' it is not allowed to define a TimeDeltaCondition twice.");
+                }
+                final String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+                noSecondaryNameCondition = new TimeDeltaCondition(maxTimeDeltaInMillis);
+                noSecondaryNameCondition.setSecondarySensorName(secondarySensorName);
+            } else  {
+                final String[] strings = StringUtils.stringToArray(names, ",");
+                for (String secondarySensorName : strings) {
+                    final TimeDeltaCondition condition = new TimeDeltaCondition(maxTimeDeltaInMillis);
+                    condition.setSecondarySensorName(secondarySensorName);
+                    conditions.add(condition);
+                }
+            }
+        }
+
+        if (noSecondaryNameCondition != null) {
+            if (conditions.size()>0){
+                throw new RuntimeException("It is not allowed to define time delta conditions with and without secondary sensor names concurrently.");
+            }
+            return noSecondaryNameCondition;
+        }
+        if (conditions.size() == 1) {
+            return conditions.get(0);
+        }
+        return (matchupSet, context) -> {
+            for (TimeDeltaCondition condition : conditions) {
+                condition.apply(matchupSet, context);
+            }
+        };
     }
 
     @Override

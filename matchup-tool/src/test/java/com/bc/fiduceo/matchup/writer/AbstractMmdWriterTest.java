@@ -51,8 +51,8 @@ public class AbstractMmdWriterTest {
         );
 
         final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("NameOfTheUseCase")
-                .withTimeDeltaSeconds(234)
-                .withMaxPixelDistanceKm(12.34f)
+                .withTimeDeltaSeconds(234, null)
+                .withMaxPixelDistanceKm(12.34f, null)
                 .withSensors(sensorList)
                 .withDimensions(Arrays.asList(
                         new Dimension("SensorName1", 1, 2),

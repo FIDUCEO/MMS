@@ -50,6 +50,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -129,12 +130,19 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 }
 
                 // todo se multisensor
+                final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+
+                // todo se multisensor
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+                // todo se multisensor
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                    try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
+                    // todo se multisensor
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                        // todo se multisensor
+                        secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
 
                         final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                         if (intersectingIntervals.length == 0) {
@@ -144,8 +152,10 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                         final MatchupSet matchupSet = new MatchupSet();
                         matchupSet.setPrimaryObservationPath(primaryObservationDataFilePath);
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
-                        matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getVersion());
+                        // todo se multisensor
+                        matchupSet.setSecondaryObservationPath(secondarySensorName_CaseOneSecondary, secondaryObservation.getDataFilePath());
+                        // todo se multisensor
+                        matchupSet.setSecondaryProcessingVersion(secondarySensorName_CaseOneSecondary, secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
@@ -162,11 +172,12 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 }
 
                                 SampleCollector sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primaryMatchups.getSampleSets(), secondaryReader.getTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
+                                // todo se multisensor
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(primaryMatchups.getSampleSets(), secondaryReader.getTimeLocator(), secondarySensorName_CaseOneSecondary);
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
+                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaderMap);
                                     if (matchupSet.getNumObservations() > 0) {
                                         matchupCollection.add(matchupSet);
                                     }

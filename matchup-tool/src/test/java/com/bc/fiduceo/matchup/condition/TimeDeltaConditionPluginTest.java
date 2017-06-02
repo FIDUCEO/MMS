@@ -20,17 +20,18 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.matchup.SampleSet;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class TimeDeltaConditionPluginTest {
 
@@ -49,45 +50,170 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                "  <time-delta-seconds>" +
-                "    198" +
-                "  </time-delta-seconds>" +
-                "</time-delta>";
+                           "  <time-delta-seconds>" +
+                           "    198" +
+                           "  </time-delta-seconds>" +
+                           "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
-        final TimeDeltaCondition condition = plugin.createCondition(element);
+        final Condition condition = plugin.createCondition(element);
         assertNotNull(condition);
+        assertThat(condition, is(instanceOf(TimeDeltaCondition.class)));
+        final TimeDeltaCondition tdCondition = (TimeDeltaCondition) condition;
+        assertEquals(198000, tdCondition.getMaxTimeDeltaInMillis());
+        assertEquals(SampleSet.getOnlyOneSecondaryKey(), tdCondition.getSecondarySensorName());
+    }
+
+    @Test
+    public void testCreateCondition_withOptionalSecondarySensorName() throws JDOMException, IOException {
+        final String XML = "<time-delta>" +
+                           "  <time-delta-seconds names=\"secSenName\">" +
+                           "    298" +
+                           "  </time-delta-seconds>" +
+                           "</time-delta>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        final Condition condition = plugin.createCondition(element);
+        assertNotNull(condition);
+        assertThat(condition, is(instanceOf(TimeDeltaCondition.class)));
+        final TimeDeltaCondition tdCondition = (TimeDeltaCondition) condition;
+        assertNotNull(condition);
+        assertEquals(298000, tdCondition.getMaxTimeDeltaInMillis());
+        assertEquals("secSenName", tdCondition.getSecondarySensorName());
+    }
+
+    @Test
+    public void testCreateCondition_multipleConditions() throws JDOMException, IOException {
+        final String XML = "<time-delta>" +
+                           "  <time-delta-seconds names=\"name1\">" +
+                           "    3" +
+                           "  </time-delta-seconds>" +
+                           "  <time-delta-seconds names=\"name2\">" +
+                           "    4" +
+                           "  </time-delta-seconds>" +
+                           "  <time-delta-seconds names=\"name3\">" +
+                           "    5" +
+                           "  </time-delta-seconds>" +
+                           "</time-delta>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        final Condition condition = plugin.createCondition(element);
+        assertNotNull(condition);
+        assertThat(condition, is(not(instanceOf(TimeDeltaCondition.class))));
+
+        final SampleSet expected = createValid3SecondariesSampleSet();
+        final MatchupSet matchupSet = new MatchupSet();
+        matchupSet.getSampleSets().add(createSampleSetWithInvalidSample("name1"));
+        matchupSet.getSampleSets().add(expected);
+        matchupSet.getSampleSets().add(createSampleSetWithInvalidSample("name2"));
+        matchupSet.getSampleSets().add(createSampleSetWithInvalidSample("name3"));
+
+        assertEquals(4, matchupSet.getNumObservations());
+
+        condition.apply(matchupSet, null);
+
+        assertEquals(1, matchupSet.getNumObservations());
+        assertSame(expected, matchupSet.getSampleSets().get(0));
     }
 
     @Test
     public void testCreateCondition_invalidTag() throws JDOMException, IOException {
         final String XML = "<time-difference>" +
-                "  <time-delta-seconds>" +
-                "    198" +
-                "  </time-delta-seconds>" +
-                "</time-difference>";
+                           "  <time-delta-seconds>" +
+                           "    198" +
+                           "  </time-delta-seconds>" +
+                           "</time-difference>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("Illegal XML Element. Tagname 'time-delta' expected.", expected.getMessage());
         }
     }
 
     @Test
     public void testCreateCondition_invalidInnerTag() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                "  <clock>" +
-                "    198" +
-                "  </clock>" +
-                "</time-delta>";
+                           "  <clock>" +
+                           "    198" +
+                           "  </clock>" +
+                           "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("At least one child element 'time-delta-seconds' expected", expected.getMessage());
         }
+    }
+
+    @Test
+    public void testCreateCondition_dontAllowConcurrentNoSecondaryNameModeAndSecondaryNameMode() throws JDOMException, IOException {
+        final String XML = "<time-delta>" +
+                           "  <time-delta-seconds>" +
+                           "    12" +
+                           "  </time-delta-seconds>" +
+                           "  <time-delta-seconds names=\"secName\">" +
+                           "    13" +
+                           "  </time-delta-seconds>" +
+                           "</time-delta>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        try {
+            plugin.createCondition(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("It is not allowed to define time delta conditions with and without secondary sensor names concurrently.", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreateCondition_allowOnlyOneConditionInNoSecondaryNameMode() throws JDOMException, IOException {
+        final String XML = "<time-delta>" +
+                           "  <time-delta-seconds>" +
+                           "    12" +
+                           "  </time-delta-seconds>" +
+                           "  <time-delta-seconds>" +
+                           "    13" +
+                           "  </time-delta-seconds>" +
+                           "</time-delta>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        try {
+            plugin.createCondition(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals("In the mode 'no secondary sensor names' it is not allowed to define a TimeDeltaCondition twice.", expected.getMessage());
+        }
+    }
+
+    private SampleSet createSampleSetWithInvalidSample(String secondarySensorName) {
+        final SampleSet invalidSampleSet_secName1 = createValid3SecondariesSampleSet();
+        final int milliSeconds = 10000;
+        final Sample invalid = new Sample(0, 0, 0, 0, milliSeconds);
+        invalidSampleSet_secName1.setSecondary(secondarySensorName, invalid);
+        return invalidSampleSet_secName1;
+    }
+
+    private SampleSet createValid3SecondariesSampleSet() {
+        final int millisecondsPrime = 0;
+        final int milliSeconds1 = 3000;
+        final int milliSeconds2 = 4000;
+        final int milliSeconds3 = 5000;
+
+        final Sample primary = new Sample(0, 0, 0, 0, millisecondsPrime);
+        final Sample validSec1 = new Sample(0, 0, 0, 0, milliSeconds1);
+        final Sample validSec2 = new Sample(0, 0, 0, 0, milliSeconds2);
+        final Sample validSec3 = new Sample(0, 0, 0, 0, milliSeconds3);
+
+        final SampleSet validSampleSet = new SampleSet();
+        validSampleSet.setPrimary(primary);
+        validSampleSet.setSecondary("name1", validSec1);
+        validSampleSet.setSecondary("name2", validSec2);
+        validSampleSet.setSecondary("name3", validSec3);
+        return validSampleSet;
     }
 }

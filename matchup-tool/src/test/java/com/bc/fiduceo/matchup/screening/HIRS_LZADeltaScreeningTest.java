@@ -31,6 +31,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,10 +43,15 @@ import static org.mockito.Mockito.when;
 public class HIRS_LZADeltaScreeningTest {
 
     private HIRS_LZADeltaScreening screening;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
+
 
     @Before
     public void SetUp() {
         screening = new HIRS_LZADeltaScreening();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -53,10 +59,11 @@ public class HIRS_LZADeltaScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -100,12 +107,14 @@ public class HIRS_LZADeltaScreeningTest {
         when(secondReader.readScaled(eq(36), eq(555), anyObject(), eq("scanpos"))).thenReturn(leftPosArray);
         when(secondReader.readScaled(eq(37), eq(556), anyObject(), eq("lza"))).thenReturn(midLZAArray);
         when(secondReader.readScaled(eq(37), eq(556), anyObject(), eq("scanpos"))).thenReturn(righPosArray);
+        secondaryReaderMap.put(secondarySensorName, secondReader);
+
 
         final HIRS_LZADeltaScreening.Configuration configuration = new HIRS_LZADeltaScreening.Configuration();
         configuration.maxLzaDelta = 10.0;
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

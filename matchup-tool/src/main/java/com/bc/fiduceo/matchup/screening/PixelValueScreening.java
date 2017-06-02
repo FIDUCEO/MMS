@@ -36,13 +36,14 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class PixelValueScreening implements Screening {
 
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         if (configuration == null) {
             return;
         }
@@ -77,10 +78,12 @@ class PixelValueScreening implements Screening {
         if (StringUtils.isNotNullAndNotEmpty(configuration.secondaryExpression)) {
             List<SampleSet> keptSets = new ArrayList<>();
             // todo se multisensor
-            final ReaderNamespace readerNamespace = new ReaderNamespace(secondaryReader[0]);
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
+            // todo se multisensor
+            final ReaderNamespace readerNamespace = new ReaderNamespace(reader);
             final ParserImpl parser = new ParserImpl(readerNamespace);
             // todo se multisensor
-            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(secondaryReader[0]);
+            final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(reader);
 
             try {
                 final Term term = parser.parse(configuration.secondaryExpression);

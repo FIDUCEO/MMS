@@ -31,6 +31,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -43,11 +44,16 @@ public class AtsrAngularScreeningTest {
 
     private AtsrAngularScreening.Configuration configuration;
     private AtsrAngularScreening screening;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
+
 
     @Before
     public void setUp() {
         configuration = new AtsrAngularScreening.Configuration();
         screening = new AtsrAngularScreening();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -55,11 +61,13 @@ public class AtsrAngularScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
+
 
         assertEquals(0, matchupSet.getNumObservations());
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -92,11 +100,12 @@ public class AtsrAngularScreeningTest {
         final Reader secondaryReader = mock(Reader.class);
         when(secondaryReader.readScaled(eq(219), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(220), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;
         configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -131,10 +140,11 @@ public class AtsrAngularScreeningTest {
         final Reader secondaryReader = mock(Reader.class);
         when(secondaryReader.readScaled(eq(119), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(120), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -169,11 +179,12 @@ public class AtsrAngularScreeningTest {
         final Reader secondaryReader = mock(Reader.class);
         when(secondaryReader.readScaled(eq(19), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         when(secondaryReader.readScaled(eq(20), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;
         configuration.angleDeltaFward = 10.0;
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());

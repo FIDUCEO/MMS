@@ -33,6 +33,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -44,11 +45,16 @@ import static org.mockito.Mockito.when;
 public class PixelValueScreeningTest {
 
     private PixelValueScreening screening;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
+
 
     @Before
     @Test
     public void setUp() {
         screening = new PixelValueScreening();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -56,10 +62,11 @@ public class PixelValueScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -92,6 +99,8 @@ public class PixelValueScreeningTest {
         when(secondaryReader.readScaled(eq(46), eq(655), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
+
 
         final PixelValueScreening.Configuration configuration = new PixelValueScreening.Configuration();
         configuration.primaryExpression = "scanline_type == 0";
@@ -99,7 +108,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -136,6 +145,7 @@ public class PixelValueScreeningTest {
         when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         final PixelValueScreening.Configuration configuration = new PixelValueScreening.Configuration();
 //        configuration.primaryExpression = "scanline_type == 0";
@@ -143,7 +153,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -180,6 +190,7 @@ public class PixelValueScreeningTest {
         when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.readScaled(eq(49), eq(658), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         final PixelValueScreening.Configuration configuration = new PixelValueScreening.Configuration();
         configuration.primaryExpression = "scanline_type == 0";
@@ -187,7 +198,7 @@ public class PixelValueScreeningTest {
 
         screening.configure(configuration);
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());

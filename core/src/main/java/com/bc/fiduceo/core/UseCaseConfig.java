@@ -51,7 +51,6 @@ public class UseCaseConfig {
     public static final String TAG_NAME_NX = "nx";
     public static final String TAG_NAME_NY = "ny";
     public static final String TAG_NAME_NAME = "name";
-    public static final String ATTRIBUTE_NAME_NAME = "name";
 
     transient private Document document;
     private String name;
@@ -214,7 +213,7 @@ public class UseCaseConfig {
     @SuppressWarnings("unchecked")
     private void init() {
         final Element rootElement = getMandatoryRootElement(UseCaseConfig.TAG_NAME_ROOT, document);
-        setName(getMandatoryAttribute(rootElement, ATTRIBUTE_NAME_NAME).getValue());
+        setName(getValueFromNameAttributeMandatory(rootElement));
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {
             setOutputPath(outputPath.getValue());
@@ -240,7 +239,7 @@ public class UseCaseConfig {
         if (dimensions != null) {
             final List<Element> dimensionList = dimensions.getChildren(TAG_NAME_DIMENSION);
             for (Element dimensionElem : dimensionList) {
-                final String name = getMandatoryAttribute(dimensionElem, ATTRIBUTE_NAME_NAME).getValue();
+                final String name = getValueFromNameAttributeMandatory(dimensionElem);
                 final int nx = Integer.valueOf(getMandatoryChild(dimensionElem, TAG_NAME_NX).getValue());
                 final int ny = Integer.valueOf(getMandatoryChild(dimensionElem, TAG_NAME_NY).getValue());
                 getDimensions().add(new Dimension(name, nx, ny));

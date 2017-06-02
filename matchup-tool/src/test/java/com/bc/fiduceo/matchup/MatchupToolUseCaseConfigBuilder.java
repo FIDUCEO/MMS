@@ -16,6 +16,9 @@
  */
 package com.bc.fiduceo.matchup;
 
+import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
+import static com.bc.fiduceo.util.JDomUtils.setNamesAttribute;
+
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
@@ -24,30 +27,33 @@ import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
-import static com.bc.fiduceo.matchup.condition.DistanceConditionPlugin.TAG_NAME_MAX_PIXEL_DISTANCE_KM;
-import static com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin.TAG_NAME_TIME_DELTA_SECONDS;
-
 public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
     public MatchupToolUseCaseConfigBuilder(String name) {
         super(name);
     }
 
-    public MatchupToolUseCaseConfigBuilder withTimeDeltaSeconds(long seconds) {
+    public MatchupToolUseCaseConfigBuilder withTimeDeltaSeconds(long seconds, String secondarySensorName) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element timeDelta = ensureChild(conditions, TimeDeltaConditionPlugin.TAG_NAME_CONDITION_NAME);
-        addChild(timeDelta, TAG_NAME_TIME_DELTA_SECONDS, seconds);
+        final Element childElem = addChild(timeDelta, TimeDeltaConditionPlugin.TAG_NAME_TIME_DELTA_SECONDS, seconds);
+        if (secondarySensorName != null) {
+            setNamesAttribute(childElem, secondarySensorName);
+        }
         return this;
     }
 
-    public MatchupToolUseCaseConfigBuilder withMaxPixelDistanceKm(float distance) {
+    public MatchupToolUseCaseConfigBuilder withMaxPixelDistanceKm(float distance, String secondarySensorName) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element sphericalDistance = ensureChild(conditions, DistanceConditionPlugin.TAG_NAME_CONDITION_NAME);
-        addChild(sphericalDistance, TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        final Element childElem = addChild(sphericalDistance, DistanceConditionPlugin.TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
+        if (secondarySensorName != null) {
+            setNamesAttribute(childElem, secondarySensorName);
+        }
         return this;
     }
 
-   public MatchupToolUseCaseConfigBuilder withOverlapRemoval(String reference) {
+    public MatchupToolUseCaseConfigBuilder withOverlapRemoval(String reference) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(overlapRemove, "reference", reference);
@@ -59,10 +65,10 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element angular = ensureChild(screenings, "angular");
 
         final Element primaryVariable = ensureChild(angular, "primary-vza-variable");
-        addAttribute(primaryVariable, "name", primaryVariableName);
+        setNameAttribute(primaryVariable, primaryVariableName);
 
         final Element secondaryVariable = ensureChild(angular, "secondary-vza-variable");
-        addAttribute(secondaryVariable, "name", secondaryVariableName);
+        setNameAttribute(secondaryVariable, secondaryVariableName);
 
         if (!Float.isNaN(maxPrimaryVza)) {
             addChild(angular, "max-primary-vza", maxPrimaryVza);
@@ -84,10 +90,10 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element angular = ensureChild(screenings, "angular-cosine-proportion");
 
         final Element primaryVariable = ensureChild(angular, "primary-variable");
-        addAttribute(primaryVariable, "name", primaryVZAName);
+        setNameAttribute(primaryVariable, primaryVZAName);
 
         final Element secondaryVariable = ensureChild(angular, "secondary-variable");
-        addAttribute(secondaryVariable, "name", secondaryVZAName);
+        setNameAttribute(secondaryVariable, secondaryVZAName);
 
         if (!Float.isNaN(threshold)) {
             addChild(angular, "threshold", threshold);
@@ -137,22 +143,22 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element angularScreening = ensureChild(screenings, "buehler-cloud");
 
         Element element = addChild(angularScreening, "primary-narrow-channel");
-        addAttribute(element, "name", primaryNarrow);
+        setNameAttribute(element, primaryNarrow);
 
         element = addChild(angularScreening, "primary-wide-channel");
-        addAttribute(element, "name", primaryWide);
+        setNameAttribute(element, primaryWide);
 
         element = addChild(angularScreening, "primary-vza");
-        addAttribute(element, "name", primaryVza);
+        setNameAttribute(element, primaryVza);
 
         element = addChild(angularScreening, "secondary-narrow-channel");
-        addAttribute(element, "name", secondaryNarrow);
+        setNameAttribute(element, secondaryNarrow);
 
         element = addChild(angularScreening, "secondary-wide-channel");
-        addAttribute(element, "name", secondaryWide);
+        setNameAttribute(element, secondaryWide);
 
         element = addChild(angularScreening, "secondary-vza");
-        addAttribute(element, "name", secondaryVza);
+        setNameAttribute(element, secondaryVza);
 
         return this;
     }

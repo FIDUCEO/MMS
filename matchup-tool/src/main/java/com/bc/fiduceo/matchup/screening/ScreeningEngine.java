@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.screening;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.reader.Reader;
@@ -31,6 +32,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 // @todo se write tests
 
@@ -45,12 +47,12 @@ public class ScreeningEngine {
         configure();
     }
 
-    public void process(MatchupSet matchupSet, final Reader primaryReader, final Reader secondaryReader) throws IOException, InvalidRangeException {
+    public void process(MatchupSet matchupSet, final Reader primaryReader, final Map<String,Reader> secondaryReader) throws IOException, InvalidRangeException {
         // todo se multisensor
         final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
             // todo se multisensor
-            screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, sc);
+            screening.apply(matchupSet, primaryReader, secondaryReader, sc);
         }
     }
 
@@ -69,7 +71,6 @@ public class ScreeningEngine {
         }
     }
 
-    // todo se multisensor
     private Screening.ScreeningContext createScreeningContext() {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         return new Screening.ScreeningContext() {
@@ -80,9 +81,7 @@ public class ScreeningEngine {
             }
 
             @Override
-            public Dimension getSecondaryDimension() {
-                // todo se multisensor
-                final String sensorName = useCaseConfig.getSecondarySensors().get(0).getName();
+            public Dimension getSecondaryDimension(String sensorName) {
                 return useCaseConfig.getDimensionFor(sensorName);
             }
         };

@@ -31,6 +31,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class AtsrAngularScreening implements Screening {
 
@@ -43,7 +44,7 @@ class AtsrAngularScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -62,7 +63,8 @@ class AtsrAngularScreening implements Screening {
 
             final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             // todo se multisensor
-            final Array satelliteZenithAngleArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
+            final Array satelliteZenithAngleArray = reader.readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
             double satZenithAngle = satelliteZenithAngleArray.getDouble(0);
             if (secondary.x > 204) {
                 satZenithAngle *= -1.0;

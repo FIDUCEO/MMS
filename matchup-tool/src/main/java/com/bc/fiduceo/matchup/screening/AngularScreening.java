@@ -32,6 +32,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class AngularScreening implements Screening {
 
@@ -45,14 +46,14 @@ class AngularScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
         for (final SampleSet sampleSet : sampleSets) {
-
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
             // todo se multisensor
-            if (shouldBeKept(sampleSet, primaryReader, secondaryReader[0])) {
+            if (shouldBeKept(sampleSet, primaryReader, reader)) {
                 resultSet.add(sampleSet);
             }
         }

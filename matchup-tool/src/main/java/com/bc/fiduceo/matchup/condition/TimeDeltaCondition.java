@@ -27,19 +27,10 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/* The XML template for this condition class looks like:
-
-    <time-delta>
-        <time-delta-seconds>
-            300
-        </time-delta-seconds>
-    </time-delta>
-
- */
-
 class TimeDeltaCondition implements Condition {
 
     private final long maxTimeDeltaInMillis;
+    private String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
 
     TimeDeltaCondition(long maxTimeDeltaInMillis) {
         this.maxTimeDeltaInMillis = maxTimeDeltaInMillis;
@@ -51,7 +42,7 @@ class TimeDeltaCondition implements Condition {
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
             final Sample primary = sampleSet.getPrimary();
-            final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+            final Sample secondary = sampleSet.getSecondary(getSecondarySensorName());
             final long actualTimeDelta = Math.abs(primary.time - secondary.time);
             if (actualTimeDelta <= maxTimeDeltaInMillis) {
                 targetSamples.add(sampleSet);
@@ -63,5 +54,13 @@ class TimeDeltaCondition implements Condition {
 
     public long getMaxTimeDeltaInMillis() {
         return maxTimeDeltaInMillis;
+    }
+
+    public String getSecondarySensorName() {
+        return secondarySensorName;
+    }
+
+    void setSecondarySensorName(String secondarySensorName) {
+        this.secondarySensorName = secondarySensorName;
     }
 }

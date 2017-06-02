@@ -47,8 +47,8 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(300)
-                .withMaxPixelDistanceKm(1)   // value in km
+                .withTimeDeltaSeconds(300, null)
+                .withMaxPixelDistanceKm(1, null)   // value in km
                 .withAtsrAngularScreening(10.0, 1.0)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-01.xml");
@@ -98,8 +98,8 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_withOverlapRemoval() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(300)
-                .withMaxPixelDistanceKm(1)   // value in km
+                .withTimeDeltaSeconds(300, null)
+                .withMaxPixelDistanceKm(1, null)   // value in km
                 .withAtsrAngularScreening(10.0, 1.0)
                 .withOverlapRemoval("PRIMARY")
                 .createConfig();

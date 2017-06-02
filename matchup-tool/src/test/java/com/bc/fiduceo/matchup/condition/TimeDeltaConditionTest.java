@@ -20,15 +20,15 @@
 
 package com.bc.fiduceo.matchup.condition;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class TimeDeltaConditionTest {
 
@@ -46,12 +46,12 @@ public class TimeDeltaConditionTest {
     public void testApply() {
         final MatchupSet matchupSet = new MatchupSet();
         final List<SampleSet> sampleSets = new ArrayList<>();
-        sampleSets.add(createSampleSet(1000, 1100));
-        sampleSets.add(createSampleSet(2000, 2100));
-        sampleSets.add(createSampleSet(3000, 4300)); // <- this one gets removed
-        sampleSets.add(createSampleSet(5000, 4800));
-        sampleSets.add(createSampleSet(6000, 3800)); // <- this one gets removed
-        sampleSets.add(createSampleSet(7000, 8080));
+        sampleSets.add(createSampleSet(1000, 1100, null));
+        sampleSets.add(createSampleSet(2000, 2100, null));
+        sampleSets.add(createSampleSet(3000, 4300, null)); // <- this one gets removed
+        sampleSets.add(createSampleSet(5000, 4800, null));
+        sampleSets.add(createSampleSet(6000, 3800, null)); // <- this one gets removed
+        sampleSets.add(createSampleSet(7000, 8080, null));
         matchupSet.setSampleSets(sampleSets);
 
         final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
@@ -60,10 +60,51 @@ public class TimeDeltaConditionTest {
         assertEquals(4, matchupSet.getNumObservations());
     }
 
-    private SampleSet createSampleSet(int primaryTime, int secondaryTime) {
+    @Test
+    public void testApply_withSecondarySensorName() {
+        final MatchupSet matchupSet = new MatchupSet();
+        final List<SampleSet> sampleSets = new ArrayList<>();
+        final String secSensorName = "name";
+        sampleSets.add(createSampleSet(1000, 1100, secSensorName));
+        sampleSets.add(createSampleSet(2000, 2100, secSensorName));
+        sampleSets.add(createSampleSet(3000, 4300, secSensorName)); // <- this one gets removed
+        sampleSets.add(createSampleSet(5000, 4800, secSensorName));
+        sampleSets.add(createSampleSet(6000, 3800, secSensorName)); // <- this one gets removed
+        sampleSets.add(createSampleSet(7000, 8080, secSensorName));
+        matchupSet.setSampleSets(sampleSets);
+
+        final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
+        timeDeltaCondition.setSecondarySensorName(secSensorName);
+        timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
+
+        assertEquals(4, matchupSet.getNumObservations());
+    }
+
+    @Test
+    public void testApply_SecondarySensorNameIsSetInCondition_butNotInSampleSets() {
+        final MatchupSet matchupSet = new MatchupSet();
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        final String secSensorName = "name";
+        final String differentSecSensorName = "different";
+        sampleSets.add(createSampleSet(1000, 1100, differentSecSensorName));
+
+        final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
+        timeDeltaCondition.setSecondarySensorName(secSensorName);
+        try {
+            timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
+            fail("NullPointerException expected");
+        } catch (NullPointerException expected) {
+            assertEquals(null, expected.getMessage());
+        }
+    }
+
+    private SampleSet createSampleSet(int primaryTime, int secondaryTime, String secSensorName) {
+        if (secSensorName == null) {
+            secSensorName = SampleSet.getOnlyOneSecondaryKey();
+        }
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(0, 0, 0, 0, primaryTime));
-        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(0, 0, 0, 0, secondaryTime));
+        sampleSet.setSecondary(secSensorName, new Sample(0, 0, 0, 0, secondaryTime));
         return sampleSet;
     }
 }

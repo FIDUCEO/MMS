@@ -63,8 +63,11 @@ public class ScreeningFactoryTest {
 
     @Test
     public void testGetScreening_angularCosineProportion() throws JDOMException, IOException {
-        final String XML = "<angular-cosine-proportion/>";
-        final Element rootElement = TestUtil.createDomElement(XML);
+        final Element rootElement = new Element("angular-cosine-proportion");
+        rootElement.addContent(new Element("primary-variable").setAttribute("name", "prim_angle"));
+        rootElement.addContent(new Element("secondary-variable").setAttribute("name", "sec_angle"));
+        rootElement.addContent(new Element("threshold").setText("0.028"));
+
 
         final Screening screening = screeningFactory.getScreening(rootElement);
         assertNotNull(screening);

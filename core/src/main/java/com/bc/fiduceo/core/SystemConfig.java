@@ -77,8 +77,7 @@ public class SystemConfig {
         final Element rootElement = JDomUtils.getMandatoryRootElement("system-config", document);
         final Element geometryLibraryElement = rootElement.getChild("geometry-library");
         if (geometryLibraryElement != null) {
-            final Attribute nameAttribute = JDomUtils.getMandatoryAttribute(geometryLibraryElement, "name");
-            geometryLibraryType = nameAttribute.getValue();
+            geometryLibraryType = JDomUtils.getValueFromNameAttributeMandatory(geometryLibraryElement);
         }
 
         final Element archiveConfigElement = rootElement.getChild("archive");

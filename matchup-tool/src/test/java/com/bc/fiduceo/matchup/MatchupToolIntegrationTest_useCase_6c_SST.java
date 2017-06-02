@@ -51,8 +51,8 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_Insitu("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600)
-                .withMaxPixelDistanceKm(1.41f)
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
+                .withMaxPixelDistanceKm(1.41f, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 
@@ -69,8 +69,8 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_Insitu("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600)
-                .withMaxPixelDistanceKm(1.41f)
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
+                .withMaxPixelDistanceKm(1.41f, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 
@@ -87,8 +87,8 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_Insitu("drifter-sst", "insitu_0_WMOID_71612_20040223_20151010.nc");
 
         final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200)
-                .withMaxPixelDistanceKm(6.f)
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200, null)
+                .withMaxPixelDistanceKm(6.f, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
 

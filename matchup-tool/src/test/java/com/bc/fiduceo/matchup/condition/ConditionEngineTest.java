@@ -92,7 +92,7 @@ public class ConditionEngineTest {
     public void testApply_timeDeltaCondition() {
 
         final InputStream stream = new MatchupToolUseCaseConfigBuilder("name")
-                    .withTimeDeltaSeconds(20)
+                    .withTimeDeltaSeconds(20, null)
                     .getStream();
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
 
@@ -157,8 +157,8 @@ public class ConditionEngineTest {
     @Test
     public void testApply_distanceCondition() {
         final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("name")
-                    .withMaxPixelDistanceKm(4)
-                    .withTimeDeltaSeconds(1)
+                    .withMaxPixelDistanceKm(4, null)
+                    .withTimeDeltaSeconds(1, null)
                     .createConfig();
 
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
@@ -175,8 +175,8 @@ public class ConditionEngineTest {
     @Test
     public void testApply_distanceAndTimeDeltaCondition() {
         final InputStream stream = new MatchupToolUseCaseConfigBuilder("name")
-                    .withTimeDeltaSeconds(10)
-                    .withMaxPixelDistanceKm(4)
+                    .withTimeDeltaSeconds(10, null)
+                    .withMaxPixelDistanceKm(4, null)
                     .getStream();
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
 

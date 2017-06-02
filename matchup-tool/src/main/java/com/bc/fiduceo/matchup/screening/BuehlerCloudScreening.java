@@ -33,6 +33,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class BuehlerCloudScreening implements Screening {
 
@@ -43,14 +44,15 @@ class BuehlerCloudScreening implements Screening {
     private boolean useSecondary;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         if (usePrimary) {
             runScreening(matchupSet, primaryReader, true);
         }
 
+        final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
         if (useSecondary) {
             // todo se multisensor
-            runScreening(matchupSet, secondaryReader[0], false);
+            runScreening(matchupSet, reader, false);
         }
     }
 

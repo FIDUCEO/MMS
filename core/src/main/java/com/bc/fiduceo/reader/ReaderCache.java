@@ -21,10 +21,11 @@
 package com.bc.fiduceo.reader;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ReaderCache extends LinkedHashMap<String, Reader> {
+public class ReaderCache extends LinkedHashMap<Path, Reader> {
 
     // The default load factor  used when none specified in constructor.
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
@@ -37,7 +38,7 @@ public class ReaderCache extends LinkedHashMap<String, Reader> {
         this.cacheSize = cacheSize;
     }
 
-    public void add(Reader reader, String filePath) throws IOException {
+    public void add(Reader reader, Path filePath) throws IOException {
         try {
             put(filePath, reader);
         } catch (UnableToCloseException e) {
@@ -46,20 +47,20 @@ public class ReaderCache extends LinkedHashMap<String, Reader> {
     }
 
     public void close() throws IOException {
-        for (Map.Entry<String, Reader> next : entrySet()) {
+        for (Map.Entry<Path, Reader> next : entrySet()) {
             next.getValue().close();
         }
     }
 
     @Override
-    protected boolean removeEldestEntry(Map.Entry<String, Reader> eldest) {
+    protected boolean removeEldestEntry(Map.Entry<Path, Reader> eldest) {
         final boolean remove = size() > cacheSize;
         if (remove) {
             try {
                 eldest.getValue().close();
             } catch (IOException e) {
-                final String key = eldest.getKey();
-                throw new UnableToCloseException("Unable to close reader for file \"" + key + "\"", e);
+                final Path key = eldest.getKey();
+                throw new UnableToCloseException("Unable to close reader for file \"" + key.toString() + "\"", e);
             }
         }
         return remove;

@@ -16,6 +16,7 @@
  */
 package com.bc.fiduceo.core;
 
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import static com.bc.fiduceo.core.UseCaseConfig.*;
+import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
 
 // @todo 2 tb/** write tests for this class 2016-09-20
 public class UseCaseConfigBuilder {
@@ -36,7 +38,7 @@ public class UseCaseConfigBuilder {
 
     public UseCaseConfigBuilder(String name) {
         final Element rootElement = new Element(TAG_NAME_ROOT);
-        rootElement.setAttribute(new Attribute(ATTRIBUTE_NAME_NAME, name != null ? name : "testName"));
+        setNameAttribute(rootElement, name != null ? name : "testName");
         document = new Document(rootElement);
     }
 
@@ -59,7 +61,7 @@ public class UseCaseConfigBuilder {
             final Element dimensions = addChild(getRootElement(), TAG_NAME_DIMENSIONS);
             for (Dimension dimension : dimensionsList) {
                 final Element dimensionElem = addChild(dimensions, TAG_NAME_DIMENSION);
-                dimensionElem.setAttribute(new Attribute(ATTRIBUTE_NAME_NAME, dimension.getName()));
+                setNameAttribute(dimensionElem, dimension.getName());
                 addChild(dimensionElem, TAG_NAME_NX, dimension.getNx());
                 addChild(dimensionElem, TAG_NAME_NY, dimension.getNy());
             }

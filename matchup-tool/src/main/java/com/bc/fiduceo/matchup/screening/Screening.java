@@ -27,22 +27,20 @@ import com.bc.fiduceo.reader.Reader;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface Screening {
 
-    // todo se multisensor
     void apply(MatchupSet matchupSet,
                Reader primaryReader,
-               Reader[] secondaryReader,
-               ScreeningContext context // todo se multisensor
+               Map<String, Reader> secondaryReader,
+               ScreeningContext context
     ) throws IOException, InvalidRangeException;
 
     interface ScreeningContext{
 
-        // todo se multisensor
         Dimension getPrimaryDimension();
 
-        // todo se multisensor
-        Dimension getSecondaryDimension();
+        Dimension getSecondaryDimension(String sensorName);
     }
 }

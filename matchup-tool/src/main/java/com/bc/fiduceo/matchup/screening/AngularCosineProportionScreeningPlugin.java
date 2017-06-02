@@ -20,7 +20,8 @@
 
 package com.bc.fiduceo.matchup.screening;
 
-import org.jdom.Attribute;
+import static com.bc.fiduceo.util.JDomUtils.*;
+
 import org.jdom.Element;
 
 /* The XML template for this screening class looks like:
@@ -49,31 +50,17 @@ public class AngularCosineProportionScreeningPlugin implements ScreeningPlugin {
         return "angular-cosine-proportion";
     }
 
-    // @todo 3 tb/** throw exception when fields are missing, use JDomUtils to extract child elements tb 2016-12-14
     static AngularCosineProportionScreening.Configuration createConfiguration(Element element) {
         final AngularCosineProportionScreening.Configuration configuration = new AngularCosineProportionScreening.Configuration();
 
-        final Element primaryVariableElement = element.getChild("primary-variable");
-        if (primaryVariableElement != null) {
-            final Attribute name = primaryVariableElement.getAttribute("name");
-            if (name != null) {
-                configuration.primaryVariableName = name.getValue();
-            }
-        }
+        final Element primaryVariableElement = getMandatoryChild(element, "primary-variable");
+        configuration.primaryVariableName = getValueFromNameAttributeMandatory(primaryVariableElement);
 
-        final Element secondaryVariableElement = element.getChild("secondary-variable");
-        if (secondaryVariableElement != null) {
-            final Attribute name = secondaryVariableElement.getAttribute("name");
-            if (name != null) {
-                configuration.secondaryVariableName = name.getValue();
-            }
-        }
+        final Element secondaryVariableElement = getMandatoryChild(element, "secondary-variable");
+        configuration.secondaryVariableName = getValueFromNameAttributeMandatory(secondaryVariableElement);
 
-        final Element thresholdElement = element.getChild("threshold");
-        if (thresholdElement != null) {
-            final String thresholdString = thresholdElement.getValue();
-            configuration.threshold = Double.parseDouble(thresholdString);
-        }
+        final String thresholdString = getMandatoryChildTextTrim(element, "threshold");
+        configuration.threshold = Double.parseDouble(thresholdString);
 
         return configuration;
     }

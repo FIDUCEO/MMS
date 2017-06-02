@@ -50,7 +50,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(22)
+                .withTimeDeltaSeconds(22, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
@@ -68,8 +68,8 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(10800) // 3 hours - we have one intersecting time interval
-                .withMaxPixelDistanceKm(3)   // value in km
+                .withTimeDeltaSeconds(10800, null) // 3 hours - we have one intersecting time interval
+                .withMaxPixelDistanceKm(3, null)   // value in km
                 .withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
@@ -125,7 +125,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(10000)   // 2 hours something, just too small to have an overlapping time interval
+                .withTimeDeltaSeconds(10000, null)   // 2 hours something, just too small to have an overlapping time interval
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 

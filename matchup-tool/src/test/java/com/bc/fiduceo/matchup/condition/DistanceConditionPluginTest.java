@@ -21,17 +21,17 @@
 package com.bc.fiduceo.matchup.condition;
 
 
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.matchup.SampleSet;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class DistanceConditionPluginTest {
 
@@ -50,45 +50,86 @@ public class DistanceConditionPluginTest {
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
         final String XML = "<spherical-distance>" +
-                "  <max-pixel-distance-km>" +
-                "    4.5" +
-                "  </max-pixel-distance-km>" +
-                "</spherical-distance>";
+                           "  <max-pixel-distance-km>" +
+                           "    4.5" +
+                           "  </max-pixel-distance-km>" +
+                           "</spherical-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
-        final DistanceCondition condition = plugin.createCondition(element);
+        final Condition condition = plugin.createCondition(element);
         assertNotNull(condition);
+        assertThat(condition, is(instanceOf(DistanceCondition.class)));
+        final DistanceCondition distanceCondition = (DistanceCondition) condition;
+        assertEquals(4.5, distanceCondition.getMaxDistanceInKm(), 1e-250);
+        assertEquals(SampleSet.getOnlyOneSecondaryKey(), distanceCondition.getSecondarySensorName());
+    }
+
+    @Test
+    public void testCreateCondition_withOptionalSecondarySensorName() throws JDOMException, IOException {
+        final String XML = "<spherical-distance>" +
+                           "  <max-pixel-distance-km names=\"secSenName\">" +
+                           "    4.5" +
+                           "  </max-pixel-distance-km>" +
+                           "</spherical-distance>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        final Condition condition = plugin.createCondition(element);
+        assertNotNull(condition);
+        assertThat(condition, is(instanceOf(DistanceCondition.class)));
+        final DistanceCondition distanceCondition = (DistanceCondition) condition;
+        assertEquals(4.5, distanceCondition.getMaxDistanceInKm(), 1e-250);
+        assertEquals("secSenName", distanceCondition.getSecondarySensorName());
     }
 
     @Test
     public void testCreateCondition_invalidTag() throws JDOMException, IOException {
         final String XML = "<distance>" +
-                "  <max-pixel-distance-km>" +
-                "    4.5" +
-                "  </max-pixel-distance-km>" +
-                "</distance>";
+                           "  <max-pixel-distance-km>" +
+                           "    4.5" +
+                           "  </max-pixel-distance-km>" +
+                           "</distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("Illegal XML Element. Tagname 'spherical-distance' expected.", expected.getMessage());
         }
     }
 
     @Test
     public void testCreateCondition_invalidInnerTag() throws JDOMException, IOException {
         final String XML = "<spherical-distance>" +
-                "  <the_delta>" +
-                "    4.5" +
-                "  </the_delta>" +
-                "</spherical-distance>";
+                           "  <the_delta>" +
+                           "    4.5" +
+                           "  </the_delta>" +
+                           "</spherical-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("At least one child element 'max-pixel-distance-km' expected", expected.getMessage());
         }
+    }
+
+    @Test
+    public void testCreateCondition_emptySecondarySensorNameTag() throws JDOMException, IOException {
+        final String XML = "<spherical-distance>" +
+                           "  <max-pixel-distance-km names=\"\">" +
+                           "    4.5" +
+                           "  </max-pixel-distance-km>" +
+                           "</spherical-distance>";
+        final Element element = TestUtil.createDomElement(XML);
+
+        final Condition condition = plugin.createCondition(element);
+        assertNotNull(condition);
+        assertThat(condition, is(instanceOf(DistanceCondition.class)));
+        final DistanceCondition distanceCondition = (DistanceCondition) condition;
+        assertEquals(4.5, distanceCondition.getMaxDistanceInKm(), 1e-250);
+        assertEquals(SampleSet.getOnlyOneSecondaryKey(), distanceCondition.getSecondarySensorName());
+
     }
 }

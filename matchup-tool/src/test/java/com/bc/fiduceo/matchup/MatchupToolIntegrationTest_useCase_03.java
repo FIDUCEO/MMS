@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.NCTestUtils;
-import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -33,7 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +49,8 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(900) // 15 mins
-                .withMaxPixelDistanceKm(2.82f)   // value in km (2 * sqrt(2))
+                .withTimeDeltaSeconds(900, null) // 15 mins
+                .withMaxPixelDistanceKm(2.82f, null)   // value in km (2 * sqrt(2))
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-03.xml");
 
@@ -97,8 +95,8 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_VZACondition() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(900) // 15 mins
-                .withMaxPixelDistanceKm(2.82f)   // value in km (2 * sqrt(2))
+                .withTimeDeltaSeconds(900, null) // 15 mins
+                .withMaxPixelDistanceKm(2.82f, null)   // value in km (2 * sqrt(2))
                 .withAngularScreening("GGeoSondAnglesMETOP_Zenith", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-03.xml");

@@ -20,8 +20,8 @@ public class MatchupToolUseCaseConfigTest {
     public void testStore() throws IOException {
 
         final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("test_use_case")
-                    .withTimeDeltaSeconds(12345)
-                    .withMaxPixelDistanceKm(14.8f)
+                    .withTimeDeltaSeconds(12345, null)
+                    .withMaxPixelDistanceKm(14.8f, null)
                     .withSensors(Arrays.asList(
                                 new Sensor("first"),
                                 new Sensor("second")))

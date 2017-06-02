@@ -32,6 +32,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class AngularCosineProportionScreening implements Screening {
 
@@ -40,7 +41,7 @@ class AngularCosineProportionScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -51,7 +52,8 @@ class AngularCosineProportionScreening implements Screening {
 
             final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             // todo se multisensor
-            final Array szaSecondaryArray = secondaryReader[0].readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
+            final Array szaSecondaryArray = reader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
             final double secondaryVZA = szaSecondaryArray.getDouble(0);
 
             final double primaryCosine = Math.cos(primaryVZA * MathUtils.DTOR);

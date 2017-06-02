@@ -21,6 +21,8 @@
 package com.bc.fiduceo.geometry;
 
 
+import com.sun.istack.internal.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,12 +47,30 @@ class BcGeometryCollection implements GeometryCollection {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        throw new RuntimeException("not implemented");
+        final List<Geometry> intersections = new ArrayList<>();
+        for (Geometry geometry : geometries) {
+            final Geometry intersection = geometry.getIntersection(other);
+            if (intersection!= null) {
+                intersections.add(intersection);
+            }
+        }
+        if (intersections.size()==1) {
+            return intersections.get(0);
+        } else {
+            final BcGeometryCollection bcGeometryCollection = new BcGeometryCollection();
+            bcGeometryCollection.setGeometries(intersections.toArray(new Geometry[intersections.size()]));
+            return bcGeometryCollection;
+        }
     }
 
     @Override
     public boolean isEmpty() {
-        throw new RuntimeException("not implemented");
+        for (Geometry geometry : geometries) {
+            if (!geometry.isEmpty()){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

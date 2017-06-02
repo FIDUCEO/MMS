@@ -62,11 +62,14 @@ public abstract class AbstractMatchupStrategy {
     void applyConditionsAndScreenings(MatchupSet matchupSet,
                                       ConditionEngine conditionEngine, ConditionEngineContext conditionEngineContext,
                                       ScreeningEngine screeningEngine,
-                                      Reader primaryReader, Reader secondaryReader) throws IOException, InvalidRangeException {
+                                      Reader primaryReader, Map<String, Reader> secondaryReader) throws IOException, InvalidRangeException {
         final Dimension primarySize = primaryReader.getProductSize();
         conditionEngineContext.setPrimarySize(primarySize);
-        final Dimension secondarySize = secondaryReader.getProductSize();
-        conditionEngineContext.setSecondarySize(secondarySize);
+        if (secondaryReader.size() ==1) {
+            final Reader reader = secondaryReader.values().iterator().next();
+            final Dimension secondarySize = reader.getProductSize();
+            conditionEngineContext.setSecondarySize(secondarySize);
+        }
 
         logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
         conditionEngine.process(matchupSet, conditionEngineContext);

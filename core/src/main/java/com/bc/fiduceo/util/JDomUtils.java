@@ -16,16 +16,25 @@
  */
 package com.bc.fiduceo.util;
 
+import static org.esa.snap.core.util.StringUtils.isNullOrEmpty;
+
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import java.util.List;
+
 public class JDomUtils {
+
+    public final static String ATTRIBUTE_NAME__NAME = "name";
+    public final static String ATTRIBUTE_NAME__NAMES = "names";
+    public static final String VALUE = "Value";
+    public static final String ATTRIBUTE = "Attribute";
 
     public static Attribute getMandatoryAttribute(final Element element, final String name) {
         final Attribute attribute = element.getAttribute(name);
         if (attribute == null) {
-            throw new RuntimeException("Attribute '" + name + "' expected");
+            throw new RuntimeException(ATTRIBUTE + " '" + name + "' expected");
         }
         return attribute;
     }
@@ -33,7 +42,7 @@ public class JDomUtils {
     public static String getMandatoryText(final Element element) {
         final String textTrim = element.getTextTrim();
         if (textTrim.length() == 0) {
-            throw new RuntimeException("Value of element '" + element.getName() + "' expected");
+            throw new RuntimeException(VALUE + " of element '" + element.getName() + "' expected");
         }
         return textTrim;
     }
@@ -44,6 +53,14 @@ public class JDomUtils {
             throw new RuntimeException("Child element '" + name + "' expected");
         }
         return child;
+    }
+
+    public static List<Element> getMandatoryChildren(final Element element, final String name) {
+        final List<Element> children = element.getChildren(name);
+        if (children.size() == 0) {
+            throw new RuntimeException("At least one child element '" + name + "' expected");
+        }
+        return children;
     }
 
     public static String getMandatoryChildTextTrim(final Element element, final String name) {
@@ -63,5 +80,51 @@ public class JDomUtils {
             throw new RuntimeException("Root tag name '" + elementName + "' expected");
         }
         return rootElement;
+    }
+
+    public static Attribute setNameAttribute(Element element, String textvalue) {
+        return setAttribute(element, ATTRIBUTE_NAME__NAME, textvalue);
+    }
+
+    public static Attribute setNamesAttribute(Element element, String textValue) {
+        return setAttribute(element, ATTRIBUTE_NAME__NAMES, textValue);
+    }
+
+    public static String getValueFromNameAttribute(Element element) {
+        return getValueFromAttribute(element, ATTRIBUTE_NAME__NAME);
+    }
+
+    public static String getValueFromNamesAttribute(Element element) {
+        return getValueFromAttribute(element, ATTRIBUTE_NAME__NAMES);
+    }
+
+    public static String getValueFromNameAttributeMandatory(Element element) {
+        return getValueFromAttributeMandatory(element, ATTRIBUTE_NAME__NAME);
+    }
+
+    public static String getValueFromNamesAttributeMandatory(Element element) {
+        return getValueFromAttributeMandatory(element, ATTRIBUTE_NAME__NAMES);
+    }
+
+    private static Attribute setAttribute(Element element, String attributeName, String textvalue) {
+        element.setAttribute(attributeName, textvalue);
+        return element.getAttribute(attributeName);
+    }
+
+    private static String getValueFromAttribute(Element element, String attributeName) {
+        final Attribute attribute = element.getAttribute(attributeName);
+        if (attribute != null) {
+            return attribute.getValue();
+        }
+        return null;
+    }
+
+    private static String getValueFromAttributeMandatory(Element element, String attributeName) {
+        final Attribute mandatoryAttribute = getMandatoryAttribute(element, attributeName);
+        final String value = mandatoryAttribute.getValue();
+        if (isNullOrEmpty(value)) {
+            throw new RuntimeException(VALUE + " expected for attribute '" + attributeName + "'");
+        }
+        return value;
     }
 }

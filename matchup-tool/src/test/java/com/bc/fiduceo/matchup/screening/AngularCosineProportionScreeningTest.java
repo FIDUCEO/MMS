@@ -30,6 +30,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,11 +43,15 @@ public class AngularCosineProportionScreeningTest {
 
     private AngularCosineProportionScreening screening;
     private AngularCosineProportionScreening.Configuration configuration;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
 
     @Before
     public void setUp() {
         screening = new AngularCosineProportionScreening();
         configuration = new AngularCosineProportionScreening.Configuration();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -54,10 +59,11 @@ public class AngularCosineProportionScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -89,13 +95,14 @@ public class AngularCosineProportionScreeningTest {
         when(secondaryReader.readScaled(eq(45), eq(354), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
         when(secondaryReader.readScaled(eq(46), eq(355), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         when(secondaryReader.readScaled(eq(47), eq(356), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryVariableName = "Satellite_zenith_angle";
         configuration.secondaryVariableName = "the_other_angle";
         configuration.threshold = 0.01;
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());

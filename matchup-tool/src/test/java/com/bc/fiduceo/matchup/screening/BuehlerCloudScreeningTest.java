@@ -31,6 +31,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -43,11 +44,16 @@ public class BuehlerCloudScreeningTest {
 
     private BuehlerCloudScreening screening;
     private BuehlerCloudScreening.Configuration configuration;
+    private String secondarySensorName;
+    private HashMap<String, Reader> secondaryReaderMap;
+
 
     @Before
     public void setUp(){
         screening = new BuehlerCloudScreening();
         configuration = new BuehlerCloudScreening.Configuration();
+        secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
     }
 
     @Test
@@ -55,10 +61,11 @@ public class BuehlerCloudScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -93,13 +100,14 @@ public class BuehlerCloudScreeningTest {
         when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
 
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryNarrowChannelName = "btemps_ch18";
         configuration.primaryWideChannelName = "btemps_ch20";
         configuration.primaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -141,13 +149,14 @@ public class BuehlerCloudScreeningTest {
         when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
 
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryNarrowChannelName = "btemps_ch18";
         configuration.primaryWideChannelName = "btemps_ch20";
         configuration.primaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -186,13 +195,14 @@ public class BuehlerCloudScreeningTest {
         when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("btemps_ch3"))).thenReturn(lowBtempArray); // condition for removal: ch20 > ch18
         when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("btemps_ch4"))).thenReturn(highBtempArray);
         when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.secondaryNarrowChannelName = "btemps_ch3";
         configuration.secondaryWideChannelName = "btemps_ch4";
         configuration.secondaryVZAVariableName = "Satellite_zenith_angle";
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
@@ -212,9 +222,10 @@ public class BuehlerCloudScreeningTest {
 
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         screening.configure(configuration);
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(3, sampleSets.size());

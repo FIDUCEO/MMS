@@ -32,6 +32,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class HIRS_LZADeltaScreening implements Screening {
 
@@ -40,7 +41,7 @@ class HIRS_LZADeltaScreening implements Screening {
     private Configuration configuration;
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         final List<SampleSet> resultSet = new ArrayList<>();
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
@@ -51,9 +52,10 @@ class HIRS_LZADeltaScreening implements Screening {
 
             final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             // todo se multisensor
-            final Array secondLzaArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "lza");
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
+            final Array secondLzaArray = reader.readScaled(secondary.x, secondary.y, singlePixel, "lza");
             // todo se multisensor
-            final Array secondScanPosArray = secondaryReader[0].readScaled(secondary.x, secondary.y, singlePixel, "scanpos");
+            final Array secondScanPosArray = reader.readScaled(secondary.x, secondary.y, singlePixel, "scanpos");
 
             double primaryLza = primaryLzaArray.getDouble(0);
             final int primaryScanpos = primaryScanposArray.getInt(0);

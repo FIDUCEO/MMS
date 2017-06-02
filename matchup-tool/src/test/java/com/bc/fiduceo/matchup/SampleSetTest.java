@@ -80,8 +80,6 @@ public class SampleSetTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Set the property \"ONLY_ONE_SECONDARY\" twice is not allowed.", expected.getMessage());
-        } catch (Exception e) {
-            fail("RuntimeException expected");
         }
     }
 }

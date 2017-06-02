@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.strategy;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
@@ -43,6 +44,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -85,13 +87,19 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 // todo se multisensor
+                final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+
+                // todo se multisensor
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+                // todo se multisensor
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
 
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                    try (Reader secondaryReader = readerFactory.getReader(secondaryObservation.getSensor().getName())) {
+                    // todo se multisensor
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                        secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
 
                         final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                         if (intersectingIntervals.length == 0) {
@@ -102,8 +110,9 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         // todo se multisensor
-                        matchupSet.setSecondaryObservationPath(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getDataFilePath());
-                        matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), secondaryObservation.getVersion());
+                        matchupSet.setSecondaryObservationPath(secondarySensorName_CaseOneSecondary, secondaryObservation.getDataFilePath());
+                        // todo se multisensor
+                        matchupSet.setSecondaryProcessingVersion(secondarySensorName_CaseOneSecondary, secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
                         final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
@@ -124,11 +133,11 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                                 sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
 
                                 sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), SampleSet.getOnlyOneSecondaryKey());
+                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), secondarySensorName_CaseOneSecondary);
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReader);
+                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaderMap);
                                     if (matchupSet.getNumObservations() > 0) {
                                         matchupCollection.add(matchupSet);
                                     }

@@ -50,8 +50,8 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(2700) // 45 minutes - we have one intersecting time interval
-                .withMaxPixelDistanceKm(20)   // value in km
+                .withTimeDeltaSeconds(2700, null) // 45 minutes - we have one intersecting time interval
+                .withMaxPixelDistanceKm(20, null)   // value in km
                 .withHIRS_LZA_Screening(10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-05.xml");
@@ -125,8 +125,8 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(900)   // 15 minutes - we have no intersecting time intervals
-                .withMaxPixelDistanceKm(20)   // value in km
+                .withTimeDeltaSeconds(900, null)   // 15 minutes - we have no intersecting time intervals
+                .withMaxPixelDistanceKm(20, null)   // value in km
                 .withHIRS_LZA_Screening(10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-05.xml");

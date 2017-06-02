@@ -20,24 +20,37 @@
 
 package com.bc.fiduceo.matchup.screening;
 
-import com.bc.fiduceo.TestUtil;
+import static com.bc.fiduceo.util.JDomUtils.ATTRIBUTE;
+import static com.bc.fiduceo.util.JDomUtils.ATTRIBUTE_NAME__NAME;
+import static com.bc.fiduceo.util.JDomUtils.VALUE;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class AngularCosineProportionScreeningPluginTest {
+
+    public static final String PRIMARY_VARIABLE = "primary-variable";
+    public static final String SECONDARY_VARIABLE = "secondary-variable";
+    public static final String THRESHOLD = "threshold";
 
     private AngularCosineProportionScreeningPlugin plugin;
 
+    private Element rootElement;
+
     @Before
-    public void setUp() {
+    public void setUp() throws JDOMException, IOException {
         plugin = new AngularCosineProportionScreeningPlugin();
+
+        rootElement = new Element("angular-cosine-proportion");
+        rootElement.addContent(new Element(PRIMARY_VARIABLE).setAttribute("name", "prim_angle"));
+        rootElement.addContent(new Element(SECONDARY_VARIABLE).setAttribute("name", "sec_angle"));
+        rootElement.addContent(new Element(THRESHOLD).setText("0.028"));
     }
 
     @Test
@@ -47,46 +60,127 @@ public class AngularCosineProportionScreeningPluginTest {
 
     @Test
     public void testCreateScreening() throws JDOMException, IOException {
-        final String XML = "<angular-cosine-proportion/>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
         final Screening screening = plugin.createScreening(rootElement);
+
         assertNotNull(screening);
     }
 
     @Test
-    public void testCreateConfiguration_primaryName() throws JDOMException, IOException {
-        final String XML = "<angular-cosine-proportion>" +
-                "  <primary-variable name=\"the_angle\" />" +
-                "</angular-cosine-proportion>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
+    public void testCreateConfiguration() throws JDOMException, IOException {
         final AngularCosineProportionScreening.Configuration configuration = AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+
         assertNotNull(configuration);
-        assertEquals("the_angle", configuration.primaryVariableName);
-    }
-
-    @Test
-    public void testCreateConfiguration_secondaryName() throws JDOMException, IOException {
-        final String XML = "<angular-cosine-proportion>" +
-                "  <secondary-variable name=\"other_angle\" />" +
-                "</angular-cosine-proportion>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final AngularCosineProportionScreening.Configuration configuration = AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
-        assertNotNull(configuration);
-        assertEquals("other_angle", configuration.secondaryVariableName);
-    }
-
-    @Test
-    public void testCreateConfiguration_threshold() throws JDOMException, IOException {
-        final String XML = "<angular-cosine-proportion>" +
-                "  <threshold>0.028</threshold>" +
-                "</angular-cosine-proportion>";
-        final Element rootElement = TestUtil.createDomElement(XML);
-
-        final AngularCosineProportionScreening.Configuration configuration = AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
-        assertNotNull(configuration);
+        assertEquals("prim_angle", configuration.primaryVariableName);
+        assertEquals("sec_angle", configuration.secondaryVariableName);
         assertEquals(0.028, configuration.threshold, 1e-8);
+    }
+
+    @Test
+    public void testCreateConfiguration_NoPrimaryVariable() throws JDOMException, IOException {
+        rootElement.removeChild(PRIMARY_VARIABLE);
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString(PRIMARY_VARIABLE));
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_PrimaryVariable_EmptyNameAttribute() throws JDOMException, IOException {
+        final Element child = rootElement.getChild(PRIMARY_VARIABLE);
+        JDomUtils.setNameAttribute(child, "");
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            final String message = expected.getMessage();
+            assertThat(message, containsString(ATTRIBUTE_NAME__NAME));
+            assertThat(message, containsString(VALUE));
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_PrimaryVariable_NoNameAttribute() throws JDOMException, IOException {
+        rootElement.getChild(PRIMARY_VARIABLE).removeAttribute(ATTRIBUTE_NAME__NAME);
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            final String message = expected.getMessage();
+            assertThat(message, containsString(ATTRIBUTE_NAME__NAME));
+            assertThat(message, containsString(ATTRIBUTE));
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_NoSecondaryVariable() throws JDOMException, IOException {
+        rootElement.removeChild(SECONDARY_VARIABLE);
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString(SECONDARY_VARIABLE));
+        }
+    }
+
+
+    @Test
+    public void testCreateConfiguration_SecondaryVariable_EmptyNameAttribute() throws JDOMException, IOException {
+        final Element child = rootElement.getChild(SECONDARY_VARIABLE);
+        JDomUtils.setNameAttribute(child, "");
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            final String message = expected.getMessage();
+            assertThat(message, containsString(ATTRIBUTE_NAME__NAME));
+            assertThat(message, containsString(VALUE));
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_SecondaryVariable_NoNameAttribute() throws JDOMException, IOException {
+        rootElement.getChild(SECONDARY_VARIABLE).removeAttribute(ATTRIBUTE_NAME__NAME);
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            final String message = expected.getMessage();
+            assertThat(message, containsString(ATTRIBUTE_NAME__NAME));
+            assertThat(message, containsString(ATTRIBUTE));
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_NoThreshold() throws JDOMException, IOException {
+        rootElement.removeChild(THRESHOLD);
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString(THRESHOLD));
+        }
+    }
+
+
+    @Test
+    public void testCreateConfiguration_Threshold_EmptyText() throws JDOMException, IOException {
+        rootElement.getChild(THRESHOLD).setText("");
+
+        try {
+            AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            final String message = expected.getMessage();
+            assertThat(message, equalTo("empty String"));
+        }
     }
 }

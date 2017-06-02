@@ -321,14 +321,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
     }
 
-    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String primarySensorName, Path primaryObservationPath) throws IOException {
-        final String path = primaryObservationPath.toString();
-        if (readerCache.containsKey(path)) {
-            return readerCache.get(path);
+    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String sensorName, Path observationPath) throws IOException {
+        if (readerCache.containsKey(observationPath)) {
+            return readerCache.get(observationPath);
         } else {
-            final Reader reader = readerFactory.getReader(primarySensorName);
-            reader.open(primaryObservationPath.toFile());
-            readerCache.add(reader, path);
+            final Reader reader = readerFactory.getReader(sensorName);
+            reader.open(observationPath.toFile());
+            readerCache.add(reader, observationPath);
             return reader;
         }
     }

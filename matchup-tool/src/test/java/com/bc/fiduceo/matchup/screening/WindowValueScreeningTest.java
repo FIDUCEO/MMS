@@ -43,12 +43,15 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(IOTestRunner.class)
 public class WindowValueScreeningTest {
 
     private Reader reader;
+    private HashMap<String, Reader> secondaryReaderMap;
+    private String secSensorName;
 
     @Before
     public void setUp() throws Exception {
@@ -57,6 +60,11 @@ public class WindowValueScreeningTest {
         writeTestFile(nc4testfile);
         reader = new SimpleNc4ReaderForTestCases();
         reader.open(nc4testfile.toFile());
+
+        secSensorName = SampleSet.getOnlyOneSecondaryKey();
+        secondaryReaderMap = new HashMap<>();
+        secondaryReaderMap.put(secSensorName, reader);
+
     }
 
     @After
@@ -72,11 +80,12 @@ public class WindowValueScreeningTest {
         final MatchupSet matchupSet = new MatchupSet();
         final Reader primaryReader = mock(Reader.class);
         final Reader secondaryReader = mock(Reader.class);
+        secondaryReaderMap.put(secSensorName, secondaryReader);
 
         assertEquals(0, matchupSet.getNumObservations());
 
         final WindowValueScreening screening = new WindowValueScreening(new WindowValueScreening.Configuration());
-        screening.apply(matchupSet, primaryReader, new Reader[]{secondaryReader}, null);
+        screening.apply(matchupSet, primaryReader, secondaryReaderMap, null);
 
         assertEquals(0, matchupSet.getNumObservations());
     }
@@ -142,7 +151,7 @@ public class WindowValueScreeningTest {
         sampleSets.add(createSampleSet(3, 3, 4, 4));
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 5, 5));
+        when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 5, 5));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.secondaryExpression = "varD >= 35";
@@ -151,7 +160,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, null, new Reader[]{reader}, screeningContext);
+        screening.apply(matchupSet, null, secondaryReaderMap, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -168,7 +177,7 @@ public class WindowValueScreeningTest {
         sampleSets.add(createSampleSet(3, 3, 4, 4));
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 5, 5));
+        when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 5, 5));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.secondaryExpression = "varD >= 35";
@@ -177,7 +186,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, null, new Reader[]{reader}, screeningContext);
+        screening.apply(matchupSet, null, secondaryReaderMap, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -196,7 +205,7 @@ public class WindowValueScreeningTest {
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
         when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 3, 3));
+        when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 3, 3));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.primaryExpression = "varI >= 27";
@@ -208,7 +217,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, reader, new Reader[]{reader}, screeningContext);
+        screening.apply(matchupSet, reader, secondaryReaderMap, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
@@ -228,7 +237,7 @@ public class WindowValueScreeningTest {
 
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
         when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
-        when(screeningContext.getSecondaryDimension()).thenReturn(new Dimension("name", 3, 3));
+        when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 3, 3));
 
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.primaryExpression = "varI >= 27";
@@ -240,7 +249,7 @@ public class WindowValueScreeningTest {
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
-        screening.apply(matchupSet, reader, new Reader[]{reader}, screeningContext);
+        screening.apply(matchupSet, reader, secondaryReaderMap, screeningContext);
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());

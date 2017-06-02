@@ -34,6 +34,7 @@ import ucar.ma2.InvalidRangeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
 
@@ -48,7 +49,7 @@ public class WindowValueScreening implements Screening {
     }
 
     @Override
-    public void apply(MatchupSet matchupSet, Reader primaryReader, Reader[] secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
+    public void apply(MatchupSet matchupSet, Reader primaryReader, Map<String, Reader> secondaryReader, ScreeningContext context) throws IOException, InvalidRangeException {
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
 
         final String primaryExpression = configuration.primaryExpression;
@@ -64,12 +65,13 @@ public class WindowValueScreening implements Screening {
         final String secondaryExpression = configuration.secondaryExpression;
         if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
             // todo se multisensor
-            final Dimension secondaryDimension = context.getSecondaryDimension();
-            final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+            final String sensorName = SampleSet.getOnlyOneSecondaryKey();
+            final Dimension secondaryDimension = context.getSecondaryDimension(sensorName);
+            final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(sensorName);
             final double percentage = configuration.secondaryPercentage;
             final Evaluate evaluate = configuration.secondaryEvaluate;
             // todo se multisensor
-            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader[0], secondaryDimension, secondarySampleFetcher, percentage, evaluate);
+            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader.get(sensorName), secondaryDimension, secondarySampleFetcher, percentage, evaluate);
         }
 
         matchupSet.setSampleSets(sampleSets);

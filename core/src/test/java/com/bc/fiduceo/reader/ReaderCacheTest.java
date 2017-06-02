@@ -26,6 +26,7 @@ import static org.mockito.Mockito.*;
 import org.junit.*;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class ReaderCacheTest {
 
@@ -38,7 +39,7 @@ public class ReaderCacheTest {
 
     @Test
     public void testGetReader_emptyCache() {
-        final Reader reader = readerCache.get("usr/local/data/file_1");
+        final Reader reader = readerCache.get(Paths.get("usr/local/data/file_1"));
         assertNull(reader);
     }
 
@@ -46,8 +47,8 @@ public class ReaderCacheTest {
     public void testAddAndGet() throws IOException {
         final Reader reader = mock(Reader.class);
 
-        readerCache.add(reader, "a/relative/path");
-        final Reader retrievedReader = readerCache.get("a/relative/path");
+        readerCache.add(reader, Paths.get("a/relative/path"));
+        final Reader retrievedReader = readerCache.get(Paths.get("a/relative/path"));
         assertSame(reader, retrievedReader);
     }
 
@@ -56,13 +57,13 @@ public class ReaderCacheTest {
         final Reader reader_1 = mock(Reader.class);
         final Reader reader_2 = mock(Reader.class);
 
-        readerCache.add(reader_1, "a/relative/path/one");
-        readerCache.add(reader_2, "a/relative/path/two");
+        readerCache.add(reader_1, Paths.get("a/relative/path/one"));
+        readerCache.add(reader_2, Paths.get("a/relative/path/two"));
 
-        Reader retrievedReader = readerCache.get("a/relative/path/one");
+        Reader retrievedReader = readerCache.get(Paths.get("a/relative/path/one"));
         assertSame(reader_1, retrievedReader);
 
-        retrievedReader = readerCache.get("a/relative/path/two");
+        retrievedReader = readerCache.get(Paths.get("a/relative/path/two"));
         assertSame(reader_2, retrievedReader);
     }
 
@@ -72,19 +73,19 @@ public class ReaderCacheTest {
         final Reader reader_2 = mock(Reader.class);
         final Reader reader_3 = mock(Reader.class);
 
-        readerCache.add(reader_1, "a/relative/path/one");
+        readerCache.add(reader_1, Paths.get("a/relative/path/one"));
         Thread.sleep(100);
-        readerCache.add(reader_2, "a/relative/path/two");
+        readerCache.add(reader_2, Paths.get("a/relative/path/two"));
         Thread.sleep(100);
-        readerCache.add(reader_3, "a/relative/path/three");
+        readerCache.add(reader_3, Paths.get("a/relative/path/three"));
 
-        Reader retrievedReader = readerCache.get("a/relative/path/one");
+        Reader retrievedReader = readerCache.get(Paths.get("a/relative/path/one"));
         assertNull(retrievedReader);
 
-        retrievedReader = readerCache.get("a/relative/path/two");
+        retrievedReader = readerCache.get(Paths.get("a/relative/path/two"));
         assertSame(reader_2, retrievedReader);
 
-        retrievedReader = readerCache.get("a/relative/path/three");
+        retrievedReader = readerCache.get(Paths.get("a/relative/path/three"));
         assertSame(reader_3, retrievedReader);
 
         verify(reader_1, times(1)).close();
@@ -95,8 +96,8 @@ public class ReaderCacheTest {
         final Reader reader_1 = mock(Reader.class);
         final Reader reader_2 = mock(Reader.class);
 
-        readerCache.add(reader_1, "a/relative/path/one");
-        readerCache.add(reader_2, "a/relative/path/two");
+        readerCache.add(reader_1, Paths.get("a/relative/path/one"));
+        readerCache.add(reader_2, Paths.get("a/relative/path/two"));
 
         readerCache.close();
 
