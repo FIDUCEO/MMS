@@ -84,12 +84,14 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertDimension("processing_version", pv_Size, mmd);
             assertDimension("matchup_count", 4, mmd);
 
+            final String _1DDims = "matchup_count";
+
             final String filenameDims = "matchup_count file_name";
             final String versionDims = "matchup_count processing_version";
-            final String insitu1DDims = "matchup_count";
-            final String insitu3DDims = "matchup_count drifter-sst_ny drifter-sst_nx";
 
+            final String insitu3DDims = "matchup_count drifter-sst_ny drifter-sst_nx";
             final String hirs3DDims = "matchup_count hirs-n18_ny hirs-n18_nx";
+            final String mhs3DDims = "matchup_count mhs-n18_ny mhs-n18_nx";
 
             assertVariablePresentAnd3DValueLong("drifter-sst_insitu.time", DataType.INT, insitu3DDims, 0, 0, 0, 1061596188, mmd);
             assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.lat", DataType.FLOAT, insitu3DDims, 0, 0, 1, -32.3f, mmd);
@@ -101,8 +103,8 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.sst_track_flag", DataType.SHORT, insitu3DDims, 0, 0, 2, 3, mmd);
             assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.mohc_id", DataType.INT, insitu3DDims, 0, 0, 1, 1031446, mmd);
             assertVariablePresentAnd3DValueDouble("drifter-sst_insitu.id", DataType.LONG, insitu3DDims, 0, 0, 2, 2011080001034085L, mmd);
-            assertVariablePresentAnd1DValueLong("drifter-sst_x", DataType.INT, insitu1DDims, 1, 0, mmd);
-            assertVariablePresentAnd1DValueLong("drifter-sst_y", DataType.INT, insitu1DDims, 1, 22482, mmd);
+            assertVariablePresentAnd1DValueLong("drifter-sst_x", DataType.INT, _1DDims, 1, 0, mmd);
+            assertVariablePresentAnd1DValueLong("drifter-sst_y", DataType.INT, _1DDims, 1, 22482, mmd);
             assertStringVariable("drifter-sst_file_name", filenameDims, fn_Size, 2, "insitu_0_WMOID_51939_20031105_20131121.nc", mmd);
             assertStringVariable("drifter-sst_processing_version", versionDims, pv_Size, 2, "v03.3", mmd);
             assertVariablePresentAnd3DValueLong("drifter-sst_acquisition_time", DataType.INT, insitu3DDims, 0, 0, 0, 1314056988, mmd);
@@ -110,6 +112,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertVariablePresentAnd3DValueLong("hirs-n18_time", DataType.INT, hirs3DDims, 2, 2, 0, 1314064551, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_lat", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -32.3208, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_lon", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -155.4985, mmd);
+
             assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch01", DataType.FLOAT, hirs3DDims, 1, 3, 2, 237.43939f, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch02", DataType.FLOAT, hirs3DDims, 1, 3, 2, 224.90039f, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch03", DataType.FLOAT, hirs3DDims, 1, 3, 2, 223.14154f, mmd);
@@ -130,8 +133,70 @@ public class MatchupToolIntegrationTest_useCase_6c_SST_2secondarySensors extends
             assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch18", DataType.FLOAT, hirs3DDims, 1, 3, 2, 285.74746f, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_bt_ch19", DataType.FLOAT, hirs3DDims, 1, 3, 2, 288.67504f, mmd);
 
+            assertVariablePresentAnd3DValueDouble("hirs-n18_lza", DataType.FLOAT, hirs3DDims, 2, 2, 1, 59.64f, mmd);
 
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch01", DataType.DOUBLE, hirs3DDims, 0, 0, 0, 65.88154602050781, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch02", DataType.DOUBLE, hirs3DDims, 1, 0, 0, 46.589656829833984, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch03", DataType.DOUBLE, hirs3DDims, 2, 0, 0, 47.79243850708008, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch04", DataType.DOUBLE, hirs3DDims, 0, 1, 0, 0.3312228322029114, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch05", DataType.DOUBLE, hirs3DDims, 1, 1, 0, -0.5328538417816162, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch06", DataType.DOUBLE, hirs3DDims, 2, 1, 0, 0.04594390466809273, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch07", DataType.DOUBLE, hirs3DDims, 0, 2, 0, 114.8533935546875, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch08", DataType.DOUBLE, hirs3DDims, 1, 2, 0, 90.78507232666016, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch09", DataType.DOUBLE, hirs3DDims, 2, 2, 0, 70.8087387084961, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch10", DataType.DOUBLE, hirs3DDims, 0, 0, 1, 90.1415023803711, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch11", DataType.DOUBLE, hirs3DDims, 1, 0, 1, 13.598969459533691, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch12", DataType.DOUBLE, hirs3DDims, 2, 0, 1, 3.4836947917938232, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch13", DataType.DOUBLE, hirs3DDims, 0, 1, 1, -0.002809124067425728, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch14", DataType.DOUBLE, hirs3DDims, 1, 1, 1, -9.245760156773031E-4, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch15", DataType.DOUBLE, hirs3DDims, 2, 1, 1, -0.0014482659753412008, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch16", DataType.DOUBLE, hirs3DDims, 0, 2, 1, 1.51426100730896, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch17", DataType.DOUBLE, hirs3DDims, 1, 2, 1, 0.7894507050514221, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch18", DataType.DOUBLE, hirs3DDims, 2, 2, 1, 0.5440066456794739, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch19", DataType.DOUBLE, hirs3DDims, 0, 0, 2, 0.2978077828884125, mmd);
+            assertVariablePresentAnd3DValueDouble("hirs-n18_radiance_ch20", DataType.DOUBLE, hirs3DDims, 1, 0, 2, 6.2101263999938965, mmd);
 
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch01", DataType.INT, hirs3DDims, 0, 0, 0, 3024, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch02", DataType.INT, hirs3DDims, 1, 0, 0, -750, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch03", DataType.INT, hirs3DDims, 2, 0, 0, 664, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch04", DataType.INT, hirs3DDims, 0, 1, 0, 1547, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch05", DataType.INT, hirs3DDims, 1, 1, 0, 1241, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch06", DataType.INT, hirs3DDims, 2, 1, 0, 1788, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch07", DataType.INT, hirs3DDims, 0, 2, 0, 369, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch08", DataType.INT, hirs3DDims, 1, 2, 0, -639, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch09", DataType.INT, hirs3DDims, 2, 2, 0, -898, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch10", DataType.INT, hirs3DDims, 0, 0, 1, 317, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch11", DataType.INT, hirs3DDims, 1, 0, 1, 774, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch12", DataType.INT, hirs3DDims, 2, 0, 1, 1281, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch13", DataType.INT, hirs3DDims, 0, 1, 1, 1094, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch14", DataType.INT, hirs3DDims, 1, 1, 1, 956, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch15", DataType.INT, hirs3DDims, 2, 1, 1, 698, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch16", DataType.INT, hirs3DDims, 0, 2, 1, -542, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch17", DataType.INT, hirs3DDims, 1, 2, 1, 303, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch18", DataType.INT, hirs3DDims, 2, 2, 1, 1459, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch19", DataType.INT, hirs3DDims, 0, 0, 2, 1436, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_counts_ch20", DataType.INT, hirs3DDims, 1, 0, 2, -2622, mmd);
+
+            assertVariablePresentAnd3DValueLong("hirs-n18_scanline", DataType.SHORT, hirs3DDims, 1, 0, 2, 815, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_scanpos", DataType.BYTE, hirs3DDims, 1, 0, 2, 54, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_scanline_type", DataType.BYTE, hirs3DDims, 1, 0, 2, 0, mmd);
+            assertVariablePresentAnd1DValueLong("hirs-n18_x", DataType.INT, _1DDims, 1, 55, mmd);
+            assertVariablePresentAnd1DValueLong("hirs-n18_y", DataType.INT, _1DDims, 1, 767, mmd);
+            assertStringVariable("hirs-n18_file_name", filenameDims, fn_Size, 2, "190455003.NSS.HIRX.NN.D11235.S0028.E0223.B3223536.WI.nc", mmd);
+            assertStringVariable("hirs-n18_processing_version", versionDims, pv_Size, 2, "1.0", mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_acquisition_time", DataType.INT, hirs3DDims, 2, 2, 2, 1314064551, mmd);
+
+            assertVariablePresentAnd3DValueLong("mhs-n18_btemps_ch1", DataType.INT, mhs3DDims, 0, 0, 0, 23115, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_btemps_ch2", DataType.INT, mhs3DDims, 1, 0, 0, 26462, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_btemps_ch3", DataType.INT, mhs3DDims, 2, 0, 0, -999999, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_btemps_ch4", DataType.INT, mhs3DDims, 0, 1, 0, 26138, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_btemps_ch5", DataType.INT, mhs3DDims, 1, 1, 0, 26983, mmd);
+
+            assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch1", DataType.INT, mhs3DDims, 0, 0, 0, 0, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch2", DataType.INT, mhs3DDims, 1, 0, 0, 0, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch3", DataType.INT, mhs3DDims, 2, 0, 0, -2147483647, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch4", DataType.INT, mhs3DDims, 0, 1, 0, 0, mmd);
+            assertVariablePresentAnd3DValueLong("mhs-n18_chanqual_ch5", DataType.INT, mhs3DDims, 1, 1, 0, 0, mmd);
         }
     }
 
