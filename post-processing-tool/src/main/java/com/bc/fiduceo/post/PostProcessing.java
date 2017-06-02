@@ -23,6 +23,8 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class PostProcessing {
 
@@ -34,6 +36,10 @@ public abstract class PostProcessing {
 
     public PostProcessingContext getContext() {
         return context;
+    }
+
+    protected List<String> getVariableNamesToRemove() {
+        return new ArrayList<>();
     }
 
     protected abstract void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;

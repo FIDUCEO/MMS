@@ -62,6 +62,7 @@ public class AddAmsreSolarAnglesTest {
         configuration.szaVariable = "sun_zenith_angle";
         configuration.saaVariable = "sun_azimuth_angle";
         addAmsreSolarAngles.configure(configuration);
+
         reader = mock(NetcdfFile.class);
         writer = mock(NetcdfFileWriter.class);
     }

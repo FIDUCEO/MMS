@@ -39,7 +39,9 @@ import ucar.nc2.NetcdfFileWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertEquals;
@@ -171,9 +173,13 @@ public class PostProcessingToolTest {
         tool.run(reader, writer, Arrays.asList(p1, p2));
 
         final InOrder inOrder = inOrder(reader, writer, p1, p2);
+        inOrder.verify(p1, times(1)).getVariableNamesToRemove();
+        inOrder.verify(p2, times(1)).getVariableNamesToRemove();
+
         inOrder.verify(writer, times(1)).addGroup(null, "root");
         inOrder.verify(p1, times(1)).prepare(reader, writer);
         inOrder.verify(p2, times(1)).prepare(reader, writer);
+
         inOrder.verify(writer, times(1)).create();
         inOrder.verify(p1, times(1)).compute(same(reader), same(writer));
         inOrder.verify(p2, times(1)).compute(same(reader), same(writer));
@@ -289,6 +295,61 @@ public class PostProcessingToolTest {
         } catch (RuntimeException expected) {
             assertEquals("Value of cmd-line parameter 'start' is missing.", expected.getMessage());
         }
+    }
+
+    @Test
+    public void testGetVariableRemoveNamesList_noPostProcessings() {
+        final ArrayList<PostProcessing> emptyList = new ArrayList<>();
+
+        final List<String> namesList = PostProcessingTool.getVariableRemoveNamesList(emptyList);
+        assertEquals(0, namesList.size());
+    }
+
+    @Test
+    public void testGetVariableRemoveNamesList_onePostProcessing() {
+        final List<String> toRemoveNameslist = new ArrayList<>();
+        toRemoveNameslist.add("Karl-Heinz");
+        toRemoveNameslist.add("Donald");
+
+        final ArrayList<PostProcessing> postProcessingsList = new ArrayList<>();
+
+        final PostProcessing postProcessing = mock(PostProcessing.class);
+        when(postProcessing.getVariableNamesToRemove()).thenReturn(toRemoveNameslist);
+        postProcessingsList.add(postProcessing);
+
+
+        final List<String> namesList = PostProcessingTool.getVariableRemoveNamesList(postProcessingsList);
+        assertEquals(2, namesList.size());
+        assertTrue(namesList.contains("Karl-Heinz"));
+        assertTrue(namesList.contains("Donald"));
+    }
+
+    @Test
+    public void testGetVariableRemoveNamesList_twoPostProcessings_duplicateNames() {
+        final List<String> toRemoveNameslist_1 = new ArrayList<>();
+        toRemoveNameslist_1.add("Karl-Heinz");
+        toRemoveNameslist_1.add("Donald");
+
+        final List<String> toRemoveNameslist_2 = new ArrayList<>();
+        toRemoveNameslist_2.add("Hermann");
+        toRemoveNameslist_2.add("Donald");
+
+        final ArrayList<PostProcessing> postProcessingsList = new ArrayList<>();
+
+        final PostProcessing postProcessing_1 = mock(PostProcessing.class);
+        when(postProcessing_1.getVariableNamesToRemove()).thenReturn(toRemoveNameslist_1);
+        postProcessingsList.add(postProcessing_1);
+
+        final PostProcessing postProcessing_2 = mock(PostProcessing.class);
+        when(postProcessing_2.getVariableNamesToRemove()).thenReturn(toRemoveNameslist_2);
+        postProcessingsList.add(postProcessing_2);
+
+
+        final List<String> namesList = PostProcessingTool.getVariableRemoveNamesList(postProcessingsList);
+        assertEquals(3, namesList.size());
+        assertTrue(namesList.contains("Karl-Heinz"));
+        assertTrue(namesList.contains("Donald"));
+        assertTrue(namesList.contains("Hermann"));
     }
 
     private PostProcessingConfig getConfig() throws Exception {

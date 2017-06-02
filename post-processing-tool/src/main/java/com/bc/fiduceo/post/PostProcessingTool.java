@@ -240,33 +240,53 @@ class PostProcessingTool {
     // package access for testing only se 2016-11-28
     void run(NetcdfFile reader, NetcdfFileWriter writer, List<PostProcessing> postProcessings) throws IOException, InvalidRangeException {
         final Group rootGroup = reader.getRootGroup();
-        copyHeader(writer, null, rootGroup, 0);
+
+        final List<String> variableNamesToRemove = getVariableRemoveNamesList(postProcessings);
+
+        copyHeader(writer, rootGroup, variableNamesToRemove, null, 0);
         addPostProcessingConfig(writer);
+
         for (PostProcessing postProcessing : postProcessings) {
             postProcessing.prepare(reader, writer);
         }
         writer.create();
+
         transferData(writer, rootGroup);
         for (PostProcessing postProcessing : postProcessings) {
             postProcessing.compute(reader, writer);
         }
     }
 
+    // package access for testing only tb 2017-06-02
     void addPostProcessingConfig(NetcdfFileWriter writer) throws IOException {
         final String attName = "post-processing-configuration";
 
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Attribute attribute = writer.findGlobalAttribute(attName);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final Attribute attribute = writer.findGlobalAttribute(attName);
         if (attribute != null) {
-            os.write(attribute.getStringValue().getBytes());
-            os.write("\n".getBytes());
+            outputStream.write(attribute.getStringValue().getBytes());
+            outputStream.write("\n".getBytes());
             writer.deleteGroupAttribute(null, attName);
         }
 
-        context.getProcessingConfig().store(os);
-        os.close();
+        context.getProcessingConfig().store(outputStream);
+        outputStream.close();
 
-        writer.addGroupAttribute(null, new Attribute(attName, os.toString()));
+        writer.addGroupAttribute(null, new Attribute(attName, outputStream.toString()));
+    }
+
+    // package access for testing only tb 2017-06-02
+    static List<String> getVariableRemoveNamesList(List<PostProcessing> postProcessings) {
+        final List<String> variableNamesToRemove = new ArrayList<>();
+        for (PostProcessing postProcessing : postProcessings) {
+            final List<String> pluginVariableNamesToRemove = postProcessing.getVariableNamesToRemove();
+            for (final String name : pluginVariableNamesToRemove) {
+                if (!variableNamesToRemove.contains(name)) {
+                    variableNamesToRemove.add(name);
+                }
+            }
+        }
+        return variableNamesToRemove;
     }
 
     private NetcdfFileWriter createWriter(Path target, NetcdfFile reader) throws IOException {
@@ -282,7 +302,7 @@ class PostProcessingTool {
         return writer;
     }
 
-    private static void copyHeader(NetcdfFileWriter writer, Group newParent, Group oldGroup, int anon) throws IOException, InvalidRangeException {
+    private static void copyHeader(NetcdfFileWriter writer, Group oldGroup, List<String> namesToRemove, Group newParent, int anonymousDimensionIndex) throws IOException, InvalidRangeException {
         Group newGroup = writer.addGroup(newParent, oldGroup.getShortName());
 
         for (Attribute att : oldGroup.getAttributes()) {
@@ -294,21 +314,23 @@ class PostProcessingTool {
         }
 
         for (Variable v : oldGroup.getVariables()) {
+            final String shortName = v.getShortName();
+            if (namesToRemove.contains(shortName)) {
+                continue;
+            }
+            
             List<Dimension> dims = v.getDimensions();
-
             // all dimensions must be shared (!)
             for (Dimension dim : dims) {
                 if (!dim.isShared()) {
-                    dim.setName("anon" + anon);
+                    dim.setName("anonymous" + anonymousDimensionIndex);
                     dim.setShared(true);
-                    anon++;
+                    anonymousDimensionIndex++;
                     writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), true, dim.isUnlimited(), dim.isVariableLength());
                 }
             }
 
-            final String shortName = v.getShortName();
             final Variable nv = writer.addVariable(newGroup, shortName, v.getDataType(), v.getDimensionsString());
-
             for (Attribute att : v.getAttributes()) {
                 writer.addVariableAttribute(nv, att);
             }
@@ -316,7 +338,7 @@ class PostProcessingTool {
 
         // recurse
         for (Group g : oldGroup.getGroups()) {
-            copyHeader(writer, newGroup, g, anon);
+            copyHeader(writer, g, namesToRemove, newGroup, anonymousDimensionIndex);
         }
     }
 
