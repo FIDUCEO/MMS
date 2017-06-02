@@ -20,17 +20,22 @@
 
 package com.bc.fiduceo.util;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.core.UseCaseConfig;
-import org.esa.snap.core.util.Debug;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JDomUtilsTest {
 
@@ -228,21 +233,6 @@ public class JDomUtilsTest {
     }
 
     @Test
-    public void testGetValueFromNameAttribute() throws Exception {
-        //preparation
-        final Element element = new Element("elem");
-
-        //execution //verification
-        assertNull(JDomUtils.getValueFromNameAttribute(element));
-
-        //preparation
-        JDomUtils.setNameAttribute(element, "textValue");
-
-        //execution //verification
-        assertEquals("textValue", JDomUtils.getValueFromNameAttribute(element));
-    }
-
-    @Test
     public void testGetValueFromNameAttributeMandatory() throws Exception {
         //preparation
         final Element element = new Element("elem");
@@ -265,12 +255,6 @@ public class JDomUtilsTest {
         } catch (RuntimeException expected) {
             assertEquals("Value expected for attribute 'name'", expected.getMessage());
         }
-
-        //preparation
-        JDomUtils.setNameAttribute(element, "textValue");
-
-        //execution //verification
-        assertEquals("textValue", JDomUtils.getValueFromNameAttribute(element));
     }
 
     @Test
@@ -278,7 +262,7 @@ public class JDomUtilsTest {
         final Element element = new Element("elem");
         JDomUtils.setNamesAttribute(element, "valueForAttribute");
 
-        assertEquals("valueForAttribute", element.getAttribute(JDomUtils.ATTRIBUTE_NAME__NAMES).getValue());
+        assertEquals("valueForAttribute", element.getAttribute("names").getValue());
     }
 
     @Test
@@ -288,37 +272,6 @@ public class JDomUtilsTest {
 
         //execution //verification
         assertNull(JDomUtils.getValueFromNamesAttribute(element));
-
-        //preparation
-        JDomUtils.setNamesAttribute(element, "textValue");
-
-        //execution //verification
-        assertEquals("textValue", JDomUtils.getValueFromNamesAttribute(element));
-    }
-
-    @Test
-    public void testGetValueFromNamesAttributeMandatory() throws Exception {
-        //preparation
-        final Element element = new Element("elem");
-
-        //execution //verification
-        try {
-            JDomUtils.getValueFromNamesAttributeMandatory(element);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Attribute 'names' expected", expected.getMessage());
-        }
-
-        //preparation
-        JDomUtils.setNamesAttribute(element, "");
-
-        //execution //verification
-        try {
-            JDomUtils.getValueFromNamesAttributeMandatory(element);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertEquals("Value expected for attribute 'names'", expected.getMessage());
-        }
 
         //preparation
         JDomUtils.setNamesAttribute(element, "textValue");

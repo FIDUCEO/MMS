@@ -16,18 +16,19 @@
  */
 package com.bc.fiduceo.util;
 
-import static org.esa.snap.core.util.StringUtils.isNullOrEmpty;
-
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 
 import java.util.List;
 
+import static org.esa.snap.core.util.StringUtils.isNullOrEmpty;
+
 public class JDomUtils {
 
+    private final static String ATTRIBUTE_NAME__NAMES = "names";
+
     public final static String ATTRIBUTE_NAME__NAME = "name";
-    public final static String ATTRIBUTE_NAME__NAMES = "names";
     public static final String VALUE = "Value";
     public static final String ATTRIBUTE = "Attribute";
 
@@ -90,10 +91,6 @@ public class JDomUtils {
         return setAttribute(element, ATTRIBUTE_NAME__NAMES, textValue);
     }
 
-    public static String getValueFromNameAttribute(Element element) {
-        return getValueFromAttribute(element, ATTRIBUTE_NAME__NAME);
-    }
-
     public static String getValueFromNamesAttribute(Element element) {
         return getValueFromAttribute(element, ATTRIBUTE_NAME__NAMES);
     }
@@ -102,16 +99,16 @@ public class JDomUtils {
         return getValueFromAttributeMandatory(element, ATTRIBUTE_NAME__NAME);
     }
 
-    public static String getValueFromNamesAttributeMandatory(Element element) {
-        return getValueFromAttributeMandatory(element, ATTRIBUTE_NAME__NAMES);
+    public static String getValueFromAttributeMandatory(Element element, String attributeName) {
+        final Attribute mandatoryAttribute = getMandatoryAttribute(element, attributeName);
+        final String value = mandatoryAttribute.getValue();
+        if (isNullOrEmpty(value)) {
+            throw new RuntimeException(VALUE + " expected for attribute '" + attributeName + "'");
+        }
+        return value;
     }
 
-    private static Attribute setAttribute(Element element, String attributeName, String textvalue) {
-        element.setAttribute(attributeName, textvalue);
-        return element.getAttribute(attributeName);
-    }
-
-    private static String getValueFromAttribute(Element element, String attributeName) {
+    public static String getValueFromAttribute(Element element, String attributeName) {
         final Attribute attribute = element.getAttribute(attributeName);
         if (attribute != null) {
             return attribute.getValue();
@@ -119,12 +116,8 @@ public class JDomUtils {
         return null;
     }
 
-    private static String getValueFromAttributeMandatory(Element element, String attributeName) {
-        final Attribute mandatoryAttribute = getMandatoryAttribute(element, attributeName);
-        final String value = mandatoryAttribute.getValue();
-        if (isNullOrEmpty(value)) {
-            throw new RuntimeException(VALUE + " expected for attribute '" + attributeName + "'");
-        }
-        return value;
+    private static Attribute setAttribute(Element element, String attributeName, String textvalue) {
+        element.setAttribute(attributeName, textvalue);
+        return element.getAttribute(attributeName);
     }
 }
