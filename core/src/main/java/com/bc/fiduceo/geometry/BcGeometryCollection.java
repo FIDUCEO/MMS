@@ -20,9 +20,6 @@
 
 package com.bc.fiduceo.geometry;
 
-
-import com.sun.istack.internal.NotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
