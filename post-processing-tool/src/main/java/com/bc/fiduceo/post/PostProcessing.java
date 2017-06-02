@@ -38,11 +38,38 @@ public abstract class PostProcessing {
         return context;
     }
 
+    /**
+     * Allows the plugin to define a list of variable names which shall not be copied to the
+     * target MMD. The default implementation returns an empty list. Overwrite to add variable names.
+     *
+     * @return the list of variable names to remove
+     */
     protected List<String> getVariableNamesToRemove() {
         return new ArrayList<>();
     }
 
+    /**
+     * Invokes the plugin preparation phase. Plugins shall add target variables, attributes,  dimensions and whatever
+     * else is required to the NetcdfFileWriter. The NetcdfFileWriter has created a new file and is in "define-mode" when
+     * passed in. The NetcdfFile "reader" gives access to the input MMD, this reader is open and in read-only mode.
+     *
+     * @param reader the NetcdfFile opened on the input MMD file
+     * @param writer the NetcdfFileWriter opened on the target MMD, in define-mode
+     * @throws IOException on disk access failures
+     * @throws InvalidRangeException on other occasions
+     */
     protected abstract void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 
+    /**
+     * Invokes the plugin processing phase. Plugins shall compute the target data for all variables they have defined and
+     * write the data to the variables acquired from the NetcdfFileWriter.
+     * The NetcdfFileWriter has written the new file and is in "write-mode" when
+     * passed in. The NetcdfFile "reader" gives access to the input MMD, this reader is open and in read-only mode.
+     *
+     * @param reader the NetcdfFile opened on the input MMD file
+     * @param writer the NetcdfFileWriter opened on the target MMD, in write-mode
+     * @throws IOException on disk access failures
+     * @throws InvalidRangeException on other occasions
+     */
     protected abstract void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
 }

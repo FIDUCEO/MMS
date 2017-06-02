@@ -35,14 +35,13 @@ public class ElevationToSolZenAnglePlugin implements PostProcessingPlugin {
         final List<Element> convertElements = JDomUtils.getMandatoryChildren(rootElement, "convert");
         for (final Element convertElement : convertElements) {
 
-            final ElevationToSolZenAngle.Conversion conversion = new ElevationToSolZenAngle.Conversion();
-            conversion.sourceName = JDomUtils.getValueFromAttributeMandatory(convertElement, "source-name");
-            conversion.targetName = JDomUtils.getValueFromAttributeMandatory(convertElement, "target-name");
+            final String sourceName = JDomUtils.getValueFromAttributeMandatory(convertElement, "source-name");
+            final String targetName = JDomUtils.getValueFromAttributeMandatory(convertElement, "target-name");
 
             final String removeSource = JDomUtils.getValueFromAttribute(convertElement, "remove-source");
-            conversion.removeSource = StringUtils.isNullOrEmpty(removeSource) || Boolean.parseBoolean(removeSource);
+            final boolean remove = StringUtils.isNullOrEmpty(removeSource) || Boolean.parseBoolean(removeSource);
 
-            configuration.conversions.add(conversion);
+            configuration.conversions.add(new ElevationToSolZenAngle.Conversion(sourceName, targetName, remove));
         }
         return configuration;
     }
