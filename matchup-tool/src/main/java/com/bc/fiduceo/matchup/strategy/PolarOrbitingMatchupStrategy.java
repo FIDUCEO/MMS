@@ -87,18 +87,24 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 // todo se multisensor
+                // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
                 final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
 
                 // todo se multisensor
+                // get(0) is still only one secondary sensor case
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
                 // todo se multisensor
+                // still only one secondary sensor case
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
 
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                     // todo se multisensor
+                    // still only one secondary sensor case
                     try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                        // todo se multisensor
+                        // still only one secondary sensor case
                         secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
 
                         final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
@@ -110,8 +116,10 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
                         matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                         // todo se multisensor
+                        // still only one secondary sensor case
                         matchupSet.setSecondaryObservationPath(secondarySensorName_CaseOneSecondary, secondaryObservation.getDataFilePath());
                         // todo se multisensor
+                        // still only one secondary sensor case
                         matchupSet.setSecondaryProcessingVersion(secondarySensorName_CaseOneSecondary, secondaryObservation.getVersion());
 
                         // @todo 2 tb/tb extract method
@@ -133,10 +141,15 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                                 sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
 
                                 sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+                                // todo se multisensor
+                                // still only one secondary sensor case
                                 final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), secondarySensorName_CaseOneSecondary);
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
+                                    // todo se multisensor
+                                    // still only one secondary sensor case
+                                    // uses the secondaryReaderMap instantiated above
                                     applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaderMap);
                                     if (matchupSet.getNumObservations() > 0) {
                                         matchupCollection.add(matchupSet);

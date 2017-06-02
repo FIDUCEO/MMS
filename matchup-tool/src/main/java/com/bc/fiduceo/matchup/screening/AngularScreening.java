@@ -52,7 +52,6 @@ class AngularScreening implements Screening {
 
         for (final SampleSet sampleSet : sampleSets) {
             final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
-            // todo se multisensor
             if (shouldBeKept(sampleSet, primaryReader, reader)) {
                 resultSet.add(sampleSet);
             }

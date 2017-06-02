@@ -45,6 +45,5 @@ public interface PixelLocator {
      * @param lat The pixel latitude [-90.0, 90.0].
      * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
      */
-    // todo se multisensor ... can be reduced to 1 Point2D instead array ????
     Point2D[] getPixelLocation(double lon, double lat);
 }

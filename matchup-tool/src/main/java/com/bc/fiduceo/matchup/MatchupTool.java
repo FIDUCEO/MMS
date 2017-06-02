@@ -139,7 +139,6 @@ class MatchupTool {
         ioVariablesList.extractVariables(primSensorName, primaryPath, primDim, variablesConfiguration);
         createExtraVariables(primSensorName, ioVariablesList, variablesConfiguration);
 
-        // todo se multisensor ... done
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
         for (Sensor secondarySensor : secondarySensors) {
             final String secondarySensorName = secondarySensor.getName();
@@ -343,7 +342,6 @@ class MatchupTool {
         context.setEndDate(getEndDate(commandLine));
 
         final UseCaseConfig useCaseConfig = loadUseCaseConfig(commandLine, configDirectory);
-        // todo se multisensor
         final ValidationResult validationResult = useCaseConfig.checkValid();
         if (!validationResult.isValid()) {
             final StringBuilder builder = createErrorMessage(validationResult);
@@ -386,7 +384,6 @@ class MatchupTool {
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
         if (useCaseConfig.isWriteDistance()) {
-            // todo se multisensor ... done
             final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
             final String primaryName = useCaseConfig.getPrimarySensor().getName();
             for (Sensor secondarySensor : secondarySensors) {
@@ -406,7 +403,6 @@ class MatchupTool {
                 VariablesConfiguration variablesConfiguration,
                 String primaryName, String secondaryName) {
         final String targetVariableName;
-        // todo se multisensor ... done
         final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
         final String p = sensorRenames.getOrDefault(primaryName, primaryName);
         final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);

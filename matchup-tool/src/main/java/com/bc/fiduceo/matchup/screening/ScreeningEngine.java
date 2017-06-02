@@ -48,10 +48,8 @@ public class ScreeningEngine {
     }
 
     public void process(MatchupSet matchupSet, final Reader primaryReader, final Map<String,Reader> secondaryReader) throws IOException, InvalidRangeException {
-        // todo se multisensor
         final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
-            // todo se multisensor
             screening.apply(matchupSet, primaryReader, secondaryReader, sc);
         }
     }

@@ -53,7 +53,6 @@ public class MmdWriterFactory {
         nameBuilder.append(useCaseConfig.getPrimarySensor().getName());
         nameBuilder.append("_");
 
-        // todo se multisensor ... done
         for (final Sensor additionalSensor : useCaseConfig.getSecondarySensors()) {
             nameBuilder.append(additionalSensor.getName());
             nameBuilder.append("_");

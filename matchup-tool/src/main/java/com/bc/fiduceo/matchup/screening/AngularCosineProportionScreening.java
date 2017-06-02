@@ -51,7 +51,6 @@ class AngularCosineProportionScreening implements Screening {
             final double primaryVZA = szaPrimaryArray.getDouble(0);
 
             final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-            // todo se multisensor
             final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
             final Array szaSecondaryArray = reader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
             final double secondaryVZA = szaSecondaryArray.getDouble(0);

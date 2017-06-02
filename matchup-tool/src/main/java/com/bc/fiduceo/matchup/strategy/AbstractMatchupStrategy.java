@@ -132,7 +132,6 @@ public abstract class AbstractMatchupStrategy {
         }
     }
 
-    // todo se multisensor
     List<SatelliteObservation> getPrimaryObservations(ToolContext context) throws SQLException {
         final QueryParameter parameter = getPrimarySensorParameter(context);
         logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());

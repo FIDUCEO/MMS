@@ -84,6 +84,8 @@ public class ConditionEngine {
         conditionEngineContext.setPrimaryExtractSize(primaryExtractSize);
 
         // todo se multisensor
+        // These 4 lines are needed by OverlapRemovalCondition
+        // ... OvelapRemovalCondition currently ist not able to handle multiple secondary sensors
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
         final Sensor secondarySensor = secondarySensors.get(0);
         final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(secondarySensor.getName());

@@ -20,19 +20,16 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.matchup.Sample;
-
 import java.util.HashMap;
 import java.util.Map;
 
-// todo se multisensor ... done
 public class SampleSet {
 
     // todo se multisensor
-    // if the multi sensor refactoring is done, this constant should never be used
+    // if the multi sensor refactoring is done, this constant should be removed
     private static final String KEY_UNCHANGED = "0000";
     // todo se multisensor
-    // if the multi sensor refactoring is done, this constant should never be used
+    // if the multi sensor refactoring is completely done in all strategies, this constant should never be used
     private static String ONLY_ONE_SECONDARY_KEY = KEY_UNCHANGED;
 
     private Sample primary;
@@ -50,12 +47,10 @@ public class SampleSet {
         this.primary = primary;
     }
 
-    // todo se multisensor ... done
     public Sample getSecondary(String sensorName) {
         return secondary.get(sensorName);
     }
 
-    // todo se multisensor ... done
     public void setSecondary(String sensorName, Sample secondary) {
         this.secondary.put(sensorName, secondary);
     }
@@ -75,6 +70,9 @@ public class SampleSet {
     // todo se multisensor
     // if the multi sensor refactoring is done, this constant should never be used
     public static void setOnlyOneSecondaryKey(String onlyOneSecondaryKey) {
+        // todo se multisensor
+        // set the default value to null, adapt all the single secondary tests and reduce
+        // the following line to a <code>null>/code> check.
         if (!KEY_UNCHANGED.equals(ONLY_ONE_SECONDARY_KEY)) {
             throw new RuntimeException("Set the property \"ONLY_ONE_SECONDARY\" twice is not allowed.");
         }

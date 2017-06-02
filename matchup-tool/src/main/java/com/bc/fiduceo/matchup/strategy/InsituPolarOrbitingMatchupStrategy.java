@@ -97,7 +97,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         String[] secSensorNames = mapSecondaryObservations.keySet().toArray(new String[]{});
 
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsInsituOrder = new HashMap<>();
-        Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
+        final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
         for (String secSensorName : secSensorNames) {
             mapMatchupSetsInsituOrder.put(secSensorName, new HashMap<>());
             mapMatchupSetsSatelliteOrder.put(secSensorName, new HashMap<>());
@@ -281,7 +281,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
     static void combineMatchups(int depth, CombineBean bean) {
         final int secIdx = depth + 1;
-        if (secIdx >= bean.samples.length) {
+        if (secIdx == bean.samples.length) {
             final SampleSet sampleSet = createValidSampleSet(bean.samples, bean.secSensorNames);
             if (sampleSet != null) {
                 final MatchupSet validMatchupSet = getValidMatchupSet(bean.currentMatchupSet, bean.paths, bean.versions, bean.secSensorNames, bean.matchupCollection);

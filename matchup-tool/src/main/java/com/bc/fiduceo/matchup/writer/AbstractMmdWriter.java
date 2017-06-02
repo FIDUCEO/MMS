@@ -116,7 +116,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final Dimension primaryDimension = useCaseConfig.getDimensionFor(primarySensorName);
             final Interval primaryInterval = new Interval(primaryDimension.getNx(), primaryDimension.getNy());
 
-            // todo se multisensor ... done
             final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
             final int secSize = secondarySensors.size();
             final String[] secSensorNames = new String[secSize];
@@ -147,7 +146,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName());
-                // todo se multisensor ... done
                 for (String secSensorName : secSensorNames) {
                     final Path secondaryObservationPath = set.getSecondaryObservationPath(secSensorName);
                     final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secSensorName, secondaryObservationPath);
@@ -160,7 +158,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
-                    // todo se multisensor ... done
                     for (int i = 0; i < secSensorNames.length; i++) {
                         String secSensorName = secSensorNames[i];
                         final List<IOVariable> secIOVariables = secVariablesList.get(i);
@@ -238,7 +235,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
         final StringBuilder sensors = new StringBuilder();
         sensors.append(useCaseConfig.getPrimarySensor().getName());
-        // todo se multisensor ... done
         final List<Sensor> additionalSensors = useCaseConfig.getSecondarySensors();
         final Iterator<Sensor> sensorIterator = additionalSensors.iterator();
         while (sensorIterator.hasNext()) {

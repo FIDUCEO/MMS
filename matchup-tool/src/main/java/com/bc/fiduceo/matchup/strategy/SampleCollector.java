@@ -34,7 +34,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-// todo se multisensor
 class SampleCollector {
 
     private final PixelLocator pixelLocator;
@@ -75,7 +74,6 @@ class SampleCollector {
                     sampleSet = new SampleSet();
                     sampleSet.setPrimary(primary);
                 }
-                // todo se multisensor
                 sampleSet.setSecondary(secSensorName, sample);
                 toKeep.add(sampleSet);
             }

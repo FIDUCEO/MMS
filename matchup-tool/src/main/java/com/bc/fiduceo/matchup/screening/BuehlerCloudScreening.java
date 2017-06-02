@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.matchup.screening;
 
-
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
@@ -51,7 +50,6 @@ class BuehlerCloudScreening implements Screening {
 
         final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
         if (useSecondary) {
-            // todo se multisensor
             runScreening(matchupSet, reader, false);
         }
     }

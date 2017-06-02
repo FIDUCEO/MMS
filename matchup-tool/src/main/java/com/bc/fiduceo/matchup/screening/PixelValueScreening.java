@@ -77,12 +77,9 @@ class PixelValueScreening implements Screening {
 
         if (StringUtils.isNotNullAndNotEmpty(configuration.secondaryExpression)) {
             List<SampleSet> keptSets = new ArrayList<>();
-            // todo se multisensor
             final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
-            // todo se multisensor
             final ReaderNamespace readerNamespace = new ReaderNamespace(reader);
             final ParserImpl parser = new ParserImpl(readerNamespace);
-            // todo se multisensor
             final ReaderEvalEnv readerEvalEnv = new ReaderEvalEnv(reader);
 
             try {
