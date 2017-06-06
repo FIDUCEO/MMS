@@ -3,7 +3,9 @@ package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -47,7 +49,34 @@ class ElevationToSolZenAngle extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        for (final Conversion conversion : configuration.conversions) {
+            final Variable sourceVariable = NetCDFUtils.getVariable(reader, conversion.sourceName);
+            final Variable targetVariable = NetCDFUtils.getVariable(writer, conversion.targetName);
+
+            final Array sourceData = sourceVariable.read();
+            final Array targetData = Array.factory(float.class, sourceData.getShape());
+
+            final Number fillValue = NetCDFUtils.getFillValue(sourceVariable);
+
+            calculateZenithAngle(sourceData, targetData, fillValue.floatValue());
+
+            writer.write(targetVariable, targetData);
+        }
+    }
+
+    // package access for testing only tb 2017-06-06
+    static void calculateZenithAngle(Array sourceData, Array targetData, float fillValue) {
+        final IndexIterator sourceIterator = sourceData.getIndexIterator();
+        final IndexIterator targetIterator = targetData.getIndexIterator();
+        while(sourceIterator.hasNext()) {
+            final float elevation = sourceIterator.getFloatNext();
+            if (elevation != fillValue) {
+                final float zenithAngle = 90.f - elevation;
+                targetIterator.setFloatNext(zenithAngle);
+            } else {
+                targetIterator.setFloatNext(NetCDFUtils.getDefaultFillValue(float.class).floatValue());
+            }
+        }
     }
 
     static class Configuration {
