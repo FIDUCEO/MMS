@@ -9,6 +9,14 @@ import org.jdom.Element;
 
 import java.util.List;
 
+/* The XML template for this post processing class looks like:
+
+    <elevation-to-solzen-angle>
+        <convert source-name = "elevation_angle_1" target-name = "zenith_angle_1" remove-source = "false"/>
+        <convert source-name = "elevation_angle_2" target-name = "zenith_angle_2" remove-source = "true"/>
+    </elevation-to-solzen-angle>
+ */
+
 public class ElevationToSolZenAnglePlugin implements PostProcessingPlugin {
 
     private static final String ROOT_TAG_NAME = "elevation-to-solzen-angle";

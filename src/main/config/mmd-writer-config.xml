@@ -87,7 +87,7 @@
         </sensors>
 
         <!-- the following snippet renames (A)ATSR to SST-CCI notation
-             In addition, the postprocessing -@todo 1 - has to be applied to generate zenith angles
+             In addition, the postprocessing "elevationToSolzen" has to be applied to generate zenith angles
              from the elevation angle variables. -->
         <sensor-rename source-name="atsr-e1" target-name="atsr.1"/>
         <sensor-rename source-name="atsr-e2" target-name="atsr.2"/>
