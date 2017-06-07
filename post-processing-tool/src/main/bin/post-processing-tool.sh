@@ -17,7 +17,7 @@ if [ -z "${MMS_TEMP_DIR}" ]; then
     # not set, skip definition
     export JAVA_OPTS="-Xmx8192M"
 else
-    export JAVA_OPTS="-Djava.io.tmpdir=${MMS_TEMP_DIR} -Xmx8192M"
+    export JAVA_OPTS="-Xmx8192M -Djava.io.tmpdir=${MMS_TEMP_DIR}"
 fi
 
 # check if we`re running on CEMS, if so take the java executable externally defined
