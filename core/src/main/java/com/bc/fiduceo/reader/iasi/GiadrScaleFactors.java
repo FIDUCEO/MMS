@@ -54,18 +54,5 @@ class GiadrScaleFactors {
         }
         defScaleIISScaleFactor = inputStream.readShort();
     }
-
-    public double[] getScaleFactors(int first) {
-        double[] scaleFactors = new double[SS];
-        Arrays.fill(scaleFactors, 1);
-        for (int i = 0; i < defScaleSondNbScale; i++) {
-            int start = defScaleSondNsfirst[i] - first;
-            int end = defScaleSondNslast[i] - first + 1;
-            short sfe = defScaleSondScaleFactor[i];
-            double sf = 1.0 / (Math.pow(10.0, sfe));
-            Arrays.fill(scaleFactors, start, end, sf);
-        }
-        return scaleFactors;
-    }
 }
 

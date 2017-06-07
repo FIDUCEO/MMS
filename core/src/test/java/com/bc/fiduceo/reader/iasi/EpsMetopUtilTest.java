@@ -21,11 +21,10 @@
 package com.bc.fiduceo.reader.iasi;
 
 import org.esa.snap.core.datamodel.ProductData;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.imageio.stream.ImageInputStream;
-
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -35,9 +34,15 @@ import static org.mockito.Mockito.when;
 
 public class EpsMetopUtilTest {
 
+    private ImageInputStream imageInputStream;
+
+    @Before
+    public void setUp() {
+        imageInputStream = mock(ImageInputStream.class);
+    }
+
     @Test
     public void testReadShortCdsTime() throws IOException {
-        final ImageInputStream imageInputStream = mock(ImageInputStream.class);
         when(imageInputStream.readUnsignedShort()).thenReturn(5732);
         when(imageInputStream.readUnsignedInt()).thenReturn(46074870L);
 
@@ -55,8 +60,6 @@ public class EpsMetopUtilTest {
 
     @Test
     public void testReadOBT() throws IOException {
-        final ImageInputStream imageInputStream = mock(ImageInputStream.class);
-
         // upper short is zero
         when(imageInputStream.readUnsignedShort()).thenReturn(0);
         when(imageInputStream.readUnsignedInt()).thenReturn(46074870L);
@@ -77,5 +80,33 @@ public class EpsMetopUtilTest {
 
         obt = EpsMetopUtil.readOBT(imageInputStream);
         assertEquals(549755815936L, obt);
+    }
+
+    @Test
+    public void testReadVInt4() throws IOException {
+        when(imageInputStream.readByte()).thenReturn((byte) 2);
+        when(imageInputStream.readInt()).thenReturn(200);
+
+        assertEquals(2.0, EpsMetopUtil.readVInt4(imageInputStream), 1e-8);
+
+        when(imageInputStream.readByte()).thenReturn((byte) -2);
+        when(imageInputStream.readInt()).thenReturn(200);
+
+        assertEquals(20000.0, EpsMetopUtil.readVInt4(imageInputStream), 1e-8);
+
+        when(imageInputStream.readByte()).thenReturn((byte) 0);
+        when(imageInputStream.readInt()).thenReturn(200);
+
+        assertEquals(200.0, EpsMetopUtil.readVInt4(imageInputStream), 1e-8);
+
+        when(imageInputStream.readByte()).thenReturn((byte) 3);
+        when(imageInputStream.readInt()).thenReturn(16);
+
+        assertEquals(0.01600000075995922, EpsMetopUtil.readVInt4(imageInputStream), 1e-8);
+
+        when(imageInputStream.readByte()).thenReturn((byte) -3);
+        when(imageInputStream.readInt()).thenReturn(16);
+
+        assertEquals(16000.0, EpsMetopUtil.readVInt4(imageInputStream), 1e-8);
     }
 }

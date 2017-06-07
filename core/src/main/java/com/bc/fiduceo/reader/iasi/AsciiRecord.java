@@ -1,17 +1,16 @@
 package com.bc.fiduceo.reader.iasi;
 
-import org.esa.snap.core.datamodel.MetadataElement;
-
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 abstract class AsciiRecord {
 
     private final Map<String, String> map;
     private final int fieldCount;
 
-     AsciiRecord(int fieldCount) {
+    AsciiRecord(int fieldCount) {
         this.map = new HashMap<>();
         this.fieldCount = fieldCount;
     }
@@ -36,8 +35,6 @@ abstract class AsciiRecord {
     long getLongValue(String key) {
         return Long.parseLong(getValue(key));
     }
-
-    abstract MetadataElement getMetaData();
 
     private static class KeyValuePair {
         final String key;

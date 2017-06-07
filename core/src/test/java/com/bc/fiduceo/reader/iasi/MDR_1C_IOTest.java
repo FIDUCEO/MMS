@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.IOTestRunner;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -9,6 +10,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +18,12 @@ import static org.junit.Assert.assertEquals;
 public class MDR_1C_IOTest {
 
     private ImageInputStream iis;
+    private HashMap<String, ReadProxy> readProxies;
+
+    @Before
+    public void setUp() throws Exception {
+        readProxies = MDR_1C.getReadProxies();
+    }
 
     @After
     public void tearDown() throws IOException {
@@ -35,56 +43,128 @@ public class MDR_1C_IOTest {
         iis.read(mdr_1C.getRaw_record());
 
         // general L1 data -----------------------------------
-        assertEquals(0, mdr_1C.get_DEGRADED_INST_MDR(0, 0));
-        assertEquals(0, mdr_1C.get_DEGRADED_PROC_MDR(1, 1));
-        assertEquals(161, mdr_1C.get_GEPSIasiMode(2, 0));
-        assertEquals(0, mdr_1C.get_GEPSOPSProcessingMode(3, 1));
-        // @todo 1 tb/tb GEPSLocIasiAvhrr_IASI 2017-05-04
-        assertEquals(339926409216L, mdr_1C.get_OBT(6, 0));
-        assertEquals(1451653411496L, mdr_1C.get_OnboardUTC(7, 1));
-        assertEquals(1451653411707L, mdr_1C.get_GEPSDatIasi(8, 0));
-        assertEquals(0, mdr_1C.get_GEPS_CCD(9, 1));
-        assertEquals(6, mdr_1C.get_GEPS_SP(10, 0));
-        // @todo 1 tb/tb GQisFlagQual 2017-05-04
-        assertEquals(0, mdr_1C.get_GQisFlagQualDetailed(11, 1));
+        ReadProxy proxy = readProxies.get("DEGRADED_INST_MDR");
+        assertEquals(0, (byte) proxy.read(0, 0, mdr_1C));
+
+        proxy = readProxies.get("DEGRADED_PROC_MDR");
+        assertEquals(0, (byte) proxy.read(1, 1, mdr_1C));
+
+        proxy = readProxies.get("GEPSIasiMode");
+        assertEquals(161, (int) proxy.read(2, 0, mdr_1C));
+
+        proxy = readProxies.get("GEPSOPSProcessingMode");
+        assertEquals(0, (int) proxy.read(3, 1, mdr_1C));
+
+        // skipping GEPSIdConf tb 2017-06-07
+        // skipping GEPSLocIasiAvhrr_IASI tb 2017-06-07
+        // skipping GEPSLocIasiAvhrr_IIS tb 2017-06-07
+
+        proxy = readProxies.get("OBT");
+        assertEquals(339926409216L, (long) proxy.read(6, 0, mdr_1C));
+
+        proxy = readProxies.get("OnboardUTC");
+        assertEquals(1451653411496L, (long) proxy.read(7, 1, mdr_1C));
+
+        proxy = readProxies.get("GEPSDatIasi");
+        assertEquals(1451653411707L, (long) proxy.read(8, 0, mdr_1C));
+
+        // skipping GIsfLinOrigin tb 2017-06-07
+        // skipping GIsfColOrigin tb 2017-06-07
+        // skipping GIsfPds1 tb 2017-06-07
+        // skipping GIsfPds2 tb 2017-06-07
+        // skipping GIsfPds3 tb 2017-06-07
+        // skipping GIsfPds4 tb 2017-06-07
+
+        proxy = readProxies.get("GEPS_CCD");
+        assertEquals(0, (byte) proxy.read(9, 1, mdr_1C));
+
+        proxy = readProxies.get("GEPS_SP");
+        assertEquals(6, (int) proxy.read(10, 0, mdr_1C));
+
+        // skipping GIrcImage tb 2017-06-07
+        // @todo 3 tb/tb GQisFlagQual 2017-05-04
+
+        proxy = readProxies.get("GQisFlagQualDetailed");
+        assertEquals(0, (short) proxy.read(11, 1, mdr_1C));
+
         // @todo 1 tb/tb GQisQualIndex 2017-05-04
         // @todo 1 tb/tb GQisQualIndexIIS 2017-05-04
         // @todo 1 tb/tb GQisQualIndexLoc 2017-05-04
         // @todo 1 tb/tb GQisQualIndexRad 2017-05-04
         // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
-        assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 0));
-        assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 1));
-        assertEquals(-47.93063735961914, mdr_1C.get_GGeoSondLoc_Lon(14, 0), 1e-8);
-        assertEquals(-48.13323974609375, mdr_1C.get_GGeoSondLoc_Lon(15, 0), 1e-8);
-        assertEquals(-48.46881866455078, mdr_1C.get_GGeoSondLoc_Lon(16, 0), 1e-8);
-        assertEquals(-48.6592903137207, mdr_1C.get_GGeoSondLoc_Lon(17, 0), 1e-8);
-        assertEquals(-48.976593017578125, mdr_1C.get_GGeoSondLoc_Lon(18, 0), 1e-8);
-        assertEquals(13.088440895080566, mdr_1C.get_GGeoSondLoc_Lat(15, 1), 1e-8);
-        assertEquals(25.28335952758789, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 0), 1e-8);
-        assertEquals(285.3315124511719, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 1), 1e-8);
-        assertEquals(49.31060028076172, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 0), 1e-8);
-        assertEquals(137.09007263183594, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 1), 1e-8);
-        assertEquals(7199344, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 0));
+
+        proxy = readProxies.get("GQisSysTecIISQual");
+        assertEquals(1, (int) proxy.read(12, 0, mdr_1C));
+
+        proxy = readProxies.get("GQisSysTecSondQual");
+        assertEquals(1, (int) proxy.read(13, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondLoc_Lon");
+        assertEquals(-47930637, (int) proxy.read(14, 0, mdr_1C));
+        assertEquals(-48133239, (int) proxy.read(15, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondLoc_Lat");
+        assertEquals(13088441, (int) proxy.read(15, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesMETOP_Zenith");
+        assertEquals(25283361, (int) proxy.read(16, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesMETOP_Azimuth");
+        assertEquals(285331513, (int) proxy.read(17, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesSUN_Zenith");
+        assertEquals(49310599, (int) proxy.read(18, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesSUN_Azimuth");
+        assertEquals(137090083, (int) proxy.read(19, 1, mdr_1C));
+
+        // skipping GGeoIISLoc tb 2017-06-07
+
+        proxy = readProxies.get("EARTH_SATELLITE_DISTANCE");
+        assertEquals(7199344, (int) proxy.read(20, 0, mdr_1C));
 
         // l1c specific --------------------------------------------
         // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
-        assertEquals(2581, mdr_1C.get_IDefNsfirst1b(21, 1));
-        assertEquals(11041, mdr_1C.get_IDefNslast1b(22, 0));
 
-        final short[] l1c_spec =  mdr_1C.get_GS1cSpect(23, 0);
+        proxy = readProxies.get("IDefNsfirst1b");
+        assertEquals(2581, (int) proxy.read(21, 1, mdr_1C));
+
+        proxy = readProxies.get("IDefNslast1b");
+        assertEquals(11041, (int) proxy.read(22, 0, mdr_1C));
+
+        final short[] l1c_spec = mdr_1C.get_GS1cSpect(23, 0);
         assertEquals(8700, l1c_spec.length);
         assertEquals(4089, l1c_spec[0]);
         assertEquals(6022, l1c_spec[4267]);
 
-        assertEquals(6, mdr_1C.get_GCcsRadAnalNbClass(24, 1));
-        assertEquals(0, mdr_1C.get_IDefCcsMode(25, 0));
-        assertEquals(48, mdr_1C.get_GCcsImageClassifiedNbLin(26, 1));
-        assertEquals(69, mdr_1C.get_GCcsImageClassifiedNbCol(27, 0));
+        proxy = readProxies.get("GCcsRadAnalNbClass");
+        assertEquals(6, (int) proxy.read(24, 1, mdr_1C));
+
+        proxy = readProxies.get("IDefCcsMode");
+        assertEquals(0, (int) proxy.read(25, 0, mdr_1C));
+
+        proxy = readProxies.get("GCcsImageClassifiedNbLin");
+        assertEquals(48, (short) proxy.read(26, 1, mdr_1C));
+
+        proxy = readProxies.get("GCcsImageClassifiedNbCol");
+        assertEquals(69, (short) proxy.read(27, 0, mdr_1C));
+
+        // @todo 1 tb/tb GCcsImageClassifiedFirstLin 2017-05-04
+        // @todo 1 tb/tb GCcsImageClassifiedFirstCol 2017-05-04
+
+        // skipping GCcsRadAnalType tb 2017-06-07
+
         // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
         // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
-        assertEquals(2, mdr_1C.get_GEUMAvhrr1BCldFrac(28, 1));
-        assertEquals(0, mdr_1C.get_GEUMAvhrr1BLandFrac(29, 0));
-        assertEquals(0, mdr_1C.get_GEUMAvhrr1BQual(30, 1));
+
+        proxy = readProxies.get("GEUMAvhrr1BCldFrac");
+        assertEquals(2, (byte) proxy.read(28, 1, mdr_1C));
+
+        proxy = readProxies.get("GEUMAvhrr1BLandFrac");
+        assertEquals(0, (byte) proxy.read(29, 0, mdr_1C));
+
+        proxy = readProxies.get("GEUMAvhrr1BQual");
+        assertEquals(0, (byte) proxy.read(30, 1, mdr_1C));
     }
 
     @Test
@@ -97,53 +177,119 @@ public class MDR_1C_IOTest {
         iis.read(mdr_1C.getRaw_record());
 
         // general L1 data -----------------------------------
-        assertEquals(0, mdr_1C.get_DEGRADED_INST_MDR(0, 1));
-        assertEquals(0, mdr_1C.get_DEGRADED_PROC_MDR(1, 0));
-        assertEquals(161, mdr_1C.get_GEPSIasiMode(2, 1));
-        assertEquals(0, mdr_1C.get_GEPSOPSProcessingMode(3, 0));
-        // @todo 1 tb/tb GEPSLocIasiAvhrr_IASI 2017-05-04
-        assertEquals(14729503744L, mdr_1C.get_OBT(6, 1));
-        assertEquals(1398434941538L, mdr_1C.get_OnboardUTC(7, 0));
-        assertEquals(1398434941754L, mdr_1C.get_GEPSDatIasi(8, 1));
-        assertEquals(1, mdr_1C.get_GEPS_CCD(9, 0));
-        assertEquals(6, mdr_1C.get_GEPS_SP(10, 1));
-        // @todo 1 tb/tb GQisFlagQual 2017-05-04
-        assertEquals(0, mdr_1C.get_GQisFlagQualDetailed(11, 0));
+        ReadProxy proxy = readProxies.get("DEGRADED_INST_MDR");
+        assertEquals(0, (byte) proxy.read(0, 1, mdr_1C));
+
+        proxy = readProxies.get("DEGRADED_PROC_MDR");
+        assertEquals(0, (byte) proxy.read(1, 0, mdr_1C));
+
+        proxy = readProxies.get("GEPSIasiMode");
+        assertEquals(161, (int) proxy.read(2, 1, mdr_1C));
+
+        proxy = readProxies.get("GEPSOPSProcessingMode");
+        assertEquals(0, (int) proxy.read(3, 0, mdr_1C));
+
+        // skipping GEPSLocIasiAvhrr_IASI tb 2017-06-07
+
+        proxy = readProxies.get("OBT");
+        assertEquals(14729503744L, (long) proxy.read(6, 1, mdr_1C));
+
+        proxy = readProxies.get("OnboardUTC");
+        assertEquals(1398434941538L, (long) proxy.read(7, 0, mdr_1C));
+
+        proxy = readProxies.get("GEPSDatIasi");
+        assertEquals(1398434941754L, (long) proxy.read(8, 1, mdr_1C));
+
+        // skipping GIsfLinOrigin tb 2017-06-07
+        // skipping GIsfColOrigin tb 2017-06-07
+        // skipping GIsfPds1 tb 2017-06-07
+        // skipping GIsfPds2 tb 2017-06-07
+        // skipping GIsfPds3 tb 2017-06-07
+        // skipping GIsfPds4 tb 2017-06-07
+
+        proxy = readProxies.get("GEPS_CCD");
+        assertEquals(1, (byte) proxy.read(9, 0, mdr_1C));
+
+        proxy = readProxies.get("GEPS_SP");
+        assertEquals(6, (int) proxy.read(10, 1, mdr_1C));
+
+        // skipping GIrcImage tb 2017-06-07
+        // @todo 3 tb/tb GQisFlagQual 2017-05-04
+
+        proxy = readProxies.get("GQisFlagQualDetailed");
+        assertEquals(0, (short) proxy.read(11, 0, mdr_1C));
+
         // @todo 1 tb/tb GQisQualIndex 2017-05-04
         // @todo 1 tb/tb GQisQualIndexIIS 2017-05-04
         // @todo 1 tb/tb GQisQualIndexLoc 2017-05-04
         // @todo 1 tb/tb GQisQualIndexRad 2017-05-04
         // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
-        assertEquals(1, mdr_1C.get_GQisSysTecIISQual(12, 1));
-        assertEquals(1, mdr_1C.get_GQisSysTecSondQual(13, 0));
-        assertEquals(98.93218231201172, mdr_1C.get_GGeoSondLoc_Lon(14, 1), 1e-8);
-        assertEquals(99.1828384399414, mdr_1C.get_GGeoSondLoc_Lon(15, 1), 1e-8);
-        assertEquals(99.58789825439453, mdr_1C.get_GGeoSondLoc_Lon(16, 1), 1e-8);
-        assertEquals(38.758026123046875, mdr_1C.get_GGeoSondLoc_Lat(15, 0), 1e-8);
-        assertEquals(25.284067153930664, mdr_1C.get_GGeoSondAnglesMETOP_Zenith(16, 1), 1e-8);
-        assertEquals(71.94691467285156, mdr_1C.get_GGeoSondAnglesMETOP_Azimuth(17, 0), 1e-8);
-        assertEquals(111.65995025634766, mdr_1C.get_GGeoSondAnglesSUN_Zenith(18, 1), 1e-8);
-        assertEquals(310.1988220214844, mdr_1C.get_GGeoSondAnglesSUN_Azimuth(19, 0), 1e-8);
-        assertEquals(7194027, mdr_1C.get_EARTH_SATELLITE_DISTANCE(20, 1));
+
+        proxy = readProxies.get("GQisSysTecIISQual");
+        assertEquals(1, (int) proxy.read(12, 1, mdr_1C));
+
+        proxy = readProxies.get("GQisSysTecSondQual");
+        assertEquals(1, (int) proxy.read(13, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondLoc_Lon");
+        assertEquals(98932182, (int) proxy.read(14, 1, mdr_1C));
+        assertEquals(99182840, (int) proxy.read(15, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondLoc_Lat");
+        assertEquals(38758029, (int) proxy.read(15, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesMETOP_Zenith");
+        assertEquals(25284069, (int) proxy.read(16, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesMETOP_Azimuth");
+        assertEquals(71946909, (int) proxy.read(17, 0, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesSUN_Zenith");
+        assertEquals(111659952, (int) proxy.read(18, 1, mdr_1C));
+
+        proxy = readProxies.get("GGeoSondAnglesSUN_Azimuth");
+        assertEquals(310198809, (int) proxy.read(19, 0, mdr_1C));
+
+        proxy = readProxies.get("EARTH_SATELLITE_DISTANCE");
+        assertEquals(7194027, (int) proxy.read(20, 1, mdr_1C));
+
 
         // l1c specific --------------------------------------------
         // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
-        assertEquals(2581, mdr_1C.get_IDefNsfirst1b(21, 0));
-        assertEquals(11041, mdr_1C.get_IDefNslast1b(22, 1));
 
-        final short[] l1c_spec =  mdr_1C.get_GS1cSpect(23, 1);
+        proxy = readProxies.get("IDefNsfirst1b");
+        assertEquals(2581, (int) proxy.read(21, 0, mdr_1C));
+
+        proxy = readProxies.get("IDefNslast1b");
+        assertEquals(11041, (int) proxy.read(22, 1, mdr_1C));
+
+        final short[] l1c_spec = mdr_1C.get_GS1cSpect(23, 1);
         assertEquals(8700, l1c_spec.length);
         assertEquals(4436, l1c_spec[0]);
         assertEquals(3326, l1c_spec[4268]);
 
-        assertEquals(3, mdr_1C.get_GCcsRadAnalNbClass(24, 0));
-        assertEquals(0, mdr_1C.get_IDefCcsMode(25, 1));
-        assertEquals(49, mdr_1C.get_GCcsImageClassifiedNbLin(26, 0));
-        assertEquals(69, mdr_1C.get_GCcsImageClassifiedNbCol(27, 1));
+        proxy = readProxies.get("GCcsRadAnalNbClass");
+        assertEquals(3, (int) proxy.read(24, 0, mdr_1C));
+
+        proxy = readProxies.get("IDefCcsMode");
+        assertEquals(0, (int) proxy.read(25, 1, mdr_1C));
+
+        proxy = readProxies.get("GCcsImageClassifiedNbLin");
+        assertEquals(49, (short) proxy.read(26, 0, mdr_1C));
+
+        proxy = readProxies.get("GCcsImageClassifiedNbCol");
+        assertEquals(69, (short) proxy.read(27, 1, mdr_1C));
+
         // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
         // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
-        assertEquals(0, mdr_1C.get_GEUMAvhrr1BCldFrac(28, 0));
-        assertEquals(100, mdr_1C.get_GEUMAvhrr1BLandFrac(29, 1));
-        assertEquals(0, mdr_1C.get_GEUMAvhrr1BQual(30, 0));
+
+        proxy = readProxies.get("GEUMAvhrr1BCldFrac");
+        assertEquals(0, (byte) proxy.read(28, 0, mdr_1C));
+
+        proxy = readProxies.get("GEUMAvhrr1BLandFrac");
+        assertEquals(100, (byte) proxy.read(29, 1, mdr_1C));
+
+        proxy = readProxies.get("GEUMAvhrr1BQual");
+        assertEquals(0, (byte) proxy.read(30, 0, mdr_1C));
     }
 }

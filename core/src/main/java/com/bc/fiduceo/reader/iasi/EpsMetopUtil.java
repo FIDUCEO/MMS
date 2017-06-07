@@ -43,4 +43,11 @@ class EpsMetopUtil {
 
         return lower | ((long) upper << 32);
     }
+
+    static float readVInt4(ImageInputStream iis) throws IOException {
+        final byte scaleFactor = iis.readByte();
+        final int value = iis.readInt();
+
+        return (float) (value * Math.pow(10.0, -scaleFactor));
+    }
 }
