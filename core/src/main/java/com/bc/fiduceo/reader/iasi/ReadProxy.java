@@ -24,8 +24,8 @@ import java.io.IOException;
 
 abstract class ReadProxy {
 
+    private final double scaleFactor;
     final long offset;
-    final double scaleFactor;
 
     ReadProxy(long offset) {
         this(offset,  Double.NaN);
@@ -69,6 +69,20 @@ abstract class ReadProxy {
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
             return mdr_1C.readPerScan_int(offset);
+        }
+    }
+
+    static class vInt4PerScan extends ReadProxy {
+        vInt4PerScan(long offset) {
+            super(offset);
+        }
+
+        Class getDataType() {
+            return float.class;
+        }
+
+        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+            return mdr_1C.readPerScan_vInt4(offset);
         }
     }
 
@@ -125,6 +139,20 @@ abstract class ReadProxy {
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
             return mdr_1C.readPerEFOV_short(x, offset);
+        }
+    }
+
+    static class vInt4PerEVOF extends ReadProxy {
+        vInt4PerEVOF(long offset) {
+            super(offset);
+        }
+
+        Class getDataType() {
+            return float.class;
+        }
+
+        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+            return mdr_1C.readPerEFOV_vInt4(x, offset);
         }
     }
 
@@ -197,7 +225,7 @@ abstract class ReadProxy {
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
-            return mdr_1C.readPerPixel_angle(x, line, offset, fieldOffsetInBytes);
+            return mdr_1C.readPerPixel_oneOfDualInt(x, line, offset, fieldOffsetInBytes);
         }
     }
 }

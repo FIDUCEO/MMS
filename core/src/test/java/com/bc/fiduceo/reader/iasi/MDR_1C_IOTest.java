@@ -87,11 +87,20 @@ public class MDR_1C_IOTest {
         proxy = readProxies.get("GQisFlagQualDetailed");
         assertEquals(0, (short) proxy.read(11, 1, mdr_1C));
 
-        // @todo 1 tb/tb GQisQualIndex 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexIIS 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexLoc 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexRad 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
+        proxy = readProxies.get("GQisQualIndex");
+        assertEquals(1.0000486373901367, (float) proxy.read(12, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexIIS");
+        assertEquals(0.9339925646781921, (float) proxy.read(13, 1, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexLoc");
+        assertEquals(0.06710358709096909, (float) proxy.read(14, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexRad");
+        assertEquals(1.0000312328338623, (float) proxy.read(15, 1, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexSpect");
+        assertEquals(1.0000174045562744, (float) proxy.read(16, 0, mdr_1C), 1e-8);
 
         proxy = readProxies.get("GQisSysTecIISQual");
         assertEquals(1, (int) proxy.read(12, 0, mdr_1C));
@@ -124,7 +133,8 @@ public class MDR_1C_IOTest {
         assertEquals(7199344, (int) proxy.read(20, 0, mdr_1C));
 
         // l1c specific --------------------------------------------
-        // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
+        proxy = readProxies.get("IDefSpectDWn1b");
+        assertEquals(25.0, (float) proxy.read(21, 1, mdr_1C), 1e-8);
 
         proxy = readProxies.get("IDefNsfirst1b");
         assertEquals(2581, (int) proxy.read(21, 1, mdr_1C));
@@ -149,13 +159,19 @@ public class MDR_1C_IOTest {
         proxy = readProxies.get("GCcsImageClassifiedNbCol");
         assertEquals(69, (short) proxy.read(27, 0, mdr_1C));
 
-        // @todo 1 tb/tb GCcsImageClassifiedFirstLin 2017-05-04
-        // @todo 1 tb/tb GCcsImageClassifiedFirstCol 2017-05-04
+        proxy = readProxies.get("GCcsImageClassifiedFirstLin");
+        assertEquals(-1213.0, (float) proxy.read(28, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GCcsImageClassifiedFirstCol");
+        assertEquals(1023.0, (float) proxy.read(29, 1, mdr_1C), 1e-8);
 
         // skipping GCcsRadAnalType tb 2017-06-07
 
-        // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
-        // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
+        proxy = readProxies.get("GIacVarImagIIS");
+        assertEquals(1.3744753232458606E-5, (float) proxy.read(30, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GIacAvgImagIIS");
+        assertEquals(0.0011099015828222036, (float) proxy.read(31, 1, mdr_1C), 1e-8);
 
         proxy = readProxies.get("GEUMAvhrr1BCldFrac");
         assertEquals(2, (byte) proxy.read(28, 1, mdr_1C));
@@ -219,11 +235,20 @@ public class MDR_1C_IOTest {
         proxy = readProxies.get("GQisFlagQualDetailed");
         assertEquals(0, (short) proxy.read(11, 0, mdr_1C));
 
-        // @todo 1 tb/tb GQisQualIndex 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexIIS 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexLoc 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexRad 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
+        proxy = readProxies.get("GQisQualIndex");
+        assertEquals(1.0000330209732056, (float) proxy.read(12, 1, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexIIS");
+        assertEquals(0.9325640797615051, (float) proxy.read(13, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexLoc");
+        assertEquals(0.06485530734062195, (float) proxy.read(14, 1, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexRad");
+        assertEquals(1.0000054836273193, (float) proxy.read(15, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GQisQualIndexSpect");
+        assertEquals(1.0000275373458862, (float) proxy.read(16, 1, mdr_1C), 1e-8);
 
         proxy = readProxies.get("GQisSysTecIISQual");
         assertEquals(1, (int) proxy.read(12, 1, mdr_1C));
@@ -255,7 +280,8 @@ public class MDR_1C_IOTest {
 
 
         // l1c specific --------------------------------------------
-        // @todo 1 tb/tb IDefSpectDWn1b 2017-05-05
+        proxy = readProxies.get("IDefSpectDWn1b");
+        assertEquals(25.0, (float) proxy.read(21, 0, mdr_1C), 1e-8);
 
         proxy = readProxies.get("IDefNsfirst1b");
         assertEquals(2581, (int) proxy.read(21, 0, mdr_1C));
@@ -280,8 +306,17 @@ public class MDR_1C_IOTest {
         proxy = readProxies.get("GCcsImageClassifiedNbCol");
         assertEquals(69, (short) proxy.read(27, 1, mdr_1C));
 
-        // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
-        // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
+        proxy = readProxies.get("GCcsImageClassifiedFirstLin");
+        assertEquals(-1370.0, (float) proxy.read(28, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GCcsImageClassifiedFirstCol");
+        assertEquals(1024.0, (float) proxy.read(29, 1, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GIacVarImagIIS");
+        assertEquals(2.5563982489984483E-5, (float) proxy.read(30, 0, mdr_1C), 1e-8);
+
+        proxy = readProxies.get("GIacAvgImagIIS");
+        assertEquals(7.870344561524689E-4, (float) proxy.read(31, 1, mdr_1C), 1e-8);
 
         proxy = readProxies.get("GEUMAvhrr1BCldFrac");
         assertEquals(0, (byte) proxy.read(28, 0, mdr_1C));

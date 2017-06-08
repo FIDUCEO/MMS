@@ -26,9 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
-import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.PN;
-import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.SS;
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.*;
 
 class MDR_1C {
 
@@ -45,11 +43,17 @@ class MDR_1C {
     private static final long GEPS_SP_OFFSET = 9380;
     private static final long GQIS_FLAG_QUAL_DET_OFFSET = 255620;
     private static final long GQIS_SYS_TEC_IIS_QUAL_OFFSET = 255885;
+    private static final long GQIS_QUAL_INDEX_OFFSET = 255860;
+    private static final long GQIS_QUAL_INDEX_IIS_OFFSET = 255865;
+    private static final long GQIS_QUAL_INDEX_LOC_OFFSET = 255870;
+    private static final long GQIS_QUAL_INDEX_RAD_OFFSET = 255875;
+    private static final long GQIS_QUAL_INDEX_SPECT_OFFSET = 255880;
     private static final long GQIS_SYS_TEC_SOND_QUAL_OFFSET = 255889;
     private static final long GGEO_SOND_LOC_OFFSET = 255893;
     private static final long GGEO_SOND_ANGLES_METOP_OFFSET = 256853;
     private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
     private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
+    private static final long IDEF_SPECT_DWN_1B_OFFSET = 276777;
     private static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
     private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
     private static final long G1S_SPECT_OFFSET = 276790;
@@ -57,6 +61,10 @@ class MDR_1C {
     private static final long IDEF_CS_MODE_OFFSET = 2727614;
     private static final long GCS_IMG_CLASS_LIN_OFFSET = 2727618;
     private static final long GCS_IMG_CLASS_COL_OFFSET = 2727678;
+    private static final long GCS_IMG_CLASS_FIRST_LIN_OFFSET = 2727738;
+    private static final long GCS_IMG_CLASS_FIRST_COL_OFFSET = 2727888;
+    private static final long GIAC_VAR_IMG_IIS_OFFSET = 2728248;
+    private static final long GIAC_AVG_IMG_IIS_OFFSET = 2728398;
     private static final long GEUM_AVHRR_CLOUD_FRAC_OFFSET = 2728548;
     private static final long GEUM_AVHRR_LAND_FRAC_OFFSET = 2728668;
     private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
@@ -65,6 +73,7 @@ class MDR_1C {
     private static final int UTC_SIZE = 6;
     private static final int SHORT_SIZE = 2;
     private static final int INT_SIZE = 4;
+    private static final int VINT4_SIZE = 5;
     private static final int DUAL_INT_SIZE = 8;
     private static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-05-05
 
@@ -121,6 +130,13 @@ class MDR_1C {
         return stream.readInt();
     }
 
+    float readPerScan_vInt4(long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        stream.seek(position);
+
+        return EpsMetopUtil.readVInt4(stream);
+    }
+
     byte readPerEFOV_byte(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
         final int mdrPos = getMdrPos(x);
@@ -152,6 +168,15 @@ class MDR_1C {
         stream.seek(position + mdrPos * UTC_SIZE);
 
         return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
+    }
+
+    float readPerEFOV_vInt4(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * VINT4_SIZE);
+
+        return EpsMetopUtil.readVInt4(stream);
     }
 
     byte readPerPixel_byte(int x, int line, long position) throws IOException {
@@ -195,7 +220,7 @@ class MDR_1C {
         return G_GEO_SOND_LOC_SCALING_FACTOR * angleInt;
     }
 
-    int readPerPixel_angle(int x, int line, long position, int offset) throws IOException {
+    int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException {
         final ImageInputStream stream = getStream();
         final int mdrPos = getMdrPos(x);
         final int efovIndex = getEFOVIndex(x, line);
@@ -246,11 +271,11 @@ class MDR_1C {
         // skipping GIrcImage tb 2017-06-07
         // @todo 3 tb/tb GQisFlagQual - one variable per channel 2017-05-04
         proxies.put("GQisFlagQualDetailed", new ReadProxy.shortPerPixel(GQIS_FLAG_QUAL_DET_OFFSET));
-        // @todo 1 tb/tb GQisQualIndex 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexIIS 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexLoc 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexRad 2017-05-04
-        // @todo 1 tb/tb GQisQualIndexSpect 2017-05-04
+        proxies.put("GQisQualIndex", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_OFFSET));
+        proxies.put("GQisQualIndexIIS", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_IIS_OFFSET));
+        proxies.put("GQisQualIndexLoc", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_LOC_OFFSET));
+        proxies.put("GQisQualIndexRad", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_RAD_OFFSET));
+        proxies.put("GQisQualIndexSpect", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_SPECT_OFFSET));
         proxies.put("GQisSysTecIISQual", new ReadProxy.intPerScan(GQIS_SYS_TEC_IIS_QUAL_OFFSET));
         proxies.put("GQisSysTecSondQual", new ReadProxy.intPerScan(GQIS_SYS_TEC_SOND_QUAL_OFFSET));
         proxies.put("GGeoSondLoc_Lon", new ReadProxy.dualIntPerPixel(GGEO_SOND_LOC_OFFSET, 0, 1e-6));
@@ -262,7 +287,7 @@ class MDR_1C {
         // skipping GGeoIISLoc tb 2017-06-07
         proxies.put("EARTH_SATELLITE_DISTANCE", new ReadProxy.intPerScan(EARTH_SATELLITE_DISTANCE_OFFSET));
         // l1c specific --------------------------------------------
-        // @todo 1 tb/tb IDefSpectDWn1b 2017-05-04
+        proxies.put("IDefSpectDWn1b", new ReadProxy.vInt4PerScan(IDEF_SPECT_DWN_1B_OFFSET));
         proxies.put("IDefNsfirst1b", new ReadProxy.intPerScan(IDEF_NS_FIRST_1B_OFFSET));
         proxies.put("IDefNslast1b", new ReadProxy.intPerScan(IDEF_NS_LAST_1B_OFFSET));
         // @todo 1 tb/tb add spectrum here 2017-05-17
@@ -278,11 +303,11 @@ class MDR_1C {
         proxies.put("IDefCcsMode", new ReadProxy.intPerScan(IDEF_CS_MODE_OFFSET));
         proxies.put("GCcsImageClassifiedNbLin", new ReadProxy.shortPerEVOF(GCS_IMG_CLASS_LIN_OFFSET));
         proxies.put("GCcsImageClassifiedNbCol", new ReadProxy.shortPerEVOF(GCS_IMG_CLASS_COL_OFFSET));
-        // @todo 1 tb/tb GCcsImageClassifiedFirstLin 2017-05-04
-        // @todo 1 tb/tb GCcsImageClassifiedFirstCol 2017-05-04
+        proxies.put("GCcsImageClassifiedFirstLin", new ReadProxy.vInt4PerEVOF(GCS_IMG_CLASS_FIRST_LIN_OFFSET));
+        proxies.put("GCcsImageClassifiedFirstCol", new ReadProxy.vInt4PerEVOF(GCS_IMG_CLASS_FIRST_COL_OFFSET));
         // skipping GCcsRadAnalType tb 2017-06-07
-        // @todo 1 tb/tb GIacVarImagIIS 2017-05-05
-        // @todo 1 tb/tb GIacAvgImagIIS 2017-05-05
+        proxies.put("GIacVarImagIIS", new ReadProxy.vInt4PerEVOF(GIAC_VAR_IMG_IIS_OFFSET));
+        proxies.put("GIacAvgImagIIS", new ReadProxy.vInt4PerEVOF(GIAC_AVG_IMG_IIS_OFFSET));
         proxies.put("GEUMAvhrr1BCldFrac", new ReadProxy.bytePerPixel(GEUM_AVHRR_CLOUD_FRAC_OFFSET));
         proxies.put("GEUMAvhrr1BLandFrac", new ReadProxy.bytePerPixel(GEUM_AVHRR_LAND_FRAC_OFFSET));
         proxies.put("GEUMAvhrr1BQual", new ReadProxy.bytePerPixel(GEUM_AVHRR_QUAL_OFFSET));
