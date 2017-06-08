@@ -712,4 +712,55 @@ public class IASI_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadSpectrum_MA() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readSpectrum(24, 110);
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(1, shape.length);
+            assertEquals(8700, shape[0]);
+
+            NCTestUtils.assertValueAt((short) 4118, 0, array);
+            NCTestUtils.assertValueAt((short) 4447, 101, array);
+            NCTestUtils.assertValueAt((short) 4808, 1101, array);
+            NCTestUtils.assertValueAt((short) 4638, 1208, array);
+            NCTestUtils.assertValueAt((short) 4617, 1209, array);
+            NCTestUtils.assertValueAt((short) 4551, 1210, array);
+            NCTestUtils.assertValueAt((short) 0, 8698, array);
+            NCTestUtils.assertValueAt((short) 0, 8699, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadSpectrum_MB() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MB();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readSpectrum(25, 111);
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(1, shape.length);
+            assertEquals(8700, shape[0]);
+
+            NCTestUtils.assertValueAt((short) 4555, 0, array);
+            NCTestUtils.assertValueAt((short) 4651, 102, array);
+            NCTestUtils.assertValueAt((short) 9079, 1102, array);
+            NCTestUtils.assertValueAt((short) 8701, 1209, array);
+            NCTestUtils.assertValueAt((short) 8578, 1210, array);
+            NCTestUtils.assertValueAt((short) 8409, 1211, array);
+            NCTestUtils.assertValueAt((short) 0, 8698, array);
+            NCTestUtils.assertValueAt((short) 0, 8699, array);
+        } finally {
+            reader.close();
+        }
+    }
 }

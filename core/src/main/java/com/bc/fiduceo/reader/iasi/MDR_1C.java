@@ -290,7 +290,6 @@ class MDR_1C {
         proxies.put("IDefSpectDWn1b", new ReadProxy.vInt4PerScan(IDEF_SPECT_DWN_1B_OFFSET));
         proxies.put("IDefNsfirst1b", new ReadProxy.intPerScan(IDEF_NS_FIRST_1B_OFFSET));
         proxies.put("IDefNslast1b", new ReadProxy.intPerScan(IDEF_NS_LAST_1B_OFFSET));
-        // @todo 1 tb/tb add spectrum here 2017-05-17
         // skipping IDefCovarMatEigenVal1c tb 2017-06-07
         // skipping IDefCcsChannelId tb 2017-06-07
         proxies.put("GCcsRadAnalNbClass", new ReadProxy.intPerPixel(GCS_RAD_ANAL_NB_OFFSET));

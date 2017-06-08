@@ -114,6 +114,12 @@ public class NCTestUtils {
         assertEquals(expected, array.getDouble(index), 1e-8);
     }
 
+    public static void assertValueAt(short expected, int y, Array array) {
+        final Index index = array.getIndex();
+        index.set(y);
+        assertEquals(expected, array.getInt(index));
+    }
+
     public static void assertValueAt(int expected, int x, int y, Array array) {
         final Index index = array.getIndex();
         index.set(y, x);

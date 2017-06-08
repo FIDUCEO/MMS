@@ -56,6 +56,7 @@ import ucar.nc2.Variable;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public class IASI_Reader implements Reader {
     private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
     private static final int SNOT = 30;
+    private static final int SS = 8700;
     private static final int LON = 0;
     private static final int LAT = 1;
 
@@ -226,6 +228,23 @@ public class IASI_Reader implements Reader {
             variableList = createVariableList();
         }
         return variableList;
+    }
+
+
+    @Override
+    public Dimension getProductSize() {
+        final Dimension size = new Dimension();
+        size.setNx(2 * SNOT);
+        size.setNy(2 * mdrCount);
+        return size;
+    }
+
+    public Array readSpectrum(int x, int y) throws IOException {
+        final MDR_1C[] mdRs = getMDRs(y, 1);
+        final int[] shape = new int[]{SS};
+
+        final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
+        return Array.factory(DataType.SHORT, shape, gs1cSpect);
     }
 
     private PixelLocator getPixelLocator_internal() throws IOException {
@@ -646,13 +665,4 @@ public class IASI_Reader implements Reader {
         variableList.add(new VariableProxy("GEUMAvhrr1BQual", DataType.BYTE, attributes));
         return variableList;
     }
-
-    @Override
-    public Dimension getProductSize() {
-        final Dimension size = new Dimension();
-        size.setNx(2 * SNOT);
-        size.setNy(2 * mdrCount);
-        return size;
-    }
-
 }
