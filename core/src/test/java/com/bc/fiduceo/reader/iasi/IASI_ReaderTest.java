@@ -94,7 +94,7 @@ public class IASI_ReaderTest {
     public void testGetVariables() throws IOException {
         final List<Variable> variables = reader.getVariables();
         assertNotNull(variables);
-        assertEquals(28, variables.size());
+        assertEquals(38, variables.size());
 
         Variable variable = variables.get(0);
         assertEquals("DEGRADED_INST_MDR", variable.getShortName());
@@ -112,17 +112,24 @@ public class IASI_ReaderTest {
         assertEquals("Corrected UTC in in milliseconds since 1970-01-01 00:00:00", attributes.get(2).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(long.class), attributes.get(3).getNumericValue());
 
-        variable = variables.get(12);
+        variable = variables.get(14);
+        assertEquals("GQisQualIndexSpect", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        attributes = variable.getAttributes();
+        assertEquals("Spectral quality index for sounder product", attributes.get(0).getStringValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(float.class), attributes.get(1).getNumericValue());
+
+        variable = variables.get(17);
         assertEquals("GGeoSondLoc_Lon", variable.getShortName());
         assertEquals(DataType.INT, variable.getDataType());
         attributes = variable.getAttributes();
         assertEquals("Location of pixel centre in geodetic coordinates for each sounder pixel (lon)", attributes.get(0).getStringValue());
         assertEquals("longitude", attributes.get(1).getStringValue());
         assertEquals("degrees_east", attributes.get(2).getStringValue());
-        assertEquals(NetCDFUtils.getDefaultFillValue(float.class), attributes.get(3).getNumericValue());
+        assertEquals(NetCDFUtils.getDefaultFillValue(int.class), attributes.get(3).getNumericValue());
         assertEquals(1e-6, attributes.get(4).getNumericValue().doubleValue(), 1e-8);
 
-        variable = variables.get(18);
+        variable = variables.get(23);
         assertEquals("EARTH_SATELLITE_DISTANCE", variable.getShortName());
         assertEquals(DataType.INT, variable.getDataType());
         attributes = variable.getAttributes();
@@ -130,14 +137,14 @@ public class IASI_ReaderTest {
         assertEquals("m", attributes.get(1).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(int.class), attributes.get(2).getNumericValue());
 
-        variable = variables.get(24);
+        variable = variables.get(30);
         assertEquals("GCcsImageClassifiedNbCol", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
         attributes = variable.getAttributes();
         assertEquals("Radiance Analysis: Number of useful columns", attributes.get(0).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(short.class), attributes.get(1).getNumericValue());
 
-        variable = variables.get(27);
+        variable = variables.get(37);
         assertEquals("GEUMAvhrr1BQual", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
         attributes = variable.getAttributes();

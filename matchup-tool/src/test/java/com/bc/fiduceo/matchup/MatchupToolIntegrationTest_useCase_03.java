@@ -39,7 +39,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
@@ -67,6 +66,8 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 0, 0, 1, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 0, 0, 2, 7191921, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstCol", 0, 0, 3, 1764.0, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstLin", 0, 0, 4, -5024.0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbCol", 0, 0, 3, 68, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbLin", 0, 0, 4, 66, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsRadAnalNbClass", 0, 0, 5, 4, mmd);
@@ -76,6 +77,7 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("iasi-mb_GEPS_CCD", 0, 0, 9, 1, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GEPS_SP", 0, 0, 10, 10, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BCldFrac", 0, 0, 11, 66, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BLandFrac", 0, 0, 12, 2, mmd);
 
             NCTestUtils.assert3DVariable("avhrr-n19_acquisition_time", 0, 0, 100, 1398430788, mmd);
             NCTestUtils.assert3DVariable("avhrr-n19_ch1", 1, 0, 101, 308, mmd);
@@ -89,6 +91,9 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("avhrr-n19_dtime", 9, 0, 109, 6128.5, mmd);
             NCTestUtils.assertStringVariable("avhrr-n19_file_name", 10, "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc", mmd);
             NCTestUtils.assert3DVariable("avhrr-n19_ict_temp", 11, 0, 111, 1560, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_l1b_line_number", 12, 0, 112, 12279, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_lat", 13, 0, 113, 64.36499786376953, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_lon", 14, 0, 114, -25.902008056640625, mmd);
         }
     }
 
@@ -114,6 +119,8 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 0, 0, 1, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 0, 0, 2, 7191921, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstCol", 0, 0, 3, 1641.0, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstLin", 0, 0, 4, -4524.0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbCol", 0, 0, 3, 68, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbLin", 0, 0, 4, 62, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GCcsRadAnalNbClass", 0, 0, 5, 4, mmd);
@@ -123,6 +130,7 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("iasi-mb_GEPS_CCD", 0, 0, 9, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GEPS_SP", 0, 0, 10, 5, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BCldFrac", 0, 0, 11, 83, mmd);
+            NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BLandFrac", 0, 0, 12, 99, mmd);
 
             NCTestUtils.assert3DVariable("avhrr-n19_acquisition_time", 0, 0, 100, 1398430756, mmd);
             NCTestUtils.assert3DVariable("avhrr-n19_ch1", 1, 0, 101, 3130, mmd);
@@ -136,8 +144,10 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
             NCTestUtils.assert3DVariable("avhrr-n19_dtime", 9, 0, 109, 6019.501953125, mmd);
             NCTestUtils.assertStringVariable("avhrr-n19_file_name", 10, "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc", mmd);
             NCTestUtils.assert3DVariable("avhrr-n19_ict_temp", 11, 0, 111, 1553, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_l1b_line_number", 12, 0, 112, 12056, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_lat", 13, 0, 113, 57.37900161743164, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n19_lon", 14, 0, 114, -20.4840087890625, mmd);
         }
-
     }
 
     private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
