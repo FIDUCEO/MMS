@@ -16,8 +16,7 @@ class InternalPointerRecord {
 
         ipr.grh = GenericRecordHeader.readGenericRecordHeader(iis);
 
-        if (ipr.grh.recordClass != RecordClass.IPR
-                || ipr.grh.instrumentGroup != InstrumentGroup.GENERIC) {
+        if (ipr.grh.recordClass != RecordClass.IPR  || ipr.grh.instrumentGroup != InstrumentGroup.GENERIC) {
             throw new IOException("Illegal Generic Record Header");
         }
 
