@@ -725,14 +725,14 @@ public class IASI_Reader_IO_Test {
             assertEquals(1, shape.length);
             assertEquals(8700, shape[0]);
 
-            NCTestUtils.assertValueAt((short) 4118, 0, array);
-            NCTestUtils.assertValueAt((short) 4447, 101, array);
-            NCTestUtils.assertValueAt((short) 4808, 1101, array);
-            NCTestUtils.assertValueAt((short) 4638, 1208, array);
-            NCTestUtils.assertValueAt((short) 4617, 1209, array);
-            NCTestUtils.assertValueAt((short) 4551, 1210, array);
-            NCTestUtils.assertValueAt((short) 0, 8698, array);
-            NCTestUtils.assertValueAt((short) 0, 8699, array);
+            NCTestUtils.assertValueAt(4.1179999243468046E-4, 0, array);
+            NCTestUtils.assertValueAt(4.447000101208687E-4, 101, array);
+            NCTestUtils.assertValueAt(4.807999939657748E-4, 1101, array);
+            NCTestUtils.assertValueAt(4.6380001003853977E-4, 1208, array);
+            NCTestUtils.assertValueAt(4.616999940481037E-4, 1209, array);
+            NCTestUtils.assertValueAt(4.5510000200010836E-4, 1210, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8698, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8699, array);
         } finally {
             reader.close();
         }
@@ -751,14 +751,14 @@ public class IASI_Reader_IO_Test {
             assertEquals(1, shape.length);
             assertEquals(8700, shape[0]);
 
-            NCTestUtils.assertValueAt((short) 4555, 0, array);
-            NCTestUtils.assertValueAt((short) 4651, 102, array);
-            NCTestUtils.assertValueAt((short) 9079, 1102, array);
-            NCTestUtils.assertValueAt((short) 8701, 1209, array);
-            NCTestUtils.assertValueAt((short) 8578, 1210, array);
-            NCTestUtils.assertValueAt((short) 8409, 1211, array);
-            NCTestUtils.assertValueAt((short) 0, 8698, array);
-            NCTestUtils.assertValueAt((short) 0, 8699, array);
+            NCTestUtils.assertValueAt(4.555000050459057E-4, 0, array);
+            NCTestUtils.assertValueAt(4.650999908335507E-4, 102, array);
+            NCTestUtils.assertValueAt(9.07899986486882E-4, 1102, array);
+            NCTestUtils.assertValueAt(8.700999896973372E-4, 1209, array);
+            NCTestUtils.assertValueAt(8.578000124543905E-4, 1210, array);
+            NCTestUtils.assertValueAt(8.409000001847744E-4, 1211, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8698, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8699, array);
         } finally {
             reader.close();
         }

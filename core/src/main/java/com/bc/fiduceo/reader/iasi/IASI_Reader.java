@@ -56,12 +56,13 @@ import ucar.nc2.Variable;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.bc.fiduceo.reader.iasi.MDR_1C.IDEF_NS_FIRST_1B_OFFSET;
 
 
 public class IASI_Reader implements Reader {
@@ -244,7 +245,40 @@ public class IASI_Reader implements Reader {
         final int[] shape = new int[]{SS};
 
         final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
-        return Array.factory(DataType.SHORT, shape, gs1cSpect);
+        final int iDefNsfirst = mdRs[0].readPerScan_int(IDEF_NS_FIRST_1B_OFFSET);
+
+        final float[] gs1cSpectDecoded = scaleSpectrum(gs1cSpect, iDefNsfirst);
+
+        return Array.factory(DataType.FLOAT, shape, gs1cSpectDecoded);
+    }
+
+    private float[] scaleSpectrum(short[] gs1cSpect, int iDefNsfirst) {
+        final float[] gs1cSpectDecoded = getDefaultFloatSpect();
+
+        for (int numScale = 0; numScale < giadrScaleFactors.defScaleSondNbScale; numScale++) {
+            final short scaleFactor = giadrScaleFactors.defScaleSondScaleFactor[numScale];
+            final float powScale = (float) Math.pow(10.0, -scaleFactor);
+
+            final short startChan = giadrScaleFactors.defScaleSondNsfirst[numScale];
+            final short stopChan = giadrScaleFactors.defScaleSondNslast[numScale];
+
+            for (int chanNb = startChan; chanNb < stopChan; chanNb++) {
+                final int w = chanNb - iDefNsfirst;
+                gs1cSpectDecoded[w] = gs1cSpect[w] * powScale;
+            }
+        }
+        return gs1cSpectDecoded;
+    }
+
+    // @todo 2 tb/tb make static and write test tb 2017-06-09
+    private float[] getDefaultFloatSpect() {
+        final float[] gs1cSpectDecoded = new float[SS];
+
+        final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        for (int i = 0; i < SS; i++) {
+            gs1cSpectDecoded[i] = fillValue;
+        }
+        return gs1cSpectDecoded;
     }
 
     private PixelLocator getPixelLocator_internal() throws IOException {

@@ -22,17 +22,16 @@ package com.bc.fiduceo.reader.iasi;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 class GiadrScaleFactors {
     private static final int PN = 4; //number of sounder pixel
     private static final int SS = 8700;
 
-    private short defScaleSondNbScale;
-    private short[] defScaleSondNsfirst = new short[10];
-    private short[] defScaleSondNslast = new short[10];
-    private short[] defScaleSondScaleFactor = new short[10];
-    private short defScaleIISScaleFactor;
+    short defScaleSondNbScale;
+    short[] defScaleSondNsfirst = new short[10];
+    short[] defScaleSondNslast = new short[10];
+    short[] defScaleSondScaleFactor = new short[10];
+    short defScaleIISScaleFactor;
 
     void readRecord(ImageInputStream inputStream) throws IOException {
         GenericRecordHeader grh = GenericRecordHeader.readGenericRecordHeader(inputStream);

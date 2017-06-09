@@ -54,7 +54,7 @@ class MDR_1C {
     private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
     private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
     private static final long IDEF_SPECT_DWN_1B_OFFSET = 276777;
-    private static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
+    static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
     private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
     private static final long G1S_SPECT_OFFSET = 276790;
     private static final long GCS_RAD_ANAL_NB_OFFSET = 2365814;
