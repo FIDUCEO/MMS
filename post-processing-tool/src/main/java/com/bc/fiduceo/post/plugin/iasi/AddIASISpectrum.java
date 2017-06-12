@@ -21,13 +21,20 @@
 package com.bc.fiduceo.post.plugin.iasi;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.util.JDomUtils;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.jdom.Element;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class AddIASISpectrum extends PostProcessing {
 
@@ -39,7 +46,14 @@ class AddIASISpectrum extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Variable referenceVariable = NetCDFUtils.getVariable(reader, configuration.referenceVariableName);
+        final List<Dimension> dimensions = referenceVariable.getDimensions();
+
+        final List<Dimension> targetDimensions = new ArrayList<>();
+        targetDimensions.addAll(dimensions);
+        targetDimensions.add(new Dimension("iasi_ss", EpsMetopConstants.SS));
+
+        writer.addVariable(null, configuration.targetVariableName, DataType.FLOAT, targetDimensions);
     }
 
     @Override
@@ -60,7 +74,7 @@ class AddIASISpectrum extends PostProcessing {
         return configuration;
     }
 
-    private static String getNameAttributeFromChild(Element rootElement, String elementName)  {
+    private static String getNameAttributeFromChild(Element rootElement, String elementName) {
         final Element element = JDomUtils.getMandatoryChild(rootElement, elementName);
         return JDomUtils.getValueFromNameAttributeMandatory(element);
     }

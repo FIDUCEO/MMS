@@ -70,7 +70,6 @@ public class IASI_Reader implements Reader {
     private static final String REG_EX = "IASI_xxx_1C_M0[1-3]_\\d{14}Z_\\d{14}Z_\\w_\\w_\\d{14}Z.nat";
 
     private static final int SNOT = 30;
-    private static final int SS = 8700;
     private static final int LON = 0;
     private static final int LAT = 1;
 
@@ -242,7 +241,7 @@ public class IASI_Reader implements Reader {
 
     public Array readSpectrum(int x, int y) throws IOException {
         final MDR_1C[] mdRs = getMDRs(y, 1);
-        final int[] shape = new int[]{SS};
+        final int[] shape = new int[]{EpsMetopConstants.SS};
 
         final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
         final int iDefNsfirst = mdRs[0].readPerScan_int(IDEF_NS_FIRST_1B_OFFSET);
@@ -272,10 +271,10 @@ public class IASI_Reader implements Reader {
 
     // @todo 2 tb/tb make static and write test tb 2017-06-09
     private float[] getDefaultFloatSpect() {
-        final float[] gs1cSpectDecoded = new float[SS];
+        final float[] gs1cSpectDecoded = new float[EpsMetopConstants.SS];
 
         final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
-        for (int i = 0; i < SS; i++) {
+        for (int i = 0; i < EpsMetopConstants.SS; i++) {
             gs1cSpectDecoded[i] = fillValue;
         }
         return gs1cSpectDecoded;
