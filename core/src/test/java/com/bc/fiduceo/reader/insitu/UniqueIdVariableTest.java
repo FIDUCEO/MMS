@@ -27,6 +27,8 @@ import ucar.nc2.Attribute;
 
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
 import static org.junit.Assert.assertEquals;
 
 public class UniqueIdVariableTest {
@@ -57,9 +59,9 @@ public class UniqueIdVariableTest {
     public void testGetAttributes() {
         final List<Attribute> attributes = variable.getAttributes();
         assertEquals(3, attributes.size());
-        assertEquals("_FillValue", attributes.get(0).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attributes.get(0).getShortName());
         assertEquals(-32768L, attributes.get(0).getNumericValue());
-        assertEquals("long_name", attributes.get(1).getShortName());
+        assertEquals(CF_LONG_NAME, attributes.get(1).getShortName());
         assertEquals("comment", attributes.get(2).getShortName());
     }
 }

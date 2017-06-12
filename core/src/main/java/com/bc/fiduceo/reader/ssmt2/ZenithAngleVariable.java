@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+
 class ZenithAngleVariable extends VariablePrototype {
 
     enum SensorType {
@@ -89,7 +91,7 @@ class ZenithAngleVariable extends VariablePrototype {
     @Override
     public List<Attribute> getAttributes() {
         final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(new Attribute("units", "degrees"));
+        attributeList.add(new Attribute(CF_UNITS_NAME, "degrees"));
         attributeList.add(createFillValueAttribute());
         return attributeList;
     }

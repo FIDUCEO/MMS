@@ -30,6 +30,9 @@ import ucar.nc2.Attribute;
 
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,7 +85,7 @@ public class VariableProxyTest {
         assertEquals(1, attributes.size());
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();
-        assertEquals("_FillValue", attributes.get(0).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attributes.get(0).getShortName());
         assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(0).getNumericValue());
     }
 
@@ -98,15 +101,15 @@ public class VariableProxyTest {
         assertEquals(3, attributes.size());
 
         Attribute attribute = attributes.get(0);
-        assertEquals("scale_factor", attribute.getShortName());
+        assertEquals(CF_SCALE_FACTOR_NAME, attribute.getShortName());
         assertEquals(1.23, attribute.getNumericValue().doubleValue(), 1e-8);
 
         attribute = attributes.get(1);
-        assertEquals("add_offset", attribute.getShortName());
+        assertEquals(CF_OFFSET_NAME, attribute.getShortName());
         assertEquals(0.86, attribute.getNumericValue().doubleValue(), 1e-8);
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();
-        assertEquals("_FillValue", attributes.get(2).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attributes.get(2).getShortName());
         assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(2).getNumericValue());
     }
 
@@ -121,11 +124,11 @@ public class VariableProxyTest {
         assertEquals(2, attributes.size());
 
         final Attribute attribute = attributes.get(0);
-        assertEquals("scale_factor", attribute.getShortName());
+        assertEquals(CF_SCALE_FACTOR_NAME, attribute.getShortName());
         assertEquals(0.01, attribute.getNumericValue().doubleValue(), 1e-8);
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();
-        assertEquals("_FillValue", attributes.get(1).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attributes.get(1).getShortName());
         assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(1).getNumericValue());
     }
 
@@ -140,11 +143,11 @@ public class VariableProxyTest {
         assertEquals(2, attributes.size());
 
         final Attribute attribute = attributes.get(0);
-        assertEquals("add_offset", attribute.getShortName());
+        assertEquals(CF_OFFSET_NAME, attribute.getShortName());
         assertEquals(273.15, attribute.getNumericValue().doubleValue(), 1e-8);
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();
-        assertEquals("_FillValue", attributes.get(1).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attributes.get(1).getShortName());
         assertEquals(NetCDFUtils.getDefaultFillValue(dataType), attributes.get(1).getNumericValue());
 
     }
@@ -158,7 +161,7 @@ public class VariableProxyTest {
         assertEquals(1, attributes.size());
 
         final Attribute attribute = attributes.get(0);
-        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getShortName());
         assertEquals(-32768.0, attribute.getNumericValue().doubleValue(), 1e-8);
     }
 }

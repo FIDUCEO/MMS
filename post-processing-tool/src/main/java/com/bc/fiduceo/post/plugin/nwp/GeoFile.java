@@ -32,6 +32,8 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+
 class GeoFile {
 
     private File tempFile;
@@ -179,10 +181,10 @@ class GeoFile {
 
         gridDims = writer.addVariable(null, "grid_dims", DataType.INT, "grid_rank");
         gridCenterLat = writer.addVariable(null, "grid_center_lat", DataType.FLOAT, "grid_size");
-        gridCenterLat.addAttribute(new Attribute("units", "degrees"));
+        gridCenterLat.addAttribute(new Attribute(CF_UNITS_NAME, "degrees"));
 
         gridCenterLon = writer.addVariable(null, "grid_center_lon", DataType.FLOAT, "grid_size");
-        gridCenterLon.addAttribute(new Attribute("units", "degrees"));
+        gridCenterLon.addAttribute(new Attribute(CF_UNITS_NAME, "degrees"));
 
         gridMask = writer.addVariable(null, "grid_imask", DataType.INT, "grid_size");
         // @todo 2 tb/tb why is this written? Can't we just skip these variables? 2017-03-30

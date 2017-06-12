@@ -53,6 +53,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+
 public class AVHRR_GAC_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
@@ -235,7 +239,7 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     private Number getFillValue(String variableName) throws IOException {
-        final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", variableName);
+        final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
         if (fillValue != null) {
             return fillValue;
         }
@@ -244,7 +248,7 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     private double getOffset(String variableName) throws IOException {
-        final Number offsetValue = arrayCache.getNumberAttributeValue("add_offset", variableName);
+        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, variableName);
         if (offsetValue != null) {
             return offsetValue.doubleValue();
         }
@@ -252,7 +256,7 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     private double getScaleFactor(String variableName) throws IOException {
-        final Number scaleFactorValue = arrayCache.getNumberAttributeValue("scale_factor", variableName);
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, variableName);
         if (scaleFactorValue != null) {
             return scaleFactorValue.doubleValue();
         }

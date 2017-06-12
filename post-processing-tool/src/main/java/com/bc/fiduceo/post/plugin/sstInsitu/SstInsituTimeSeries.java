@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
@@ -138,7 +140,7 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     static Variable getFileNameVariable(NetcdfFile reader, final String sensorType) {
-        return getVariable(reader, sensorType + "_file_name");
+        return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
     }
 
     static String extractSensorType(NetcdfFile reader) {
@@ -191,15 +193,7 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
-        return getVariable(reader, sensorType + "_y");
-    }
-
-    private static Variable getVariable(NetcdfFile reader, final String varName) {
-        final Variable fileNameVar = reader.findVariable(varName);
-        if (fileNameVar == null) {
-            throw new RuntimeException("Variable '" + varName + "' does not exist.");
-        }
-        return fileNameVar;
+        return NetCDFUtils.getVariable(reader, sensorType + "_y");
     }
 
     private Array createDeltaTime2D(int satelliteMatchupTime, Variable timeVar2D, Variable dtimeVar2D, int[] origin2D, int[] shape2D) throws IOException, InvalidRangeException {
@@ -236,11 +230,11 @@ class SstInsituTimeSeries extends PostProcessing {
 
     private void addAditionalVariables(NetcdfFileWriter writer, String dimString) {
         final Variable yVariable = writer.addVariable(null, "insitu.y", DataType.INT, dimString);
-        yVariable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(int.class)));
+        yVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
 
         final Variable dtimeVariable = writer.addVariable(null, "insitu.dtime", DataType.INT, dimString);
-        dtimeVariable.addAttribute(new Attribute("units", "seconds from matchup.time"));
-        dtimeVariable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(int.class)));
+        dtimeVariable.addAttribute(new Attribute(CF_UNITS_NAME, "seconds from matchup.time"));
+        dtimeVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
     }
 
     static class Range {

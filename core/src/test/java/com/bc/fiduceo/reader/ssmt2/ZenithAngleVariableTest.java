@@ -29,6 +29,8 @@ import ucar.nc2.Attribute;
 import java.io.IOException;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static org.junit.Assert.*;
 
 public class ZenithAngleVariableTest {
@@ -109,11 +111,11 @@ public class ZenithAngleVariableTest {
         Attribute attribute;
 
         attribute = attributes.get(0);
-        assertEquals("units", attribute.getFullName());
+        assertEquals(CF_UNITS_NAME, attribute.getFullName());
         assertEquals("degrees", attribute.getStringValue());
 
         attribute = attributes.get(1);
-        assertEquals("_FillValue", attribute.getFullName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getFullName());
         assertEquals("9.96921E36", attribute.getNumericValue().toString());
     }
 
@@ -121,9 +123,9 @@ public class ZenithAngleVariableTest {
     public void testFindAttribute() {
         final ZenithAngleVariable variable = new ZenithAngleVariable(ZenithAngleVariable.SensorType.F14, 39);
 
-        final Attribute attribute = variable.findAttribute("_FillValue");
+        final Attribute attribute = variable.findAttribute(CF_FILL_VALUE_NAME);
         assertNotNull(attribute);
-        assertEquals("_FillValue", attribute.getFullName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getFullName());
     }
 
     @Test

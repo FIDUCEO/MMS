@@ -4,6 +4,8 @@ import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.INTERCHANNE
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_CLOUDY;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_WARNING;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -122,8 +124,8 @@ public class HirsL1CloudyFlagsTest {
         masks.setByte(3, INTERCHANNEL_TEST_CLOUDY);
         final String Separator = "\t";
 
-        verify(variable, times(1)).addAttribute(new Attribute("flag_meanings", Arrays.asList("sc_all", "sc_warning", "sc_cloudy", "ic_cloudy")));
-        verify(variable, times(1)).addAttribute(new Attribute("flag_masks", masks));
+        verify(variable, times(1)).addAttribute(new Attribute(CF_FLAG_MEANINGS_NAME, Arrays.asList("sc_all", "sc_warning", "sc_cloudy", "ic_cloudy")));
+        verify(variable, times(1)).addAttribute(new Attribute(CF_FLAG_MASKS_NAME, masks));
         verify(variable, times(1)).addAttribute(new Attribute("flag_coding_name", "hirs_cloudy_flags"));
         verify(variable, times(1)).addAttribute(new Attribute("flag_descriptions", "space contrast test, all pixels are usable"
                                                                                    + Separator +

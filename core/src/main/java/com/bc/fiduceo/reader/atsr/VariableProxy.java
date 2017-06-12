@@ -30,6 +30,10 @@ import ucar.nc2.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+
 // This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
 // all methods with a throws implementation ensures that methods that should be overridden are really overridden;
 // calls into the not completely initialized base class are not possible this was tb 2016-09-26
@@ -64,22 +68,22 @@ class VariableProxy extends VariablePrototype {
         if (rasterDataNode.isScalingApplied()) {
             final double scalingFactor = rasterDataNode.getScalingFactor();
             if (scalingFactor != 1.0) {
-                attributes.add(new Attribute("scale_factor", scalingFactor));
+                attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, scalingFactor));
             }
 
             final double scalingOffset = rasterDataNode.getScalingOffset();
             if (scalingOffset != 0.0) {
-                attributes.add(new Attribute("add_offset", scalingOffset));
+                attributes.add(new Attribute(CF_OFFSET_NAME, scalingOffset));
             }
         }
 
         if (rasterDataNode.isNoDataValueUsed()) {
             final Number fillValue = rasterDataNode.getNoDataValue();
-            attributes.add(new Attribute("_FillValue", fillValue));
+            attributes.add(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         } else if (getDataType().isNumeric()){
             final Class classType = getDataType().getPrimitiveClassType();
             final Number fillValue = NetCDFUtils.getDefaultFillValue(classType);
-            attributes.add(new Attribute("_FillValue", fillValue));
+            attributes.add(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         }
         return attributes;
     }

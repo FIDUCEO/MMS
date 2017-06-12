@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
 
 class SSMT2_Reader implements Reader {
@@ -232,7 +233,7 @@ class SSMT2_Reader implements Reader {
 
         if (shape[1] == lenX) {
             variablesList.add(variable);
-            final Number fillValue = variable.findAttribute("_FillValue").getNumericValue();
+            final Number fillValue = variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue();
             readersMap.put(shortName, new Read2dFrom2d(arrayCache, shortName, lenX, fillValue));
         } else if (shape[1] == chanels) {
             collect1dChannelsFrom2dVariable(variable);

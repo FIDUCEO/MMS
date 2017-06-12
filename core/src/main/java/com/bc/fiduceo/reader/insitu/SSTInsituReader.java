@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 
@@ -60,7 +61,7 @@ public class SSTInsituReader implements Reader {
         for (Variable variable : variables) {
             final String shortName = variable.getShortName();
             final Array array = variable.read();
-            final Number fillValue = variable.findAttribute("_FillValue").getNumericValue();
+            final Number fillValue = variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue();
             arrayMap.put(shortName, array);
             fillValueMap.put(shortName, fillValue);
         }

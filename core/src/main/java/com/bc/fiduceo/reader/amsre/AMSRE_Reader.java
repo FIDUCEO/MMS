@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+
 class AMSRE_Reader implements Reader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
@@ -385,7 +387,7 @@ class AMSRE_Reader implements Reader {
     }
 
     private Number getFillValue(String groupName, String variableName) throws IOException {
-        final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", groupName, variableName);
+        final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, groupName, variableName);
         if (fillValue != null) {
             return fillValue;
         }

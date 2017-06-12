@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.util;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -40,10 +41,10 @@ public class NetCDFUtilsTest_getFloatValueFromAttribute {
 
     @Test
     public void testGetFloatValueFromAttribute() {
-        when(variable.findAttribute("_FillValue")).thenReturn(attribute);
+        when(variable.findAttribute(CF_FILL_VALUE_NAME)).thenReturn(attribute);
         when(attribute.getNumericValue()).thenReturn(-999.0);
 
-        final float fillValue = NetCDFUtils.getFloatValueFromAttribute(variable, "_FillValue", 1);
+        final float fillValue = NetCDFUtils.getFloatValueFromAttribute(variable, CF_FILL_VALUE_NAME, 1);
 
         assertThat(fillValue, is(equalTo(-999.0F)));
     }

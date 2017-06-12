@@ -38,6 +38,13 @@ import java.io.IOException;
 public class NetCDFUtils {
 
     public static final String CF_FILL_VALUE_NAME = "_FillValue";
+    public static final String CF_SCALE_FACTOR_NAME = "scale_factor";
+    public static final String CF_OFFSET_NAME = "add_offset";
+    public static final String CF_UNITS_NAME = "units";
+    public static final String CF_STANDARD_NAME = "standard_name";
+    public static final String CF_LONG_NAME = "long_name";
+    public static final String CF_FLAG_MEANINGS_NAME = "flag_meanings";
+    public static final String CF_FLAG_MASKS_NAME = "flag_masks";
 
     public static Number getDefaultFillValue(Array array) {
         final Class type = array.getDataType().getPrimitiveClassType();
@@ -63,7 +70,7 @@ public class NetCDFUtils {
     }
 
     public static Number getFillValue(Variable variable) {
-        final Attribute fillValueAttribute = variable.findAttribute("_FillValue");
+        final Attribute fillValueAttribute = variable.findAttribute(CF_FILL_VALUE_NAME);
         if (fillValueAttribute != null) {
             return fillValueAttribute.getNumericValue();
         }

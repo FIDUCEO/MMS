@@ -16,8 +16,6 @@
  */
 package com.bc.fiduceo.post.plugin.flag.hirs;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
@@ -42,16 +40,23 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
+import static com.bc.fiduceo.util.NetCDFUtils.getFloatValueFromAttribute;
+import static com.bc.fiduceo.util.NetCDFUtils.getVariable;
+
 class HirsL1CloudyFlags extends PostProcessing {
 
-    public static final float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
-    public static final float DELTA_1_WATER = 3.5f;
-    public static final byte SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE = 0x1;
-    public static final byte SPACE_CONTRAST_TEST_WARNING = 0x2;
-    public static final byte SPACE_CONTRAST_TEST_CLOUDY = 0x4;
-    public static final byte INTERCHANNEL_TEST_CLOUDY = 0x8;
-    public static final int DOMAIN_LAND_OR_ICE_NOT_USEABLE = 1;
-    public static final int DOMAIN_WATER_NOT_USEABLE = 20;
+    private static final float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
+    private static final float DELTA_1_WATER = 3.5f;
+    static final byte SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE = 0x1;
+    static final byte SPACE_CONTRAST_TEST_WARNING = 0x2;
+    static final byte SPACE_CONTRAST_TEST_CLOUDY = 0x4;
+    static final byte INTERCHANNEL_TEST_CLOUDY = 0x8;
+    private static final int DOMAIN_LAND_OR_ICE_NOT_USEABLE = 1;
+    private static final int DOMAIN_WATER_NOT_USEABLE = 20;
 
     private final static DataType FLAG_VAR_DATA_TYPE = DataType.BYTE;
     final String sensorName;
@@ -82,13 +87,13 @@ class HirsL1CloudyFlags extends PostProcessing {
     private int[] xValues;
     private int[] yValues;
 
-    public HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
-                             String sourceXVarName, String sourceYVarName,
-                             String processingVersionVarName, String sourceBt11_1µmVarName,
-                             String flagVarName,
-                             String latVarName, String lonVarName,
-                             String btVarName_11_1_µm, String btVarName_6_5_µm,
-                             DistanceToLandMap distanceToLandMap) {
+    HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
+                      String sourceXVarName, String sourceYVarName,
+                      String processingVersionVarName, String sourceBt11_1µmVarName,
+                      String flagVarName,
+                      String latVarName, String lonVarName,
+                      String btVarName_11_1_µm, String btVarName_6_5_µm,
+                      DistanceToLandMap distanceToLandMap) {
         this.sensorName = sensorName;
         this.sourceFileVarName = sourceFileVarName;
         this.sourceXVarName = sourceXVarName;
@@ -118,16 +123,16 @@ class HirsL1CloudyFlags extends PostProcessing {
         masks.setByte(3, INTERCHANNEL_TEST_CLOUDY);
         final String Separator = "\t";
 
-        flagVar.addAttribute(new Attribute("flag_meanings", Arrays.asList("sc_all", "sc_warning", "sc_cloudy", "ic_cloudy")));
-        flagVar.addAttribute(new Attribute("flag_masks", masks));
+        flagVar.addAttribute(new Attribute(CF_FLAG_MEANINGS_NAME, Arrays.asList("sc_all", "sc_warning", "sc_cloudy", "ic_cloudy")));
+        flagVar.addAttribute(new Attribute(CF_FLAG_MASKS_NAME, masks));
         flagVar.addAttribute(new Attribute("flag_coding_name", "hirs_cloudy_flags"));
         flagVar.addAttribute(new Attribute("flag_descriptions", "space contrast test, all pixels are usable"
-                                                                + Separator +
-                                                                "space contrast test, warning, less than 99 percent are usable"
-                                                                + Separator +
-                                                                "space contrast test, cloudy"
-                                                                + Separator +
-                                                                "interchannel test, cloudy"));
+                + Separator +
+                "space contrast test, warning, less than 99 percent are usable"
+                + Separator +
+                "space contrast test, cloudy"
+                + Separator +
+                "interchannel test, cloudy"));
     }
 
     @Override
@@ -230,10 +235,10 @@ class HirsL1CloudyFlags extends PostProcessing {
 
     private void initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         Variable var11_1µm = getVariable(writer, bt_11_1_µm_VarName);
-        fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, "_FillValue", 0);
+        fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, CF_FILL_VALUE_NAME, 0);
 
         Variable var6_5µm = getVariable(writer, bt_6_5_µm_VarName);
-        fillValue_6_5 = getFloatValueFromAttribute(var6_5µm, "_FillValue", 0);
+        fillValue_6_5 = getFloatValueFromAttribute(var6_5µm, CF_FILL_VALUE_NAME, 0);
 
         varFlags = getVariable(writer, flagVarName);
 
@@ -269,7 +274,7 @@ class HirsL1CloudyFlags extends PostProcessing {
 
     static class CloudRC extends ReaderCache {
 
-        public CloudRC(final PostProcessingContext context) {
+        CloudRC(final PostProcessingContext context) {
             super(context);
         }
 
@@ -281,10 +286,10 @@ class HirsL1CloudyFlags extends PostProcessing {
             final Calendar utcCalendar = TimeUtils.getUTCCalendar();
             utcCalendar.setTime(yyDDD);
             return new int[]{
-                        utcCalendar.get(Calendar.YEAR),
-                        utcCalendar.get(Calendar.MONTH) + 1,
-                        utcCalendar.get(Calendar.DAY_OF_MONTH),
-                        };
+                    utcCalendar.get(Calendar.YEAR),
+                    utcCalendar.get(Calendar.MONTH) + 1,
+                    utcCalendar.get(Calendar.DAY_OF_MONTH),
+            };
         }
     }
 
@@ -299,7 +304,7 @@ class HirsL1CloudyFlags extends PostProcessing {
         private final Index index;
         private final DomainDataProvider ddp;
 
-        public Domain(Array data11_1, Array data6_5, Array flags, float fillValue_11_1, float fillValue_6_5, DomainDataProvider ddp) {
+        Domain(Array data11_1, Array data6_5, Array flags, float fillValue_11_1, float fillValue_6_5, DomainDataProvider ddp) {
             this.data11_1um = data11_1;
             this.data6_5um = data6_5;
             this.flags = flags;
@@ -333,7 +338,7 @@ class HirsL1CloudyFlags extends PostProcessing {
         final int maxNumUnuseable;
         final float delta1;
 
-        public DomainDataProvider(int maxNumUnuseable, float delta1) {
+        DomainDataProvider(int maxNumUnuseable, float delta1) {
             this.maxNumUnuseable = maxNumUnuseable;
             this.delta1 = delta1;
         }

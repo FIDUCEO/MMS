@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -363,7 +365,7 @@ public class MatchupToolTest {
         assertEquals("description", attribute.getShortName());
         assertEquals("pixel original x location in satellite raster", attribute.getStringValue());
         attribute = attributes.get(1);
-        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getShortName());
         assertEquals(-2147483647, attribute.getNumericValue());
 
         variable = ioVariables.get(1);
@@ -376,7 +378,7 @@ public class MatchupToolTest {
         assertEquals("description", attribute.getShortName());
         assertEquals("pixel original y location in satellite raster", attribute.getStringValue());
         attribute = attributes.get(1);
-        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getShortName());
         assertEquals(-2147483647, attribute.getNumericValue());
 
         variable = ioVariables.get(2);
@@ -409,10 +411,10 @@ public class MatchupToolTest {
         assertEquals("description", attribute.getShortName());
         assertEquals("acquisition time of original pixel", attribute.getStringValue());
         attribute = attributes.get(1);
-        assertEquals("units", attribute.getShortName());
+        assertEquals(CF_UNITS_NAME, attribute.getShortName());
         assertEquals("seconds since 1970-01-01", attribute.getStringValue());
         attribute = attributes.get(2);
-        assertEquals("_FillValue", attribute.getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, attribute.getShortName());
         assertEquals(DataType.INT, attribute.getDataType());
         assertEquals(1, attribute.getValues().getSize());
         assertEquals(-2147483647, attribute.getValues().getInt(0));
@@ -491,8 +493,8 @@ public class MatchupToolTest {
         configuration.setAttributeRename(sensorName, "x", "description", "desc_r");
         configuration.setAttributeRename(sensorName, "file_name", "description", "desc_r");
         configuration.setAttributeRename(sensorName, "processing_version", "description", "desc_r_2");
-        configuration.setAttributeRename(sensorName, "acquisition_time", "units", "unit_r");
-        configuration.setAttributeRename(sensorName, null, "_FillValue", "_fill_value");
+        configuration.setAttributeRename(sensorName, "acquisition_time", CF_UNITS_NAME, "unit_r");
+        configuration.setAttributeRename(sensorName, null, CF_FILL_VALUE_NAME, "_fill_value");
 
         MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
 
@@ -502,12 +504,12 @@ public class MatchupToolTest {
         final IOVariable xVariable = ioVariables.get(0);
         assertEquals(2, xVariable.getAttributes().size());
         assertEquals("desc_r", xVariable.getAttributes().get(0).getShortName());
-        assertEquals("_FillValue", xVariable.getAttributes().get(1).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, xVariable.getAttributes().get(1).getShortName());
 
         final IOVariable yVariable = ioVariables.get(1);
         assertEquals(2, yVariable.getAttributes().size());
         assertEquals("description", yVariable.getAttributes().get(0).getShortName());
-        assertEquals("_FillValue", yVariable.getAttributes().get(1).getShortName());
+        assertEquals(CF_FILL_VALUE_NAME, yVariable.getAttributes().get(1).getShortName());
 
         final IOVariable pathVariable = ioVariables.get(2);
         assertEquals(1, pathVariable.getAttributes().size());

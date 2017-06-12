@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+
 class ElevationToSolZenAngle extends PostProcessing {
 
     private final Configuration configuration;
@@ -43,7 +45,7 @@ class ElevationToSolZenAngle extends PostProcessing {
             final List<Dimension> dimensions = variable.getDimensions();
 
             final Variable newVariable = writer.addVariable(null, conversion.targetName, DataType.FLOAT, dimensions);
-            newVariable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(float.class)));
+            newVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
         }
     }
 

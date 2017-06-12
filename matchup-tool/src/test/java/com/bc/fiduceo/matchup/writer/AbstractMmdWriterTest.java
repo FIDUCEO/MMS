@@ -38,8 +38,6 @@ import java.util.List;
 
 public class AbstractMmdWriterTest {
 
-    private static final String fillValueName = "_FillValue";
-
     @Test
     public void testCreateUseCaseAttributesGroupInMmdFile() throws Exception {
         final Sensor primarySensor = new Sensor("SensorName2");

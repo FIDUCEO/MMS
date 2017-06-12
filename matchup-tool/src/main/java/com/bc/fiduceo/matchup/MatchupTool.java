@@ -70,13 +70,12 @@ import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class MatchupTool {
 
-    public static final String SPERICAL_DISTANCE_VAR_NAME = "matchup_spherical_distance";
-
-    private static final String UNIT_ATTRIBUTE_NAME = "units";
+    private static final String SPERICAL_DISTANCE_VAR_NAME = "matchup_spherical_distance";
     private static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
     private final Logger logger;
@@ -228,9 +227,9 @@ class MatchupTool {
             String attName;
             attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "acquisition time of original pixel"));
-            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, UNIT_ATTRIBUTE_NAME);
+            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, CF_UNITS_NAME);
             attributes.add(new Attribute(attName, "seconds since 1970-01-01"));
-            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, "_FillValue");
+            attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, CF_FILL_VALUE_NAME);
             attributes.add(new Attribute(attName, NetCDFUtils.getDefaultFillValue(int.class)));
             ioVariablesList.add(ioVariable, sensorName);
         }
@@ -414,7 +413,7 @@ class MatchupTool {
         variable.setDimensionNames("matchup_count");
         final List<Attribute> attributes = variable.getAttributes();
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
-        attributes.add(new Attribute(UNIT_ATTRIBUTE_NAME, "km"));
+        attributes.add(new Attribute(CF_UNITS_NAME, "km"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
         return variable;
     }

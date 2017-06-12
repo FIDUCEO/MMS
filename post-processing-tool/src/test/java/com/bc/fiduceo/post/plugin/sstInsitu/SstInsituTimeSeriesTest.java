@@ -82,7 +82,7 @@ public class SstInsituTimeSeriesTest {
     public void getFileNameVariable_Success() throws IOException {
         final NetcdfFile reader = mock(NetcdfFile.class);
         final Variable expectedVariable = mock(Variable.class);
-        when(reader.findVariable("sensor-name_file_name")).thenReturn(expectedVariable);
+        when(reader.findVariable(null, "sensor-name_file_name")).thenReturn(expectedVariable);
 
         //action
         final Variable fileNameVariable = SstInsituTimeSeries.getFileNameVariable(reader, "sensor-name");
@@ -105,7 +105,7 @@ public class SstInsituTimeSeriesTest {
             SstInsituTimeSeries.getFileNameVariable(reader, SstInsituTimeSeries.extractSensorType(reader));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is(equalTo("Variable 'sensor-name_file_name' does not exist.")));
+            assertThat(expected.getMessage(), is(equalTo("Input Variable 'sensor-name_file_name' not present in input file")));
         }
     }
 

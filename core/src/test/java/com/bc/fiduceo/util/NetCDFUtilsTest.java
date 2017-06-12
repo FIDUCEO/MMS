@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.util;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -115,7 +116,7 @@ public class NetCDFUtilsTest {
         final Variable variable = mock(Variable.class);
         final Attribute attribute = mock(Attribute.class);
         when(attribute.getNumericValue()).thenReturn(19);
-        when(variable.findAttribute("_FillValue")).thenReturn(attribute);
+        when(variable.findAttribute(CF_FILL_VALUE_NAME)).thenReturn(attribute);
 
         final Number fillValue = NetCDFUtils.getFillValue(variable);
         assertEquals(19, fillValue.intValue());
@@ -160,9 +161,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_DOUBLE)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_DOUBLE)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -175,9 +176,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_FLOAT)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_FLOAT)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -190,9 +191,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_LONG)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_LONG)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -205,9 +206,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_INT)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_INT)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -220,9 +221,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_SHORT)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_SHORT)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -235,9 +236,9 @@ public class NetCDFUtilsTest {
         NetCDFUtils.ensureFillValue(mock);
 
         final InOrder order = inOrder(mock);
-        order.verify(mock, times(1)).findAttribute("_FillValue");
+        order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute("_FillValue", N3iosp.NC_FILL_BYTE)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_BYTE)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -248,7 +249,7 @@ public class NetCDFUtilsTest {
 
         NetCDFUtils.ensureFillValue(mock);
 
-        verify(mock, times(1)).findAttribute("_FillValue");
+        verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         verifyNoMoreInteractions(mock);
     }
 
