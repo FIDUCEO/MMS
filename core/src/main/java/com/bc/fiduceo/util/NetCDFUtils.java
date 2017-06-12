@@ -214,6 +214,11 @@ public class NetCDFUtils {
         return defaultValue;
     }
 
+    public static String readString(Variable variable, int offset, int stringLength) throws IOException, InvalidRangeException {
+        final Array singleStringArray = variable.read(new int[]{offset, 0}, new int[]{1, stringLength});
+         return String.valueOf((char[]) singleStringArray.getStorage()).trim();
+    }
+
     public static Array getCenterPosArrayFromMMDFile(NetcdfFile netcdfFile, String varShortName, String scaleAttrName, String offsetAttrName, String matchupCountDimName) throws IOException, InvalidRangeException {
         final Variable variable = getVariable(netcdfFile, varShortName);
 

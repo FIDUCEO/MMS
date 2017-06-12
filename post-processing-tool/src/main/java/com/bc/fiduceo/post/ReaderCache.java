@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+// @todo 1 tb/** this class does not ensure that all readers are getting closed again. Clean this up! tb 2017-06-12
 public abstract class ReaderCache {
 
     private final Archive archive;
