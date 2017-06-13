@@ -31,8 +31,12 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +52,9 @@ class AddIASISpectrum extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable referenceVariable = NetCDFUtils.getVariable(reader, configuration.referenceVariableName);
-        final List<Dimension> dimensions = referenceVariable.getDimensions();
+        final List<ucar.nc2.Dimension> dimensions = referenceVariable.getDimensions();
 
-        final List<Dimension> targetDimensions = addSpectrumDimension(writer, dimensions);
+        final List<ucar.nc2.Dimension> targetDimensions = addSpectrumDimension(writer, dimensions);
 
         addSpectrumVariable(writer, targetDimensions);
     }
@@ -67,6 +71,13 @@ class AddIASISpectrum extends PostProcessing {
         final Variable fileNameVariable = NetCDFUtils.getVariable(reader, configuration.filenameVariableName);
         final Variable processingVersionVariable = NetCDFUtils.getVariable(reader, configuration.processingVersionVariableName);
 
+        final Variable referenceVariable = NetCDFUtils.getVariable(reader, configuration.referenceVariableName);
+        final int[] shape = referenceVariable.getShape();
+        final int height = shape[1];
+        final int width = shape[2];
+        final int halfWidth = width / 2;
+        final int halfHeight = height / 2;
+
         final Variable xVariable = NetCDFUtils.getVariable(reader, configuration.xCoordinateName);
         final Variable yVariable = NetCDFUtils.getVariable(reader, configuration.yCoordinateName);
         final Array xArray = xVariable.read();
@@ -78,7 +89,9 @@ class AddIASISpectrum extends PostProcessing {
         final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
 
-        final ArrayFloat.D4 writeArray = new ArrayFloat.D4(1, 1, 1, EpsMetopConstants.SS);
+        final float[] filValueVector = IASI_Reader.getDefaultFloatSpect();
+        final Array fillValueSpectrum = Array.factory(filValueVector);
+        final ArrayFloat.D4 writeArray = new ArrayFloat.D4(1, height, width, EpsMetopConstants.SS);
 
         final int[] origin = new int[4];
         for (int i = 0; i < matchup_count; i++) {
@@ -86,17 +99,38 @@ class AddIASISpectrum extends PostProcessing {
             final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);
             final String sensorKey = getSensorKey(fileName);
 
-            final int x = xArray.getInt(i);
-            final int y = yArray.getInt(i);
-            // @todo 1 tb/tb iterate over possible extraction windows here. We can not assume a single pixel extract 2017-06-12
+            final int centerX = xArray.getInt(i);
+            final int centerY = yArray.getInt(i);
 
             final IASI_Reader iasiReader = (IASI_Reader) readerCache.getFileOpened(fileName, sensorKey, processingVersion);
-            final Array spectrum = iasiReader.readSpectrum(x, y);
+            final com.bc.fiduceo.core.Dimension productSize = iasiReader.getProductSize();
+            final Rectangle boundingRectangle = new Rectangle(0, 0, productSize.getNx(), productSize.getNy());
 
-            final Array spectrumReshaped = Array.factory(spectrum.getDataType(), writeArray.getShape(), spectrum.getStorage());
+            int yWriteIndex = 0;
+            int xWriteIndex;
+            for (int yOffset = -halfHeight; yOffset <= halfHeight; yOffset++) {
+                final int y = centerY + yOffset;
+                xWriteIndex = 0;
+                for (int xOffset = -halfWidth; xOffset <= halfWidth; xOffset++) {
+                    final int x = centerX + xOffset;
 
+                    final Array spectrum;
+                    if (boundingRectangle.contains(x, y)) {
+                        spectrum = iasiReader.readSpectrum(x, y);
+                    } else {
+                        spectrum = fillValueSpectrum;
+                    }
+
+                    for (int k = 0; k < EpsMetopConstants.SS; k++ ) {
+                        final float spectrumValue = spectrum.getFloat(k);
+                        writeArray.set(0, yWriteIndex, xWriteIndex, k, spectrumValue);
+                    }
+                    ++xWriteIndex;
+                }
+                ++yWriteIndex;
+            }
             origin[0] = i;
-            writer.write(targetVariable, origin, spectrumReshaped);
+            writer.write(targetVariable, origin, writeArray);
         }
     }
 
@@ -137,16 +171,16 @@ class AddIASISpectrum extends PostProcessing {
         return configuration;
     }
 
-    private List<Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<Dimension> dimensions) {
-        final List<Dimension> targetDimensions = new ArrayList<>();
+    private List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<ucar.nc2.Dimension> dimensions) {
+        final List<ucar.nc2.Dimension> targetDimensions = new ArrayList<>();
         targetDimensions.addAll(dimensions);
 
-        final Dimension iasi_ss = writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS);
+        final ucar.nc2.Dimension iasi_ss = writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS);
         targetDimensions.add(iasi_ss);
         return targetDimensions;
     }
 
-    private void addSpectrumVariable(NetcdfFileWriter writer, List<Dimension> targetDimensions) {
+    private void addSpectrumVariable(NetcdfFileWriter writer, List<ucar.nc2.Dimension> targetDimensions) {
         final Variable variable = writer.addVariable(null, configuration.targetVariableName, DataType.FLOAT, targetDimensions);
         variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
         variable.addAttribute(new Attribute("description", "decoded IASI spectrum"));

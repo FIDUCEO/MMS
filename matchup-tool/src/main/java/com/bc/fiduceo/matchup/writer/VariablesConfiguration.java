@@ -25,7 +25,7 @@ import java.util.*;
 
 public class VariablesConfiguration {
 
-    public final static String DEFAULT_SEPARATOR = "_";
+    final static String DEFAULT_SEPARATOR = "_";
 
     private final HashMap<String, Map<String, String>> renamesMap;
     private final HashMap<String, List<String>> excludesMap;
@@ -100,9 +100,9 @@ public class VariablesConfiguration {
     public void setAttributeRename(String sensorName, String variableName, String attributeName, String rename) {
         final AttributeRename newRename = new AttributeRename(sensorName, variableName, attributeName, rename);
         for (AttributeRename attributeRename : attributeRenameList) {
-            if (newRename.isSameRulePath(attributeRename)){
+            if (newRename.isSameRulePath(attributeRename)) {
                 throw new RuntimeException("The same rule path is not allowed to be defined twice. " +
-                                           "Rulepath: sensorName, variableName, attributeName = " + sensorName + ", " + variableName+", "+attributeName+"'");
+                        "Rulepath: sensorName, variableName, attributeName = " + sensorName + ", " + variableName + ", " + attributeName + "'");
             }
         }
         attributeRenameList.add(newRename);
@@ -141,33 +141,33 @@ public class VariablesConfiguration {
     private static class AttributeRename {
 
         public final String sensorName;
-        public final String variableName;
-        public final String attributeName;
-        public final String rename;
+        final String variableName;
+        final String attributeName;
+        final String rename;
 
-        public AttributeRename(String sensorName, String variableName, String attributeName, String rename) {
+        AttributeRename(String sensorName, String variableName, String attributeName, String rename) {
             this.sensorName = sensorName;
             this.variableName = variableName;
             this.attributeName = attributeName;
             this.rename = rename;
         }
 
-        public boolean isSensorName(String sensorName) {
+        boolean isSensorName(String sensorName) {
             return Objects.equals(this.sensorName, sensorName);
         }
 
-        public boolean isVariableName(String variableName) {
+        boolean isVariableName(String variableName) {
             return Objects.equals(this.variableName, variableName);
         }
 
-        public boolean acceptVariableName(String variableName) {
+        boolean acceptVariableName(String variableName) {
             return this.variableName == null || isVariableName(variableName);
         }
 
-        public boolean isSameRulePath(AttributeRename rename){
+        boolean isSameRulePath(AttributeRename rename) {
             return Objects.equals(this.sensorName, rename.sensorName)
-                   && Objects.equals(this.variableName, rename.variableName)
-                   && Objects.equals(this.attributeName, rename.attributeName);
+                    && Objects.equals(this.variableName, rename.variableName)
+                    && Objects.equals(this.attributeName, rename.attributeName);
         }
     }
 }
