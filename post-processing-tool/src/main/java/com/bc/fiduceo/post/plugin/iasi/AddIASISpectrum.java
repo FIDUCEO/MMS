@@ -22,7 +22,6 @@ package com.bc.fiduceo.post.plugin.iasi;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.ReaderCache;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.util.JDomUtils;
@@ -32,11 +31,7 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,15 +50,9 @@ class AddIASISpectrum extends PostProcessing {
         final Variable referenceVariable = NetCDFUtils.getVariable(reader, configuration.referenceVariableName);
         final List<Dimension> dimensions = referenceVariable.getDimensions();
 
-        final List<Dimension> targetDimensions = new ArrayList<>();
-        targetDimensions.addAll(dimensions);
-        final Dimension iasi_ss = writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS);
-        targetDimensions.add(iasi_ss);
+        final List<Dimension> targetDimensions = addSpectrumDimension(writer, dimensions);
 
-        final Variable variable = writer.addVariable(null, configuration.targetVariableName, DataType.FLOAT, targetDimensions);
-        variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        variable.addAttribute(new Attribute("description", "decoded IASI spectrum"));
-        variable.addAttribute(new Attribute(NetCDFUtils.CF_UNITS_NAME, "W/m2/sr/m-1"));
+        addSpectrumVariable(writer, targetDimensions);
     }
 
     @Override
@@ -108,12 +97,10 @@ class AddIASISpectrum extends PostProcessing {
 
             origin[0] = i;
             writer.write(targetVariable, origin, spectrumReshaped);
-
         }
-
-
     }
 
+    // package access for testing only tb 2017-06-12
     static int[] extractYMDfromFileName(String fileName) {
         final String yearString = fileName.substring(16, 20);
         final String monthString = fileName.substring(20, 22);
@@ -123,10 +110,10 @@ class AddIASISpectrum extends PostProcessing {
         ymd[0] = Integer.parseInt(yearString);
         ymd[1] = Integer.parseInt(monthString);
         ymd[2] = Integer.parseInt(dayString);
-        return  ymd;
+        return ymd;
     }
 
-
+    // package access for testing only tb 2017-06-12
     static String getSensorKey(String fileName) {
         if (fileName.contains("_M02_")) {
             return "iasi-ma";
@@ -150,6 +137,22 @@ class AddIASISpectrum extends PostProcessing {
         return configuration;
     }
 
+    private List<Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<Dimension> dimensions) {
+        final List<Dimension> targetDimensions = new ArrayList<>();
+        targetDimensions.addAll(dimensions);
+
+        final Dimension iasi_ss = writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS);
+        targetDimensions.add(iasi_ss);
+        return targetDimensions;
+    }
+
+    private void addSpectrumVariable(NetcdfFileWriter writer, List<Dimension> targetDimensions) {
+        final Variable variable = writer.addVariable(null, configuration.targetVariableName, DataType.FLOAT, targetDimensions);
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        variable.addAttribute(new Attribute("description", "decoded IASI spectrum"));
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_UNITS_NAME, "W/m2/sr/m-1"));
+    }
+
     private static String getNameAttributeFromChild(Element rootElement, String elementName) {
         final Element element = JDomUtils.getMandatoryChild(rootElement, elementName);
         return JDomUtils.getValueFromNameAttributeMandatory(element);
@@ -162,6 +165,5 @@ class AddIASISpectrum extends PostProcessing {
         String yCoordinateName;
         String filenameVariableName;
         String processingVersionVariableName;
-
     }
 }
