@@ -47,7 +47,8 @@
         - YEAR - the year
         - MONTH - the month
         - DAY - the day.
-        These will be epanded during processing to their actual values. All other pathe elements are treated as
+        - DAY_OF_YEAR - the day of year
+        These will be expanded during processing to their actual values. All other pathe elements are treated as
         constant values. The separator character is always the forward slash "/"
         -->
         <rule sensors="drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst">
