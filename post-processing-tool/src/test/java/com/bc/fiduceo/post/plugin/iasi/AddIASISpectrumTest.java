@@ -20,8 +20,11 @@
 
 package com.bc.fiduceo.post.plugin.iasi;
 
+import com.bc.fiduceo.reader.iasi.IASI_Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
@@ -29,11 +32,13 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
@@ -128,5 +133,33 @@ public class AddIASISpectrumTest {
         assertEquals(2014, ymd[0]);
         assertEquals(4, ymd[1]);
         assertEquals(25, ymd[2]);
+    }
+
+    @Test
+    public void testGetFillValueSpectrum() {
+        final Array spectrum = AddIASISpectrum.getFillValueSpectrum();
+        assertNotNull(spectrum);
+
+        final int[] shape = spectrum.getShape();
+        assertEquals(1, shape.length);
+        assertEquals(8700, shape[0]);
+
+        final float expectedFill = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        assertEquals(expectedFill, spectrum.getFloat(0), 1e-8);
+        assertEquals(expectedFill, spectrum.getFloat(3467), 1e-8);
+        assertEquals(expectedFill, spectrum.getFloat(8699), 1e-8);
+    }
+
+    @Test
+    public void testGetBoundingRectangle() {
+        final IASI_Reader iasiReader = mock(IASI_Reader.class);
+        when(iasiReader.getProductSize()).thenReturn(new com.bc.fiduceo.core.Dimension("bla", 101, 209));
+
+        final Rectangle rectangle = AddIASISpectrum.getBoundingRectangle(iasiReader);
+        assertNotNull(rectangle);
+        assertEquals(0, rectangle.x);
+        assertEquals(0, rectangle.y);
+        assertEquals(101, rectangle.width);
+        assertEquals(209, rectangle.height);
     }
 }
