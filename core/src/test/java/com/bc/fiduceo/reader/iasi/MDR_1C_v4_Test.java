@@ -22,22 +22,34 @@ package com.bc.fiduceo.reader.iasi;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.HashMap;
 
-public class MDR_1C_Test {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class MDR_1C_v4_Test {
 
     @Test
-    public void testGetEFOVIndex() {
-        assertEquals(3, MDR_1C.getEFOVIndex(2, 0));
-        assertEquals(3, MDR_1C.getEFOVIndex(16, 0));
+    public void testConstruction_getRaw_record() {
+        final MDR_1C_v4 mdr_1C = new MDR_1C_v4();
 
-        assertEquals(0, MDR_1C.getEFOVIndex(3, 0));
-        assertEquals(0, MDR_1C.getEFOVIndex(17, 0));
+        final byte[] raw_record = mdr_1C.getRaw_record();
+        assertNotNull(raw_record);
+        assertEquals(2727768, raw_record.length);
+    }
 
-        assertEquals(2, MDR_1C.getEFOVIndex(2, 1));
-        assertEquals(2, MDR_1C.getEFOVIndex(44, 1));
+    @Test
+    public void testGetMdrSize() {
+        final MDR_1C_v4 mdr_1C = new MDR_1C_v4();
 
-        assertEquals(1, MDR_1C.getEFOVIndex(3, 1));
-        assertEquals(1, MDR_1C.getEFOVIndex(45, 1));
+        assertEquals(2727768, mdr_1C.getMdrSize());
+    }
+
+    @Test
+    public void testGetReadProxies() {
+        final HashMap<String, ReadProxy> proxies = MDR_1C_v4.getReadProxies();
+        // @todo 1 tb/tb continue here 2017-06-14
+//        assertNotNull(proxies);
+//        assertEquals(38, proxies.size());
     }
 }

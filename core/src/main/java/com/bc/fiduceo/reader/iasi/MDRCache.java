@@ -31,15 +31,16 @@ class MDRCache {
 
     private final ImageInputStream iis;
     private final long firstMdrOffset;
-    private final Cache<Integer, MDR_1C> cache = new Cache<>(CAPACITY);
+    // @todo 1 tb/tb replace with abtract MDR1C 2017-06-14
+    private final Cache<Integer, MDR_1C_v5> cache = new Cache<>(CAPACITY);
 
     MDRCache(ImageInputStream iis, long firstMdrOffset) {
         this.iis = iis;
         this.firstMdrOffset = firstMdrOffset;
     }
 
-    MDR_1C getRecord(int line) throws IOException {
-        MDR_1C mdr = cache.get(line);
+    MDR_1C_v5 getRecord(int line) throws IOException {
+        MDR_1C_v5 mdr = cache.get(line);
         if (mdr != null) {
             return mdr;
         }
@@ -55,12 +56,13 @@ class MDRCache {
         return mdr;
     }
 
-    private MDR_1C readMdr(int line) throws IOException {
+    private MDR_1C_v5 readMdr(int line) throws IOException {
         final int mdrIndex = getMdrIndex(line);
 
-        final MDR_1C mdr_1C = new MDR_1C();
+        // @todo 1 tb/tb replace construction with call to factory 2017-06-14
+        final MDR_1C_v5 mdr_1C = new MDR_1C_v5();
 
-        iis.seek(firstMdrOffset + mdrIndex * MDR_1C.RECORD_SIZE);
+        iis.seek(firstMdrOffset + mdrIndex * mdr_1C.getMdrSize());
         iis.read(mdr_1C.getRaw_record());
         return mdr_1C;
     }

@@ -15,14 +15,14 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(IOTestRunner.class)
-public class MDR_1C_IOTest {
+public class MDR_1C_v5_IOTest {
 
     private ImageInputStream iis;
     private HashMap<String, ReadProxy> readProxies;
 
     @Before
     public void setUp() throws Exception {
-        readProxies = MDR_1C.getReadProxies();
+        readProxies = MDR_1C_v5.getReadProxies();
     }
 
     @After
@@ -34,12 +34,12 @@ public class MDR_1C_IOTest {
 
     @Test
     public void testAccessFields_MA() throws IOException {
-        final File file = IASI_TestUtil.getIasiFile_MA();
+        final File file = IASI_TestUtil.getIasiFile_MA_v5();
 
         iis = new FileImageInputStream(file);
 
-        final MDR_1C mdr_1C = new MDR_1C();
-        iis.seek(IASI_TestUtil.MDR_OFFSET_MA + 117 * MDR_1C.RECORD_SIZE);
+        final MDR_1C_v5 mdr_1C = new MDR_1C_v5();
+        iis.seek(IASI_TestUtil.MDR_OFFSET_MA + 117 * mdr_1C.getMdrSize());
         iis.read(mdr_1C.getRaw_record());
 
         // general L1 data -----------------------------------
@@ -188,8 +188,8 @@ public class MDR_1C_IOTest {
         final File file = IASI_TestUtil.getIasiFile_MB();
 
         iis = new FileImageInputStream(file);
-        final MDR_1C mdr_1C = new MDR_1C();
-        iis.seek(IASI_TestUtil.MDR_OFFSET_MB + 608 * MDR_1C.RECORD_SIZE);
+        final MDR_1C_v5 mdr_1C = new MDR_1C_v5();
+        iis.seek(IASI_TestUtil.MDR_OFFSET_MB + 608 * mdr_1C.getMdrSize());
         iis.read(mdr_1C.getRaw_record());
 
         // general L1 data -----------------------------------

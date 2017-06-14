@@ -24,71 +24,43 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
-import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.*;
+abstract class MDR_1C {
 
-class MDR_1C {
-
-    static final int RECORD_SIZE = 2728908;
-
-    private static final long DEGRADED_INST_MDR_OFFSET = 20;
-    private static final long DEGRADED_PROC_MDR_OFFSET = 21;
-    private static final long GEPS_IASI_MODE_OFFSET = 22;
-    private static final long GEPS_OPS_PROC_MODE_OFFSET = 26;
-    private static final long OBT_OFFSET = 8762;
-    private static final long ONBOARD_UTC_OFFSET = 8942;
-    private static final long GEPS_DAT_IASI_OFFSET = 9122;
-    private static final long GEPS_CCD_OFFSET = 9350;
-    private static final long GEPS_SP_OFFSET = 9380;
-    private static final long GQIS_FLAG_QUAL_DET_OFFSET = 255620;
-    private static final long GQIS_SYS_TEC_IIS_QUAL_OFFSET = 255885;
-    private static final long GQIS_QUAL_INDEX_OFFSET = 255860;
-    private static final long GQIS_QUAL_INDEX_IIS_OFFSET = 255865;
-    private static final long GQIS_QUAL_INDEX_LOC_OFFSET = 255870;
-    private static final long GQIS_QUAL_INDEX_RAD_OFFSET = 255875;
-    private static final long GQIS_QUAL_INDEX_SPECT_OFFSET = 255880;
-    private static final long GQIS_SYS_TEC_SOND_QUAL_OFFSET = 255889;
-    private static final long GGEO_SOND_LOC_OFFSET = 255893;
-    private static final long GGEO_SOND_ANGLES_METOP_OFFSET = 256853;
-    private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
-    private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
-    private static final long IDEF_SPECT_DWN_1B_OFFSET = 276777;
-    // @todo 3 hide this behind a getter-method .... when supporting older IASI files 2017-06-09
-    static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
-    private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
-    private static final long G1S_SPECT_OFFSET = 276790;
-    private static final long GCS_RAD_ANAL_NB_OFFSET = 2365814;
-    private static final long IDEF_CS_MODE_OFFSET = 2727614;
-    private static final long GCS_IMG_CLASS_LIN_OFFSET = 2727618;
-    private static final long GCS_IMG_CLASS_COL_OFFSET = 2727678;
-    private static final long GCS_IMG_CLASS_FIRST_LIN_OFFSET = 2727738;
-    private static final long GCS_IMG_CLASS_FIRST_COL_OFFSET = 2727888;
-    private static final long GIAC_VAR_IMG_IIS_OFFSET = 2728248;
-    private static final long GIAC_AVG_IMG_IIS_OFFSET = 2728398;
-    private static final long GEUM_AVHRR_CLOUD_FRAC_OFFSET = 2728548;
-    private static final long GEUM_AVHRR_LAND_FRAC_OFFSET = 2728668;
-    private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
+    static final long DEGRADED_INST_MDR_OFFSET = 20;
+    static final long DEGRADED_PROC_MDR_OFFSET = 21;
+    static final long GEPS_IASI_MODE_OFFSET = 22;
+    static final long GEPS_OPS_PROC_MODE_OFFSET = 26;
+    static final long OBT_OFFSET = 8762;
+    static final long ONBOARD_UTC_OFFSET = 8942;
+    static final long GEPS_DAT_IASI_OFFSET = 9122;
+    static final long GEPS_CCD_OFFSET = 9350;
+    static final long GEPS_SP_OFFSET = 9380;
 
     private static final int OBT_SIZE = 6;
     private static final int UTC_SIZE = 6;
-    private static final int SHORT_SIZE = 2;
-    private static final int INT_SIZE = 4;
-    private static final int VINT4_SIZE = 5;
-    private static final int DUAL_INT_SIZE = 8;
-    private static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-05-05
 
     private final byte[] raw_record;
 
-    private ImageInputStream iis;
+    ImageInputStream iis;
 
-    MDR_1C() {
-        raw_record = new byte[RECORD_SIZE];
+    MDR_1C(byte[] raw_record) {
+        this.raw_record = raw_record;
+    }
+
+    static int getEFOVIndex(int x, int line) {
+        final int xOff = x % 2;
+        if (xOff == 0) {
+            return 3 - line;
+        }
+        return line;
     }
 
     byte[] getRaw_record() {
         return raw_record;
     }
+
+    abstract int getMdrSize();
 
     long get_OBT(int x, int line) throws IOException {
         final ImageInputStream stream = getStream();
@@ -99,23 +71,7 @@ class MDR_1C {
         return EpsMetopUtil.readOBT(stream);
     }
 
-    short[] get_GS1cSpect(int x, int line) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(G1S_SPECT_OFFSET + (mdrPos * PN + efovIndex) * G1S_SPECT_SIZE);
-
-        final short[] spectrum = new short[SS];
-        for (int i = 0; i < SS; i++) {
-            spectrum[i] = stream.readShort();
-        }
-        return spectrum;
-    }
-
-    private int getMdrPos(int x) {
-        return x / 2;
-    }
+    abstract short[] get_GS1cSpect(int x, int line) throws IOException;
 
     byte readPerScan_byte(long position) throws IOException {
         final ImageInputStream stream = getStream();
@@ -131,12 +87,7 @@ class MDR_1C {
         return stream.readInt();
     }
 
-    float readPerScan_vInt4(long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(position);
-
-        return EpsMetopUtil.readVInt4(stream);
-    }
+    abstract float readPerScan_vInt4(long position) throws IOException;
 
     byte readPerEFOV_byte(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
@@ -146,13 +97,7 @@ class MDR_1C {
         return stream.readByte();
     }
 
-    short readPerEFOV_short(int x, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(position + mdrPos * 2);
-        return stream.readShort();
-    }
+    abstract short readPerEFOV_short(int x, long position) throws IOException;
 
     int readPerEFOV_int(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
@@ -171,135 +116,29 @@ class MDR_1C {
         return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
     }
 
-    float readPerEFOV_vInt4(int x, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+    abstract float readPerEFOV_vInt4(int x, long position) throws IOException;
 
-        stream.seek(position + mdrPos * VINT4_SIZE);
+    abstract byte readPerPixel_byte(int x, int line, long position) throws IOException;
 
-        return EpsMetopUtil.readVInt4(stream);
+    abstract short readPerPixel_short(int x, int line, long position) throws IOException;
+
+    abstract int readPerPixel_int(int x, int line, long position) throws IOException;
+
+    abstract int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException;
+
+    // @todo 1 tb/tb reanimate this 2017-06-14
+    //abstract HashMap<String, ReadProxy> getReadProxies();
+
+    int getMdrPos(int x) {
+        return x / 2;
     }
 
-    byte readPerPixel_byte(int x, int line, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + mdrPos * PN + efovIndex);
-
-        return stream.readByte();
-    }
-
-    short readPerPixel_short(int x, int line, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * SHORT_SIZE);
-
-        return stream.readShort();
-    }
-
-    int readPerPixel_int(int x, int line, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * INT_SIZE);
-
-        return stream.readInt();
-    }
-
-    int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
-
-        return stream.readInt();
-    }
-
-    private ImageInputStream getStream() {
+    ImageInputStream getStream() {
         if (iis == null) {
             final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(raw_record);
             iis = new MemoryCacheImageInputStream(byteArrayInputStream);
         }
 
         return iis;
-    }
-
-    // package access for testing only tb 2017-05-04
-    static int getEFOVIndex(int x, int line) {
-        final int xOff = x % 2;
-        if (xOff == 0) {
-            return 3 - line;
-        }
-        return line;
-    }
-
-    static HashMap<String, ReadProxy> getReadProxies() {
-        final HashMap<String, ReadProxy> proxies = new HashMap<>();
-        proxies.put("DEGRADED_INST_MDR", new ReadProxy.bytePerScan(DEGRADED_INST_MDR_OFFSET));
-        proxies.put("DEGRADED_PROC_MDR", new ReadProxy.bytePerScan(DEGRADED_PROC_MDR_OFFSET));
-        proxies.put("GEPSIasiMode", new ReadProxy.intPerScan(GEPS_IASI_MODE_OFFSET));
-        proxies.put("GEPSOPSProcessingMode", new ReadProxy.intPerScan(GEPS_OPS_PROC_MODE_OFFSET));
-        // skipping GEPSIdConf tb 2017-06-07
-        // skipping GEPSLocIasiAvhrr_IASI tb 2017-06-07
-        // skipping GEPSLocIasiAvhrr_IIS tb 2017-06-07
-        proxies.put("OBT", new ReadProxy.obtPerEVOF(OBT_OFFSET));
-        proxies.put("OnboardUTC", new ReadProxy.utcPerEVOF(ONBOARD_UTC_OFFSET));
-        proxies.put("GEPSDatIasi", new ReadProxy.utcPerEVOF(GEPS_DAT_IASI_OFFSET));
-        // skipping GIsfLinOrigin tb 2017-06-07
-        // skipping GIsfColOrigin tb 2017-06-07
-        // skipping GIsfPds1 tb 2017-06-07
-        // skipping GIsfPds2 tb 2017-06-07
-        // skipping GIsfPds3 tb 2017-06-07
-        // skipping GIsfPds4 tb 2017-06-07
-        proxies.put("GEPS_CCD", new ReadProxy.bytePerEVOF(GEPS_CCD_OFFSET));
-        proxies.put("GEPS_SP", new ReadProxy.intPerEVOF(GEPS_SP_OFFSET));
-        // skipping GIrcImage tb 2017-06-07
-        // @todo 3 tb/tb GQisFlagQual - one variable per channel 2017-05-04
-        proxies.put("GQisFlagQualDetailed", new ReadProxy.shortPerPixel(GQIS_FLAG_QUAL_DET_OFFSET));
-        proxies.put("GQisQualIndex", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_OFFSET));
-        proxies.put("GQisQualIndexIIS", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_IIS_OFFSET));
-        proxies.put("GQisQualIndexLoc", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_LOC_OFFSET));
-        proxies.put("GQisQualIndexRad", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_RAD_OFFSET));
-        proxies.put("GQisQualIndexSpect", new ReadProxy.vInt4PerScan(GQIS_QUAL_INDEX_SPECT_OFFSET));
-        proxies.put("GQisSysTecIISQual", new ReadProxy.intPerScan(GQIS_SYS_TEC_IIS_QUAL_OFFSET));
-        proxies.put("GQisSysTecSondQual", new ReadProxy.intPerScan(GQIS_SYS_TEC_SOND_QUAL_OFFSET));
-        proxies.put("GGeoSondLoc_Lon", new ReadProxy.dualIntPerPixel(GGEO_SOND_LOC_OFFSET, 0, 1e-6));
-        proxies.put("GGeoSondLoc_Lat", new ReadProxy.dualIntPerPixel(GGEO_SOND_LOC_OFFSET, 4, 1e-6));
-        proxies.put("GGeoSondAnglesMETOP_Zenith", new ReadProxy.dualIntPerPixel(GGEO_SOND_ANGLES_METOP_OFFSET, 0, 1e-6));
-        proxies.put("GGeoSondAnglesMETOP_Azimuth", new ReadProxy.dualIntPerPixel(GGEO_SOND_ANGLES_METOP_OFFSET, 4, 1e-6));
-        proxies.put("GGeoSondAnglesSUN_Zenith", new ReadProxy.dualIntPerPixel(GGEO_SOND_ANGLES_SUN_OFFSET, 0, 1e-6));
-        proxies.put("GGeoSondAnglesSUN_Azimuth", new ReadProxy.dualIntPerPixel(GGEO_SOND_ANGLES_SUN_OFFSET, 4, 1e-6));
-        // skipping GGeoIISLoc tb 2017-06-07
-        proxies.put("EARTH_SATELLITE_DISTANCE", new ReadProxy.intPerScan(EARTH_SATELLITE_DISTANCE_OFFSET));
-        // l1c specific --------------------------------------------
-        proxies.put("IDefSpectDWn1b", new ReadProxy.vInt4PerScan(IDEF_SPECT_DWN_1B_OFFSET));
-        proxies.put("IDefNsfirst1b", new ReadProxy.intPerScan(IDEF_NS_FIRST_1B_OFFSET));
-        proxies.put("IDefNslast1b", new ReadProxy.intPerScan(IDEF_NS_LAST_1B_OFFSET));
-        // skipping IDefCovarMatEigenVal1c tb 2017-06-07
-        // skipping IDefCcsChannelId tb 2017-06-07
-        proxies.put("GCcsRadAnalNbClass", new ReadProxy.intPerPixel(GCS_RAD_ANAL_NB_OFFSET));
-        // skipping GCcsRadAnalWgt tb 2017-06-07
-        // skipping GCcsRadAnalY tb 2017-06-07
-        // skipping GCcsRadAnalZ tb 2017-06-07
-        // skipping GCcsRadAnalMean tb 2017-06-07
-        // skipping GCcsRadAnalStd tb 2017-06-07
-        // skipping GCcsImageClassified tb 2017-06-07
-        proxies.put("IDefCcsMode", new ReadProxy.intPerScan(IDEF_CS_MODE_OFFSET));
-        proxies.put("GCcsImageClassifiedNbLin", new ReadProxy.shortPerEVOF(GCS_IMG_CLASS_LIN_OFFSET));
-        proxies.put("GCcsImageClassifiedNbCol", new ReadProxy.shortPerEVOF(GCS_IMG_CLASS_COL_OFFSET));
-        proxies.put("GCcsImageClassifiedFirstLin", new ReadProxy.vInt4PerEVOF(GCS_IMG_CLASS_FIRST_LIN_OFFSET));
-        proxies.put("GCcsImageClassifiedFirstCol", new ReadProxy.vInt4PerEVOF(GCS_IMG_CLASS_FIRST_COL_OFFSET));
-        // skipping GCcsRadAnalType tb 2017-06-07
-        proxies.put("GIacVarImagIIS", new ReadProxy.vInt4PerEVOF(GIAC_VAR_IMG_IIS_OFFSET));
-        proxies.put("GIacAvgImagIIS", new ReadProxy.vInt4PerEVOF(GIAC_AVG_IMG_IIS_OFFSET));
-        proxies.put("GEUMAvhrr1BCldFrac", new ReadProxy.bytePerPixel(GEUM_AVHRR_CLOUD_FRAC_OFFSET));
-        proxies.put("GEUMAvhrr1BLandFrac", new ReadProxy.bytePerPixel(GEUM_AVHRR_LAND_FRAC_OFFSET));
-        proxies.put("GEUMAvhrr1BQual", new ReadProxy.bytePerPixel(GEUM_AVHRR_QUAL_OFFSET));
-        return proxies;
     }
 }

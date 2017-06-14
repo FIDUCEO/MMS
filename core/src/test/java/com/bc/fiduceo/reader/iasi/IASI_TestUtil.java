@@ -13,8 +13,13 @@ class IASI_TestUtil {
     static long MDR_OFFSET_MA = 231818L;
     static long MDR_OFFSET_MB = 231818L;
 
-    static File getIasiFile_MA() throws IOException {
+    static File getIasiFile_MA_v5() throws IOException {
         final String testFilePath = com.bc.fiduceo.TestUtil.assembleFileSystemPath(new String[]{"iasi-ma", "v3-6N", "2016", "01", "IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat"}, false);
+        return getFile(testFilePath);
+    }
+
+    static File getIasiFile_MA_v4() throws IOException {
+        final String testFilePath = com.bc.fiduceo.TestUtil.assembleFileSystemPath(new String[]{"iasi-ma", "v4-0N", "2009", "04", "IASI_xxx_1C_M02_20090406011456Z_20090406025952Z_N_O_20090406030227Z.nat"}, false);
         return getFile(testFilePath);
     }
 

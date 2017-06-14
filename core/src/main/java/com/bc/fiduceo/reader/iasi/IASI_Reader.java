@@ -71,7 +71,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.bc.fiduceo.reader.iasi.MDR_1C.IDEF_NS_FIRST_1B_OFFSET;
+import static com.bc.fiduceo.reader.iasi.MDR_1C_v5.IDEF_NS_FIRST_1B_OFFSET;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
@@ -123,9 +123,10 @@ public class IASI_Reader implements Reader {
         iis = new FileImageInputStream(file);
 
         readHeader();
+
         mdrCache = new MDRCache(iis, firstMdrOffset);
         // @todo 3 move this to a factory when we extend the reader to support older/newer MDR versions
-        proxiesMap = MDR_1C.getReadProxies();
+        proxiesMap = MDR_1C_v5.getReadProxies();
     }
 
     @Override
@@ -181,7 +182,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
+        final MDR_1C_v5[] mdRs = getMDRs(centerY, interval.getY());
         final int xOffset = centerX - interval.getX() / 2;
         final int yOffset = centerY - interval.getY() / 2;
         final int[] shape = new int[]{interval.getY(), interval.getX()};
@@ -256,7 +257,7 @@ public class IASI_Reader implements Reader {
     }
 
     public Array readSpectrum(int x, int y) throws IOException {
-        final MDR_1C[] mdRs = getMDRs(y, 1);
+        final MDR_1C_v5[] mdRs = getMDRs(y, 1);
         final int[] shape = new int[]{EpsMetopConstants.SS};
 
         final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
@@ -439,11 +440,11 @@ public class IASI_Reader implements Reader {
         return geolocationData;
     }
 
-    private MDR_1C[] getMDRs(int centerY, int windowHeight) throws IOException {
+    private MDR_1C_v5[] getMDRs(int centerY, int windowHeight) throws IOException {
         final int lineStart = centerY - windowHeight / 2;
         final int lineEnd = centerY + windowHeight / 2;
 
-        final MDR_1C[] mdrs = new MDR_1C[windowHeight];
+        final MDR_1C_v5[] mdrs = new MDR_1C_v5[windowHeight];
         int index = 0;
         for (int line = lineStart; line <= lineEnd; line++) {
             mdrs[index] = mdrCache.getRecord(line);

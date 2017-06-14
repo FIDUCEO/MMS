@@ -35,7 +35,7 @@ public class ReadProxyTest {
 
         assertEquals(byte.class, bytePerScan.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_byte(12)).thenReturn((byte) 44);
 
         final Object data = bytePerScan.read(3, 4, mdr_1C);
@@ -51,7 +51,7 @@ public class ReadProxyTest {
 
         assertEquals(int.class, intPerScan.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_int(13)).thenReturn(45);
 
         final Object data = intPerScan.read(4, 1, mdr_1C);
@@ -67,7 +67,7 @@ public class ReadProxyTest {
 
         assertEquals(float.class, vInt4PerScan.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_vInt4(14)).thenReturn(46.7f);
 
         final Object data = vInt4PerScan.read(5, 0, mdr_1C);
@@ -83,7 +83,7 @@ public class ReadProxyTest {
 
         assertEquals(long.class, obtPerEVOF.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.get_OBT(5, 0)).thenReturn(46L);
 
         final Object data = obtPerEVOF.read(5, 0, mdr_1C);
@@ -99,7 +99,7 @@ public class ReadProxyTest {
 
         assertEquals(long.class, utcPerEVOF.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_utc(6, 15)).thenReturn(47L);     // notabene: the second argument is the offset into the record
 
         final Object data = utcPerEVOF.read(6, 1, mdr_1C);
@@ -115,7 +115,7 @@ public class ReadProxyTest {
 
         assertEquals(byte.class, bytePerEVOF.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_byte(7, 16)).thenReturn((byte) 48);     // notabene: the second argument is the offset into the record
 
         final Object data = bytePerEVOF.read(7, 1, mdr_1C);
@@ -131,7 +131,7 @@ public class ReadProxyTest {
 
         assertEquals(short.class, shortPerEVOF.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_short(8, 17)).thenReturn((short) 49);     // notabene: the second argument is the offset into the record
 
         final Object data = shortPerEVOF.read(8, 8, mdr_1C);
@@ -147,7 +147,7 @@ public class ReadProxyTest {
 
         assertEquals(int.class, intPerEVOF.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_int(8, 17)).thenReturn(49);     // notabene: the second argument is the offset into the record
 
         final Object data = intPerEVOF.read(8, 0, mdr_1C);
@@ -163,7 +163,7 @@ public class ReadProxyTest {
 
         assertEquals(float.class, vInt4PerEFOV.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_vInt4(5, 15)).thenReturn(46.7f);
 
         final Object data = vInt4PerEFOV.read(5, 15, mdr_1C);
@@ -179,7 +179,7 @@ public class ReadProxyTest {
 
         assertEquals(byte.class, bytePerPixel.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_byte(10, 1, 19)).thenReturn((byte) 51);     // notabene: the third argument is the offset into the record
 
         final Object data = bytePerPixel.read(10, 1, mdr_1C);
@@ -195,7 +195,7 @@ public class ReadProxyTest {
 
         assertEquals(short.class, shortPerPixel.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_short(9, 0, 18)).thenReturn((short) 50);     // notabene: the third argument is the offset into the record
 
         final Object data = shortPerPixel.read(9, 0, mdr_1C);
@@ -211,7 +211,7 @@ public class ReadProxyTest {
 
         assertEquals(int.class, intPerPixel.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_int(11, 1, 20)).thenReturn(52);     // notabene: the third argument is the offset into the record
 
         final Object data = intPerPixel.read(11, 1, mdr_1C);
@@ -227,7 +227,7 @@ public class ReadProxyTest {
 
         assertEquals(int.class, dualIntPerPixel.getDataType());
 
-        final MDR_1C mdr_1C = mock(MDR_1C.class);
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_oneOfDualInt(10, 1, 19, 1)).thenReturn(51);     // notabene: the third argument is the offset into the record
 
         final Object data = dualIntPerPixel.read(10, 1, mdr_1C);

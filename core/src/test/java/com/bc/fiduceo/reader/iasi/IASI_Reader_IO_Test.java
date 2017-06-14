@@ -63,7 +63,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testOpen_alreadyOpenedStreamThrows() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -81,7 +81,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_MA() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -173,7 +173,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetProductSize_MA() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -189,7 +189,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_MA() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -224,7 +224,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocater_MA() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -333,7 +333,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocater_MA_twiceReturnsSameObject() throws IOException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -420,7 +420,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadRaw_MA_perScan_byte() throws IOException, InvalidRangeException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -462,7 +462,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadRaw_MA_perScan_utc() throws IOException, InvalidRangeException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -518,7 +518,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadRaw_MA_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -546,7 +546,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadRaw_MB_perScan_perPixelInt_bottomBorder() throws IOException, InvalidRangeException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
@@ -714,7 +714,7 @@ public class IASI_Reader_IO_Test {
 
     @Test
     public void testReadSpectrum_MA() throws IOException, InvalidRangeException {
-        final File iasiFile = IASI_TestUtil.getIasiFile_MA();
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);

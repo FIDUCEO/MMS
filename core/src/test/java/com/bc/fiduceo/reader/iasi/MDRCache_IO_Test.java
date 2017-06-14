@@ -54,7 +54,7 @@ public class MDRCache_IO_Test {
     public void testReadOneRecord() throws IOException {
         final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
-        final MDR_1C mdr = mdrCache.getRecord(0);
+        final MDR_1C_v5 mdr = mdrCache.getRecord(0);
         assertNotNull(mdr);
     }
 
@@ -62,10 +62,10 @@ public class MDRCache_IO_Test {
     public void testReadOneRecord_twiceReturnsTheSameObject() throws IOException {
         final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
-        final MDR_1C mdr_1 = mdrCache.getRecord(167);
+        final MDR_1C_v5 mdr_1 = mdrCache.getRecord(167);
         assertNotNull(mdr_1);
 
-        final MDR_1C mdr_2 = mdrCache.getRecord(167);
+        final MDR_1C_v5 mdr_2 = mdrCache.getRecord(167);
         assertNotNull(mdr_2);
 
         assertSame(mdr_1, mdr_2);
@@ -75,10 +75,10 @@ public class MDRCache_IO_Test {
     public void testReadOneRecord_coversTwoConsecutiveLines() throws IOException {
         final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
-        final MDR_1C mdr_216 = mdrCache.getRecord(216);
+        final MDR_1C_v5 mdr_216 = mdrCache.getRecord(216);
         assertNotNull(mdr_216);
 
-        final MDR_1C mdr_217 = mdrCache.getRecord(217);
+        final MDR_1C_v5 mdr_217 = mdrCache.getRecord(217);
         assertNotNull(mdr_217);
 
         assertSame(mdr_216, mdr_217);
@@ -88,15 +88,15 @@ public class MDRCache_IO_Test {
     public void testReadRecordsUntilCacheIsFull() throws IOException {
         final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
-        final MDR_1C mdr_first = mdrCache.getRecord(216);
+        final MDR_1C_v5 mdr_first = mdrCache.getRecord(216);
         assertNotNull(mdr_first);
 
         for (int i = 0; i < MDRCache.CAPACITY + 2; i++) {
-            final MDR_1C mdr_217 = mdrCache.getRecord(217 + i);
+            final MDR_1C_v5 mdr_217 = mdrCache.getRecord(217 + i);
             assertNotNull(mdr_217);
         }
 
-        final MDR_1C mdr_second = mdrCache.getRecord(216);
+        final MDR_1C_v5 mdr_second = mdrCache.getRecord(216);
         assertNotNull(mdr_second);
         assertNotSame(mdr_first, mdr_second);
     }
@@ -105,12 +105,12 @@ public class MDRCache_IO_Test {
     public void testReadRecords_MoreThanMaxCapacityCalls_StillTheSameRecord() throws IOException {
         final MDRCache mdrCache = new MDRCache(iis, IASI_TestUtil.MDR_OFFSET_MA);
 
-        final MDR_1C mdr_first = mdrCache.getRecord(150);
+        final MDR_1C_v5 mdr_first = mdrCache.getRecord(150);
         assertNotNull(mdr_first);
 
         final int firstCalls = 20;
         for (int i = 0; i < firstCalls; i++) {
-            final MDR_1C mdr_217 = mdrCache.getRecord(217 + i);
+            final MDR_1C_v5 mdr_217 = mdrCache.getRecord(217 + i);
             assertNotNull(mdr_217);
         }
 
@@ -118,7 +118,7 @@ public class MDRCache_IO_Test {
 
         // continue calls
         for (int i = firstCalls; i < MDRCache.CAPACITY + 2; i++) {
-            final MDR_1C mdr_217 = mdrCache.getRecord(217 + i);
+            final MDR_1C_v5 mdr_217 = mdrCache.getRecord(217 + i);
             assertNotNull(mdr_217);
         }
 
