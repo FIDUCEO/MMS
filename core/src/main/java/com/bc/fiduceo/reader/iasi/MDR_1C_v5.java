@@ -21,12 +21,11 @@
 package com.bc.fiduceo.reader.iasi;
 
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.*;
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.PN;
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.SS;
 
 class MDR_1C_v5 extends MDR_1C {
 
@@ -46,7 +45,7 @@ class MDR_1C_v5 extends MDR_1C {
     private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
     private static final long IDEF_SPECT_DWN_1B_OFFSET = 276777;
     // @todo 3 hide this behind a getter-method .... when supporting older IASI files 2017-06-09
-    static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
+    private static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
     private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
     private static final long G1S_SPECT_OFFSET = 276790;
     private static final long GCS_RAD_ANAL_NB_OFFSET = 2365814;
@@ -82,6 +81,14 @@ class MDR_1C_v5 extends MDR_1C {
             spectrum[i] = stream.readShort();
         }
         return spectrum;
+    }
+
+    static long getGeolocationOffset() {
+        return GGEO_SOND_LOC_OFFSET;
+    }
+
+    long getFirst1BOffset() {
+        return IDEF_NS_FIRST_1B_OFFSET;
     }
 
     byte readPerPixel_byte(int x, int line, long position) throws IOException {

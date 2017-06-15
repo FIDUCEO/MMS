@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,16 +32,18 @@ class MDRCache {
 
     private final ImageInputStream iis;
     private final long firstMdrOffset;
-    // @todo 1 tb/tb replace with abtract MDR1C 2017-06-14
-    private final Cache<Integer, MDR_1C_v5> cache = new Cache<>(CAPACITY);
+    private final int recordVersion;
 
-    MDRCache(ImageInputStream iis, long firstMdrOffset) {
+    private final Cache<Integer, MDR_1C> cache = new Cache<>(CAPACITY);
+
+    MDRCache(ImageInputStream iis, long firstMdrOffset, int recordVersion) {
         this.iis = iis;
         this.firstMdrOffset = firstMdrOffset;
+        this.recordVersion = recordVersion;
     }
 
-    MDR_1C_v5 getRecord(int line) throws IOException {
-        MDR_1C_v5 mdr = cache.get(line);
+    MDR_1C getRecord(int line) throws IOException {
+        MDR_1C mdr = cache.get(line);
         if (mdr != null) {
             return mdr;
         }
@@ -56,15 +59,55 @@ class MDRCache {
         return mdr;
     }
 
-    private MDR_1C_v5 readMdr(int line) throws IOException {
+    HashMap<String, ReadProxy> getReadProxies() {
+        if (recordVersion == 4) {
+            return MDR_1C_v4.getReadProxies();
+        } else if (recordVersion == 5) {
+            return MDR_1C_v5.getReadProxies();
+        }
+
+        throw new RuntimeException("Requested unsupported MDR_1C version");
+    }
+
+
+    private MDR_1C readMdr(int line) throws IOException {
         final int mdrIndex = getMdrIndex(line);
 
-        // @todo 1 tb/tb replace construction with call to factory 2017-06-14
-        final MDR_1C_v5 mdr_1C = new MDR_1C_v5();
+        final MDR_1C mdr_1C = createRecord();
 
         iis.seek(firstMdrOffset + mdrIndex * mdr_1C.getMdrSize());
         iis.read(mdr_1C.getRaw_record());
         return mdr_1C;
+    }
+
+    MDR_1C[] getMDRArray(int size) {
+        if (recordVersion == 4) {
+            return new MDR_1C_v4[size];
+        } else if (recordVersion == 5) {
+            return new MDR_1C_v5[size];
+        }
+
+        throw new RuntimeException("Requested unsupported MDR_1C version");
+    }
+
+    private MDR_1C createRecord() {
+        if (recordVersion == 4) {
+            return new MDR_1C_v4();
+        } else if (recordVersion == 5) {
+            return new MDR_1C_v5();
+        }
+
+        throw new RuntimeException("Requested unsupported MDR_1C version");
+    }
+
+     long getGeolocationOffset() {
+        if (recordVersion == 4) {
+            return MDR_1C_v4.getGeolocationOffset();
+        } else if (recordVersion == 5) {
+            return MDR_1C_v5.getGeolocationOffset();
+        }
+
+        throw new RuntimeException("Requested unsupported MDR_1C version");
     }
 
     // package access for testing only tb 2017-05-03

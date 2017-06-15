@@ -47,19 +47,10 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -71,14 +62,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.bc.fiduceo.reader.iasi.MDR_1C_v5.IDEF_NS_FIRST_1B_OFFSET;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 
 public class IASI_Reader implements Reader {
@@ -88,9 +72,6 @@ public class IASI_Reader implements Reader {
     private static final int SNOT = 30;
     private static final int LON = 0;
     private static final int LAT = 1;
-
-    private static final int G_EPS_DAT_IASI_OFFSET = 9122;
-    private static final int G_GEO_SOND_LOC_OFFSET = 255893;
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
@@ -105,6 +86,7 @@ public class IASI_Reader implements Reader {
     private long firstMdrOffset;
     private long mdrSize;
     private int mdrCount;
+    private int mdrVersion;
     private MDRCache mdrCache;
     private List<Variable> variableList;
     private HashMap<String, ReadProxy> proxiesMap;
@@ -124,9 +106,8 @@ public class IASI_Reader implements Reader {
 
         readHeader();
 
-        mdrCache = new MDRCache(iis, firstMdrOffset);
-        // @todo 3 move this to a factory when we extend the reader to support older/newer MDR versions
-        proxiesMap = MDR_1C_v5.getReadProxies();
+        mdrCache = new MDRCache(iis, firstMdrOffset, mdrVersion);
+        proxiesMap = mdrCache.getReadProxies();
     }
 
     @Override
@@ -182,7 +163,7 @@ public class IASI_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final MDR_1C_v5[] mdRs = getMDRs(centerY, interval.getY());
+        final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
         final int xOffset = centerX - interval.getX() / 2;
         final int yOffset = centerY - interval.getY() / 2;
         final int[] shape = new int[]{interval.getY(), interval.getX()};
@@ -257,11 +238,12 @@ public class IASI_Reader implements Reader {
     }
 
     public Array readSpectrum(int x, int y) throws IOException {
-        final MDR_1C_v5[] mdRs = getMDRs(y, 1);
+        final MDR_1C[] mdRs = getMDRs(y, 1);
         final int[] shape = new int[]{EpsMetopConstants.SS};
 
+        final long geolocationOffset = mdrCache.getGeolocationOffset();
         final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
-        final int iDefNsfirst = mdRs[0].readPerScan_int(IDEF_NS_FIRST_1B_OFFSET);
+        final int iDefNsfirst = mdRs[0].readPerScan_int(mdRs[0].getFirst1BOffset());
 
         final float[] gs1cSpectDecoded = scaleSpectrum(gs1cSpect, iDefNsfirst);
 
@@ -356,14 +338,17 @@ public class IASI_Reader implements Reader {
 
         checkRecordSubClass(mdrHeader);
 
+        mdrVersion = mdrHeader.recordSubclassVersion;
         mdrSize = mdrHeader.recordSize;
         mdrCount = (int) ((iis.length() - firstMdrOffset) / mdrSize);
     }
 
-    private void checkRecordSubClass(GenericRecordHeader mdrHeader) {
-        if (mdrHeader.recordSubclassVersion != 5) {
-            throw new RuntimeException("Unsupported processing version");
+    static void checkRecordSubClass(GenericRecordHeader mdrHeader) {
+        if (mdrHeader.recordSubclassVersion == 4 || mdrHeader.recordSubclassVersion == 5) {
+            return;
         }
+
+        throw new RuntimeException("Unsupported processing version");
     }
 
     private long[][] readGEPSDatIasi() throws IOException {
@@ -380,7 +365,7 @@ public class IASI_Reader implements Reader {
         final long[] data = new long[SNOT];
         final long mdrOffset = getMdrOffset(mdrIndex);
 
-        iis.seek(mdrOffset + G_EPS_DAT_IASI_OFFSET);
+        iis.seek(mdrOffset + MDR_1C.GEPS_DAT_IASI_OFFSET);
 
         for (int j = 0; j < SNOT; j++) {
             data[j] = EpsMetopUtil.readShortCdsTime(iis).getAsCalendar().getTimeInMillis();
@@ -392,11 +377,13 @@ public class IASI_Reader implements Reader {
         final float[][][][] data = new float[mdrCount][SNOT][EpsMetopConstants.PN][2];
         final int[] mdrBlock = new int[SNOT * EpsMetopConstants.PN * 2];
 
+        final long geolocationOffset = mdrCache.getGeolocationOffset();
+
         for (int mdrIndex = 0; mdrIndex < mdrCount; mdrIndex++) {
             final long mdrOffset = getMdrOffset(mdrIndex);
             final float[][][] scanLineData = data[mdrIndex];
 
-            iis.seek(mdrOffset + G_GEO_SOND_LOC_OFFSET);
+            iis.seek(mdrOffset + geolocationOffset);
             iis.readFully(mdrBlock, 0, mdrBlock.length);
 
             for (int i = 0, j = 0; j < SNOT; j++) {
@@ -440,11 +427,11 @@ public class IASI_Reader implements Reader {
         return geolocationData;
     }
 
-    private MDR_1C_v5[] getMDRs(int centerY, int windowHeight) throws IOException {
+    private MDR_1C[] getMDRs(int centerY, int windowHeight) throws IOException {
         final int lineStart = centerY - windowHeight / 2;
         final int lineEnd = centerY + windowHeight / 2;
 
-        final MDR_1C_v5[] mdrs = new MDR_1C_v5[windowHeight];
+        final MDR_1C[] mdrs = mdrCache.getMDRArray(windowHeight);
         int index = 0;
         for (int line = lineStart; line <= lineEnd; line++) {
             mdrs[index] = mdrCache.getRecord(line);

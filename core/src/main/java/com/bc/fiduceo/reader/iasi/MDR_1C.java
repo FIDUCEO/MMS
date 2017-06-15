@@ -175,12 +175,11 @@ abstract class MDR_1C {
         return stream.readInt();
     }
 
-    // @todo 1 tb/tb reanimate this 2017-06-14
-    //abstract HashMap<String, ReadProxy> getReadProxies();
-
     int getMdrPos(int x) {
         return x / 2;
     }
+
+    abstract long getFirst1BOffset();
 
     ImageInputStream getStream() {
         if (iis == null) {

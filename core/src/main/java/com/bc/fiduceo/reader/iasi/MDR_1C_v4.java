@@ -81,6 +81,14 @@ class MDR_1C_v4 extends MDR_1C {
         return spectrum;
     }
 
+    static long getGeolocationOffset() {
+        return GGEO_SOND_LOC_OFFSET;
+    }
+
+    long getFirst1BOffset() {
+        return IDEF_NS_FIRST_1B_OFFSET;
+    }
+
     static HashMap<String, ReadProxy> getReadProxies() {
         final HashMap<String, ReadProxy> proxies = new HashMap<>();
         proxies.put("DEGRADED_INST_MDR", new ReadProxy.bytePerScan(DEGRADED_INST_MDR_OFFSET));

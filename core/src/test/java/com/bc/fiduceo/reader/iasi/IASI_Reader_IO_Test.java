@@ -26,11 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -45,11 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -80,7 +72,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo_MA() throws IOException {
+    public void testReadAcquisitionInfo_MA_v5() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -120,6 +112,52 @@ public class IASI_Reader_IO_Test {
             coordinates = geometries[1].getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 26, 642, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionInfo_MA_v4() throws IOException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 1, 14, 56, 495, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 59, 52, 38, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof GeometryCollection);
+            Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(174, coordinates.length);
+            assertEquals(179.3275146484375, coordinates[4].getLon(), 1e-8);
+            assertEquals(77.74348449707031, coordinates[4].getLat(), 1e-8);
+
+            assertEquals(144.5364990234375, coordinates[80].getLon(), 1e-8);
+            assertEquals(45.13542175292969, coordinates[80].getLat(), 1e-8);
+
+            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
+            final Geometry[] geometries = collection.getGeometries();
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = geometries[0].getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 1, 14, 56, 495, time);
+
+            coordinates = geometries[1].getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 7, 24, 266, time);
         } finally {
             reader.close();
         }
@@ -172,7 +210,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_MA() throws IOException {
+    public void testGetProductSize_MA_v5() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -188,7 +226,23 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetTimeLocator_MA() throws IOException {
+    public void testGetProductSize_MA_v4() throws IOException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(60, productSize.getNx());
+            assertEquals(1574, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_MA_v5() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -223,7 +277,42 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testGetPixelLocater_MA() throws IOException {
+    public void testGetTimeLocator_MA_v4() throws IOException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+            assertTrue(timeLocator instanceof IASI_TimeLocator);
+
+            long time = timeLocator.getTimeFor(0, 0);
+            assertEquals(1238980496495L, time);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 1, 14, 56, 495, new Date(time));
+
+            time = timeLocator.getTimeFor(34, 744);
+            assertEquals(1238983476163L, time);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 4, 36, 163, new Date(time));
+
+            time = timeLocator.getTimeFor(35, 744); // this pixel is within the same EFOV than the one before, acquired at the same time tb 2017-04-27
+            assertEquals(1238983476163L, time);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 4, 36, 163, new Date(time));
+
+            time = timeLocator.getTimeFor(36, 744); // one EFOV further - approx 200 ms later tb 2017-04-27
+            assertEquals(1238983476378L, time);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 4, 36, 378, new Date(time));
+
+            time = timeLocator.getTimeFor(59, 1485);
+            assertEquals(1238986438749L, time);
+            TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 53, 58, 749, new Date(time));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocater_MA_v5() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -264,6 +353,58 @@ public class IASI_Reader_IO_Test {
             assertEquals(367.5f, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(-94.60089111328125, -76.91805267333984);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(24.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(628.5, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocater_MA_v4() throws IOException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(-166.61215209960938, geoLocation.getX(), 1e-8);
+            assertEquals(70.62594604492188, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(59.5, 0.5, null);
+            assertEquals(116.59491729736328, geoLocation.getX(), 1e-8);
+            assertEquals(82.99984741210938, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(21.5, 367.5, null);
+            assertEquals(119.2708740234375, geoLocation.getX(), 1e-8);
+            assertEquals(-4.314527988433838, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(24.5, 628.5, null);
+            assertEquals(97.68930053710938, geoLocation.getX(), 1e-8);
+            assertEquals(-64.88347625732422, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-166.61215209960938, 70.62594604492188);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(0.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(116.59491729736328, 82.99984741210938);
+            assertEquals(2, pixelLocation.length);
+            assertEquals(59.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5f, pixelLocation[0].getY(), 1e-8);
+            assertEquals(53.5f, pixelLocation[1].getX(), 1e-8);
+            assertEquals(1519.5f, pixelLocation[1].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(119.2708740234375, -4.314527988433838);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(21.5f, pixelLocation[0].getX(), 1e-8);
+            assertEquals(367.5f, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(97.68930053710938, -64.88347625732422);
             assertEquals(1, pixelLocation.length);
             assertEquals(24.5, pixelLocation[0].getX(), 1e-8);
             assertEquals(628.5, pixelLocation[0].getY(), 1e-8);
@@ -419,13 +560,33 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_perScan_byte() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_byte() throws IOException, InvalidRangeException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
             reader.open(iasiFile);
 
             final Array array = reader.readRaw(22, 108, new Interval(1, 1), "DEGRADED_INST_MDR");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(1, shape[0]);
+            assertEquals(1, shape[1]);
+
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MA_v4_perScan_byte() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(23, 109, new Interval(1, 1), "DEGRADED_INST_MDR");
             assertNotNull(array);
             final int[] shape = array.getShape();
             assertEquals(2, shape.length);
@@ -461,7 +622,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_perScan_utc() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_utc() throws IOException, InvalidRangeException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -483,6 +644,34 @@ public class IASI_Reader_IO_Test {
             NCTestUtils.assertValueAt(1451652909451L, 2, 0, array);
             NCTestUtils.assertValueAt(1451652917451L, 2, 1, array);
             NCTestUtils.assertValueAt(1451652917451L, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MA_v4_perScan_utc() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(25, 111, new Interval(3, 3), "GEPSDatIasi");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(1238980939079L, 0, 0, array);
+            NCTestUtils.assertValueAt(1238980939079L, 0, 1, array);
+            NCTestUtils.assertValueAt(1238980947079L, 0, 2, array);
+            NCTestUtils.assertValueAt(1238980939079L, 1, 0, array);
+            NCTestUtils.assertValueAt(1238980939079L, 1, 1, array);
+            NCTestUtils.assertValueAt(1238980947079L, 1, 2, array);
+            NCTestUtils.assertValueAt(1238980939294L, 2, 0, array);
+            NCTestUtils.assertValueAt(1238980939294L, 2, 1, array);
+            NCTestUtils.assertValueAt(1238980947294L, 2, 2, array);
         } finally {
             reader.close();
         }
@@ -517,7 +706,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -537,6 +726,34 @@ public class IASI_Reader_IO_Test {
             NCTestUtils.assertValueAt(-2147483647, 1, 1, array);
             NCTestUtils.assertValueAt(-2147483647, 2, 1, array);
             NCTestUtils.assertValueAt(-56450797, 0, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_MA_v4_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readRaw(60, 112, new Interval(3, 3), "GGeoSondLoc_Lon");
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(2, shape.length);
+            assertEquals(3, shape[0]);
+            assertEquals(3, shape[1]);
+
+            NCTestUtils.assertValueAt(118209298, 0, 0, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 0, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 0, array);
+            NCTestUtils.assertValueAt(118192818, 0, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 1, 1, array);
+            NCTestUtils.assertValueAt(-2147483647, 2, 1, array);
+            NCTestUtils.assertValueAt(118159131, 0, 2, array);
             NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
             NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
         } finally {
@@ -713,7 +930,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadSpectrum_MA() throws IOException, InvalidRangeException {
+    public void testReadSpectrum_MA_v5() throws IOException, InvalidRangeException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -731,6 +948,32 @@ public class IASI_Reader_IO_Test {
             NCTestUtils.assertValueAt(4.6380001003853977E-4, 1208, array);
             NCTestUtils.assertValueAt(4.616999940481037E-4, 1209, array);
             NCTestUtils.assertValueAt(4.5510000200010836E-4, 1210, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8698, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 8699, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadSpectrum_MA_v4() throws IOException, InvalidRangeException {
+        final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
+
+        try {
+            reader.open(iasiFile);
+
+            final Array array = reader.readSpectrum(25, 111);
+            assertNotNull(array);
+            final int[] shape = array.getShape();
+            assertEquals(1, shape.length);
+            assertEquals(8700, shape[0]);
+
+            NCTestUtils.assertValueAt(4.780000017490238E-4, 0, array);
+            NCTestUtils.assertValueAt(5.212000105530024E-4, 101, array);
+            NCTestUtils.assertValueAt(5.335999885573983E-4, 1101, array);
+            NCTestUtils.assertValueAt(5.08100027218461E-4, 1208, array);
+            NCTestUtils.assertValueAt(5.093999789096415E-4, 1209, array);
+            NCTestUtils.assertValueAt(5.041999975219369E-4, 1210, array);
             NCTestUtils.assertValueAt(9.969209968386869E36, 8698, array);
             NCTestUtils.assertValueAt(9.969209968386869E36, 8699, array);
         } finally {

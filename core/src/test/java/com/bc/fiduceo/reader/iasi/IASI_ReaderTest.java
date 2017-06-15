@@ -151,4 +151,36 @@ public class IASI_ReaderTest {
         assertEquals("Quality indicator. If the quality is good, it gives the coverage of snow/ice.", attributes.get(0).getStringValue());
         assertEquals(NetCDFUtils.getDefaultFillValue(byte.class), attributes.get(1).getNumericValue());
     }
+
+    @Test
+    public void testCheckRecordSubClass() {
+        final GenericRecordHeader genericRecordHeader = new GenericRecordHeader();
+        genericRecordHeader.recordSubclassVersion = 4;
+
+        IASI_Reader.checkRecordSubClass(genericRecordHeader);
+
+        genericRecordHeader.recordSubclassVersion = 5;
+
+        IASI_Reader.checkRecordSubClass(genericRecordHeader);
+    }
+
+    @Test
+    public void testCheckRecordSubClass_invalid() {
+        final GenericRecordHeader genericRecordHeader = new GenericRecordHeader();
+        genericRecordHeader.recordSubclassVersion = 3;
+
+        try {
+            IASI_Reader.checkRecordSubClass(genericRecordHeader);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        genericRecordHeader.recordSubclassVersion = 6;
+
+        try {
+            IASI_Reader.checkRecordSubClass(genericRecordHeader);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }
