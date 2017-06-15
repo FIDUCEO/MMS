@@ -25,6 +25,8 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.PN;
+
 abstract class MDR_1C {
 
     static final long DEGRADED_INST_MDR_OFFSET = 20;
@@ -39,6 +41,11 @@ abstract class MDR_1C {
 
     private static final int OBT_SIZE = 6;
     private static final int UTC_SIZE = 6;
+    private static final int SHORT_SIZE = 2;
+    private static final int INT_SIZE = 4;
+    private static final int VINT4_SIZE = 5;
+    private static final int DUAL_INT_SIZE = 8;
+    static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-06-15
 
     private final byte[] raw_record;
 
@@ -87,7 +94,12 @@ abstract class MDR_1C {
         return stream.readInt();
     }
 
-    abstract float readPerScan_vInt4(long position) throws IOException;
+    float readPerScan_vInt4(long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        stream.seek(position);
+
+        return EpsMetopUtil.readVInt4(stream);
+    }
 
     byte readPerEFOV_byte(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
@@ -97,7 +109,13 @@ abstract class MDR_1C {
         return stream.readByte();
     }
 
-    abstract short readPerEFOV_short(int x, long position) throws IOException;
+    short readPerEFOV_short(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * 2);
+        return stream.readShort();
+    }
 
     int readPerEFOV_int(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
@@ -116,15 +134,46 @@ abstract class MDR_1C {
         return EpsMetopUtil.readShortCdsTime(stream).getAsDate().getTime();
     }
 
-    abstract float readPerEFOV_vInt4(int x, long position) throws IOException;
+    float readPerEFOV_vInt4(int x, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+
+        stream.seek(position + mdrPos * VINT4_SIZE);
+
+        return EpsMetopUtil.readVInt4(stream);
+    }
 
     abstract byte readPerPixel_byte(int x, int line, long position) throws IOException;
 
-    abstract short readPerPixel_short(int x, int line, long position) throws IOException;
+    short readPerPixel_short(int x, int line, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
 
-    abstract int readPerPixel_int(int x, int line, long position) throws IOException;
+        stream.seek(position + (mdrPos * PN + efovIndex) * SHORT_SIZE);
 
-    abstract int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException;
+        return stream.readShort();
+    }
+
+    int readPerPixel_int(int x, int line, long position) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + (mdrPos * PN + efovIndex) * INT_SIZE);
+
+        return stream.readInt();
+    }
+
+    int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException {
+        final ImageInputStream stream = getStream();
+        final int mdrPos = getMdrPos(x);
+        final int efovIndex = getEFOVIndex(x, line);
+
+        stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
+
+        return stream.readInt();
+    }
 
     // @todo 1 tb/tb reanimate this 2017-06-14
     //abstract HashMap<String, ReadProxy> getReadProxies();

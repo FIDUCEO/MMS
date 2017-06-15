@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.reader.iasi;
 
+import com.bc.fiduceo.util.NetCDFUtils;
+
 import java.io.IOException;
 
 abstract class ReadProxy {
@@ -184,6 +186,25 @@ abstract class ReadProxy {
         }
     }
 
+    static class bytePerPixel_fillValue extends ReadProxy {
+
+        private final byte fillValue;
+
+        bytePerPixel_fillValue() {
+            super(-1);
+
+            fillValue = NetCDFUtils.getDefaultFillValue(byte.class).byteValue();
+        }
+
+        Class getDataType() {
+            return byte.class;
+        }
+
+        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+            return fillValue;
+        }
+    }
+
     static class shortPerPixel extends ReadProxy {
         shortPerPixel(long offset) {
             super(offset);
@@ -226,6 +247,42 @@ abstract class ReadProxy {
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
             return mdr_1C.readPerPixel_oneOfDualInt(x, line, offset, fieldOffsetInBytes);
+        }
+    }
+
+    static class shortPerPixel_fillValue extends ReadProxy {
+
+        private final short fillValue;
+
+        shortPerPixel_fillValue() {
+            super(-1);
+            fillValue = NetCDFUtils.getDefaultFillValue(short.class).shortValue();
+        }
+
+        Class getDataType() {
+            return short.class;
+        }
+
+        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+            return fillValue;
+        }
+    }
+
+    static class vInt4PerEVOF_fillValue extends ReadProxy {
+
+        private final float fillValue;
+
+        vInt4PerEVOF_fillValue() {
+            super(-1);
+            fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        }
+
+        Class getDataType() {
+            return float.class;
+        }
+
+        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+            return fillValue;
         }
     }
 }

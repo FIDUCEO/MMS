@@ -190,6 +190,18 @@ public class ReadProxyTest {
     }
 
     @Test
+    public void testBytePerPixel_fillValue() throws IOException {
+        final ReadProxy.bytePerPixel_fillValue bytePerPixel = new ReadProxy.bytePerPixel_fillValue();
+
+        assertEquals(byte.class, bytePerPixel.getDataType());
+
+        final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
+
+        final Object data = bytePerPixel.read(10, 1, mdr_1C);
+        assertEquals((byte) -127, (byte) (data));
+    }
+
+    @Test
     public void testShortPerPixel() throws IOException {
         final ReadProxy.shortPerPixel shortPerPixel = new ReadProxy.shortPerPixel(18);
 
@@ -235,5 +247,25 @@ public class ReadProxyTest {
 
         verify(mdr_1C, times(1)).readPerPixel_oneOfDualInt(10, 1, 19, 1);
         verifyNoMoreInteractions(mdr_1C);
+    }
+
+    @Test
+    public void testShortPerPixel_fillValue() throws IOException {
+        final ReadProxy.shortPerPixel_fillValue shortPerPixel = new ReadProxy.shortPerPixel_fillValue();
+
+        assertEquals(short.class, shortPerPixel.getDataType());
+
+        final Object data = shortPerPixel.read(9, 0, new MDR_1C_v4());
+        assertEquals(-32767, (short) data);
+    }
+
+    @Test
+    public void testvInt4PerEVOF_fillValue() throws IOException {
+        final ReadProxy.vInt4PerEVOF_fillValue vint4PerEfov = new ReadProxy.vInt4PerEVOF_fillValue();
+
+        assertEquals(float.class, vint4PerEfov.getDataType());
+
+        final Object data = vint4PerEfov.read(10, 1, new MDR_1C_v4());
+        assertEquals(9.969209968386869E36, (float) data, 1e-8);
     }
 }

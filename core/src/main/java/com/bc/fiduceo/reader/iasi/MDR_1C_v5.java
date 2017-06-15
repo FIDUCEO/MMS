@@ -61,14 +61,6 @@ class MDR_1C_v5 extends MDR_1C {
     private static final long GEUM_AVHRR_LAND_FRAC_OFFSET = 2728668;
     private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
 
-
-    private static final int SHORT_SIZE = 2;
-    private static final int INT_SIZE = 4;
-    private static final int VINT4_SIZE = 5;
-    private static final int DUAL_INT_SIZE = 8;
-    private static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-05-05
-
-
     MDR_1C_v5() {
         super(new byte[RECORD_SIZE]);
     }
@@ -92,30 +84,6 @@ class MDR_1C_v5 extends MDR_1C {
         return spectrum;
     }
 
-    float readPerScan_vInt4(long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        stream.seek(position);
-
-        return EpsMetopUtil.readVInt4(stream);
-    }
-
-    short readPerEFOV_short(int x, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(position + mdrPos * 2);
-        return stream.readShort();
-    }
-
-    float readPerEFOV_vInt4(int x, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-
-        stream.seek(position + mdrPos * VINT4_SIZE);
-
-        return EpsMetopUtil.readVInt4(stream);
-    }
-
     byte readPerPixel_byte(int x, int line, long position) throws IOException {
         final ImageInputStream stream = getStream();
         final int mdrPos = getMdrPos(x);
@@ -124,36 +92,6 @@ class MDR_1C_v5 extends MDR_1C {
         stream.seek(position + mdrPos * PN + efovIndex);
 
         return stream.readByte();
-    }
-
-    short readPerPixel_short(int x, int line, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * SHORT_SIZE);
-
-        return stream.readShort();
-    }
-
-    int readPerPixel_int(int x, int line, long position) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * INT_SIZE);
-
-        return stream.readInt();
-    }
-
-    int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException {
-        final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
-
-        stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
-
-        return stream.readInt();
     }
 
     static HashMap<String, ReadProxy> getReadProxies() {
