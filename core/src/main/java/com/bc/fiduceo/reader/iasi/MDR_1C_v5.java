@@ -44,7 +44,6 @@ class MDR_1C_v5 extends MDR_1C {
     private static final long GGEO_SOND_ANGLES_SUN_OFFSET = 263813;
     private static final long EARTH_SATELLITE_DISTANCE_OFFSET = 276773;
     private static final long IDEF_SPECT_DWN_1B_OFFSET = 276777;
-    // @todo 3 hide this behind a getter-method .... when supporting older IASI files 2017-06-09
     private static final long IDEF_NS_FIRST_1B_OFFSET = 276782;
     private static final long IDEF_NS_LAST_1B_OFFSET = 276786;
     private static final long G1S_SPECT_OFFSET = 276790;

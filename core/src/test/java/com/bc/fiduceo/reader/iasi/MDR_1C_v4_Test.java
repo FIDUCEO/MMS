@@ -26,6 +26,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class MDR_1C_v4_Test {
 
@@ -48,8 +49,31 @@ public class MDR_1C_v4_Test {
     @Test
     public void testGetReadProxies() {
         final HashMap<String, ReadProxy> proxies = MDR_1C_v4.getReadProxies();
-        // @todo 1 tb/tb continue here 2017-06-14
-//        assertNotNull(proxies);
-//        assertEquals(38, proxies.size());
+        assertNotNull(proxies);
+        assertEquals(38, proxies.size());
+
+        ReadProxy readProxy = proxies.get("GEPS_CCD");
+        assertEquals(byte.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("GGeoSondAnglesMETOP_Zenith");
+        assertEquals(int.class, readProxy.getDataType());
+        assertEquals(1e-6, readProxy.getScaleFactor(), 1e-8);
+
+        readProxy = proxies.get("IDefCcsMode");
+        assertEquals(int.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("IDefNslast1b");
+        assertEquals(int.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("GEUMAvhrr1BCldFrac");
+        assertEquals(byte.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
+
+        readProxy = proxies.get("GQisQualIndex");
+        assertEquals(float.class, readProxy.getDataType());
+        assertTrue(Double.isNaN(readProxy.getScaleFactor()));
     }
 }

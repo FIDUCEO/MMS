@@ -268,7 +268,7 @@ public class IASI_Reader implements Reader {
         return gs1cSpectDecoded;
     }
 
-    // @todo 2 tb/tbwrite test tb 2017-06-09
+    // @todo 2 tb/tb write test tb 2017-06-09
     public static float[] getDefaultFloatSpect() {
         final float[] gs1cSpectDecoded = new float[EpsMetopConstants.SS];
 
