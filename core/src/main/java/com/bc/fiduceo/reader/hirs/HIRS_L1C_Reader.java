@@ -82,6 +82,7 @@ public class HIRS_L1C_Reader implements Reader {
     public void close() throws IOException {
         arrayCache = null;
         fillValueCache.clear();
+        pixelLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;

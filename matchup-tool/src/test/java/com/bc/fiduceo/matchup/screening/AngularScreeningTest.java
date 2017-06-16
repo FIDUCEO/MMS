@@ -27,6 +27,7 @@ import com.bc.fiduceo.reader.Reader;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
@@ -80,10 +81,14 @@ public class AngularScreeningTest {
         sampleSets.add(createSampleSet(25, 56, 225, 256));
 
         final Array highAngleArray = mock(Array.class);
-        when(highAngleArray.getDouble(0)).thenReturn(44.8);
+        final IndexIterator highAngleIterator = mock(IndexIterator.class);
+        when((highAngleIterator.getDoubleNext())).thenReturn(44.8);
+        when(highAngleArray.getIndexIterator()).thenReturn(highAngleIterator);
 
         final Array lowAngleArray = mock(Array.class);
-        when(lowAngleArray.getDouble(0)).thenReturn(8.2);
+        final IndexIterator lowAngleIterator = mock(IndexIterator.class);
+        when(lowAngleIterator.getDoubleNext()).thenReturn(8.2);
+        when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
         when(primaryReader.readScaled(eq(23), eq(54), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
@@ -118,10 +123,14 @@ public class AngularScreeningTest {
         sampleSets.add(createSampleSet(35, 66, 235, 266));  // <- this one gets removed
 
         final Array highAngleArray = mock(Array.class);
-        when(highAngleArray.getDouble(0)).thenReturn(34.8);
+        final IndexIterator highAngleIterator = mock(IndexIterator.class);
+        when((highAngleIterator.getDoubleNext())).thenReturn(34.8);
+        when(highAngleArray.getIndexIterator()).thenReturn(highAngleIterator);
 
         final Array lowAngleArray = mock(Array.class);
-        when(lowAngleArray.getDouble(0)).thenReturn(9.2);
+        final IndexIterator lowAngleIterator = mock(IndexIterator.class);
+        when(lowAngleIterator.getDoubleNext()).thenReturn(9.2);
+        when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
         when(primaryReader.readScaled(eq(33), eq(64), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
@@ -156,10 +165,14 @@ public class AngularScreeningTest {
         sampleSets.add(createSampleSet(45, 56, 245, 256));  // <- this one gets removed
 
         final Array highAngleArray = mock(Array.class);
-        when(highAngleArray.getDouble(0)).thenReturn(34.8);
+        final IndexIterator highAngleIterator = mock(IndexIterator.class);
+        when((highAngleIterator.getDoubleNext())).thenReturn(24.8);
+        when(highAngleArray.getIndexIterator()).thenReturn(highAngleIterator);
 
         final Array lowAngleArray = mock(Array.class);
-        when(lowAngleArray.getDouble(0)).thenReturn(8.2);
+        final IndexIterator lowAngleIterator = mock(IndexIterator.class);
+        when(lowAngleIterator.getDoubleNext()).thenReturn(8.2);
+        when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
         when(primaryReader.readScaled(eq(43), eq(54), anyObject(), eq("the_angle"))).thenReturn(highAngleArray);
@@ -196,10 +209,14 @@ public class AngularScreeningTest {
         sampleSets.add(createSampleSet(55, 66, 255, 266));
 
         final Array highAngleArray = mock(Array.class);
-        when(highAngleArray.getDouble(0)).thenReturn(24.8);
+        final IndexIterator highAngleIterator = mock(IndexIterator.class);
+        when((highAngleIterator.getDoubleNext())).thenReturn(24.8);
+        when(highAngleArray.getIndexIterator()).thenReturn(highAngleIterator);
 
         final Array lowAngleArray = mock(Array.class);
-        when(lowAngleArray.getDouble(0)).thenReturn(8.2);
+        final IndexIterator lowAngleIterator = mock(IndexIterator.class);
+        when(lowAngleIterator.getDoubleNext()).thenReturn(8.2);
+        when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
         when(primaryReader.readScaled(eq(53), eq(64), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
@@ -237,13 +254,19 @@ public class AngularScreeningTest {
         sampleSets.add(createSampleSet(65, 76, 265, 276));   // <- this one gets removed
 
         final Array tooHighAngleArray = mock(Array.class);
-        when(tooHighAngleArray.getDouble(0)).thenReturn(26.8);
+        final IndexIterator tooHighAngleIterator = mock(IndexIterator.class);
+        when((tooHighAngleIterator.getDoubleNext())).thenReturn(26.8);
+        when(tooHighAngleArray.getIndexIterator()).thenReturn(tooHighAngleIterator);
 
         final Array highAngleArray = mock(Array.class);
-        when(highAngleArray.getDouble(0)).thenReturn(6.8);
+        final IndexIterator highAngleIterator = mock(IndexIterator.class);
+        when((highAngleIterator.getDoubleNext())).thenReturn(6.8);
+        when(highAngleArray.getIndexIterator()).thenReturn(highAngleIterator);
 
         final Array lowAngleArray = mock(Array.class);
-        when(lowAngleArray.getDouble(0)).thenReturn(8.2);
+        final IndexIterator lowAngleIterator = mock(IndexIterator.class);
+        when(lowAngleIterator.getDoubleNext()).thenReturn(8.2);
+        when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
         when(primaryReader.readScaled(eq(63), eq(74), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);

@@ -80,6 +80,8 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
+        pixelLocator = null;
+        boundingPolygonCreator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -331,6 +333,7 @@ class AMSRE_Reader implements Reader {
         variables.add(channelVariable);
     }
 
+    // @todo 3 tb/** move this to NetCDFUtil class and write test 2017-06-16
     private Attribute getGlobalAttributeSafe(String attributeName) {
         final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
         if (globalAttribute == null) {

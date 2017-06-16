@@ -27,6 +27,8 @@ import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
+import ucar.ma2.Index;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
@@ -73,15 +75,18 @@ class AngularScreening implements Screening {
         if (hasPrimary) {
             final Sample primaryPixel = sampleSet.getPrimary();
             final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, configuration.primaryVariableName);
+            final IndexIterator indexIterator = szaPrimaryArray.getIndexIterator();
 
-            primaryVZA = szaPrimaryArray.getDouble(0);
+            primaryVZA = indexIterator.getDoubleNext();
         }
 
         if (hasSecondary) {
             final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
 
-            secondaryVZA = szaSecondaryArray.getDouble(0);
+            final IndexIterator indexIterator = szaSecondaryArray.getIndexIterator();
+
+            secondaryVZA = indexIterator.getDoubleNext();
         }
 
         if (configuration.usePrimary) {

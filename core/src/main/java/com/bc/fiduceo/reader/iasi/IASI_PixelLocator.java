@@ -2,11 +2,7 @@ package com.bc.fiduceo.reader.iasi;
 
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.math.SphericalDistance;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;

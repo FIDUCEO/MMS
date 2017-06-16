@@ -429,22 +429,4 @@ class ATSR_L1B_Reader implements Reader {
         }
         return dataNode;
     }
-
-    private void copyTargetData(Array readArray, Array targetArray, int width, int height, int xOffset, int yOffset, double noDataValue) {
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
-        final Index index = targetArray.getIndex();
-        for (int x = 0; x < width; x++) {
-            final int currentX = xOffset + x;
-            for (int y = 0; y < height; y++) {
-                final int currentY = yOffset + y;
-                index.set(y, x);
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    targetArray.setObject(index, readArray.getObject(index));
-                } else {
-                    targetArray.setObject(index, noDataValue);
-                }
-            }
-        }
-    }
 }

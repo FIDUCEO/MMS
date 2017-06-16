@@ -43,9 +43,7 @@ package com.bc.fiduceo.reader.iasi;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -94,6 +92,8 @@ public class IASI_Reader implements Reader {
     IASI_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
         iis = null;
+        geolocationData = null;
+        pixelLocator = null;
     }
 
     @Override
@@ -113,6 +113,8 @@ public class IASI_Reader implements Reader {
     @Override
     public void close() throws IOException {
         timeLocator = null;
+        geolocationData = null;
+        pixelLocator = null;
         if (iis != null) {
             iis.close();
             iis = null;
@@ -241,7 +243,6 @@ public class IASI_Reader implements Reader {
         final MDR_1C[] mdRs = getMDRs(y, 1);
         final int[] shape = new int[]{EpsMetopConstants.SS};
 
-        final long geolocationOffset = mdrCache.getGeolocationOffset();
         final short[] gs1cSpect = mdRs[0].get_GS1cSpect(x, y % 2);
         final int iDefNsfirst = mdRs[0].readPerScan_int(mdRs[0].getFirst1BOffset());
 
@@ -389,6 +390,9 @@ public class IASI_Reader implements Reader {
             for (int i = 0, j = 0; j < SNOT; j++) {
                 final float[][] efovData = scanLineData[j];
                 for (int k = 0; k < EpsMetopConstants.PN; k++) {
+//                    if (mdrBlock[i] > 180000000) {
+//                        System.out.println("k = " + k);
+//                    }
                     efovData[k][LON] = mdrBlock[i++] * EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
                     efovData[k][LAT] = mdrBlock[i++] * EpsMetopConstants.G_GEO_SOND_LOC_SCALING_FACTOR;
                 }
@@ -412,6 +416,11 @@ public class IASI_Reader implements Reader {
         if (!boundingGeometry.isValid()) {
             throw new RuntimeException("Unable to extract valid bounding geometry");
         }
+//
+//        final GeometryCollection collection = (GeometryCollection) boundingGeometry;
+//        System.out.println(GeometryUtil.toKml((Polygon) collection.getGeometries()[0]));
+//        System.out.println(GeometryUtil.toKml((Polygon) collection.getGeometries()[1]));
+
         geometries.setBoundingGeometry(boundingGeometry);
 
         final Geometry timeAxisGeometry = polygonCreator.createTimeAxisGeometrySplitted(geolocationData.longitudes, geolocationData.latitudes, 2);

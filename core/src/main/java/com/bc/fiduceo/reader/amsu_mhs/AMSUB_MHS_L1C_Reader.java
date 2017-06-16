@@ -96,6 +96,8 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     @Override
     public void close() throws IOException {
         timeLocator = null;
+        pixelLocator = null;
+        boundingPolygonCreator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -356,6 +358,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         return boundingPolygonCreator;
     }
 
+    // @todo 3 tb/** move this to NetCDFUtil class and write test 2017-06-16
     private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
         final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
         if (attribute == null) {
