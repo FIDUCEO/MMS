@@ -244,8 +244,7 @@ class AMSRE_Reader implements Reader {
                     shortName.contains("Effective_Hot_Load") ||
                     shortName.contains("Res2_Surf") ||
                     shortName.contains("Res3_Surf") ||
-                    shortName.contains("Res4_Surf") ||
-                    shortName.contains("Sun_Glint") ) {
+                    shortName.contains("Res4_Surf") ) {
                 continue;
             }
 

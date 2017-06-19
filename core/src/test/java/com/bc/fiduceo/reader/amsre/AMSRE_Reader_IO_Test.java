@@ -140,7 +140,7 @@ public class AMSRE_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(36, variables.size());
+            assertEquals(37, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("Time", variable.getShortName());
@@ -198,7 +198,11 @@ public class AMSRE_Reader_IO_Test {
             assertEquals("Res1_Surf", variable.getShortName());
             assertEquals(DataType.BYTE, variable.getDataType());
 
-            variable = variables.get(35);
+            variable = variables.get(34);
+            assertEquals("Sun_Glint_Angle", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(36);
             assertEquals("Geostationary_Reflection_Longitude", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
         } finally {

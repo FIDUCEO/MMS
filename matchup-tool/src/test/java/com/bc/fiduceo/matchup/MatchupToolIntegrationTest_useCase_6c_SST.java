@@ -114,6 +114,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
             NCTestUtils.assert3DVariable("amsre-aq_Channel_Quality_Flag_10H", 2, 2, 0, 0, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Latitude", 3, 2, 0, -1051, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Longitude", 4, 2, 0, -1363, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_Sun_Glint_Angle", 0, 3, 0, 1406, mmd);
 
             NCTestUtils.assert3DVariable("drifter-sst_acquisition_time", 0, 0, 0, 1108599012, mmd);
             NCTestUtils.assertStringVariable("drifter-sst_file_name", 0, "insitu_0_WMOID_71612_20040223_20151010.nc", mmd);

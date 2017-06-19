@@ -97,6 +97,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
             NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_Sun_Glint_Angle", 4, 0, 58, 4287, mmd);
         }
     }
 
