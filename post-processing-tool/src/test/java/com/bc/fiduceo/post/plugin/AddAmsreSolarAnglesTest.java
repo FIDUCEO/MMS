@@ -37,6 +37,8 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -75,6 +77,10 @@ public class AddAmsreSolarAnglesTest {
         dimensions.add(new Dimension("height", 105));
         when(earthAzimuthVariable.getDimensions()).thenReturn(dimensions);
         when(reader.findVariable(null, "Earth_Azimuth")).thenReturn(earthAzimuthVariable);
+
+        final Variable targetVariable = mock(Variable.class);
+        when(writer.addVariable(null, "sun_zenith_angle", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
+        when(writer.addVariable(null, "sun_azimuth_angle", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
 
         addAmsreSolarAngles.prepare(reader, writer);
 

@@ -41,8 +41,13 @@ class AddAmsreSolarAngles extends PostProcessing {
         final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.earthAzimuthVariable);
         final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
-        writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
+        final Variable variable = writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
+        variable.addAttribute(new Attribute("description", "Calculated from AMSRE data as sza = Sun_Elevation + Earth_Incidence"));
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
+
         writer.addVariable(null, configuration.saaVariable, DataType.FLOAT, dimensions);
+        variable.addAttribute(new Attribute("description", "Calculated from AMSRE data as saa = (Earth_Azimuth - Sun_Azimuth - 180.0) mod 360.0"));
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
     }
 
     @Override
