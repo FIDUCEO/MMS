@@ -183,4 +183,16 @@ public class IASI_ReaderTest {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testGetDefaultFloatSpect() {
+        final float[] floatSpect = IASI_Reader.getDefaultFloatSpect();
+        assertEquals(8700, floatSpect.length);
+
+        final float expected = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        assertEquals(expected, floatSpect[0], 1e-8);
+        assertEquals(expected, floatSpect[1287], 1e-8);
+        assertEquals(expected, floatSpect[5467], 1e-8);
+        assertEquals(expected, floatSpect[8699], 1e-8);
+    }
 }

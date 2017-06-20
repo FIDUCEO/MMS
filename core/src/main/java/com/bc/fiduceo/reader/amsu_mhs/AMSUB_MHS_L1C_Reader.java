@@ -108,13 +108,13 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final int startYear = getGlobalAttributeAsInteger("startdatayr");
-        final int startDay = getGlobalAttributeAsInteger("startdatady");
-        final int startTime = getGlobalAttributeAsInteger("startdatatime_ms");
+        final int startYear = NetCDFUtils.getGlobalAttributeInt("startdatayr", netcdfFile) ;
+        final int startDay = NetCDFUtils.getGlobalAttributeInt("startdatady", netcdfFile);
+        final int startTime = NetCDFUtils.getGlobalAttributeInt("startdatatime_ms", netcdfFile);
 
-        final int endYear = getGlobalAttributeAsInteger("enddatayr");
-        final int endDay = getGlobalAttributeAsInteger("enddatady");
-        final int endTime = getGlobalAttributeAsInteger("enddatatime_ms");
+        final int endYear = NetCDFUtils.getGlobalAttributeInt("enddatayr", netcdfFile);
+        final int endDay = NetCDFUtils.getGlobalAttributeInt("enddatady", netcdfFile);
+        final int endTime = NetCDFUtils.getGlobalAttributeInt("enddatatime_ms", netcdfFile);
 
         final Date sensingStart = TimeUtils.getDate(startYear, startDay, startTime);
         acquisitionInfo.setSensingStart(sensingStart);
@@ -356,15 +356,6 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
         }
 
         return boundingPolygonCreator;
-    }
-
-    // @todo 3 tb/** move this to NetCDFUtil class and write test 2017-06-16
-    private int getGlobalAttributeAsInteger(String attributeName) throws IOException {
-        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (attribute == null) {
-            throw new IOException("Global attribute '" + attributeName + "' not found.");
-        }
-        return attribute.getNumericValue().intValue();
     }
 
     private Geometries extractGeometries() throws IOException {

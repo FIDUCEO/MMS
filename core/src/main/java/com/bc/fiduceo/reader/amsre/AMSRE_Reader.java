@@ -332,20 +332,11 @@ class AMSRE_Reader implements Reader {
         variables.add(channelVariable);
     }
 
-    // @todo 3 tb/** move this to NetCDFUtil class and write test 2017-06-16
-    private Attribute getGlobalAttributeSafe(String attributeName) {
-        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (globalAttribute == null) {
-            throw new RuntimeException("Required attribute not present in file: " + attributeName);
-        }
-        return globalAttribute;
-    }
-
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
-        final Attribute rangeBeginningDateAttribute = getGlobalAttributeSafe("RangeBeginningDate");
-        final Attribute rangeBeginningTimeAttribute = getGlobalAttributeSafe("RangeBeginningTime");
-        final Attribute rangeEndingDateAttribute = getGlobalAttributeSafe("RangeEndingDate");
-        final Attribute rangeEndingTimeAttribute = getGlobalAttributeSafe("RangeEndingTime");
+        final Attribute rangeBeginningDateAttribute = NetCDFUtils.getGlobalAttributeSafe("RangeBeginningDate", netcdfFile);
+        final Attribute rangeBeginningTimeAttribute = NetCDFUtils.getGlobalAttributeSafe("RangeBeginningTime", netcdfFile);
+        final Attribute rangeEndingDateAttribute = NetCDFUtils.getGlobalAttributeSafe("RangeEndingDate", netcdfFile);
+        final Attribute rangeEndingTimeAttribute = NetCDFUtils.getGlobalAttributeSafe("RangeEndingTime", netcdfFile);
 
         final ProductData.UTC sensingStart = getUtcData(rangeBeginningDateAttribute, rangeBeginningTimeAttribute);
         acquisitionInfo.setSensingStart(sensingStart.getAsDate());
@@ -354,8 +345,8 @@ class AMSRE_Reader implements Reader {
         acquisitionInfo.setSensingStop(sensingStop.getAsDate());
     }
 
-    private void setNodeType(AcquisitionInfo acquisitionInfo) {
-        final Attribute orbitDirectionAttribute = getGlobalAttributeSafe("OrbitDirection");
+    private void setNodeType(AcquisitionInfo acquisitionInfo) throws IOException {
+        final Attribute orbitDirectionAttribute = NetCDFUtils.getGlobalAttributeSafe("OrbitDirection", netcdfFile);
         final String orbitDirection = orbitDirectionAttribute.getStringValue();
         assignNodeType(acquisitionInfo, orbitDirection);
     }

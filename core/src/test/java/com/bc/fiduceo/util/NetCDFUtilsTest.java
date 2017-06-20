@@ -99,15 +99,40 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeString_missingAttribute() throws IOException {
+    public void testGetGlobalAttributeString_missingAttribute() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
 
         when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
 
         try {
             NetCDFUtils.getGlobalAttributeString("the_attribute", netcdfFile);
-            fail("IOException expected");
-        } catch (IOException expected) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetGlobalAttributeInt() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Attribute attribute = mock(Attribute.class);
+
+        when(attribute.getNumericValue()).thenReturn(38);
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(attribute);
+
+        final int intValue = NetCDFUtils.getGlobalAttributeInt("the_attribute", netcdfFile);
+        assertEquals(38, intValue);
+    }
+
+    @Test
+    public void testGetGlobalAttributeInt_missingAttribute() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
+
+        try {
+            NetCDFUtils.getGlobalAttributeInt("the_attribute", netcdfFile);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -353,5 +378,29 @@ public class NetCDFUtilsTest {
 
         final float attributeFloat = NetCDFUtils.getAttributeFloat(variable, "schlimm", -12.8f);
         assertEquals(-12.8f, attributeFloat, 1e-8);
+    }
+
+    @Test
+    public void testGetGlobalAttributeSafe() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Attribute attribute = mock(Attribute.class);
+
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(attribute);
+
+        final Attribute globalAttribute = NetCDFUtils.getGlobalAttributeSafe("the_attribute", netcdfFile);
+        assertNotNull(globalAttribute);
+    }
+
+    @Test
+    public void testGetGlobalAttributeSafe_missingAttribute() throws IOException {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
+
+        try {
+            NetCDFUtils.getGlobalAttributeSafe("the_attribute", netcdfFile);
+            fail("RuntimeException expecetd");
+        } catch (RuntimeException expecetd) {
+        }
     }
 }

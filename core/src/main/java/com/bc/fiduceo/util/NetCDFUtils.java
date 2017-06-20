@@ -116,12 +116,14 @@ public class NetCDFUtils {
         // conflicts. Snap uses netcdf version 4.3.22, fiduceo is at version 4.6.5 2016-08-08
     }
 
-    public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile) throws IOException {
-        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (globalAttribute == null) {
-            throw new IOException("Required global attribute not found: " + attributeName);
-        }
+    public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile){
+        final Attribute globalAttribute = getGlobalAttributeSafe(attributeName, netcdfFile);
         return globalAttribute.getStringValue();
+    }
+
+    public static int getGlobalAttributeInt(String attributeName, NetcdfFile netcdfFile) {
+        final Attribute attribute = getGlobalAttributeSafe(attributeName, netcdfFile);
+        return attribute.getNumericValue().intValue();
     }
 
     public static float getAttributeFloat(Variable variable, String name, float defaultValue) {
@@ -243,5 +245,13 @@ public class NetCDFUtils {
             return MAMath.convert2Unpacked(array, scaleOffset);
         }
         return array;
+    }
+
+    public static Attribute getGlobalAttributeSafe(String attributeName, NetcdfFile netcdfFile) {
+        final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (globalAttribute == null) {
+            throw new RuntimeException("Required global attribute not found: " + attributeName);
+        }
+        return globalAttribute;
     }
 }
