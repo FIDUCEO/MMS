@@ -20,13 +20,13 @@
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.INSITU_NTIME;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.MATCHUP;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.reader.Reader;
 import com.beust.jcommander.internal.Lists;
 import org.junit.*;
@@ -199,9 +199,8 @@ public class SstInsituTimeSeriesTest {
 
         insituTimeSeries.addInsituVariables(writer, insituReader);
 
-        final String dimString = MATCHUP + " " + INSITU_NTIME;
+        final String dimString = Constants.MATCHUP_COUNT + " " + INSITU_NTIME;
 
-        verify(writer, times(1)).addDimension(null, "matchup", 0);
         verify(writer, times(1)).addDimension(null, "insitu.ntime", 34);
         verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);
         verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);

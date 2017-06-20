@@ -34,9 +34,6 @@ import org.junit.*;
 
 import java.util.Arrays;
 
-/**
- * Created by Sabine on 08.12.2016.
- */
 public class SstInsituTimeSeriesPluginTest {
 
     private SstInsituTimeSeriesPlugin plugin;

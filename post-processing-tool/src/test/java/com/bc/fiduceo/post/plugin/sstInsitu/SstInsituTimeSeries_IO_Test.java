@@ -35,6 +35,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessingConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
@@ -65,7 +66,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeries_IO_Test {
@@ -132,11 +132,10 @@ public class SstInsituTimeSeries_IO_Test {
 
         // verification
         final String insituNtime = SstInsituTimeSeries.INSITU_NTIME;
-        final String matchup = SstInsituTimeSeries.MATCHUP;
+        final String matchup = Constants.MATCHUP_COUNT;
         final String dimString = matchup + " " + insituNtime;
 
         final InOrder inOrder = inOrder(writer, newVariable);
-        inOrder.verify(writer, times(1)).addDimension(null, matchup, 9);
         inOrder.verify(writer, times(1)).addDimension(null, insituNtime, 16);
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
@@ -267,7 +266,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  ID  ************
             final Variable insituId = netcdfFile.findVariable(escape("insitu.id"));
-            assertEquals("matchup insitu.ntime", insituId.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", insituId.getDimensionsString());
             assertEquals(3, insituId.getAttributes().size());
             assertEquals(new Attribute(CF_FILL_VALUE_NAME, -32768L), insituId.findAttribute(CF_FILL_VALUE_NAME));
             assertEquals(new Attribute(CF_LONG_NAME, "unique matchup ID"), insituId.findAttribute(CF_LONG_NAME));
@@ -296,7 +295,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  dTIME  ************
             final Variable dtime = netcdfFile.findVariable(escape("insitu.dtime"));
-            assertEquals("matchup insitu.ntime", dtime.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", dtime.getDimensionsString());
             assertEquals(2, dtime.getAttributes().size());
             final int fill2 = -2147483647;
             assertEquals(new Attribute(CF_FILL_VALUE_NAME, fill2), dtime.findAttribute(CF_FILL_VALUE_NAME));
@@ -324,7 +323,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  Latitude  ************
             final Variable latitude = netcdfFile.findVariable(escape("insitu.lat"));
-            assertEquals("matchup insitu.ntime", latitude.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", latitude.getDimensionsString());
             assertEquals(3, latitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_north", latitude.findAttribute("units").getStringValue());
@@ -353,7 +352,7 @@ public class SstInsituTimeSeries_IO_Test {
 
             // **********  Longitude  ************
             final Variable longitude = netcdfFile.findVariable(escape("insitu.lon"));
-            assertEquals("matchup insitu.ntime", longitude.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", longitude.getDimensionsString());
             assertEquals(3, longitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
 //            assertEquals("degrees_east", longitude.findAttribute("units").getStringValue());
@@ -388,7 +387,7 @@ public class SstInsituTimeSeries_IO_Test {
             // **********  SEA_SURFACE_TEMPERATURE  ************
             final Variable temperature = netcdfFile.findVariable(escape("insitu.sea_surface_temperature"));
             assertNotNull(temperature);
-            assertEquals("matchup insitu.ntime", temperature.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", temperature.getDimensionsString());
             assertEquals(3, temperature.getAttributes().size());
             assertEquals(new Attribute(CF_LONG_NAME, "in situ sea surface temperature"), temperature.findAttribute(CF_LONG_NAME));
             assertEquals(new Attribute(CF_UNITS_NAME, "Celcius"), temperature.findAttribute(CF_UNITS_NAME));
@@ -419,7 +418,7 @@ public class SstInsituTimeSeries_IO_Test {
             // **********  SST_UNCERTAINTY  ************
             final Variable uncertainty = netcdfFile.findVariable(escape("insitu.sst_uncertainty"));
             assertNotNull(uncertainty);
-            assertEquals("matchup insitu.ntime", uncertainty.getDimensionsString());
+            assertEquals("matchup_count insitu.ntime", uncertainty.getDimensionsString());
             assertEquals(3, uncertainty.getAttributes().size());
             assertEquals(new Attribute(CF_LONG_NAME, "in situ sea surface temperature uncertainty"), uncertainty.findAttribute(CF_LONG_NAME));
             assertEquals(new Attribute(CF_UNITS_NAME, "Celcius"), uncertainty.findAttribute(CF_UNITS_NAME));

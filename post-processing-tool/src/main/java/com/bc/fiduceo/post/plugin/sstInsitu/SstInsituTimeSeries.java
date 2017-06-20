@@ -46,7 +46,6 @@ class SstInsituTimeSeries extends PostProcessing {
 
     static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
-    static final String MATCHUP = "matchup";
 
     // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
     final String processingVersion;
@@ -183,13 +182,11 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
-        final String dimString = MATCHUP + " " + INSITU_NTIME;
-        writer.addDimension(null, MATCHUP, matchupCount);
+        final String dimString = Constants.MATCHUP_COUNT + " " + INSITU_NTIME;
         writer.addDimension(null, INSITU_NTIME, timeSeriesSize);
         final List<Variable> variables = insituReader.getVariables();
-//        addVariablesAccordingToOldSstFileVersion(variables, dimString, writer);
         addVariables(variables, dimString, writer);
-        addAditionalVariables(writer, dimString);
+        addAdditionalVariables(writer, dimString);
     }
 
     private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
@@ -228,7 +225,7 @@ class SstInsituTimeSeries extends PostProcessing {
         }
     }
 
-    private void addAditionalVariables(NetcdfFileWriter writer, String dimString) {
+    private void addAdditionalVariables(NetcdfFileWriter writer, String dimString) {
         final Variable yVariable = writer.addVariable(null, "insitu.y", DataType.INT, dimString);
         yVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
 
