@@ -293,7 +293,7 @@ public class AMSUB_MHS_L1C_Reader implements Reader {
 
     // package access for testing only tb 2016-04-14
     static boolean isAmsub(NetcdfFile netcdfFile) throws IOException {
-        final Attribute instrument = netcdfFile.findGlobalAttribute("instrument");
+        final Attribute instrument = NetCDFUtils.getGlobalAttributeSafe("instrument", netcdfFile);
         final int instrumentId = instrument.getNumericValue().intValue();
         if (instrumentId == 11) {
             return true;
