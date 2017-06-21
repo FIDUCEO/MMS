@@ -20,7 +20,9 @@
 
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
+import com.google.common.geometry.S1Angle;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -103,18 +105,40 @@ public class BcS2LineStringTest {
     }
 
     @Test
-    public void testGetIntersection() {
-        final ArrayList<S2Point> vertices = new ArrayList<>();
-        vertices.add(new S2Point(0.1, 0.2, 0.5));
-        final S2Polyline innerLineString = new S2Polyline(vertices);
+    public void testGetIntersection_lineString_intersecting() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 3).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
         final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        final BcS2Point point = new BcS2Point(new S2LatLng());
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(1, 1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(2, 3).toPoint());
+        innerLineString = new S2Polyline(vertices);
+        final BcS2LineString otherLineString = new BcS2LineString(innerLineString);
 
-        try {
-            bcS2LineString.getIntersection(point);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
+        final Geometry intersection = bcS2LineString.getIntersection(otherLineString);
+        assertTrue(intersection instanceof BcS2Point);
+        assertEquals("POINT(2.7139604154540273 1.857161476202161)", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_lineString_notIntersecting() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 1).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(0, 4).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 2).toPoint());
+        innerLineString = new S2Polyline(vertices);
+        final BcS2LineString otherLineString = new BcS2LineString(innerLineString);
+
+        final Geometry intersection = bcS2LineString.getIntersection(otherLineString);
+        assertNotNull(intersection);
+        assertFalse(intersection.isValid());
     }
 }

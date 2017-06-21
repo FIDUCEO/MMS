@@ -84,6 +84,9 @@ class BcS2Point implements Point {
 
     @Override
     public String toString() {
+        if (s2LatLng == null) {
+            return "POINT(invalid)";
+        }
         return "POINT(" + s2LatLng.lngDegrees() + " " + s2LatLng.latDegrees() + ")";
     }
 

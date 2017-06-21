@@ -25,6 +25,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTWriter;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
@@ -45,7 +46,13 @@ class BcS2LineString implements LineString {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        throw new RuntimeException("not implemented");
+        final S2Polyline otherInner = (S2Polyline) other.getInner();
+        final S2Point intersects = googleLineString.intersects(otherInner);
+        if (intersects != null) {
+            return new BcS2Point(new S2LatLng(intersects));
+        } else{
+            return new BcS2Point(null);
+        }
     }
 
     @Override

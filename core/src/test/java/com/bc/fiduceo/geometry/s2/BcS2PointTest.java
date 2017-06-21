@@ -116,6 +116,13 @@ public class BcS2PointTest {
     }
 
     @Test
+    public void testToString_emptyPoint() {
+        final BcS2Point bcS2Point = new BcS2Point(null);
+
+        assertEquals("POINT(invalid)", bcS2Point.toString());
+    }
+
+    @Test
     public void testGetIntersection() {
         final BcS2Point bcS2Point = createS2Point(16, 88);
         final BcS2Point otherPoint = createS2Point(17, 85);
