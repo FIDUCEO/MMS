@@ -115,8 +115,9 @@ class IngestionTool {
             }
 
             logger.info("registering '" + dataFilePath + "' ...");
-            reader.open(filePath.toFile());
+
             try {
+                reader.open(filePath.toFile());
                 final AcquisitionInfo acquisitionInfo = reader.read();
 
                 final SatelliteObservation satelliteObservation = new SatelliteObservation();
