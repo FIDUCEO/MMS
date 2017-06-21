@@ -96,7 +96,6 @@ class IngestionTool {
         final Archive archive = new Archive(archiveConfig);
         final Date startDate = context.getStartDate();
         final Date endDate = context.getEndDate();
-        // @todo 1 tb/tb throw exception when stop date before start 2017-05-03
 
         final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
         for (final Path filePath : productPaths) {
@@ -211,6 +210,10 @@ class IngestionTool {
             context.setEndDate(endDate);
         } else {
             throw new RuntimeException("End date parameter missing");
+        }
+
+        if (context.getEndDate().before(context.getStartDate())) {
+            throw new RuntimeException("End date before start data");
         }
 
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());

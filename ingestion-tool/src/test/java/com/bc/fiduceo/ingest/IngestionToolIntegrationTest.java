@@ -27,7 +27,10 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +87,22 @@ public class IngestionToolIntegrationTest {
 
         args = new String[]{"--help"};
         IngestionToolMain.main(args);
+    }
+
+    @Test
+    public void testIngest_errorStopDateBeforeStartDate() throws ParseException, IOException, SQLException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
+                "-start", "2001-02-02",
+                "-end", "2001-01-01"};
+        final CommandLineParser parser = new PosixParser();
+        final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
+
+        final IngestionTool ingestionTool = new IngestionTool();
+        try {
+            ingestionTool.run(commandLine);
+            fail("RuntimeException expected");
+        }catch (RuntimeException expected) {
+        }
     }
 
     @Test
