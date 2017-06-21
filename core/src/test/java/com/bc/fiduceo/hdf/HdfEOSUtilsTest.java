@@ -20,11 +20,13 @@
 
 package com.bc.fiduceo.hdf;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import org.jdom2.Content;
 import org.jdom2.Element;
-import org.junit.Test;
+import org.junit.*;
 import ucar.ma2.Array;
 import ucar.nc2.Group;
 import ucar.nc2.Variable;
@@ -33,12 +35,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HdfEOSUtilsTest {
 

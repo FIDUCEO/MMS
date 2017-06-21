@@ -31,7 +31,6 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.util.TimeUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;

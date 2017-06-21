@@ -22,7 +22,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.reader.TimeLocator;
 
-public class IASI_TimeLocator implements TimeLocator {
+class IASI_TimeLocator implements TimeLocator {
 
     private final long[][] times;
 

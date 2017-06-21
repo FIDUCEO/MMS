@@ -19,6 +19,8 @@
  */
 package com.bc.fiduceo.reader;
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
@@ -27,15 +29,7 @@ import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
 import com.bc.fiduceo.reader.modis.MxD06_Reader;
-import com.bc.fiduceo.reader.modis.MxD06_ReaderPlugin;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.*;
 
 
 public class ReaderFactoryTest {

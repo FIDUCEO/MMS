@@ -13,7 +13,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IASI_PixelLocator implements PixelLocator {
+class IASI_PixelLocator implements PixelLocator {
 
     private final Array longitudes;
     private final Array latitudes;
