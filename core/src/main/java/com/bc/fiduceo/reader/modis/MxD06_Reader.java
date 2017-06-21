@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class MxD06_Reader implements Reader {
+class MxD06_Reader implements Reader {
 
     private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 

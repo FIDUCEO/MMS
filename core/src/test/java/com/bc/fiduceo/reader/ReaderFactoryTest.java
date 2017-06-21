@@ -19,16 +19,17 @@
  */
 package com.bc.fiduceo.reader;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
-import com.bc.fiduceo.reader.amsu_mhs.AMSUB_MHS_L1C_Reader;
+import com.bc.fiduceo.reader.airs.ForReaderFactoryTest_AIRS_L1B_Reader;
+import com.bc.fiduceo.reader.amsu_mhs.ForReaderFactoryTest_AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
-import com.bc.fiduceo.reader.hirs.HIRS_L1C_Reader;
+import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
-import com.bc.fiduceo.reader.modis.MxD06_Reader;
+import com.bc.fiduceo.reader.modis.ForReaderFactoryTest_MxD06_Reader;
 import org.junit.*;
 
 
@@ -54,7 +55,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("amsub-n17");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
+        ForReaderFactoryTest_AMSUB_MHS_L1C_Reader.checkInstance(reader);
     }
 
     @Test
@@ -62,7 +63,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("airs-aq");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof AIRS_L1B_Reader);
+        ForReaderFactoryTest_AIRS_L1B_Reader.checkInstance(reader);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof IASI_Reader);
+        assertThat(reader, is(instanceOf(IASI_Reader.class)));
     }
 
     @Test
@@ -78,7 +79,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("hirs-n11");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof HIRS_L1C_Reader);
+        ForReaderFactoryTest_HIRS_L1C_Reader.checkInstance(reader);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("myd06-aq");
 
         assertNotNull(reader);
-        assertTrue(reader instanceof MxD06_Reader);
+        ForReaderFactoryTest_MxD06_Reader.checkInstance(reader);
     }
 
     @Test

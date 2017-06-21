@@ -64,7 +64,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class AMSUB_MHS_L1C_Reader implements Reader {
+class AMSUB_MHS_L1C_Reader implements Reader {
 
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
     private static final String DATA_GROUP_NAME = "Data";

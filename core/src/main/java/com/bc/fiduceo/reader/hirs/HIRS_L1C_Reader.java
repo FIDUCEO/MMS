@@ -53,7 +53,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class HIRS_L1C_Reader implements Reader {
+class HIRS_L1C_Reader implements Reader {
 
     private static final int CHANNEL_DIMENSION_INDEX = 2;
     private static final int NUM_BT_CHANNELS = 19;

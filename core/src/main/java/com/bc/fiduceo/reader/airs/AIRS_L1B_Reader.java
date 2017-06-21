@@ -46,7 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class AIRS_L1B_Reader implements Reader {
+class AIRS_L1B_Reader implements Reader {
 
 
     private final Logger logger;
