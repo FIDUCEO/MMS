@@ -104,7 +104,7 @@ public class BcS2PointTest {
 
     @Test
     public void testIsValid_noInnerObject() {
-        BcS2Point point = new BcS2Point(null);
+        BcS2Point point = BcS2Point.createEmpty();
         assertFalse(point.isValid());
     }
 
@@ -117,7 +117,7 @@ public class BcS2PointTest {
 
     @Test
     public void testToString_emptyPoint() {
-        final BcS2Point bcS2Point = new BcS2Point(null);
+        final BcS2Point bcS2Point = BcS2Point.createEmpty();
 
         assertEquals("POINT(invalid)", bcS2Point.toString());
     }
@@ -155,6 +155,13 @@ public class BcS2PointTest {
 
         final BcS2Point bcS2Point = BcS2Point.createFrom(s2Point);
         assertEquals("POINT(56.309932474020215 44.148947407668004)", bcS2Point.toString());
+    }
+
+    @Test
+    public void testCreateEmpty() {
+        final BcS2Point bcS2Point = BcS2Point.createEmpty();
+        assertFalse(bcS2Point.isValid());
+        assertEquals("POINT(invalid)", bcS2Point.toString());
     }
 
     private BcS2Point createS2Point(double latDegrees, double lngDegrees) {

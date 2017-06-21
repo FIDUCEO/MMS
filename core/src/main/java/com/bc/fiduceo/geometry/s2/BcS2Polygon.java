@@ -51,12 +51,12 @@ class BcS2Polygon implements Polygon {
                 intersectionResult.addAll(googlePolygon.intersectWithPolyLine(s2Polyline));
             }
             return new BcS2MultiLineString(intersectionResult);
-        }  else if (other instanceof BcS2Point) {
-            final S2LatLng inner= (S2LatLng) other.getInner();
+        } else if (other instanceof BcS2Point) {
+            final S2LatLng inner = (S2LatLng) other.getInner();
             if (googlePolygon.contains(inner.toPoint())) {
                 return other;
             } else {
-                return new BcS2Point(null);    // "empty point" tb 2016-11-07
+                return BcS2Point.createEmpty();
             }
         }
 

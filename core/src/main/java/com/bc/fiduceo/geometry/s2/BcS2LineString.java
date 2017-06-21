@@ -49,9 +49,9 @@ class BcS2LineString implements LineString {
         final S2Polyline otherInner = (S2Polyline) other.getInner();
         final S2Point intersects = googleLineString.intersects(otherInner);
         if (intersects != null) {
-            return new BcS2Point(new S2LatLng(intersects));
+            return BcS2Point.createFrom(intersects);
         } else{
-            return new BcS2Point(null);
+            return BcS2Point.createEmpty();
         }
     }
 

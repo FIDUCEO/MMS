@@ -34,6 +34,8 @@ class BcS2Point implements Point {
         this.s2LatLng = s2LatLng;
     }
 
+
+
     @Override
     public double getLon() {
         return s2LatLng.lngDegrees();
@@ -93,6 +95,10 @@ class BcS2Point implements Point {
     @Override
     public boolean equals(Point other) {
         return other == this || other.getLon() == getLon() && other.getLat() == getLat();
+    }
+
+    static BcS2Point createEmpty() {
+        return new BcS2Point(null);
     }
 
     static BcS2Point createFrom(S2Point s2Point) {
