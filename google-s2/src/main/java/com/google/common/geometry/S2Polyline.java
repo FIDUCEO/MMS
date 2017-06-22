@@ -19,6 +19,7 @@ package com.google.common.geometry;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -207,27 +208,29 @@ public final strictfp class S2Polyline implements S2Region {
         return false;
     }
 
-    public S2Point intersects(S2Polyline other) {
+    public S2Point[] intersects(S2Polyline other) {
         final int otherNumVertices = other.vertices.length;
         if (numVertices <= 0 || otherNumVertices <= 0) {
-            return null;
+            return new S2Point[0];
         }
 
         if (!getRectBound().intersects(other.getRectBound())) {
-            return null;
+            return new S2Point[0];
         }
 
         // TODO(user) look into S2EdgeIndex to make this near linear in performance.
+        final ArrayList<S2Point> intersectionList = new ArrayList<>();
         for (int i = 1; i < numVertices(); ++i) {
             final S2EdgeUtil.EdgeCrosser edgeCrosser = new S2EdgeUtil.EdgeCrosser(vertex(i - 1), vertex(i), other.vertex(0));
 
             for (int j = 1; j < otherNumVertices; ++j) {
                 if (edgeCrosser.robustCrossing(other.vertex(j)) >= 0) {
-                    return S2EdgeUtil.getIntersection(vertex(i - 1),vertex(i),  other.vertex(j-1), other.vertex(j));
+                    final S2Point intersection = S2EdgeUtil.getIntersection(vertex(i - 1), vertex(i), other.vertex(j - 1), other.vertex(j));
+                    intersectionList.add(intersection);
                 }
             }
         }
-        return null;
+        return intersectionList.toArray(new S2Point[intersectionList.size()]);
     }
 
     /**

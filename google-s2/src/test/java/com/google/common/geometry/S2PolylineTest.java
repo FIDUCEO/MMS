@@ -18,6 +18,7 @@ package com.google.common.geometry;
 
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +35,83 @@ public strictfp class S2PolylineTest extends GeometryTestCase {
         List<S2Point> vertices = Lists.newArrayList();
         S2Polyline empty = new S2Polyline(vertices);
         assertEquals(empty.getRectBound(), S2LatLngRect.empty());
+    }
+
+    public void testIntersectsPolyLine_noIntersection_boundingRect() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 3).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 0).toPoint());
+        vertices.add(S2LatLng.fromDegrees(2, 0).toPoint());
+        S2Polyline otherPolyline = new S2Polyline(vertices);
+
+        final S2Point[] intersections = polyline.intersects(otherPolyline);
+        assertEquals(0, intersections.length);
+    }
+
+    public void testIntersectsPolyLine_noIntersection() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 1).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(0, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(2, 1.5).toPoint());
+        S2Polyline otherPolyline = new S2Polyline(vertices);
+
+        final S2Point[] intersections = polyline.intersects(otherPolyline);
+        assertEquals(0, intersections.length);
+    }
+
+    public void testIntersectsPolyLine_notEnoughVertices() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        vertices = new ArrayList<>();
+        S2Polyline otherPolyline = new S2Polyline(vertices);
+
+        final S2Point[] intersections = polyline.intersects(otherPolyline);
+        assertEquals(0, intersections.length);
+    }
+
+    public void testIntersectsPolyLine_oneIntersection() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(3, 1).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(2, 3).toPoint());
+        vertices.add(S2LatLng.fromDegrees(1, 1).toPoint());
+        S2Polyline otherPolyline = new S2Polyline(vertices);
+
+        final S2Point[] intersections = polyline.intersects(otherPolyline);
+        assertEquals(1, intersections.length);
+        assertEquals("(1.2225681237976247, 1.4446914140054157)", intersections[0].toDegreesString());
+    }
+
+    public void testIntersectsPolyLine_twoIntersections() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-2, -2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(0, -1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(1, -2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(0, -4).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, -1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(1, -5).toPoint());
+        S2Polyline otherPolyline = new S2Polyline(vertices);
+
+        final S2Point[] intersections = polyline.intersects(otherPolyline);
+        assertEquals(2, intersections.length);
+        assertEquals("(-0.8001315990051109, -1.3999122384445124)", intersections[0].toDegreesString());
+        assertEquals("(0.25007140784904414, -3.5)", intersections[1].toDegreesString());
     }
 
     public void testGetLengthCentroid() {

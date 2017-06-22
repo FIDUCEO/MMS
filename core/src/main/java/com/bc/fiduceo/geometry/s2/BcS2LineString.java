@@ -21,11 +21,11 @@
 package com.bc.fiduceo.geometry.s2;
 
 
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTWriter;
-import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
@@ -47,10 +47,19 @@ class BcS2LineString implements LineString {
     @Override
     public Geometry getIntersection(Geometry other) {
         final S2Polyline otherInner = (S2Polyline) other.getInner();
-        final S2Point intersects = googleLineString.intersects(otherInner);
-        if (intersects != null) {
-            return BcS2Point.createFrom(intersects);
-        } else{
+        final S2Point[] intersects = googleLineString.intersects(otherInner);
+
+        if (intersects.length == 1) {
+            return BcS2Point.createFrom(intersects[0]);
+        } else if (intersects.length > 1) {
+            final BcGeometryCollection collection = new BcGeometryCollection();
+            final BcS2Point[] bcS2Points = new BcS2Point[intersects.length];
+            for (int i = 0; i < intersects.length; i++) {
+                bcS2Points[i] = BcS2Point.createFrom(intersects[i]);
+            }
+            collection.setGeometries(bcS2Points);
+            return collection;
+        } else {
             return BcS2Point.createEmpty();
         }
     }

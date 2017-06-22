@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class BcGeometryCollection implements GeometryCollection {
+public class BcGeometryCollection implements GeometryCollection {
 
     private Geometry[] geometries;
 
-    BcGeometryCollection() {
+    public BcGeometryCollection() {
         geometries = new Geometry[0];
     }
 
@@ -47,11 +47,11 @@ class BcGeometryCollection implements GeometryCollection {
         final List<Geometry> intersections = new ArrayList<>();
         for (Geometry geometry : geometries) {
             final Geometry intersection = geometry.getIntersection(other);
-            if (intersection!= null) {
+            if (intersection != null) {
                 intersections.add(intersection);
             }
         }
-        if (intersections.size()==1) {
+        if (intersections.size() == 1) {
             return intersections.get(0);
         } else {
             final BcGeometryCollection bcGeometryCollection = new BcGeometryCollection();
@@ -63,7 +63,7 @@ class BcGeometryCollection implements GeometryCollection {
     @Override
     public boolean isEmpty() {
         for (Geometry geometry : geometries) {
-            if (!geometry.isEmpty()){
+            if (!geometry.isEmpty()) {
                 return false;
             }
         }

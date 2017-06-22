@@ -21,6 +21,7 @@
 package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S1Angle;
 import com.google.common.geometry.S2LatLng;
@@ -121,6 +122,29 @@ public class BcS2LineStringTest {
         final Geometry intersection = bcS2LineString.getIntersection(otherLineString);
         assertTrue(intersection instanceof BcS2Point);
         assertEquals("POINT(2.7139604154540273 1.857161476202161)", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_lineString_twoIntersections() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(4, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(6, 3).toPoint());
+        vertices.add(S2LatLng.fromDegrees(7, 1).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(4, 4).toPoint());
+        vertices.add(S2LatLng.fromDegrees(8, 1).toPoint());
+        innerLineString = new S2Polyline(vertices);
+        final BcS2LineString otherLineString = new BcS2LineString(innerLineString);
+
+        final Geometry intersection = bcS2LineString.getIntersection(otherLineString);
+        assertTrue(intersection instanceof GeometryCollection);
+        final Geometry[] geometries = ((GeometryCollection) intersection).getGeometries();
+        assertEquals(2, geometries.length);
+        assertEquals("POINT(2.802304313649126 5.605740396925363)", geometries[0].toString());
+        assertEquals("POINT(2.2093772407623993 6.396718299253454)", geometries[1].toString());
     }
 
     @Test

@@ -34,8 +34,6 @@ class BcS2Point implements Point {
         this.s2LatLng = s2LatLng;
     }
 
-
-
     @Override
     public double getLon() {
         return s2LatLng.lngDegrees();
