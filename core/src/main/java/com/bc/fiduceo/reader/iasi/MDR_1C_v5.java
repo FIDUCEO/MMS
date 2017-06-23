@@ -29,7 +29,7 @@ import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.SS;
 
 class MDR_1C_v5 extends MDR_1C {
 
-    private static final int RECORD_SIZE = 2728908;
+    private static final long RECORD_SIZE = 2728908L;
 
     private static final long GQIS_FLAG_QUAL_DET_OFFSET = 255620;
     private static final long GQIS_SYS_TEC_IIS_QUAL_OFFSET = 255885;
@@ -60,18 +60,18 @@ class MDR_1C_v5 extends MDR_1C {
     private static final long GEUM_AVHRR_QUAL_OFFSET = 2728788;
 
     MDR_1C_v5() {
-        super(new byte[RECORD_SIZE]);
+        super(new byte[(int)RECORD_SIZE]);
     }
 
     @Override
-    int getMdrSize() {
+    long getMdrSize() {
         return RECORD_SIZE;
     }
 
     short[] get_GS1cSpect(int x, int line) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(G1S_SPECT_OFFSET + (mdrPos * PN + efovIndex) * G1S_SPECT_SIZE);
 
@@ -92,8 +92,8 @@ class MDR_1C_v5 extends MDR_1C {
 
     byte readPerPixel_byte(int x, int line, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(position + mdrPos * PN + efovIndex);
 

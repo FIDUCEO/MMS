@@ -34,7 +34,7 @@ class MDRCache {
     private final long firstMdrOffset;
     private final int recordVersion;
 
-    private final Cache<Integer, MDR_1C> cache = new Cache<>(CAPACITY);
+    private final Cache<Long, MDR_1C> cache = new Cache<>(CAPACITY);
 
     MDRCache(ImageInputStream iis, long firstMdrOffset, int recordVersion) {
         this.iis = iis;
@@ -42,14 +42,14 @@ class MDRCache {
         this.recordVersion = recordVersion;
     }
 
-    MDR_1C getRecord(int line) throws IOException {
+    MDR_1C getRecord(long line) throws IOException {
         MDR_1C mdr = cache.get(line);
         if (mdr != null) {
             return mdr;
         }
 
-        final int mdrIndex = getMdrIndex(line);
-        final int targetLine = 2 * mdrIndex;
+        final long mdrIndex = getMdrIndex(line);
+        final long targetLine = 2 * mdrIndex;
 
         mdr = readMdr(line);
 
@@ -70,8 +70,8 @@ class MDRCache {
     }
 
 
-    private MDR_1C readMdr(int line) throws IOException {
-        final int mdrIndex = getMdrIndex(line);
+    private MDR_1C readMdr(long line) throws IOException {
+        final long mdrIndex = getMdrIndex(line);
 
         final MDR_1C mdr_1C = createRecord();
 
@@ -111,7 +111,7 @@ class MDRCache {
     }
 
     // package access for testing only tb 2017-05-03
-    static int getMdrIndex(int line) {
+    static long getMdrIndex(long line) {
         return line / 2;
     }
 

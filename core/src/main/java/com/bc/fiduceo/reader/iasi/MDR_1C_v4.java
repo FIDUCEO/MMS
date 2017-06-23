@@ -29,7 +29,7 @@ import static com.bc.fiduceo.reader.iasi.EpsMetopConstants.SS;
 
 class MDR_1C_v4 extends MDR_1C {
 
-    private static final int RECORD_SIZE = 2727768;
+    private static final long RECORD_SIZE = 2727768L;
 
     private static final long GQIS_QUAL_INDEX_OFFSET = 255380;
     private static final long GQIS_QUAL_INDEX_IIS_OFFSET = 255385;
@@ -54,11 +54,11 @@ class MDR_1C_v4 extends MDR_1C {
     private static final long GCS_IMG_CLASS_FIRST_COL_OFFSET = 2727408;
 
     MDR_1C_v4() {
-        super(new byte[RECORD_SIZE]);
+        super(new byte[(int)RECORD_SIZE]);
     }
 
     @Override
-    int getMdrSize() {
+    long getMdrSize() {
         return RECORD_SIZE;
     }
 
@@ -69,8 +69,8 @@ class MDR_1C_v4 extends MDR_1C {
 
     short[] get_GS1cSpect(int x, int line) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(G1S_SPECT_OFFSET + (mdrPos * PN + efovIndex) * G1S_SPECT_SIZE);
 

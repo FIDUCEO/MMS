@@ -39,13 +39,13 @@ abstract class MDR_1C {
     static final long GEPS_CCD_OFFSET = 9350;
     static final long GEPS_SP_OFFSET = 9380;
 
-    private static final int OBT_SIZE = 6;
-    private static final int UTC_SIZE = 6;
-    private static final int SHORT_SIZE = 2;
-    private static final int INT_SIZE = 4;
-    private static final int VINT4_SIZE = 5;
-    private static final int DUAL_INT_SIZE = 8;
-    static final int G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-06-15
+    private static final long OBT_SIZE = 6;
+    private static final long UTC_SIZE = 6;
+    private static final long SHORT_SIZE = 2;
+    private static final long INT_SIZE = 4;
+    private static final long VINT4_SIZE = 5;
+    private static final long DUAL_INT_SIZE = 8;
+    static final long G1S_SPECT_SIZE = 17400;    // 8700 shorts tb 2015-06-15
 
     private final byte[] raw_record;
 
@@ -55,7 +55,7 @@ abstract class MDR_1C {
         this.raw_record = raw_record;
     }
 
-    static int getEFOVIndex(int x, int line) {
+    static long getEFOVIndex(int x, int line) {
         final int xOff = x % 2;
         if (xOff == 0) {
             return 3 - line;
@@ -67,11 +67,11 @@ abstract class MDR_1C {
         return raw_record;
     }
 
-    abstract int getMdrSize();
+    abstract long getMdrSize();
 
     long get_OBT(int x, int line) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
         stream.seek(OBT_OFFSET + mdrPos * OBT_SIZE);
 
@@ -103,7 +103,7 @@ abstract class MDR_1C {
 
     byte readPerEFOV_byte(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
         stream.seek(position + mdrPos);
         return stream.readByte();
@@ -111,23 +111,23 @@ abstract class MDR_1C {
 
     short readPerEFOV_short(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
-        stream.seek(position + mdrPos * 2);
+        stream.seek(position + mdrPos * SHORT_SIZE);
         return stream.readShort();
     }
 
     int readPerEFOV_int(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
-        stream.seek(position + mdrPos * 4);
+        stream.seek(position + mdrPos * INT_SIZE);
         return stream.readInt();
     }
 
     long readPerEFOV_utc(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
         stream.seek(position + mdrPos * UTC_SIZE);
 
@@ -136,7 +136,7 @@ abstract class MDR_1C {
 
     float readPerEFOV_vInt4(int x, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
+        final long mdrPos = getMdrPos(x);
 
         stream.seek(position + mdrPos * VINT4_SIZE);
 
@@ -147,8 +147,8 @@ abstract class MDR_1C {
 
     short readPerPixel_short(int x, int line, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(position + (mdrPos * PN + efovIndex) * SHORT_SIZE);
 
@@ -157,8 +157,8 @@ abstract class MDR_1C {
 
     int readPerPixel_int(int x, int line, long position) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(position + (mdrPos * PN + efovIndex) * INT_SIZE);
 
@@ -167,15 +167,15 @@ abstract class MDR_1C {
 
     int readPerPixel_oneOfDualInt(int x, int line, long position, int offset) throws IOException {
         final ImageInputStream stream = getStream();
-        final int mdrPos = getMdrPos(x);
-        final int efovIndex = getEFOVIndex(x, line);
+        final long mdrPos = getMdrPos(x);
+        final long efovIndex = getEFOVIndex(x, line);
 
         stream.seek(position + (mdrPos * PN + efovIndex) * DUAL_INT_SIZE + offset);
 
         return stream.readInt();
     }
 
-    int getMdrPos(int x) {
+    long getMdrPos(int x) {
         return x / 2;
     }
 
