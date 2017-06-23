@@ -56,6 +56,18 @@ class BcS2Point implements Point {
 
     @Override
     public Geometry getIntersection(Geometry other) {
+        if (other instanceof BcS2Point) {
+            final S2LatLng inner = (S2LatLng) other.getInner();
+            if (s2LatLng == null || inner == null) {
+                return BcS2Point.createEmpty();
+            }
+
+
+            if (s2LatLng.approxEquals(inner, 1e-10)){
+                return other;
+            }
+            return BcS2Point.createEmpty();
+        }
         throw new RuntimeException("not implemented");
     }
 

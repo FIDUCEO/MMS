@@ -21,12 +21,18 @@
 package com.bc.fiduceo.geometry.s2;
 
 
+import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -123,12 +129,51 @@ public class BcS2PointTest {
     }
 
     @Test
-    public void testGetIntersection() {
+    public void testGetIntersection_noIntersection() {
         final BcS2Point bcS2Point = createS2Point(16, 88);
         final BcS2Point otherPoint = createS2Point(17, 85);
 
+
+        final Geometry intersection = bcS2Point.getIntersection(otherPoint);
+        assertNotNull(intersection);
+        assertFalse(intersection.isValid());
+    }
+
+    @Test
+    public void testGetIntersection_intersection() {
+        final BcS2Point bcS2Point = createS2Point(17, 88);
+        final BcS2Point otherPoint = createS2Point(17, 88);
+
+
+        final Geometry intersection = bcS2Point.getIntersection(otherPoint);
+        assertNotNull(intersection);
+        assertEquals("POINT(88.0 17.0)", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_invalidTypes() {
+        final BcS2Point bcS2Point = createS2Point(17, 88);
+
         try {
-            bcS2Point.getIntersection(otherPoint);
+            bcS2Point.getIntersection(new BcS2LineString(null));
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        try {
+            bcS2Point.getIntersection(new BcS2MultiLineString(null));
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        try {
+            bcS2Point.getIntersection(new BcS2Polygon(null));
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        try {
+            bcS2Point.getIntersection(new BcS2MultiPolygon(null));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

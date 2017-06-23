@@ -125,6 +125,4 @@ public class BcS2MultiLineStringTest {
         List<S2Polyline> read = (List<S2Polyline>) reader.read(wkt);
         return new BcS2MultiLineString(read);
     }
-
-
 }
