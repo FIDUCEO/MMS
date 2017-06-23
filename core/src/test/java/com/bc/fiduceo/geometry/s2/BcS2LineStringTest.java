@@ -23,7 +23,6 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
-import com.google.common.geometry.S1Angle;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -32,7 +31,11 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class BcS2LineStringTest {
 
@@ -103,6 +106,36 @@ public class BcS2LineStringTest {
 
         assertNotNull(bcS2LineString);
         assertTrue(bcS2LineString.isValid());
+    }
+
+    @Test
+    public void testGetIntersection_point_notIntersecting() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(1, 2).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        final BcS2Point bcS2Point = new BcS2Point(S2LatLng.fromDegrees(3, 3));
+
+        final Geometry intersection = bcS2LineString.getIntersection(bcS2Point);
+        assertNotNull(intersection);
+        assertFalse(intersection.isValid());
+    }
+
+    @Test
+    public void testGetIntersection_point_intersecting() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(0, 2).toPoint());
+        vertices.add(S2LatLng.fromDegrees(0, -2).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        final BcS2Point bcS2Point = new BcS2Point(S2LatLng.fromDegrees(0, 1));
+
+        final Geometry intersection = bcS2LineString.getIntersection(bcS2Point);
+        assertNotNull(intersection);
+        assertEquals("POINT(1.0 0.0)", intersection.toString());
     }
 
     @Test

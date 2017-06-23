@@ -114,6 +114,42 @@ public strictfp class S2PolylineTest extends GeometryTestCase {
         assertEquals("(0.25007140784904414, -3.5)", intersections[1].toDegreesString());
     }
 
+    public void testIntersectsPoint_noIntersection() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-1, -1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(2, 1).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        final S2Point s2Point = S2LatLng.fromDegrees(0, 5).toPoint();
+
+        final S2Point intersection = polyline.intersects(s2Point);
+        assertNull(intersection);
+    }
+
+    public void testIntersectsPoint_intersection() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(0, -1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(0, 4).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        final S2Point s2Point = S2LatLng.fromDegrees(0, 2).toPoint();
+
+        final S2Point intersection = polyline.intersects(s2Point);
+        assertNotNull(intersection);
+    }
+
+    public void testIntersectsPoint_noIntersection_angleZeroButOutsideEdge() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(0, -1).toPoint());
+        vertices.add(S2LatLng.fromDegrees(0, 4).toPoint());
+        S2Polyline polyline = new S2Polyline(vertices);
+
+        final S2Point s2Point = S2LatLng.fromDegrees(0, -3).toPoint();
+
+        final S2Point intersection = polyline.intersects(s2Point);
+        assertNull(intersection);
+    }
+
     public void testGetLengthCentroid() {
         // Construct random great circles and divide them randomly into segments.
         // Then make sure that the length and centroid are correct. Note that

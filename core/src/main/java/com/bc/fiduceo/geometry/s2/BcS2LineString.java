@@ -26,6 +26,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTWriter;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
@@ -46,22 +47,13 @@ class BcS2LineString implements LineString {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        final S2Polyline otherInner = (S2Polyline) other.getInner();
-        final S2Point[] intersects = googleLineString.intersects(otherInner);
-
-        if (intersects.length == 1) {
-            return BcS2Point.createFrom(intersects[0]);
-        } else if (intersects.length > 1) {
-            final BcGeometryCollection collection = new BcGeometryCollection();
-            final BcS2Point[] bcS2Points = new BcS2Point[intersects.length];
-            for (int i = 0; i < intersects.length; i++) {
-                bcS2Points[i] = BcS2Point.createFrom(intersects[i]);
-            }
-            collection.setGeometries(bcS2Points);
-            return collection;
-        } else {
-            return BcS2Point.createEmpty();
+        if (other instanceof BcS2Point) {
+            return intersectWithPoint((BcS2Point) other);
+        } else if (other instanceof BcS2LineString) {
+            return intersectWithLineString((BcS2LineString) other);
         }
+
+        throw new RuntimeException("Unsupportd intersection type");
     }
 
     @Override
@@ -93,5 +85,33 @@ class BcS2LineString implements LineString {
     @Override
     public Object getInner() {
         return googleLineString;
+    }
+
+    private Geometry intersectWithPoint(BcS2Point other) {
+        final S2LatLng inner = (S2LatLng) other.getInner();
+        final S2Point intersects = googleLineString.intersects(inner.toPoint());
+        if (intersects != null) {
+            return new BcS2Point(new S2LatLng(intersects));
+        }
+        return BcS2Point.createEmpty();
+    }
+
+    private Geometry intersectWithLineString(BcS2LineString other) {
+        final S2Polyline otherInner = (S2Polyline) other.getInner();
+        final S2Point[] intersects = googleLineString.intersects(otherInner);
+
+        if (intersects.length == 1) {
+            return BcS2Point.createFrom(intersects[0]);
+        } else if (intersects.length > 1) {
+            final BcGeometryCollection collection = new BcGeometryCollection();
+            final BcS2Point[] bcS2Points = new BcS2Point[intersects.length];
+            for (int i = 0; i < intersects.length; i++) {
+                bcS2Points[i] = BcS2Point.createFrom(intersects[i]);
+            }
+            collection.setGeometries(bcS2Points);
+            return collection;
+        } else {
+            return BcS2Point.createEmpty();
+        }
     }
 }

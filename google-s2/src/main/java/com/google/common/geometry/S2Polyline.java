@@ -233,6 +233,23 @@ public final strictfp class S2Polyline implements S2Region {
         return intersectionList.toArray(new S2Point[intersectionList.size()]);
     }
 
+    public S2Point intersects(S2Point other) {
+        for (int i = 1; i < numVertices(); ++i) {
+            final double angle = S2.angle(vertex(i - 1), vertex(i), other);
+            // @todo 2 tb/tb this threshold is more or less arbitrary, we might adjust when we think that it is too small/large 2017-06-22
+            if (angle < 1e-10) {
+                // all points are collinear (in a spherical sense)
+                // now check that the other point is in between the vertex points of the linestring
+                final double distOnSegment = vertex(i).angle(vertex(i - 1));
+                final double distOther = vertex(i).angle(other);
+                if (distOther <= distOnSegment) {
+                    return new S2Point(other.x, other.y, other.z);
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Given a point, returns the index of the start point of the (first) edge on
      * the polyline that is closest to the given point. The polyline must have at
