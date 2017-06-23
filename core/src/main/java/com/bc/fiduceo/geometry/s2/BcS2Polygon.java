@@ -44,7 +44,12 @@ class BcS2Polygon implements Polygon {
             final S2Polygon intersection = new S2Polygon();
             intersection.initToIntersection(googlePolygon, (S2Polygon) other.getInner());
             return new BcS2Polygon(intersection);
-        } else if (other instanceof BcS2MultiLineString) {
+        } else if (other instanceof BcS2LineString) {
+            final S2Polyline s2Polyline = (S2Polyline) other.getInner();
+            final List<S2Polyline> intersection = googlePolygon.intersectWithPolyLine(s2Polyline);
+            return new BcS2MultiLineString(intersection);
+        }
+        else if (other instanceof BcS2MultiLineString) {
             List<S2Polyline> s2PolylineList = (List<S2Polyline>) other.getInner();
             List<S2Polyline> intersectionResult = new ArrayList<>();
             for (final S2Polyline s2Polyline : s2PolylineList) {

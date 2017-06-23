@@ -167,6 +167,43 @@ public class BcS2PolygonTest {
     }
 
     @Test
+    public void testGetIntersection_lineString_noIntersection() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2LineString lineString = createBcS2LineString("LINESTRING(-20 -20, -20 -25)");
+
+        final Geometry intersection = polygon.getIntersection(lineString);
+        assertTrue(intersection.isEmpty());
+    }
+
+    @Test
+    public void testGetIntersection_lineString_oneIntersection() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2LineString lineString = createBcS2LineString("LINESTRING(-20 -3, 20 5)");
+
+        final Geometry intersection = polygon.getIntersection(lineString);
+        assertTrue(intersection instanceof LineString);
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(2, coordinates.length);
+        assertEquals("POINT(-9.999999999999998 -0.9814422857241891)", coordinates[0].toString());
+        assertEquals("POINT(9.999999999999998 3.0850405670714447)", coordinates[1].toString());
+    }
+
+    @Test
+    public void testGetIntersection_lineString_twoIntersections() {
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2LineString lineString = createBcS2LineString("LINESTRING(-12 4, -4 14, 8 -12)");
+
+        final Geometry intersection = polygon.getIntersection(lineString);
+        assertTrue(intersection instanceof LineString);
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(4, coordinates.length);
+        assertEquals("POINT(-9.999999999999998 6.5625763293836314)", coordinates[0].toString());
+        assertEquals("POINT(-7.214559017433774 10.072365739254874)", coordinates[1].toString());
+        assertEquals("POINT(-2.16543386643938 10.143983344524166)", coordinates[2].toString());
+        assertEquals("POINT(7.091947583745752 -10.07501579834513)", coordinates[3].toString());
+    }
+
+    @Test
     public void testGetIntersection_unsupportedGeometry() {
         final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
@@ -368,6 +405,11 @@ public class BcS2PolygonTest {
     private BcS2Polygon createBcS2Polygon(String wellKnownText) {
         S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);
         return new BcS2Polygon(polygon);
+    }
+
+    private BcS2LineString createBcS2LineString(String wellKnownText) {
+        S2Polyline polyline = (S2Polyline) s2WKTReader.read(wellKnownText);
+        return new BcS2LineString(polyline);
     }
 
     @SuppressWarnings("unchecked")
