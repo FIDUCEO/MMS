@@ -48,10 +48,11 @@ import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 
 public class SSTInsituReader implements Reader {
 
+    private final Map<String, Number> fillValueMap = new HashMap<>();
+    private final Map<String, Array> arrayMap = new HashMap<>();
+
     private NetcdfFile netcdfFile;
     private String insituType;
-    private Map<String, Number> fillValueMap = new HashMap<>();
-    private Map<String, Array> arrayMap = new HashMap<>();
     private List<Variable> variables;
 
     @Override
@@ -78,6 +79,8 @@ public class SSTInsituReader implements Reader {
             netcdfFile.close();
             netcdfFile = null;
         }
+        variables = null;
+        insituType = null;
 
         arrayMap.clear();
         fillValueMap.clear();
