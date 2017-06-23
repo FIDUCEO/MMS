@@ -501,7 +501,7 @@ class SSMT2_Reader implements Reader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
 
         geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {

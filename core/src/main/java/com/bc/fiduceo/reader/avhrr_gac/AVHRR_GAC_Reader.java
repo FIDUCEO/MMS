@@ -114,7 +114,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
 
         return acquisitionInfo;
     }

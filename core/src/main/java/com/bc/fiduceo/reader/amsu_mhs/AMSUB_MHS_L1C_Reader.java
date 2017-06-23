@@ -126,7 +126,7 @@ class AMSUB_MHS_L1C_Reader implements Reader {
 
         final Geometries geometries = extractGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
 
         return acquisitionInfo;
     }

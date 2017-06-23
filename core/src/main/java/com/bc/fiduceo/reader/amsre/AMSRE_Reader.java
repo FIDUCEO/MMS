@@ -376,7 +376,7 @@ class AMSRE_Reader implements Reader {
         geometries.setBoundingGeometry(boundingGeometry);
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
     }
 
     private Number getFillValue(String groupName, String variableName) throws IOException {

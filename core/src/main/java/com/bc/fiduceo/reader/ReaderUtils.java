@@ -54,10 +54,9 @@ public class ReaderUtils {
         return scaleFactor != 1.0 || offset != 0.0;
     }
 
-    public static void setTimeAxes(AcquisitionInfo acquisitionInfo, Geometries geometries, GeometryFactory geometryFactory) {
+    public static void setTimeAxes(AcquisitionInfo acquisitionInfo, final Geometry timeAxesGeometry, GeometryFactory geometryFactory) {
         final Date sensingStart = acquisitionInfo.getSensingStart();
         final Date sensingStop = acquisitionInfo.getSensingStop();
-        final Geometry timeAxesGeometry = geometries.getTimeAxesGeometry();
         if (timeAxesGeometry instanceof GeometryCollection) {
             final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
             final Geometry[] axesGeometries = axesCollection.getGeometries();

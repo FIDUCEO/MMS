@@ -167,6 +167,6 @@ class MxD06_Reader implements Reader {
         geometries.setBoundingGeometry(boundingGeometry);
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries, geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
     }
 }
