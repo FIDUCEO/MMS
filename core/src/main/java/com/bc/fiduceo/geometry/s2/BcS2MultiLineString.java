@@ -19,19 +19,20 @@
  */
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.MultiLineString;
 import com.bc.fiduceo.geometry.Point;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author muhammad.bc
- */
-class BcS2MultiLineString implements LineString {
+class BcS2MultiLineString implements MultiLineString {
 
     private List<S2Polyline> s2PolylineList;
 
@@ -51,7 +52,19 @@ class BcS2MultiLineString implements LineString {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        throw new RuntimeException("not implemented");
+        List<Geometry> results;
+        if (other instanceof Point) {
+            results = intersectPoint(other);
+            // do not change order here please, a MultiLineString is a LineString tb 2017-06-26
+        } else if (other instanceof MultiLineString) {
+            results = intersectMultiLineString(other);
+        } else if (other instanceof LineString) {
+            results = intersectLineString(other);
+        } else {
+            throw new RuntimeException("not implemented");
+        }
+
+        return assembleResultGeometry(results);
     }
 
     @Override
@@ -109,5 +122,54 @@ class BcS2MultiLineString implements LineString {
     @Override
     public Object getInner() {
         return s2PolylineList;
+    }
+
+    private List<Geometry> intersectPoint(Geometry other) {
+        final List<Geometry> results = new ArrayList<>();
+        final S2LatLng otherInner = (S2LatLng) other.getInner();
+        for (S2Polyline s2Polyline : s2PolylineList) {
+            final S2Point intersects = s2Polyline.intersects(otherInner.toPoint());
+            if (intersects != null) {
+                results.add(new BcS2Point(new S2LatLng(intersects)));
+            }
+        }
+        return results;
+    }
+
+    private List<Geometry> intersectLineString(Geometry other) {
+        final List<Geometry> results = new ArrayList<>();
+        final S2Polyline otherInner = (S2Polyline) other.getInner();
+        for (S2Polyline s2Polyline : s2PolylineList) {
+            final S2Point[] intersects = s2Polyline.intersects(otherInner);
+            if (intersects.length > 0) {
+                for (final S2Point intersectingPoint : intersects) {
+                    results.add(new BcS2Point(new S2LatLng(intersectingPoint)));
+                }
+            }
+        }
+        return results;
+    }
+
+    private List<Geometry> intersectMultiLineString(Geometry other) {
+        final List<Geometry> results = new ArrayList<>();
+        final List<S2Polyline> otherInner = (List<S2Polyline>) other.getInner();
+        for (final S2Polyline s2Polyline : otherInner) {
+            final List<Geometry> geometries = intersectLineString(new BcS2LineString(s2Polyline));
+            results.addAll(geometries);
+        }
+        return results;
+    }
+
+    // @todo 3 tb/** make static and write tests 2017-06-26
+    private Geometry assembleResultGeometry(List<Geometry> results) {
+        if (results.isEmpty()) {
+            return BcS2Point.createEmpty();
+        } else if (results.size() > 1) {
+            final GeometryCollection geometryCollection = new BcGeometryCollection();
+            geometryCollection.setGeometries(results.toArray(new Geometry[results.size()]));
+            return geometryCollection;
+        } else {
+            return results.get(0);
+        }
     }
 }

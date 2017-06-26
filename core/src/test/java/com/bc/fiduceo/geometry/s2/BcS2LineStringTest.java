@@ -36,6 +36,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BcS2LineStringTest {
 
@@ -197,5 +198,20 @@ public class BcS2LineStringTest {
         final Geometry intersection = bcS2LineString.getIntersection(otherLineString);
         assertNotNull(intersection);
         assertFalse(intersection.isValid());
+    }
+
+    @Test
+    public void testGetIntersection_invalidGeometry() {
+        ArrayList<S2Point> vertices = new ArrayList<>();
+        vertices.add(S2LatLng.fromDegrees(-2, 3).toPoint());
+        vertices.add(S2LatLng.fromDegrees(4, 5).toPoint());
+        S2Polyline innerLineString = new S2Polyline(vertices);
+        final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
+
+        try {
+            bcS2LineString.getIntersection(new BcS2Polygon(null));
+            fail("RuntimeException expecetd");
+        } catch (RuntimeException expecetd) {
+        }
     }
 }
