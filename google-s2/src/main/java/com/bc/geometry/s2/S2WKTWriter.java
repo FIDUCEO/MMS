@@ -21,7 +21,13 @@
 
 package com.bc.geometry.s2;
 
-import com.google.common.geometry.*;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
+import com.google.common.geometry.S2Polygon;
+import com.google.common.geometry.S2Polyline;
+
+import java.util.List;
 
 public class S2WKTWriter {
 
@@ -29,6 +35,11 @@ public class S2WKTWriter {
 
         if (geometry instanceof S2Polyline) {
             return writeLinestringWKT((S2Polyline) geometry);
+        } else if (geometry instanceof List) {
+            final List geometryList = (List) geometry;
+            if (!geometryList.isEmpty() && geometryList.get(0) instanceof S2Polyline) {
+                return writeMultiLinestringWKT((List<S2Polyline>) geometry);
+            }
         } else if (geometry instanceof S2Point) {
             return writePointWkt((S2Point) geometry);
         } else if (geometry instanceof S2LatLng) {
@@ -89,6 +100,33 @@ public class S2WKTWriter {
                 builder.append(",");
             }
         }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static String writeMultiLinestringWKT(List<S2Polyline> geometry) {
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("MULTILINESTRING(");
+
+        for (final S2Polyline polyline : geometry) {
+            final int numVertices = polyline.numVertices();
+            if (numVertices < 2) {
+                throw new IllegalArgumentException("Linestring contains less that 2 vertices.");
+            }
+
+            builder.append("(");
+            for (int i = 0; i < numVertices; i++) {
+                appendWktPoint(polyline.vertex(i), builder);
+                if (i != numVertices - 1) {
+                    builder.append(",");
+                }
+            }
+            builder.append("),");
+        }
+
+        builder.setLength(builder.length() - 1);    // remove last comma tb 2017-06-26
+        
         builder.append(")");
         return builder.toString();
     }

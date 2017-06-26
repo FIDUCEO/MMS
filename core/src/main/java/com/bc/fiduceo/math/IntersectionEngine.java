@@ -79,7 +79,7 @@ public class IntersectionEngine {
         final Point[] coordinates = intersectionGeometry.getCoordinates();
         final ArrayList<Date> primarySensorTimes = new ArrayList<>(coordinates.length);
         final ArrayList<Date> secondarySensorTimes = new ArrayList<>(coordinates.length);
-        for (int i = 0; i < coordinates.length - 1; i++) {
+        for (int i = 0; i < coordinates.length; i++) {
             final Point coordinate = coordinates[i];
             Date time = primaryTimeAxis.getTime(coordinate);
             if (time != null) {

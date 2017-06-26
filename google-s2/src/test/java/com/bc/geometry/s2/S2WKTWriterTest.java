@@ -87,6 +87,27 @@ public class S2WKTWriterTest {
         assertEquals("POLYGON((0.0 0.0,0.0 1.0,0.9999999999999998 1.0,1.0 0.0,0.0 0.0))", wkt);
     }
 
+    @Test
+    public void testWriteMultiLineString() {
+        vertices.add(createS2Point(0, 1));
+        vertices.add(createS2Point(-1, 0.56));
+        vertices.add(createS2Point(-1.5, 0.237));
+        final S2Polyline s2Polyline_1 = new S2Polyline(vertices);
+
+        final ArrayList<S2Point> secondVertices = new ArrayList<>();
+        secondVertices.add(createS2Point(11, 1));
+        secondVertices.add(createS2Point(12, 1));
+        secondVertices.add(createS2Point(13, 2));
+        final S2Polyline s2Polyline_2 = new S2Polyline(vertices);
+
+        final ArrayList<S2Polyline> multiLine = new ArrayList<>();
+        multiLine.add(s2Polyline_1);
+        multiLine.add(s2Polyline_2);
+
+        final String wkt = S2WKTWriter.write(multiLine);
+        assertEquals("MULTILINESTRING((0.0 1.0,-1.0 0.56,-1.5000000000000002 0.237),(0.0 1.0,-1.0 0.56,-1.5000000000000002 0.237))", wkt);
+    }
+
     private static S2Point createS2Point(double lon, double lat) {
         return S2LatLng.fromDegrees(lat, lon).toPoint();
     }

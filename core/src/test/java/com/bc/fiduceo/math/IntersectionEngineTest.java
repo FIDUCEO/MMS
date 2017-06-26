@@ -25,7 +25,6 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import org.junit.Before;
 import org.junit.Test;
@@ -335,6 +334,48 @@ public class IntersectionEngineTest {
     }
 
     @Test
+    public void testGetIntersectingIntervals_onSameOrbit_ascendingAndDescending_primaryLineString() {
+        final SatelliteObservation satelliteGeometry_1 = createSatelliteObservation("LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)",
+                "LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)", 1000, 2000);
+        final SatelliteObservation satelliteGeometry_2 = createSatelliteObservation("POLYGON((2.1 6, 2.1 5, 2.1 4, 2.1 3, 2.9 3, 2.9 4, 2.9 5, 2.9 6, 2.1 6))",
+                "LINESTRING(2.4 6, 2.4 5, 2.4 4, 2.4 3)", 1000, 2000);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(satelliteGeometry_1, satelliteGeometry_2);
+        assertEquals(1, intersectingIntervals.length);
+
+        final TimeInfo timeInfo = intersectingIntervals[0].getTimeInfo();
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1666L, timeInterval.getStartTime().getTime());
+        assertEquals(1999L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+
+        final Geometry geometry = intersectingIntervals[0].getGeometry();
+        assertEquals("MULTILINESTRING((2.5 3.0000729761109572,2.5 4.0))", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testGetIntersectingIntervals_noGeometricIntersection_primaryLineString() {
+        final SatelliteObservation satelliteGeometry_1 = createSatelliteObservation("LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)",
+                "LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)", 1000, 2000);
+        final SatelliteObservation satelliteGeometry_2 = createSatelliteObservation("POLYGON((0 5, 0 4, 0 3, 0 2, 1 2, 1 3, 1 4, 1 5, 0 5))",
+                "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(satelliteGeometry_1, satelliteGeometry_2);
+        assertEquals(0, intersectingIntervals.length);
+    }
+
+    @Test
+    public void testGetIntersectingIntervals_noGeometricIntersection_secondaryLineString() {
+        final SatelliteObservation satelliteGeometry_1 = createSatelliteObservation("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
+                "LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)", 1000, 2000);
+        final SatelliteObservation satelliteGeometry_2 = createSatelliteObservation("LINESTRING(0 5, 0 4, 0 3, 0 2)",
+                "LINESTRING(0 5, 0 4, 0 3, 0 2)", 1000, 2000);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(satelliteGeometry_1, satelliteGeometry_2);
+        assertEquals(0, intersectingIntervals.length);
+    }
+
+    @Test
     public void testCalculateTimeDelta() {
         final TimeInterval interval_1 = new TimeInterval(new Date(2500), new Date(2800));
         final TimeInterval interval_2 = new TimeInterval(new Date(3000), new Date(3500));
@@ -351,7 +392,7 @@ public class IntersectionEngineTest {
     }
 
     private SatelliteObservation createSatelliteObservation(String polygonWkt, String lineWkt, int startTime, int stopTime) {
-        final Polygon polygon = (Polygon) geometryFactory.parse(polygonWkt);
+        final Geometry polygon = geometryFactory.parse(polygonWkt);
         final LineString lineString = (LineString) geometryFactory.parse(lineWkt);
         final TimeAxis timeAxis = geometryFactory.createTimeAxis(lineString, new Date(startTime), new Date(stopTime));
         final SatelliteObservation observation = new SatelliteObservation();

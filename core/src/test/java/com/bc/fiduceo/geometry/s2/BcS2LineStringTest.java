@@ -22,7 +22,9 @@ package com.bc.fiduceo.geometry.s2;
 
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -201,17 +203,20 @@ public class BcS2LineStringTest {
     }
 
     @Test
-    public void testGetIntersection_invalidGeometry() {
+    public void testGetIntersection_polygon() {
         ArrayList<S2Point> vertices = new ArrayList<>();
         vertices.add(S2LatLng.fromDegrees(-2, 3).toPoint());
         vertices.add(S2LatLng.fromDegrees(4, 5).toPoint());
         S2Polyline innerLineString = new S2Polyline(vertices);
         final BcS2LineString bcS2LineString = new BcS2LineString(innerLineString);
 
-        try {
-            bcS2LineString.getIntersection(new BcS2Polygon(null));
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
-        }
+        final Polygon polygon = (Polygon) new GeometryFactory(GeometryFactory.Type.S2).parse("POLYGON((-5 -5, 5 -5, 5 5, -5 5, -5 -5))");
+
+        final Geometry intersection = bcS2LineString.getIntersection(polygon);
+        assertTrue(intersection.isValid());
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(2, coordinates.length);
+        assertEquals("POINT(3.0000000000000004 -2.0)", coordinates[0].toString());
+        assertEquals("POINT(4.999999999999999 3.999999999999998)", coordinates[1].toString());
     }
 }

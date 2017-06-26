@@ -51,9 +51,11 @@ class BcS2LineString implements LineString {
             return intersectWithPoint((BcS2Point) other);
         } else if (other instanceof BcS2LineString) {
             return intersectWithLineString((BcS2LineString) other);
+        }if (other instanceof BcS2Polygon) {
+            return other.getIntersection(this);
         }
 
-        throw new RuntimeException("Unsupportd intersection type");
+        throw new RuntimeException("Unsupported intersection type");
     }
 
     @Override
