@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.calipso;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
@@ -23,10 +24,12 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RunWith(IOTestRunner.class)
 public class CALIPSO_L2_VFM_Reader_IO_Test {
@@ -133,6 +136,74 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
             assertArrayEquals(pos, new int[]{4224, 1}, variable.getShape());
             assertEquals(pos, expectations[i].attributes, variable.getAttributes());
         }
+    }
+
+    @Test
+    public void getRegEx() throws Exception {
+
+        final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
+        final String MM = "(0[1-9]|1[0-2])";
+        final String DD = "(0[1-9]|[12]\\d|3[01])";
+        final String hh = "([01]\\d|2[0-3])";
+        final String mm = "[0-5]\\d";
+        final String ss = mm;
+        final String prefix = "CAL_LID_L2_VFM-Standard-V4-10.";
+        final String expected = prefix + YYYY + "-" + MM + "-"+DD+"T"+hh+"-"+mm+"-"+ss+"Z[DN].hdf";
+        assertEquals(expected, reader.getRegEx());
+
+        final Pattern pattern = Pattern.compile(expected);
+
+        Matcher matcher;
+        // valid day                                                                       ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf");
+        assertEquals(true ,matcher.matches());
+        // valid night                                                                     ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZN.hdf");
+        assertEquals(true ,matcher.matches());
+
+        // invalid year                                            ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2080-01-02T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid month                                              ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-00-02T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid month                                              ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-13-02T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid day                                                   ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-00T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid day                                                   ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-32T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid hour                                                     ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T24-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid minute                                                      ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-60-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid second                                                         ⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-60ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+
+        // invalid UTC "T" character                                       ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02_23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid UTC "Z" character                                                ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04UD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid Day/Naight "D"/"N" character                                      ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02_23-37-04ZI.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid dot character                                     ⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011.01-02T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid beginn          ⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓⇓
+        matcher = pattern.matcher("C_L_L_D_L-_V-M-S-a-d-r---4-1-.2011-01-02T23-37-04ZD.hdf");
+        assertThat(matcher.matches(), is(false));
+        // invalid end                                                                 ⇓⇓⇓
+        matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.kkk");
+        assertThat(matcher.matches(), is(false));
     }
 
     private File getCalipsoFile() {

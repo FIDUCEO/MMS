@@ -54,6 +54,16 @@ import java.util.List;
 
 class CALIPSO_L2_VFM_Reader implements Reader {
 
+    private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
+    private static final String MM = "(0[1-9]|1[0-2])";
+    private static final String DD = "(0[1-9]|[12]\\d|3[01])";
+    private static final String hh = "([01]\\d|2[0-3])";
+    private static final String mm = "[0-5]\\d";
+    private static final String ss = mm;
+    private static final String start = "CAL_LID_L2_VFM-Standard-V4-10.";
+    private static final String end = "Z[DN].hdf";
+    private static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
+
     private final static short[] nadirLineIndices = calcalculateIndizes();
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
@@ -119,7 +129,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override
