@@ -36,15 +36,38 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testGetIntersection_invalidInputGeometry() {
+    public void testGetIntersection_point_outside() {
         final BcS2Point bcS2Point = createS2Point("POINT(-18.3 25.4)");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 30 0, 30 20, 20 10)),((20 70, 50 70, 50 80, 20 80)))");
 
-        try {
-            bcS2MultiPolygon.getIntersection(bcS2Point);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2Point);
+        assertNotNull(intersection);
+        assertFalse(intersection.isValid());
+    }
+
+    @Test
+    public void testGetIntersection_point_insideFirst() {
+        final BcS2Point bcS2Point = createS2Point("POINT(25 10)");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 30 0, 30 20, 20 10)),((20 70, 50 70, 50 80, 20 80)))");
+
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2Point);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+        assertEquals("POINT(25.0 10.0)", intersection.toString());
+    }
+
+    @Test
+    public void testGetIntersection_point_insideSecond() {
+        final BcS2Point bcS2Point = createS2Point("POINT(30 75)");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 30 0, 30 20, 20 10)),((20 70, 50 70, 50 80, 20 80)))");
+
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2Point);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+        assertEquals("POINT(29.999999999999986 75.0)", intersection.toString());
     }
 
     @Test

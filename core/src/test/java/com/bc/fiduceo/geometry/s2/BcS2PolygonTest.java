@@ -37,7 +37,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_noIntersection() {
+    public void testGetIntersection_polygon_noIntersection() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((5 0, 5 1, 4 1, 4 0, 5 0))");
 
@@ -47,7 +47,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_intersectionWest() {
+    public void testGetIntersection_polygon_intersectionWest() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-5.5 0, -5.5 1, -4.5 1, -4.5 0, -5.5 0))");
 
@@ -65,7 +65,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_intersectionNorth() {
+    public void testGetIntersection_polygon_intersectionNorth() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))");
 
@@ -80,7 +80,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_intersectionSouth() {
+    public void testGetIntersection_polygon_intersectionSouth() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-8 -12,-8 10,9 10,9 -12,-8 -12))");
 
@@ -90,7 +90,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_intersectionEast() {
+    public void testGetIntersection_polygon_intersectionEast() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-10 -8,12 -8,12 9,-10 9,-10 -8))");
 
@@ -100,7 +100,7 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testGetIntersection_samePolygon() {
+    public void testGetIntersection_polygon_samePolygon() {
         final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((10 10,-10 10,-10 -10,10 -10,10 10))");
 

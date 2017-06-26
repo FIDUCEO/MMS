@@ -23,6 +23,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ class BcS2MultiPolygon implements MultiPolygon {
 
     @Override
     public Geometry getIntersection(Geometry other) {
-        if (other instanceof BcS2MultiLineString) {
+        if (other instanceof BcS2Point) {
+            return intersectPoint((BcS2Point) other);
+        } else if (other instanceof BcS2MultiLineString) {
             return intersectS2MultiLineString((BcS2MultiLineString) other);
         } else if (other instanceof BcS2Polygon) {
             return intersectS2MultiPolygon((BcS2Polygon) other);
@@ -90,16 +93,25 @@ class BcS2MultiPolygon implements MultiPolygon {
         return pointList.toArray(new Point[pointList.size()]);
     }
 
-
     @Override
     public Object getInner() {
         return polygonList;
     }
 
+    private Geometry intersectPoint(BcS2Point other) {
+        for (final Polygon polygon : polygonList) {
+            if (polygon.contains(other)) {
+                final S2LatLng s2LatLng = (S2LatLng) other.getInner();
+                return new BcS2Point(new S2LatLng(s2LatLng.toPoint()));
+            }
+        }
+        return BcS2Point.createEmpty();
+    }
+
     @SuppressWarnings("unchecked")
     private Geometry intersectS2MultiLineString(BcS2MultiLineString other) {
         List<BcS2LineString> lineStrings = new ArrayList<>();
-        for (Polygon polygon : polygonList) {
+        for (final Polygon polygon : polygonList) {
             final BcS2MultiLineString intersection = (BcS2MultiLineString) polygon.getIntersection(other);
             if (!intersection.isEmpty()) {
                 final List<S2Polyline> inner = (List<S2Polyline>) intersection.getInner();

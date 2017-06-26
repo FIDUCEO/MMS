@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author muhammad.bc
@@ -233,6 +234,18 @@ public class BcS2MultiLineStringTest {
         assertEquals("POINT(5.499999999999999 1.0000380706528735)", geometries[1].toString());
         assertEquals("POINT(6.5 3.000114026471657)", geometries[2].toString());
         assertEquals("POINT(6.5 1.0000380706528726)", geometries[3].toString());
+    }
+
+    @Test
+    public void testGetIntersection_multiLineString_invalidGeometry() {
+        final BcS2MultiLineString multiLineString = getCreateBcS2MultiLineString("LINESTRING(5 3, 6 3, 7 3)",
+                "LINESTRING(5 1, 6 1, 7 1)");
+
+        try {
+            multiLineString.getIntersection(new BcS2Polygon(null));
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     private BcS2MultiLineString getCreateBcS2MultiLineString(String firstWkt, String secondWkt) {
