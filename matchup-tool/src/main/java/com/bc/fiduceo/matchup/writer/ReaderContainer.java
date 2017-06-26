@@ -34,11 +34,11 @@ public class ReaderContainer {
         return reader;
     }
 
-    public void setProcessingVersion(String processingVersion) {
+    void setProcessingVersion(String processingVersion) {
         this.processingVersion = processingVersion;
     }
 
-    public String getProcessingVersion() {
+    String getProcessingVersion() {
         return processingVersion;
     }
 

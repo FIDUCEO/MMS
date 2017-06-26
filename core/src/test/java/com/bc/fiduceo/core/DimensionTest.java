@@ -82,7 +82,7 @@ public class DimensionTest {
     @SuppressWarnings("EqualsBetweenInconvertibleTypes")
     @Test
     public void testEquals_differentClass() {
-        assertFalse(dimension.equals(new Double(67.8)));
+        assertFalse(dimension.equals(67.8));
     }
 
     @Test

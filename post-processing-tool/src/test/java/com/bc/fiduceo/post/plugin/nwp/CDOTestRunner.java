@@ -27,8 +27,6 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
-import java.io.InputStream;
-
 public class CDOTestRunner extends BlockJUnit4ClassRunner {
 
     private static final String PROPERTYNAME_EXECUTE_CDO_TESTS = "com.bc.fiduceo.cdo.tests.execute";

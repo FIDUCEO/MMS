@@ -22,7 +22,6 @@ package com.bc.fiduceo.core;
 
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.util.JDomUtils;
-import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;

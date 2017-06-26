@@ -25,7 +25,6 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.util.TimeUtils;
 
 import java.util.Date;
-import java.util.List;
 
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;

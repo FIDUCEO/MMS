@@ -66,6 +66,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
     private final MmdWriterConfig writerConfig;
+
     NetcdfFileWriter netcdfFileWriter;
     private int flushCount = 0;
 
@@ -232,6 +233,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         ));
     }
 
+    // @todo 3 tb/** write tests 2017-06-26
     static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
         final StringBuilder sensors = new StringBuilder();
         sensors.append(useCaseConfig.getPrimarySensor().getName());

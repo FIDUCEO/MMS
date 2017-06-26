@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup.screening;
 
 import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.reader.Reader;
@@ -47,7 +46,7 @@ public class ScreeningEngine {
         configure();
     }
 
-    public void process(MatchupSet matchupSet, final Reader primaryReader, final Map<String,Reader> secondaryReader) throws IOException, InvalidRangeException {
+    public void process(MatchupSet matchupSet, final Reader primaryReader, final Map<String, Reader> secondaryReader) throws IOException, InvalidRangeException {
         final Screening.ScreeningContext sc = createScreeningContext();
         for (final Screening screening : screeningList) {
             screening.apply(matchupSet, primaryReader, secondaryReader, sc);

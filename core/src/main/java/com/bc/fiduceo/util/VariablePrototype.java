@@ -30,7 +30,6 @@ import ucar.nc2.CDMSort;
 import ucar.nc2.Dimension;
 import ucar.nc2.EnumTypedef;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.ProxyReader;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;

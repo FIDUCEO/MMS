@@ -19,24 +19,12 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
-import com.bc.fiduceo.post.PostProcessingConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
@@ -48,8 +36,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -67,6 +57,26 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeries_IO_Test {
 
@@ -77,7 +87,7 @@ public class SstInsituTimeSeries_IO_Test {
     @Before
     public void setUp() throws Exception {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        File testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
+        final File testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
         configDir = new File(testDir, "config");
         dataDir = new File(testDir, "data");
     }
@@ -96,10 +106,10 @@ public class SstInsituTimeSeries_IO_Test {
 
         // preparation
         final String input = testDataDirectory.toPath()
-                    .resolve("post-processing")
-                    .resolve("mmd06c")
-                    .resolve("animal-sst_amsre-aq")
-                    .resolve("mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc").toAbsolutePath().toString();
+                .resolve("post-processing")
+                .resolve("mmd06c")
+                .resolve("animal-sst_amsre-aq")
+                .resolve("mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc").toAbsolutePath().toString();
 
         // open the file that way is needed because the standard open mechanism changes the file size
         final NetcdfFile reader = NetCDFUtils.openReadOnly(input);
@@ -112,17 +122,17 @@ public class SstInsituTimeSeries_IO_Test {
 
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
-                    ("<system-config>" +
-                     "    <geometry-library name = \"S2\" />" +
-                     "    <archive>" +
-                     "        <root-path>" +
-                     "            " + testDataDirectory.getAbsolutePath() +
-                     "        </root-path>" +
-                     "        <rule sensors = \"animal-sst\">" +
-                     "            insitu/SENSOR/VERSION" +
-                     "        </rule>" +
-                     "    </archive>" +
-                     "</system-config>").getBytes())));
+                ("<system-config>" +
+                        "    <geometry-library name = \"S2\" />" +
+                        "    <archive>" +
+                        "        <root-path>" +
+                        "            " + testDataDirectory.getAbsolutePath() +
+                        "        </root-path>" +
+                        "        <rule sensors = \"animal-sst\">" +
+                        "            insitu/SENSOR/VERSION" +
+                        "        </rule>" +
+                        "    </archive>" +
+                        "</system-config>").getBytes())));
 
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
         insituTimeSeries.setContext(context);
@@ -187,10 +197,10 @@ public class SstInsituTimeSeries_IO_Test {
         final Reader insituReader = readerFactory.getReader("animal-sst");
 
         final File insituFile = testDataDirectory.toPath()
-                    .resolve("insitu")
-                    .resolve("animal-sst")
-                    .resolve("v03.3")
-                    .resolve("insitu_12_WMOID_11836_20040112_20041006.nc").toAbsolutePath().toFile();
+                .resolve("insitu")
+                .resolve("animal-sst")
+                .resolve("v03.3")
+                .resolve("insitu_12_WMOID_11836_20040112_20041006.nc").toAbsolutePath().toFile();
 
 
         insituReader.open(insituFile);
@@ -211,12 +221,12 @@ public class SstInsituTimeSeries_IO_Test {
         final File systemConfigFile = new File(configDir, "system-config.xml");
         try (OutputStream stream = Files.newOutputStream(systemConfigFile.toPath())) {
             final Document systemConfig = new Document(
-                        new Element("system-config").addContent(
-                                    new Element("archive").addContent(Arrays.asList(
-                                                new Element("root-path").addContent(testDataDirectory.getAbsolutePath()),
-                                                new Element("rule").setAttribute("sensors", "animal-sst").addContent("insitu/SENSOR/VERSION")
-                                    ))
-                        )
+                    new Element("system-config").addContent(
+                            new Element("archive").addContent(Arrays.asList(
+                                    new Element("root-path").addContent(testDataDirectory.getAbsolutePath()),
+                                    new Element("rule").setAttribute("sensors", "animal-sst").addContent("insitu/SENSOR/VERSION")
+                            ))
+                    )
             );
             new XMLOutputter(Format.getPrettyFormat()).output(systemConfig, stream);
         }
@@ -224,17 +234,17 @@ public class SstInsituTimeSeries_IO_Test {
         final File postProcessingConfigFile = new File(configDir, "processing-config.xml");
         try (OutputStream stream = Files.newOutputStream(postProcessingConfigFile.toPath())) {
             final Document postProcConfig = new Document(
-                        new Element("post-processing-config").addContent(Arrays.asList(
-                                    new Element("overwrite"),
-                                    new Element("post-processings").addContent(
-                                                new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
-                                                            new Element(TAG_NAME_VERSION).addContent("v03.3"),
-                                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 80000),
-                                                            new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("10"),
-                                                            new Element(TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE).addContent("amsre.acquisition_time")
-                                                ))
-                                    )
-                        ))
+                    new Element("post-processing-config").addContent(Arrays.asList(
+                            new Element("overwrite"),
+                            new Element("post-processings").addContent(
+                                    new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
+                                            new Element(TAG_NAME_VERSION).addContent("v03.3"),
+                                            new Element(TAG_NAME_TIME_RANGE_SECONDS).addContent("" + 80000),
+                                            new Element(TAG_NAME_TIME_SERIES_SIZE).addContent("10"),
+                                            new Element(TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE).addContent("amsre.acquisition_time")
+                                    ))
+                            )
+                    ))
             );
             new XMLOutputter(Format.getPrettyFormat()).output(postProcConfig, stream);
         }
@@ -243,19 +253,19 @@ public class SstInsituTimeSeries_IO_Test {
         final String filename = "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc";
 
         final Path src = testDataDirectory.toPath()
-                    .resolve("post-processing")
-                    .resolve("mmd06c")
-                    .resolve("animal-sst_amsre-aq")
-                    .resolve(filename);
+                .resolve("post-processing")
+                .resolve("mmd06c")
+                .resolve("animal-sst_amsre-aq")
+                .resolve(filename);
         final Path target = dataDir.toPath().resolve(filename);
         Files.copy(src, target);
 
         final String[] args = {
-                    "-c", configDir.getAbsolutePath(),
-                    "-i", dataDir.getAbsolutePath(),
-                    "-start", "2004-001",
-                    "-end", "2009-363",
-                    "-j", "processing-config.xml"
+                "-c", configDir.getAbsolutePath(),
+                "-i", dataDir.getAbsolutePath(),
+                "-start", "2004-001",
+                "-end", "2009-363",
+                "-j", "processing-config.xml"
         };
 
         PostProcessingToolMain.main(args);
@@ -281,15 +291,15 @@ public class SstInsituTimeSeries_IO_Test {
             final long[] idStorage = (long[]) idArr.getStorage();
             final int fill = -32768;
             final long[] idExpecteds = new long[]{
-                        2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531754L, 2004010000531778L, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531754L, 2004010000531778L, 2004010000531790L, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531778L, 2004010000531790L, 2004010000531814L, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531682L, 2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2004010000531790L, 2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill,
-                        2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill, fill,
-                        2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, 2004010000531898L, fill, fill, fill, fill, fill
+                    2004010000531670L, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531754L, 2004010000531778L, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531754L, 2004010000531778L, 2004010000531790L, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531778L, 2004010000531790L, 2004010000531814L, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531682L, 2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531694L, 2004010000531718L, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2004010000531790L, 2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill,
+                    2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, fill, fill, fill, fill, fill, fill,
+                    2004010000531814L, 2004010000531826L, 2004010000531850L, 2004010000531874L, 2004010000531898L, fill, fill, fill, fill, fill
             };
             assertArrayEquals(idExpecteds, idStorage);
 
@@ -309,15 +319,15 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final int[] dtimeStorage = (int[]) dtimeArr.getStorage();
             final int[] dtimeExpecteds = new int[]{
-                        -8974, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -5398, 22981, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -39845, -11466, 2754, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -11469, 2751, 37072, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -4274, 766, 23387, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        768, 23389, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -45850, -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2,
-                        -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2, fill2,
-                        -11526, -2346, 7314, 28254, 41813, fill2, fill2, fill2, fill2, fill2
+                    -8974, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -5398, 22981, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -39845, -11466, 2754, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -11469, 2751, 37072, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -4274, 766, 23387, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    768, 23389, fill2, fill2, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -45850, -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2,
+                    -11529, -2349, 7311, 28251, fill2, fill2, fill2, fill2, fill2, fill2,
+                    -11526, -2346, 7314, 28254, 41813, fill2, fill2, fill2, fill2, fill2
             };
             assertArrayEquals(dtimeExpecteds, dtimeStorage);
 
@@ -338,15 +348,15 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final float[] latStorage = (float[]) latArr.getStorage();
             final float[] latExpecteds = new float[]{
-                        -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -54.392f, -54.7024f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -54.392f, -54.7024f, -54.9134f, fill, fill, fill, fill, fill, fill, fill,
-                        -54.7024f, -54.9134f, -55.169f, fill, fill, fill, fill, fill, fill, fill,
-                        -54.0713f, -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill,
-                        -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -54.9134f, -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill,
-                        -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill, fill,
-                        -55.169f, -55.2213f, -55.3544f, -55.53f, -55.7162f, fill, fill, fill, fill, fill
+                    -54.1789f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -54.392f, -54.7024f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -54.392f, -54.7024f, -54.9134f, fill, fill, fill, fill, fill, fill, fill,
+                    -54.7024f, -54.9134f, -55.169f, fill, fill, fill, fill, fill, fill, fill,
+                    -54.0713f, -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill,
+                    -54.0569f, -54.0827f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -54.9134f, -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill,
+                    -55.169f, -55.2213f, -55.3544f, -55.53f, fill, fill, fill, fill, fill, fill,
+                    -55.169f, -55.2213f, -55.3544f, -55.53f, -55.7162f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(latExpecteds, latStorage, 1e-7f);
 
@@ -367,15 +377,15 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
             final float[] lonStorage = (float[]) lonArr.getStorage();
             final float[] lonExpecteds = new float[]{
-                        -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -36.1543f, -35.8584f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -36.1543f, -35.8584f, -35.6824f, fill, fill, fill, fill, fill, fill, fill,
-                        -35.8584f, -35.6824f, -35.9283f, fill, fill, fill, fill, fill, fill, fill,
-                        -36.7689f, -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill,
-                        -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        -35.6824f, -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill,
-                        -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill, fill,
-                        -35.9283f, -36.1054f, -36.0165f, -36.3847f, -36.5203f, fill, fill, fill, fill, fill
+                    -36.6781f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -36.1543f, -35.8584f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -36.1543f, -35.8584f, -35.6824f, fill, fill, fill, fill, fill, fill, fill,
+                    -35.8584f, -35.6824f, -35.9283f, fill, fill, fill, fill, fill, fill, fill,
+                    -36.7689f, -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill,
+                    -36.7764f, -36.8384f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    -35.6824f, -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill,
+                    -35.9283f, -36.1054f, -36.0165f, -36.3847f, fill, fill, fill, fill, fill, fill,
+                    -35.9283f, -36.1054f, -36.0165f, -36.3847f, -36.5203f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(lonExpecteds, lonStorage, 1e-7f);
 
@@ -401,15 +411,15 @@ public class SstInsituTimeSeries_IO_Test {
 
             final float[] tempStorage = (float[]) tempArr.getStorage();
             final float[] tempExpecteds = new float[]{
-                        3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2.804f, 0.964f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2.804f, 0.964f, 2.643f, fill, fill, fill, fill, fill, fill, fill,
-                        0.964f, 2.643f, 2.619f, fill, fill, fill, fill, fill, fill, fill,
-                        2.289f, 2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill,
-                        2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        2.643f, 2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill,
-                        2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill, fill,
-                        2.619f, 2.719f, 2.984f, 2.799f, 2.814f, fill, fill, fill, fill, fill
+                    3.21f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2.804f, 0.964f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2.804f, 0.964f, 2.643f, fill, fill, fill, fill, fill, fill, fill,
+                    0.964f, 2.643f, 2.619f, fill, fill, fill, fill, fill, fill, fill,
+                    2.289f, 2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill,
+                    2.019f, 2.329f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    2.643f, 2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill,
+                    2.619f, 2.719f, 2.984f, 2.799f, fill, fill, fill, fill, fill, fill,
+                    2.619f, 2.719f, 2.984f, 2.799f, 2.814f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(tempExpecteds, tempStorage, 1e-8f);
 
@@ -432,15 +442,15 @@ public class SstInsituTimeSeries_IO_Test {
 
             final float[] uncertStorage = (float[]) uncertArr.getStorage();
             final float[] uncertExpecteds = new float[]{
-                        0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill,
-                        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill
+                    0.005f, fill, fill, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, fill, fill, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill, fill,
+                    0.005f, 0.005f, 0.005f, 0.005f, 0.005f, fill, fill, fill, fill, fill
             };
             assertArrayEquals(uncertExpecteds, uncertStorage, 1e-8f);
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented

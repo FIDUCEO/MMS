@@ -1,13 +1,14 @@
 package com.bc.fiduceo.matchup.strategy;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.tool.ToolContext;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Sabine on 16.03.2017.

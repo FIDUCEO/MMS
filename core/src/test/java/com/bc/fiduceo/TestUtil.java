@@ -36,14 +36,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestUtil {
 
@@ -122,13 +123,13 @@ public class TestUtil {
                 "        </root-path>" +
                 "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
                 "            insitu/SENSOR/VERSION" +
-                "        </rule>"  +
+                "        </rule>" +
                 "        <rule sensors = \"iasi-ma, iasi-mb\">" +
                 "            SENSOR/VERSION/YEAR/MONTH" +
-                "        </rule>"  +
+                "        </rule>" +
                 "        <rule sensors = \"mod06-te, myd06-aq\">" +
                 "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
-                "        </rule>"  +
+                "        </rule>" +
                 "    </archive>" +
                 "</system-config>";
 
@@ -203,6 +204,7 @@ public class TestUtil {
 
     /**
      * Returns a "fiduceo_test" directory which is a child of system temp directory
+     *
      * @return new File(&lt;systemTempDir&gt;, "fiduceo_test")
      */
     public static File getTestDir() {

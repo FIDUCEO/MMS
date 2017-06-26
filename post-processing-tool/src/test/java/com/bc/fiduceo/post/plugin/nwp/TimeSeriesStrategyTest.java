@@ -1,7 +1,6 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
-import com.bc.fiduceo.post.*;
 import org.junit.Test;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -96,7 +95,7 @@ public class TimeSeriesStrategyTest {
 
         final TimeSeriesStrategy timeSeriesStrategy = new TimeSeriesStrategy();
         timeSeriesStrategy.prepare(context);
-        
+
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
         verify(writer, times(1)).hasDimension(null, "matchup.nwp.an.time");

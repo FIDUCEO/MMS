@@ -19,9 +19,7 @@
  */
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
@@ -50,11 +48,11 @@ class BcS2MultiPolygon implements MultiPolygon {
             return intersectPoint((BcS2Point) other);
         } else if (other instanceof BcS2MultiLineString) {
             return intersectLineString((LineString) other);
-        }else if (other instanceof BcS2LineString) {
+        } else if (other instanceof BcS2LineString) {
             return intersectLineString((LineString) other);
         } else if (other instanceof BcS2Polygon) {
             return intersectPolygon((BcS2Polygon) other);
-        }else if (other instanceof BcS2MultiPolygon) {
+        } else if (other instanceof BcS2MultiPolygon) {
             return intersectMultiPolygon((BcS2MultiPolygon) other);
         }
         throw new RuntimeException("Intersection for geometry type not implemented: " + other.toString());

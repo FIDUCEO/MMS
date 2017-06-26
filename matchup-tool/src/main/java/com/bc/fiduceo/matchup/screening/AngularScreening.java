@@ -27,7 +27,6 @@ import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
-import ucar.ma2.Index;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 

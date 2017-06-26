@@ -19,9 +19,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.util.List;
 import java.util.Random;
@@ -49,7 +47,10 @@ public strictfp class GeometryTestCase extends TestCase {
     }
 
     // maybe these should be put in a special testing util class
-    /** Return a random unit-length vector. */
+
+    /**
+     * Return a random unit-length vector.
+     */
     public S2Point randomPoint() {
         return S2Point.normalize(new S2Point(
                 2 * rand.nextDouble() - 1,
