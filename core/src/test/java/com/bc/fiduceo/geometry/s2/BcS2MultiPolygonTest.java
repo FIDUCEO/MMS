@@ -23,9 +23,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author muhammad.bc
- */
 public class BcS2MultiPolygonTest {
 
     private S2WKTReader s2WKTReader;
@@ -94,7 +91,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testIntersectMultiPolygon_polygon_noIntersection() {
+    public void testGetIntersection_polygon_noIntersection() {
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((5 0, 15 0, 15 5, 5 5, 5 0))");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
@@ -104,7 +101,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testIntersectMultiPolygon_polygon_intersectOnePolygon() {
+    public void testGetIntersection_polygon_intersectOnePolygon() {
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((5 15, 15 15, 15 20, 5 20, 5 15))");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
@@ -118,7 +115,76 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testIntersect_lineString_noIntersection() {
+    public void testGetIntersection_multiPolygon_noIntersection() {
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
+        final BcS2MultiPolygon other = createS2MultiPolygon("MULTIPOLYGON (((-10 10, -20 10, -20 30, -10 30, -10 10)),((-30 10, -40 10, -40 20, -30 20, -30 10)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(other);
+        assertNotNull(intersection);
+        assertTrue(intersection.isEmpty());
+    }
+
+    @Test
+    public void testGetIntersection_multiPolygon_oneIntersection() {
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
+        final BcS2MultiPolygon other = createS2MultiPolygon("MULTIPOLYGON (((-10 10, -20 10, -20 30, -10 30, -10 10)),((25 5, 45 5, 45 15, 25 15, 25 5)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(other);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+
+        final Polygon polygon = (Polygon) intersection;
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(15.16549350298379, 40.0)\n" +
+                "(15.165493502983786, 29.999999999999993)\n" +
+                "(10.0, 29.999999999999993)\n" +
+                "(10.0, 40.00000000000001)\n" +
+                ">\n", polygon.toString());
+    }
+
+    @Test
+    public void testGetIntersection_multiPolygon_twoIntersections() {
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
+        final BcS2MultiPolygon other = createS2MultiPolygon("MULTIPOLYGON (((-10 10, -20 10, -20 30, -10 30, -10 10)),((5 5, 45 5, 45 15, 5 15, 5 5)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(other);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+
+        final BcS2MultiPolygon multiPolygon = (BcS2MultiPolygon) intersection;
+        final Point[] coordinates = multiPolygon.getCoordinates();
+        assertEquals(10, coordinates.length);
+        assertEquals(20.0, coordinates[0].getLon(), 1e-8);
+        assertEquals(10.0, coordinates[0].getLat(), 1e-8);
+        assertEquals(40.00000000000001, coordinates[5].getLon(), 1e-8);
+        assertEquals(15.399125759717224, coordinates[5].getLat(), 1e-8);
+        assertEquals(40.00000000000001, coordinates[9].getLon(), 1e-8);
+        assertEquals(15.399125759717224, coordinates[9].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testGetIntersection_multiPolygon_fourIntersections() {
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
+        final BcS2MultiPolygon other = createS2MultiPolygon("MULTIPOLYGON (((5 18, 45 18, 45 26, 5 26, 5 18)),((5 5, 45 5, 45 15, 5 15, 5 5)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(other);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+
+        final BcS2MultiPolygon multiPolygon = (BcS2MultiPolygon) intersection;
+        final Point[] coordinates = multiPolygon.getCoordinates();
+        assertEquals(20, coordinates.length);
+        assertEquals(20.0, coordinates[0].getLon(), 1e-8);
+        assertEquals(27.341635611747215, coordinates[0].getLat(), 1e-8);
+        assertEquals(29.999999999999993, coordinates[16].getLon(), 1e-8);
+        assertEquals(15.85775457400195, coordinates[16].getLat(), 1e-8);
+        assertEquals(40.00000000000001, coordinates[19].getLon(), 1e-8);
+        assertEquals(15.399125759717224, coordinates[19].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testGetIntersection_lineString_noIntersection() {
         final BcS2LineString lineString = createS2LineString("LINESTRING(-23 -19, -24 -19.8)");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
@@ -128,7 +194,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testIntersect_lineString_intersectSecond() {
+    public void testGetIntersection_lineString_intersectSecond() {
         final BcS2LineString lineString = createS2LineString("LINESTRING(25 10, 40 25)");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
@@ -143,7 +209,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testIntersect_lineString_intersectBoth() {
+    public void testGetIntersectio_lineString_intersectBoth() {
         final BcS2LineString lineString = createS2LineString("LINESTRING(0 25, 50 15)");
         final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 10, 20 10, 20 30, 10 30, 10 10)),((30 10, 40 10, 40 20, 30 20, 30 10)))");
 
@@ -161,15 +227,15 @@ public class BcS2MultiPolygonTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testIntersectMultiPolygon_MultiLineString_intersectAllPolygons() {
-        BcS2MultiLineString bcS2MultiLineString = createS2Polyline("MULTILINESTRING((10 18, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
-        BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+    public void testGetIntersection_multiLineString_intersectAllPolygons() {
+        final BcS2MultiLineString bcS2MultiLineString = createS2Polyline("MULTILINESTRING((10 18, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
 
-        Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2MultiLineString);
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2MultiLineString);
         assertNotNull(intersection);
-        assertFalse(intersection.isEmpty());
+        assertTrue(intersection.isValid());
 
-        List<S2Polyline> intersectionInner = (List<S2Polyline>) intersection.getInner();
+        final List<S2Polyline> intersectionInner = (List<S2Polyline>) intersection.getInner();
 
         assertEquals(intersectionInner.size(), 2);
         assertEquals(intersectionInner.get(0).vertex(0).getX(), 0.883022221559489, 1e-8);
@@ -180,9 +246,40 @@ public class BcS2MultiPolygonTest {
         assertEquals(intersectionInner.get(1).vertex(3).getY(), 0.49240387650610395, 1e-8);
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetIntersection_multiLineString_intersectOnePolygon() {
+        final BcS2MultiLineString bcS2MultiLineString = createS2Polyline("MULTILINESTRING((10 40, 40 50),(10 20, 40 40))");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2MultiLineString);
+        assertNotNull(intersection);
+        assertTrue(intersection.isValid());
+
+        final List<S2Polyline> intersectionInner = (List<S2Polyline>) intersection.getInner();
+
+        assertEquals(intersectionInner.size(), 2);
+        assertEquals(0.6685052611131922, intersectionInner.get(0).vertex(0).getX(), 1e-8);
+        assertEquals(0.24331601649555723, intersectionInner.get(0).vertex(0).getY(), 1e-8);
+
+        assertEquals(intersectionInner.get(1).numVertices(), 2);
+        assertEquals(0.638614550493825, intersectionInner.get(1).vertex(1).getX(), 1e-8);
+        assertEquals(0.4602503227130726, intersectionInner.get(1).vertex(1).getY(), 1e-8);
+    }
+
+    @Test
+    public void testGetIntersection_multiLineString_noIntersection() {
+        final BcS2MultiLineString bcS2MultiLineString = createS2Polyline("MULTILINESTRING((-10 40, -8 50),(-10 20, -11 40))");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50)),((20 70, 50 70, 50 90, 20 90)))");
+
+        final Geometry intersection = bcS2MultiPolygon.getIntersection(bcS2MultiLineString);
+        assertNotNull(intersection);
+        assertFalse(intersection.isValid());
+    }
+
     @Test
     public void testGetCoordinates() {
-        BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50, 20 0)),((20 70, 50 70, 50 90, 20 90, 20 70)))");
+        final BcS2MultiPolygon bcS2MultiPolygon = createS2MultiPolygon("MULTIPOLYGON (((20 0, 50 0, 50 20, 20 50, 20 0)),((20 70, 50 70, 50 90, 20 90, 20 70)))");
 
         final Point[] coordinates = bcS2MultiPolygon.getCoordinates();
         assertNotNull(coordinates);
@@ -298,7 +395,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testShiftLon(){
+    public void testShiftLon() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 50 0, 50 20, 10 50)),((10 70, 50 70, 50 90, 10 90)))");
 
         try {
@@ -309,7 +406,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testContains(){
+    public void testContains() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
         final BcS2Point bcS2Point = createS2Point("POINT(14 25.4)");
 
@@ -321,7 +418,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testGetDifference(){
+    public void testGetDifference() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((30 20, 45 30, 45 75, 30 75, 30 20))");
 
@@ -333,7 +430,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testGetUnion(){
+    public void testGetUnion() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 60 20, 10 50)),((10 70, 60 70, 60 90, 10 90)))");
         final BcS2Polygon bcS2Polygon = createS2Polygon("POLYGON ((30 20, 55 30, 55 75, 30 75, 30 20))");
 
@@ -345,7 +442,7 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testGetCentroid(){
+    public void testGetCentroid() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 30, 10 50)),((10 70, 60 70, 50 86, 10 90)))");
 
         try {
@@ -371,7 +468,7 @@ public class BcS2MultiPolygonTest {
     }
 
     private BcS2LineString createS2LineString(String wellKnownText) {
-        S2Polyline lineString  = (S2Polyline) s2WKTReader.read(wellKnownText);
+        S2Polyline lineString = (S2Polyline) s2WKTReader.read(wellKnownText);
         return new BcS2LineString(lineString);
     }
 

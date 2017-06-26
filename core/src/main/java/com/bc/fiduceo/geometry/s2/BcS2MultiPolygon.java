@@ -19,7 +19,9 @@
  */
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
@@ -47,16 +49,16 @@ class BcS2MultiPolygon implements MultiPolygon {
         if (other instanceof BcS2Point) {
             return intersectPoint((BcS2Point) other);
         } else if (other instanceof BcS2MultiLineString) {
-            return intersectS2LineString((LineString) other);
+            return intersectLineString((LineString) other);
         }else if (other instanceof BcS2LineString) {
-            return intersectS2LineString((LineString) other);
+            return intersectLineString((LineString) other);
         } else if (other instanceof BcS2Polygon) {
-            return intersectS2MultiPolygon((BcS2Polygon) other);
+            return intersectPolygon((BcS2Polygon) other);
+        }else if (other instanceof BcS2MultiPolygon) {
+            return intersectMultiPolygon((BcS2MultiPolygon) other);
         }
         throw new RuntimeException("Intersection for geometry type not implemented: " + other.toString());
     }
-
-
 
     @Override
     public boolean isEmpty() {
@@ -113,7 +115,7 @@ class BcS2MultiPolygon implements MultiPolygon {
     }
 
     @SuppressWarnings("unchecked")
-    private Geometry intersectS2LineString(LineString other) {
+    private Geometry intersectLineString(LineString other) {
         final List<BcS2LineString> lineStrings = new ArrayList<>();
         for (final Polygon polygon : polygonList) {
             final BcS2MultiLineString intersection = (BcS2MultiLineString) polygon.getIntersection(other);
@@ -127,13 +129,33 @@ class BcS2MultiPolygon implements MultiPolygon {
         return BcS2MultiLineString.createFrom(lineStrings);
     }
 
-    private Geometry intersectS2MultiPolygon(BcS2Polygon other) {
+    private Geometry intersectPolygon(BcS2Polygon other) {
         final List<Polygon> resultList = new ArrayList<>();
         for (final Polygon s2Polygon : polygonList) {
 
             final Polygon intersection = (Polygon) s2Polygon.getIntersection(other);
             if (!intersection.isEmpty()) {
                 resultList.add(intersection);
+            }
+        }
+
+        if (resultList.size() == 1) {
+            return new BcS2Polygon(resultList.get(0).getInner());
+        }
+        return new BcS2MultiPolygon(resultList);
+    }
+
+    private Geometry intersectMultiPolygon(BcS2MultiPolygon other) {
+        final List<Polygon> resultList = new ArrayList<>();
+        for (final Polygon otherPolygon : other.polygonList) {
+            final Geometry intersection = intersectPolygon((BcS2Polygon) otherPolygon);
+            if (intersection.isValid()) {
+                if (intersection instanceof BcS2Polygon) {
+                    resultList.add((Polygon) intersection);
+                } else {
+                    final BcS2MultiPolygon multiPolygon = (BcS2MultiPolygon) intersection;
+                    resultList.addAll(multiPolygon.polygonList);
+                }
             }
         }
 
