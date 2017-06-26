@@ -38,6 +38,7 @@ import java.io.IOException;
 public class NetCDFUtils {
 
     public static final String CF_FILL_VALUE_NAME = "_FillValue";
+    public static final String CF_UNSIGNED = "_Unsigned";
     public static final String CF_SCALE_FACTOR_NAME = "scale_factor";
     public static final String CF_OFFSET_NAME = "add_offset";
     public static final String CF_UNITS_NAME = "units";
@@ -66,6 +67,33 @@ public class NetCDFUtils {
             return N3iosp.NC_FILL_BYTE;
         } else {
             throw new RuntimeException("not implemented for type " + type.getTypeName());
+        }
+    }
+
+    public static Number getDefaultFillValue(DataType type, boolean unsigned) {
+        if (DataType.DOUBLE == type) {
+            return N3iosp.NC_FILL_DOUBLE;
+        } else if (DataType.FLOAT == type) {
+            return N3iosp.NC_FILL_FLOAT;
+        } else if (DataType.LONG == type) {
+            return N3iosp.NC_FILL_LONG;
+        } else if (DataType.INT == type) {
+            if (unsigned) {
+                return N3iosp.NC_FILL_UINT;
+            }
+            return N3iosp.NC_FILL_INT;
+        } else if (DataType.SHORT == type) {
+            if (unsigned) {
+                return N3iosp.NC_FILL_USHORT;
+            }
+            return N3iosp.NC_FILL_SHORT;
+        } else if (DataType.BYTE == type) {
+            if (unsigned) {
+                return N3iosp.NC_FILL_UBYTE;
+            }
+            return N3iosp.NC_FILL_BYTE;
+        } else {
+            throw new RuntimeException("not implemented for type " + type.name());
         }
     }
 

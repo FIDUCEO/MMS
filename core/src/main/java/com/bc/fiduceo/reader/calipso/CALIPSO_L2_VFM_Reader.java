@@ -26,13 +26,20 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.ma2.StructureData;
+import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
@@ -50,6 +57,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     private final static short[] nadirLineIndices = calcalculateIndizes();
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
+    private ArrayCache arrayCache;
 
     public CALIPSO_L2_VFM_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -58,6 +66,8 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new ArrayCache(netcdfFile);
+
     }
 
     @Override
@@ -69,8 +79,6 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        final String pattern1 = "yyyy-MM-dd'T'HH:mm:ss";
-        final String pattern2 = "dd-MMM-yyyy HH:mm:ss";
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
         final Variable metadata = netcdfFile.findVariable("metadata");
         final StructureData structureData = ((Structure) metadata).readStructure();
@@ -79,10 +87,8 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         final Date sensingStart;
         final Date sensingStop;
         try {
-            final String startStr = stripTrailingZ(start.toString().trim());
-            sensingStart = ProductData.UTC.parse(startStr, pattern1).getAsDate();
-            final String endStr = stripTrailingZ(end.toString().trim());
-            sensingStop = ProductData.UTC.parse(endStr, pattern1).getAsDate();
+            sensingStart = getDate(start);
+            sensingStop = getDate(end);
         } catch (ParseException e) {
             throw new IOException(e);
         }
@@ -90,11 +96,11 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         acquisitionInfo.setSensingStop(sensingStop);
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
-        final Array lats = netcdfFile.findVariable("Single_Shot_Detection/ssLatitude").read();
-        final Array lons = netcdfFile.findVariable("Single_Shot_Detection/ssLongitude").read();
+        final Array lats = arrayCache.get("Latitude");
+        final Array lons = arrayCache.get("Longitude");
         final int size = (int) lats.getSize();
         if (size != lons.getSize()) {
-            throw new IOException("Corrupt file. ssLongitude and ssLatitude must have the same size!");
+            throw new IOException("Corrupt file. Longitude and Latitude must have the same size!");
         }
         final ArrayList<Point> points = new ArrayList<>();
         final int add = size / 60;
@@ -107,6 +113,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         final LineString lineString = geometryFactory.createLineString(points);
         acquisitionInfo.setBoundingGeometry(lineString);
         acquisitionInfo.setTimeAxes(new TimeAxis[]{geometryFactory.createTimeAxis(lineString, sensingStart, sensingStop)});
+
         return acquisitionInfo;
     }
 
@@ -127,7 +134,8 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array timeVector = arrayCache.get("Profile_Time");
+        return new TimeLocator_TAI1993Vector(timeVector);
     }
 
     @Override
@@ -147,12 +155,56 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+        final ArrayList<Variable> variables = new ArrayList<>();
+
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final List<Variable> ncVariables = netcdfFile.getVariables();
+
+        for (Variable ncVariable : ncVariables) {
+            final String fullName = ncVariable.getFullName();
+            if (ncVariable.getGroup() != rootGroup
+                || fullName.contains("metadata")
+                || fullName.contains("Feature_Classification_Flags")) {
+                continue;
+            }
+            final String spacecraftName = "Spacecraft_Position";
+            if (fullName.equals(spacecraftName)) {
+                final String[] suffixes = {"_x", "_y", "_z"};
+                final int[] shape = ncVariable.getShape();
+                shape[1] = 1;
+                for (int i = 0; i < 3; i++) {
+                    final int[] origin = {0, i};
+                    final Variable section = ncVariable.section(new Section(origin, shape));
+                    section.setName(spacecraftName + suffixes[i]);
+                    arrayCache.inject(section);
+                    ensureFillValue(section);
+                    variables.add(section);
+                }
+            } else {
+                ensureFillValue(ncVariable);
+                variables.add(ncVariable);
+            }
+        }
+        return variables;
+    }
+
+    private void ensureFillValue(Variable ncVariable) {
+        final DataType dataType = ncVariable.getDataType();
+        boolean fillValueRenamed = renameFillValueAttributeIfExist(ncVariable);
+        if (!fillValueRenamed) {
+            final Attribute attribute = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
+            final boolean unsigned = attribute != null && Boolean.parseBoolean(attribute.getStringValue());
+            final Number fillValue = NetCDFUtils.getDefaultFillValue(dataType, unsigned);
+            final Attribute fillValueAtt = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, fillValue);
+            ncVariable.addAttribute(fillValueAtt);
+        }
     }
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Variable latVar = netcdfFile.findVariable("Latitude");
+        final int[] shape = latVar.getShape();
+        return new Dimension("lat", shape[1], shape[0]);
     }
 
     static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
@@ -189,6 +241,28 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         final short a3End = a1Block + a2Block + a3Samples * 8 - 1;
 
         return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
+    }
+
+    private boolean renameFillValueAttributeIfExist(Variable ncVariable) {
+        final List<Attribute> attributes = ncVariable.getAttributes();
+        for (Attribute attribute : attributes) {
+            final String shortName = attribute.getShortName();
+            if (shortName.toLowerCase().contains("fillvalue")) {
+                ncVariable.removeAttribute(attribute.getShortName());
+                final Attribute fillAttr = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, attribute.getNumericValue());
+                ncVariable.addAttribute(fillAttr);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Date getDate(Array charArray) throws ParseException {
+        final String pattern = "yyyy-MM-dd'T'HH:mm:ss";
+        final String str = charArray.toString().trim();
+        final String analysableUtcStr = stripTrailingZ(str);
+        final ProductData.UTC utc = ProductData.UTC.parse(analysableUtcStr, pattern);
+        return utc.getAsDate();
     }
 
     private String stripTrailingZ(String str) {
