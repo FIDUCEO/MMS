@@ -207,7 +207,7 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
     }
 
     private File getCalipsoFile() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"calipso-vfl", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"calipso-vfm", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
