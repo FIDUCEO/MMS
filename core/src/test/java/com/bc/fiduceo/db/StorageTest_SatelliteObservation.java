@@ -107,6 +107,22 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
+    public void testInsert_andGet_boundaryAsLinestring() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1440000000000L), TimeUtils.create(1440001000000L), "LINESTRING(10 2, 11 6, 12 7, 13 8, 14 9)");
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final SatelliteObservation observationFromDb = result.get(0);
+
+        final Geometry geoBoundsFromDb = observationFromDb.getGeoBounds();
+        final String geoBoundsWkt = geometryFactory.format(geoBoundsFromDb);
+        assertEquals("LINESTRING(10.0 2.0,11.0 6.000000000000001,12.000000000000004 7.000000000000001,13.0 7.999999999999997,14.0 9.0)", geoBoundsWkt);
+    }
+
+    @Test
     public void testInsert_andGet_noGeometry_noTimeAxes() throws SQLException, ParseException {
         final SatelliteObservation observation = createSatelliteObservation();
         observation.setGeoBounds(null);
@@ -525,11 +541,15 @@ public abstract class StorageTest_SatelliteObservation {
 
 
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
+        return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
+    }
+
+    private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime, String boundaryWkt) {
         final SatelliteObservation observation = new SatelliteObservation();
         observation.setStartTime(startTime);
         observation.setStopTime(stopTime);
         observation.setNodeType(NodeType.ASCENDING);
-        final Geometry geometry = geometryFactory.parse("POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
+        final Geometry geometry = geometryFactory.parse(boundaryWkt);
         observation.setGeoBounds(geometry);
 
         observation.setDataFilePath(DATA_FILE_PATH);
