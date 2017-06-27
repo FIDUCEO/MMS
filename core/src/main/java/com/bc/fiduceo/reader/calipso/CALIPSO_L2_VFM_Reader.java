@@ -27,6 +27,7 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.PixelLocatorX1Yn;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
@@ -134,7 +135,10 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array lons = arrayCache.get("Longitude");
+        final Array lats = arrayCache.get("Latitude");
+        final int maxDistanceKm = 5;
+        return new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
     }
 
     @Override
@@ -198,18 +202,6 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         return variables;
     }
 
-    private void ensureFillValue(Variable ncVariable) {
-        final DataType dataType = ncVariable.getDataType();
-        boolean fillValueRenamed = renameFillValueAttributeIfExist(ncVariable);
-        if (!fillValueRenamed) {
-            final Attribute attribute = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
-            final boolean unsigned = attribute != null && Boolean.parseBoolean(attribute.getStringValue());
-            final Number fillValue = NetCDFUtils.getDefaultFillValue(dataType, unsigned);
-            final Attribute fillValueAtt = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, fillValue);
-            ncVariable.addAttribute(fillValueAtt);
-        }
-    }
-
     @Override
     public Dimension getProductSize() throws IOException {
         final Variable latVar = netcdfFile.findVariable("Latitude");
@@ -251,6 +243,18 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         final short a3End = a1Block + a2Block + a3Samples * 8 - 1;
 
         return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
+    }
+
+    private void ensureFillValue(Variable ncVariable) {
+        final DataType dataType = ncVariable.getDataType();
+        boolean fillValueRenamed = renameFillValueAttributeIfExist(ncVariable);
+        if (!fillValueRenamed) {
+            final Attribute attribute = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
+            final boolean unsigned = attribute != null && Boolean.parseBoolean(attribute.getStringValue());
+            final Number fillValue = NetCDFUtils.getDefaultFillValue(dataType, unsigned);
+            final Attribute fillValueAtt = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, fillValue);
+            ncVariable.addAttribute(fillValueAtt);
+        }
     }
 
     private boolean renameFillValueAttributeIfExist(Variable ncVariable) {
