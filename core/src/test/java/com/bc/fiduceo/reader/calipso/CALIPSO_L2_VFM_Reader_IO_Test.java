@@ -12,7 +12,9 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.PixelLocatorX1Yn;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -22,12 +24,12 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,13 +38,14 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
 
     private File testDataDirectory;
     private CALIPSO_L2_VFM_Reader reader;
+    private File calipsoFile;
 
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
         reader = new CALIPSO_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2));
-        final File file = getCalipsoFile();
-        reader.open(file);
+        calipsoFile = getCalipsoFile();
+        reader.open(calipsoFile);
     }
 
     @After
@@ -148,7 +151,7 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
         final String mm = "[0-5]\\d";
         final String ss = mm;
         final String prefix = "CAL_LID_L2_VFM-Standard-V4-10.";
-        final String expected = prefix + YYYY + "-" + MM + "-"+DD+"T"+hh+"-"+mm+"-"+ss+"Z[DN].hdf";
+        final String expected = prefix + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + "Z[DN].hdf";
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -156,10 +159,10 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
         Matcher matcher;
         // valid day                                                                       ⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf");
-        assertEquals(true ,matcher.matches());
+        assertEquals(true, matcher.matches());
         // valid night                                                                     ⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZN.hdf");
-        assertEquals(true ,matcher.matches());
+        assertEquals(true, matcher.matches());
 
         // invalid year                                            ⇓⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2080-01-02T23-37-04ZD.hdf");
@@ -204,6 +207,45 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
         // invalid end                                                                 ⇓⇓⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.kkk");
         assertThat(matcher.matches(), is(false));
+    }
+
+    @Test
+    public void getPixelLocator() throws Exception {
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+
+        assertThat(pixelLocator, is(instanceOf(PixelLocatorX1Yn.class)));
+
+        final Point2D geoLocation = pixelLocator.getGeoLocation(0, 18, null);
+        assertThat(geoLocation.getX(), is(closeTo(15.64188, 1e-6)));
+        assertThat(geoLocation.getY(), is(closeTo(-62.756924, 1e-6)));
+
+        final Point2D[] pixelLocation = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
+        assertThat(pixelLocation, is(notNullValue()));
+        assertThat(pixelLocation.length, is(1));
+        assertThat(pixelLocation[0].getX(), is(0.5));
+        assertThat(pixelLocation[0].getY(), is(18.5));
+    }
+
+    @Test
+    public void getPixelLocator_sameInstance() throws Exception {
+        final PixelLocator pixelLocator1 = reader.getPixelLocator();
+        final PixelLocator pixelLocator2 = reader.getPixelLocator();
+        final PixelLocator pixelLocator3 = reader.getPixelLocator();
+        final PixelLocator pixelLocator4 = reader.getSubScenePixelLocator(null);
+
+        assertThat(pixelLocator1, is(sameInstance(pixelLocator2)));
+        assertThat(pixelLocator1, is(sameInstance(pixelLocator3)));
+        assertThat(pixelLocator1, is(sameInstance(pixelLocator4)));
+    }
+
+    @Test
+    public void getPixelLocator_isNotSameInstance_afterCloseAndReopenTheSameFile() throws Exception {
+        final PixelLocator pixelLocator1 = reader.getPixelLocator();
+        reader.close();
+        reader.open(calipsoFile);
+        final PixelLocator pixelLocator2 = reader.getPixelLocator();
+
+        assertThat(pixelLocator1, is(not(sameInstance(pixelLocator2))));
     }
 
     private File getCalipsoFile() {

@@ -69,6 +69,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
+    private PixelLocatorX1Yn pixelLocator;
 
     public CALIPSO_L2_VFM_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -86,6 +87,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         if (netcdfFile != null) {
             netcdfFile.close();
         }
+        pixelLocator = null;
     }
 
     @Override
@@ -135,15 +137,18 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        final Array lons = arrayCache.get("Longitude");
-        final Array lats = arrayCache.get("Latitude");
-        final int maxDistanceKm = 5;
-        return new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
+        if (pixelLocator == null) {
+            final Array lons = arrayCache.get("Longitude");
+            final Array lats = arrayCache.get("Latitude");
+            final int maxDistanceKm = 5;
+            pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        return getPixelLocator();
     }
 
     @Override
