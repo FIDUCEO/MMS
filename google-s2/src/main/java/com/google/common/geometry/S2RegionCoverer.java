@@ -151,7 +151,7 @@ public final strictfp class S2RegionCoverer {
   // Set the minimum and maximum cell level to be used. The default is to use
   // all cell levels. Requires: max_level() >= min_level().
   //
-  // To find the cell level corresponding to a given physical distance, use
+  // To find the cell level corresponding to a given physical point_distance, use
   // the S2Cell metrics defined in s2.h. For example, to find the cell
   // level that corresponds to an average edge length of 10km, use:
   //

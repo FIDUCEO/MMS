@@ -169,7 +169,7 @@ public strictfp class S2CapTest extends GeometryTestCase {
     // that face and some caps whose positions are relative to that face,
     // and then check for the expected intersection/containment results.
 
-    // The distance from the center of a face to one of its vertices.
+    // The point_distance from the center of a face to one of its vertices.
     final double kFaceRadius = Math.atan(S2.M_SQRT2);
 
     for (int face = 0; face < 6; ++face) {

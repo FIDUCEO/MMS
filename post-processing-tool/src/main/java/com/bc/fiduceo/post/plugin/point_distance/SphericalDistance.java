@@ -17,7 +17,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.distance;
+package com.bc.fiduceo.post.plugin.point_distance;
 
 import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
 

@@ -1,4 +1,4 @@
-com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin
+com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin
 com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin
 com.bc.fiduceo.post.plugin.AddAmsreSolarAnglesPlugin
 com.bc.fiduceo.post.plugin.nwp.NwpPostProcessingPlugin

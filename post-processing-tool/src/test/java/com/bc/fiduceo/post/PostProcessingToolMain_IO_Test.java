@@ -73,7 +73,7 @@ public class PostProcessingToolMain_IO_Test {
         final Element rootElement = new Element("post-processing-config").addContent(Arrays.asList(
                     new Element("overwrite"),
                     new Element("post-processings").addContent(
-                                new Element("spherical-distance").addContent(Arrays.asList(
+                                new Element("spherical-point_distance").addContent(Arrays.asList(
                                             new Element("target").addContent(Arrays.asList(
                                                         new Element("data-type").addContent("Float"),
                                                         new Element("var-name").addContent("post_dist"),

@@ -447,7 +447,7 @@ public strictfp class S2LatLngRectTest extends GeometryTestCase {
   }
 
   /**
-   * Returns the minimum distance from X to the latitude line segment defined by
+   * Returns the minimum point_distance from X to the latitude line segment defined by
    * the given latitude and longitude interval.
    */
   private static S1Angle getDistance(S2LatLng x, S1Angle lat, S1Interval interval) {
@@ -458,7 +458,7 @@ public strictfp class S2LatLngRectTest extends GeometryTestCase {
     if (interval.contains(x.lng().radians()))
       return S1Angle.radians(Math.abs(x.lat().radians() - lat.radians()));
 
-    // Return the distance to the closer endpoint.
+    // Return the point_distance to the closer endpoint.
     return S1Angle.min(x.getDistance(new S2LatLng(lat, S1Angle.radians(interval.lo()))),
         x.getDistance(new S2LatLng(lat, S1Angle.radians(interval.hi()))));
   }

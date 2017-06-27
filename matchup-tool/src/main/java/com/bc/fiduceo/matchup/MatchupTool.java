@@ -412,7 +412,7 @@ class MatchupTool {
         variable.setDataType(dataType.toString());
         variable.setDimensionNames("matchup_count");
         final List<Attribute> attributes = variable.getAttributes();
-        attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical distance of matchup center locations"));
+        attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical point_distance of matchup center locations"));
         attributes.add(new Attribute(CF_UNITS_NAME, "km"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
         return variable;

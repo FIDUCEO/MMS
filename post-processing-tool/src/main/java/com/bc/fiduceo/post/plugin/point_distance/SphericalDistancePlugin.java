@@ -17,7 +17,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.distance;
+package com.bc.fiduceo.post.plugin.point_distance;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
@@ -26,7 +26,7 @@ import org.jdom.Element;
 
 public class SphericalDistancePlugin implements PostProcessingPlugin {
 
-    public static final String TAG_NAME_SPHERICAL_DISTANCE = "spherical-distance";
+    public static final String TAG_NAME_SPHERICAL_DISTANCE = "spherical-point_distance";
     public static final String TAG_NAME_TARGET = "target";
     public static final String TAG_NAME_DATA_TYPE = "data-type";
     public static final String TAG_NAME_VAR_NAME = "var-name";

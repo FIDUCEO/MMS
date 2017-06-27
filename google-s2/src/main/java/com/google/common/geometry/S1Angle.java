@@ -52,7 +52,7 @@ public final strictfp class S1Angle implements Comparable<S1Angle> {
     }
 
     /**
-     * Return the angle between two points, which is also equal to the distance
+     * Return the angle between two points, which is also equal to the point_distance
      * between these points on the unit sphere. The points do not need to be
      * normalized.
      */

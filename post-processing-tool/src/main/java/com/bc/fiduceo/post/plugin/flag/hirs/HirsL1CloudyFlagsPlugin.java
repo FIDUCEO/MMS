@@ -42,7 +42,7 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
     static final String TAG_VAR_NAME_LONGITUDE = "hirs-var-name-longitude";
     static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
     static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
-    static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
+    static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "point_distance-product-file-path";
 
     private FileSystem fileSystem;
 

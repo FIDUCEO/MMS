@@ -42,9 +42,9 @@ public class MatchupToolUseCaseConfigTest {
         pw.println("    <time-delta>");
         pw.println("      <time-delta-seconds>12345</time-delta-seconds>");
         pw.println("    </time-delta>");
-        pw.println("    <spherical-distance>");
-        pw.println("      <max-pixel-distance-km>14.8</max-pixel-distance-km>");
-        pw.println("    </spherical-distance>");
+        pw.println("    <spherical-point_distance>");
+        pw.println("      <max-pixel-point_distance-km>14.8</max-pixel-point_distance-km>");
+        pw.println("    </spherical-point_distance>");
         pw.println("  </conditions>");
         pw.println("  <sensors>");
         pw.println("    <sensor>");

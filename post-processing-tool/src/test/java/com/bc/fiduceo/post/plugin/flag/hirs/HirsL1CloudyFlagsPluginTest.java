@@ -69,10 +69,10 @@ public class HirsL1CloudyFlagsPluginTest {
                     new Element(TAG_VAR_NAME_LONGITUDE).addContent("hirs-n18_lon"),
                     new Element(TAG_VAR_NAME_BT_11_1_µM).addContent("hirs-n18_bt_ch08"),
                     new Element(TAG_VAR_NAME_BT_6_5_µM).addContent("hirs-n18_bt_ch12"),
-                    new Element(TAG_DISTANCE_PRODUCT_FILE_PATH).addContent("/path/to/the/distance-NetCDF-file.nc")
+                    new Element(TAG_DISTANCE_PRODUCT_FILE_PATH).addContent("/path/to/the/point_distance-NetCDF-file.nc")
         ));
         virtualFS = Jimfs.newFileSystem(Configuration.unix());
-        final Path file = virtualFS.getPath("/path/to/the/distance-NetCDF-file.nc");
+        final Path file = virtualFS.getPath("/path/to/the/point_distance-NetCDF-file.nc");
         Files.createDirectories(file.getParent());
         Files.write(file, "Da steht was drin".getBytes());
     }
@@ -231,7 +231,7 @@ public class HirsL1CloudyFlagsPluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element 'distance-product-file-path' expected", expected.getMessage());
+            assertEquals("Value of element 'point_distance-product-file-path' expected", expected.getMessage());
         }
     }
 
@@ -243,7 +243,7 @@ public class HirsL1CloudyFlagsPluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element 'distance-product-file-path' expected", expected.getMessage());
+            assertEquals("Value of element 'point_distance-product-file-path' expected", expected.getMessage());
         }
     }
 
@@ -255,7 +255,7 @@ public class HirsL1CloudyFlagsPluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Child element 'distance-product-file-path' expected", expected.getMessage());
+            assertEquals("Child element 'point_distance-product-file-path' expected", expected.getMessage());
         }
     }
 

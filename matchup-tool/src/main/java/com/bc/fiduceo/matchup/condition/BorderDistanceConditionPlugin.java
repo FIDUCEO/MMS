@@ -25,7 +25,7 @@ import org.jdom.Element;
 
 /* The XML template for this condition class looks like:
 
-    <border-distance>
+    <border-point_distance>
         <primary>
             <nx>2</nx>
             <ny>3</ny>
@@ -34,7 +34,7 @@ import org.jdom.Element;
             <nx>5</nx>
             <ny>4</ny>
         </secondary>
-    </border-distance>
+    </border-point_distance>
  */
 
 public class BorderDistanceConditionPlugin implements ConditionPlugin {
@@ -48,7 +48,7 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "border-distance";
+        return "border-point_distance";
     }
 
     BorderDistanceCondition.Configuration parseConfiguration(Element element) {

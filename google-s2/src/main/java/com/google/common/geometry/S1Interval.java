@@ -326,7 +326,7 @@ public final strictfp class S1Interval implements Cloneable {
         if (isEmpty()) {
             return S1Interval.fromPoint(p);
         } else {
-            // Compute distance from p to each endpoint.
+            // Compute point_distance from p to each endpoint.
             double dlo = positiveDistance(p, lo());
             double dhi = positiveDistance(hi(), p);
             if (dlo < dhi) {
@@ -339,7 +339,7 @@ public final strictfp class S1Interval implements Cloneable {
     }
 
     /**
-     * Return an interval that contains all points within a distance "radius" of
+     * Return an interval that contains all points within a point_distance "radius" of
      * a point in this interval. Note that the expansion of an empty interval is
      * always empty. The radius must be non-negative.
      */
@@ -491,7 +491,7 @@ public final strictfp class S1Interval implements Cloneable {
     }
 
     /**
-     * Compute the distance from "a" to "b" in the range [0, 2*Pi). This is
+     * Compute the point_distance from "a" to "b" in the range [0, 2*Pi). This is
      * equivalent to (drem(b - a - S2.M_PI, 2 * S2.M_PI) + S2.M_PI), except that
      * it is more numerically stable (it does not lose precision for very small
      * positive distances).

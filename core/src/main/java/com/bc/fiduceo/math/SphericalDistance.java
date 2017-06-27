@@ -32,8 +32,8 @@ public class SphericalDistance implements DistanceMeasure {
     /**
      * Creates a new instance of this class.
      *
-     * @param lon The reference longitude of this distance calculator.
-     * @param lat The reference latitude of this distance calculator.
+     * @param lon The reference longitude of this point_distance calculator.
+     * @param lat The reference latitude of this point_distance calculator.
      */
     public SphericalDistance(double lon, double lat) {
         this.lon = lon;
@@ -43,12 +43,12 @@ public class SphericalDistance implements DistanceMeasure {
     }
 
     /**
-     * Returns the spherical distance (in Radian) of a given (lon, lat) point to
+     * Returns the spherical point_distance (in Radian) of a given (lon, lat) point to
      * the reference (lon, lat) point.
      *
      * @param lon The longitude.
      * @param lat The latitude.
-     * @return the spherical distance (in Radian) of the given (lon, lat) point
+     * @return the spherical point_distance (in Radian) of the given (lon, lat) point
      * to the reference (lon, lat) point.
      */
     @Override

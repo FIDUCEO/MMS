@@ -389,7 +389,7 @@ public class UseCaseConfigTest {
     @Test
     public void testLoad__writeDistance() {
         final String useCaseXml = "<use-case-config name=\"use-case 22\">" +
-                "  <write-distance>true</write-distance>" +
+                "  <write-point_distance>true</write-point_distance>" +
                 "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 

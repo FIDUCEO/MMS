@@ -679,7 +679,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
   }
 
   /**
-   * Returns the shortest distance from a point P to this loop, given as the
+   * Returns the shortest point_distance from a point P to this loop, given as the
    * angle formed between P, the origin and the nearest point on the loop to P.
    * This angle in radians is equivalent to the arclength along the unit sphere.
    */

@@ -316,14 +316,14 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
         S2Polygon rect = makePolygon(inner);
         S2Polygon shell = makePolygon(inner + outer);
 
-        // All of the vertices of a polygon should be distance 0
+        // All of the vertices of a polygon should be point_distance 0
         for (int i = 0; i < shell.numLoops(); i++) {
             for (int j = 0; j < shell.loop(i).numVertices(); j++) {
                 assertEquals(0d, shell.getDistance(shell.loop(i).vertex(j)).radians(), epsilon);
             }
         }
 
-        // A non-vertex point on an edge should be distance 0
+        // A non-vertex point on an edge should be point_distance 0
         assertEquals(0d, rect.getDistance(
                 S2Point.normalize(S2Point.add(rect.loop(0).vertex(0), rect.loop(0).vertex(1)))).radians(),
                 epsilon);
@@ -333,7 +333,7 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
         assertEquals(0d, rect.getDistance(origin).radians(), epsilon);
 
         // shell does NOT contain the origin, since it has a hole. The shortest
-        // distance is to (1,0) or (-1,0), and should be 1 degree
+        // point_distance is to (1,0) or (-1,0), and should be 1 degree
         assertEquals(1d, shell.getDistance(origin).degrees(), epsilon);
     }
 }

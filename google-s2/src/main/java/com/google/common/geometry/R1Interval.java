@@ -153,7 +153,7 @@ public final strictfp class R1Interval {
     }
 
     /**
-     * Return an interval that contains all points with a distance "radius" of a
+     * Return an interval that contains all points with a point_distance "radius" of a
      * point in this interval. Note that the expansion of an empty interval is
      * always empty.
      */

@@ -20,7 +20,7 @@ package com.google.common.geometry;
  * This class represents a spherical cap, i.e. a portion of a sphere cut off by
  * a plane. The cap is defined by its axis and height. This representation has
  * good numerical accuracy for very small caps (unlike the (axis,
- * min-distance-from-origin) representation), and is also efficient for
+ * min-point_distance-from-origin) representation), and is also efficient for
  * containment tests (unlike the (axis, angle) representation).
  *
  * Here are some useful relationships between the cap height (h), the cap
@@ -57,7 +57,7 @@ public final strictfp class S2Cap implements S2Region {
 
   /**
    * Create a cap given its axis and the cap height, i.e. the maximum projected
-   * distance along the cap axis from the cap center. 'axis' should be a
+   * point_distance along the cap axis from the cap center. 'axis' should be a
    * unit-length vector.
    */
   public static S2Cap fromAxisHeight(S2Point axis, double height) {
@@ -204,7 +204,7 @@ public final strictfp class S2Cap implements S2Region {
       return new S2Cap(p, 0);
     } else {
       // To make sure that the resulting cap actually includes this point,
-      // we need to round up the distance calculation. That is, after
+      // we need to round up the point_distance calculation. That is, after
       // calling cap.AddPoint(p), cap.Contains(p) should be true.
       double dist2 = S2Point.sub(axis, p).norm2();
       double newHeight = Math.max(height, ROUND_UP * 0.5 * dist2);

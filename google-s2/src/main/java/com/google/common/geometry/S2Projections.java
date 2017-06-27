@@ -123,24 +123,24 @@ public final strictfp class S2Projections {
   public static final Metric AVG_ANGLE_SPAN = new Metric(1, S2.M_PI / 4); // 0.785
 
 
-  // The width of geometric figure is defined as the distance between two
+  // The width of geometric figure is defined as the point_distance between two
   // parallel bounding lines in a given direction. For cells, the minimum
   // width is always attained between two opposite edges, and the maximum
   // width is attained between two opposite vertices. However, for our
-  // purposes we redefine the width of a cell as the perpendicular distance
+  // purposes we redefine the width of a cell as the perpendicular point_distance
   // between a pair of opposite edges. A cell therefore has two widths, one
   // in each direction. The minimum width according to this definition agrees
   // with the classic geometric one, but the maximum width is different. (The
   // maximum geometric width corresponds to MAX_DIAG defined below.)
   //
-  // For a cell at level k, the distance between opposite edges is at least
+  // For a cell at level k, the point_distance between opposite edges is at least
   // MIN_WIDTH.GetValue(k) and at most MAX_WIDTH.GetValue(k). The average
   // width in both directions for all cells at level k is approximately
   // AVG_WIDTH.GetValue(k).
   //
-  // The width is useful for bounding the minimum or maximum distance from a
+  // The width is useful for bounding the minimum or maximum point_distance from a
   // point on one edge of a cell to the closest point on the opposite edge.
-  // For example, this is useful when "growing" regions by a fixed distance.
+  // For example, this is useful when "growing" regions by a fixed point_distance.
   public static final Metric MIN_WIDTH = new Metric(1,
     (S2Projections.S2_PROJECTION == Projections.S2_LINEAR_PROJECTION ? 1 / Math.sqrt(6) : // 0.408
       S2_PROJECTION == Projections.S2_TAN_PROJECTION ? S2.M_PI / (4 * S2.M_SQRT2) : // 0.555
@@ -160,8 +160,8 @@ public final strictfp class S2Projections {
   // The average edge length is approximately AVG_EDGE.GetValue(k).
   //
   // The edge length metrics can also be used to bound the minimum, maximum,
-  // or average distance from the center of one cell to the center of one of
-  // its edge neighbors. In particular, it can be used to bound the distance
+  // or average point_distance from the center of one cell to the center of one of
+  // its edge neighbors. In particular, it can be used to bound the point_distance
   // between adjacent cell centers along the space-filling Hilbert curve for
   // cells at any given level.
   public static final Metric MIN_EDGE = new Metric(1,
@@ -184,7 +184,7 @@ public final strictfp class S2Projections {
   //
   // The maximum diagonal also happens to be the maximum diameter of any cell,
   // and also the maximum geometric width (see the discussion above). So for
-  // example, the distance from an arbitrary point to the closest cell center
+  // example, the point_distance from an arbitrary point to the closest cell center
   // at a given level is at most half the maximum diagonal length.
   public static final Metric MIN_DIAG = new Metric(1,
     S2_PROJECTION == Projections.S2_LINEAR_PROJECTION ? S2.M_SQRT2 / 3 : // 0.471

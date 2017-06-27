@@ -138,7 +138,7 @@ public strictfp class S2LoopTest extends GeometryTestCase {
       // the two points at (-dtheta/2, phi) and (dtheta/2, phi).
       //
       // We want to position the vertices close enough together so that their
-      // maximum distance from the boundary of the spherical cap is kMaxDist.
+      // maximum point_distance from the boundary of the spherical cap is kMaxDist.
       // Thus we want fabs(atan(tan(phi) / cos(dtheta/2)) - phi) <= kMaxDist.
       double kMaxDist = 1e-6;
       double height = 2 * rand.nextDouble();
@@ -469,33 +469,33 @@ public strictfp class S2LoopTest extends GeometryTestCase {
     double epsilon = 1e-15;
 
     // A square with (lat,lng) vertices (0,1), (1,1), (1,2) and (0,2)
-    // Tests the case where the shortest distance is along a normal to an edge,
+    // Tests the case where the shortest point_distance is along a normal to an edge,
     // onto a vertex
     S2Loop s1 = makeLoop("0:1, 1:1, 1:2, 0:2");
 
     // A square with (lat,lng) vertices (-1,1), (1,1), (1,2) and (-1,2)
-    // Tests the case where the shortest distance is along a normal to an edge,
+    // Tests the case where the shortest point_distance is along a normal to an edge,
     // not onto a vertex
     S2Loop s2 = makeLoop("-1:1, 1:1, 1:2, -1:2");
 
     // A diamond with (lat,lng) vertices (1,0), (2,1), (3,0) and (2,-1)
-    // Test the case where the shortest distance is NOT along a normal to an
+    // Test the case where the shortest point_distance is NOT along a normal to an
     // edge
     S2Loop s3 = makeLoop("1:0, 2:1, 3:0, 2:-1");
 
-    // All the vertices should be distance 0
+    // All the vertices should be point_distance 0
     for (int i = 0; i < s1.numVertices(); i++) {
       assertEquals(0d, s1.getDistance(s1.vertex(i)).radians(), epsilon);
     }
 
-    // A point on one of the edges should be distance 0
+    // A point on one of the edges should be point_distance 0
     assertEquals(0d, s1.getDistance(S2LatLng.fromDegrees(0.5, 1).toPoint()).radians(), epsilon);
 
     // In all three cases, the closest point to the origin is (0,1), which is at
-    // a distance of 1 degree.
+    // a point_distance of 1 degree.
     // Note: all of these are intentionally distances measured along the
     // equator, since that makes the math significantly simpler. Otherwise, the
-    // distance wouldn't actually be 1 degree.
+    // point_distance wouldn't actually be 1 degree.
     S2Point origin = S2LatLng.fromDegrees(0, 0).toPoint();
     assertEquals(1d, s1.getDistance(origin).degrees(), epsilon);
     assertEquals(1d, s2.getDistance(origin).degrees(), epsilon);

@@ -425,7 +425,7 @@ public final strictfp class S2 {
   // "center" of a spherical triangle. For example, consider the triangle
   // with vertices A=(1,eps,0), B=(0,0,1), C=(-1,eps,0) (a quarter-sphere).
   // The surface centroid of this triangle is at S=(0, 2*eps, 1), which is
-  // within a distance of 2*eps of the vertex B. Note that the median from A
+  // within a point_distance of 2*eps of the vertex B. Note that the median from A
   // (the segment connecting A to the midpoint of BC) passes through S, since
   // this is the shortest path connecting the two endpoints. On the other
   // hand, the true centroid is at M=(0, 0.5, 0.5), which when projected onto
@@ -769,7 +769,7 @@ public final strictfp class S2 {
   }
 
   /**
-   * Return true if two points are within the given distance of each other
+   * Return true if two points are within the given point_distance of each other
    * (mainly useful for testing).
    */
   public static boolean approxEquals(S2Point a, S2Point b, double maxError) {

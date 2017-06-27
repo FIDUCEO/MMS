@@ -413,7 +413,7 @@ public strictfp class S2EdgeUtilTest extends GeometryTestCase {
     assertTrue(expectedClosestPoint.aequal(S2EdgeUtil.getClosestPoint(x, a, b), kMargin));
   }
 
-  // Given a point X and an edge AB, check that the distance from X to AB is
+  // Given a point X and an edge AB, check that the point_distance from X to AB is
   // "distanceRadians" and the closest point on AB is "expectedClosest".
   private static void checkDistance(
       S2Point x, S2Point a, S2Point b, double distanceRadians, S2Point expectedClosest) {
@@ -469,7 +469,7 @@ public strictfp class S2EdgeUtilTest extends GeometryTestCase {
 
   public void testIntersectionTolerance() {
     // We repeatedly construct two edges that cross near a random point "p",
-    // and measure the distance from the actual intersection point "x" to the
+    // and measure the point_distance from the actual intersection point "x" to the
     // the expected intersection point "p" and also to the edges that cross
     // near "p".
     //
@@ -488,12 +488,12 @@ public strictfp class S2EdgeUtilTest extends GeometryTestCase {
       //
       // Once the slope is chosen, the four points ABCD must be offset from P
       // by at least (1e-15 / slope) so that the points are guaranteed to have
-      // the correct circular ordering around P. This is the distance from P
+      // the correct circular ordering around P. This is the point_distance from P
       // at which the two edges are separated by about 1e-15, which is
-      // approximately the minimum distance at which we can expect computed
+      // approximately the minimum point_distance at which we can expect computed
       // points on the two lines to be distinct and have the correct ordering.
       //
-      // The actual offset distance from P is chosen randomly in the range
+      // The actual offset point_distance from P is chosen randomly in the range
       // [1e-15 / slope, 1.0], again uniformly distributing the logarithm.
       // This ensures that we test both long and very short segments that
       // intersect at both large and very small angles.

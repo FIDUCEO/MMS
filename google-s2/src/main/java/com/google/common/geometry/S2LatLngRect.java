@@ -220,7 +220,7 @@ public strictfp class S2LatLngRect implements S2Region {
   }
 
   /**
-   * Return the minimum distance (measured along the surface of the sphere)
+   * Return the minimum point_distance (measured along the surface of the sphere)
    * from a given point to the rectangle (both its boundary and its interior).
    * The latLng must be valid.
    */
@@ -251,7 +251,7 @@ public strictfp class S2LatLngRect implements S2Region {
   }
 
   /**
-   * Return the minimum distance (measured along the surface of the sphere) to
+   * Return the minimum point_distance (measured along the surface of the sphere) to
    * the given S2LatLngRect. Both S2LatLngRects must be non-empty.
    */
   public S1Angle getDistance(S2LatLngRect other) {
@@ -296,11 +296,11 @@ public strictfp class S2LatLngRect implements S2Region {
       bLng = b.lngLo();
     }
 
-    // The shortest distance between the two longitudinal segments will include
+    // The shortest point_distance between the two longitudinal segments will include
     // at least one segment endpoint. We could probably narrow this down further
-    // to a single point-edge distance by comparing the relative latitudes of the
+    // to a single point-edge point_distance by comparing the relative latitudes of the
     // endpoints, but for the sake of clarity, we'll do all four point-edge
-    // distance tests.
+    // point_distance tests.
     S2Point aLo = new S2LatLng(a.latLo(), aLng).toPoint();
     S2Point aHi = new S2LatLng(a.latHi(), aLng).toPoint();
     S2Point aLoCrossHi =
@@ -468,14 +468,14 @@ public strictfp class S2LatLngRect implements S2Region {
   }
 
   /**
-   * Return a rectangle that contains all points whose latitude distance from
-   * this rectangle is at most margin.lat(), and whose longitude distance from
+   * Return a rectangle that contains all points whose latitude point_distance from
+   * this rectangle is at most margin.lat(), and whose longitude point_distance from
    * this rectangle is at most margin.lng(). In particular, latitudes are
    * clamped while longitudes are wrapped. Note that any expansion of an empty
    * interval remains empty, and both components of the given margin must be
    * non-negative.
    *
-   * NOTE: If you are trying to grow a rectangle by a certain *distance* on the
+   * NOTE: If you are trying to grow a rectangle by a certain *point_distance* on the
    * sphere (e.g. 5km), use the ConvolveWithCap() method instead.
    */
   public S2LatLngRect expanded(S2LatLng margin) {
@@ -513,9 +513,9 @@ public strictfp class S2LatLngRect implements S2Region {
 
   /**
    * Return a rectangle that contains the convolution of this rectangle with a
-   * cap of the given angle. This expands the rectangle by a fixed distance (as
+   * cap of the given angle. This expands the rectangle by a fixed point_distance (as
    * opposed to growing the rectangle in latitude-longitude space). The returned
-   * rectangle includes all points whose minimum distance to the original
+   * rectangle includes all points whose minimum point_distance to the original
    * rectangle is at most the given angle.
    */
   public S2LatLngRect convolveWithCap(S1Angle angle) {

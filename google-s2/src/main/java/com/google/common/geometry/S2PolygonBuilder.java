@@ -187,8 +187,8 @@ public strictfp class S2PolygonBuilder {
 
     /**
      * If set to a positive value, all vertices that are separated by at most
-     * this distance will be merged together. In addition, vertices that are
-     * closer than this distance to a non-incident edge will be spliced into it
+     * this point_distance will be merged together. In addition, vertices that are
+     * closer than this point_distance to a non-incident edge will be spliced into it
      * (TODO).
      *
      *  The merging is done in such a way that all vertex-vertex and vertex-edge
@@ -662,7 +662,7 @@ public strictfp class S2PolygonBuilder {
     }
 
     /**
-     * Return the set the unmarked points whose distance to "center" is less
+     * Return the set the unmarked points whose point_distance to "center" is less
      * than search_radius_, and mark these points. By construction, these points
      * will be contained by one of the vertex neighbors of "center".
      */

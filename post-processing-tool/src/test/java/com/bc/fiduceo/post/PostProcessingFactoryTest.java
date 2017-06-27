@@ -22,9 +22,9 @@ package com.bc.fiduceo.post;
 import org.jdom.Element;
 import org.junit.*;
 
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_DATA_TYPE;
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_TARGET;
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_VAR_NAME;
+import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_DATA_TYPE;
+import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_TARGET;
+import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_VAR_NAME;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -46,7 +46,7 @@ public class PostProcessingFactoryTest {
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
         assertEquals(8, plugins.size());
         /* 01 */  assertTrue(plugins.containsKey("dummy-post-processing"));
-        /* 02 */  assertTrue(plugins.containsKey("spherical-distance"));
+        /* 02 */  assertTrue(plugins.containsKey("spherical-point_distance"));
         /* 03 */  assertTrue(plugins.containsKey("sst-insitu-time-series"));
         /* 04 */  assertTrue(plugins.containsKey("add-amsre-solar-angles"));
         /* 05 */  assertTrue(plugins.containsKey("nwp"));
@@ -58,7 +58,7 @@ public class PostProcessingFactoryTest {
     @Test
     public void testGetPostProcessing() throws Exception {
 
-        final Element element = new Element("spherical-distance").addContent(Arrays.asList(
+        final Element element = new Element("spherical-point_distance").addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
                                 new Element(TAG_NAME_DATA_TYPE).addContent("Float")
@@ -71,7 +71,7 @@ public class PostProcessingFactoryTest {
 
         final PostProcessing postProcessing = postProcessingFactory.getPostProcessing(element);
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.distance.SphericalDistance", postProcessing.getClass().getName());
+        assertEquals("com.bc.fiduceo.post.plugin.point_distance.SphericalDistance", postProcessing.getClass().getName());
     }
 
     @Test

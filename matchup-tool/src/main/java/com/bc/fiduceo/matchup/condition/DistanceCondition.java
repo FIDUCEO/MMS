@@ -30,11 +30,11 @@ import java.util.List;
 
 /* The XML template for this condition class looks like:
 
-    <spherical-distance>
-        <max-pixel-distance-km>
+    <spherical-point_distance>
+        <max-pixel-point_distance-km>
             4.5
-        </max-pixel-distance-km>
-    </spherical-distance>
+        </max-pixel-point_distance-km>
+    </spherical-point_distance>
  */
 
 class DistanceCondition implements Condition {

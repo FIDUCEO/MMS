@@ -31,7 +31,7 @@ public strictfp class S2EdgeUtil {
    * (about 1.11e-16) times the magnitude of the result. It is possible to
    * analyze the calculation done by getIntersection() and work out the
    * worst-case rounding error. I have done a rough version of this, and my
-   * estimate is that the worst case distance from the intersection point X to
+   * estimate is that the worst case point_distance from the intersection point X to
    * the great circle through (a0, a1) is about 12 ULPS, or about 1.3e-15. This
    * needs to be increased by a factor of (1/0.866) to account for the
    * edgeSpliceFraction() in S2PolygonBuilder. Note that the maximum error
@@ -656,7 +656,7 @@ public strictfp class S2EdgeUtil {
     }
 
     public void replaceIfCloser(S2Point x, S2Point y) {
-      // If the squared distance from x to y is less than dmin2, then replace
+      // If the squared point_distance from x to y is less than dmin2, then replace
       // vmin by y and update dmin2 accordingly.
       double d2 = S2Point.minus(x, y).norm2();
       if (d2 < dmin2 || (d2 == dmin2 && y.lessThan(vmin))) {
@@ -729,7 +729,7 @@ public strictfp class S2EdgeUtil {
   }
 
   /**
-   * Given a point X and an edge AB, return the distance ratio AX / (AX + BX).
+   * Given a point X and an edge AB, return the point_distance ratio AX / (AX + BX).
    * If X happens to be on the line segment AB, this is the fraction "t" such
    * that X == Interpolate(A, B, t). Requires that A and B are distinct.
    */
@@ -741,9 +741,9 @@ public strictfp class S2EdgeUtil {
   }
 
   /**
-   * Return the minimum distance from X to any point on the edge AB. The result
+   * Return the minimum point_distance from X to any point on the edge AB. The result
    * is very accurate for small distances but may have some numerical error if
-   * the distance is large (approximately Pi/2 or greater). The case A == B is
+   * the point_distance is large (approximately Pi/2 or greater). The case A == B is
    * handled correctly. Note: x, a and b must be of unit length. Throws
    * IllegalArgumentException if this is not the case.
    */
@@ -769,7 +769,7 @@ public strictfp class S2EdgeUtil {
     // midpoint of AB.
 
     if (S2.simpleCCW(aCrossB, a, x) && S2.simpleCCW(x, b, aCrossB)) {
-      // The closest point to X lies on the segment AB. We compute the distance
+      // The closest point to X lies on the segment AB. We compute the point_distance
       // to the corresponding great circle. The result is accurate for small
       // distances but not necessarily for large distances (approaching Pi/2).
 

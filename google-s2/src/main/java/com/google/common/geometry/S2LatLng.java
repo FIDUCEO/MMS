@@ -174,7 +174,7 @@ public strictfp class S2LatLng {
   }
 
   /**
-   * Return the distance (measured along the surface of the sphere) to the given
+   * Return the point_distance (measured along the surface of the sphere) to the given
    * point.
    */
   public S1Angle getDistance(final S2LatLng o) {
@@ -185,7 +185,7 @@ public strictfp class S2LatLng {
     //
     // This could be fixed with another sin() and cos() below, but at that point
     // you might as well just convert both arguments to S2Points and compute the
-    // distance that way (which gives about 15 digits of accuracy for all
+    // point_distance that way (which gives about 15 digits of accuracy for all
     // distances).
 
     double lat1 = lat().radians();
@@ -196,7 +196,7 @@ public strictfp class S2LatLng {
     double dlng = Math.sin(0.5 * (lng2 - lng1));
     double x = dlat * dlat + dlng * dlng * Math.cos(lat1) * Math.cos(lat2);
     return S1Angle.radians(2 * Math.atan2(Math.sqrt(x), Math.sqrt(Math.max(0.0, 1.0 - x))));
-    // Return the distance (measured along the surface of the sphere) to the
+    // Return the point_distance (measured along the surface of the sphere) to the
     // given S2LatLng. This is mathematically equivalent to:
     //
     // S1Angle::FromRadians(ToPoint().Angle(o.ToPoint())
@@ -205,7 +205,7 @@ public strictfp class S2LatLng {
   }
 
   /**
-   * Returns the surface distance to the given point assuming a constant radius.
+   * Returns the surface point_distance to the given point assuming a constant radius.
    */
   public double getDistance(final S2LatLng o, double radius) {
     // TODO(dbeaumont): Maybe check that radius >= 0 ?
@@ -213,7 +213,7 @@ public strictfp class S2LatLng {
   }
 
   /**
-   * Returns the surface distance to the given point assuming the default Earth
+   * Returns the surface point_distance to the given point assuming the default Earth
    * radius of {@link #EARTH_RADIUS_METERS}.
    */
   public double getEarthDistance(final S2LatLng o) {
@@ -273,7 +273,7 @@ public strictfp class S2LatLng {
 
   /**
    * Returns true if the given point is within {@code 1e-9} radians of this
-   * point. This corresponds to a distance of less than {@code 1cm} at the
+   * point. This corresponds to a point_distance of less than {@code 1cm} at the
    * surface of the Earth.
    */
   public boolean approxEquals(S2LatLng o) {

@@ -107,7 +107,7 @@ public final strictfp class S2Polyline implements S2Region {
     }
 
     /**
-     * Return the point whose distance from vertex 0 along the polyline is the
+     * Return the point whose point_distance from vertex 0 along the polyline is the
      * given fraction of the polyline's total length. Fractions less than zero or
      * greater than one are clamped. The return value is unit length. This cost of
      * this function is currently linear in the number of vertices.
@@ -129,7 +129,7 @@ public final strictfp class S2Polyline implements S2Region {
             double length = vertex(i - 1).angle(vertex(i));
             if (target < length) {
                 // This code interpolates with respect to arc length rather than
-                // straight-line distance, and produces a unit-length result.
+                // straight-line point_distance, and produces a unit-length result.
                 double f = Math.sin(target) / Math.sin(length);
                 return S2Point.add(S2Point.mul(vertex(i - 1), (Math.cos(target) - f * Math.cos(length))),
                         S2Point.mul(vertex(i), f));
@@ -263,7 +263,7 @@ public final strictfp class S2Polyline implements S2Region {
             return 0;
         }
 
-        // Initial value larger than any possible distance on the unit sphere.
+        // Initial value larger than any possible point_distance on the unit sphere.
         S1Angle minDistance = S1Angle.radians(10);
         int minIndex = -1;
 

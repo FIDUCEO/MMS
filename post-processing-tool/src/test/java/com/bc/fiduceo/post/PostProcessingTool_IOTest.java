@@ -42,7 +42,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.List;
 
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
+import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -70,7 +70,7 @@ public class PostProcessingTool_IOTest {
         pw.println("<post-processing-config>");
         pw.println("    <overwrite/>");
         pw.println("    <post-processings>");
-        pw.println("        <spherical-distance>");
+        pw.println("        <spherical-point_distance>");
         pw.println("            <target>");
         pw.println("                <data-type>Float</data-type>");
         pw.println("                <var-name>post_dist</var-name>");
@@ -80,7 +80,7 @@ public class PostProcessingTool_IOTest {
         pw.println("            <primary-lon-variable scaleAttrName=\"Scale\">amsub-n16_Longitude</primary-lon-variable>");
         pw.println("            <secondary-lat-variable>ssmt2-f14_lat</secondary-lat-variable>");
         pw.println("            <secondary-lon-variable>ssmt2-f14_lon</secondary-lon-variable>");
-        pw.println("        </spherical-distance>");
+        pw.println("        </spherical-point_distance>");
         pw.println("    </post-processings>");
         pw.println("</post-processing-config>");
         pw.close();

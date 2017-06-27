@@ -183,21 +183,21 @@ public class PolarOrbitingPolygon {
         /*
         while (middle2 + 2 < geometry.numPoints()) {
             point2 = geometry.getPoint(middle2 + 1);
-            final double distance2 = middle1DistanceCalculator.distance(point2.getX(), point2.getY());
-            if (distance2 >= distance) {
+            final double distance2 = middle1DistanceCalculator.point_distance(point2.getX(), point2.getY());
+            if (distance2 >= point_distance) {
                 break;
             }
             ++middle2;
-            distance = distance2;
+            point_distance = distance2;
         }
         while (middle2 - 1 < middle1) {
             point2 = geometry.getPoint(middle2 - 1);
-            final double distance2 = middle1DistanceCalculator.distance(point2.getX(), point2.getY());
-            if (distance2 >= distance) {
+            final double distance2 = middle1DistanceCalculator.point_distance(point2.getX(), point2.getY());
+            if (distance2 >= point_distance) {
                 break;
             }
             --middle2;
-            distance = distance2;
+            point_distance = distance2;
         }
         */
         // find nearest point on opposite product border
@@ -257,8 +257,8 @@ public class PolarOrbitingPolygon {
         /**
          * Creates a new instance of this class.
          *
-         * @param lon The reference longitude of this distance calculator.
-         * @param lat The reference latitude of this distance calculator.
+         * @param lon The reference longitude of this point_distance calculator.
+         * @param lat The reference latitude of this point_distance calculator.
          */
         private SphericalDistance(double lon, double lat) {
             this.lon = lon;
@@ -267,12 +267,12 @@ public class PolarOrbitingPolygon {
         }
 
         /**
-         * Returns the spherical distance (in Radian) of a given (lon, lat) point to
+         * Returns the spherical point_distance (in Radian) of a given (lon, lat) point to
          * the reference (lon, lat) point.
          *
          * @param lon The longitude.
          * @param lat The latitude.
-         * @return the spherical distance (in Radian) of the given (lon, lat) point
+         * @return the spherical point_distance (in Radian) of the given (lon, lat) point
          * to the reference (lon, lat) point.
          */
         private double distance(double lon, double lat) {

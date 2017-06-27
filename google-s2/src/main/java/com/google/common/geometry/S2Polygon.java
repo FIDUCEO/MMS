@@ -325,12 +325,12 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Returns the shortest distance from a point P to this polygon, given as the
+     * Returns the shortest point_distance from a point P to this polygon, given as the
      * angle formed between P, the origin and the nearest point on the polygon to
      * P. This angle in radians is equivalent to the arclength along the unit
      * sphere.
      * <p>
-     * If the point is contained inside the polygon, the distance returned is 0.
+     * If the point is contained inside the polygon, the point_distance returned is 0.
      */
     public S1Angle getDistance(S2Point p) {
         if (contains(p)) {
@@ -445,7 +445,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     //
     // We do the intersection/subtraction by walking the polyline edges.
     // For each edge, we compute all intersections with the polygon boundary
-    // and sort them in increasing order of distance along that edge.
+    // and sort them in increasing order of point_distance along that edge.
     // We then divide the intersection points into pairs, and output a
     // clipped polyline segment for each one.
     // We keep track of whether we're inside or outside of the polygon at

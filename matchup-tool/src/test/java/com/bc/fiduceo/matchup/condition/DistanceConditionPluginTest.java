@@ -44,16 +44,16 @@ public class DistanceConditionPluginTest {
 
     @Test
     public void testGetConditionName() {
-        assertEquals("spherical-distance", plugin.getConditionName());
+        assertEquals("spherical-point_distance", plugin.getConditionName());
     }
 
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
-        final String XML = "<spherical-distance>" +
-                           "  <max-pixel-distance-km>" +
+        final String XML = "<spherical-point_distance>" +
+                           "  <max-pixel-point_distance-km>" +
                            "    4.5" +
-                           "  </max-pixel-distance-km>" +
-                           "</spherical-distance>";
+                           "  </max-pixel-point_distance-km>" +
+                           "</spherical-point_distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -66,11 +66,11 @@ public class DistanceConditionPluginTest {
 
     @Test
     public void testCreateCondition_withOptionalSecondarySensorName() throws JDOMException, IOException {
-        final String XML = "<spherical-distance>" +
-                           "  <max-pixel-distance-km names=\"secSenName\">" +
+        final String XML = "<spherical-point_distance>" +
+                           "  <max-pixel-point_distance-km names=\"secSenName\">" +
                            "    4.5" +
-                           "  </max-pixel-distance-km>" +
-                           "</spherical-distance>";
+                           "  </max-pixel-point_distance-km>" +
+                           "</spherical-point_distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -83,45 +83,45 @@ public class DistanceConditionPluginTest {
 
     @Test
     public void testCreateCondition_invalidTag() throws JDOMException, IOException {
-        final String XML = "<distance>" +
-                           "  <max-pixel-distance-km>" +
+        final String XML = "<point_distance>" +
+                           "  <max-pixel-point_distance-km>" +
                            "    4.5" +
-                           "  </max-pixel-distance-km>" +
-                           "</distance>";
+                           "  </max-pixel-point_distance-km>" +
+                           "</point_distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Illegal XML Element. Tagname 'spherical-distance' expected.", expected.getMessage());
+            assertEquals("Illegal XML Element. Tagname 'spherical-point_distance' expected.", expected.getMessage());
         }
     }
 
     @Test
     public void testCreateCondition_invalidInnerTag() throws JDOMException, IOException {
-        final String XML = "<spherical-distance>" +
+        final String XML = "<spherical-point_distance>" +
                            "  <the_delta>" +
                            "    4.5" +
                            "  </the_delta>" +
-                           "</spherical-distance>";
+                           "</spherical-point_distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
             plugin.createCondition(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("At least one child element 'max-pixel-distance-km' expected", expected.getMessage());
+            assertEquals("At least one child element 'max-pixel-point_distance-km' expected", expected.getMessage());
         }
     }
 
     @Test
     public void testCreateCondition_emptySecondarySensorNameTag() throws JDOMException, IOException {
-        final String XML = "<spherical-distance>" +
-                           "  <max-pixel-distance-km names=\"\">" +
+        final String XML = "<spherical-point_distance>" +
+                           "  <max-pixel-point_distance-km names=\"\">" +
                            "    4.5" +
-                           "  </max-pixel-distance-km>" +
-                           "</spherical-distance>";
+                           "  </max-pixel-point_distance-km>" +
+                           "</spherical-point_distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);

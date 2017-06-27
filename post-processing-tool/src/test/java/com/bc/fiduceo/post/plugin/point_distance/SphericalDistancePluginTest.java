@@ -17,9 +17,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.distance;
+package com.bc.fiduceo.post.plugin.point_distance;
 
-import static com.bc.fiduceo.post.plugin.distance.SphericalDistancePlugin.*;
+import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
@@ -53,7 +53,7 @@ public class SphericalDistancePluginTest {
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.distance.SphericalDistance", postProcessing.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.point_distance.SphericalDistance", postProcessing.getClass().getTypeName());
 
         final SphericalDistance sphericalDistance = (SphericalDistance) postProcessing;
 
@@ -81,7 +81,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Illegal XML Element. Tagname 'spherical-distance' expected.", expected.getMessage());
+            assertEquals("Illegal XML Element. Tagname 'spherical-point_distance' expected.", expected.getMessage());
         }
     }
 

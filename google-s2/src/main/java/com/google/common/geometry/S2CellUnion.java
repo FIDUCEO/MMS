@@ -377,7 +377,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
   }
 
   /**
-   * Expand the cell union such that it contains all points whose distance to
+   * Expand the cell union such that it contains all points whose point_distance to
    * the cell union is at most minRadius, but do not use cells that are more
    * than maxLevelDiff levels higher than the largest cell in the input. The
    * second parameter controls the tradeoff between accuracy and output size

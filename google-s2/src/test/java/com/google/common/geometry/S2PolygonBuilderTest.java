@@ -320,7 +320,7 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
       S2PolygonBuilder builder) {
 
     // Transform the given edge chain to the frame (x,y,z), perturb each vertex
-    // up to the given distance, and add it to the builder.
+    // up to the given point_distance, and add it to the builder.
 
     List<S2Point> vertices = Lists.newArrayList();
     getVertices(chain.str, x, y, z, maxPerturbation, vertices);
@@ -344,16 +344,16 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
       options.setUndirectedEdges(evalTristate(test.undirectedEdges));
       options.setXorEdges(evalTristate(test.xorEdges));
 
-      // Each test has a minimum and a maximum merge distance. The merge
-      // distance must be at least the given minimum to ensure that all expected
+      // Each test has a minimum and a maximum merge point_distance. The merge
+      // point_distance must be at least the given minimum to ensure that all expected
       // merging will take place, and it must be at most the given maximum to
       // ensure that no unexpected merging takes place.
       //
       // If the minimum and maximum values are different, we have some latitude
-      // to perturb the vertices as long as the merge distance is adjusted
-      // appropriately. If "p" is the maximum perturbation distance, "min" and
+      // to perturb the vertices as long as the merge point_distance is adjusted
+      // appropriately. If "p" is the maximum perturbation point_distance, "min" and
       // "max" are the min/max merge distances, and "m" is the actual merge
-      // distance for this test, we require that
+      // point_distance for this test, we require that
       //
       // x >= min + 2*p and x <= max - 2*p .
       //
@@ -365,8 +365,8 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
       double r = Math.max(0.0, 2 * rand.nextDouble() - 1);
       double maxPerturbation = r * 0.25 * (maxMerge - minMerge);
 
-      // Now we set the merge distance chosen randomly within the limits above
-      // (min + 2*p and max - 2*p). Half of the time we set the merge distance
+      // Now we set the merge point_distance chosen randomly within the limits above
+      // (min + 2*p and max - 2*p). Half of the time we set the merge point_distance
       // to the minimum value.
 
       r = Math.max(0.0, 2 * rand.nextDouble() - 1);
@@ -403,7 +403,7 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
       }
       // We assume that the vertex locations in the expected output polygon
       // are separated from the corresponding vertex locations in the input
-      // edges by at most half of the minimum merge distance. Essentially
+      // edges by at most half of the minimum merge point_distance. Essentially
       // this means that the expected output vertices should be near the
       // centroid of the various input vertices.
       double maxError = 0.5 * minMerge + maxPerturbation;
