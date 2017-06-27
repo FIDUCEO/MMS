@@ -1,0 +1,16 @@
+      The purpose of this document is to contain implementation decisions which was made in
+      the past, so that any developer can read this document and should be able to implement
+      compatible code.
+
+
+ Reader implementation:
+************************
+    Any implemented reader should return variables and attributes as close as possible to the original.
+
+    For example:
+      o It is mandatory, that any variable with a number data type must have a fill value attribute
+        with the CF conform attribute name "_FillValue".
+          o If the original variable don't have such an attribute assigned, a new one must be
+            added to the variable.
+          o If the original variable already have an fill value assigned, but with a NOT CF conform
+            name, the attribute must be duplicated and the CF conform name must be set.
