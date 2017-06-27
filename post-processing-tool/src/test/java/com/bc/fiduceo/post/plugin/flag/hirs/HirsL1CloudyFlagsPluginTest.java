@@ -36,6 +36,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.jdom.Element;

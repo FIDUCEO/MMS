@@ -21,6 +21,7 @@ import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.ReaderCache;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;

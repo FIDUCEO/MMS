@@ -17,13 +17,14 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.flag.hirs;
+package com.bc.fiduceo.post.util;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.util.SobolSequenceGenerator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;

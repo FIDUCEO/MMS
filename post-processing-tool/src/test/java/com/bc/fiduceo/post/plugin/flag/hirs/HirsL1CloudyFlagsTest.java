@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingContext;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;

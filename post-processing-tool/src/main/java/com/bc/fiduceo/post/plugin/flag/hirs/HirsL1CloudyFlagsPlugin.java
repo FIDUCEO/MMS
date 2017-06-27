@@ -20,6 +20,7 @@ import static com.bc.fiduceo.util.JDomUtils.*;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import org.jdom.Element;
 
 import java.nio.file.FileSystem;
@@ -28,20 +29,21 @@ import java.nio.file.Paths;
 
 public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
 
-    public static final String TAG_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
-    public static final String TAG_SENSOR_NAME = "hirs-sensor-name";
-    public static final String TAG_VAR_NAME_SOURCE_FILE_NAME = "hirs-var-name-source-file-name";
-    public static final String TAG_VAR_NAME_PROCESSING_VERSION = "hirs-var-name-processing-version";
-    public static final String TAG_VAR_NAME_SOURCE_X = "hirs-var-name-source-x";
-    public static final String TAG_VAR_NAME_SOURCE_Y = "hirs-var-name-source-y";
-    public static final String TAG_VAR_NAME_SOURCE_BT_11_1_mM = "hirs-var-name-source-11_1-um";
+    static final String TAG_POST_PROCESSING_NAME = "hirs-l1-cloudy-flags";
+    static final String TAG_SENSOR_NAME = "hirs-sensor-name";
+    static final String TAG_VAR_NAME_SOURCE_FILE_NAME = "hirs-var-name-source-file-name";
+    static final String TAG_VAR_NAME_PROCESSING_VERSION = "hirs-var-name-processing-version";
+    static final String TAG_VAR_NAME_SOURCE_X = "hirs-var-name-source-x";
+    static final String TAG_VAR_NAME_SOURCE_Y = "hirs-var-name-source-y";
+    static final String TAG_VAR_NAME_SOURCE_BT_11_1_mM = "hirs-var-name-source-11_1-um";
 
-    public static final String TAG_VAR_NAME_CLOUD_FLAGS = "hirs-var-name-cloud-flags";
-    public static final String TAG_VAR_NAME_LATITUDE = "hirs-var-name-latitude";
-    public static final String TAG_VAR_NAME_LONGITUDE = "hirs-var-name-longitude";
-    public static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
-    public static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
-    public static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
+    static final String TAG_VAR_NAME_CLOUD_FLAGS = "hirs-var-name-cloud-flags";
+    static final String TAG_VAR_NAME_LATITUDE = "hirs-var-name-latitude";
+    static final String TAG_VAR_NAME_LONGITUDE = "hirs-var-name-longitude";
+    static final String TAG_VAR_NAME_BT_11_1_µM = "hirs-var-name-11_1-um";
+    static final String TAG_VAR_NAME_BT_6_5_µM = "hirs-var-name-6_5-um";
+    static final String TAG_DISTANCE_PRODUCT_FILE_PATH = "distance-product-file-path";
+
     private FileSystem fileSystem;
 
     @Override
