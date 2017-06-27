@@ -376,6 +376,74 @@ public class IntersectionEngineTest {
     }
 
     @Test
+    public void testGetIntersectingIntervals_onSameOrbit_bothDescending_noOverlappingTime_primaryLinestring() {
+        final SatelliteObservation satelliteGeometry_1 = createSatelliteObservation("LINESTRING(2.5 4,2.5 3, 2.5 2, 2.5 1)",
+                "LINESTRING(2.5 4,2.5 3, 2.5 2, 2.5 1)", 1000, 2000);
+        final SatelliteObservation satelliteGeometry_2 = createSatelliteObservation("POLYGON((2.1 6, 2.1 5, 2.1 4, 2.1 3, 2.9 3, 2.9 4, 2.9 5, 2.9 6, 2.1 6))",
+                "LINESTRING(2.4 6, 2.4 5, 2.4 4, 2.4 3)", 1000, 2000);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(satelliteGeometry_1, satelliteGeometry_2);
+        assertEquals(1, intersectingIntervals.length);
+
+        final TimeInfo timeInfo = intersectingIntervals[0].getTimeInfo();
+        assertNull(timeInfo.getOverlapInterval());
+        assertEquals(333, timeInfo.getMinimalTimeDelta());
+
+        final Geometry geometry = intersectingIntervals[0].getGeometry();
+        assertEquals("MULTILINESTRING((2.5 4.0,2.5 3.0000729761109572))", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testGetIntersectingIntervals_onSamePlatform_secondaryLineString() {
+        final SatelliteObservation satelliteGeometry_1 = createSatelliteObservation("POLYGON((2 4, 2 3, 2 2, 2 1, 3 1, 3 2, 3 3, 3 4, 2 4))",
+                "LINESTRING(2.5 4,2.5 3, 2.5 2, 2.5 1)", 1000, 2000);
+        final SatelliteObservation satelliteGeometry_2 = createSatelliteObservation("LINESTRING(2.4 4,2.4 3, 2.4 2, 2.4 1)",
+                "LINESTRING(2.4 4,2.4 3, 2.4 2, 2.4 1)", 1000, 2000);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(satelliteGeometry_1, satelliteGeometry_2);
+        assertEquals(1, intersectingIntervals.length);
+
+        final TimeInfo timeInfo = intersectingIntervals[0].getTimeInfo();
+        final TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1000L, timeInterval.getStartTime().getTime());
+        assertEquals(1999L, timeInterval.getStopTime().getTime());  // S2 rounding errors tb 2017-06-27
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+
+        final Geometry geometry = intersectingIntervals[0].getGeometry();
+        assertEquals("MULTILINESTRING((2.4 4.0,2.3999999999999995 3.0000000000000004,2.3999999999999995 1.9999999999999996,2.4 1.0000365478174977))", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testGetIntersectingIntervals_oneSegmentedGeometry_intersectBoth_angular_secondaryLineString() {
+        final SatelliteObservation segmented = createSegmentedSatelliteObservation(new String[]{"POLYGON((2 2, 4 2, 4 4, 2 4, 2 2))", "POLYGON((2 4, 4 4, 4 6, 2 6, 2 4))"},
+                new String[]{"LINESTRING(3 2, 3 4)", "LINESTRING(3 4, 3 6)"},
+                new int[]{1000, 2000},
+                new int[]{2000, 3000});
+        final SatelliteObservation observation = createSatelliteObservation("LINESTRING(1.5 2.5, 4.5 6.5)", "LINESTRING(1.5 2.5, 4.5 6.5)", 1500, 3500);
+
+        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(segmented, observation);
+        assertEquals(2, intersectingIntervals.length);
+
+        TimeInfo timeInfo = intersectingIntervals[0].getTimeInfo();
+        TimeInterval timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(1834L, timeInterval.getStartTime().getTime());
+        assertEquals(2000L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+
+        timeInfo = intersectingIntervals[1].getTimeInfo();
+        timeInterval = timeInfo.getOverlapInterval();
+        assertEquals(2249L, timeInterval.getStartTime().getTime());
+        assertEquals(2919L, timeInterval.getStopTime().getTime());
+        assertEquals(0, timeInfo.getMinimalTimeDelta());
+
+        Geometry geometry = intersectingIntervals[0].getGeometry();
+        assertEquals("MULTILINESTRING((2.0000000000000004 3.17019687933719,2.620630927903088 4.0005199239719795))", geometryFactory.format(geometry));
+
+        geometry = intersectingIntervals[1].getGeometry();
+        assertEquals("MULTILINESTRING((2.620630927903088 4.0005199239719795,4.0 5.837617117170999))", geometryFactory.format(geometry));
+    }
+
+    @Test
     public void testCalculateTimeDelta() {
         final TimeInterval interval_1 = new TimeInterval(new Date(2500), new Date(2800));
         final TimeInterval interval_2 = new TimeInterval(new Date(3000), new Date(3500));
