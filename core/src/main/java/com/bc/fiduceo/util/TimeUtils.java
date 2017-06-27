@@ -151,9 +151,13 @@ public class TimeUtils {
     }
 
     public static Date tai1993ToUtc(double taiSeconds) {
-        final double taiInstant = TAI_REFERENCE_SECONDS + taiSeconds;
-        final double utcInstant = taiInstant - getTaiToUtcOffset(taiInstant);
+        final double utcInstant = tai1993ToUtcInstantSeconds(taiSeconds);
         return new Date((long) (utcInstant * 1000L));
+    }
+
+    public static double tai1993ToUtcInstantSeconds(double taiSeconds) {
+        final double taiInstant = TAI_REFERENCE_SECONDS + taiSeconds;
+        return taiInstant - getTaiToUtcOffset(taiInstant);
     }
 
     public static Date getDate(int year, int dayOfYear, int millisecsInDay) {

@@ -16,6 +16,8 @@
  */
 package com.bc.fiduceo.reader.calipso;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -28,10 +30,12 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.PixelLocatorX1Yn;
+import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -50,6 +54,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +75,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
     private PixelLocatorX1Yn pixelLocator;
+    private List<Variable> variables;
 
     public CALIPSO_L2_VFM_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -79,7 +85,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
-
+        variables = initVariables();
     }
 
     @Override
@@ -88,6 +94,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
             netcdfFile.close();
         }
         pixelLocator = null;
+        variables = null;
     }
 
     @Override
@@ -159,53 +166,43 @@ class CALIPSO_L2_VFM_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        ensureValidInterval(interval);
+        final Number fillValue = getFillValue(variableName);
+        final Array array = arrayCache.get(variableName);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 1);
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        ensureValidInterval(interval);
+        final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        final String variableName = "Profile_Time";
+        final Number fillValue = getFillValue(variableName);
+        final Array taiSeconds = readRaw(x, y, interval, variableName);
+        final Array utcSecondsSince1970 = Array.factory(DataType.INT, taiSeconds.getShape());
+        for (int i = 0; i < taiSeconds.getSize(); i++) {
+            double val = taiSeconds.getDouble(i);
+            final int targetVal;
+            if (fillValue.equals(val)) {
+                targetVal = targetFillValue;
+            } else {
+                targetVal = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(val));
+            }
+            utcSecondsSince1970.setInt(i, targetVal);
+        }
+        return (ArrayInt.D2) utcSecondsSince1970;
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        final ArrayList<Variable> variables = new ArrayList<>();
-
-        final Group rootGroup = netcdfFile.getRootGroup();
-        final List<Variable> ncVariables = netcdfFile.getVariables();
-
-        for (Variable ncVariable : ncVariables) {
-            final String fullName = ncVariable.getFullName();
-            if (ncVariable.getGroup() != rootGroup
-                || fullName.contains("metadata")
-                || fullName.contains("Feature_Classification_Flags")) {
-                continue;
-            }
-            final String spacecraftName = "Spacecraft_Position";
-            if (fullName.equals(spacecraftName)) {
-                final String[] suffixes = {"_x", "_y", "_z"};
-                final int[] shape = ncVariable.getShape();
-                shape[1] = 1;
-                for (int i = 0; i < 3; i++) {
-                    final int[] origin = {0, i};
-                    final Variable section = ncVariable.section(new Section(origin, shape));
-                    section.setName(spacecraftName + suffixes[i]);
-                    arrayCache.inject(section);
-                    ensureFillValue(section);
-                    variables.add(section);
-                }
-            } else {
-                ensureFillValue(ncVariable);
-                variables.add(ncVariable);
-            }
-        }
-        return variables;
+    public List<Variable> getVariables() throws IOException {
+        return Collections.unmodifiableList(variables);
     }
+
 
     @Override
     public Dimension getProductSize() throws IOException {
@@ -250,30 +247,72 @@ class CALIPSO_L2_VFM_Reader implements Reader {
         return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
     }
 
-    private void ensureFillValue(Variable ncVariable) {
-        final DataType dataType = ncVariable.getDataType();
-        boolean fillValueRenamed = renameFillValueAttributeIfExist(ncVariable);
-        if (!fillValueRenamed) {
-            final Attribute attribute = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
-            final boolean unsigned = attribute != null && Boolean.parseBoolean(attribute.getStringValue());
-            final Number fillValue = NetCDFUtils.getDefaultFillValue(dataType, unsigned);
-            final Attribute fillValueAtt = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, fillValue);
-            ncVariable.addAttribute(fillValueAtt);
+    private List<Variable> initVariables() throws IOException {
+        final ArrayList<Variable> variables = new ArrayList<>();
+
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final List<Variable> ncVariables = netcdfFile.getVariables();
+
+        for (Variable ncVariable : ncVariables) {
+            final String fullName = ncVariable.getFullName();
+            if (ncVariable.getGroup() != rootGroup
+                || fullName.contains("metadata")
+                || fullName.contains("Feature_Classification_Flags")) {
+                continue;
+            }
+            final String spacecraftName = "Spacecraft_Position";
+            if (fullName.equals(spacecraftName)) {
+                final String[] suffixes = {"_x", "_y", "_z"};
+                final int[] shape = ncVariable.getShape();
+                shape[1] = 1;
+                for (int i = 0; i < 3; i++) {
+                    final int[] origin = {0, i};
+                    final Variable section;
+                    try {
+                        section = ncVariable.section(new Section(origin, shape));
+                    } catch (InvalidRangeException e) {
+                        throw new RuntimeException("Malformed CALIPSO file.", e);
+                    }
+                    section.setName(spacecraftName + suffixes[i]);
+                    arrayCache.inject(section);
+                    ensureFillValue(section);
+                    variables.add(section);
+                }
+            } else {
+                ensureFillValue(ncVariable);
+                variables.add(ncVariable);
+            }
+        }
+        return variables;
+    }
+
+    private Number getFillValue(String variableName) throws IOException {
+        return arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
+    }
+
+    private void ensureValidInterval(Interval interval) {
+        if (interval.getX() > 1) {
+            throw new RuntimeException("An interval with x > 1 is not allowed.");
         }
     }
 
-    private boolean renameFillValueAttributeIfExist(Variable ncVariable) {
-        final List<Attribute> attributes = ncVariable.getAttributes();
-        for (Attribute attribute : attributes) {
-            final String shortName = attribute.getShortName();
-            if (shortName.toLowerCase().contains("fillvalue")) {
-                ncVariable.removeAttribute(attribute.getShortName());
-                final Attribute fillAttr = new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, attribute.getNumericValue());
-                ncVariable.addAttribute(fillAttr);
-                return true;
-            }
+    private void ensureFillValue(Variable ncVariable) {
+        if (ncVariable.findAttribute(CF_FILL_VALUE_NAME) == null) {
+            final Number fillValue = getFillValue(ncVariable);
+            ncVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         }
-        return false;
+    }
+
+    private Number getFillValue(Variable ncVariable) {
+        final Attribute fillvalueAttr = ncVariable.findAttribute("fillvalue");
+        if (fillvalueAttr == null) {
+            final DataType dataType = ncVariable.getDataType();
+            final Attribute unsignedAttr = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
+            final boolean unsigned = unsignedAttr != null && Boolean.parseBoolean(unsignedAttr.getStringValue());
+            return NetCDFUtils.getDefaultFillValue(dataType, unsigned);
+        } else {
+            return fillvalueAttr.getNumericValue();
+        }
     }
 
     private Date getDate(Array charArray) throws ParseException {

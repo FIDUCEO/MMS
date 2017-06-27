@@ -100,6 +100,8 @@ public interface Reader extends AutoCloseable {
     /**
      * Retrieves a {@link List list} of {@link Variable variables}.
      * It is mandatory, that all the number data type variables has a CF conform <code>_FillValue</code> set.
+     * If a fill value attribute already exist, but not with a CF conform name, the attribute must be
+     * duplicated and the CF conform name must be set.
      * @return a {@link List list} of {@link Variable variables}.
      * @throws InvalidRangeException
      * @throws IOException

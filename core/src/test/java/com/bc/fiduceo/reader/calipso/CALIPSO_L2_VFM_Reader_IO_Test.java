@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -18,8 +19,11 @@ import com.bc.fiduceo.reader.PixelLocatorX1Yn;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
 import org.junit.runner.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -248,6 +252,177 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
         assertThat(pixelLocator1, is(not(sameInstance(pixelLocator2))));
     }
 
+    @Test
+    public void ensureValidInterval() {
+        final int invalidX = 2;
+        final int validY = 12;
+        final Interval invalidInterval = new Interval(invalidX, validY);
+        try {
+            reader.readRaw(0, 44, invalidInterval, "");
+            fail("Exception expected");
+        } catch (Exception expected) {
+            assertThat(expected, is(instanceOf(RuntimeException.class)));
+            assertThat(expected.getMessage(), is("An interval with x > 1 is not allowed."));
+        }
+        try {
+            reader.readScaled(0, 44, invalidInterval, "");
+            fail("Exception expected");
+        } catch (Exception expected) {
+            assertThat(expected, is(instanceOf(RuntimeException.class)));
+            assertThat(expected.getMessage(), is("An interval with x > 1 is not allowed."));
+        }
+        try {
+            reader.readAcquisitionTime(0, 44, invalidInterval);
+            fail("Exception expected");
+        } catch (Exception expected) {
+            assertThat(expected, is(instanceOf(RuntimeException.class)));
+            assertThat(expected.getMessage(), is("An interval with x > 1 is not allowed."));
+        }
+    }
+
+    @Test
+    public void readRawAndScaled_() throws Exception {
+        final Interval interval = new Interval(1, 5);
+        Array a1;
+        Array a2;
+        Object expected;
+
+        a1 = reader.readRaw(0, 40, interval, "Profile_ID");
+        a2 = reader.readScaled(0, 40, interval, "Profile_ID");
+        assertThat(a1.getDataType(), is(equalTo(DataType.INT)));
+        expected = new int[]{
+                    81502, 81517, 81532, 81547, 81562
+        };
+        assertThat(a1.get1DJavaArray(int.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Latitude");
+        a2 = reader.readScaled(0, 40, interval, "Latitude");
+        assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
+        expected = new float[]{
+                    -63.609745f, -63.651947f, -63.694492f, -63.736717f, -63.778946f
+        };
+        assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Longitude");
+        a2 = reader.readScaled(0, 40, interval, "Longitude");
+        assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
+        expected = new float[]{
+                    14.952398f, 14.917107f, 14.881485f, 14.84628f, 14.811039f
+        };
+        assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Profile_Time");
+        a2 = reader.readScaled(0, 40, interval, "Profile_Time");
+        assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
+        expected = new double[]{
+                    5.681650570962E8, 5.681650578392E8, 5.681650585832E8, 5.681650593271999E8, 5.681650600711999E8
+        };
+        assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Profile_UTC_Time");
+        a2 = reader.readScaled(0, 40, interval, "Profile_UTC_Time");
+        assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
+        expected = new double[]{
+                    110102.98437611343, 110102.98438471297, 110102.98439332408, 110102.98440193519, 110102.9844105463
+        };
+        assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Day_Night_Flag");
+        a2 = reader.readScaled(0, 40, interval, "Day_Night_Flag");
+        assertThat(a1.getDataType(), is(equalTo(DataType.SHORT)));
+        expected = new short[]{
+                    0, 0, 0, 0, 0
+        };
+        assertThat(a1.get1DJavaArray(short.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 192, new Interval(1, 11), "Land_Water_Mask");
+        a2 = reader.readScaled(0, 192, new Interval(1, 11), "Land_Water_Mask");
+        assertThat(a1.getDataType(), is(equalTo(DataType.BYTE)));
+        expected = new byte[]{
+                    7, 7, 2, 2, 2, 2, 2, 2, 2, 1, 1
+        };
+        assertThat(a1.get1DJavaArray(byte.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Spacecraft_Position_x");
+        a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_x");
+        assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
+        expected = new double[]{
+                    3090.2231291304124, 3086.1839169722384, 3082.137038848976, 3078.087931358017, 3074.0365973714943
+        };
+        assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Spacecraft_Position_y");
+        a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_y");
+        assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
+        expected = new double[]{
+                    839.2475400800969, 836.1470677137711, 833.0423484852521, 829.937556835804, 826.8326952132286
+        };
+        assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+
+        a1 = reader.readRaw(0, 40, interval, "Spacecraft_Position_z");
+        a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_z");
+        assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
+        expected = new double[]{
+                    -6324.418475639274, -6326.80178776186, -6329.1843969925485, -6331.563091989386, -6333.9378710620185
+        };
+        assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
+        assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
+        assertThat(a1.getStorage(), is(equalTo(a2.getStorage())));
+    }
+
+    @Test
+    public void readAcquisitionTime() throws Exception {
+        final int x = 0;
+        final int y = 2;
+        final Interval interval = new Interval(1, 7);
+        final Array pt = reader.readRaw(x, y, interval, "Profile_Time");
+        final int[] expectedShape = {7, 1};
+        assertThat(pt.getShape(), is(equalTo(expectedShape)));
+        final List<Variable> variables = reader.getVariables();
+        Number fillValue = null;
+        for (Variable variable : variables) {
+            if(variable.getShortName().equals("Profile_Time")) {
+                fillValue = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME).getNumericValue();
+            }
+        }
+        assertThat(fillValue, is(notNullValue()));
+
+        //execution
+        final ArrayInt.D2 at = reader.readAcquisitionTime(x, y, interval);
+
+        //verification
+        assertThat(at.getDataType(), is(equalTo(DataType.INT)));
+        assertThat(at.getShape(), is(equalTo(expectedShape)));
+        for (int i = 0; i < at.getSize(); i++) {
+            final double ptVal = pt.getDouble(i);
+            final int expected;
+            if (fillValue.equals(ptVal)) {
+                expected = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+            } else {
+                expected = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(ptVal));
+            }
+            assertThat("Loop number " + i, at.getInt(i), is(expected));
+        }
+    }
+
     private File getCalipsoFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"calipso-vfm", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
         final File file = new File(testDataDirectory, testFilePath);
@@ -283,7 +458,7 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
                     )),
                     new Expectation("Land_Water_Mask", DataType.BYTE, Arrays.asList(
                                 new Attribute("units", "NoUnits"), new Attribute("format", "Int_8"), new Attribute("valid_range", "0...7"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9)
+                                new Attribute("fillvalue", (byte) -9), new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9)
                     )),
                     new Expectation("Spacecraft_Position_x", DataType.DOUBLE, Arrays.asList(
                                 new Attribute("units", "kilometers"), new Attribute("format", "Float_64"), new Attribute("valid_range", "-8000.0...8000.0"),
