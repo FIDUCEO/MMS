@@ -19,12 +19,7 @@
  */
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.BcGeometryCollection;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiLineString;
-import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.*;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -150,6 +145,7 @@ class BcS2MultiLineString implements MultiLineString {
         return results;
     }
 
+    @SuppressWarnings("unchecked")
     private List<Geometry> intersectMultiLineString(Geometry other) {
         final List<Geometry> results = new ArrayList<>();
         final List<S2Polyline> otherInner = (List<S2Polyline>) other.getInner();
@@ -160,8 +156,8 @@ class BcS2MultiLineString implements MultiLineString {
         return results;
     }
 
-    // @todo 3 tb/** make static and write tests 2017-06-26
-    private Geometry assembleResultGeometry(List<Geometry> results) {
+    // package access for testing only tb 2017-06-27
+    static Geometry assembleResultGeometry(List<Geometry> results) {
         if (results.isEmpty()) {
             return BcS2Point.createEmpty();
         } else if (results.size() > 1) {

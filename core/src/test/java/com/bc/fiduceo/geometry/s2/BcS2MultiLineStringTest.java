@@ -1,9 +1,11 @@
 package com.bc.fiduceo.geometry.s2;
 
+import com.bc.fiduceo.geometry.BcGeometryCollection;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.geometry.s2.S2WKTReader;
+import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
 import org.junit.Before;
@@ -246,6 +248,43 @@ public class BcS2MultiLineStringTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testAssembleResultGeometry_emptyResultSet() {
+        final Geometry geometry = BcS2MultiLineString.assembleResultGeometry(new ArrayList<>());
+        assertNotNull(geometry);
+        assertFalse(geometry.isValid());
+        assertTrue(geometry instanceof BcS2Point);
+    }
+
+    @Test
+    public void testAssembleResultGeometry_oneEntry() {
+        final ArrayList<Geometry> resultList = new ArrayList<>();
+        resultList.add(new BcS2Point(new S2LatLng(new S2Point(0.4, 0.5, 0.6))));
+
+        final Geometry geometry = BcS2MultiLineString.assembleResultGeometry(resultList);
+        assertNotNull(geometry);
+        assertTrue(geometry.isValid());
+        assertTrue(geometry instanceof BcS2Point);
+    }
+
+    @Test
+    public void testAssembleResultGeometry_twoEntries() {
+        final ArrayList<Geometry> resultList = new ArrayList<>();
+        resultList.add(new BcS2Point(new S2LatLng(new S2Point(0.4, 0.5, 0.6))));
+        resultList.add(new BcS2Point(new S2LatLng(new S2Point(0.6, 0.7, 0.8))));
+
+        final Geometry geometry = BcS2MultiLineString.assembleResultGeometry(resultList);
+        assertNotNull(geometry);
+        assertTrue(geometry.isValid());
+        assertTrue(geometry instanceof BcGeometryCollection);
+
+        final BcGeometryCollection geometryCollection = (BcGeometryCollection) geometry;
+        final Geometry[] geometries = geometryCollection.getGeometries();
+        assertEquals(2, geometries.length);
+        assertEquals("POINT(51.34019174590991 43.138437619671066)", geometries[0].toString());
+        assertEquals("POINT(49.398705354995535 40.94888983446224)", geometries[1].toString());
     }
 
     private BcS2MultiLineString getCreateBcS2MultiLineString(String firstWkt, String secondWkt) {
