@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -31,6 +32,9 @@ import ucar.nc2.Variable;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -40,13 +44,13 @@ import java.util.regex.Pattern;
 @RunWith(IOTestRunner.class)
 public class CALIOP_L2_VFM_Reader_IO_Test {
 
-    private File testDataDirectory;
+    private Path testDataDirectory;
     private CALIOP_L2_VFM_Reader reader;
     private File caliopFile;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
+        testDataDirectory = TestUtil.getTestDataDirectory().toPath();
         reader = new CALIOP_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2));
         caliopFile = getCaliopFile();
         reader.open(caliopFile);
@@ -399,7 +403,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         final List<Variable> variables = reader.getVariables();
         Number fillValue = null;
         for (Variable variable : variables) {
-            if(variable.getShortName().equals("Profile_Time")) {
+            if (variable.getShortName().equals("Profile_Time")) {
                 fillValue = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME).getNumericValue();
             }
         }
@@ -424,10 +428,10 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     }
 
     private File getCaliopFile() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"caliop-vfm", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        final Path relPath = Paths.get("caliop_vfm-cal", "v4", "2011", "01", "02", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf");
+        final Path testFilePath = testDataDirectory.resolve(relPath);
+        assertThat(Files.exists(testFilePath), is(true));
+        return testFilePath.toFile();
     }
 
     private Expectation[] getVariables_Expectations() {
