@@ -1,20 +1,31 @@
 package com.bc.fiduceo.post.plugin.land_distance;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.util.JDomUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.jdom.Element;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class AddLandDistance extends PostProcessing {
 
     private final Configuration configuration;
+
+    private DistanceToLandMap distanceToLandMap;
 
     AddLandDistance(Configuration configuration) {
         this.configuration = configuration;
@@ -23,11 +34,47 @@ class AddLandDistance extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable longitudeVariable = NetCDFUtils.getVariable(reader, configuration.lonVariableName);
+        final List<Dimension> dimensions = longitudeVariable.getDimensions();
+
+        final Variable variable = writer.addVariable(null, configuration.targetVariableName, DataType.FLOAT, dimensions);
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        variable.addAttribute(new Attribute("description", "Pixel distance to land. Land pixels have a value of 0.0"));
+        variable.addAttribute(new Attribute(NetCDFUtils.CF_UNITS_NAME, "km"));
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.lonVariableName);
+        final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.latVariableName);
+        final Array lonArray = lonVariable.read();
+        final Array latArray = latVariable.read();
 
+        final DistanceToLandMap distanceMap = getDistanceToLandMap();
+        final Array targetArray = Array.factory(DataType.FLOAT, lonArray.getShape());
+
+        final long size = lonArray.getSize();
+        for (int i = 0; i < size; i++) {
+            final double longitude = lonArray.getDouble(i);
+            final double latitude = latArray.getDouble(i);
+
+            final double distance = distanceMap.getDistance(longitude, latitude);
+            targetArray.setFloat(i, (float) distance);
+        }
+
+        final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
+        writer.write(targetVariable, targetArray);
+    }
+
+    // for testing only - to inject a mock tb 2017-06-28
+    void setDistanceToLandMap(DistanceToLandMap distanceToLandMap) {
+        this.distanceToLandMap = distanceToLandMap;
+    }
+
+    private DistanceToLandMap getDistanceToLandMap() {
+        if (distanceToLandMap == null) {
+            distanceToLandMap = new DistanceToLandMap(Paths.get(configuration.auxDataFilePath));
+        }
+        return distanceToLandMap;
     }
 
     static Configuration createConfiguration(Element fullConfigElement) {
