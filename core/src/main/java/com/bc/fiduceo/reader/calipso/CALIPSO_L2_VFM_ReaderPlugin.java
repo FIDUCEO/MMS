@@ -30,11 +30,11 @@ public class CALIPSO_L2_VFM_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public String[] getSupportedSensorKeys() {
-        throw new RuntimeException("not implemented");
+        return new String[]{"CALIPSO_VFM"};
     }
 
     @Override
     public DataType getDataType() {
-        throw new RuntimeException("not implemented");
+        return DataType.POLAR_ORBITING_SATELLITE;
     }
 }
