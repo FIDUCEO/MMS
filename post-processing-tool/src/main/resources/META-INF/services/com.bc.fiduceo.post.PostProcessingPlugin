@@ -5,3 +5,4 @@ com.bc.fiduceo.post.plugin.nwp.NwpPostProcessingPlugin
 com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin
 com.bc.fiduceo.post.plugin.ElevationToSolZenAnglePlugin
 com.bc.fiduceo.post.plugin.iasi.AddIASISpectrumPlugin
+com.bc.fiduceo.post.plugin.land_distance.AddLandDistancePlugin

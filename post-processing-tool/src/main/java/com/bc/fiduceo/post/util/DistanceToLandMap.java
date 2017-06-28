@@ -16,6 +16,7 @@
  */
 package com.bc.fiduceo.post.util;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
@@ -35,6 +36,7 @@ public class DistanceToLandMap {
     private Band distanceToLand;
     private GeoCoding geoCoding;
     private boolean mustBeInitialized;
+    private Product product;
 
     public DistanceToLandMap(Path path) {
         distancePath = path;
@@ -44,8 +46,8 @@ public class DistanceToLandMap {
 
     public double getDistance(double longitude, double latitude) throws IOException {
         if (mustBeInitialized) {
-            mustBeInitialized = false;
             init();
+            mustBeInitialized = false;
         }
         final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(latitude, longitude), null);
         final int x = (int) pixelPos.getX();
@@ -53,10 +55,14 @@ public class DistanceToLandMap {
         return distanceToLand.getPixelDouble(x, y);
     }
 
+    public void close() {
+        if (product != null) {
+            product.dispose();
+        }
+    }
+
     private void init() {
-        validatePath();
         final String absolutePathString = distancePath.toAbsolutePath().toString();
-        final Product product;
         final ProductReaderPlugIn readerPlugIn = new BeamNetCdfReaderPlugIn();
         final ProductReader reader = readerPlugIn.createReaderInstance();
         try {

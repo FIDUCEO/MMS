@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.plugin.nwp.CDOTestRunner;
@@ -37,7 +38,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(CDOTestRunner.class)
+@RunWith(IOTestRunner.class)
 public class PostProcessingToolIntegrationTest_IASISpectrum {
 
     private File configDir;

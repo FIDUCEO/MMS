@@ -168,17 +168,21 @@ class HirsL1CloudyFlags extends PostProcessing {
 
         final Domain domainWater = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, waterDDP);
 
-        for (int z = 0; z < shape[0]; z++) {
-            final boolean land = isLand(distanceToLandMap, lons.getDouble(z), lats.getDouble(z));
-            final boolean iceCoveredWater = !land && isIceCoveredWater();
-            final boolean water = !land && !iceCoveredWater;
-            if (land || iceCoveredWater) {
-                domainLandIce.computeFlags(z);
-            } else {
-                domainWater.computeFlags(z);
+        try {
+            for (int z = 0; z < shape[0]; z++) {
+                final boolean land = isLand(distanceToLandMap, lons.getDouble(z), lats.getDouble(z));
+                final boolean iceCoveredWater = !land && isIceCoveredWater();
+                final boolean water = !land && !iceCoveredWater;
+                if (land || iceCoveredWater) {
+                    domainLandIce.computeFlags(z);
+                } else {
+                    domainWater.computeFlags(z);
+                }
             }
+            writer.write(varFlags, flags);
+        } finally {
+            distanceToLandMap.close();
         }
-        writer.write(varFlags, flags);
     }
 
     static MaximumAndFlags getMaximumAndFlags(Array domainData, float fillValue, int maxNumInvalidPixels) {
