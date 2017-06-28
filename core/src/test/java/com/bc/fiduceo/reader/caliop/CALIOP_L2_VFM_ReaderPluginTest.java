@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.calipso;
+package com.bc.fiduceo.reader.caliop;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
@@ -7,16 +7,13 @@ import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import org.junit.*;
 
-/**
- * Created by Sabine on 28.06.2017.
- */
-public class CALIPSO_L2_VFM_ReaderPluginTest {
+public class CALIOP_L2_VFM_ReaderPluginTest {
 
-    private CALIPSO_L2_VFM_ReaderPlugin plugin;
+    private CALIOP_L2_VFM_ReaderPlugin plugin;
 
     @Before
     public void setUp() throws Exception {
-        plugin = new CALIPSO_L2_VFM_ReaderPlugin();
+        plugin = new CALIOP_L2_VFM_ReaderPlugin();
     }
 
     @Test
@@ -25,7 +22,7 @@ public class CALIPSO_L2_VFM_ReaderPluginTest {
         final Reader reader = plugin.createReader(null);
 
         //verification
-        final Class<CALIPSO_L2_VFM_Reader> expectedType = CALIPSO_L2_VFM_Reader.class;
+        final Class<CALIOP_L2_VFM_Reader> expectedType = CALIOP_L2_VFM_Reader.class;
         assertThat(reader, is(instanceOf(expectedType)));
     }
 
@@ -35,7 +32,7 @@ public class CALIPSO_L2_VFM_ReaderPluginTest {
         final String[] supportedSensorKeys = plugin.getSupportedSensorKeys();
 
         //verification
-        final String[] expected = {"CALIPSO_VFM"};
+        final String[] expected = {"caliop_vfm-cal"};
         assertThat(supportedSensorKeys, is(equalTo(expected)));
     }
 

@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.fiduceo.reader.calipso;
+package com.bc.fiduceo.reader.caliop;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
@@ -58,7 +58,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-class CALIPSO_L2_VFM_Reader implements Reader {
+class CALIOP_L2_VFM_Reader implements Reader {
 
     private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
     private static final String MM = "(0[1-9]|1[0-2])";
@@ -77,7 +77,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    public CALIPSO_L2_VFM_Reader(GeometryFactory geometryFactory) {
+    public CALIOP_L2_VFM_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
     }
 
@@ -271,7 +271,7 @@ class CALIPSO_L2_VFM_Reader implements Reader {
                     try {
                         section = ncVariable.section(new Section(origin, shape));
                     } catch (InvalidRangeException e) {
-                        throw new RuntimeException("Malformed CALIPSO file.", e);
+                        throw new RuntimeException("Malformed CALIOP file.", e);
                     }
                     section.setName(spacecraftName + suffixes[i]);
                     arrayCache.inject(section);

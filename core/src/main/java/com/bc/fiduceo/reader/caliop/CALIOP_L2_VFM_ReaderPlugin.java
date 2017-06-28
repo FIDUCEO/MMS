@@ -14,23 +14,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.fiduceo.reader.calipso;
+package com.bc.fiduceo.reader.caliop;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class CALIPSO_L2_VFM_ReaderPlugin implements ReaderPlugin {
+public class CALIOP_L2_VFM_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new CALIPSO_L2_VFM_Reader(geometryFactory);
+        return new CALIOP_L2_VFM_Reader(geometryFactory);
     }
 
     @Override
     public String[] getSupportedSensorKeys() {
-        return new String[]{"CALIPSO_VFM"};
+        return new String[]{"caliop_vfm-cal"};
     }
 
     @Override

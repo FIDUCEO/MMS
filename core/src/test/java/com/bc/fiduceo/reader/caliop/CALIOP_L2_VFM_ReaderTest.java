@@ -1,18 +1,15 @@
-package com.bc.fiduceo.reader.calipso;
+package com.bc.fiduceo.reader.caliop;
 
 import static org.junit.Assert.*;
 
 import org.junit.*;
 import ucar.ma2.Array;
 
-/**
- * Created by Sabine on 20.06.2017.
- */
-public class CALIPSO_L2_VFM_ReaderTest {
+public class CALIOP_L2_VFM_ReaderTest {
 
     @Test
     public void calculateIndizes() throws Exception {
-        short[] is = CALIPSO_L2_VFM_Reader.calcalculateIndizes();
+        short[] is = CALIOP_L2_VFM_Reader.calcalculateIndizes();
 
         assertNotNull(is);
         assertEquals(6, is.length);
@@ -31,7 +28,7 @@ public class CALIPSO_L2_VFM_ReaderTest {
         final Array array = Array.factory(storage);
 
         //execution
-        final Array flags = CALIPSO_L2_VFM_Reader.readNadirClassificationFlags(array);
+        final Array flags = CALIOP_L2_VFM_Reader.readNadirClassificationFlags(array);
 
         //verification
         final short[] expected = createExpectedFlagsStorage();
@@ -39,13 +36,13 @@ public class CALIPSO_L2_VFM_ReaderTest {
     }
 
     private short[] createExpectedFlagsStorage() {
-        final short[] indizes = CALIPSO_L2_VFM_Reader.calcalculateIndizes();
+        final short[] indices = CALIOP_L2_VFM_Reader.calcalculateIndizes();
 
         final short[] expected = new short[545];
         int expIdx = 0;
-        for (int i = 0; i < indizes.length; i += 2) {
-            short start = indizes[i];
-            short stop = indizes[i + 1];
+        for (int i = 0; i < indices.length; i += 2) {
+            short start = indices[i];
+            short stop = indices[i + 1];
             for (short v = start; v <= stop; v++) {
                 expected[expIdx] = (short) (v + 1);
                 expIdx++;

@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.calipso;
+package com.bc.fiduceo.reader.caliop;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -38,18 +38,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RunWith(IOTestRunner.class)
-public class CALIPSO_L2_VFM_Reader_IO_Test {
+public class CALIOP_L2_VFM_Reader_IO_Test {
 
     private File testDataDirectory;
-    private CALIPSO_L2_VFM_Reader reader;
-    private File calipsoFile;
+    private CALIOP_L2_VFM_Reader reader;
+    private File caliopFile;
 
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        reader = new CALIPSO_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2));
-        calipsoFile = getCalipsoFile();
-        reader.open(calipsoFile);
+        reader = new CALIOP_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        caliopFile = getCaliopFile();
+        reader.open(caliopFile);
     }
 
     @After
@@ -246,7 +246,7 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
     public void getPixelLocator_isNotSameInstance_afterCloseAndReopenTheSameFile() throws Exception {
         final PixelLocator pixelLocator1 = reader.getPixelLocator();
         reader.close();
-        reader.open(calipsoFile);
+        reader.open(caliopFile);
         final PixelLocator pixelLocator2 = reader.getPixelLocator();
 
         assertThat(pixelLocator1, is(not(sameInstance(pixelLocator2))));
@@ -423,8 +423,8 @@ public class CALIPSO_L2_VFM_Reader_IO_Test {
         }
     }
 
-    private File getCalipsoFile() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"calipso-vfm", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
+    private File getCaliopFile() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"caliop-vfm", "CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
