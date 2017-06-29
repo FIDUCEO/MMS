@@ -437,45 +437,61 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     private Expectation[] getVariables_Expectations() {
         return new Expectation[]{
                     new Expectation("Profile_ID", DataType.INT, Arrays.asList(
-                                new Attribute("units", "NoUnits"), new Attribute("format", "Int_32"), new Attribute("valid_range", "1...3153600000"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.INT, false))
-                    )),
+                                new Attribute("units", "NoUnits"),
+                                new Attribute("format", "Int_32"),
+                                new Attribute("valid_range", "1...3153600000"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.INT, false)))),
                     new Expectation("Latitude", DataType.FLOAT, Arrays.asList(
-                                new Attribute("units", "degrees"), new Attribute("format", "Float_32"), new Attribute("valid_range", "-90.0...90.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false))
-                    )),
+                                new Attribute("units", "degrees"),
+                                new Attribute("format", "Float_32"),
+                                new Attribute("valid_range", "-90.0...90.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
                     new Expectation("Longitude", DataType.FLOAT, Arrays.asList(
-                                new Attribute("units", "degrees"), new Attribute("format", "Float_32"), new Attribute("valid_range", "-180.0...180.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false))
-                    )),
+                                new Attribute("units", "degrees"),
+                                new Attribute("format", "Float_32"),
+                                new Attribute("valid_range", "-180.0...180.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
                     new Expectation("Profile_Time", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "seconds"), new Attribute("format", "Float_64"), new Attribute("valid_range", "4.204E8...1.072E9"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))
-                    )),
+                                new Attribute("units", "seconds"),
+                                new Attribute("format", "Float_64"),
+                                new Attribute("valid_range", "4.204E8...1.072E9"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                     new Expectation("Profile_UTC_Time", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "NoUnits"), new Attribute("format", "Float_64"), new Attribute("valid_range", "60426.0...261231.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))
-                    )),
+                                new Attribute("units", "NoUnits"),
+                                new Attribute("format", "Float_64"),
+                                new Attribute("valid_range", "60426.0...261231.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                     new Expectation("Day_Night_Flag", DataType.SHORT, Arrays.asList(
-                                new Attribute("_Unsigned", "true"), new Attribute("units", "NoUnits"), new Attribute("format", "UInt_16"), new Attribute("valid_range", "0...1"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true))
-                    )),
+                                new Attribute("_Unsigned", "true"),
+                                new Attribute("units", "NoUnits"),
+                                new Attribute("format", "UInt_16"),
+                                new Attribute("valid_range", "0...1"),
+                                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true)))),
                     new Expectation("Land_Water_Mask", DataType.BYTE, Arrays.asList(
-                                new Attribute("units", "NoUnits"), new Attribute("format", "Int_8"), new Attribute("valid_range", "0...7"),
-                                new Attribute("fillvalue", (byte) -9), new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9)
-                    )),
+                                new Attribute("units", "NoUnits"),
+                                new Attribute("format", "Int_8"),
+                                new Attribute("valid_range", "0...7"),
+                                new Attribute("fillvalue", (byte) -9),
+                                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9))),
                     new Expectation("Spacecraft_Position_x", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"), new Attribute("format", "Float_64"), new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))
-                    )),
+                                new Attribute("units", "kilometers"),
+                                new Attribute("format", "Float_64"),
+                                new Attribute("valid_range", "-8000.0...8000.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                     new Expectation("Spacecraft_Position_y", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"), new Attribute("format", "Float_64"), new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))
-                    )),
+                                new Attribute("units", "kilometers"),
+                                new Attribute("format", "Float_64"),
+                                new Attribute("valid_range", "-8000.0...8000.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                     new Expectation("Spacecraft_Position_z", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"), new Attribute("format", "Float_64"), new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))
-                    ))
+                                new Attribute("units", "kilometers"),
+                                new Attribute("format", "Float_64"),
+                                new Attribute("valid_range", "-8000.0...8000.0"),
+                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))))
         };
     }
 

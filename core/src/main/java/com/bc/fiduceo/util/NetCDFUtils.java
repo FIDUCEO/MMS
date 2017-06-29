@@ -46,6 +46,7 @@ public class NetCDFUtils {
     public static final String CF_LONG_NAME = "long_name";
     public static final String CF_FLAG_MEANINGS_NAME = "flag_meanings";
     public static final String CF_FLAG_MASKS_NAME = "flag_masks";
+    public static final String CF_FLAG_VALUES_NAME = "flag_values";
 
     public static Number getDefaultFillValue(Array array) {
         final Class type = array.getDataType().getPrimitiveClassType();

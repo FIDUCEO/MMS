@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 class CALIOP_L2_VFM_Reader implements Reader {
@@ -248,6 +249,16 @@ class CALIOP_L2_VFM_Reader implements Reader {
     }
 
     private List<Variable> initVariables() throws IOException {
+        final HashMap<String, Attribute[]> flagCodings = new HashMap<>();
+        flagCodings.put("Day_Night_Flag", new Attribute[]{
+                    new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                    new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night")
+        });
+        flagCodings.put("Land_Water_Mask", new Attribute[]{
+                    new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                    new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
+        });
+
         final ArrayList<Variable> variables = new ArrayList<>();
 
         final Group rootGroup = netcdfFile.getRootGroup();
@@ -259,6 +270,12 @@ class CALIOP_L2_VFM_Reader implements Reader {
                 || fullName.contains("metadata")
                 || fullName.contains("Feature_Classification_Flags")) {
                 continue;
+            }
+            if (flagCodings.containsKey(fullName)) {
+                final Attribute[] attributes = flagCodings.get(fullName);
+                for (Attribute attribute : attributes) {
+                    ncVariable.addAttribute(attribute);
+                }
             }
             final String spacecraftName = "Spacecraft_Position";
             if (fullName.equals(spacecraftName)) {
