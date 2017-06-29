@@ -145,7 +145,7 @@ public class NetCDFUtils {
         // conflicts. Snap uses netcdf version 4.3.22, fiduceo is at version 4.6.5 2016-08-08
     }
 
-    public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile){
+    public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile) {
         final Attribute globalAttribute = getGlobalAttributeSafe(attributeName, netcdfFile);
         return globalAttribute.getStringValue();
     }
@@ -194,7 +194,7 @@ public class NetCDFUtils {
         return NetcdfFile.open(raf, absFileLocation, null, null);
     }
 
-   public static int getDimensionLength(String dimensionName, NetcdfFile netcdfFile) {
+    public static int getDimensionLength(String dimensionName, NetcdfFile netcdfFile) {
         final Dimension dimension = netcdfFile.findDimension(dimensionName);
         if (dimension == null) {
             throw new RuntimeException("Dimension not present in file: " + dimensionName);
@@ -247,7 +247,7 @@ public class NetCDFUtils {
 
     public static String readString(Variable variable, int offset, int stringLength) throws IOException, InvalidRangeException {
         final Array singleStringArray = variable.read(new int[]{offset, 0}, new int[]{1, stringLength});
-         return String.valueOf((char[]) singleStringArray.getStorage()).trim();
+        return String.valueOf((char[]) singleStringArray.getStorage()).trim();
     }
 
     public static Array getCenterPosArrayFromMMDFile(NetcdfFile netcdfFile, String varShortName, String scaleAttrName, String offsetAttrName, String matchupCountDimName) throws IOException, InvalidRangeException {

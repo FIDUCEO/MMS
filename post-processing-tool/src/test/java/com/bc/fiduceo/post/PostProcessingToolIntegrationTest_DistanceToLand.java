@@ -109,43 +109,6 @@ public class PostProcessingToolIntegrationTest_DistanceToLand {
         TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
     }
 
-    private void writeConfiguration_sensorExtract() throws IOException {
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File eraInterimDir = new File(testDataDirectory, "era-interim/v1");
-        final String postProcessingConfig = "<post-processing-config>\n" +
-                "    <create-new-files>\n" +
-                "        <output-directory>\n" +
-                testDirectory.getAbsolutePath() +
-                "        </output-directory>\n" +
-                "    </create-new-files>\n" +
-                "    <post-processings>\n" +
-                "        <nwp>\n" +
-                "            <cdo-home>/home/tom/Dev/cdo_installation/bin</cdo-home>\n" + // @todo 2 tb/tb move to test-config 2017-01-11
-                "            <nwp-aux-dir>" + eraInterimDir.getAbsolutePath() + "</nwp-aux-dir>\n" +
-                "            <delete-on-exit>true</delete-on-exit>\n" +
-                "\n" +
-                "            <sensor-extraction>\n" +
-                "                <time-variable-name>amsre.acquisition_time</time-variable-name>\n" +
-                "                <x-dimension>5</x-dimension>\n" +
-                "                <x-dimension-name>amsre.nwp.nx</x-dimension-name>\n" +
-                "                <y-dimension>5</y-dimension>\n" +
-                "                <y-dimension-name>amsre.nwp.ny</y-dimension-name>\n" +
-                "                <z-dimension>60</z-dimension>\n" +
-                "                <z-dimension-name>amsre.nwp.nz</z-dimension-name>\n" +
-                "                <longitude-variable-name>amsre.longitude</longitude-variable-name>\n" +
-                "                <latitude-variable-name>amsre.latitude</latitude-variable-name>\n" +
-                "            </sensor-extraction>\n" +
-                "        </nwp>\n" +
-                "    </post-processings>\n" +
-                "</post-processing-config>";
-
-        final File postProcessingConfigFile = new File(configDir, "post-processing-config.xml");
-        if (!postProcessingConfigFile.createNewFile()) {
-            fail("unable to create test file");
-        }
-        TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
-    }
-
     private File getInputDirectory() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         return new File(testDataDirectory, "post-processing/mmd06_sst");

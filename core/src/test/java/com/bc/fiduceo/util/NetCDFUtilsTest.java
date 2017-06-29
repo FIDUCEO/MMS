@@ -24,6 +24,7 @@ import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.*;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
@@ -67,6 +68,54 @@ public class NetCDFUtilsTest {
     public void testGetDefaultFillValue_invalidInput() {
         try {
             NetCDFUtils.getDefaultFillValue(String.class);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
+    }
+
+    @Test
+    public void testGetDefaultFillValue_withUnsigned() {
+        assertEquals(N3iosp.NC_FILL_DOUBLE, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false));
+        assertEquals(N3iosp.NC_FILL_DOUBLE, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, true));
+        assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false));
+        assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, true));
+        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(DataType.LONG, false));
+        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(DataType.LONG, true));
+        assertEquals(N3iosp.NC_FILL_INT, NetCDFUtils.getDefaultFillValue(DataType.INT, false));
+        assertEquals(N3iosp.NC_FILL_UINT, NetCDFUtils.getDefaultFillValue(DataType.INT, true));
+        assertEquals(N3iosp.NC_FILL_SHORT, NetCDFUtils.getDefaultFillValue(DataType.SHORT, false));
+        assertEquals(N3iosp.NC_FILL_USHORT, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true));
+        assertEquals(N3iosp.NC_FILL_BYTE, NetCDFUtils.getDefaultFillValue(DataType.BYTE, false));
+        assertEquals(N3iosp.NC_FILL_UBYTE, NetCDFUtils.getDefaultFillValue(DataType.BYTE, true));
+    }
+    
+    @Test
+    public void testGetDefaultFillValue_withUnsigned_invalidInput() {
+        try {
+            NetCDFUtils.getDefaultFillValue(DataType.SEQUENCE, true);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected){
+        }
+    }
+
+    @Test
+    public void testGetNetcdfDataType() {
+        assertEquals(DataType.BYTE, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_INT8));
+        assertEquals(DataType.BYTE, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UINT8));
+        assertEquals(DataType.SHORT, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_INT16));
+        assertEquals(DataType.SHORT, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UINT16));
+        assertEquals(DataType.INT, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_INT32));
+        assertEquals(DataType.INT, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UINT32));
+        assertEquals(DataType.FLOAT, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_FLOAT32));
+        assertEquals(DataType.DOUBLE, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_FLOAT64));
+        assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_ASCII));
+        assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UTC));
+    }
+
+    @Test
+    public void testGetNetcdfDataType_invalidInput() {
+        try {
+            NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UNDEFINED);
             fail("RuntimeException expected");
         } catch (RuntimeException expected){
         }
