@@ -99,9 +99,9 @@ abstract class AbstractUsecaseIntegrationTest {
 
     File storeUseCaseConfig(UseCaseConfig useCaseConfig, String fileName) throws IOException {
         final File useCaseConfigFile = new File(configDir, fileName);
-        final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile);
-        useCaseConfig.store(outputStream);
-        outputStream.close();
+        try (final FileOutputStream outputStream = new FileOutputStream(useCaseConfigFile)) {
+            useCaseConfig.store(outputStream);
+        }
 
         return useCaseConfigFile;
     }
