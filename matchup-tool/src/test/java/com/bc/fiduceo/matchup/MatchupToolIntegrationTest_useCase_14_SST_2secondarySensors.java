@@ -63,7 +63,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
                     .withTimeDeltaSeconds(8000, SEC_SENSOR_NAME_1)
                     .withMaxPixelDistanceKm(10.0f, SEC_SENSOR_NAME_2)
                     .createConfig();
-        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-14_sst.xml");
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2011-233", "-end", "2011-239"};
         MatchupToolMain.main(args);
@@ -257,7 +257,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         dimensions.add(new Dimension(SEC_SENSOR_NAME_1, 5, 5));
         dimensions.add(new Dimension(SEC_SENSOR_NAME_2, 3, 3));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd6c_SST")
+        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd14_SST")
                     .withSensors(sensorList)
                     .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-6c").getPath())
                     .withDimensions(dimensions);
