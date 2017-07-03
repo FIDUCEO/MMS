@@ -401,13 +401,15 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         for (Map.Entry<String, Array> entry : dataCacheMap.entrySet()) {
             final String variableName = entry.getKey();
             final Variable variable = variableMap.get(variableName);
-            Array dataToBeWritten = entry.getValue();
-            final int[] origin = new int[dataToBeWritten.getRank()];
-
             final int matchupCount = variable.getShape(0);
             final int zStart = flushCount * cacheSize;
+            final int restHeight = matchupCount - zStart;
+            if (restHeight <= 0) {
+                break;
+            }
+            Array dataToBeWritten = entry.getValue();
+            final int[] origin = new int[dataToBeWritten.getRank()];
             if (zStart + cacheSize > matchupCount) {
-                final int restHeight = matchupCount - zStart;
                 final int[] shape = dataToBeWritten.getShape();
                 shape[0] = restHeight;
                 dataToBeWritten = dataToBeWritten.sectionNoReduce(origin, shape, null);
