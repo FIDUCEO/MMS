@@ -20,10 +20,19 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import com.bc.fiduceo.util.JDomUtils;
+import static com.bc.fiduceo.util.JDomUtils.*;
+import static org.esa.snap.core.util.StringUtils.*;
+
 import org.jdom.Element;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /* The XML template for this condition class looks like:
+
+Single secondary sensor mode:
 
     <border-point_distance>
         <primary>
@@ -35,15 +44,34 @@ import org.jdom.Element;
             <ny>4</ny>
         </secondary>
     </border-point_distance>
+
+or
+
+Multiple secondary sensor mode:
+
+    <border-point_distance>
+        <primary>
+            <nx>2</nx>
+            <ny>3</ny>
+        </primary>
+        <secondary names="name">
+            <nx>5</nx>
+            <ny>4</ny>
+        </secondary>
+        <secondary names="nameA,nameB">
+            <nx>5</nx>
+            <ny>4</ny>
+        </secondary>
+    </border-point_distance>
  */
 
 public class BorderDistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public Condition createCondition(Element element) {
-        final BorderDistanceCondition.Configuration configuration = parseConfiguration(element);
+        final List<BorderDistanceCondition.Configuration> configurations = parseConfiguration(element);
 
-        return new BorderDistanceCondition(configuration);
+        return new BorderDistanceCondition(configurations);
     }
 
     @Override
@@ -51,35 +79,72 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
         return "border-point_distance";
     }
 
-    BorderDistanceCondition.Configuration parseConfiguration(Element element) {
+    List<BorderDistanceCondition.Configuration> parseConfiguration(Element element) {
         if (!getConditionName().equals(element.getName())) {
             throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
         }
 
-        final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
-
-        final Element primaryElement = element.getChild("primary");
-        if (primaryElement != null) {
+        final List primaryElements = element.getChildren("primary");
+        if (primaryElements.size() > 1) {
+            throw new RuntimeException("Illegal XML Element. Tag name 'primary'. Only one 'primary' definition allowed.");
+        }
+        final ArrayList<BorderDistanceCondition.Configuration> configurations = new ArrayList<>();
+        if (primaryElements.size() == 1) {
+            final Element primaryElement = (Element) primaryElements.get(0);
+            final String nx = getMandatoryChildTextTrim(primaryElement, "nx");
+            final String ny = getMandatoryChildTextTrim(primaryElement, "ny");
+            final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
             configuration.usePrimary = true;
-
-            final String nx = JDomUtils.getMandatoryChildTextTrim(primaryElement, "nx");
             configuration.primary_x = Integer.parseInt(nx);
-
-            final String ny = JDomUtils.getMandatoryChildTextTrim(primaryElement, "ny");
             configuration.primary_y = Integer.parseInt(ny);
+            configurations.add(configuration);
         }
 
-        final Element secondaryElement = element.getChild("secondary");
-        if (secondaryElement != null) {
-            configuration.useSecondary = true;
+        boolean namedSecondary = false;
+        int unnamedSecondaryCount = 0;
+        final Set<String> namesSet = new HashSet<>();
 
-            final String nx = JDomUtils.getMandatoryChildTextTrim(secondaryElement, "nx");
-            configuration.secondary_x = Integer.parseInt(nx);
+        final List secondaryElements = element.getChildren("secondary");
+        for (Object elemObj : secondaryElements) {
+            final Element secondaryElement = (Element) elemObj;
+            final String nxS = getMandatoryChildTextTrim(secondaryElement, "nx");
+            final String nyS = getMandatoryChildTextTrim(secondaryElement, "ny");
+            final int nx = Integer.parseInt(nxS);
+            final int ny = Integer.parseInt(nyS);
 
-            final String ny = JDomUtils.getMandatoryChildTextTrim(secondaryElement, "ny");
-            configuration.secondary_y = Integer.parseInt(ny);
+            final String namesVal = getValueFromNamesAttribute(secondaryElement);
+
+            if (isNullOrEmpty(namesVal)) {
+                final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+                configuration.useSecondary = true;
+                configuration.secondary_x = nx;
+                configuration.secondary_y = ny;
+                configurations.add(configuration);
+                unnamedSecondaryCount++;
+            } else {
+                final String[] names = stringToArray(namesVal, ",");
+                for (String name : names) {
+                    if (!namesSet.add(name)) {
+                        throw new RuntimeException("It is not allowed to use a secondary name twice.");
+                    }
+                    final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
+                    configuration.useSecondary = true;
+                    configuration.secondaryName = name;
+                    configuration.secondary_x = nx;
+                    configuration.secondary_y = ny;
+                    configurations.add(configuration);
+                    namedSecondary = true;
+                }
+            }
         }
 
-        return configuration;
+        if (unnamedSecondaryCount > 1) {
+            throw new RuntimeException("Forbidden to define two unnamed 'secondary' tags.");
+        }
+        if (namedSecondary && unnamedSecondaryCount == 1) {
+            throw new RuntimeException("It is not allowed to mix 'secondary' tags with and without 'names' attribute.");
+        }
+
+        return configurations;
     }
 }

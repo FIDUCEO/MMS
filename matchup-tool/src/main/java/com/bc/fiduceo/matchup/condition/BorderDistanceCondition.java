@@ -30,52 +30,55 @@ import java.util.List;
 
 class BorderDistanceCondition implements Condition {
 
-    private final Configuration configuration;
+    private final List<Configuration> configurations;
 
-    BorderDistanceCondition(Configuration configuration) {
-        this.configuration = configuration;
+    BorderDistanceCondition(List<Configuration> configurations) {
+        this.configurations = configurations;
     }
 
     @Override
     public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
-        final Dimension primarySize = context.getPrimarySize();
-        final int maxXPrimary = primarySize.getNx() - 1 - configuration.primary_x;
-        final int maxYPrimary = primarySize.getNy() - 1 - configuration.primary_y;
-
-        final Dimension secondarySize = context.getSecondarySize();
-        final int maxXSecondary = secondarySize.getNx() - 1 - configuration.secondary_x;
-        final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
-
-        final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
-        final List<SampleSet> targetSamples = new ArrayList<>();
-        for (final SampleSet sampleSet : sourceSamples) {
+        List<SampleSet> sourceSamples = matchupSet.getSampleSets();
+        List<SampleSet> targetSamples = sourceSamples;
+        for (Configuration configuration : configurations) {
+            targetSamples = new ArrayList<>();
             if (configuration.usePrimary) {
-                final Sample primary = sampleSet.getPrimary();
-                if (primary.x < configuration.primary_x || primary.x > maxXPrimary) {
-                    continue;
-                }
+                final Dimension primarySize = context.getPrimarySize();
+                final int maxXPrimary = primarySize.getNx() - 1 - configuration.primary_x;
+                final int maxYPrimary = primarySize.getNy() - 1 - configuration.primary_y;
+                for (final SampleSet sampleSet : sourceSamples) {
+                    final Sample primary = sampleSet.getPrimary();
+                    if (primary.x < configuration.primary_x || primary.x > maxXPrimary) {
+                        continue;
+                    }
 
-                if (primary.y < configuration.primary_y || primary.y > maxYPrimary) {
-                    continue;
+                    if (primary.y < configuration.primary_y || primary.y > maxYPrimary) {
+                        continue;
+                    }
+                    targetSamples.add(sampleSet);
+                }
+            } else if (configuration.useSecondary) {
+                final Dimension secondarySize = context.getSecondarySize();
+                final int maxXSecondary = secondarySize.getNx() - 1 - configuration.secondary_x;
+                final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
+                final String secondaryName = configuration.secondaryName;
+                for (final SampleSet sampleSet : sourceSamples) {
+                    final Sample secondary = sampleSet.getSecondary(secondaryName);
+                    if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {
+                        continue;
+                    }
+
+                    if (secondary.y < configuration.secondary_y || secondary.y > maxYSecondary) {
+                        continue;
+                    }
+                    targetSamples.add(sampleSet);
                 }
             }
-
-            if (configuration.useSecondary) {
-                final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-                if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {
-                    continue;
-                }
-
-                if (secondary.y < configuration.secondary_y || secondary.y > maxYSecondary) {
-                    continue;
-                }
-            }
-
-            targetSamples.add(sampleSet);
+            sourceSamples.clear();
+            sourceSamples = targetSamples;
         }
 
         matchupSet.setSampleSets(targetSamples);
-        sourceSamples.clear();
     }
 
     static class Configuration {
@@ -85,5 +88,6 @@ class BorderDistanceCondition implements Condition {
         int secondary_y;
         boolean usePrimary;
         boolean useSecondary;
+        String secondaryName = SampleSet.getOnlyOneSecondaryKey();
     }
 }
