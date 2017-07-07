@@ -27,10 +27,42 @@ import com.bc.fiduceo.matchup.SampleSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * The XML template for this condition class looks like:
+ *
+ *      <time-delta>
+ *          <time-delta-seconds names="name1, name2, ..."
+ *                              secondaryCheck="true">   <!-- default is false -->
+ *              300
+ *          </time-delta-seconds>
+ *      </time-delta>
+ *
+ *      or
+ *
+ *      <!-- In this second case for each combination can be defined a discrete time delta -->
+ *      <!-- If all time delta have the same value set this example is similar to the example above -->
+ *      <time-delta>
+ *          <time-delta-seconds names="name1">
+ *              300
+ *          </time-delta-seconds>
+ *          <time-delta-seconds names="name2">
+ *              250
+ *          </time-delta-seconds>
+ *          <time-delta-seconds names="name3,name4,..."
+ *                              primaryCheck="false"     <!-- default is true -->
+ *                              secondaryCheck="true">   <!-- default is false -->
+ *              400
+ *          </time-delta-seconds>
+ *          ...
+ *      </time-delta>
+ *
+ */
 class TimeDeltaCondition implements Condition {
 
     private final long maxTimeDeltaInMillis;
-    private String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
+    private String[] secondarySensorNames = {SampleSet.getOnlyOneSecondaryKey()};
+    private boolean primaryCheck = true;
+    private boolean secondaryCheck = false;
 
     TimeDeltaCondition(long maxTimeDeltaInMillis) {
         this.maxTimeDeltaInMillis = maxTimeDeltaInMillis;
@@ -41,10 +73,9 @@ class TimeDeltaCondition implements Condition {
         final List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         final List<SampleSet> targetSamples = new ArrayList<>();
         for (final SampleSet sampleSet : sourceSamples) {
-            final Sample primary = sampleSet.getPrimary();
-            final Sample secondary = sampleSet.getSecondary(getSecondarySensorName());
-            final long actualTimeDelta = Math.abs(primary.time - secondary.time);
-            if (actualTimeDelta <= maxTimeDeltaInMillis) {
+            boolean primaryIsValid = isValidDifferenceToPrimary(sampleSet);
+            boolean secondaryIsValid = isValidDifferenceBetweenSecondaries(sampleSet);
+            if (primaryIsValid && secondaryIsValid) {
                 targetSamples.add(sampleSet);
             }
         }
@@ -56,11 +87,56 @@ class TimeDeltaCondition implements Condition {
         return maxTimeDeltaInMillis;
     }
 
-    public String getSecondarySensorName() {
-        return secondarySensorName;
+    public String[] getSecondarySensorNames() {
+        return secondarySensorNames;
     }
 
-    void setSecondarySensorName(String secondarySensorName) {
-        this.secondarySensorName = secondarySensorName;
+    void setSecondarySensorNames(String... secondarySensorNames) {
+        this.secondarySensorNames = secondarySensorNames;
+    }
+
+    public void setPrimaryCheck(boolean primaryCheck) {
+        this.primaryCheck = primaryCheck;
+    }
+
+    public void setSecondaryCheck(boolean secondaryCheck) {
+        this.secondaryCheck = secondaryCheck;
+    }
+
+    private boolean isValidDifferenceToPrimary(SampleSet sampleSet) {
+        if (primaryCheck) {
+            for (String secondarySensorName : secondarySensorNames) {
+                final Sample s1 = sampleSet.getPrimary();
+                final Sample s2 = sampleSet.getSecondary(secondarySensorName);
+                if (isInvalid(s1, s2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidDifferenceBetweenSecondaries(SampleSet sampleSet) {
+        if (secondaryCheck) {
+            final int numNames = secondarySensorNames.length;
+            for (int i = 0; i < numNames - 1; i++) {
+                final Sample s1 = sampleSet.getSecondary(secondarySensorNames[i]);
+                for (int j = i + 1; j < numNames; j++) {
+                    final Sample s2 = sampleSet.getSecondary(secondarySensorNames[j]);
+                    if (isInvalid(s1, s2)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isInvalid(Sample primary, Sample secondary) {
+        final long actualTimeDelta = Math.abs(primary.time - secondary.time);
+        if (actualTimeDelta > maxTimeDeltaInMillis) {
+            return true;
+        }
+        return false;
     }
 }

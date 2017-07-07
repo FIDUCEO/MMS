@@ -74,7 +74,7 @@ public class TimeDeltaConditionTest {
         matchupSet.setSampleSets(sampleSets);
 
         final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
-        timeDeltaCondition.setSecondarySensorName(secSensorName);
+        timeDeltaCondition.setSecondarySensorNames(secSensorName);
         timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
 
         assertEquals(4, matchupSet.getNumObservations());
@@ -89,7 +89,7 @@ public class TimeDeltaConditionTest {
         sampleSets.add(createSampleSet(1000, 1100, differentSecSensorName));
 
         final TimeDeltaCondition timeDeltaCondition = new TimeDeltaCondition(1200);
-        timeDeltaCondition.setSecondarySensorName(secSensorName);
+        timeDeltaCondition.setSecondarySensorNames(secSensorName);
         try {
             timeDeltaCondition.apply(matchupSet, new ConditionEngineContext());
             fail("NullPointerException expected");
@@ -98,13 +98,60 @@ public class TimeDeltaConditionTest {
         }
     }
 
+    @Test
+    public void testApply_noPrimaryCheck_butCheckBetweenThreeSecondaries() throws Exception {
+        //preparation
+        final int maxTimeDeltaInMillis = 5;
+        final TimeDeltaCondition condition = new TimeDeltaCondition(maxTimeDeltaInMillis);
+        condition.setPrimaryCheck(false);
+        condition.setSecondaryCheck(true);
+        condition.setSecondarySensorNames("a", "b", "c");
+
+        final MatchupSet matchupSet = new MatchupSet();
+        final SampleSet validSet = createSecSampleSet(new TimeAndName("a", 8), new TimeAndName("b", 4), new TimeAndName("c", 9));
+        final SampleSet invalidSet = createSecSampleSet(new TimeAndName("a", 2), new TimeAndName("b", 5), new TimeAndName("c", 8));
+        matchupSet.getSampleSets().add(validSet);
+        matchupSet.getSampleSets().add(invalidSet);
+
+        //execution
+        condition.apply(matchupSet, new ConditionEngineContext());
+
+        //verification
+        assertEquals(1, matchupSet.getNumObservations());
+        assertSame(validSet, matchupSet.getSampleSets().get(0));
+    }
+
     private SampleSet createSampleSet(int primaryTime, int secondaryTime, String secSensorName) {
         if (secSensorName == null) {
             secSensorName = SampleSet.getOnlyOneSecondaryKey();
         }
+        return createSampleSet(primaryTime, new TimeAndName(secSensorName, secondaryTime));
+    }
+
+    private SampleSet createSecSampleSet(TimeAndName... secTimesAndName) {
+        return createSampleSet(0, secTimesAndName);
+
+    }
+
+    private SampleSet createSampleSet(int primaryTime, TimeAndName... secTimesAndName) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(0, 0, 0, 0, primaryTime));
-        sampleSet.setSecondary(secSensorName, new Sample(0, 0, 0, 0, secondaryTime));
+        for (TimeAndName timeAndName : secTimesAndName) {
+            final String name = timeAndName.secSensorName;
+            final int time = timeAndName.secondaryTime;
+            sampleSet.setSecondary(name, new Sample(0, 0, 0, 0, time));
+        }
         return sampleSet;
+    }
+
+    static class TimeAndName {
+
+        final int secondaryTime;
+        final String secSensorName;
+
+        public TimeAndName(String secSensorName, int secondaryTime) {
+            this.secondaryTime = secondaryTime;
+            this.secSensorName = secSensorName;
+        }
     }
 }

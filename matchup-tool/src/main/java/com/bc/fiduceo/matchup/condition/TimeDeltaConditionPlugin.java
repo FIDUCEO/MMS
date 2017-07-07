@@ -20,8 +20,7 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static com.bc.fiduceo.util.JDomUtils.getMandatoryChildren;
-import static com.bc.fiduceo.util.JDomUtils.getValueFromNamesAttribute;
+import static com.bc.fiduceo.util.JDomUtils.*;
 
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.util.JDomUtils;
@@ -30,39 +29,11 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
-/** The XML template for this condition class looks like:
-    <code>
-    <time-delta>
-        <time-delta-seconds>
-            300
-        </time-delta-seconds>
-    </time-delta>
-
-    or
-
-    <time-delta>
-        <time-delta-seconds names="name1, name2, ...">
-            300
-        </time-delta-seconds>
-    </time-delta>
-
-    or
-
-    <time-delta>
-        <time-delta-seconds names="name1">
-            300
-        </time-delta-seconds>
-        <time-delta-seconds names="name2">
-            250
-        </time-delta-seconds>
-        <time-delta-seconds names="name3,name4,...">
-            400
-        </time-delta-seconds>
-        ...
-    </time-delta>
- </code>
-
+/**
+ * XML Example needed? see --> {@link TimeDeltaCondition}
+ * @see TimeDeltaCondition
  */
 public class TimeDeltaConditionPlugin implements ConditionPlugin {
 
@@ -82,25 +53,33 @@ public class TimeDeltaConditionPlugin implements ConditionPlugin {
         for (Element child : children) {
             final long maxTimeDeltaInMillis = Long.valueOf(JDomUtils.getMandatoryText(child)) * 1000;
             final String names = getValueFromNamesAttribute(child);
+            final boolean primaryCheck = Boolean.parseBoolean(child.getAttributeValue("primaryCheck", "true"));
+            final boolean secondaryCheck = Boolean.parseBoolean(child.getAttributeValue("secondaryCheck", "false"));
+            if (!primaryCheck && !secondaryCheck) {
+                throw new RuntimeException("At least primaryCheck or secondaryCheck mut be true.");
+            }
             if (StringUtils.isNullOrEmpty(names)) {
                 if (noSecondaryNameCondition != null) {
                     throw new RuntimeException("In the mode 'no secondary sensor names' it is not allowed to define a TimeDeltaCondition twice.");
                 }
                 final String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
                 noSecondaryNameCondition = new TimeDeltaCondition(maxTimeDeltaInMillis);
-                noSecondaryNameCondition.setSecondarySensorName(secondarySensorName);
-            } else  {
-                final String[] strings = StringUtils.stringToArray(names, ",");
-                for (String secondarySensorName : strings) {
-                    final TimeDeltaCondition condition = new TimeDeltaCondition(maxTimeDeltaInMillis);
-                    condition.setSecondarySensorName(secondarySensorName);
-                    conditions.add(condition);
+                noSecondaryNameCondition.setSecondarySensorNames(secondarySensorName);
+            } else {
+                final String[] strings = Stream.of(names.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+                if (secondaryCheck && strings.length < 2) {
+                    throw new RuntimeException("If secondaryCheck is true at least two secondary sensor names are needed.");
                 }
+                final TimeDeltaCondition condition = new TimeDeltaCondition(maxTimeDeltaInMillis);
+                condition.setPrimaryCheck(primaryCheck);
+                condition.setSecondaryCheck(secondaryCheck);
+                condition.setSecondarySensorNames(strings);
+                conditions.add(condition);
             }
         }
 
         if (noSecondaryNameCondition != null) {
-            if (conditions.size()>0){
+            if (conditions.size() > 0) {
                 throw new RuntimeException("It is not allowed to define time delta conditions with and without secondary sensor names concurrently.");
             }
             return noSecondaryNameCondition;
