@@ -92,7 +92,7 @@ public class JDomUtils {
     }
 
     public static String getValueFromNamesAttribute(Element element) {
-        return getValueFromAttribute(element, ATTRIBUTE_NAME__NAMES);
+        return element.getAttributeValue(ATTRIBUTE_NAME__NAMES);
     }
 
     public static String getValueFromNameAttributeMandatory(Element element) {
@@ -106,14 +106,6 @@ public class JDomUtils {
             throw new RuntimeException(VALUE + " expected for attribute '" + attributeName + "'");
         }
         return value;
-    }
-
-    public static String getValueFromAttribute(Element element, String attributeName) {
-        final Attribute attribute = element.getAttribute(attributeName);
-        if (attribute != null) {
-            return attribute.getValue();
-        }
-        return null;
     }
 
     private static Attribute setAttribute(Element element, String attributeName, String textvalue) {
