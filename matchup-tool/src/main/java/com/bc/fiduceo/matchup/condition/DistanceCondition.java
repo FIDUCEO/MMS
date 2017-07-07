@@ -31,7 +31,8 @@ import java.util.List;
 /* The XML template for this condition class looks like:
 
     <spherical-point_distance>
-        <max-pixel-point_distance-km>
+        <!-- attribute "names" is optional in case of single secondary computation -->
+        <max-pixel-point_distance-km names="komma separated list of secondary sensor names">
             4.5
         </max-pixel-point_distance-km>
     </spherical-point_distance>

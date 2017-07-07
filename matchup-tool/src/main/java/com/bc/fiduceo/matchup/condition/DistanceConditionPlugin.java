@@ -20,8 +20,7 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static com.bc.fiduceo.util.JDomUtils.getMandatoryChildren;
-import static com.bc.fiduceo.util.JDomUtils.getValueFromNamesAttribute;
+import static com.bc.fiduceo.util.JDomUtils.*;
 
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.util.JDomUtils;
@@ -30,6 +29,7 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class DistanceConditionPlugin implements ConditionPlugin {
 
@@ -57,7 +57,7 @@ public class DistanceConditionPlugin implements ConditionPlugin {
                 noSecondaryNameCondition = new DistanceCondition(maxDistanceInKm);
                 noSecondaryNameCondition.setSecondarySensorName(secondarySensorName);
             } else  {
-                final String[] strings = StringUtils.stringToArray(names, ",");
+                final String[] strings = Stream.of(names.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
                 for (String secondarySensorName : strings) {
                     final DistanceCondition condition = new DistanceCondition(maxDistanceInKm);
                     condition.setSecondarySensorName(secondarySensorName);
