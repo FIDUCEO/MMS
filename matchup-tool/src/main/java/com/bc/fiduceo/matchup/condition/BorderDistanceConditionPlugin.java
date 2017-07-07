@@ -21,7 +21,7 @@
 package com.bc.fiduceo.matchup.condition;
 
 import static com.bc.fiduceo.util.JDomUtils.*;
-import static org.esa.snap.core.util.StringUtils.*;
+import static org.esa.snap.core.util.StringUtils.isNullOrEmpty;
 
 import org.jdom.Element;
 
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /* The XML template for this condition class looks like:
 
@@ -122,7 +123,7 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
                 configurations.add(configuration);
                 unnamedSecondaryCount++;
             } else {
-                final String[] names = stringToArray(namesVal, ",");
+                final String[] names = Stream.of(namesVal.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
                 for (String name : names) {
                     if (!namesSet.add(name)) {
                         throw new RuntimeException("It is not allowed to use a secondary name twice.");
