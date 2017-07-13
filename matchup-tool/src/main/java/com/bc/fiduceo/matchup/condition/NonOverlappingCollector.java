@@ -38,12 +38,18 @@ class NonOverlappingCollector {
 
     private final ArrayList<SampleSet> sampleSets;
     private final NavigableSet<Sample> samples;
+    private String secondaryName;
 
     @SuppressWarnings("SuspiciousNameCombination")
     NonOverlappingCollector(int width, int height, boolean primary) {
+        this(width, height, primary, SampleSet.getOnlyOneSecondaryKey());
+    }
+
+    NonOverlappingCollector(int width, int height, boolean primary, String secondaryName) {
         this.width = width;
         this.height = height;
         this.primary = primary;
+        this.secondaryName = secondaryName;
 
         sampleSets = new ArrayList<>();
 
@@ -82,7 +88,7 @@ class NonOverlappingCollector {
             return sampleSet.getPrimary();
         }
 
-        return sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+        return sampleSet.getSecondary(secondaryName);
     }
 
     private boolean hasOverlap(Sample inputSample) {

@@ -20,26 +20,16 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import com.bc.fiduceo.TestUtil;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.esa.snap.core.util.StopWatch;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
-import java.io.IOException;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class OverlapRemoveConditionTest {
 
@@ -50,8 +40,8 @@ public class OverlapRemoveConditionTest {
 
     @Before
     public void setUp() {
-        primaryCondition = new OverlapRemoveCondition(true);
-        secondaryCondition = new OverlapRemoveCondition(false);
+        primaryCondition = new OverlapRemoveCondition();
+        secondaryCondition = new OverlapRemoveCondition(SampleSet.getOnlyOneSecondaryKey());
         matchupSet = new MatchupSet();
 
         context = new ConditionEngineContext();
@@ -132,6 +122,22 @@ public class OverlapRemoveConditionTest {
     }
 
     @Test
+    public void testRemove_manyMatchups_secondaryWithName_mixed() {
+        addSampleSet(108, 346, 3567, 12056, "nameA"); // <- keep
+        addSampleSet(108, 346, 3565, 12056, "nameA");
+        addSampleSet(108, 346, 4000, 12106, "nameA"); // <- keep
+        addSampleSet(108, 346, 5000, 12106, "nameA"); // <- keep
+        addSampleSet(108, 346, 3568, 12056, "nameA");
+        addSampleSet(108, 346, 5002, 12106, "nameA");
+        addSampleSet(108, 346, 4003, 12106, "nameA");
+
+        secondaryCondition = new OverlapRemoveCondition("nameA");
+        secondaryCondition.apply(matchupSet, context);
+
+        assertEquals(3, matchupSet.getNumObservations());
+    }
+
+    @Test
     @Ignore
     public void testRemove_performanceTest_mimick_AATSR() {
         int numSamples = 1000000;
@@ -173,47 +179,15 @@ public class OverlapRemoveConditionTest {
         assertEquals(3, dimension.getNy());
     }
 
-    @Test
-    public void testGetReferenceFormElement_primary() throws JDOMException, IOException {
-        final String XML = "<overlap-remove>" +
-                "    <reference>PRIMARY</reference>" +
-                "</overlap-remove>";
-        final Element element = TestUtil.createDomElement(XML);
-
-        boolean primary = secondaryCondition.getReferenceFromElement(element);
-        assertTrue(primary);
-    }
-
-    @Test
-    public void testGetReferenceFormElement_secondary() throws JDOMException, IOException {
-        final String XML = "<overlap-remove>" +
-                "    <reference>SECONDARY</reference>" +
-                "</overlap-remove>";
-        final Element element = TestUtil.createDomElement(XML);
-
-        boolean primary = secondaryCondition.getReferenceFromElement(element);
-        assertFalse(primary);
-    }
-
-    @Test
-    public void testGetReferenceFormElement_invalid() throws JDOMException, IOException {
-        final String XML = "<overlap-remove>" +
-                "    <reference>rubbish</reference>" +
-                "</overlap-remove>";
-        final Element element = TestUtil.createDomElement(XML);
-
-        try {
-            secondaryCondition.getReferenceFromElement(element);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
     private void addSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
+        addSampleSet(primaryX, primaryY, secondaryX, secondaryY, SampleSet.getOnlyOneSecondaryKey());
+    }
+
+    private void addSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY, String secondaryName) {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(primaryX, primaryY, -22.5, 18.98, 111027));
-        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(secondaryX, secondaryY, -23.5, 19.98, 121027));
+        sampleSet.setSecondary(secondaryName, new Sample(secondaryX, secondaryY, -23.5, 19.98, 121027));
         sampleSets.add(sampleSet);
     }
 }

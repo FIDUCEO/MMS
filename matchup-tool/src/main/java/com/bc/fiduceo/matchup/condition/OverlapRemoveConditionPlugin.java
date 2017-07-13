@@ -21,15 +21,48 @@
 package com.bc.fiduceo.matchup.condition;
 
 
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
+
+import java.util.stream.Stream;
 
 public class OverlapRemoveConditionPlugin implements ConditionPlugin {
 
     public static final String TAG_NAME_CONDITION_NAME = "overlap-remove";
 
     @Override
-    public OverlapRemoveCondition createCondition(Element element) {
-        return new OverlapRemoveCondition(element);
+    public Condition createCondition(Element element) {
+        final Element referenceElem = JDomUtils.getMandatoryChild(element, "reference");
+        final String referenceText = referenceElem.getTextTrim();
+        if ("PRIMARY".equals(referenceText)) {
+            return new OverlapRemoveCondition();
+        } else if ("SECONDARY".equals(referenceText)) {
+            final String namesFromAtt = JDomUtils.getValueFromNamesAttribute(referenceElem);
+            final String[] names;
+            if (namesFromAtt != null) {
+                names = Stream.of(namesFromAtt.split(",")).map(String::trim).filter(s -> s.length() > 0).toArray(String[]::new);
+            } else {
+                names = null;
+            }
+            if (names == null || names.length == 0) {
+                return new OverlapRemoveCondition(SampleSet.getOnlyOneSecondaryKey());
+            }
+            if (names.length == 1) {
+                return new OverlapRemoveCondition(names[0]);
+            }
+            final Condition[] conditions = new Condition[names.length];
+            for (int i = 0; i < names.length; i++) {
+                String name = names[i];
+                conditions[i] = new OverlapRemoveCondition(name);
+            }
+            return (matchupSet, context) -> {
+                for (Condition condition : conditions) {
+                    condition.apply(matchupSet, context);
+                }
+            };
+        }
+        throw new RuntimeException("Invalid reference for overlap removal: " + referenceText);
     }
 
     @Override

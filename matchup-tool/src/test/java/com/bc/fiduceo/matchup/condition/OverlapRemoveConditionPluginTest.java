@@ -53,7 +53,7 @@ public class OverlapRemoveConditionPluginTest {
                 "</overlap-remove>";
         final Element element = TestUtil.createDomElement(XML);
 
-        final OverlapRemoveCondition condition = plugin.createCondition(element);
+        final Condition condition = plugin.createCondition(element);
         assertNotNull(condition);
     }
 }

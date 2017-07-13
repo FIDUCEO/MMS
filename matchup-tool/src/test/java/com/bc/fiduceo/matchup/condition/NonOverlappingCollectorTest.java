@@ -34,22 +34,26 @@ import static org.junit.Assert.assertTrue;
 
 public class NonOverlappingCollectorTest {
 
+    private final String SEC_NAME = "secName";
+
     private NonOverlappingCollector primaryCollector;
     private NonOverlappingCollector secondaryCollector;
+    private NonOverlappingCollector namedSecondaryCollector;
 
     @Before
     public void setUp() {
         primaryCollector = new NonOverlappingCollector(3, 5, true);
         secondaryCollector = new NonOverlappingCollector(5, 7, false);
+        namedSecondaryCollector = new NonOverlappingCollector(5, 7, false, SEC_NAME);
     }
 
     @Test
     public void testCreateAndGet_emptySet() {
-        List<SampleSet> nonOverlappingList =  primaryCollector.get();
+        List<SampleSet> nonOverlappingList = primaryCollector.get();
         assertNotNull(nonOverlappingList);
         assertEquals(0, nonOverlappingList.size());
 
-        nonOverlappingList =  secondaryCollector.get();
+        nonOverlappingList = secondaryCollector.get();
         assertNotNull(nonOverlappingList);
         assertEquals(0, nonOverlappingList.size());
     }
@@ -75,6 +79,16 @@ public class NonOverlappingCollectorTest {
     }
 
     @Test
+    public void testAddAndGet_oneSample_secondaryWithName() {
+        final SampleSet sampleSet = createSampleSet(2, 2, 107, 1812, SEC_NAME);
+
+        namedSecondaryCollector.add(sampleSet);
+
+        final List<SampleSet> sampleSets = namedSecondaryCollector.get();
+        assertEquals(1, sampleSets.size());
+    }
+
+    @Test
     public void testAddAndGet_twoSamples_nonOverlapping_primary() {
         SampleSet sampleSet = createSampleSet(23, 197, 1, 1);
         primaryCollector.add(sampleSet);
@@ -95,6 +109,19 @@ public class NonOverlappingCollectorTest {
         secondaryCollector.add(sampleSet);
 
         final List<SampleSet> sampleSets = secondaryCollector.get();
+        assertEquals(2, sampleSets.size());
+    }
+
+
+    @Test
+    public void testAddAndGet_twoSamples_nonOverlapping_namedSecondary() {
+        SampleSet sampleSet = createSampleSet(0, 0, 107, 1812, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(0, 0, 407, 2212, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        final List<SampleSet> sampleSets = namedSecondaryCollector.get();
         assertEquals(2, sampleSets.size());
     }
 
@@ -124,6 +151,20 @@ public class NonOverlappingCollectorTest {
         assertEquals(1, sampleSets.size());
         assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
         assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).y);
+    }
+
+    @Test
+    public void testAddAndGet_twoSamples_overlapping_namedSecondary() {
+        SampleSet sampleSet = createSampleSet(0, 10000, 107, 1812, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(10000, 0, 105, 1814, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        final List<SampleSet> sampleSets = namedSecondaryCollector.get();
+        assertEquals(1, sampleSets.size());
+        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).x);
+        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).y);
     }
 
     @Test
@@ -191,6 +232,36 @@ public class NonOverlappingCollectorTest {
     }
 
     @Test
+    public void testAddAndGet_manySamples_mixed_namedSecondary() {
+        SampleSet sampleSet = createSampleSet(0, 10000, 107, 1812, SEC_NAME); // <- keep
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(1000, 10000, 1107, 11812, SEC_NAME);   // <- keep
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(10000, 0, 105, 1814, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(10000, 10100, 107, 1813, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(10000, 1110, 106, 1812, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        sampleSet = createSampleSet(1000, 10000, 1105, 11813, SEC_NAME);
+        namedSecondaryCollector.add(sampleSet);
+
+        final List<SampleSet> sampleSets = namedSecondaryCollector.get();
+        assertEquals(2, sampleSets.size());
+
+        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).x);
+        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).y);
+
+        assertEquals(1107, sampleSets.get(1).getSecondary(SEC_NAME).x);
+        assertEquals(11812, sampleSets.get(1).getSecondary(SEC_NAME).y);
+    }
+
+    @Test
     public void testGetSample_primary() {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(new Sample(1, 2, 3, 4, 5));
@@ -207,6 +278,17 @@ public class NonOverlappingCollectorTest {
         sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), new Sample(2, 3, 4, 5, 6));
 
         final Sample sample = secondaryCollector.getSample(sampleSet);
+        assertNotNull(sample);
+        assertEquals(2, sample.x);
+        assertEquals(3, sample.y);
+    }
+
+    @Test
+    public void testGetSample_namedSecondary() {
+        final SampleSet sampleSet = new SampleSet();
+        sampleSet.setSecondary(SEC_NAME, new Sample(2, 3, 4, 5, 6));
+
+        final Sample sample = namedSecondaryCollector.getSample(sampleSet);
         assertNotNull(sample);
         assertEquals(2, sample.x);
         assertEquals(3, sample.y);
@@ -243,14 +325,18 @@ public class NonOverlappingCollectorTest {
         assertTrue(primaryCollector.areOverlapping(reference, sample));
         sample = createSample(100, 2004);
         assertTrue(primaryCollector.areOverlapping(reference, sample));
-        sample =createSample(100, 2005);
+        sample = createSample(100, 2005);
         assertFalse(primaryCollector.areOverlapping(reference, sample));
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
+        return createSampleSet(primaryX, primaryY, secondaryX, secondaryY, SampleSet.getOnlyOneSecondaryKey());
+    }
+
+    private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY, String secondaryName) {
         final SampleSet sampleSet = new SampleSet();
         sampleSet.setPrimary(createSample(primaryX, primaryY));
-        sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), createSample(secondaryX, secondaryY));
+        sampleSet.setSecondary(secondaryName, createSample(secondaryX, secondaryY));
 
         return sampleSet;
     }

@@ -25,8 +25,6 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.util.JDomUtils;
-import org.jdom.Element;
 
 import java.util.Comparator;
 import java.util.List;
@@ -44,13 +42,16 @@ import java.util.TreeSet;
 class OverlapRemoveCondition implements Condition {
 
     private final boolean primary;
+    private final String secondaryName;
 
-    OverlapRemoveCondition(Element element) {
-        this.primary = getReferenceFromElement(element);
+    OverlapRemoveCondition() {
+        primary = true;
+        secondaryName = null;
     }
 
-    OverlapRemoveCondition(boolean primary) {
-        this.primary = primary;
+    OverlapRemoveCondition(final String secondaryName) {
+        this.primary = false;
+        this.secondaryName = secondaryName;
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -73,8 +74,8 @@ class OverlapRemoveCondition implements Condition {
                 left = o1.getPrimary();
                 right = o2.getPrimary();
             } else {
-                left = o1.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-                right = o2.getSecondary(SampleSet.getOnlyOneSecondaryKey());
+                left = o1.getSecondary(secondaryName);
+                right = o2.getSecondary(secondaryName);
             }
             final int compareY = Integer.compare(left.y, right.y);
             if (compareY == 0) {
@@ -87,7 +88,7 @@ class OverlapRemoveCondition implements Condition {
         final NavigableSet<SampleSet> orderedSampleSets = new TreeSet<>(orderedComparator);
         orderedSampleSets.addAll(sampleSets);
 
-        final NonOverlappingCollector collector = new NonOverlappingCollector(dimension.getNx(), dimension.getNy(), primary);
+        final NonOverlappingCollector collector = new NonOverlappingCollector(dimension.getNx(), dimension.getNy(), primary, secondaryName);
         for (final SampleSet sampleSet : orderedSampleSets) {
             collector.add(sampleSet);
         }
@@ -100,15 +101,5 @@ class OverlapRemoveCondition implements Condition {
             return context.getPrimaryExtractSize();
         }
         return context.getSecondaryExtractSize();
-    }
-
-    boolean getReferenceFromElement(Element element) {
-        final String referenceText = JDomUtils.getMandatoryChildTextTrim(element, "reference");
-        if ("PRIMARY".equals(referenceText)) {
-            return true;
-        } else if ("SECONDARY".equals(referenceText)) {
-            return false;
-        }
-        throw new RuntimeException("Invalid reference for overlap removal: " + referenceText);
     }
 }
