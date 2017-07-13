@@ -36,11 +36,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")
@@ -74,26 +77,29 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_notInputParameter() throws ParseException, IOException, SQLException {
-        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
         final String[] args = new String[0];
-        IngestionToolMain.main(args);
+        final boolean errorOutputExpected = true;
+
+        callMainAndValidateSystemOutput(args, errorOutputExpected);
     }
 
     @Test
     public void testIngest_help() throws ParseException, IOException, SQLException {
-        // @todo 4 tb/tb find a way to steal system.err to implement assertions 2015-12-09
+        final boolean errorOutputExpected = false;
         String[] args = new String[]{"-h"};
-        IngestionToolMain.main(args);
+        callMainAndValidateSystemOutput(args, errorOutputExpected);
 
         args = new String[]{"--help"};
-        IngestionToolMain.main(args);
+        callMainAndValidateSystemOutput(args, errorOutputExpected);
     }
 
     @Test
     public void testIngest_errorStopDateBeforeStartDate() throws ParseException, IOException, SQLException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
-                "-start", "2001-02-02",
-                "-end", "2001-01-01"};
+        final String[] args = new String[]{
+                    "-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
+                    "-start", "2001-02-02",
+                    "-end", "2001-01-01"
+        };
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
 
@@ -101,7 +107,9 @@ public class IngestionToolIntegrationTest {
         try {
             ingestionTool.run(commandLine);
             fail("RuntimeException expected");
-        }catch (RuntimeException expected) {
+        } catch (RuntimeException expected) {
+            assertThat(expected.getClass().getTypeName(), is(equalTo("java.lang.RuntimeException")));
+            assertThat(expected.getMessage(), is(equalTo("End date before start date")));
         }
     }
 
@@ -738,6 +746,37 @@ public class IngestionToolIntegrationTest {
         } finally {
             storage.clear();
             storage.close();
+        }
+    }
+
+    private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
+        final ByteArrayOutputStream expected = new ByteArrayOutputStream();
+        new IngestionTool().printUsageTo(expected);
+
+        final PrintStream _err = System.err;
+        final PrintStream _out = System.out;
+        try {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final ByteArrayOutputStream err = new ByteArrayOutputStream();
+            final PrintStream psO = new PrintStream(out);
+            final PrintStream psE = new PrintStream(err);
+            System.setOut(psO);
+            System.setErr(psE);
+
+            IngestionToolMain.main(args);
+
+            psO.flush();
+            psE.flush();
+            if (errorOutputExpected) {
+                assertThat(out.toString(), is(equalTo("")));
+                assertThat(err.toString(), is(equalTo(expected.toString())));
+            } else {
+                assertThat(out.toString(), is(equalTo(expected.toString())));
+                assertThat(err.toString(), is(equalTo("")));
+            }
+        } finally {
+            System.setErr(_err);
+            System.setOut(_out);
         }
     }
 

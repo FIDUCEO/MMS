@@ -213,7 +213,7 @@ class IngestionTool {
         }
 
         if (context.getEndDate().before(context.getStartDate())) {
-            throw new RuntimeException("End date before start data");
+            throw new RuntimeException("End date before start date");
         }
 
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
