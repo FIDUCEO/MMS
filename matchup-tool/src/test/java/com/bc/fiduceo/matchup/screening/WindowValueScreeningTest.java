@@ -153,10 +153,12 @@ public class WindowValueScreeningTest {
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
         when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 5, 5));
 
+        final WindowValueScreening.SecondaryConfiguration secConfiguration = new WindowValueScreening.SecondaryConfiguration();
+        secConfiguration.secondaryExpression = "varD >= 35";
+        secConfiguration.secondaryPercentage = 72d;
+        secConfiguration.secondaryEvaluate = EntireWindow;
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-        configuration.secondaryExpression = "varD >= 35";
-        configuration.secondaryPercentage = 72d;
-        configuration.secondaryEvaluate = EntireWindow;
+        configuration.secondaryConfigurations = new WindowValueScreening.SecondaryConfiguration[]{secConfiguration};
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
@@ -179,10 +181,12 @@ public class WindowValueScreeningTest {
         final Screening.ScreeningContext screeningContext = mock(Screening.ScreeningContext.class);
         when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 5, 5));
 
+        final WindowValueScreening.SecondaryConfiguration secConfiguration = new WindowValueScreening.SecondaryConfiguration();
+        secConfiguration.secondaryExpression = "varD >= 35";
+        secConfiguration.secondaryPercentage = 75d;
+        secConfiguration.secondaryEvaluate = IgnoreNoData;
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-        configuration.secondaryExpression = "varD >= 35";
-        configuration.secondaryPercentage = 75d;
-        configuration.secondaryEvaluate = IgnoreNoData;
+        configuration.secondaryConfigurations = new WindowValueScreening.SecondaryConfiguration[]{secConfiguration};
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
@@ -195,7 +199,7 @@ public class WindowValueScreeningTest {
     }
 
     @Test
-    public void testApply_bothExpression() throws IOException, InvalidRangeException {
+    public void testApply_bothExpression_entireWindow() throws IOException, InvalidRangeException {
         final MatchupSet matchupSet = new MatchupSet();
 
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
@@ -207,13 +211,15 @@ public class WindowValueScreeningTest {
         when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
         when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 3, 3));
 
+        final WindowValueScreening.SecondaryConfiguration secConfiguration = new WindowValueScreening.SecondaryConfiguration();
+        secConfiguration.secondaryExpression = "varD <= 27.0";
+        secConfiguration.secondaryPercentage = 100d;
+        secConfiguration.secondaryEvaluate = EntireWindow;
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.primaryExpression = "varI >= 27";
         configuration.primaryPercentage = 88d;
         configuration.primaryEvaluate = EntireWindow;
-        configuration.secondaryExpression = "varD <= 27.0";
-        configuration.secondaryPercentage = 100d;
-        configuration.secondaryEvaluate = EntireWindow;
+        configuration.secondaryConfigurations = new WindowValueScreening.SecondaryConfiguration[]{secConfiguration};
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 
@@ -227,7 +233,7 @@ public class WindowValueScreeningTest {
     }
 
     @Test
-    public void testApply_bothExpression_onlyValidPixels() throws IOException, InvalidRangeException {
+    public void testApply_bothExpression_IgnoreNoData() throws IOException, InvalidRangeException {
         final MatchupSet matchupSet = new MatchupSet();
 
         List<SampleSet> sampleSets = matchupSet.getSampleSets();
@@ -239,13 +245,15 @@ public class WindowValueScreeningTest {
         when(screeningContext.getPrimaryDimension()).thenReturn(new Dimension("name", 3, 3));
         when(screeningContext.getSecondaryDimension(SampleSet.getOnlyOneSecondaryKey())).thenReturn(new Dimension("name", 3, 3));
 
+        final WindowValueScreening.SecondaryConfiguration secConfiguration = new WindowValueScreening.SecondaryConfiguration();
+        secConfiguration.secondaryExpression = "varD <= 27.0";
+        secConfiguration.secondaryPercentage = 100d;
+        secConfiguration.secondaryEvaluate = IgnoreNoData;
         final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
         configuration.primaryExpression = "varI >= 27";
         configuration.primaryPercentage = 88d;
         configuration.primaryEvaluate = IgnoreNoData;
-        configuration.secondaryExpression = "varD <= 27.0";
-        configuration.secondaryPercentage = 100d;
-        configuration.secondaryEvaluate = IgnoreNoData;
+        configuration.secondaryConfigurations = new WindowValueScreening.SecondaryConfiguration[]{secConfiguration};
 
         final WindowValueScreening screening = new WindowValueScreening(configuration);
 

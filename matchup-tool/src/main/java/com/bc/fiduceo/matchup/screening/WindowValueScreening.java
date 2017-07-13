@@ -60,14 +60,17 @@ public class WindowValueScreening implements Screening {
             sampleSets = getKeptSampleSets(sampleSets, primaryExpression, primaryReader, primaryDimension, primarySampleFetcher, percentage, evaluate);
         }
 
-        final String secondaryExpression = configuration.secondaryExpression;
-        if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
-            final String sensorName = SampleSet.getOnlyOneSecondaryKey();
-            final Dimension secondaryDimension = context.getSecondaryDimension(sensorName);
-            final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(sensorName);
-            final double percentage = configuration.secondaryPercentage;
-            final Evaluate evaluate = configuration.secondaryEvaluate;
-            sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader.get(sensorName), secondaryDimension, secondarySampleFetcher, percentage, evaluate);
+        final SecondaryConfiguration[] secondaryConfigurations = configuration.secondaryConfigurations;
+        for (SecondaryConfiguration secondaryConfiguration : secondaryConfigurations) {
+            final String secondaryExpression = secondaryConfiguration.secondaryExpression;
+            if (StringUtils.isNotNullAndNotEmpty(secondaryExpression)) {
+                final String secondarySensorName = secondaryConfiguration.secondarySensorName;
+                final Dimension secondaryDimension = context.getSecondaryDimension(secondarySensorName);
+                final SampleFetcher secondarySampleFetcher = (sampleSet) -> sampleSet.getSecondary(secondarySensorName);
+                final double percentage = secondaryConfiguration.secondaryPercentage;
+                final Evaluate evaluate = secondaryConfiguration.secondaryEvaluate;
+                sampleSets = getKeptSampleSets(sampleSets, secondaryExpression, secondaryReader.get(secondarySensorName), secondaryDimension, secondarySampleFetcher, percentage, evaluate);
+            }
         }
 
         matchupSet.setSampleSets(sampleSets);
@@ -128,14 +131,19 @@ public class WindowValueScreening implements Screening {
         Sample getSample(SampleSet sampleSet);
     }
 
-    static class Configuration {
-
-        String primaryExpression;
-        Double primaryPercentage;
-        Evaluate primaryEvaluate;
+    static class SecondaryConfiguration {
+        String secondarySensorName = SampleSet.getOnlyOneSecondaryKey();
         String secondaryExpression;
         Double secondaryPercentage;
         Evaluate secondaryEvaluate;
+
+    }
+
+    static class Configuration {
+        String primaryExpression;
+        Double primaryPercentage;
+        Evaluate primaryEvaluate;
+        SecondaryConfiguration[] secondaryConfigurations = new SecondaryConfiguration[0];
     }
 
     enum Evaluate {

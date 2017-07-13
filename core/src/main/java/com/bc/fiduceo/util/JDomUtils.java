@@ -26,8 +26,7 @@ import static org.esa.snap.core.util.StringUtils.isNullOrEmpty;
 
 public class JDomUtils {
 
-    private final static String ATTRIBUTE_NAME__NAMES = "names";
-
+    public final static String ATTRIBUTE_NAME__NAMES = "names";
     public final static String ATTRIBUTE_NAME__NAME = "name";
     public static final String VALUE = "Value";
     public static final String ATTRIBUTE = "Attribute";

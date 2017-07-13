@@ -20,7 +20,16 @@ package com.bc.fiduceo.matchup.screening;
 
 import static com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate.EntireWindow;
 
+import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.matchup.screening.WindowValueScreening.Configuration;
+import com.bc.fiduceo.matchup.screening.WindowValueScreening.Evaluate;
+import com.bc.fiduceo.matchup.screening.WindowValueScreening.SecondaryConfiguration;
+import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class WindowValueScreeningPlugin implements ScreeningPlugin {
 
@@ -33,7 +42,7 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
 
     @Override
     public Screening createScreening(Element element) {
-        final WindowValueScreening.Configuration configuration = createConfiguration(element);
+        final Configuration configuration = createConfiguration(element);
         return new WindowValueScreening(configuration);
     }
 
@@ -42,32 +51,28 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
         return ROOT_TAG_NAME;
     }
 
-    static WindowValueScreening.Configuration createConfiguration(Element rootElement) {
+    static Configuration createConfiguration(Element rootElement) {
         final String rootName = rootElement.getName();
         if (!ROOT_TAG_NAME.endsWith(rootName)) {
             throw new RuntimeException("Illegal root element name '" + rootName + "'. Expected root element name is '" + ROOT_TAG_NAME + "'.");
         }
 
-        String primaryExpression = null;
-        Double primaryPercentage = null;
-        WindowValueScreening.Evaluate primaryEvaluate = EntireWindow;
-        String secondaryExpression = null;
-        Double secondaryPercentage = null;
-        WindowValueScreening.Evaluate secondaryEvaluate = EntireWindow;
+        final Configuration configuration = new Configuration();
 
-        Element element;
+        final Element primaryElement = rootElement.getChild(TAG_NAME_PRIMARY);
+        if (primaryElement != null) {
+            String primaryExpression = null;
+            Double primaryPercentage = null;
+            Evaluate primaryEvaluate = EntireWindow;
 
-        element = rootElement.getChild(TAG_NAME_PRIMARY);
-        if (element != null) {
-            final Element primary = element;
-            element = primary.getChild(TAG_NAME_EXPRESSION);
-            if (element != null) {
-                primaryExpression = element.getValue();
+            final Element expressionElem = primaryElement.getChild(TAG_NAME_EXPRESSION);
+            if (expressionElem != null) {
+                primaryExpression = expressionElem.getTextTrim();
             }
 
-            element = primary.getChild(TAG_NAME_PERCENTAGE);
-            if (element != null) {
-                final String value = element.getValue();
+            final Element percentageElem = primaryElement.getChild(TAG_NAME_PERCENTAGE);
+            if (percentageElem != null) {
+                final String value = percentageElem.getTextTrim();
                 try {
                     primaryPercentage = Double.parseDouble(value);
                 } catch (NumberFormatException e) {
@@ -75,24 +80,41 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
                 }
             }
 
-            element = primary.getChild(TAG_NAME_EVALUATE);
-            if (element != null) {
-                final String value = element.getValue();
-                primaryEvaluate = WindowValueScreening.Evaluate.valueOf(value);
+            final Element evaluateElem = primaryElement.getChild(TAG_NAME_EVALUATE);
+            if (evaluateElem != null) {
+                final String value = evaluateElem.getTextTrim();
+                primaryEvaluate = Evaluate.valueOf(value);
             }
+
+            if (primaryExpression != null && primaryPercentage == null) {
+                throw new RuntimeException("Primary percentage is missing.");
+            }
+
+            if (primaryExpression == null && primaryPercentage != null) {
+                throw new RuntimeException("Primary expression is missing.");
+            }
+
+            configuration.primaryExpression = primaryExpression;
+            configuration.primaryPercentage = primaryPercentage;
+            configuration.primaryEvaluate = primaryEvaluate;
         }
 
-        element = rootElement.getChild(TAG_NAME_SECONDARY);
-        if (element != null) {
-            final Element secondary = element;
-            element = secondary.getChild(TAG_NAME_EXPRESSION);
-            if (element != null) {
-                secondaryExpression = element.getValue();
+        boolean secondaryWithoutName = false;
+
+        @SuppressWarnings("unchecked") final List<Element> secondaryElements = rootElement.getChildren(TAG_NAME_SECONDARY);
+        final ArrayList<SecondaryConfiguration> secondaryConfigurations = new ArrayList<>();
+        for (Element secondaryElement : secondaryElements) {
+
+            String secondaryExpression = null;
+            final Element expressionElem = secondaryElement.getChild(TAG_NAME_EXPRESSION);
+            if (expressionElem != null) {
+                secondaryExpression = expressionElem.getTextTrim();
             }
 
-            element = secondary.getChild(TAG_NAME_PERCENTAGE);
-            if (element != null) {
-                final String value = element.getValue();
+            Double secondaryPercentage = null;
+            final Element percentageElem = secondaryElement.getChild(TAG_NAME_PERCENTAGE);
+            if (percentageElem != null) {
+                final String value = percentageElem.getTextTrim();
                 try {
                     secondaryPercentage = Double.parseDouble(value);
                 } catch (NumberFormatException e) {
@@ -100,40 +122,51 @@ public class WindowValueScreeningPlugin implements ScreeningPlugin {
                 }
             }
 
-            element = secondary.getChild(TAG_NAME_EVALUATE);
-            if (element != null) {
-                final String value = element.getValue();
-                secondaryEvaluate = WindowValueScreening.Evaluate.valueOf(value);
+            Evaluate secondaryEvaluate = EntireWindow;
+            final Element evaluateElem = secondaryElement.getChild(TAG_NAME_EVALUATE);
+            if (evaluateElem != null) {
+                final String value = evaluateElem.getTextTrim();
+                secondaryEvaluate = Evaluate.valueOf(value);
+            }
+
+            if (secondaryExpression != null && secondaryPercentage == null) {
+                throw new RuntimeException("Secondary percentage is missing.");
+            }
+
+            if (secondaryExpression == null && secondaryPercentage != null) {
+                throw new RuntimeException("Secondary expression is missing.");
+            }
+
+            final String secSensorNameAttVal = JDomUtils.getValueFromNamesAttribute(secondaryElement);
+            final String[] secondarySensorNames;
+            if (secSensorNameAttVal == null || secSensorNameAttVal.trim().length() == 0) {
+                secondaryWithoutName = true;
+                secondarySensorNames = new String[]{SampleSet.getOnlyOneSecondaryKey()};
+            } else {
+                secondarySensorNames = Stream.of(secSensorNameAttVal.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            }
+            for (String secondarySensorName : secondarySensorNames) {
+                final SecondaryConfiguration secondaryConfiguration;
+                secondaryConfiguration = new SecondaryConfiguration();
+                secondaryConfiguration.secondarySensorName = secondarySensorName;
+                secondaryConfiguration.secondaryExpression = secondaryExpression;
+                secondaryConfiguration.secondaryPercentage = secondaryPercentage;
+                secondaryConfiguration.secondaryEvaluate = secondaryEvaluate;
+                secondaryConfigurations.add(secondaryConfiguration);
             }
         }
 
-        if (primaryExpression != null && primaryPercentage == null) {
-            throw new RuntimeException("Primary percentage is missing.");
-        }
-
-        if (primaryExpression == null && primaryPercentage != null) {
-            throw new RuntimeException("Primary expression is missing.");
-        }
-
-        if (secondaryExpression != null && secondaryPercentage == null) {
-            throw new RuntimeException("Secondary percentage is missing.");
-        }
-
-        if (secondaryExpression == null && secondaryPercentage != null) {
-            throw new RuntimeException("Secondary expression is missing.");
-        }
-
-        if (primaryExpression == null && secondaryExpression == null) {
+        if (configuration.primaryExpression == null && secondaryConfigurations.size() == 0) {
             throw new RuntimeException("At least primary or secondary expression must be implemented.");
         }
 
-        final WindowValueScreening.Configuration configuration = new WindowValueScreening.Configuration();
-        configuration.primaryExpression = primaryExpression;
-        configuration.primaryPercentage = primaryPercentage;
-        configuration.primaryEvaluate = primaryEvaluate;
-        configuration.secondaryExpression = secondaryExpression;
-        configuration.secondaryPercentage = secondaryPercentage;
-        configuration.secondaryEvaluate = secondaryEvaluate;
+        if (secondaryConfigurations.size() > 0) {
+            if (secondaryWithoutName && secondaryConfigurations.size() != 1) {
+                throw new RuntimeException("It is not allowed to mix '" + TAG_NAME_SECONDARY + "' tags with and without 'names' attribute.");
+            }
+            final SecondaryConfiguration[] array = new SecondaryConfiguration[secondaryConfigurations.size()];
+            configuration.secondaryConfigurations = secondaryConfigurations.toArray(array);
+        }
         return configuration;
     }
 }
