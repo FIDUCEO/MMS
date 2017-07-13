@@ -233,7 +233,7 @@ public class BorderDistanceConditionPluginTest {
     @Test
     public void testParseConfiguration_mixingOfNamedSecondaryAndUnnamedSecondariesNotAllowed() throws Exception {
         final String XML = "<border-point_distance>" +
-                           "  <secondary>" + // only on secondary case
+                           "  <secondary>" + // only one secondary case
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
                            "  </secondary>" +
