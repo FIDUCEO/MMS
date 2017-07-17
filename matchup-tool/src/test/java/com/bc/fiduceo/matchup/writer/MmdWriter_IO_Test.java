@@ -49,6 +49,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,9 +65,9 @@ import java.util.List;
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
 
+    public static final String SEC_SENSOR_NAME = "avhrr-n11";
     private File testDir;
     private MmdWriterConfig writerConfig;
-    public static final String SEC_SENSOR_NAME = "avhrr-n11";
 
     @Before
     public void setUp() throws Exception {
@@ -80,6 +81,73 @@ public class MmdWriter_IO_Test {
     public void tearDown() throws Exception {
         SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         TestUtil.deleteTestDirectory();
+    }
+
+    @Test
+    public void testInitializeVariables_CreateCfConformUnitsAttributeIfIoVariableOnlyContain_unit_isteadOf_units() throws Exception {
+        //preparation
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute("halimasch", "brt"));
+        attributes.add(new Attribute("unit", "pilz"));
+
+        WindowReadingIOVariable variableWith_unit = new WindowReadingIOVariable(null);
+        variableWith_unit.setTargetVariableName("targetVarName");
+        variableWith_unit.setDimensionNames("matchup_count primary_ny primary_nx");
+        variableWith_unit.setDataType("short");
+        variableWith_unit.setAttributes(attributes);
+
+        final ArrayList<IOVariable> ioVariables = new ArrayList<>();
+        ioVariables.add(variableWith_unit);
+
+        final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
+
+        final Sensor primarySensor = new Sensor("primary");
+        primarySensor.setPrimary(true);
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                    .build("test")
+                    .withDimensions(Arrays.asList(
+                                new Dimension("primary", 5, 7),
+                                new Dimension("secondary", 3, 5)))
+                    .withSensors(Arrays.asList(
+                                primarySensor,
+                                new Sensor("secondary")))
+                    .createConfig();
+
+        //execution
+        final MmdWriterNC4 mmdWriter = new MmdWriterNC4(writerConfig);
+        try {
+            mmdWriter.initializeNetcdfFile(mmdFile, useCaseConfig, ioVariables, 12);
+        } finally {
+            mmdWriter.close();
+        }
+
+        //verification
+        assertTrue(Files.isRegularFile(mmdFile));
+
+        NetcdfFile mmd = null;
+        try {
+            mmd = NetcdfFile.open(mmdFile.toString());
+            final List<Variable> variables = mmd.getVariables();
+            assertEquals(1, variables.size());
+            final Variable variable = variables.get(0);
+            assertEquals("targetVarName", variable.getShortName());
+            assertEquals("short", variable.getDataType().toString());
+            assertEquals(3, variable.getAttributes().size());
+            final Attribute unit = variable.findAttribute("unit");
+            assertNotNull(unit);
+            assertEquals("pilz", unit.getStringValue());
+            final Attribute units = variable.findAttribute("units");
+            assertNotNull(units);
+            assertEquals("pilz", units.getStringValue());
+            final Attribute halimasch = variable.findAttribute("halimasch");
+            assertNotNull(halimasch);
+            assertEquals("brt", halimasch.getStringValue());
+        } finally {
+            if (mmd != null) {
+                mmd.close();
+            }
+        }
     }
 
     @Test
@@ -158,7 +226,7 @@ public class MmdWriter_IO_Test {
             assertNotNull(comment);
             assertEquals(DataType.STRING, comment.getDataType());
             assertEquals("This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'.",
-                    comment.getStringValue()
+                         comment.getStringValue()
             );
 
             final Attribute useCaseConfigAttr = mmd.findGlobalAttribute("use-case-configuration");

@@ -298,6 +298,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
             }
+            ensureCfConformUsageOf_units_Attribute(variable);
             if (variable.getDataType().isNumeric()) {
                 final Attribute fillValueAtrribute = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME);
                 if (fillValueAtrribute == null) {
@@ -307,6 +308,16 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             }
         }
         netcdfFileWriter.create();
+    }
+
+    private void ensureCfConformUsageOf_units_Attribute(Variable variable) {
+        final Attribute nonCfConformUnitAtt = variable.findAttribute("unit");
+        if (nonCfConformUnitAtt != null) {
+            final Attribute cfConformUnitsAtt = variable.findAttribute("units");
+            if (cfConformUnitsAtt == null) {
+                variable.addAttribute(new Attribute("units", nonCfConformUnitAtt.getStringValue()));
+            }
+        }
     }
 
     void close() throws IOException, InvalidRangeException {
