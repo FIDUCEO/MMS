@@ -67,8 +67,8 @@ class CALIOP_L2_VFM_Reader implements Reader {
     private static final String hh = "([01]\\d|2[0-3])";
     private static final String mm = "[0-5]\\d";
     private static final String ss = mm;
-    private static final String start = "CAL_LID_L2_VFM-Standard-V4-10.";
-    private static final String end = "Z[DN].hdf";
+    private static final String start = "CAL_LID_L2_VFM-Standard-V4-10\\.";
+    private static final String end = "Z[DN]\\.hdf";
     private static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
 
     private final static short[] nadirLineIndices = calcalculateIndizes();
@@ -184,7 +184,7 @@ class CALIOP_L2_VFM_Reader implements Reader {
         final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final String variableName = "Profile_Time";
         final Number fillValue = getFillValue(variableName);
-        final Array taiSeconds = readRaw(x, y, interval, variableName);
+        final Array taiSeconds = readRaw(x, y, interval, variableName).reshapeNoCopy(new int[]{interval.getY(), interval.getX()});
         final Array utcSecondsSince1970 = Array.factory(DataType.INT, taiSeconds.getShape());
         for (int i = 0; i < taiSeconds.getSize(); i++) {
             double val = taiSeconds.getDouble(i);

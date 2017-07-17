@@ -100,6 +100,7 @@ class OverlapRemoveCondition implements Condition {
         if (primary) {
             return context.getPrimaryExtractSize();
         }
-        return context.getSecondaryExtractSize();
+        // todo se multisensor
+        return context.getSecondaryExtractSize(SampleSet.getOnlyOneSecondaryKey());
     }
 }

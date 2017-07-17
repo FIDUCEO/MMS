@@ -3,6 +3,7 @@ package com.bc.fiduceo.matchup.condition;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.*;
 
 import java.util.Date;
@@ -84,9 +85,9 @@ public class ConditionEngineContextTest {
     @Test
     public void testSetGetSecondaryExtractSize() {
         final Dimension dimension = new Dimension("seco", 5, 3);
-        conditionEngineContext.setSecondaryExtractSize(dimension);
+        conditionEngineContext.setSecondaryExtractSize(dimension, SampleSet.getOnlyOneSecondaryKey());
 
-        final Dimension result = conditionEngineContext.getSecondaryExtractSize();
+        final Dimension result = conditionEngineContext.getSecondaryExtractSize(SampleSet.getOnlyOneSecondaryKey());
         assertEquals("seco", result.getName());
     }
 }

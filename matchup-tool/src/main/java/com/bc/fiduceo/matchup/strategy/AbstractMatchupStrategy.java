@@ -65,10 +65,11 @@ public abstract class AbstractMatchupStrategy {
                                       Reader primaryReader, Map<String, Reader> secondaryReader) throws IOException, InvalidRangeException {
         final Dimension primarySize = primaryReader.getProductSize();
         conditionEngineContext.setPrimarySize(primarySize);
-        if (secondaryReader.size() ==1) {
-            final Reader reader = secondaryReader.values().iterator().next();
+        for (Map.Entry<String, Reader> stringReaderEntry : secondaryReader.entrySet()) {
+            final Reader reader = stringReaderEntry.getValue();
+            final String sensorName = stringReaderEntry.getKey();
             final Dimension secondarySize = reader.getProductSize();
-            conditionEngineContext.setSecondarySize(secondarySize);
+            conditionEngineContext.setSecondarySize(secondarySize, sensorName);
         }
 
         logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");

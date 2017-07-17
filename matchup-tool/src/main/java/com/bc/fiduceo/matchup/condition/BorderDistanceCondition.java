@@ -58,10 +58,10 @@ class BorderDistanceCondition implements Condition {
                     targetSamples.add(sampleSet);
                 }
             } else if (configuration.useSecondary) {
-                final Dimension secondarySize = context.getSecondarySize();
+                final String secondaryName = configuration.secondaryName;
+                final Dimension secondarySize = context.getSecondarySize(secondaryName);
                 final int maxXSecondary = secondarySize.getNx() - 1 - configuration.secondary_x;
                 final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
-                final String secondaryName = configuration.secondaryName;
                 for (final SampleSet sampleSet : sourceSamples) {
                     final Sample secondary = sampleSet.getSecondary(secondaryName);
                     if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {

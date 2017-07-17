@@ -223,7 +223,7 @@ public class ConditionEngineTest {
         assertNotNull(primaryExtractSize);
         assertEquals(5, primaryExtractSize.getNx());
 
-        final Dimension secondaryExtractSize = engineContext.getSecondaryExtractSize();
+        final Dimension secondaryExtractSize = engineContext.getSecondaryExtractSize(SampleSet.getOnlyOneSecondaryKey());
         assertNotNull(secondaryExtractSize);
         assertEquals(7, secondaryExtractSize.getNx());
     }

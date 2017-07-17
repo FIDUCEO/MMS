@@ -42,6 +42,8 @@ import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.datamodel.Rotator;
+import org.esa.snap.core.util.math.RsMathUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -113,7 +115,19 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = mapMatchupSetsInsituOrder.get(secSensorName);
                     final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
 
-                    final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(geometryFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
+// @todo Move the following lines to initialisation
+//       Move sensor pixel with and other parameter to usecase config
+//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                    final PointFactory pointFactory;
+                    if ("caliop_vfm-cal".equals(secSensorName)) {
+                        final double sensorPixelWidthKm = 5.0;
+                        pointFactory = new PaddingPointFactory(geometryFactory, sensorPixelWidthKm);
+                    } else {
+                        pointFactory = (lon, lat) -> geometryFactory.createPoint(lon, lat);
+                    }
+//  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                    final List<MatchupSet> matchupSets = getInsituSamplesPerSatellite(pointFactory, timeDeltaInMillis, processingInterval, secondaryObservations, insituReader);
                     for (final MatchupSet matchupSet : matchupSets) {
                         matchupSet.setPrimaryObservationPath(insituPath);
                         matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
@@ -210,11 +224,11 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return candidateList;
     }
 
-    static List<SatelliteObservation> getCandidatesByGeometry(List<SatelliteObservation> satelliteObservations, Point point) {
+    static List<SatelliteObservation> getCandidatesByGeometry(List<SatelliteObservation> satelliteObservations, Geometry geometry) {
         final List<SatelliteObservation> candidateList = new ArrayList<>();
         for (final SatelliteObservation observation : satelliteObservations) {
             final Geometry geoBounds = observation.getGeoBounds();
-            if (!geoBounds.getIntersection(point).isEmpty()) {
+            if (!geoBounds.getIntersection(geometry).isEmpty()) {
                 candidateList.add(observation);
             }
         }
@@ -336,14 +350,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
     }
 
-    private List<MatchupSet> getInsituSamplesPerSatellite(GeometryFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval,
+    private List<MatchupSet> getInsituSamplesPerSatellite(PointFactory geometryFactory, long timeDeltaInMillis, TimeInterval processingInterval,
                                                           List<SatelliteObservation> secondaryObservations, Reader insituReader) throws IOException, InvalidRangeException {
         final HashMap<String, MatchupSet> observationsPerProduct = new HashMap<>();
 
         final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
         for (final Sample insituSample : insituSamples) {
             final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time), timeDeltaInMillis);
-            final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, geometryFactory.createPoint(insituSample.lon, insituSample.lat));
+            final Geometry point = geometryFactory.createPoint(insituSample.lon, insituSample.lat);
+            final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, point);
 
             for (SatelliteObservation candidate : candidatesByGeometry) {
                 final String secSensorName = candidate.getSensor().getName();
@@ -394,6 +409,11 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return insituSamples;
     }
 
+    interface PointFactory {
+
+        Geometry createPoint(double lon, double lat);
+    }
+
     static class CombineBean {
 
         public String primarySensorName;
@@ -405,5 +425,34 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         private Sample[] samples;
         private MatchupSet currentMatchupSet;
         private MatchupCollection matchupCollection;
+    }
+
+    static class PaddingPointFactory implements PointFactory {
+
+        private final GeometryFactory geometryFactory;
+        private final double[] lons;
+        private final double[] lats;
+
+        public PaddingPointFactory(GeometryFactory geometryFactory, final double sensorPixelWidthKm) {
+            this.geometryFactory = geometryFactory;
+            final double halfWidthKm = sensorPixelWidthKm / 2;
+            final double halfDistInMeters = halfWidthKm * 1000;
+            final double halfDistInDegree = Math.toDegrees(halfDistInMeters / RsMathUtils.MEAN_EARTH_RADIUS);
+            lons = new double[]{-halfDistInDegree, halfDistInDegree, halfDistInDegree, -halfDistInDegree};
+            lats = new double[]{-halfDistInDegree, -halfDistInDegree, halfDistInDegree, halfDistInDegree};
+        }
+
+        @Override
+        public Geometry createPoint(double lon, double lat) {
+            Rotator r = new Rotator(lon, lat);
+            final double[] lonClone = lons.clone();
+            final double[] latClone = lats.clone();
+            r.transformInversely(lonClone, latClone);
+            final ArrayList<Point> points = new ArrayList<>();
+            for (int i = 0; i < lonClone.length; i++) {
+                points.add(geometryFactory.createPoint(lonClone[i], latClone[i]));
+            }
+            return geometryFactory.createPolygon(points);
+        }
     }
 }

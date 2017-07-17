@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.tool.ToolContext;
 import org.jdom.Element;
 
@@ -83,13 +84,17 @@ public class ConditionEngine {
         final Dimension primaryExtractSize = useCaseConfig.getDimensionFor(primarySensor.getName());
         conditionEngineContext.setPrimaryExtractSize(primaryExtractSize);
 
-        // todo se multisensor
-        // These 4 lines are needed by OverlapRemovalCondition
-        // ... OvelapRemovalCondition currently ist not able to handle multiple secondary sensors
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
-        final Sensor secondarySensor = secondarySensors.get(0);
-        final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(secondarySensor.getName());
-        conditionEngineContext.setSecondaryExtractSize(secondaryExtractSize);
+        if (secondarySensors.size() == 1) {
+            final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(secondarySensors.get(0).getName());
+            conditionEngineContext.setSecondaryExtractSize(secondaryExtractSize, SampleSet.getOnlyOneSecondaryKey());
+        } else {
+            for (Sensor secondarySensor : secondarySensors) {
+                final String sensorName = secondarySensor.getName();
+                final Dimension secondaryExtractSize = useCaseConfig.getDimensionFor(sensorName);
+                conditionEngineContext.setSecondaryExtractSize(secondaryExtractSize, sensorName);
+            }
+        }
 
         return conditionEngineContext;
     }

@@ -199,7 +199,7 @@ public class BorderDistanceConditionTest {
     private ConditionEngineContext createContext() {
         final ConditionEngineContext context = new ConditionEngineContext();
         context.setPrimarySize(new Dimension("", 100, 3000));
-        context.setSecondarySize(new Dimension("", 100, 3000));
+        context.setSecondarySize(new Dimension("", 100, 3000), SampleSet.getOnlyOneSecondaryKey());
         return context;
     }
 

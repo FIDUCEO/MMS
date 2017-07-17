@@ -23,15 +23,17 @@ package com.bc.fiduceo.matchup.condition;
 import com.bc.fiduceo.core.Dimension;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConditionEngineContext {
 
     private Date startDate;
     private Date endDate;
     private Dimension primarySize;
-    private Dimension secondarySize;
     private Dimension primaryExtractSize;
-    private Dimension secondaryExtractSize;
+    private Map<String, Dimension> secondarySize = new HashMap<>();
+    private Map<String, Dimension> secondaryExtractSize = new HashMap<>();
 
     public Date getStartDate() {
         return startDate;
@@ -57,12 +59,12 @@ public class ConditionEngineContext {
         this.primarySize = primarySize;
     }
 
-    public Dimension getSecondarySize() {
-        return secondarySize;
+    public Dimension getSecondarySize(final String sensorName) {
+        return secondarySize.get(sensorName);
     }
 
-    public void setSecondarySize(Dimension secondarySize) {
-        this.secondarySize = secondarySize;
+    public void setSecondarySize(Dimension secondarySize, final String sensorName) {
+        this.secondarySize.put(sensorName, secondarySize);
     }
 
     public void validateTime() {
@@ -78,11 +80,11 @@ public class ConditionEngineContext {
         return primaryExtractSize;
     }
 
-    public void setSecondaryExtractSize(Dimension secondaryExtractSize) {
-        this.secondaryExtractSize = secondaryExtractSize;
+    public void setSecondaryExtractSize(Dimension secondaryExtractSize, String sensorName) {
+        this.secondaryExtractSize.put(sensorName, secondaryExtractSize);
     }
 
-    public Dimension getSecondaryExtractSize() {
-        return secondaryExtractSize;
+    public Dimension getSecondaryExtractSize(final String sensorName) {
+        return secondaryExtractSize.get(sensorName);
     }
 }

@@ -158,8 +158,8 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         final String hh = "([01]\\d|2[0-3])";
         final String mm = "[0-5]\\d";
         final String ss = mm;
-        final String prefix = "CAL_LID_L2_VFM-Standard-V4-10.";
-        final String expected = prefix + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + "Z[DN].hdf";
+        final String prefix = "CAL_LID_L2_VFM-Standard-V4-10\\.";
+        final String expected = prefix + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + "Z[DN]\\.hdf";
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
