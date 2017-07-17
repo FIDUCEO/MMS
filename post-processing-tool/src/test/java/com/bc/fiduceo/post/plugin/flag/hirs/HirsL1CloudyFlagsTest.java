@@ -34,13 +34,13 @@ public class HirsL1CloudyFlagsTest {
     private String sourceXVarName;
     private String sourceYVarName;
     private String processingVersionVarName;
-    private String sourceBt11_1µmVarName;
+    private String sourceBt11_1umVarName;
 
     private String flagVarName;
     private String latVarName;
     private String lonVarName;
-    private String btVarName_11_1_µm;
-    private String btVarName_6_5_µm;
+    private String btVarName_11_1_um;
+    private String btVarName_6_5_um;
     private DistanceToLandMap distanceToLandMap;
 
     private NetcdfFile netcdfFile;
@@ -54,13 +54,13 @@ public class HirsL1CloudyFlagsTest {
         sourceXVarName = "hirs-n18_x";
         sourceYVarName = "hirs-n18_y";
         processingVersionVarName = "hirs-n18_processing_version";
-        sourceBt11_1µmVarName = "bt_ch08";
+        sourceBt11_1umVarName = "bt_ch08";
 
         flagVarName = "hirs-n18_flags_cloudy";
         latVarName = "hirs-n18_lat";
         lonVarName = "hirs-n18_lon";
-        btVarName_11_1_µm = "hirs-n18_bt_ch08";
-        btVarName_6_5_µm = "hirs-n18_bt_ch12";
+        btVarName_11_1_um = "hirs-n18_bt_ch08";
+        btVarName_6_5_um = "hirs-n18_bt_ch12";
         distanceToLandMap = mock(DistanceToLandMap.class);
 
         netcdfFile = mock(NetcdfFile.class);
@@ -69,10 +69,10 @@ public class HirsL1CloudyFlagsTest {
 
         postProcessing = new HirsL1CloudyFlags(sensorName, sourceFileVarName,
                                                sourceXVarName, sourceYVarName,
-                                               processingVersionVarName, sourceBt11_1µmVarName,
+                                               processingVersionVarName, sourceBt11_1umVarName,
                                                flagVarName,
                                                latVarName, lonVarName,
-                                               btVarName_11_1_µm, btVarName_6_5_µm,
+                                               btVarName_11_1_um, btVarName_6_5_um,
                                                distanceToLandMap);
     }
 
@@ -92,13 +92,13 @@ public class HirsL1CloudyFlagsTest {
         assertThat(postProcessing.sourceXVarName, is(equalTo(sourceXVarName)));
         assertThat(postProcessing.sourceYVarName, is(equalTo(sourceYVarName)));
         assertThat(postProcessing.processingVersionVarName, is(equalTo(processingVersionVarName)));
-        assertThat(postProcessing.sourceBt_11_1_µm_VarName, is(equalTo(sourceBt11_1µmVarName)));
+        assertThat(postProcessing.sourceBt_11_1_um_VarName, is(equalTo(sourceBt11_1umVarName)));
 
         assertThat(postProcessing.flagVarName, is(equalTo(flagVarName)));
         assertThat(postProcessing.latVarName, is(equalTo(latVarName)));
         assertThat(postProcessing.lonVarName, is(equalTo(lonVarName)));
-        assertThat(postProcessing.bt_11_1_µm_VarName, is(equalTo(btVarName_11_1_µm)));
-        assertThat(postProcessing.bt_6_5_µm_VarName, is(equalTo(btVarName_6_5_µm)));
+        assertThat(postProcessing.bt_11_1_um_VarName, is(equalTo(btVarName_11_1_um)));
+        assertThat(postProcessing.bt_6_5_um_VarName, is(equalTo(btVarName_6_5_um)));
         assertThat(postProcessing.distanceToLandMap, is(sameInstance(distanceToLandMap)));
     }
 
@@ -108,13 +108,13 @@ public class HirsL1CloudyFlagsTest {
         final NetcdfFileWriter fileWriter = mock(NetcdfFileWriter.class);
         final Variable variable = mock(Variable.class);
 
-        when(file.findVariable(null, btVarName_11_1_µm)).thenReturn(variable);
+        when(file.findVariable(null, btVarName_11_1_um)).thenReturn(variable);
         when(variable.getDimensionsString()).thenReturn("a b c");
         when(fileWriter.addVariable(null, flagVarName, DataType.BYTE, "a b c")).thenReturn(variable);
 
         postProcessing.prepare(file, fileWriter);
 
-        verify(file, times(1)).findVariable(null, btVarName_11_1_µm);
+        verify(file, times(1)).findVariable(null, btVarName_11_1_um);
         verify(variable, times(1)).getDimensionsString();
         verify(fileWriter, times(1)).addVariable(null, flagVarName, DataType.BYTE, "a b c");
 

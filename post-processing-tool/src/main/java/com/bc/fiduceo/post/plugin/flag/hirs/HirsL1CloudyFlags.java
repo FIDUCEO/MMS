@@ -65,13 +65,13 @@ class HirsL1CloudyFlags extends PostProcessing {
     final String sourceXVarName;
     final String sourceYVarName;
     final String processingVersionVarName;
-    final String sourceBt_11_1_µm_VarName;
+    final String sourceBt_11_1_um_VarName;
 
     final String flagVarName;
     final String latVarName;
     final String lonVarName;
-    final String bt_11_1_µm_VarName;
-    final String bt_6_5_µm_VarName;
+    final String bt_11_1_um_VarName;
+    final String bt_6_5_um_VarName;
     final DistanceToLandMap distanceToLandMap;
 
     private float fillValue_11_1;
@@ -90,29 +90,29 @@ class HirsL1CloudyFlags extends PostProcessing {
 
     HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
                       String sourceXVarName, String sourceYVarName,
-                      String processingVersionVarName, String sourceBt11_1µmVarName,
+                      String processingVersionVarName, String sourceBt11_1umVarName,
                       String flagVarName,
                       String latVarName, String lonVarName,
-                      String btVarName_11_1_µm, String btVarName_6_5_µm,
+                      String btVarName_11_1_um, String btVarName_6_5_um,
                       DistanceToLandMap distanceToLandMap) {
         this.sensorName = sensorName;
         this.sourceFileVarName = sourceFileVarName;
         this.sourceXVarName = sourceXVarName;
         this.sourceYVarName = sourceYVarName;
         this.processingVersionVarName = processingVersionVarName;
-        sourceBt_11_1_µm_VarName = sourceBt11_1µmVarName;
+        sourceBt_11_1_um_VarName = sourceBt11_1umVarName;
 
         this.flagVarName = flagVarName;
         this.latVarName = latVarName;
         this.lonVarName = lonVarName;
-        this.bt_11_1_µm_VarName = btVarName_11_1_µm;
-        this.bt_6_5_µm_VarName = btVarName_6_5_µm;
+        this.bt_11_1_um_VarName = btVarName_11_1_um;
+        this.bt_6_5_um_VarName = btVarName_6_5_um;
         this.distanceToLandMap = distanceToLandMap;
     }
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(reader, bt_11_1_µm_VarName);
+        final Variable variable = getVariable(reader, bt_11_1_um_VarName);
         final String dimensions = variable.getDimensionsString();
         final Variable flagVar = writer.addVariable(null, flagVarName, FLAG_VAR_DATA_TYPE, dimensions);
 
@@ -162,7 +162,7 @@ class HirsL1CloudyFlags extends PostProcessing {
                 final String fileName = sourcFileNames.getString(z);
                 final String version = processingVersions.getString(z);
                 Reader srcReader = readerCache.getFileOpened(fileName, sensorName, version);
-                return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_µm_VarName);
+                return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_um_VarName);
             }
         };
 
@@ -239,11 +239,11 @@ class HirsL1CloudyFlags extends PostProcessing {
     }
 
     private void initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        Variable var11_1µm = getVariable(writer, bt_11_1_µm_VarName);
-        fillValue_11_1 = getFloatValueFromAttribute(var11_1µm, CF_FILL_VALUE_NAME, 0);
+        Variable var11_1um = getVariable(writer, bt_11_1_um_VarName);
+        fillValue_11_1 = getFloatValueFromAttribute(var11_1um, CF_FILL_VALUE_NAME, 0);
 
-        Variable var6_5µm = getVariable(writer, bt_6_5_µm_VarName);
-        fillValue_6_5 = getFloatValueFromAttribute(var6_5µm, CF_FILL_VALUE_NAME, 0);
+        Variable var6_5um = getVariable(writer, bt_6_5_um_VarName);
+        fillValue_6_5 = getFloatValueFromAttribute(var6_5um, CF_FILL_VALUE_NAME, 0);
 
         varFlags = getVariable(writer, flagVarName);
 
@@ -256,10 +256,10 @@ class HirsL1CloudyFlags extends PostProcessing {
         xValues = (int[]) getVariable(writer, sourceXVarName).read().getStorage();
         yValues = (int[]) getVariable(writer, sourceYVarName).read().getStorage();
 
-        shape = var11_1µm.getShape();
+        shape = var11_1um.getShape();
 
-        data11_1 = var11_1µm.read();
-        data6_5 = var6_5µm.read();
+        data11_1 = var11_1um.read();
+        data6_5 = var6_5um.read();
         flags = varFlags.read();
 
         lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, Constants.MATCHUP_COUNT);

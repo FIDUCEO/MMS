@@ -22,8 +22,8 @@ package com.bc.fiduceo.post.plugin.flag.hirs;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_DISTANCE_PRODUCT_FILE_PATH;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_POST_PROCESSING_NAME;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_SENSOR_NAME;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_11_1_µM;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_6_5_µM;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_11_1_uM;
+import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_6_5_uM;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_CLOUD_FLAGS;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LATITUDE;
 import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LONGITUDE;
@@ -67,8 +67,8 @@ public class HirsL1CloudyFlagsPluginTest {
                     new Element(TAG_VAR_NAME_CLOUD_FLAGS).addContent("hirs-n18_cloudy_flags"),
                     new Element(TAG_VAR_NAME_LATITUDE).addContent("hirs-n18_lat"),
                     new Element(TAG_VAR_NAME_LONGITUDE).addContent("hirs-n18_lon"),
-                    new Element(TAG_VAR_NAME_BT_11_1_µM).addContent("hirs-n18_bt_ch08"),
-                    new Element(TAG_VAR_NAME_BT_6_5_µM).addContent("hirs-n18_bt_ch12"),
+                    new Element(TAG_VAR_NAME_BT_11_1_uM).addContent("hirs-n18_bt_ch08"),
+                    new Element(TAG_VAR_NAME_BT_6_5_uM).addContent("hirs-n18_bt_ch12"),
                     new Element(TAG_DISTANCE_PRODUCT_FILE_PATH).addContent("/path/to/the/point_distance-NetCDF-file.nc")
         ));
         virtualFS = Jimfs.newFileSystem(Configuration.unix());
@@ -92,13 +92,13 @@ public class HirsL1CloudyFlagsPluginTest {
         assertEquals("hirs-n18_x", hirsL1CloudyFlags.sourceXVarName);
         assertEquals("hirs-n18_y", hirsL1CloudyFlags.sourceYVarName);
         assertEquals("hirs-n18_processing_version", hirsL1CloudyFlags.processingVersionVarName);
-        assertEquals("bt_ch08", hirsL1CloudyFlags.sourceBt_11_1_µm_VarName);
+        assertEquals("bt_ch08", hirsL1CloudyFlags.sourceBt_11_1_um_VarName);
 
         assertEquals("hirs-n18_cloudy_flags", hirsL1CloudyFlags.flagVarName);
         assertEquals("hirs-n18_lat", hirsL1CloudyFlags.latVarName);
         assertEquals("hirs-n18_lon", hirsL1CloudyFlags.lonVarName);
-        assertEquals("hirs-n18_bt_ch08", hirsL1CloudyFlags.bt_11_1_µm_VarName);
-        assertEquals("hirs-n18_bt_ch12", hirsL1CloudyFlags.bt_6_5_µm_VarName);
+        assertEquals("hirs-n18_bt_ch08", hirsL1CloudyFlags.bt_11_1_um_VarName);
+        assertEquals("hirs-n18_bt_ch12", hirsL1CloudyFlags.bt_6_5_um_VarName);
         assertNotNull(hirsL1CloudyFlags.distanceToLandMap);
         assertThat(hirsL1CloudyFlags.distanceToLandMap, is(instanceOf(DistanceToLandMap.class)));
     }
@@ -116,74 +116,74 @@ public class HirsL1CloudyFlagsPluginTest {
     }
 
     @Test
-    public void testCreatePostProcessing_11_1_µm_VarNameTextIsMissing() throws Exception {
-        element.getChild(TAG_VAR_NAME_BT_11_1_µM).setText(null);
+    public void testCreatePostProcessing_11_1_um_VarNameTextIsMissing() throws Exception {
+        element.getChild(TAG_VAR_NAME_BT_11_1_uM).setText(null);
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element '" + TAG_VAR_NAME_BT_11_1_µM + "' expected", expected.getMessage());
+            assertEquals("Value of element '" + TAG_VAR_NAME_BT_11_1_uM + "' expected", expected.getMessage());
         }
     }
 
     @Test
-    public void testCreatePostProcessing_11_1_µm_VarNameTextIsEmpty() throws Exception {
-        element.getChild(TAG_VAR_NAME_BT_11_1_µM).setText("");
+    public void testCreatePostProcessing_11_1_um_VarNameTextIsEmpty() throws Exception {
+        element.getChild(TAG_VAR_NAME_BT_11_1_uM).setText("");
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element '" + TAG_VAR_NAME_BT_11_1_µM + "' expected", expected.getMessage());
+            assertEquals("Value of element '" + TAG_VAR_NAME_BT_11_1_uM + "' expected", expected.getMessage());
         }
     }
 
     @Test
-    public void testCreatePostProcessing_11_1_µm_VarNameElementIsMissing() throws Exception {
-        element.removeChild(TAG_VAR_NAME_BT_11_1_µM);
+    public void testCreatePostProcessing_11_1_um_VarNameElementIsMissing() throws Exception {
+        element.removeChild(TAG_VAR_NAME_BT_11_1_uM);
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Child element '" + TAG_VAR_NAME_BT_11_1_µM + "' expected", expected.getMessage());
+            assertEquals("Child element '" + TAG_VAR_NAME_BT_11_1_uM + "' expected", expected.getMessage());
         }
     }
 
     @Test
-    public void testCreatePostProcessing_6_5_µm_VarNameTextIsMissing() throws Exception {
-        element.getChild(TAG_VAR_NAME_BT_6_5_µM).setText(null);
+    public void testCreatePostProcessing_6_5_um_VarNameTextIsMissing() throws Exception {
+        element.getChild(TAG_VAR_NAME_BT_6_5_uM).setText(null);
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element '" + TAG_VAR_NAME_BT_6_5_µM + "' expected", expected.getMessage());
+            assertEquals("Value of element '" + TAG_VAR_NAME_BT_6_5_uM + "' expected", expected.getMessage());
         }
     }
 
     @Test
-    public void testCreatePostProcessing_6_5_µm_VarNameTextIsEmpty() throws Exception {
-        element.getChild(TAG_VAR_NAME_BT_6_5_µM).setText("");
+    public void testCreatePostProcessing_6_5_um_VarNameTextIsEmpty() throws Exception {
+        element.getChild(TAG_VAR_NAME_BT_6_5_uM).setText("");
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Value of element '" + TAG_VAR_NAME_BT_6_5_µM + "' expected", expected.getMessage());
+            assertEquals("Value of element '" + TAG_VAR_NAME_BT_6_5_uM + "' expected", expected.getMessage());
         }
     }
 
     @Test
-    public void testCreatePostProcessing_6_5_µm_VarNameElementIsMissing() throws Exception {
-        element.removeChild(TAG_VAR_NAME_BT_6_5_µM);
+    public void testCreatePostProcessing_6_5_um_VarNameElementIsMissing() throws Exception {
+        element.removeChild(TAG_VAR_NAME_BT_6_5_uM);
 
         try {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Child element '" + TAG_VAR_NAME_BT_6_5_µM + "' expected", expected.getMessage());
+            assertEquals("Child element '" + TAG_VAR_NAME_BT_6_5_uM + "' expected", expected.getMessage());
         }
     }
 
