@@ -16,14 +16,9 @@
  */
 package com.bc.fiduceo.post.util;
 
-import com.bc.fiduceo.log.FiduceoLogger;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn;
 
 import java.io.IOException;
@@ -33,22 +28,22 @@ import java.nio.file.Path;
 public class DistanceToLandMap {
 
     private final Path distancePath;
-    private Band distanceToLand;
-    private GeoCoding geoCoding;
-    private boolean mustBeInitialized;
-    private Product product;
+    private static Band distanceToLand;
+    private static GeoCoding geoCoding;
+    private static int instanceCount = 0;
+    private static Product product;
 
     public DistanceToLandMap(Path path) {
         distancePath = path;
-        mustBeInitialized = true;
         validatePath();
+
+        if (instanceCount == 0) {
+            init();
+        }
+        instanceCount++;
     }
 
     public double getDistance(double longitude, double latitude) throws IOException {
-        if (mustBeInitialized) {
-            init();
-            mustBeInitialized = false;
-        }
         final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(latitude, longitude), null);
         final int x = (int) pixelPos.getX();
         final int y = (int) pixelPos.getY();
@@ -56,8 +51,13 @@ public class DistanceToLandMap {
     }
 
     public void close() {
-        if (product != null) {
-            product.dispose();
+        instanceCount--;
+        if (instanceCount == 0) {
+            distanceToLand = null;
+            geoCoding = null;
+            if (product != null) {
+                product.dispose();
+            }
         }
     }
 
@@ -71,7 +71,7 @@ public class DistanceToLandMap {
             distanceToLand.readRasterDataFully();
             geoCoding = product.getSceneGeoCoding();
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading. '" + absolutePathString +"'", e);
+            throw new RuntimeException("Error while reading. '" + absolutePathString + "'", e);
         }
     }
 

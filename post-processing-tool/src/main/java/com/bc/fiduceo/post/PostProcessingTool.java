@@ -193,12 +193,19 @@ class PostProcessingTool {
                 logger.severe("Cause: " + e.getMessage());
                 e.printStackTrace();
             } finally {
+                disposePostProcessings(processings);
                 manager.processingDone(mmdFile, ex);
             }
 
             if (ex != null) {
                 throw ex;  // do not hide exceptions, we need this one to propagate to the main-method tb 2017-04-24
             }
+        }
+    }
+
+    private void disposePostProcessings(List<PostProcessing> processings) {
+        for (final PostProcessing postProcessing : processings) {
+            postProcessing.dispose();
         }
     }
 

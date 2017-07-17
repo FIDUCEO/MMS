@@ -19,59 +19,60 @@
 
 package com.bc.fiduceo.post.util;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.util.SobolSequenceGenerator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.esa.snap.core.util.StopWatch;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.*;
+
 @RunWith(IOTestRunner.class)
 public class DistanceToLandMapTest {
 
-    private DistanceToLandMap map;
-
-    @Before
-    public void setUp() throws Exception {
-        Path path = TestUtil.getTestDataDirectory().toPath()
-                    .resolve("distance_to_land_map")
-                    .resolve("Globolakes-static_distance_to_land_Map-300m-P5Y-2005-ESACCI_WB-fv1.0_RES120.nc");
-        map = new DistanceToLandMap(path);
-    }
-
     @Test
     public void getDistance() throws Exception {
-        // Hamburg
-        assertEquals(0.0, map.getDistance(10.0, 53.55), 1e-7);
-        // Nordsee vor Elbmündung
-        assertEquals(19.100, map.getDistance(7.882718, 54.000474), 1e-4);
-        // Nordsee zwischen GB und Norwegen
-        assertEquals(219.200, map.getDistance(1.865498, 57.873503), 1e-4);
-        // Atlantik
-        assertEquals(1236.700, map.getDistance(-42.737256, 33.194949), 1e-4);
+        final Path path = TestUtil.getTestDataDirectory().toPath()
+                .resolve("distance_to_land_map")
+                .resolve("Globolakes-static_distance_to_land_Map-300m-P5Y-2005-ESACCI_WB-fv1.0_RES120.nc");
+        final DistanceToLandMap map = new DistanceToLandMap(path);
 
-        final SobolSequenceGenerator sobolSequenceGenerator = new SobolSequenceGenerator(2);
-        final StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 1000; i++) {
-            final double[] doubles = sobolSequenceGenerator.nextVector();
-            final double lon = 360 * doubles[0] - 180;
-            final double lat = 180 * doubles[1] - 90;
-            map.getDistance(lon, lat);
-        }
-        stopWatch.stop();
-        final long timeDiff = stopWatch.getTimeDiff();
+        try {
+            // Hamburg
+            assertEquals(0.0, map.getDistance(10.0, 53.55), 1e-7);
+            // Nordsee vor Elbmündung
+            assertEquals(19.100, map.getDistance(7.882718, 54.000474), 1e-4);
+            // Nordsee zwischen GB und Norwegen
+            assertEquals(219.200, map.getDistance(1.865498, 57.873503), 1e-4);
+            // Atlantik
+            assertEquals(1236.700, map.getDistance(-42.737256, 33.194949), 1e-4);
+
+            final SobolSequenceGenerator sobolSequenceGenerator = new SobolSequenceGenerator(2);
+            final StopWatch stopWatch = new StopWatch();
+            for (int i = 0; i < 1000; i++) {
+                final double[] doubles = sobolSequenceGenerator.nextVector();
+                final double lon = 360 * doubles[0] - 180;
+                final double lat = 180 * doubles[1] - 90;
+                map.getDistance(lon, lat);
+            }
+            stopWatch.stop();
+            final long timeDiff = stopWatch.getTimeDiff();
 //        System.out.println("timeDiff = " + timeDiff);
-        assertThat(timeDiff, is(lessThan(10L)));
+            assertThat(timeDiff, is(lessThan(10L)));
+        } finally {
+            map.close();
+        }
     }
 
     @Test

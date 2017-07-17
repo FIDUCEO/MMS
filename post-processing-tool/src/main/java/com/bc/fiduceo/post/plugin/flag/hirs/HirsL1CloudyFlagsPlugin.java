@@ -16,8 +16,6 @@
  */
 package com.bc.fiduceo.post.plugin.flag.hirs;
 
-import static com.bc.fiduceo.util.JDomUtils.*;
-
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
@@ -25,7 +23,9 @@ import org.jdom.Element;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryChild;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryText;
 
 public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
 
@@ -88,15 +88,17 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
         final Element distanceVarElem = getMandatoryChild(element, TAG_DISTANCE_PRODUCT_FILE_PATH);
         final String pathString = getMandatoryText(distanceVarElem);
         final Path distanceFilePath;
-        if (fileSystem == null) {
-            distanceFilePath = Paths.get(pathString);
+        final DistanceToLandMap distanceToLandMap;
+        if (isTestMode()) {
+            distanceToLandMap = null;
         } else {
             distanceFilePath = fileSystem.getPath(pathString);
+            distanceToLandMap = new DistanceToLandMap(distanceFilePath);
         }
-        final DistanceToLandMap distanceToLandMap = new DistanceToLandMap(distanceFilePath);
 
-        return new HirsL1CloudyFlags(sensorName, sourceFileVarName, sourceXVarName, sourceYVarName, processingVersionVarName, sourceBt11_1umVarName,flagVarName, latVarName, lonVarName, btVarName_11_1_um, btVarName_6_5_um,
-                                     distanceToLandMap);
+
+        return new HirsL1CloudyFlags(sensorName, sourceFileVarName, sourceXVarName, sourceYVarName, processingVersionVarName, sourceBt11_1umVarName, flagVarName, latVarName, lonVarName, btVarName_11_1_um, btVarName_6_5_um,
+                distanceToLandMap);
     }
 
     @Override
@@ -111,5 +113,9 @@ public class HirsL1CloudyFlagsPlugin implements PostProcessingPlugin {
      */
     void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
+    }
+
+    private boolean isTestMode() {
+        return fileSystem != null;
     }
 }

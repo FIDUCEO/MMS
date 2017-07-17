@@ -72,7 +72,8 @@ class HirsL1CloudyFlags extends PostProcessing {
     final String lonVarName;
     final String bt_11_1_um_VarName;
     final String bt_6_5_um_VarName;
-    final DistanceToLandMap distanceToLandMap;
+
+    DistanceToLandMap distanceToLandMap;
 
     private float fillValue_11_1;
     private float fillValue_6_5;
@@ -182,6 +183,14 @@ class HirsL1CloudyFlags extends PostProcessing {
             writer.write(varFlags, flags);
         } finally {
             distanceToLandMap.close();
+        }
+    }
+
+    @Override
+    protected void dispose() {
+        if (distanceToLandMap != null) {
+            distanceToLandMap.close();
+            distanceToLandMap = null;
         }
     }
 

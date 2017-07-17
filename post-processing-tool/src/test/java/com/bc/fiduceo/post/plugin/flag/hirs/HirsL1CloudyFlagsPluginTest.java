@@ -99,8 +99,6 @@ public class HirsL1CloudyFlagsPluginTest {
         assertEquals("hirs-n18_lon", hirsL1CloudyFlags.lonVarName);
         assertEquals("hirs-n18_bt_ch08", hirsL1CloudyFlags.bt_11_1_um_VarName);
         assertEquals("hirs-n18_bt_ch12", hirsL1CloudyFlags.bt_6_5_um_VarName);
-        assertNotNull(hirsL1CloudyFlags.distanceToLandMap);
-        assertThat(hirsL1CloudyFlags.distanceToLandMap, is(instanceOf(DistanceToLandMap.class)));
     }
 
     @Test

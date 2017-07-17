@@ -8,11 +8,7 @@ import org.jdom.Element;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -41,36 +37,41 @@ class AddLandDistance extends PostProcessing {
     }
 
     @Override
+    protected void dispose() {
+        if (distanceToLandMap != null) {
+            distanceToLandMap.close();
+            distanceToLandMap = null;
+        }
+    }
+
+    @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.lonVariableName);
         final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.latVariableName);
         final Array lonArray = lonVariable.read();
         final Array latArray = latVariable.read();
 
-        final DistanceToLandMap distanceMap = getDistanceToLandMap();
+        initDistanceToLandMap();
+
         final Array targetArray = Array.factory(DataType.FLOAT, lonArray.getShape());
 
-        try {
-            final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
-            final long size = lonArray.getSize();
-            for (int i = 0; i < size; i++) {
-                final double longitude = lonArray.getDouble(i);
-                final double latitude = latArray.getDouble(i);
+        final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        final long size = lonArray.getSize();
+        for (int i = 0; i < size; i++) {
+            final double longitude = lonArray.getDouble(i);
+            final double latitude = latArray.getDouble(i);
 
-                if (longitude >= -180.0 && longitude <= 180.0 && latitude >= -90.0 && latitude <= 90.0) {
+            if (longitude >= -180.0 && longitude <= 180.0 && latitude >= -90.0 && latitude <= 90.0) {
 
-                    final double distance = distanceMap.getDistance(longitude, latitude);
-                    targetArray.setFloat(i, (float) distance);
-                } else {
-                    targetArray.setFloat(i, fillValue);
-                }
+                final double distance = distanceToLandMap.getDistance(longitude, latitude);
+                targetArray.setFloat(i, (float) distance);
+            } else {
+                targetArray.setFloat(i, fillValue);
             }
-
-            final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
-            writer.write(targetVariable, targetArray);
-        } finally {
-            distanceMap.close();
         }
+
+        final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
+        writer.write(targetVariable, targetArray);
     }
 
     // for testing only - to inject a mock tb 2017-06-28
@@ -78,11 +79,10 @@ class AddLandDistance extends PostProcessing {
         this.distanceToLandMap = distanceToLandMap;
     }
 
-    private DistanceToLandMap getDistanceToLandMap() {
+    private void initDistanceToLandMap() {
         if (distanceToLandMap == null) {
             distanceToLandMap = new DistanceToLandMap(Paths.get(configuration.auxDataFilePath));
         }
-        return distanceToLandMap;
     }
 
     static Configuration createConfiguration(Element fullConfigElement) {

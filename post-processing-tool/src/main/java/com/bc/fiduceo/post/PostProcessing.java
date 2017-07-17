@@ -72,4 +72,11 @@ public abstract class PostProcessing {
      * @throws InvalidRangeException on other occasions
      */
     protected abstract void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
+
+    /**
+     * Is called by the engine when the post-processing job is done to allow cleanup actions.
+     */
+    protected void dispose() {
+        // the default implementation does nothing. Plugins may override to implement their clean-up chores. tb 2017-07-17
+    }
 }
