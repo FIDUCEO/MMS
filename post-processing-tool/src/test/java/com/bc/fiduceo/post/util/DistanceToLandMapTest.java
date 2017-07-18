@@ -25,8 +25,6 @@ import com.bc.fiduceo.util.SobolSequenceGenerator;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.esa.snap.core.util.StopWatch;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,7 +34,9 @@ import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class DistanceToLandMapTest {
