@@ -48,8 +48,8 @@ class AddLandDistance extends PostProcessing {
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable lonVariable = NetCDFUtils.getVariable(reader, configuration.lonVariableName);
         final Variable latVariable = NetCDFUtils.getVariable(reader, configuration.latVariableName);
-        final Array lonArray = lonVariable.read();
-        final Array latArray = latVariable.read();
+        final Array lonArray = NetCDFUtils.readAndScaleIfNecessary(lonVariable);
+        final Array latArray = NetCDFUtils.readAndScaleIfNecessary(latVariable);
 
         initDistanceToLandMap();
 

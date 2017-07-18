@@ -92,25 +92,4 @@ abstract class Strategy {
         properties.setProperty("GEO", geoFileLocation);
         return properties;
     }
-
-    // package access for testing only tb 2017-07-18
-    static float getScaleFactor(Variable variable) {
-        float scaleFactor = NetCDFUtils.getAttributeFloat(variable, NetCDFUtils.CF_SCALE_FACTOR_NAME, Float.NaN);
-        if (Float.isNaN(scaleFactor)) {
-            scaleFactor = NetCDFUtils.getAttributeFloat(variable, "Scale", Float.NaN);
-        }
-        if (Float.isNaN(scaleFactor)) {
-            return 1.f;
-        }
-        return scaleFactor;
-    }
-
-    // package access for testing only tb 2017-07-18
-    static float getOffset(Variable variable) {
-        float scaleFactor = NetCDFUtils.getAttributeFloat(variable, NetCDFUtils.CF_OFFSET_NAME, Float.NaN);
-        if (Float.isNaN(scaleFactor)) {
-            return 0.f;
-        }
-        return scaleFactor;
-    }
 }

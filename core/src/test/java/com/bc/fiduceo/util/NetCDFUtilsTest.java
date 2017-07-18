@@ -452,4 +452,56 @@ public class NetCDFUtilsTest {
         } catch (RuntimeException expecetd) {
         }
     }
+
+    @Test
+    public void testGetScaleFactor_CF() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(28.6);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("scale_factor")).thenReturn(attribute);
+
+        final double scale = NetCDFUtils.getScaleFactor(variable);
+        assertEquals(28.6, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetScaleFactor_MHS() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(24.0);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("Scale")).thenReturn(attribute);
+
+        final double scale = NetCDFUtils.getScaleFactor(variable);
+        assertEquals(24.0, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetScaleFactor_notPresent() {
+        final Variable variable = mock(Variable.class);
+
+        final double scale = NetCDFUtils.getScaleFactor(variable);
+        assertEquals(1.0, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetOffset_CF() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(30.8);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("add_offset")).thenReturn(attribute);
+
+        final double offset = NetCDFUtils.getOffset(variable);
+        assertEquals(30.8, offset, 1e-8);
+    }
+
+    @Test
+    public void testGetOffset_notPresent() {
+        final Variable variable = mock(Variable.class);
+
+        final double offset = NetCDFUtils.getOffset(variable);
+        assertEquals(0.0, offset, 1e-8);
+    }
 }

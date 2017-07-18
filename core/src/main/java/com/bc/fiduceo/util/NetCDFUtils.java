@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.util;
 
+import com.bc.fiduceo.reader.ReaderUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -163,6 +164,15 @@ public class NetCDFUtils {
         return attribute.getNumericValue().floatValue();
     }
 
+    // @todo 2 tb/tb add test
+    public static double getAttributeDouble(Variable variable, String name, double defaultValue) {
+        final Attribute attribute = variable.findAttribute(name);
+        if (attribute == null) {
+            return defaultValue;
+        }
+        return attribute.getNumericValue().doubleValue();
+    }
+
     public static Variable getVariable(NetcdfFile reader, String name) {
         final String escapedName = NetcdfFile.makeValidCDLName(name);
         final Variable variable = reader.findVariable(null, escapedName);
@@ -276,11 +286,41 @@ public class NetCDFUtils {
         return array;
     }
 
+    public static Array readAndScaleIfNecessary(Variable angleVariable) throws IOException {
+        Array longitudes = angleVariable.read();
+        final double scaleFactor = NetCDFUtils.getScaleFactor(angleVariable);
+        final double offset = NetCDFUtils.getOffset(angleVariable);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+        }
+        return longitudes;
+    }
+
     public static Attribute getGlobalAttributeSafe(String attributeName, NetcdfFile netcdfFile) {
         final Attribute globalAttribute = netcdfFile.findGlobalAttribute(attributeName);
         if (globalAttribute == null) {
             throw new RuntimeException("Required global attribute not found: " + attributeName);
         }
         return globalAttribute;
+    }
+
+    public static double getScaleFactor(Variable variable) {
+        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_SCALE_FACTOR_NAME, Double.NaN);
+        if (Double.isNaN(scaleFactor)) {
+            scaleFactor = NetCDFUtils.getAttributeFloat(variable, "Scale", Float.NaN);
+        }
+        if (Double.isNaN(scaleFactor)) {
+            return 1.f;
+        }
+        return scaleFactor;
+    }
+
+    public static double getOffset(Variable variable) {
+        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_OFFSET_NAME, Double.NaN);
+        if (Double.isNaN(scaleFactor)) {
+            return 0.f;
+        }
+        return scaleFactor;
     }
 }
