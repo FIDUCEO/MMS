@@ -1,8 +1,10 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -137,10 +139,10 @@ class SensorExtractionStrategy extends Strategy {
 
         final NetcdfFile reader = context.getReader();
         final Variable lonVariable = NetCDFUtils.getVariable(reader, sensorExtractConfiguration.getLongitudeVariableName());
-        final Array longitudes = lonVariable.read();
+        final Array longitudes = getGeophysicalAngles(lonVariable);
 
         final Variable latVariable = NetCDFUtils.getVariable(reader, sensorExtractConfiguration.getLatitudeVariableName());
-        final Array latitudes = latVariable.read();
+        final Array latitudes = getGeophysicalAngles(latVariable);
 
         final int[] shape = lonVariable.getShape();
         final int strideX = calculateStride(shape[2], sensorExtractConfiguration.getX_Dimension());
@@ -157,6 +159,17 @@ class SensorExtractionStrategy extends Strategy {
             geoFile.close();
         }
         return geoFile.getFile();
+    }
+
+    private Array getGeophysicalAngles(Variable angleVariable) throws IOException {
+        Array longitudes = angleVariable.read();
+        final float scaleFactor = getScaleFactor(angleVariable);
+        final float offset = getOffset(angleVariable);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+        }
+        return longitudes;
     }
 
     // package access for testing only tb 2015-12-08

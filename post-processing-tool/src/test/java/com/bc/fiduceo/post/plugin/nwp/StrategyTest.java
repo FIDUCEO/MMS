@@ -6,6 +6,8 @@ import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.nc2.Attribute;
+import ucar.nc2.Variable;
 
 import java.util.Date;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StrategyTest {
 
@@ -62,5 +66,57 @@ public class StrategyTest {
         assertEquals("-M -R", properties.getProperty("CDO_OPTS"));
         assertEquals("1970-01-01,00:00:00,seconds", properties.getProperty("REFTIME"));
         assertEquals("geo_file_loc", properties.getProperty("GEO"));
+    }
+
+    @Test
+    public void testGetScaleFactor_CF() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(28.6f);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("scale_factor")).thenReturn(attribute);
+
+        final float scale = Strategy.getScaleFactor(variable);
+        assertEquals(28.6f, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetScaleFactor_MHS() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(29.7f);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("Scale")).thenReturn(attribute);
+
+        final float scale = Strategy.getScaleFactor(variable);
+        assertEquals(29.7f, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetScaleFactor_notPresent() {
+        final Variable variable = mock(Variable.class);
+
+        final float scale = Strategy.getScaleFactor(variable);
+        assertEquals(1.f, scale, 1e-8);
+    }
+
+    @Test
+    public void testGetOffset_CF() {
+        final Attribute attribute = mock(Attribute.class);
+        when(attribute.getNumericValue()).thenReturn(30.8f);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.findAttribute("add_offset")).thenReturn(attribute);
+
+        final float offset = Strategy.getOffset(variable);
+        assertEquals(30.8f, offset, 1e-8);
+    }
+
+    @Test
+    public void testGetOffset_notPresent() {
+        final Variable variable = mock(Variable.class);
+
+        final float offset = Strategy.getOffset(variable);
+        assertEquals(0.f, offset, 1e-8);
     }
 }
