@@ -192,29 +192,14 @@ class IngestionTool {
         return pattern.matcher(fileName);
     }
 
-    // @todo 3 tb/** add tests here - maybe extract easy to test sub-methods 2017-03-23
-    private ToolContext initializeContext(CommandLine commandLine, Path confDirPath) throws IOException, SQLException {
+    // package access for testing only tb 2017-07-18
+    static ToolContext initializeContext(CommandLine commandLine, Path confDirPath) throws IOException, SQLException {
         final ToolContext context = new ToolContext();
 
-        final String startTime = commandLine.getOptionValue("start");
-        if (StringUtils.isNotNullAndNotEmpty(startTime)) {
-            final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
-            context.setStartDate(startDate);
-        } else {
-            throw new RuntimeException("Start date parameter missing");
-        }
+        setStartDate(commandLine, context);
+        setEndDate(commandLine, context);
 
-        final String endTime = commandLine.getOptionValue("end");
-        if (StringUtils.isNotNullAndNotEmpty(endTime)) {
-            final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
-            context.setEndDate(endDate);
-        } else {
-            throw new RuntimeException("End date parameter missing");
-        }
-
-        if (context.getEndDate().before(context.getStartDate())) {
-            throw new RuntimeException("End date before start date");
-        }
+        verifyDates(context);
 
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
         context.setSystemConfig(systemConfig);
@@ -234,5 +219,34 @@ class IngestionTool {
         }
         context.setStorage(storage);
         return context;
+    }
+
+    // package access for testing only tb 2017-07-18
+    static void verifyDates(ToolContext context) {
+        if (context.getEndDate().before(context.getStartDate())) {
+            throw new RuntimeException("End date before start date");
+        }
+    }
+
+    // package access for testing only tb 2017-07-18
+    static void setEndDate(CommandLine commandLine, ToolContext context) {
+        final String endTime = commandLine.getOptionValue("end");
+        if (StringUtils.isNotNullAndNotEmpty(endTime)) {
+            final Date endDate = TimeUtils.parse(endTime, "yyyy-DDD");
+            context.setEndDate(endDate);
+        } else {
+            throw new RuntimeException("End date parameter missing");
+        }
+    }
+
+    // package access for testing only tb 2017-07-18
+    static void setStartDate(CommandLine commandLine, ToolContext context) {
+        final String startTime = commandLine.getOptionValue("start");
+        if (StringUtils.isNotNullAndNotEmpty(startTime)) {
+            final Date startDate = TimeUtils.parse(startTime, "yyyy-DDD");
+            context.setStartDate(startDate);
+        } else {
+            throw new RuntimeException("Start date parameter missing");
+        }
     }
 }

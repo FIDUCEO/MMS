@@ -24,9 +24,13 @@ import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -40,11 +44,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(DbAndIOTestRunner.class)
@@ -111,6 +118,34 @@ public class IngestionToolIntegrationTest {
             assertThat(expected.getClass().getTypeName(), is(equalTo("java.lang.RuntimeException")));
             assertThat(expected.getMessage(), is(equalTo("End date before start date")));
         }
+    }
+
+    @Test
+    public void testInitializeContext() throws IOException, SQLException {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("1979-231");
+        when(commandLine.getOptionValue("end")).thenReturn("1979-238");
+
+        final ToolContext toolContext = IngestionTool.initializeContext(commandLine, Paths.get(configDir.getAbsolutePath()));
+        assertNotNull(toolContext);
+        assertEquals(303868800000L, toolContext.getStartDate().getTime());
+        assertEquals(304473600000L, toolContext.getEndDate().getTime());
+
+        final GeometryFactory geometryFactory = toolContext.getGeometryFactory();
+        assertNotNull(geometryFactory);
+
+        final Storage storage = toolContext.getStorage();
+        assertNotNull(storage);
+        assertTrue(storage.isInitialized());
+
+        final SystemConfig systemConfig = toolContext.getSystemConfig();
+        assertEquals("S2", systemConfig.getGeometryLibraryType());
+
+        final UseCaseConfig useCaseConfig = toolContext.getUseCaseConfig();
+        assertNull(useCaseConfig);  // IngestionTool does not use this tb 2017-07-18
+
+        final ReaderFactory readerFactory = toolContext.getReaderFactory();
+        assertNotNull(readerFactory);
     }
 
     @Test

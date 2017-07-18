@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
@@ -63,6 +65,9 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(817, matchupCount);
+
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 0, 0, 1, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 0, 0, 2, 7191921, mmd);
@@ -116,6 +121,9 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(142, matchupCount);
+
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 0, 0, 1, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 0, 0, 2, 7191921, mmd);
@@ -169,6 +177,9 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(142, matchupCount);
+
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 1, 0, 1, 0, mmd);
             NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 2, 0, 2, 7191921, mmd);

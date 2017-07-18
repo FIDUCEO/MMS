@@ -29,6 +29,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -90,6 +92,9 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(104, matchupCount);
+
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 0, 1108623419, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 1, 239.0496826171875, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 2, 23927, mmd);
@@ -155,6 +160,9 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(104, matchupCount);
+            
             NCTestUtils.assert3DVariable("atsr.3.time", 0, 0, 0, 1108623419, mmd);
             NCTestUtils.assert3DVariable("atsr.3.altitude", 1, 0, 1, 239.0496826171875, mmd);
 

@@ -28,6 +28,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -84,6 +86,9 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(11605, matchupCount);
+            
             NCTestUtils.assertVectorVariable("avhrr-n17_x", 0, 52.0, mmd);
             NCTestUtils.assertVectorVariable("avhrr-n17_y", 1, 13025.0, mmd);
             NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);

@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -66,6 +68,9 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(9, matchupCount);
+            
             NCTestUtils.assert3DVariable("amsub-n15_Latitude", 0, 0, 0, 744233.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_Longitude", 0, 0, 1, -385331.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_Satellite_azimuth_angle", 0, 0, 2, 19563.0, mmd);

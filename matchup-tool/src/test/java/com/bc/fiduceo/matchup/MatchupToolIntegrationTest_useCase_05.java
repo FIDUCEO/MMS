@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -67,6 +69,9 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(704, matchupCount);
+            
             NCTestUtils.assert3DVariable("hirs-n10_acquisition_time", 0, 0, 0, 606122189, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_bt_ch01", 2, 0, 2, -999.0, mmd);
             NCTestUtils.assert3DVariable("hirs-n10_bt_ch02", 4, 0, 4, 223.58245849609375, mmd);
@@ -136,7 +141,6 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1989-076", "-end", "1989-076"};
         MatchupToolMain.main(args);
-
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "1989-076", "1989-076");
         assertFalse(mmdFile.isFile());

@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DbAndIOTestRunner.class)
@@ -63,6 +65,9 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(37605, matchupCount);
+            
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 6, 1139989151, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 7, -5725.9111328125, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 8, -2, mmd);
@@ -114,6 +119,9 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
         final File mmdFile = getMmdFilePath(useCaseConfig, "2006-046", "2006-046");
         assertTrue(mmdFile.isFile());
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(1235, matchupCount);
+            
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 23, 1139989167, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 24, -289.458740234375, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 25, 26841, mmd);

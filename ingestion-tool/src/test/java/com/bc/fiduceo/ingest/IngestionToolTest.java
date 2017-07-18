@@ -21,6 +21,8 @@
 package com.bc.fiduceo.ingest;
 
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.tool.ToolContext;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.Before;
@@ -28,6 +30,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,5 +144,80 @@ public class IngestionToolTest {
         pattern = Pattern.compile("\\d.nc");
         matcher = IngestionTool.getMatcher(path, pattern);
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testSetStartDate() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("2007-126");
+
+        final ToolContext context = new ToolContext();
+
+        IngestionTool.setStartDate(commandLine, context);
+
+        assertEquals(1178409600000L, context.getStartDate().getTime());
+    }
+
+    @Test
+    public void testSetStartDate_notSet() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("start")).thenReturn("");
+
+        final ToolContext context = new ToolContext();
+
+        try {
+            IngestionTool.setStartDate(commandLine, context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testSetEndDate() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("end")).thenReturn("2007-127");
+
+        final ToolContext context = new ToolContext();
+
+        IngestionTool.setEndDate(commandLine, context);
+
+        assertEquals(1178496000000L, context.getEndDate().getTime());
+    }
+
+    @Test
+    public void testSetEndDate_notSet() {
+        final CommandLine commandLine = mock(CommandLine.class);
+        when(commandLine.getOptionValue("end")).thenReturn(null);
+
+        final ToolContext context = new ToolContext();
+
+        try {
+            IngestionTool.setEndDate(commandLine, context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testVerifyDates_valid() {
+        final ToolContext context = new ToolContext();
+        context.setStartDate(new Date(10000000));
+        context.setEndDate(new Date(11000000));
+
+        IngestionTool.verifyDates(context);
+        // expect nothing to happen tb 2017-07-18
+    }
+
+    @Test
+    public void testVerifyDates_invalid() {
+        final ToolContext context = new ToolContext();
+        context.setStartDate(new Date(10000000));
+        context.setEndDate(new Date(9000000));
+
+        try {
+            IngestionTool.verifyDates(context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

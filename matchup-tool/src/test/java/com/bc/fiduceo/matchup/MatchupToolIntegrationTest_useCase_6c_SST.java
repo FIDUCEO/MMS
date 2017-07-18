@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -99,6 +101,9 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(1, matchupCount);
+
             NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 0, 0, 0, -22297, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 1, 0, 0, -15307, mmd);
             NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 2, 0, 0, -17409, mmd);
