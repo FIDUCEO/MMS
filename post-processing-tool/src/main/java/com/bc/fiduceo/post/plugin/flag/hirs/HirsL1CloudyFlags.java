@@ -17,13 +17,12 @@
 package com.bc.fiduceo.post.plugin.flag.hirs;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.PostProcessingContext;
-import com.bc.fiduceo.post.ReaderCache;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.util.TimeUtils;
+import com.bc.fiduceo.reader.ReaderCache;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayChar;
@@ -37,9 +36,9 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.logging.Level;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
@@ -50,12 +49,12 @@ import static com.bc.fiduceo.util.NetCDFUtils.getVariable;
 
 class HirsL1CloudyFlags extends PostProcessing {
 
-    private static final float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
-    private static final float DELTA_1_WATER = 3.5f;
     static final byte SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE = 0x1;
     static final byte SPACE_CONTRAST_TEST_WARNING = 0x2;
     static final byte SPACE_CONTRAST_TEST_CLOUDY = 0x4;
     static final byte INTERCHANNEL_TEST_CLOUDY = 0x8;
+    private static final float DELTA_1_LAND_OR_ICE_COVERED = 6.5f;
+    private static final float DELTA_1_WATER = 3.5f;
     private static final int DOMAIN_LAND_OR_ICE_NOT_USEABLE = 1;
     private static final int DOMAIN_WATER_NOT_USEABLE = 20;
 
@@ -88,6 +87,7 @@ class HirsL1CloudyFlags extends PostProcessing {
     private int[] shape;
     private int[] xValues;
     private int[] yValues;
+    private ReaderCache readerCache;
 
     HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
                       String sourceXVarName, String sourceYVarName,
@@ -112,6 +112,11 @@ class HirsL1CloudyFlags extends PostProcessing {
     }
 
     @Override
+    protected void initReaderCache() {
+        this.readerCache = createReaderCache(getContext());
+    }
+
+    @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable variable = getVariable(reader, bt_11_1_um_VarName);
         final String dimensions = variable.getDimensionsString();
@@ -129,45 +134,20 @@ class HirsL1CloudyFlags extends PostProcessing {
         flagVar.addAttribute(new Attribute(CF_FLAG_MASKS_NAME, masks));
         flagVar.addAttribute(new Attribute("flag_coding_name", "hirs_cloudy_flags"));
         flagVar.addAttribute(new Attribute("flag_descriptions", "space contrast test, all pixels are usable"
-                + Separator +
-                "space contrast test, warning, less than 99 percent are usable"
-                + Separator +
-                "space contrast test, cloudy"
-                + Separator +
-                "interchannel test, cloudy"));
+                                                                + Separator +
+                                                                "space contrast test, warning, less than 99 percent are usable"
+                                                                + Separator +
+                                                                "space contrast test, cloudy"
+                                                                + Separator +
+                                                                "interchannel test, cloudy"));
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         initDataForComputing(reader, writer);
 
-        final int[] levelShape = data11_1.getShape();
-        levelShape[0] = 1;
-        final DomainDataProvider landIceDDP = new DomainDataProvider(DOMAIN_LAND_OR_ICE_NOT_USEABLE, DELTA_1_LAND_OR_ICE_COVERED) {
-            final int[] origin3D = {0, 0, 0};
-
-            @Override
-            public Array getDomainData_11_1(int z) throws InvalidRangeException {
-                origin3D[0] = z;
-                return data11_1.section(origin3D, levelShape);
-            }
-        };
-        final Domain domainLandIce = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, landIceDDP);
-        final DomainDataProvider waterDDP = new DomainDataProvider(DOMAIN_WATER_NOT_USEABLE, DELTA_1_WATER) {
-            final int[] origin2D = {0, 0};
-            private ReaderCache readerCache = new CloudRC(getContext());
-
-            @Override
-            Array getDomainData_11_1(int z) throws InvalidRangeException, IOException {
-                origin2D[0] = z;
-                final String fileName = sourcFileNames.getString(z);
-                final String version = processingVersions.getString(z);
-                Reader srcReader = readerCache.getFileOpened(fileName, sensorName, version);
-                return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_um_VarName);
-            }
-        };
-
-        final Domain domainWater = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, waterDDP);
+        final Domain domainLandIce = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, createLandOrIceDomainDataProvider());
+        final Domain domainWater = new Domain(data11_1, data6_5, flags, fillValue_11_1, fillValue_6_5, createWaterDomainDataProvider());
 
         try {
             for (int z = 0; z < shape[0]; z++) {
@@ -191,6 +171,13 @@ class HirsL1CloudyFlags extends PostProcessing {
         if (distanceToLandMap != null) {
             distanceToLandMap.close();
             distanceToLandMap = null;
+        }
+        if (readerCache != null) {
+            try {
+                readerCache.close();
+            } catch (IOException e) {
+                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
+            }
         }
     }
 
@@ -247,6 +234,36 @@ class HirsL1CloudyFlags extends PostProcessing {
         return 0;
     }
 
+    private DomainDataProvider createLandOrIceDomainDataProvider() {
+        final int[] levelShape = data11_1.getShape();
+        levelShape[0] = 1;
+
+        return new DomainDataProvider(DOMAIN_LAND_OR_ICE_NOT_USEABLE, DELTA_1_LAND_OR_ICE_COVERED) {
+            final int[] origin3D = {0, 0, 0};
+
+            @Override
+            public Array getDomainData_11_1(int z) throws InvalidRangeException {
+                origin3D[0] = z;
+                return data11_1.section(origin3D, levelShape);
+            }
+        };
+    }
+
+    private DomainDataProvider createWaterDomainDataProvider() {
+        return new DomainDataProvider(DOMAIN_WATER_NOT_USEABLE, DELTA_1_WATER) {
+            final int[] origin2D = {0, 0};
+
+            @Override
+            Array getDomainData_11_1(int z) throws InvalidRangeException, IOException {
+                origin2D[0] = z;
+                final String fileName = sourcFileNames.getString(z);
+                final String version = processingVersions.getString(z);
+                Reader srcReader = readerCache.getReaderFor(sensorName,Paths.get(fileName), version);
+                return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_um_VarName);
+            }
+        };
+    }
+
     private void initDataForComputing(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         Variable var11_1um = getVariable(writer, bt_11_1_um_VarName);
         fillValue_11_1 = getFloatValueFromAttribute(var11_1um, CF_FILL_VALUE_NAME, 0);
@@ -283,27 +300,6 @@ class HirsL1CloudyFlags extends PostProcessing {
         MaximumAndFlags(double maximum, byte flags) {
             this.maximum = maximum;
             this.flags = flags;
-        }
-    }
-
-    static class CloudRC extends ReaderCache {
-
-        CloudRC(final PostProcessingContext context) {
-            super(context);
-        }
-
-        @Override
-        protected int[] extractYearMonthDayFromFilename(String fileName) {
-            final String[] strings = fileName.split("\\.");
-            final String datePart = strings[4].substring(1);
-            final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
-            final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-            utcCalendar.setTime(yyDDD);
-            return new int[]{
-                    utcCalendar.get(Calendar.YEAR),
-                    utcCalendar.get(Calendar.MONTH) + 1,
-                    utcCalendar.get(Calendar.DAY_OF_MONTH),
-            };
         }
     }
 

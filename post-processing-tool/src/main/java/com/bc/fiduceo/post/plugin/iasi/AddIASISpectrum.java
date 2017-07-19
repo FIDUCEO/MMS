@@ -20,8 +20,9 @@
 
 package com.bc.fiduceo.post.plugin.iasi;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.ReaderCache;
+import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.util.JDomUtils;
@@ -36,17 +37,36 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 class AddIASISpectrum extends PostProcessing {
 
     private final Configuration configuration;
+    private ReaderCache readerCache;
 
     AddIASISpectrum(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    @Override
+    protected void initReaderCache() {
+        readerCache = createReaderCache(getContext());
+    }
+
+    @Override
+    protected void dispose() {
+        if (readerCache != null) {
+            try {
+                readerCache.close();
+            } catch (IOException e) {
+                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
+            }
+        }
     }
 
     @Override
@@ -61,8 +81,6 @@ class AddIASISpectrum extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final ReaderCache readerCache = getReaderCache();
-
         final Variable fileNameVariable = NetCDFUtils.getVariable(reader, configuration.filenameVariableName);
         final Variable processingVersionVariable = NetCDFUtils.getVariable(reader, configuration.processingVersionVariableName);
 
@@ -93,7 +111,7 @@ class AddIASISpectrum extends PostProcessing {
             final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);
             final String sensorKey = getSensorKey(fileName);
 
-            final IASI_Reader iasiReader = (IASI_Reader) readerCache.getFileOpened(fileName, sensorKey, processingVersion);
+            final IASI_Reader iasiReader = (IASI_Reader) readerCache.getReaderFor(sensorKey, Paths.get(fileName), processingVersion);
             final Rectangle boundingRectangle = getBoundingRectangle(iasiReader);
 
             final int centerX = xArray.getInt(i);
@@ -119,19 +137,6 @@ class AddIASISpectrum extends PostProcessing {
             origin[0] = i;
             writer.write(targetVariable, origin, writeArray);
         }
-    }
-
-    // package access for testing only tb 2017-06-12
-    static int[] extractYMDfromFileName(String fileName) {
-        final String yearString = fileName.substring(16, 20);
-        final String monthString = fileName.substring(20, 22);
-        final String dayString = fileName.substring(22, 24);
-
-        final int[] ymd = new int[3];
-        ymd[0] = Integer.parseInt(yearString);
-        ymd[1] = Integer.parseInt(monthString);
-        ymd[2] = Integer.parseInt(dayString);
-        return ymd;
     }
 
     // package access for testing only tb 2017-06-12
@@ -197,15 +202,6 @@ class AddIASISpectrum extends PostProcessing {
             spectrum = fillValueSpectrum;
         }
         return spectrum;
-    }
-
-    private ReaderCache getReaderCache() {
-        return new ReaderCache(getContext()) {
-            @Override
-            protected int[] extractYearMonthDayFromFilename(String fileName) {
-                return AddIASISpectrum.extractYMDfromFileName(fileName);
-            }
-        };
     }
 
     private void addSpectrumVariable(NetcdfFileWriter writer, List<ucar.nc2.Dimension> targetDimensions) {

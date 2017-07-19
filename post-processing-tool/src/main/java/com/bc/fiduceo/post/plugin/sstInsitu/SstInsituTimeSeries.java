@@ -19,10 +19,11 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
-import com.bc.fiduceo.post.ReaderCache;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.insitu.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
@@ -34,8 +35,10 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
@@ -67,19 +70,29 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     @Override
+    protected void initReaderCache() {
+        readerCache = createReaderCache(getContext());
+    }
+
+    @Override
+    protected void dispose() {
+        if (readerCache != null) {
+            try {
+                readerCache.close();
+            } catch (IOException e) {
+                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
+            }
+        }
+    }
+
+    @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
         fileNameVariable = getFileNameVariable(reader, sensorType);
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
         final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
-        readerCache = new ReaderCache(getContext()) {
-            @Override
-            protected int[] extractYearMonthDayFromFilename(String fileName) {
-                return new int[]{1970, 1, 1};
-            }
-        };
-        final Reader insituReader = readerCache.getFileOpened(insituFileName, sensorType, processingVersion);
+        final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
         addInsituVariables(writer, insituReader);
     }
 
@@ -103,7 +116,7 @@ class SstInsituTimeSeries extends PostProcessing {
 
         for (int i = 0; i < matchupCount; i++) {
             final String insituFileName = getInsituFileName(fileNameVariable, i, filenameFieldSize);
-            final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getFileOpened(insituFileName, sensorType, processingVersion);
+            final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
             Range range = computeInsituRange(y1D[i], insituReader);
             final int[] origin1D = {range.min};
             final int timeSeriesLength = getTimeSeriesLength(range);

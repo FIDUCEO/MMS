@@ -195,4 +195,18 @@ public class IASI_ReaderTest {
         assertEquals(expected, floatSpect[5467], 1e-8);
         assertEquals(expected, floatSpect[8699], 1e-8);
     }
+
+    @Test
+    public void testExtracYMDFromFileName() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("IASI_xxx_1C_M02_20160101124754Z_20160101142658Z_N_O_20160101142620Z.nat");
+        assertEquals(2016, ymd[0]);
+        assertEquals(1, ymd[1]);
+        assertEquals(1, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat");
+        assertEquals(2014, ymd[0]);
+        assertEquals(4, ymd[1]);
+        assertEquals(25, ymd[2]);
+    }
+
 }

@@ -137,6 +137,11 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11

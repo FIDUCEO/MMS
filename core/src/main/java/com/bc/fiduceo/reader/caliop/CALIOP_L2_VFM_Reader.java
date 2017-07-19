@@ -166,6 +166,11 @@ class CALIOP_L2_VFM_Reader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         ensureValidInterval(interval);
         final Number fillValue = getFillValue(variableName);

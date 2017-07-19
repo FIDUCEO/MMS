@@ -20,8 +20,10 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.log.FiduceoLogger;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -36,11 +38,21 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
     private final int cacheSize;
     private final ReaderFactory readerFactory;
+    private final FileServer fileServer;
 
-    public ReaderCache(int cacheSize, ReaderFactory readerFactory) {
+    public ReaderCache(int cacheSize, ReaderFactory readerFactory, Archive archive) {
         super(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, true);
         this.cacheSize = cacheSize;
         this.readerFactory = readerFactory;
+        if (archive == null) {
+            fileServer = (reader, observationPath, sensorName, processingVersion) -> observationPath.toFile();
+        } else {
+            fileServer = (reader, observationPath, sensorName, processingVersion) -> {
+                final int[] ymd = reader.extractYearMonthDayFromFilename(observationPath.toString());
+                final Path productsDir = archive.createValidProductPath(processingVersion, sensorName, ymd[0], ymd[1], ymd[2]);
+                return productsDir.resolve(observationPath).toFile();
+            };
+        }
     }
 
     public void add(Reader reader, Path filePath) {
@@ -53,12 +65,13 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
         }
     }
 
-    public Reader getReaderFor(String sensorName, Path observationPath) throws IOException {
+    public Reader getReaderFor(String sensorName, Path observationPath, String processingVersion) throws IOException {
         if (containsKey(observationPath)) {
             return get(observationPath);
         } else {
             final Reader reader = readerFactory.getReader(sensorName);
-            reader.open(observationPath.toFile());
+            final File observationFile = fileServer.getFile(reader, observationPath, sensorName, processingVersion);
+            reader.open(observationFile);
             add(reader, observationPath);
             return reader;
         }
@@ -77,5 +90,9 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
             }
         }
         return remove;
+    }
+
+    interface FileServer {
+        File getFile(Reader reader, Path observationPath, String sensorName, String processingVersion);
     }
 }

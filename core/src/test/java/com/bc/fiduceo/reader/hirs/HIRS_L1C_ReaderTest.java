@@ -21,22 +21,27 @@
 package com.bc.fiduceo.reader.hirs;
 
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+
+import org.junit.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class HIRS_L1C_ReaderTest {
+
+    private HIRS_L1C_Reader reader;
+
+    @Before
+    public void setUp() throws Exception {
+        reader = new HIRS_L1C_Reader(null);    // we do not need a geometry factory for this test tb 2016-08-02
+    }
 
     @Test
     public void testGetRegEx() {
         final String expected = "(\\w*.)?[A-Z]{3}.HIRX.[A-Z0-9]{2}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2}.nc";
 
-        final HIRS_L1C_Reader reader = new HIRS_L1C_Reader(null);   // we do not need a geometry factory for this test tb 2016-08-02
         final String regEx = reader.getRegEx();
         assertEquals(expected, regEx);
 
@@ -62,5 +67,20 @@ public class HIRS_L1C_ReaderTest {
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+
+    public void testExtractYearMonthDayFromFilename() throws Exception {
+        String hirsFileName;
+        int[] ymd;
+
+        hirsFileName = "189800453.NSS.HIRX.NN.D11233.S0808.E1003.B3221112.GC.nc";
+        ymd = reader.extractYearMonthDayFromFilename(hirsFileName);
+        assertArrayEquals(new int[]{2011, 8, 21}, ymd);
+
+        hirsFileName = "191062833.NSS.HIRX.NN.D88123.S1356.E1551.B3227172.WI.nc";
+        ymd = reader.extractYearMonthDayFromFilename(hirsFileName);
+        assertArrayEquals(new int[]{1988, 5, 2}, ymd);
     }
 }

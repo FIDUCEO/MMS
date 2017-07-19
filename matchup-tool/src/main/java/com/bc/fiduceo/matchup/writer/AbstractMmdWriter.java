@@ -100,7 +100,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
 
         final ReaderFactory readerFactory = context.getReaderFactory();
-        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize(), readerFactory);
+        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize(), readerFactory, null);
 
         try {
             logger.info("Start writing mmd-file ...");
@@ -143,13 +143,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
-                final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath);
+                final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName());
                 for (String secSensorName : secSensorNames) {
                     final Path secondaryObservationPath = set.getSecondaryObservationPath(secSensorName);
-                    final Reader secondaryReader = readerCache.getReaderFor(secSensorName, secondaryObservationPath);
+                    final Reader secondaryReader = readerCache.getReaderFor(secSensorName, secondaryObservationPath, null);
                     ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(secSensorName));
                     logger.info("... and " + secondaryObservationPath.getFileName());
                 }

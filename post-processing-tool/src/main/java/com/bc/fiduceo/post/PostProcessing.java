@@ -18,6 +18,12 @@
  */
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.ReaderCache;
+import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -29,13 +35,24 @@ import java.util.List;
 public abstract class PostProcessing {
 
     private PostProcessingContext context;
-
-    public void setContext(PostProcessingContext context) {
-        this.context = context;
-    }
+    private ReaderCache readerCache;
 
     public PostProcessingContext getContext() {
         return context;
+    }
+
+    public void setContext(PostProcessingContext context) {
+        this.context = context;
+        initReaderCache();
+    }
+
+    /**
+     * Is called after PostProcessingContext is set. Override this method only if the
+     * concrete PostProcessing implementation needs a {@link ReaderCache}
+     * Don't forget to close and clean up the {@link ReaderCache} instance on dispose.
+     */
+    protected void initReaderCache() {
+        // the default implementation does nothing. Plugins may override to implement their clean-up chores. tb 2017-07-17
     }
 
     /**
@@ -55,7 +72,8 @@ public abstract class PostProcessing {
      *
      * @param reader the NetcdfFile opened on the input MMD file
      * @param writer the NetcdfFileWriter opened on the target MMD, in define-mode
-     * @throws IOException on disk access failures
+     *
+     * @throws IOException           on disk access failures
      * @throws InvalidRangeException on other occasions
      */
     protected abstract void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
@@ -68,7 +86,8 @@ public abstract class PostProcessing {
      *
      * @param reader the NetcdfFile opened on the input MMD file
      * @param writer the NetcdfFileWriter opened on the target MMD, in write-mode
-     * @throws IOException on disk access failures
+     *
+     * @throws IOException           on disk access failures
      * @throws InvalidRangeException on other occasions
      */
     protected abstract void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException;
@@ -78,5 +97,16 @@ public abstract class PostProcessing {
      */
     protected void dispose() {
         // the default implementation does nothing. Plugins may override to implement their clean-up chores. tb 2017-07-17
+    }
+
+    public static ReaderCache createReaderCache(PostProcessingContext context) {
+        // todo se/** 3 put maxCacheSize to system configuration file
+        final int maxCacheSize = 70;
+        final SystemConfig systemConfig = context.getSystemConfig();
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final Archive archive = new Archive(archiveConfig);
+        final String geometryLibraryType = systemConfig.getGeometryLibraryType();
+        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geometryLibraryType));
+        return new ReaderCache(maxCacheSize, readerFactory, archive);
     }
 }

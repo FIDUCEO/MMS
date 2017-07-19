@@ -162,6 +162,11 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);

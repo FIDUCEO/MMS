@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -139,6 +140,20 @@ class HIRS_L1C_Reader implements Reader {
     public TimeLocator getTimeLocator() throws IOException {
         final Array timeArray = arrayCache.get("time");
         return new HIRS_TimeLocator(timeArray);
+    }
+
+    @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        final String[] strings = fileName.split("\\.");
+        final String datePart = strings[4].substring(1);
+        final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(yyDDD);
+        return new int[]{
+                    utcCalendar.get(Calendar.YEAR),
+                    utcCalendar.get(Calendar.MONTH) + 1,
+                    utcCalendar.get(Calendar.DAY_OF_MONTH),
+                    };
     }
 
     @Override

@@ -177,36 +177,6 @@ public class HirsL1CloudyFlagsTest {
     }
 
     @Test
-    public void testExtractYearMonthDayFromFilename() throws Exception {
-        final PostProcessingContext processingContext = new PostProcessingContext();
-        processingContext.setSystemConfig(
-                    SystemConfig.load(
-                                new ByteArrayInputStream(
-                                            ("<system-config>" +
-                                             "    <geometry-library name = \"S2\" />" +
-                                             "    <archive>" +
-                                             "        <root-path>anyPath</root-path>" +
-                                             "        <rule sensors = \"hirs-n18\">anyRule</rule>" +
-                                             "    </archive>" +
-                                             "</system-config>").getBytes()
-                                )
-                    )
-        );
-
-        final HirsL1CloudyFlags.CloudRC readerCache = new HirsL1CloudyFlags.CloudRC(processingContext);
-        String hirsFileName;
-        int[] ymd;
-
-        hirsFileName = "189800453.NSS.HIRX.NN.D11233.S0808.E1003.B3221112.GC.nc";
-        ymd = readerCache.extractYearMonthDayFromFilename(hirsFileName);
-        assertArrayEquals(new int[]{2011, 8, 21}, ymd);
-
-        hirsFileName = "191062833.NSS.HIRX.NN.D88123.S1356.E1551.B3227172.WI.nc";
-        ymd = readerCache.extractYearMonthDayFromFilename(hirsFileName);
-        assertArrayEquals(new int[]{1988, 5, 2}, ymd);
-    }
-
-    @Test
     public void testGetCloudy_SpaceContrastTest() throws Exception {
         final float threshold = 24.0f;
         final float fillValue = -2.0f;

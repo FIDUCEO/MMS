@@ -130,6 +130,11 @@ class AMSRE_Reader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (variableName.equals("Land_Ocean_Flag_6")) {
             return readLandOceanFlag(centerX, centerY, interval);

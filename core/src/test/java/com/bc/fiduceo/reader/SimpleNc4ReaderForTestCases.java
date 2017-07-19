@@ -75,6 +75,11 @@ public class SimpleNc4ReaderForTestCases implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Variable variable = ncFile.findVariable(null, variableName);
         final Array data = variable.read();

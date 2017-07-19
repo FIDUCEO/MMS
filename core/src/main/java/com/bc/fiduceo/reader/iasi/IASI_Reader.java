@@ -164,6 +164,19 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        final String yearString = fileName.substring(16, 20);
+        final String monthString = fileName.substring(20, 22);
+        final String dayString = fileName.substring(22, 24);
+
+        final int[] ymd = new int[3];
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = Integer.parseInt(monthString);
+        ymd[2] = Integer.parseInt(dayString);
+        return ymd;
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
         final int xOffset = centerX - interval.getX() / 2;

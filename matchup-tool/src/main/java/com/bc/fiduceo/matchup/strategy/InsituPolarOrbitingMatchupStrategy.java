@@ -194,15 +194,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         combineMatchups(0, combineBean);
 
         // @todo move the magic number to configuration file
-        final ReaderCache readerCache = new ReaderCache(50, readerFactory);
+        final ReaderCache readerCache = new ReaderCache(50, readerFactory, null);
         final List<MatchupSet> matchupSets = combineBean.matchupCollection.getSets();
         for (MatchupSet matchupSet : matchupSets) {
             final Path primaryObservationPath = matchupSet.getPrimaryObservationPath();
-            final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath);
+            final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
             final HashMap<String, Reader> secondaryReaders = new HashMap<>();
             for (String secSensorName : secSensorNames) {
                 final Path secondaryObservationPath = matchupSet.getSecondaryObservationPath(secSensorName);
-                final Reader reader = readerCache.getReaderFor(secSensorName, secondaryObservationPath);
+                final Reader reader = readerCache.getReaderFor(secSensorName, secondaryObservationPath, null);
                 secondaryReaders.put(secSensorName, reader);
             }
             applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaders);

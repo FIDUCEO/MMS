@@ -122,6 +122,11 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        return new int[3];
+    }
+
+    @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array sourceArray = arrayMap.get(variableName);
         final Number fillValue = fillValueMap.get(variableName);

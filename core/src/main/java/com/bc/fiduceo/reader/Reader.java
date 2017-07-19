@@ -49,6 +49,8 @@ public interface Reader extends AutoCloseable {
 
     TimeLocator getTimeLocator() throws IOException;
 
+    int[] extractYearMonthDayFromFilename(String fileName);
+
     /**
      * Reads raw data of a window defined by a center pixel position and a defined window size.
      * According to this constraints the window dimensions must always be odd. If not
