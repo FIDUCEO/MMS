@@ -194,15 +194,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         combineMatchups(0, combineBean);
 
         // @todo move the magic number to configuration file
-        final ReaderCache readerCache = new ReaderCache(50);
+        final ReaderCache readerCache = new ReaderCache(50, readerFactory);
         final List<MatchupSet> matchupSets = combineBean.matchupCollection.getSets();
         for (MatchupSet matchupSet : matchupSets) {
             final Path primaryObservationPath = matchupSet.getPrimaryObservationPath();
-            final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
+            final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath);
             final HashMap<String, Reader> secondaryReaders = new HashMap<>();
             for (String secSensorName : secSensorNames) {
                 final Path secondaryObservationPath = matchupSet.getSecondaryObservationPath(secSensorName);
-                final Reader reader = getReaderCached(readerCache, readerFactory, secSensorName, secondaryObservationPath);
+                final Reader reader = readerCache.getReaderFor(secSensorName, secondaryObservationPath);
                 secondaryReaders.put(secSensorName, reader);
             }
             applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaders);
@@ -375,17 +375,6 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             }
         }
         return new ArrayList<>(observationsPerProduct.values());
-    }
-
-    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String sensorName, Path observationPath) throws IOException {
-        if (readerCache.containsKey(observationPath)) {
-            return readerCache.get(observationPath);
-        } else {
-            final Reader reader = readerFactory.getReader(sensorName);
-            reader.open(observationPath.toFile());
-            readerCache.add(reader, observationPath);
-            return reader;
-        }
     }
 
     private List<Sample> getInsituSamples(TimeInterval processingInterval, Reader insituReader) throws IOException, InvalidRangeException {

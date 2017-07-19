@@ -99,8 +99,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             variable.setTarget(this);
         }
 
-        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize());
         final ReaderFactory readerFactory = context.getReaderFactory();
+        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize(), readerFactory);
 
         try {
             logger.info("Start writing mmd-file ...");
@@ -143,13 +143,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
-                final Reader primaryReader = getReaderCached(readerCache, readerFactory, primarySensorName, primaryObservationPath);
+                final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath);
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName());
                 for (String secSensorName : secSensorNames) {
                     final Path secondaryObservationPath = set.getSecondaryObservationPath(secSensorName);
-                    final Reader secondaryReader = getReaderCached(readerCache, readerFactory, secSensorName, secondaryObservationPath);
+                    final Reader secondaryReader = readerCache.getReaderFor(secSensorName, secondaryObservationPath);
                     ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(secSensorName));
                     logger.info("... and " + secondaryObservationPath.getFileName());
                 }
@@ -327,17 +327,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         if (netcdfFileWriter != null) {
             netcdfFileWriter.close();
             netcdfFileWriter = null;
-        }
-    }
-
-    private Reader getReaderCached(ReaderCache readerCache, ReaderFactory readerFactory, String sensorName, Path observationPath) throws IOException {
-        if (readerCache.containsKey(observationPath)) {
-            return readerCache.get(observationPath);
-        } else {
-            final Reader reader = readerFactory.getReader(sensorName);
-            reader.open(observationPath.toFile());
-            readerCache.add(reader, observationPath);
-            return reader;
         }
     }
 

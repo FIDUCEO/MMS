@@ -20,10 +20,13 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.log.FiduceoLogger;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class ReaderCache extends LinkedHashMap<Path, Reader> {
 
@@ -32,18 +35,16 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
     // The default initial capacity - MUST be a power of two.
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
     private final int cacheSize;
+    private final ReaderFactory readerFactory;
 
-    public ReaderCache(int cacheSize) {
+    public ReaderCache(int cacheSize, ReaderFactory readerFactory) {
         super(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, true);
         this.cacheSize = cacheSize;
+        this.readerFactory = readerFactory;
     }
 
-    public void add(Reader reader, Path filePath) throws IOException {
-        try {
-            put(filePath, reader);
-        } catch (UnableToCloseException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+    public void add(Reader reader, Path filePath) {
+        put(filePath, reader);
     }
 
     public void close() throws IOException {
@@ -52,24 +53,29 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
         }
     }
 
+    public Reader getReaderFor(String sensorName, Path observationPath) throws IOException {
+        if (containsKey(observationPath)) {
+            return get(observationPath);
+        } else {
+            final Reader reader = readerFactory.getReader(sensorName);
+            reader.open(observationPath.toFile());
+            add(reader, observationPath);
+            return reader;
+        }
+    }
+
     @Override
     protected boolean removeEldestEntry(Map.Entry<Path, Reader> eldest) {
         final boolean remove = size() > cacheSize;
         if (remove) {
             try {
-                eldest.getValue().close();
+                final Reader reader = eldest.getValue();
+                reader.close();
             } catch (IOException e) {
                 final Path key = eldest.getKey();
-                throw new UnableToCloseException("Unable to close reader for file \"" + key.toString() + "\"", e);
+                FiduceoLogger.getLogger().log(Level.WARNING, "Unable to close reader for file \"" + key.toString() + "\"", e);
             }
         }
         return remove;
-    }
-
-    static class UnableToCloseException extends RuntimeException {
-
-        public UnableToCloseException(String message, Throwable cause) {
-            super(message, cause);
-        }
     }
 }

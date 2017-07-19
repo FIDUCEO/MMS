@@ -23,9 +23,14 @@ package com.bc.fiduceo.reader;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.reader.insitu.SSTInsituReaderPlugin;
 import org.junit.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ReaderCacheTest {
@@ -34,7 +39,9 @@ public class ReaderCacheTest {
 
     @Before
     public void setUp() {
-        readerCache = new ReaderCache(2);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        readerCache = new ReaderCache(2, readerFactory);
     }
 
     @Test
@@ -104,4 +111,25 @@ public class ReaderCacheTest {
         verify(reader_1, times(1)).close();
         verify(reader_2, times(1)).close();
     }
+
+    @Test
+    public void testGetReaderFor() throws Exception {
+        //preparation
+        final Path relativeInsituFile = Paths.get("insitu", "drifter-sst", "v03.3", "insitu_0_WMOID_51939_20031105_20131121.nc");
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final Path insituFile = testDataDirectory.toPath().resolve(relativeInsituFile);
+        final String sensorType = new SSTInsituReaderPlugin().getSupportedSensorKeys()[0];
+
+        assertNull(readerCache.get(insituFile));
+
+        //execution
+        final Reader readerFor = readerCache.getReaderFor(sensorType, insituFile);
+        final Reader reader = readerCache.get(insituFile);
+
+        //verification
+        assertEquals("com.bc.fiduceo.reader.insitu.SSTInsituReader",readerFor.getClass().getTypeName());
+        assertSame(readerFor, reader);
+    }
+
+
 }
