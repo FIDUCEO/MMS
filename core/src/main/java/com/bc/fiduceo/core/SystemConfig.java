@@ -36,6 +36,7 @@ public class SystemConfig {
 
     private String geometryLibraryType;
     private ArchiveConfig archiveConfig;
+    private int readerCacheSize;
 
     public static SystemConfig loadFrom(File configDirectory) throws IOException {
         final File systemPropertiesFile = new File(configDirectory, "system-config.xml");
@@ -60,6 +61,7 @@ public class SystemConfig {
 
     public SystemConfig() {
         geometryLibraryType = "S2";
+        readerCacheSize = 8;
     }
 
     public String getGeometryLibraryType() {
@@ -83,5 +85,18 @@ public class SystemConfig {
         if (archiveConfigElement != null) {
             archiveConfig = new ArchiveConfig(archiveConfigElement);
         }
+
+        final Element readerCacheSize = rootElement.getChild("reader-cache-size");
+        if (readerCacheSize != null) {
+            setReaderCacheSize(Integer.parseInt(readerCacheSize.getTextTrim()));
+        }
+    }
+
+    public int getReaderCacheSize() {
+        return readerCacheSize;
+    }
+
+    public void setReaderCacheSize(int readerCacheSize) {
+        this.readerCacheSize = readerCacheSize;
     }
 }

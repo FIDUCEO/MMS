@@ -56,6 +56,8 @@ public class SystemConfigTest {
             SystemConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertEquals("java.lang.RuntimeException", expected.getClass().getTypeName());
+            assertEquals("Unable to initialize use case configuration: Root tag name 'system-config' expected", expected.getMessage());
         }
     }
 
@@ -90,5 +92,18 @@ public class SystemConfigTest {
         final SystemConfig systemConfig = new SystemConfig();
 
         assertEquals("S2", systemConfig.getGeometryLibraryType());
+        assertEquals(8, systemConfig.getReaderCacheSize());
+    }
+
+    @Test
+    public void testReaderCachSize_FromFile() throws Exception {
+        final String useCaseXml = "<system-config>" +
+                "    <reader-cache-size>32</reader-cache-size>" +
+                "</system-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final SystemConfig systemConfig = SystemConfig.load(inputStream);
+
+        assertEquals(32, systemConfig.getReaderCacheSize());
     }
 }
