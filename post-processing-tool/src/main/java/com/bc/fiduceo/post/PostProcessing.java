@@ -100,13 +100,12 @@ public abstract class PostProcessing {
     }
 
     public static ReaderCache createReaderCache(PostProcessingContext context) {
-        // todo se/** 3 put maxCacheSize to system configuration file
-        final int maxCacheSize = 70;
         final SystemConfig systemConfig = context.getSystemConfig();
+        final int readerCacheSize = systemConfig.getReaderCacheSize();
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
         final Archive archive = new Archive(archiveConfig);
         final String geometryLibraryType = systemConfig.getGeometryLibraryType();
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geometryLibraryType));
-        return new ReaderCache(maxCacheSize, readerFactory, archive);
+        return new ReaderCache(readerCacheSize, readerFactory, archive);
     }
 }
