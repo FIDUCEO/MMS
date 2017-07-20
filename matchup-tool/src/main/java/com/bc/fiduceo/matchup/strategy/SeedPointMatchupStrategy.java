@@ -240,7 +240,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
             final Point point = geometryFactory.createPoint(lon, lat);
             if (time >= primaryStartTime.getTime() && time <= primaryStopTime.getTime()) {
                 for (Geometry geometry : primaryGeometries) {
-                    if (geometry.getIntersection(point) != null) {
+                    final Geometry intersection = geometry.getIntersection(point);
+                    if (intersection != null && intersection.isValid()) {
                         primaryPoints.add(seedPoint);
                         break;
                     }
