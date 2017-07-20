@@ -70,28 +70,12 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     @Override
-    protected void initReaderCache() {
-        readerCache = createReaderCache(getContext());
-    }
-
-    @Override
-    protected void dispose() {
-        if (readerCache != null) {
-            try {
-                readerCache.close();
-            } catch (IOException e) {
-                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
-            }
-        }
-    }
-
-    @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
         fileNameVariable = getFileNameVariable(reader, sensorType);
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
-        final String insituFileName = getInsituFileName(fileNameVariable, 0, filenameFieldSize);
+        final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
         final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
         addInsituVariables(writer, insituReader);
     }
@@ -115,7 +99,7 @@ class SstInsituTimeSeries extends PostProcessing {
         final Variable dtimeVar2D = writer.findVariable(makeValidCDLName("insitu.dtime"));
 
         for (int i = 0; i < matchupCount; i++) {
-            final String insituFileName = getInsituFileName(fileNameVariable, i, filenameFieldSize);
+            final String insituFileName = getSourceFileName(fileNameVariable, i, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
             final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
             Range range = computeInsituRange(y1D[i], insituReader);
             final int[] origin1D = {range.min};
@@ -142,17 +126,20 @@ class SstInsituTimeSeries extends PostProcessing {
         }
     }
 
-    static String getInsituFileName(Variable fileNameVar, int position, int filenameSize) throws IOException, InvalidRangeException {
-        final Array nameArray = fileNameVar.read(new int[]{position, 0}, new int[]{1, filenameSize});
-        final String insituFileName = String.valueOf((char[]) nameArray.getStorage()).trim();
-        if (!insituFileName.matches(FILE_NAME_PATTERN_D8_D8_NC)) {
-            throw new RuntimeException("The insitu file name '" + insituFileName + "' does not match the regular expression '" + FILE_NAME_PATTERN_D8_D8_NC + "'");
-        }
-        return insituFileName;
+    @Override
+    protected void initReaderCache() {
+        readerCache = createReaderCache(getContext());
     }
 
-    static Variable getFileNameVariable(NetcdfFile reader, final String sensorType) {
-        return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
+    @Override
+    protected void dispose() {
+        if (readerCache != null) {
+            try {
+                readerCache.close();
+            } catch (IOException e) {
+                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
+            }
+        }
     }
 
     static String extractSensorType(NetcdfFile reader) {

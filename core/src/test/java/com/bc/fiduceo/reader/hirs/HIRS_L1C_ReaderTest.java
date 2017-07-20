@@ -70,7 +70,6 @@ public class HIRS_L1C_ReaderTest {
     }
 
     @Test
-
     public void testExtractYearMonthDayFromFilename() throws Exception {
         String hirsFileName;
         int[] ymd;

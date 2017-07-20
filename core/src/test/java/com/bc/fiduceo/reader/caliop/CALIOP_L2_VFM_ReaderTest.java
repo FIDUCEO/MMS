@@ -58,4 +58,20 @@ public class CALIOP_L2_VFM_ReaderTest {
         }
         return storage;
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() throws Exception {
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null);
+        String caliopFileName;
+        int[] ymd;
+
+        caliopFileName = "CAL_LID_L2_VFM-Standard-V4-10.2008-05-31T00-11-58ZN.hdf";
+        ymd = reader.extractYearMonthDayFromFilename(caliopFileName);
+        assertArrayEquals(new int[]{2008, 5, 31}, ymd);
+
+        caliopFileName = "CAL_LID_L2_VFM-Standard-V4-10.2010-06-02T09-00-40ZD.hdf";
+        ymd = reader.extractYearMonthDayFromFilename(caliopFileName);
+        assertArrayEquals(new int[]{2010, 6, 2}, ymd);
+    }
+
 }

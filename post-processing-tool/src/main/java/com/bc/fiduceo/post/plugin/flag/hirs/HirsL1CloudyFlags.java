@@ -112,11 +112,6 @@ class HirsL1CloudyFlags extends PostProcessing {
     }
 
     @Override
-    protected void initReaderCache() {
-        this.readerCache = createReaderCache(getContext());
-    }
-
-    @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable variable = getVariable(reader, bt_11_1_um_VarName);
         final String dimensions = variable.getDimensionsString();
@@ -164,6 +159,11 @@ class HirsL1CloudyFlags extends PostProcessing {
         } finally {
             distanceToLandMap.close();
         }
+    }
+
+    @Override
+    protected void initReaderCache() {
+        this.readerCache = createReaderCache(getContext());
     }
 
     @Override

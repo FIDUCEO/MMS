@@ -58,8 +58,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-class CALIOP_L2_VFM_Reader implements Reader {
+public class CALIOP_L2_VFM_Reader implements Reader {
 
     private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
     private static final String MM = "(0[1-9]|1[0-2])";
@@ -69,7 +71,7 @@ class CALIOP_L2_VFM_Reader implements Reader {
     private static final String ss = mm;
     private static final String start = "CAL_LID_L2_VFM-Standard-V4-10\\.";
     private static final String end = "Z[DN]\\.hdf";
-    private static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
+    public static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
 
     private final static short[] nadirLineIndices = calcalculateIndizes();
     private final GeometryFactory geometryFactory;
@@ -167,7 +169,16 @@ class CALIOP_L2_VFM_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+        final Matcher matcher = compile.matcher(fileName);
+        //noinspection ResultOfMethodCallIgnored
+        matcher.find();
+        final String[] split = matcher.group().split("-");
+        final int[] ymd = new int[3];
+        for (int i = 0; i < ymd.length; i++) {
+            ymd[i] = Integer.parseInt( split[i]);
+        }
+        return ymd;
     }
 
     @Override
@@ -350,5 +361,9 @@ class CALIOP_L2_VFM_Reader implements Reader {
             str = str.substring(0, str.length() - 1);
         }
         return str;
+    }
+
+    public Variable find(String name) {
+        return netcdfFile.findVariable(name);
     }
 }

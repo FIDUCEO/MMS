@@ -24,9 +24,11 @@ import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,5 +109,21 @@ public abstract class PostProcessing {
         final String geometryLibraryType = systemConfig.getGeometryLibraryType();
         final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geometryLibraryType));
         return new ReaderCache(readerCacheSize, readerFactory, archive);
+    }
+
+    public static Variable getFileNameVariable(NetcdfFile reader, final String sensorType) {
+        return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
+    }
+
+    public static Variable getProcessingVersionVariable(NetcdfFile reader, final String sensorType) {
+        return NetCDFUtils.getVariable(reader, sensorType + "_processing_version");
+    }
+
+    public static String getSourceFileName(Variable fileNameVar, int position, int filenameSize, final String fileNamePattern) throws IOException, InvalidRangeException {
+        final String sourceFileName = NetCDFUtils.readString(fileNameVar, position, filenameSize);
+        if (!sourceFileName.matches(fileNamePattern)) {
+            throw new RuntimeException("The file name '" + sourceFileName + "' does not match the regular expression '" + fileNamePattern + "'");
+        }
+        return sourceFileName;
     }
 }
