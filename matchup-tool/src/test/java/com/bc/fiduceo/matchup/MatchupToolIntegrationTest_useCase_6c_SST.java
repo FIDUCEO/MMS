@@ -52,7 +52,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_AMSRE();
         insert_Insitu("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
 
-        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
                 .withMaxPixelDistanceKm(1.41f, null)
                 .createConfig();
@@ -70,7 +70,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_AMSRE();
         insert_Insitu("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
 
-        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
                 .withMaxPixelDistanceKm(1.41f, null)
                 .createConfig();
@@ -88,7 +88,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         insert_AMSRE();
         insert_Insitu("drifter-sst", "insitu_0_WMOID_71612_20040223_20151010.nc");
 
-        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200, null)
                 .withMaxPixelDistanceKm(6.f, null)
                 .createConfig();
@@ -155,7 +155,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         storage.insert(insitu);
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("drifter-sst");
         primary.setPrimary(true);
@@ -166,7 +166,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         dimensions.add(new Dimension("drifter-sst", 1, 1));
         dimensions.add(new Dimension("amsre-aq", 5, 5));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd6c_SST")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd6c_SST")
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-6c").getPath())
                 .withDimensions(dimensions);

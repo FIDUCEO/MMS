@@ -19,7 +19,7 @@ public class MatchupToolUseCaseConfigTest {
     @Test
     public void testStore() throws IOException {
 
-        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("test_use_case")
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("test_use_case")
                     .withTimeDeltaSeconds(12345, null)
                     .withMaxPixelDistanceKm(14.8f, null)
                     .withSensors(Arrays.asList(

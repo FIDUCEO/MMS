@@ -77,4 +77,11 @@ public class SobolSamplingPointGenerator {
     static double createLon(double x) {
         return x * 360.0 - 180.0;
     }
+
+    public static int createRandomSkip() {
+        final long nanoTime = System.nanoTime();
+
+        // use the lower 31 bits of time as random tb 2017-07-20
+        return (int) (nanoTime & 0x000000007FFFFFFFL);
+    }
 }

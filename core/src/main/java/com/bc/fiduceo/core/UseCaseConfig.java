@@ -39,17 +39,18 @@ import static com.bc.fiduceo.util.JDomUtils.*;
 public class UseCaseConfig {
 
     public static final String TAG_NAME_ROOT = "use-case-config";
-    public static final String TAG_NAME_OUTPUT_PATH = "output-path";
-    public static final String TAG_NAME_WRITE_DISTANCE = "write-point_distance";
+    static final String TAG_NAME_OUTPUT_PATH = "output-path";
+    static final String TAG_NAME_WRITE_DISTANCE = "write-point_distance";
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
-    public static final String TAG_NAME_NUM_RANDOM_SEED_POINTS = "num-random-seed-points";
+    static final String TAG_NAME_NUM_RANDOM_SEED_POINTS = "num-random-seed-points";
     public static final String TAG_NAME_PRIMARY = "primary";
-    public static final String TAG_NAME_DATA_VERSION = "data-version";
-    public static final String TAG_NAME_DIMENSIONS = "dimensions";
-    public static final String TAG_NAME_DIMENSION = "dimension";
-    public static final String TAG_NAME_NX = "nx";
-    public static final String TAG_NAME_NY = "ny";
+    static final String TAG_NAME_DATA_VERSION = "data-version";
+    static final String TAG_NAME_DIMENSIONS = "dimensions";
+    static final String TAG_NAME_DIMENSION = "dimension";
+    static final String TAG_NAME_TEST_RUN = "test-run";
+    static final String TAG_NAME_NX = "nx";
+    static final String TAG_NAME_NY = "ny";
     public static final String TAG_NAME_NAME = "name";
 
     transient private Document document;
@@ -59,10 +60,12 @@ public class UseCaseConfig {
     private String outputPath;
     private boolean writeDistance;
     private int numRandomSeedPoints;
+    private boolean testRun;
 
     public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
+        testRun = false;
     }
 
     private UseCaseConfig(Document document) {
@@ -97,7 +100,7 @@ public class UseCaseConfig {
         return numRandomSeedPoints;
     }
 
-    public void setNumRandomSeedPoints(int numRandomSeedPoints) {
+    private void setNumRandomSeedPoints(int numRandomSeedPoints) {
         this.numRandomSeedPoints = numRandomSeedPoints;
     }
 
@@ -162,8 +165,16 @@ public class UseCaseConfig {
         return writeDistance;
     }
 
-    public void setWriteDistance(boolean writeDistance) {
+    void setWriteDistance(boolean writeDistance) {
         this.writeDistance = writeDistance;
+    }
+
+    public boolean isTestRun() {
+        return testRun;
+    }
+
+    public void setTestRun(boolean testRun) {
+        this.testRun = testRun;
     }
 
     public ValidationResult checkValid() {
@@ -255,6 +266,11 @@ public class UseCaseConfig {
         final Element seedPointsElem = rootElement.getChild(TAG_NAME_NUM_RANDOM_SEED_POINTS);
         if (seedPointsElem != null) {
             setNumRandomSeedPoints(getMandatoryPositiveIntegerValue(seedPointsElem));
+        }
+
+        final Element testRunElem = rootElement.getChild(TAG_NAME_TEST_RUN);
+        if (testRunElem != null) {
+            testRun = true;
         }
     }
 

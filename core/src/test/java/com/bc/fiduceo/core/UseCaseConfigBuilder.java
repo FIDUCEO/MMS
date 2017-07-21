@@ -26,20 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DATA_VERSION;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSION;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_DIMENSIONS;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NAME;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NUM_RANDOM_SEED_POINTS;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NX;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_NY;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_OUTPUT_PATH;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_PRIMARY;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_ROOT;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSOR;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_SENSORS;
-import static com.bc.fiduceo.core.UseCaseConfig.TAG_NAME_WRITE_DISTANCE;
-import static com.bc.fiduceo.core.UseCaseConfig.load;
+import static com.bc.fiduceo.core.UseCaseConfig.*;
 import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
 
 // @todo 2 tb/** write tests for this class 2016-09-20
@@ -108,6 +95,11 @@ public class UseCaseConfigBuilder {
 
     public UseCaseConfigBuilder withRandomSeedPoints(int numRandomSeedPoints) {
         addChild(getRootElement(), TAG_NAME_NUM_RANDOM_SEED_POINTS, numRandomSeedPoints);
+        return this;
+    }
+
+    public UseCaseConfigBuilder withTestRun() {
+        addChild(getRootElement(), TAG_NAME_TEST_RUN, true);
         return this;
     }
 

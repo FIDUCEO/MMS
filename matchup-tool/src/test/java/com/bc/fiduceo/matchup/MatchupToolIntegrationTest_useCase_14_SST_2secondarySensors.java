@@ -45,12 +45,12 @@ import java.util.List;
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends AbstractUsecaseIntegrationTest {
 
-    public static final String PRIM_SENSOR_NAME = "drifter-sst";
+    private static final String PRIM_SENSOR_NAME = "drifter-sst";
 
-    public static final String SEC_SENSOR_NAME_1 = "hirs-n18";
-    public static final String SEC_SENSOR_VERSION_1 = "1.0";
-    public static final String SEC_SENSOR_NAME_2 = "mhs-n18";
-    public static final String SEC_SENSOR_VERSION_2 = "v1.0";
+    private static final String SEC_SENSOR_NAME_1 = "hirs-n18";
+    private static final String SEC_SENSOR_VERSION_1 = "1.0";
+    private static final String SEC_SENSOR_NAME_2 = "mhs-n18";
+    private static final String SEC_SENSOR_VERSION_2 = "v1.0";
 
     @Test
     public void testMatchup_drifter() throws IOException, ParseException, SQLException, InvalidRangeException {
@@ -58,7 +58,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         insert_MHS_NOAA18();
         insert_Insitu(PRIM_SENSOR_NAME, "insitu_0_WMOID_51939_20031105_20131121.nc");
 
-        final MatchupToolUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
+        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder
                     .withTimeDeltaSeconds(8000, SEC_SENSOR_NAME_1)
                     .withMaxPixelDistanceKm(10.0f, SEC_SENSOR_NAME_2)
@@ -244,7 +244,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         storage.insert(satelliteObservation);
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor(PRIM_SENSOR_NAME);
         primary.setPrimary(true);
@@ -257,7 +257,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         dimensions.add(new Dimension(SEC_SENSOR_NAME_1, 5, 5));
         dimensions.add(new Dimension(SEC_SENSOR_NAME_2, 3, 3));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd14_SST")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd14_SST")
                     .withSensors(sensorList)
                     .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-6c").getPath())
                     .withDimensions(dimensions);

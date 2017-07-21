@@ -25,7 +25,7 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
+import com.bc.fiduceo.matchup.MatchupToolTestUseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.TestUseCaseConfig;
@@ -91,7 +91,7 @@ public class ConditionEngineTest {
     @Test
     public void testApply_timeDeltaCondition() {
 
-        final InputStream stream = new MatchupToolUseCaseConfigBuilder("name")
+        final InputStream stream = new MatchupToolTestUseCaseConfigBuilder("name")
                     .withTimeDeltaSeconds(20, null)
                     .getStream();
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(stream);
@@ -156,7 +156,7 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_distanceCondition() {
-        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("name")
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("name")
                     .withMaxPixelDistanceKm(4, null)
                     .withTimeDeltaSeconds(1, null)
                     .createConfig();
@@ -174,7 +174,7 @@ public class ConditionEngineTest {
 
     @Test
     public void testApply_distanceAndTimeDeltaCondition() {
-        final InputStream stream = new MatchupToolUseCaseConfigBuilder("name")
+        final InputStream stream = new MatchupToolTestUseCaseConfigBuilder("name")
                     .withTimeDeltaSeconds(10, null)
                     .withMaxPixelDistanceKm(4, null)
                     .getStream();

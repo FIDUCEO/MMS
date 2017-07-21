@@ -200,7 +200,7 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         }
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder(int iasiWidth, int iasiHeight) {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder(int iasiWidth, int iasiHeight) {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("iasi-mb");
         primary.setPrimary(true);
@@ -211,7 +211,7 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         dimensions.add(new Dimension("iasi-mb", iasiWidth, iasiHeight));
         dimensions.add(new Dimension("avhrr-n19", 15, 15));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd03")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd03")
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-03").getPath())
                 .withDimensions(dimensions);

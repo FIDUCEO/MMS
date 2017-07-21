@@ -20,11 +20,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SamplingPoint;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -48,11 +44,7 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
@@ -67,11 +59,6 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
-        final int numRandomSeedPoints = useCaseConfig.getNumRandomSeedPoints();
-        if (numRandomSeedPoints < 1) {
-            throw new RuntimeException("Number of random seed points greater than zero expected.");
-        }
-
         final ConditionEngine conditionEngine = new ConditionEngine();
         final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         conditionEngine.configure(useCaseConfig);
@@ -84,10 +71,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
 
-        final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(true);
-        final long contextStart = context.getStartDate().getTime();
-        final long contextEnd = context.getEndDate().getTime();
-        final List<SamplingPoint> seedPoints = sobolSamplingPointGenerator.createSamples(numRandomSeedPoints, 0, contextStart, contextEnd);
+        final List<SamplingPoint> seedPoints = createRandomPoints(context, useCaseConfig);
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
@@ -203,6 +187,21 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         return matchupCollection;
     }
 
+    private List<SamplingPoint> createRandomPoints(ToolContext context, UseCaseConfig useCaseConfig) {
+        final int numRandomSeedPoints = useCaseConfig.getNumRandomSeedPoints();
+        if (numRandomSeedPoints < 1) {
+            throw new RuntimeException("Number of random seed points greater than zero expected.");
+        }
+        final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(true);
+        final long contextStart = context.getStartDate().getTime();
+        final long contextEnd = context.getEndDate().getTime();
+        int seed = 0;
+        if (!useCaseConfig.isTestRun()) {
+            seed = SobolSamplingPointGenerator.createRandomSkip();
+        }
+        return sobolSamplingPointGenerator.createSamples(numRandomSeedPoints, seed, contextStart, contextEnd);
+    }
+
     private MatchupSet getPrimaryMatchupSet(Reader primaryReader, List<SamplingPoint> primarySeedPoints, Path primaryObservationDataFilePath) throws IOException {
         final MatchupSet primaryMatchups = new MatchupSet();
         final PixelLocator primaryPixelLocator = primaryReader.getPixelLocator();
@@ -219,8 +218,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final double x1 = loc.getX();
                 final double y1 = loc.getY();
                 if (x1 >= 0 && y1 >= 0
-                    && x1 < primProductSize.getNx()
-                    && y1 < primProductSize.getNy()) {
+                        && x1 < primProductSize.getNx()
+                        && y1 < primProductSize.getNy()) {
                     final int x = (int) Math.floor(x1);
                     final int y = (int) Math.floor(y1);
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);

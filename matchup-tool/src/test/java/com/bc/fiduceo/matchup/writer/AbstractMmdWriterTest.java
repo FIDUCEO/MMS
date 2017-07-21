@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.matchup.MatchupToolUseCaseConfigBuilder;
+import com.bc.fiduceo.matchup.MatchupToolTestUseCaseConfigBuilder;
 import org.junit.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
@@ -48,7 +48,7 @@ public class AbstractMmdWriterTest {
                 new Sensor("SensorName3")
         );
 
-        final UseCaseConfig useCaseConfig = new MatchupToolUseCaseConfigBuilder("NameOfTheUseCase")
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("NameOfTheUseCase")
                 .withTimeDeltaSeconds(234, null)
                 .withMaxPixelDistanceKm(12.34f, null)
                 .withSensors(sensorList)

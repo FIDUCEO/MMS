@@ -172,7 +172,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
         storage.insert(satelliteObservation);
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("amsub-n15");
         primary.setPrimary(true);
@@ -183,7 +183,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
         dimensions.add(new Dimension("amsub-n15", 3, 3));
         dimensions.add(new Dimension("ssmt2-f14", 3, 3));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd22")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd22")
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-22").getPath())
                 .withDimensions(dimensions);

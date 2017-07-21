@@ -16,9 +16,11 @@
  */
 package com.bc.fiduceo.matchup;
 
+import static com.bc.fiduceo.core.UseCaseConfig.load;
 import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
 import static com.bc.fiduceo.util.JDomUtils.setNamesAttribute;
 
+import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
@@ -27,13 +29,14 @@ import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
-public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
+public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
-    public MatchupToolUseCaseConfigBuilder(String name) {
+    public MatchupToolTestUseCaseConfigBuilder(String name) {
         super(name);
+
     }
 
-    public MatchupToolUseCaseConfigBuilder withTimeDeltaSeconds(long seconds, String secondarySensorName) {
+    public MatchupToolTestUseCaseConfigBuilder withTimeDeltaSeconds(long seconds, String secondarySensorName) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element timeDelta = ensureChild(conditions, TimeDeltaConditionPlugin.TAG_NAME_CONDITION_NAME);
         final Element childElem = addChild(timeDelta, TimeDeltaConditionPlugin.TAG_NAME_TIME_DELTA_SECONDS, seconds);
@@ -43,7 +46,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public MatchupToolUseCaseConfigBuilder withMaxPixelDistanceKm(float distance, String secondarySensorName) {
+    public MatchupToolTestUseCaseConfigBuilder withMaxPixelDistanceKm(float distance, String secondarySensorName) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element sphericalDistance = ensureChild(conditions, DistanceConditionPlugin.TAG_NAME_CONDITION_NAME);
         final Element childElem = addChild(sphericalDistance, DistanceConditionPlugin.TAG_NAME_MAX_PIXEL_DISTANCE_KM, distance);
@@ -53,11 +56,17 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public MatchupToolUseCaseConfigBuilder withOverlapRemoval(String reference) {
+    public MatchupToolTestUseCaseConfigBuilder withOverlapRemoval(String reference) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(overlapRemove, "reference", reference);
         return this;
+    }
+
+    public UseCaseConfig createConfig() {
+        final UseCaseConfig useCaseConfig = load(getStream());
+        useCaseConfig.setTestRun(true);
+        return useCaseConfig;
     }
 
     UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
@@ -128,7 +137,7 @@ public class MatchupToolUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    MatchupToolUseCaseConfigBuilder withAtsrAngularScreening(double nadirAngleDelta, double fwardAngleDelta) {
+    MatchupToolTestUseCaseConfigBuilder withAtsrAngularScreening(double nadirAngleDelta, double fwardAngleDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angularScreening = ensureChild(screenings, "atsr-angular");
 

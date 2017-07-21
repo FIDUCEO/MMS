@@ -60,6 +60,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
                 .withTimeDeltaSeconds(300, null) // 5 minutes
                 .withMaxPixelDistanceKm(5, null)   // value in km
                 .withRandomSeedPoints(2000000)   // 2.000.000 random seed points for 7 days to fulfill 20000 points per 2280 scan lines
+                .withTestRun()
 //                .withHIRS_LZA_Screening(10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-23.xml");
@@ -69,7 +70,6 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2011-233", "-end", "2011-239"};
         MatchupToolMain.main(args);
-
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "2011-233", "2011-239");
         assertTrue(mmdFile.isFile());
@@ -116,7 +116,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
         storage.insert(satelliteObservation);
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor(PRIMARY_SENSOR_NAME);
         primary.setPrimary(true);
@@ -127,7 +127,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
         dimensions.add(new com.bc.fiduceo.core.Dimension(PRIMARY_SENSOR_NAME, MHS_WIN_LEN, MHS_WIN_LEN));
         dimensions.add(new com.bc.fiduceo.core.Dimension(SECONDARY_SENSOR_NAME, HIRS_WIN_LEN, HIRS_WIN_LEN));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd23")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd23")
                 .withSensors(sensorList)
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-23").getPath())
                 .withDimensions(dimensions);

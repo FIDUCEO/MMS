@@ -53,7 +53,7 @@ public class SobolSamplingPointGeneratorTest {
         int count60s90s = 0;
         for (SamplingPoint sample : samples) {
             final double lat = sample.getLat();
-            if (lat>=60) {
+            if (lat >= 60) {
                 count90n60n++;
             } else if (lat >= 30) {
                 count60n30n++;
@@ -90,7 +90,7 @@ public class SobolSamplingPointGeneratorTest {
         int count60s90s = 0;
         for (SamplingPoint sample : samples) {
             final double lat = sample.getLat();
-            if (lat>=60) {
+            if (lat >= 60) {
                 count90n60n++;
             } else if (lat >= 30) {
                 count60n30n++;

@@ -193,7 +193,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         }
     }
 
-    private MatchupToolUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
         final Sensor primary = new Sensor("amsre-aq");
         primary.setPrimary(true);
@@ -204,7 +204,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
         dimensions.add(new Dimension("amsre-aq", 21, 21));
         dimensions.add(new Dimension("aatsr-en", 11, 11));
 
-        return (MatchupToolUseCaseConfigBuilder) new MatchupToolUseCaseConfigBuilder("mmd14_sst")
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd14_sst")
                     .withSensors(sensorList)
                     .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-14_sst").getPath())
                     .withDimensions(dimensions);
