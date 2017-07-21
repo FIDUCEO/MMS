@@ -88,15 +88,11 @@ public class SystemConfig {
 
         final Element readerCacheSize = rootElement.getChild("reader-cache-size");
         if (readerCacheSize != null) {
-            setReaderCacheSize(Integer.parseInt(readerCacheSize.getTextTrim()));
+            this.readerCacheSize = Integer.parseInt(readerCacheSize.getTextTrim());
         }
     }
 
     public int getReaderCacheSize() {
         return readerCacheSize;
-    }
-
-    public void setReaderCacheSize(int readerCacheSize) {
-        this.readerCacheSize = readerCacheSize;
     }
 }

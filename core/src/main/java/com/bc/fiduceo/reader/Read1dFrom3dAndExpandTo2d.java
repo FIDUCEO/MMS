@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class Read1dFrom3dAndExpandTo2d extends WindowReader {
 
-    protected final Number fillValue;
+    private final Number fillValue;
     private final int[] initialIndexPos;
     private final ArraySource arraySource;
     private int yIndex;

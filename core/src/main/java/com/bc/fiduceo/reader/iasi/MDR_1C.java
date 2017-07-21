@@ -49,7 +49,7 @@ abstract class MDR_1C {
 
     private final byte[] raw_record;
 
-    ImageInputStream iis;
+    private ImageInputStream iis;
 
     MDR_1C(byte[] raw_record) {
         this.raw_record = raw_record;

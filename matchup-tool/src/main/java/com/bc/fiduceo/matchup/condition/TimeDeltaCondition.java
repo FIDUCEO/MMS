@@ -83,11 +83,11 @@ class TimeDeltaCondition implements Condition {
         sourceSamples.clear();
     }
 
-    public long getMaxTimeDeltaInMillis() {
+    long getMaxTimeDeltaInMillis() {
         return maxTimeDeltaInMillis;
     }
 
-    public String[] getSecondarySensorNames() {
+    String[] getSecondarySensorNames() {
         return secondarySensorNames;
     }
 
@@ -95,11 +95,11 @@ class TimeDeltaCondition implements Condition {
         this.secondarySensorNames = secondarySensorNames;
     }
 
-    public void setPrimaryCheck(boolean primaryCheck) {
+    void setPrimaryCheck(boolean primaryCheck) {
         this.primaryCheck = primaryCheck;
     }
 
-    public void setSecondaryCheck(boolean secondaryCheck) {
+    void setSecondaryCheck(boolean secondaryCheck) {
         this.secondaryCheck = secondaryCheck;
     }
 
@@ -134,9 +134,6 @@ class TimeDeltaCondition implements Condition {
 
     private boolean isInvalid(Sample primary, Sample secondary) {
         final long actualTimeDelta = Math.abs(primary.time - secondary.time);
-        if (actualTimeDelta > maxTimeDeltaInMillis) {
-            return true;
-        }
-        return false;
+        return actualTimeDelta > maxTimeDeltaInMillis;
     }
 }

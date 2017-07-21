@@ -20,20 +20,19 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class TimeDeltaConditionPluginTest {
 
@@ -52,10 +51,10 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds>" +
-                           "    198" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds>" +
+                "    198" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -63,16 +62,16 @@ public class TimeDeltaConditionPluginTest {
         assertThat(condition.getClass(), is(equalTo(TimeDeltaCondition.class)));
         final TimeDeltaCondition tdCondition = (TimeDeltaCondition) condition;
         assertEquals(198000, tdCondition.getMaxTimeDeltaInMillis());
-        assertEquals(new String[]{SampleSet.getOnlyOneSecondaryKey()}, tdCondition.getSecondarySensorNames());
+        assertArrayEquals(new String[]{SampleSet.getOnlyOneSecondaryKey()}, tdCondition.getSecondarySensorNames());
     }
 
     @Test
     public void testCreateCondition_withOptionalSecondarySensorName() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"secSenName\">" +
-                           "    298" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"secSenName\">" +
+                "    298" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -81,16 +80,16 @@ public class TimeDeltaConditionPluginTest {
         final TimeDeltaCondition tdCondition = (TimeDeltaCondition) condition;
         assertNotNull(condition);
         assertEquals(298000, tdCondition.getMaxTimeDeltaInMillis());
-        assertEquals(new String[]{"secSenName"}, tdCondition.getSecondarySensorNames());
+        assertArrayEquals(new String[]{"secSenName"}, tdCondition.getSecondarySensorNames());
     }
 
     @Test
     public void testCreateCondition_withOneSecondarySensorNameAndPrimaryCheckFalse_notAllowed() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"secSenName\" primaryCheck=\"false\">" +
-                           "    298" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"secSenName\" primaryCheck=\"false\">" +
+                "    298" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -106,10 +105,10 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_withOneSecondarySensorNameAndSecondaryCheckTrue_notAllowed() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"secSenName,  \" primaryCheck=\"false\" secondaryCheck=\"true\">" +
-                           "    298" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"secSenName,  \" primaryCheck=\"false\" secondaryCheck=\"true\">" +
+                "    298" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -124,16 +123,16 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_multipleConditions() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"name1\">" +
-                           "    3" +
-                           "  </time-delta-seconds>" +
-                           "  <time-delta-seconds names=\"name2\">" +
-                           "    4" +
-                           "  </time-delta-seconds>" +
-                           "  <time-delta-seconds names=\"name3\">" +
-                           "    5" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"name1\">" +
+                "    3" +
+                "  </time-delta-seconds>" +
+                "  <time-delta-seconds names=\"name2\">" +
+                "    4" +
+                "  </time-delta-seconds>" +
+                "  <time-delta-seconds names=\"name3\">" +
+                "    5" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -158,17 +157,17 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_primaryCondition_combinedWithSecondaryCondition() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"a, b, c\"" +
-                           "         primaryCheck=\"true\"" +
-                           "         secondaryCheck=\"false\">" +
-                           "    3" +
-                           "  </time-delta-seconds>" +
-                           "  <time-delta-seconds names=\"b, c\"" +
-                           "         primaryCheck=\"false\"" +
-                           "         secondaryCheck=\"true\">" +
-                           "    4" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"a, b, c\"" +
+                "         primaryCheck=\"true\"" +
+                "         secondaryCheck=\"false\">" +
+                "    3" +
+                "  </time-delta-seconds>" +
+                "  <time-delta-seconds names=\"b, c\"" +
+                "         primaryCheck=\"false\"" +
+                "         secondaryCheck=\"true\">" +
+                "    4" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -198,10 +197,10 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_sameCondition_threeSensorNames() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds names=\"name1, name2, name3\">" +
-                           "    5" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds names=\"name1, name2, name3\">" +
+                "    5" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -210,7 +209,7 @@ public class TimeDeltaConditionPluginTest {
         final TimeDeltaCondition tdCondition = (TimeDeltaCondition) condition;
         assertNotNull(condition);
         assertEquals(5000, tdCondition.getMaxTimeDeltaInMillis());
-        assertEquals(new String[]{"name1", "name2", "name3"}, tdCondition.getSecondarySensorNames());
+        assertArrayEquals(new String[]{"name1", "name2", "name3"}, tdCondition.getSecondarySensorNames());
 
         final SampleSet expected = createValidSampleSet();
         final MatchupSet matchupSet = new MatchupSet();
@@ -230,10 +229,10 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_invalidTag() throws JDOMException, IOException {
         final String XML = "<time-difference>" +
-                           "  <time-delta-seconds>" +
-                           "    198" +
-                           "  </time-delta-seconds>" +
-                           "</time-difference>";
+                "  <time-delta-seconds>" +
+                "    198" +
+                "  </time-delta-seconds>" +
+                "</time-difference>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -247,10 +246,10 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_invalidInnerTag() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <clock>" +
-                           "    198" +
-                           "  </clock>" +
-                           "</time-delta>";
+                "  <clock>" +
+                "    198" +
+                "  </clock>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -264,13 +263,13 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_dontAllowConcurrentNoSecondaryNameModeAndSecondaryNameMode() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds>" +
-                           "    12" +
-                           "  </time-delta-seconds>" +
-                           "  <time-delta-seconds names=\"secName\">" +
-                           "    13" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds>" +
+                "    12" +
+                "  </time-delta-seconds>" +
+                "  <time-delta-seconds names=\"secName\">" +
+                "    13" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -284,13 +283,13 @@ public class TimeDeltaConditionPluginTest {
     @Test
     public void testCreateCondition_allowOnlyOneConditionInNoSecondaryNameMode() throws JDOMException, IOException {
         final String XML = "<time-delta>" +
-                           "  <time-delta-seconds>" +
-                           "    12" +
-                           "  </time-delta-seconds>" +
-                           "  <time-delta-seconds>" +
-                           "    13" +
-                           "  </time-delta-seconds>" +
-                           "</time-delta>";
+                "  <time-delta-seconds>" +
+                "    12" +
+                "  </time-delta-seconds>" +
+                "  <time-delta-seconds>" +
+                "    13" +
+                "  </time-delta-seconds>" +
+                "</time-delta>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -336,7 +335,7 @@ public class TimeDeltaConditionPluginTest {
 
         private final SampleSet sampleSet;
 
-        public SampleSetBuilder(long primaryTime) {
+        SampleSetBuilder(long primaryTime) {
             sampleSet = new SampleSet();
             sampleSet.setPrimary(new Sample(0, 0, 0, 0, primaryTime));
         }
@@ -346,9 +345,8 @@ public class TimeDeltaConditionPluginTest {
             return this;
         }
 
-        public SampleSet build() {
+        SampleSet build() {
             return sampleSet;
         }
-
     }
 }

@@ -23,7 +23,6 @@ package com.bc.fiduceo.post;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.post.plugin.nwp.CDOTestRunner;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;

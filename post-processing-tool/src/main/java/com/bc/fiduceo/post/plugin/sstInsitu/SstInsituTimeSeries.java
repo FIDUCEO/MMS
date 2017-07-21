@@ -47,7 +47,7 @@ import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
 class SstInsituTimeSeries extends PostProcessing {
 
-    static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
+    private static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
 
     // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23

@@ -20,9 +20,6 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
@@ -31,17 +28,15 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.matchup.Delegator_MatchupTool;
-import com.bc.fiduceo.matchup.MatchupCollection;
-import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
-import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.matchup.*;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -49,7 +44,6 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -61,6 +55,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -105,14 +102,14 @@ public class MmdWriter_IO_Test {
         primarySensor.setPrimary(true);
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
-                    .build("test")
-                    .withDimensions(Arrays.asList(
-                                new Dimension("primary", 5, 7),
-                                new Dimension("secondary", 3, 5)))
-                    .withSensors(Arrays.asList(
-                                primarySensor,
-                                new Sensor("secondary")))
-                    .createConfig();
+                .build("test")
+                .withDimensions(Arrays.asList(
+                        new Dimension("primary", 5, 7),
+                        new Dimension("secondary", 3, 5)))
+                .withSensors(Arrays.asList(
+                        primarySensor,
+                        new Sensor("secondary")))
+                .createConfig();
 
         //execution
         final MmdWriterNC4 mmdWriter = new MmdWriterNC4(writerConfig);
@@ -189,14 +186,14 @@ public class MmdWriter_IO_Test {
         primarySensor.setPrimary(true);
 
         final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
-                    .build("useCaseName")
-                    .withDimensions(Arrays.asList(
-                                new Dimension("avhrr-n11", 5, 7),
-                                new Dimension("avhrr-n12", 3, 5)))
-                    .withSensors(Arrays.asList(
-                                primarySensor,
-                                new Sensor("avhrr-n12")))
-                    .createConfig();
+                .build("useCaseName")
+                .withDimensions(Arrays.asList(
+                        new Dimension("avhrr-n11", 5, 7),
+                        new Dimension("avhrr-n12", 3, 5)))
+                .withSensors(Arrays.asList(
+                        primarySensor,
+                        new Sensor("avhrr-n12")))
+                .createConfig();
 
         final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
 
@@ -226,7 +223,7 @@ public class MmdWriter_IO_Test {
             assertNotNull(comment);
             assertEquals(DataType.STRING, comment.getDataType());
             assertEquals("This MMD file is created based on the use case configuration documented in the attribute 'use-case-configuration'.",
-                         comment.getStringValue()
+                    comment.getStringValue()
             );
 
             final Attribute useCaseConfigAttr = mmd.findGlobalAttribute("use-case-configuration");
@@ -417,15 +414,15 @@ public class MmdWriter_IO_Test {
         primary.setPrimary(true);
 
         return UseCaseConfigBuilder
-                    .build("mmd02")
-                    .withSensors(Arrays.asList(
-                                primary,
-                                new Sensor("avhrr-n11")))
-                    .withDimensions(Arrays.asList(
-                                new Dimension("avhrr-n10", 5, 5),
-                                new Dimension("avhrr-n11", 5, 5)))
-                    .withOutputPath(testDir.getAbsolutePath())
-                    .createConfig();
+                .build("mmd02")
+                .withSensors(Arrays.asList(
+                        primary,
+                        new Sensor("avhrr-n11")))
+                .withDimensions(Arrays.asList(
+                        new Dimension("avhrr-n10", 5, 5),
+                        new Dimension("avhrr-n11", 5, 5)))
+                .withOutputPath(testDir.getAbsolutePath())
+                .createConfig();
     }
 
     private void assertCorrectDimensions(Variable variable, int z, int y, int x) {
