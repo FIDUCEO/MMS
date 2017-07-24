@@ -81,7 +81,7 @@ public class SphericalDistancePluginTest {
             plugin.createPostProcessing(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Illegal XML Element. Tagname 'spherical-point_distance' expected.", expected.getMessage());
+            assertEquals("Illegal XML Element. Tagname 'spherical-distance' expected.", expected.getMessage());
         }
     }
 

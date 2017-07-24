@@ -34,7 +34,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bc.fiduceo.util.JDomUtils.*;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryChild;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryRootElement;
+import static com.bc.fiduceo.util.JDomUtils.getMandatoryText;
+import static com.bc.fiduceo.util.JDomUtils.getValueFromNameAttributeMandatory;
 
 public class UseCaseConfig {
 

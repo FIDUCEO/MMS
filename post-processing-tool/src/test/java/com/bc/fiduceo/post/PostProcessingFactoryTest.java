@@ -46,7 +46,7 @@ public class PostProcessingFactoryTest {
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
         assertEquals(10, plugins.size());
         /* 01 */  assertTrue(plugins.containsKey("dummy-post-processing"));
-        /* 02 */  assertTrue(plugins.containsKey("spherical-point_distance"));
+        /* 02 */  assertTrue(plugins.containsKey("spherical-distance"));
         /* 03 */  assertTrue(plugins.containsKey("sst-insitu-time-series"));
         /* 04 */  assertTrue(plugins.containsKey("add-amsre-solar-angles"));
         /* 05 */  assertTrue(plugins.containsKey("nwp"));
@@ -60,7 +60,7 @@ public class PostProcessingFactoryTest {
     @Test
     public void testGetPostProcessing() throws Exception {
 
-        final Element element = new Element("spherical-point_distance").addContent(Arrays.asList(
+        final Element element = new Element("spherical-distance").addContent(Arrays.asList(
                     new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
                                 new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
                                 new Element(TAG_NAME_DATA_TYPE).addContent("Float")

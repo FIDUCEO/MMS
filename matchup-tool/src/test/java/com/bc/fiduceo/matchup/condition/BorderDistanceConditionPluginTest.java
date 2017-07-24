@@ -43,17 +43,17 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testGetConditionName() {
-        assertEquals("border-point_distance", plugin.getConditionName());
+        assertEquals("border-distance", plugin.getConditionName());
     }
 
     @Test
     public void testCreateCondition() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <primary>" +
                            "    <nx>4</nx>" +
                            "    <ny>8</ny>" +
                            "  </primary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final Condition condition = plugin.createCondition(element);
@@ -63,12 +63,12 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_primary() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <primary>" +
                            "    <nx>3</nx>" +
                            "    <ny>4</ny>" +
                            "  </primary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -84,12 +84,12 @@ public class BorderDistanceConditionPluginTest {
     @Test
     public void testParseConfiguration_OnlyOnePrimaryAllowed() throws JDOMException, IOException {
         //preparation
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <primary>" +
                            "  </primary>" +
                            "  <primary>" +
                            "  </primary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -104,12 +104,12 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_secondary() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary>" +
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -126,7 +126,7 @@ public class BorderDistanceConditionPluginTest {
     @Test
     public void testParseConfiguration_twoSecondriesWithoutNamesAttribute() throws JDOMException, IOException {
         //preparation
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary>" +
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
@@ -135,7 +135,7 @@ public class BorderDistanceConditionPluginTest {
                            "    <nx>7</nx>" +
                            "    <ny>8</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -150,7 +150,7 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_twoSecondariesWithDifferentNames() throws Exception {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary names=\"nameA\">" +
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
@@ -159,7 +159,7 @@ public class BorderDistanceConditionPluginTest {
                            "    <nx>7</nx>" +
                            "    <ny>8</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -182,7 +182,7 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_NotAllowedToUseASecondaryNameTwice() throws Exception {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary names=\"nameA,nameB,nameC\">" +
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
@@ -191,7 +191,7 @@ public class BorderDistanceConditionPluginTest {
                            "    <nx>12</nx>" +
                            "    <ny>14</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -204,12 +204,12 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_oneSecondariesWithTwoNames() throws Exception {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary names=\"nameA,nameB\">" +
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -232,7 +232,7 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_mixingOfNamedSecondaryAndUnnamedSecondariesNotAllowed() throws Exception {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary>" + // only one secondary case
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
@@ -241,7 +241,7 @@ public class BorderDistanceConditionPluginTest {
                            "    <nx>5</nx>" +
                            "    <ny>6</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -254,7 +254,7 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_both() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <primary>" +
                            "    <nx>7</nx>" +
                            "    <ny>8</ny>" +
@@ -263,7 +263,7 @@ public class BorderDistanceConditionPluginTest {
                            "    <nx>9</nx>" +
                            "    <ny>10</ny>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -283,8 +283,8 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_none() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
-                           "</border-point_distance>";
+        final String XML = "<border-distance>" +
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         final List<BorderDistanceCondition.Configuration> configurations = plugin.parseConfiguration(element);
@@ -301,18 +301,18 @@ public class BorderDistanceConditionPluginTest {
             plugin.parseConfiguration(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), containsString("'border-point_distance'"));
+            assertThat(expected.getMessage(), containsString("'border-distance'"));
             assertThat(expected.getMessage(), containsString("expected"));
         }
     }
 
     @Test
     public void testParseConfiguration_primary_missingXTag() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <primary>" +
                            "    <ny>4</ny>" +
                            "  </primary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {
@@ -326,11 +326,11 @@ public class BorderDistanceConditionPluginTest {
 
     @Test
     public void testParseConfiguration_secondary_missingYTag() throws JDOMException, IOException {
-        final String XML = "<border-point_distance>" +
+        final String XML = "<border-distance>" +
                            "  <secondary>" +
                            "    <nx>5</nx>" +
                            "  </secondary>" +
-                           "</border-point_distance>";
+                           "</border-distance>";
         final Element element = TestUtil.createDomElement(XML);
 
         try {

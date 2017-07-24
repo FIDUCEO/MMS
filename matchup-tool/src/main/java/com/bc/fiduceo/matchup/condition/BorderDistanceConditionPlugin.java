@@ -50,7 +50,7 @@ or
 
 Multiple secondary sensor mode:
 
-    <border-point_distance>
+    <border-distance>
         <primary>
             <nx>2</nx>
             <ny>3</ny>
@@ -63,7 +63,7 @@ Multiple secondary sensor mode:
             <nx>5</nx>
             <ny>4</ny>
         </secondary>
-    </border-point_distance>
+    </border-distance>
  */
 
 public class BorderDistanceConditionPlugin implements ConditionPlugin {
@@ -77,7 +77,7 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
 
     @Override
     public String getConditionName() {
-        return "border-point_distance";
+        return "border-distance";
     }
 
     List<BorderDistanceCondition.Configuration> parseConfiguration(Element element) {

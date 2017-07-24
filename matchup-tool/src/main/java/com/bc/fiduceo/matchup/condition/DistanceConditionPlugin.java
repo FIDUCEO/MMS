@@ -33,8 +33,8 @@ import java.util.stream.Stream;
 
 public class DistanceConditionPlugin implements ConditionPlugin {
 
-    public static final String TAG_NAME_CONDITION_NAME = "spherical-point_distance";
-    public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-point_distance-km";
+    public static final String TAG_NAME_CONDITION_NAME = "spherical-distance";
+    public static final String TAG_NAME_MAX_PIXEL_DISTANCE_KM = "max-pixel-distance-km";
 
     @Override
     public Condition createCondition(Element element) {
