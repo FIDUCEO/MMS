@@ -128,5 +128,13 @@
             <exclude source-name="cloud_flags_fward"/>
             <exclude source-name="cloud_flags_nadir"/>
         </sensors>
+
+        <!-- the following snippet renames caliop_vfm-cal to SST-CCI notation -->
+        <sensor-rename source-name="caliop_vfm-cal" target-name="caliop_vfm"/>
+        <separator sensor-names="caliop_vfm-cal" separator="."/>
+
+        <!-- the following snippet set separator char for insitu sensors to SST-CCI point separator -->
+        <separator sensor-names="drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst" separator="."/>
+
     </variables-configuration>
 </mmd-writer-config>
