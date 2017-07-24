@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class MatchupStrategyFactory {
 
     public static AbstractMatchupStrategy get(UseCaseConfig useCaseConfig, Logger logger) {
-        if (useCaseConfig.getNumRandomSeedPoints()>0) {
+        if (useCaseConfig.getRandomPointsPerDay()>0) {
             return new SeedPointMatchupStrategy(logger);
         }
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();

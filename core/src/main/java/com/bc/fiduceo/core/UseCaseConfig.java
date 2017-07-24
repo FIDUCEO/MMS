@@ -43,7 +43,7 @@ public class UseCaseConfig {
     static final String TAG_NAME_WRITE_DISTANCE = "write-point_distance";
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
-    static final String TAG_NAME_NUM_RANDOM_SEED_POINTS = "num-random-seed-points";
+    static final String TAG_NAME_RANDOM_POINTS_PER_DAY = "random-points-per-day";
     public static final String TAG_NAME_PRIMARY = "primary";
     static final String TAG_NAME_DATA_VERSION = "data-version";
     static final String TAG_NAME_DIMENSIONS = "dimensions";
@@ -59,7 +59,7 @@ public class UseCaseConfig {
     private List<Dimension> dimensions;
     private String outputPath;
     private boolean writeDistance;
-    private int numRandomSeedPoints;
+    private int randomPointsPerDay;
     private boolean testRun;
 
     public UseCaseConfig() {
@@ -96,12 +96,12 @@ public class UseCaseConfig {
         this.name = name;
     }
 
-    public int getNumRandomSeedPoints() {
-        return numRandomSeedPoints;
+    public int getRandomPointsPerDay() {
+        return randomPointsPerDay;
     }
 
-    private void setNumRandomSeedPoints(int numRandomSeedPoints) {
-        this.numRandomSeedPoints = numRandomSeedPoints;
+    private void setRandomPointsPerDay(int randomPointsPerDay) {
+        this.randomPointsPerDay = randomPointsPerDay;
     }
 
     protected List<Sensor> getSensors() {
@@ -263,9 +263,9 @@ public class UseCaseConfig {
             setWriteDistance(writeDistance);
         }
 
-        final Element seedPointsElem = rootElement.getChild(TAG_NAME_NUM_RANDOM_SEED_POINTS);
+        final Element seedPointsElem = rootElement.getChild(TAG_NAME_RANDOM_POINTS_PER_DAY);
         if (seedPointsElem != null) {
-            setNumRandomSeedPoints(getMandatoryPositiveIntegerValue(seedPointsElem));
+            setRandomPointsPerDay(getMandatoryPositiveIntegerValue(seedPointsElem));
         }
 
         final Element testRunElem = rootElement.getChild(TAG_NAME_TEST_RUN);

@@ -93,8 +93,8 @@ public class UseCaseConfigBuilder {
         return this;
     }
 
-    public UseCaseConfigBuilder withRandomSeedPoints(int numRandomSeedPoints) {
-        addChild(getRootElement(), TAG_NAME_NUM_RANDOM_SEED_POINTS, numRandomSeedPoints);
+    public UseCaseConfigBuilder withRandomPointsPerDay(int numRandomSeedPoints) {
+        addChild(getRootElement(), TAG_NAME_RANDOM_POINTS_PER_DAY, numRandomSeedPoints);
         return this;
     }
 

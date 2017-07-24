@@ -410,22 +410,22 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testNumRandomSeedPoints_valid() {
+    public void testRandomPointsPerDay_valid() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <num-random-seed-points>432</num-random-seed-points>" +
+                                  "    <random-points-per-day>432</random-points-per-day>" +
                                   "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertNotNull(useCaseConfig);
         assertEquals("use-case RandomSeed", useCaseConfig.getName());
-        assertEquals(432, useCaseConfig.getNumRandomSeedPoints());
+        assertEquals(432, useCaseConfig.getRandomPointsPerDay());
     }
 
     @Test
-    public void testNumRandomSeedPoints_empty() {
+    public void testRandomPointsPerDay_empty() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <num-random-seed-points>   </num-random-seed-points>" +
+                                  "    <random-points-per-day>   </random-points-per-day>" +
                                   "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
@@ -433,15 +433,15 @@ public class UseCaseConfigTest {
             UseCaseConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
-            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' expected";
+            final String expected = "Unable to initialize use case configuration: Value of element 'random-points-per-day' expected";
             assertEquals(expected, e.getMessage());
         }
     }
 
     @Test
-    public void testNumRandomSeedPoints_zero() {
+    public void testRandomPointsPerDay_zero() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <num-random-seed-points> 0 </num-random-seed-points>" +
+                                  "    <random-points-per-day> 0 </random-points-per-day>" +
                                   "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
@@ -449,15 +449,15 @@ public class UseCaseConfigTest {
             UseCaseConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
-            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' >= 1 expected. But was '0'.";
+            final String expected = "Unable to initialize use case configuration: Value of element 'random-points-per-day' >= 1 expected. But was '0'.";
             assertEquals(expected, e.getMessage());
         }
     }
 
     @Test
-    public void testNumRandomSeedPoints_negative() {
+    public void testRandomPointsPerDay_negative() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <num-random-seed-points>  -1 </num-random-seed-points>" +
+                                  "    <random-points-per-day>  -1 </random-points-per-day>" +
                                   "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
@@ -465,7 +465,7 @@ public class UseCaseConfigTest {
             UseCaseConfig.load(inputStream);
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
-            final String expected = "Unable to initialize use case configuration: Value of element 'num-random-seed-points' >= 1 expected. But was '-1'.";
+            final String expected = "Unable to initialize use case configuration: Value of element 'random-points-per-day' >= 1 expected. But was '-1'.";
             assertEquals(expected, e.getMessage());
         }
     }

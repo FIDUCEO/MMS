@@ -59,7 +59,7 @@ public class MatchupToolIntegrationTest_useCase_24 extends AbstractUsecaseIntegr
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(300, null) // 5 minutes
                 .withMaxPixelDistanceKm(5, null)   // value in km
-                .withRandomSeedPoints(2000000)   // 2.000.000 random seed points for 7 days to fulfill 20000 points per 2280 scan lines
+                .withRandomPointsPerDay(285714)   // 2.000.000 random seed points for 7 days to fulfill 20000 points per 2280 scan lines
 //                .withHIRS_LZA_Screening(10.f)
                 .withTestRun()
                 .createConfig();

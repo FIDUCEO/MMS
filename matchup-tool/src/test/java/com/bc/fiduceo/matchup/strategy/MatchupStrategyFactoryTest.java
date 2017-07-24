@@ -71,15 +71,13 @@ public class MatchupStrategyFactoryTest {
 
     @Test
     public void testThatFactoryReturnsSeedPointStrategy() throws Exception {
-        final StringBuilder configString = new StringBuilder();
-        configString.append("<use-case-config name=\"use case 23\">");
-        configString.append("    <num-random-seed-points>");
-        configString.append("        114");
-        configString.append("    </num-random-seed-points>");
-        configString.append("</use-case-config>");
+        String configString = "<use-case-config name=\"use case 23\">" +
+                "    <random-points-per-day>" +
+                "        114" +
+                "    </random-points-per-day>" +
+                "</use-case-config>";
 
-
-        final UseCaseConfig config = UseCaseConfig.load(new ByteArrayInputStream(configString.toString().getBytes()));
+        final UseCaseConfig config = UseCaseConfig.load(new ByteArrayInputStream(configString.getBytes()));
 
         final AbstractMatchupStrategy strategy = MatchupStrategyFactory.get(config, Logger.getAnonymousLogger());
         assertTrue(strategy instanceof SeedPointMatchupStrategy);

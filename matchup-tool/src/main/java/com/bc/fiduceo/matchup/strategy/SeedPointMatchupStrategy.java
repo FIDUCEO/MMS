@@ -20,7 +20,11 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SamplingPoint;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -44,7 +48,13 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
@@ -188,18 +198,24 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
     }
 
     private List<SamplingPoint> createRandomPoints(ToolContext context, UseCaseConfig useCaseConfig) {
-        final int numRandomSeedPoints = useCaseConfig.getNumRandomSeedPoints();
-        if (numRandomSeedPoints < 1) {
+        final int randomPointsPerDay = useCaseConfig.getRandomPointsPerDay();
+        if (randomPointsPerDay < 1) {
             throw new RuntimeException("Number of random seed points greater than zero expected.");
         }
+
+        final Date startDate = context.getStartDate();
+        final Date endDate = context.getEndDate();
+        final int randomPoints = getNumRandomPoints(randomPointsPerDay, startDate, endDate);
+
         final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(true);
-        final long contextStart = context.getStartDate().getTime();
-        final long contextEnd = context.getEndDate().getTime();
+
+        final long contextStart = startDate.getTime();
+        final long contextEnd = endDate.getTime();
         int seed = 0;
         if (!useCaseConfig.isTestRun()) {
             seed = SobolSamplingPointGenerator.createRandomSkip();
         }
-        return sobolSamplingPointGenerator.createSamples(numRandomSeedPoints, seed, contextStart, contextEnd);
+        return sobolSamplingPointGenerator.createSamples(randomPoints, seed, contextStart, contextEnd);
     }
 
     private MatchupSet getPrimaryMatchupSet(Reader primaryReader, List<SamplingPoint> primarySeedPoints, Path primaryObservationDataFilePath) throws IOException {
@@ -228,6 +244,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
             }
         }
         return primaryMatchups;
+    }
+
+    // package access for testing only tb 2017-07-21
+    static int getNumRandomPoints(int randomPointsPerDay, Date startDate, Date endDate) {
+        final Instant startInstant = startDate.toInstant();
+        final Instant endInstant = endDate.toInstant();
+
+        final long between = ChronoUnit.DAYS.between(startInstant, endInstant);
+
+        return (int) ((between + 1) * randomPointsPerDay);
     }
 
     private List<SamplingPoint> getPrimarySeedPoints(GeometryFactory geometryFactory, List<SamplingPoint> seedPoints, Date primaryStartTime, Date primaryStopTime, Geometry[] primaryGeometries) {

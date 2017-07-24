@@ -58,8 +58,8 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
     public void testMatchup_seedPointStrategy() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(300, null) // 5 minutes
-                .withMaxPixelDistanceKm(5, null)   // value in km
-                .withRandomSeedPoints(2000000)   // 2.000.000 random seed points for 7 days to fulfill 20000 points per 2280 scan lines
+                .withMaxPixelDistanceKm(5, null) // value in km
+                .withRandomPointsPerDay(285714)    // 2.000.000 random seed points for 7 days to fulfill 20000 points per 2280 scan lines
                 .withTestRun()
 //                .withHIRS_LZA_Screening(10.f)
                 .createConfig();
