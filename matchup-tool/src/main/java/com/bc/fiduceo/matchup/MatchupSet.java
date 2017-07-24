@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.core.Sample;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;

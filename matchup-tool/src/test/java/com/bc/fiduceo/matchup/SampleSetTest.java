@@ -22,8 +22,7 @@ package com.bc.fiduceo.matchup;
 
 import static org.junit.Assert.*;
 
-import com.bc.fiduceo.matchup.Sample;
-import com.bc.fiduceo.matchup.SampleSet;
+import com.bc.fiduceo.core.Sample;
 import org.junit.*;
 
 public class SampleSetTest {

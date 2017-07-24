@@ -27,7 +27,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.*;
 

@@ -26,7 +26,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.MatchupToolTestUseCaseConfigBuilder;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.TestUseCaseConfig;
 import com.bc.fiduceo.tool.ToolContext;

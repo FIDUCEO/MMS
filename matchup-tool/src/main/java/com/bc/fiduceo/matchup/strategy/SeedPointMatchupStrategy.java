@@ -28,7 +28,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;

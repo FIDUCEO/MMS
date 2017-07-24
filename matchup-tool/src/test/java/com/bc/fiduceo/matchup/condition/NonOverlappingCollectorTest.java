@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.Before;
 import org.junit.Test;

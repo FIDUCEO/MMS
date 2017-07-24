@@ -29,7 +29,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderCache;

@@ -3,7 +3,7 @@ package com.bc.fiduceo.matchup.condition;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.junit.*;
 

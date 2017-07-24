@@ -20,7 +20,7 @@ package com.bc.fiduceo.matchup.screening;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.screening.expression.WindowReaderEvalEnv;
 import com.bc.fiduceo.matchup.screening.expression.WindowReaderNamespace;

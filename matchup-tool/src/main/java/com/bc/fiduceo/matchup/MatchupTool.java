@@ -84,6 +84,26 @@ class MatchupTool {
         logger = FiduceoLogger.getLogger();
     }
 
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
+
+        runMatchupGeneration(context, mmdWriterConfig);
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION_NUMBER);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
+    }
+
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
         final List<MatchupSet> sets = matchupCollection.getSets();
         if (sets.size() > 0) {
@@ -304,26 +324,6 @@ class MatchupTool {
         return builder;
     }
 
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        runMatchupGeneration(context, mmdWriterConfig);
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION_NUMBER);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
-    }
-
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
         logger.info("Loading configuration ...");
         final ToolContext context = new ToolContext();
@@ -347,6 +347,7 @@ class MatchupTool {
             throw new IllegalArgumentException("Use case configuration errors: " + builder.toString());
         }
         context.setUseCaseConfig(useCaseConfig);
+
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
         if (secondarySensors.size() == 1) {
             SampleSet.setOnlyOneSecondaryKey(secondarySensors.get(0).getName());
@@ -376,19 +377,20 @@ class MatchupTool {
             return;
         }
 
+        writeMmdFile(matchupCollection, context, writerConfig);
+    }
+
+    private void writeMmdFile(MatchupCollection matchupCollection, ToolContext context, MmdWriterConfig writerConfig) throws IOException, InvalidRangeException {
         final MmdWriter mmdWriter = MmdWriterFactory.createFileWriter(writerConfig);
+        final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
 
         final IOVariablesList ioVariablesList = new IOVariablesList(context.getReaderFactory());
 
         final VariablesConfiguration variablesConfiguration = writerConfig.getVariablesConfiguration();
         createIOVariablesPerSensor(ioVariablesList, matchupCollection, useCaseConfig, variablesConfiguration);
+
         if (useCaseConfig.isWriteDistance()) {
-            final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
-            final String primaryName = useCaseConfig.getPrimarySensor().getName();
-            for (Sensor secondarySensor : secondarySensors) {
-                final String secondaryName = secondarySensor.getName();
-                ioVariablesList.addSampleSetVariable(createSphericalDistanceVariable(variablesConfiguration, primaryName, secondaryName));
-            }
+            addDistanceVariables(useCaseConfig, ioVariablesList, variablesConfiguration);
         }
 
         try {
@@ -398,24 +400,39 @@ class MatchupTool {
         }
     }
 
-    private SphericalDistanceIOVariable createSphericalDistanceVariable(
-                VariablesConfiguration variablesConfiguration,
-                String primaryName, String secondaryName) {
-        final String targetVariableName;
-        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
-        final String p = sensorRenames.getOrDefault(primaryName, primaryName);
-        final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
-        targetVariableName = p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
+    private void addDistanceVariables(UseCaseConfig useCaseConfig, IOVariablesList ioVariablesList, VariablesConfiguration variablesConfiguration) {
+        final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
+        final String primaryName = useCaseConfig.getPrimarySensor().getName();
+        for (Sensor secondarySensor : secondarySensors) {
+            final String secondaryName = secondarySensor.getName();
+            final SphericalDistanceIOVariable sphericalDistanceVariable = createSphericalDistanceVariable(variablesConfiguration, primaryName, secondaryName);
+            ioVariablesList.addSampleSetVariable(sphericalDistanceVariable);
+        }
+    }
+
+    private SphericalDistanceIOVariable createSphericalDistanceVariable(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
+        final String targetVariableName = createDistanceVariableName(variablesConfiguration, primaryName, secondaryName);
+
         final SphericalDistanceIOVariable variable = new SphericalDistanceIOVariable(secondaryName);
         variable.setTargetVariableName(targetVariableName);
-        final DataType dataType = DataType.FLOAT;
-        variable.setDataType(dataType.toString());
+
+        variable.setDataType(DataType.FLOAT.toString());
         variable.setDimensionNames("matchup_count");
+
         final List<Attribute> attributes = variable.getAttributes();
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical point_distance of matchup center locations"));
         attributes.add(new Attribute(CF_UNITS_NAME, "km"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(dataType.getPrimitiveClassType())));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(DataType.FLOAT.getPrimitiveClassType())));
+
         return variable;
+    }
+
+    // package access for testing only tb 2017-07-21
+    static String createDistanceVariableName(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
+        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+        final String p = sensorRenames.getOrDefault(primaryName, primaryName);
+        final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
+        return p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
     }
 
     private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {

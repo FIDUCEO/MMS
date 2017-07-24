@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.esa.snap.core.util.StopWatch;
 import org.junit.*;

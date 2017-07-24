@@ -564,6 +564,40 @@ public class MatchupToolTest {
         assertSame(first, set);
     }
 
+    @Test
+    public void testCreateDistanceVariableName_noRenames() {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final String primary = "primus";
+        final String secondary = "sick";
+
+        final String distanceVariableName = MatchupTool.createDistanceVariableName(variablesConfiguration, primary, secondary);
+        assertEquals("primus_sick_matchup_spherical_distance", distanceVariableName);
+    }
+
+    @Test
+    public void testCreateDistanceVariableName_primaryRename() {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final String primary = "prince";
+        final String secondary = "sick";
+
+        variablesConfiguration.addSensorRename(primary, "renamed_wurst");
+
+        final String distanceVariableName = MatchupTool.createDistanceVariableName(variablesConfiguration, primary, secondary);
+        assertEquals("renamed_wurst_sick_matchup_spherical_distance", distanceVariableName);
+    }
+
+    @Test
+    public void testCreateDistanceVariableName_secondaryRename() {
+        final VariablesConfiguration variablesConfiguration = new VariablesConfiguration();
+        final String primary = "prince";
+        final String secondary = "sick";
+
+        variablesConfiguration.addSensorRename(secondary, "the-seco-one");
+
+        final String distanceVariableName = MatchupTool.createDistanceVariableName(variablesConfiguration, primary, secondary);
+        assertEquals("prince_the-seco-one_matchup_spherical_distance", distanceVariableName);
+    }
+
     private Sensor createSensor(String name, boolean isPrimary) {
         final Sensor primarySensor = new Sensor();
         primarySensor.setPrimary(isPrimary);

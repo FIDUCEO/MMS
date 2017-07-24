@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 
+import com.bc.fiduceo.core.Sample;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

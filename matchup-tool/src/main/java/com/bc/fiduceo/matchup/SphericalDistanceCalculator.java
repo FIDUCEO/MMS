@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.math.Distance;
 
 class SphericalDistanceCalculator {

@@ -28,7 +28,7 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.matchup.Sample;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.SimpleNc4ReaderForTestCases;

@@ -25,6 +25,7 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
