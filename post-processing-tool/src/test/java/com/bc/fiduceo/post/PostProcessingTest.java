@@ -70,7 +70,7 @@ public class PostProcessingTest {
         when(reader.findVariable(null, "sensor-name_file_name")).thenReturn(expectedVariable);
 
         //action
-        final Variable fileNameVariable = PostProcessing.getFileNameVariable(reader, "sensor-name");
+        final Variable fileNameVariable = PostProcessing.getFileNameVariable(reader, "sensor-name", "_");
 
         assertSame(expectedVariable, fileNameVariable);
     }
@@ -80,7 +80,7 @@ public class PostProcessingTest {
         final NetcdfFile reader = mock(NetcdfFile.class);
 
         try {
-            PostProcessing.getFileNameVariable(reader, "sensor-name");
+            PostProcessing.getFileNameVariable(reader, "sensor-name", "_");
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertThat(expected.getMessage(), is(equalTo("Input Variable 'sensor-name_file_name' not present in input file")));
@@ -95,7 +95,7 @@ public class PostProcessingTest {
         when(reader.findVariable(null, "sensor-name_processing_version")).thenReturn(expectedVariable);
 
         //action
-        final Variable processingVersionVariable = PostProcessing.getProcessingVersionVariable(reader, "sensor-name");
+        final Variable processingVersionVariable = PostProcessing.getProcessingVersionVariable(reader, "sensor-name", "_");
 
         assertSame(expectedVariable, processingVersionVariable);
     }
@@ -105,7 +105,7 @@ public class PostProcessingTest {
         final NetcdfFile reader = mock(NetcdfFile.class);
 
         try {
-            PostProcessing.getProcessingVersionVariable(reader, "sensor-name");
+            PostProcessing.getProcessingVersionVariable(reader, "sensor-name", "_");
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertThat(expected.getMessage(), is(equalTo("Input Variable 'sensor-name_processing_version' not present in input file")));

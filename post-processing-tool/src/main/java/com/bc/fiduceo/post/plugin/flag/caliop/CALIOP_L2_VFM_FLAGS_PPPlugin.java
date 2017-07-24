@@ -20,9 +20,9 @@ import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import org.jdom.Element;
 
-public class CaliopVfmFlagsPlugin implements PostProcessingPlugin {
+public class CALIOP_L2_VFM_FLAGS_PPPlugin implements PostProcessingPlugin {
 
-    static final String TAG_POST_PROCESSING_NAME = "caliop-L2-vfm-flags";
+    static final String TAG_POST_PROCESSING_NAME = "caliop-level2-vfm-flags";
 //    static final String TAG_TARGET_FCF_VARIABLE_NAME = "target-fcf-variable-name";
 //    static final String TAG_TARGET_FCF_DIMENSION_NAME = "target-fcf-dimension-name";
 //    static final String TAG_SOURCE_FILE_VARIABE_NAME = "target-fcf-dimension-name";
@@ -30,7 +30,7 @@ public class CaliopVfmFlagsPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        return new CaliopVfmFlags();
+        return new CALIOP_L2_VFM_FLAGS_PP();
     }
 
     @Override

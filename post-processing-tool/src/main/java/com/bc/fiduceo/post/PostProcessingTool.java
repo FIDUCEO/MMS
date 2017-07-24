@@ -296,7 +296,7 @@ class PostProcessingTool {
         return variableNamesToRemove;
     }
 
-    private NetcdfFileWriter createWriter(Path target, NetcdfFile reader) throws IOException {
+    private static NetcdfFileWriter createWriter(Path target, NetcdfFile reader) throws IOException {
         NetcdfFileWriter writer;
         final String absTarget = target.toAbsolutePath().toString();
         if (DataFormatType.NETCDF.name().equalsIgnoreCase(reader.getFileTypeId())) {
@@ -325,7 +325,7 @@ class PostProcessingTool {
             if (namesToRemove.contains(shortName)) {
                 continue;
             }
-            
+
             List<Dimension> dims = v.getDimensions();
             // all dimensions must be shared (!)
             for (Dimension dim : dims) {

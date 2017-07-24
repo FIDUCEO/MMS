@@ -6,4 +6,4 @@ com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin
 com.bc.fiduceo.post.plugin.ElevationToSolZenAnglePlugin
 com.bc.fiduceo.post.plugin.iasi.AddIASISpectrumPlugin
 com.bc.fiduceo.post.plugin.land_distance.AddLandDistancePlugin
-com.bc.fiduceo.post.plugin.flag.caliop.CaliopVfmFlagsPlugin
+com.bc.fiduceo.post.plugin.flag.caliop.CALIOP_L2_VFM_FLAGS_PPPlugin

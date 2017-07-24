@@ -54,7 +54,7 @@ public class PostProcessingFactoryTest {
         /* 07 */  assertTrue(plugins.containsKey("elevation-to-solzen-angle"));
         /* 08 */  assertTrue(plugins.containsKey("add-iasi-spectrum"));
         /* 09 */  assertTrue(plugins.containsKey("add-distance-to-land"));
-        /* 10 */  assertTrue(plugins.containsKey("caliop-L2-vfm-flags"));
+        /* 10 */  assertTrue(plugins.containsKey("caliop-level2-vfm-flags"));
     }
 
     @Test

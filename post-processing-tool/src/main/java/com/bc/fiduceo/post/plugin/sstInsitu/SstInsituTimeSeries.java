@@ -72,7 +72,7 @@ class SstInsituTimeSeries extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
-        fileNameVariable = getFileNameVariable(reader, sensorType);
+        fileNameVariable = getFileNameVariable(reader, sensorType, "_");
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);

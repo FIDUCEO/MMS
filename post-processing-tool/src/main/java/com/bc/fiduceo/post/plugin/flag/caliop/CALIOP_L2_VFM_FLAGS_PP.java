@@ -19,11 +19,10 @@ package com.bc.fiduceo.post.plugin.flag.caliop;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_Reader;
-import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_ReaderPlugin;
 import com.bc.fiduceo.util.NetCDFUtils;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -36,21 +35,26 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 
-public class CaliopVfmFlags extends PostProcessing {
+public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
 
-    private ReaderCache readerCache;
+    ReaderCache readerCache;
     private Variable fileNameVariable;
     private Variable processingVersionVariable;
     private int filenameFieldSize;
     private int matchupCount;
-    private String sensorType;
+    private String sensorNamePrefix;
     private int processingVersionSize;
+    private Variable targetFlagsVariable;
+    private String separatorChar;
+    private String sensorType;
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        sensorType = "caliop_vfm-cal";
-        fileNameVariable = getFileNameVariable(reader, sensorType);
-        processingVersionVariable = getProcessingVersionVariable(reader, sensorType);
+        sensorNamePrefix = "caliop_vfm";
+        sensorType = sensorNamePrefix + "-cal";
+        separatorChar = ".";
+        fileNameVariable = getFileNameVariable(reader, sensorNamePrefix, separatorChar);
+        processingVersionVariable = getProcessingVersionVariable(reader, sensorNamePrefix, separatorChar);
         filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
         processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
 
@@ -59,7 +63,6 @@ public class CaliopVfmFlags extends PostProcessing {
         final String sourceFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, CALIOP_L2_VFM_Reader.REG_EX);
         final String processingVersion = NetCDFUtils.readString(processingVersionVariable, 0, processingVersionSize);
 
-
         final CALIOP_L2_VFM_Reader caliopReader = (CALIOP_L2_VFM_Reader) readerCache.getReaderFor(sensorType, Paths.get(sourceFileName), processingVersion);
         final String flagVarName = "Feature_Classification_Flags";
         final Variable sourceFlagsVar = caliopReader.find(flagVarName);
@@ -67,15 +70,43 @@ public class CaliopVfmFlags extends PostProcessing {
 
         final String numFlagsDimName = "center-fcf-flags";
         writer.addDimension(null, numFlagsDimName, 545);
-        final String dimString = Constants.MATCHUP_COUNT + " " + sensorType + "_ny" + " " + numFlagsDimName;
-        final Variable targetVariable = writer.addVariable(null, sensorType + "_Center_" + flagVarName, DataType.SHORT, dimString);
+        final String dimString = reader.findVariable(toValidName("caliop_vfm.Latitude")).getDimensionsString() + " " + numFlagsDimName;
+        final String targetName = sensorNamePrefix + separatorChar + "Center_" + flagVarName;
+        targetFlagsVariable = writer.addVariable(null, targetName, DataType.SHORT, dimString);
         for (Attribute srcAttribute : srcAttributes) {
-            targetVariable.addAttribute(srcAttribute);
+            targetFlagsVariable.addAttribute(srcAttribute);
         }
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        final int[] srcOrigin = {0, 0};
+        final int[] srcShape = {1, 5515};
+        final int[] targetOrigin = {0, 0, 0, 0};
+        final int[] targetShape = {1, 1, 1, 545};
+        final int yWindowSize = NetCDFUtils.getDimensionLength("caliop_vfm-cal_ny", reader);
+        final int yWindowOffset = yWindowSize / 2;
+
+        final Array yMatchupCenter = reader.findVariable(toValidName("caliop_vfm.y")).read();
+
+        for (int i = 0; i < matchupCount; i++) {
+            final String sourceFileName = getSourceFileName(fileNameVariable, i, filenameFieldSize, CALIOP_L2_VFM_Reader.REG_EX);
+            final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);
+            final CALIOP_L2_VFM_Reader caliopReader = (CALIOP_L2_VFM_Reader) readerCache.getReaderFor(sensorType, Paths.get(sourceFileName), processingVersion);
+            final String flagVarName = "Feature_Classification_Flags";
+            final Variable sourceFlagsVar = caliopReader.find(flagVarName);
+            final int centerY = yMatchupCenter.getInt(i);
+            targetOrigin[0] = i;
+            for (int j = 0; j < yWindowSize; j++) {
+                final int yFlagReadPos = centerY - yWindowOffset + j;
+                srcOrigin[0] = yFlagReadPos;
+                targetOrigin[1] = j;
+                final Array array = sourceFlagsVar.read(srcOrigin, srcShape);
+                final Array centerFlags = CALIOP_L2_VFM_Reader.readNadirClassificationFlags(array);
+                final Array reshapedData = centerFlags.reshape(targetShape);
+                writer.write(targetFlagsVariable, targetOrigin, reshapedData);
+            }
+        }
     }
 
     @Override
@@ -92,5 +123,9 @@ public class CaliopVfmFlags extends PostProcessing {
                 FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
             }
         }
+    }
+
+    private String toValidName(String latName) {
+        return NetcdfFile.makeValidCDLName(latName);
     }
 }

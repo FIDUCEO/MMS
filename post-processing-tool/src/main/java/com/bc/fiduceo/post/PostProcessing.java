@@ -111,12 +111,12 @@ public abstract class PostProcessing {
         return new ReaderCache(readerCacheSize, readerFactory, archive);
     }
 
-    public static Variable getFileNameVariable(NetcdfFile reader, final String sensorType) {
-        return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
+    public static Variable getFileNameVariable(NetcdfFile reader, final String sensorType, final String separator) {
+        return NetCDFUtils.getVariable(reader, sensorType + separator + "file_name");
     }
 
-    public static Variable getProcessingVersionVariable(NetcdfFile reader, final String sensorType) {
-        return NetCDFUtils.getVariable(reader, sensorType + "_processing_version");
+    public static Variable getProcessingVersionVariable(NetcdfFile reader, final String sensorType, final String separator) {
+        return NetCDFUtils.getVariable(reader, sensorType + separator + "processing_version");
     }
 
     public static String getSourceFileName(Variable fileNameVar, int position, int filenameSize, final String fileNamePattern) throws IOException, InvalidRangeException {
