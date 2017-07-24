@@ -228,7 +228,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return new Dimension("lat", shape[1], shape[0]);
     }
 
-    static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
+    public static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
         final short[] storage = (short[]) array.getStorage();
         final short[] nadirStorage = new short[545];
         int nadirIdx = 0;
