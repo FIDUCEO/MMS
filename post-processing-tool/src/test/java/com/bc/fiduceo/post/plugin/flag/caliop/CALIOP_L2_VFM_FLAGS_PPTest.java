@@ -4,12 +4,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -24,6 +26,7 @@ import java.nio.file.Paths;
 /**
  * Created by Sabine on 21.07.2017.
  */
+@RunWith(IOTestRunner.class)
 public class CALIOP_L2_VFM_FLAGS_PPTest {
 
     private CALIOP_L2_VFM_FLAGS_PP pp;
