@@ -140,4 +140,31 @@ public class VariablesConfigurationTest {
         configuration.setSeparator("aba_aba", "._.");
         assertEquals("._.", configuration.getSeparator("aba_aba"));
     }
+
+    @Test
+    public void testSetGetAttributeRename_noRename() {
+        final String renamedAttributeName = configuration.getRenamedAttributeName("sensor", "variable", "attribute");
+        assertEquals("attribute", renamedAttributeName);
+    }
+
+    @Test
+    public void testSetGetAttributeRename() {
+        configuration.setAttributeRename("sensor_A", "variable", "att_ribute", "reno_bute");
+
+        final String renamedAttributeName = configuration.getRenamedAttributeName("sensor_A", "variable", "att_ribute");
+        assertEquals("reno_bute", renamedAttributeName);
+    }
+
+    @Test
+    public void testSetGetAttributeRename_duplicate() {
+        configuration.setAttributeRename("sensor_A", "variable", "att_ribute", "reno_bute");
+
+        try {
+            configuration.setAttributeRename("sensor_A", "variable", "att_ribute", "double_me");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+
+    }
 }

@@ -86,14 +86,10 @@ public class VariablesConfiguration {
     }
 
     public String getSeparator(String sensorName) {
-        if (sensorSeparator.containsKey(sensorName)) {
-            return sensorSeparator.get(sensorName);
-        } else {
-            return DEFAULT_SEPARATOR;
-        }
+        return sensorSeparator.getOrDefault(sensorName, DEFAULT_SEPARATOR);
     }
 
-    public void setSeparator(String sensorName, String separator) {
+    void setSeparator(String sensorName, String separator) {
         sensorSeparator.put(sensorName, separator);
     }
 
