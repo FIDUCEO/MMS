@@ -11,9 +11,12 @@ import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.runner.*;
+import org.mockito.ArgumentMatcher;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -33,7 +36,10 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
 
     @Before
     public void setUp() throws Exception {
-        pp = new CALIOP_L2_VFM_FLAGS_PP();
+        pp = new CALIOP_L2_VFM_FLAGS_PP("caliop_vfm.file_name",
+                                        "caliop_vfm.processing_version",
+                                        "caliop_vfm.y",
+                                        "caliop_vfm.Center_Feature_Classification_Flags");
         // In regular usage the PostProcessingContext will be set by post processing framework.
         pp.setContext(createPostProcessingContext());
         // a call setContext(...) generates an framework call to initReaderCache() method
@@ -79,6 +85,45 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
 
     @Test
     public void compute() throws Exception {
+        pp.filenameFieldSize = 200;
+        pp.processingVersionSize = 30;
+        final Variable tarVar = mock(Variable.class);
+        pp.targetFlagsVariable = tarVar;
+
+        pp.processingVersionVariable = mock(Variable.class);
+        when(pp.processingVersionVariable.read(new int[]{0, 0}, new int[]{1, 30})).thenReturn(Array.factory("   4.10   ".toCharArray()));
+        when(pp.processingVersionVariable.read(new int[]{1, 0}, new int[]{1, 30})).thenReturn(Array.factory("   v4   ".toCharArray()));
+
+        pp.fileNameVariable = mock(Variable.class);
+        when(pp.fileNameVariable.read(new int[]{0, 0}, new int[]{1, 200})).thenReturn(Array.factory("   CAL_LID_L2_VFM-Standard-V4-10.2008-06-02T10-39-30ZD.hdf   ".toCharArray()));
+        when(pp.fileNameVariable.read(new int[]{1, 0}, new int[]{1, 200})).thenReturn(Array.factory("   CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf   ".toCharArray()));
+
+        final Variable yVar = mock(Variable.class);
+        when(yVar.read()).thenReturn(Array.factory(new int[]{3, 33}));
+
+        final NetcdfFile reader = mock(NetcdfFile.class);
+        when(reader.findDimension("caliop_vfm-cal_ny")).thenReturn(new Dimension("name", 3));
+        when(reader.findDimension("matchup_count")).thenReturn(new Dimension("name", 2));
+        when(reader.findVariable("caliop_vfm\\.y")).thenReturn(yVar);
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+
+        //execution
+        pp.compute(reader, writer);
+
+        //verification
+        verify(yVar, times(1)).read();
+        verify(reader, times(1)).findDimension("caliop_vfm-cal_ny");
+        verify(reader, times(1)).findVariable("caliop_vfm\\.y");
+        final ArgumentMatcher<Array> matches = new ArgumentMatcher<Array>() {
+            @Override
+            public boolean matches(Object argument) {
+                final Array array = (Array) argument;
+                return array.getSize() == 545;
+            }
+        };
+        verify(writer, times(6)).write(same(tarVar), any(), argThat(matches));
+        verifyNoMoreInteractions(yVar, reader, writer);
     }
 
     @Test
