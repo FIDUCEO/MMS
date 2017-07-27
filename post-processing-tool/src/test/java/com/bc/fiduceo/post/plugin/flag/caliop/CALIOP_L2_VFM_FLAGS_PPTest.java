@@ -13,6 +13,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -23,6 +24,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by Sabine on 21.07.2017.
@@ -104,7 +107,7 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
         when(reader.findDimension("matchup_count")).thenReturn(new Dimension("name", 2));
         when(reader.findVariable("caliop_vfm\\.y")).thenReturn(yVar);
 
-        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        final CapturingWriter writer = new CapturingWriter();
 
         //execution
         pp.compute(reader, writer);
@@ -113,8 +116,22 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
         verify(yVar, times(1)).read();
         verify(reader, times(1)).findDimension("caliop_vfm-cal_ny");
         verify(reader, times(1)).findVariable("caliop_vfm\\.y");
-        verify(writer, times(6)).write(same(tarVar), any(), argThat(array -> array.getSize() == 545));
-        verifyNoMoreInteractions(yVar, reader, writer);
+        verifyNoMoreInteractions(yVar, reader);
+
+        assertEquals(1, writer.variables.size());
+        assertEquals(6, writer.origins.size());
+        assertArrayEquals(new int[]{0,0,0,0}, writer.origins.get(0));
+        assertArrayEquals(new int[]{0,1,0,0}, writer.origins.get(1));
+        assertArrayEquals(new int[]{0,2,0,0}, writer.origins.get(2));
+        assertArrayEquals(new int[]{1,0,0,0}, writer.origins.get(3));
+        assertArrayEquals(new int[]{1,1,0,0}, writer.origins.get(4));
+        assertArrayEquals(new int[]{1,2,0,0}, writer.origins.get(5));
+        assertEquals(6, writer.arrays.size());
+        ArrayList<Array> arrays = writer.arrays;
+        for (int i = 0; i < arrays.size(); i++) {
+            Array array = arrays.get(i);
+            assertEquals(545, array.getSize());
+        }
     }
 
     @Test
@@ -145,15 +162,35 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
     private SystemConfig createSystemConfig() throws IOException {
         final String archivePath = TestUtil.getTestDataDirectory().getAbsolutePath();
         return SystemConfig.load(new ByteArrayInputStream(
-                    ("<system-config>" +
-                     "    <geometry-library name=\"S2\"/>" +
-                     "    <reader-cache-size>24</reader-cache-size>" +
-                     "    <archive>" +
-                     "        <root-path>" + archivePath + "</root-path>" +
-                     "        <rule sensors=\"drifter-sst, ship-sst\">insitu/SENSOR/VERSION</rule>" +
-                     "    </archive>" +
-                     "</system-config>").getBytes()
+                ("<system-config>" +
+                 "    <geometry-library name=\"S2\"/>" +
+                 "    <reader-cache-size>24</reader-cache-size>" +
+                 "    <archive>" +
+                 "        <root-path>" + archivePath + "</root-path>" +
+                 "        <rule sensors=\"drifter-sst, ship-sst\">insitu/SENSOR/VERSION</rule>" +
+                 "    </archive>" +
+                 "</system-config>").getBytes()
         ));
     }
 
+    class CapturingWriter extends NetcdfFileWriter {
+
+        final ArrayList<int[]> origins;
+        final HashSet<Variable> variables;
+        final ArrayList<Array> arrays;
+
+        protected CapturingWriter() throws IOException {
+            super(Version.netcdf3, "test", false, null);
+            origins = new ArrayList<>();
+            variables = new HashSet<>();
+            arrays = new ArrayList<>();
+        }
+
+        @Override
+        public void write(Variable v, int[] origin, Array values) throws IOException, InvalidRangeException {
+            variables.add(v);
+            origins.add(origin.clone());
+            arrays.add(values);
+        }
+    }
 }
