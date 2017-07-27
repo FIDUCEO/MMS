@@ -19,6 +19,12 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.*;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
@@ -36,15 +42,12 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -56,26 +59,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeries_IO_Test {
@@ -118,21 +101,21 @@ public class SstInsituTimeSeries_IO_Test {
         final Attribute targetAttrib = new Attribute("use-case-configuration", "");
         when(writer.findGlobalAttribute("use-case-configuration")).thenReturn(targetAttrib);
         final Variable newVariable = mock(Variable.class);
-        when(writer.addVariable(any(Group.class), anyString(), any(DataType.class), anyString())).thenReturn(newVariable);
+        when(writer.addVariable(isNull(), anyString(), any(DataType.class), anyString())).thenReturn(newVariable);
 
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
                 ("<system-config>" +
-                        "    <geometry-library name = \"S2\" />" +
-                        "    <archive>" +
-                        "        <root-path>" +
-                        "            " + testDataDirectory.getAbsolutePath() +
-                        "        </root-path>" +
-                        "        <rule sensors = \"animal-sst\">" +
-                        "            insitu/SENSOR/VERSION" +
-                        "        </rule>" +
-                        "    </archive>" +
-                        "</system-config>").getBytes())));
+                 "    <geometry-library name = \"S2\" />" +
+                 "    <archive>" +
+                 "        <root-path>" +
+                 "            " + testDataDirectory.getAbsolutePath() +
+                 "        </root-path>" +
+                 "        <rule sensors = \"animal-sst\">" +
+                 "            insitu/SENSOR/VERSION" +
+                 "        </rule>" +
+                 "    </archive>" +
+                 "</system-config>").getBytes())));
 
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
         insituTimeSeries.setContext(context);

@@ -1,6 +1,5 @@
 package com.bc.fiduceo.post.plugin.flag.caliop;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -12,7 +11,6 @@ import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.ArgumentMatcher;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -75,10 +73,10 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
         //verification
         verify(writer, times(1)).addDimension(null, numFlagsDimName, 545);
         verify(writer, times(1)).addVariable(null, "caliop_vfm.Center_Feature_Classification_Flags", DataType.SHORT, dimStr);
-        verify(variable, times(1)).addAttribute(argThat(is(equalTo(new Attribute("_Unsigned", "true")))));
-        verify(variable, times(1)).addAttribute(argThat(is(equalTo(new Attribute("units", "NoUnits")))));
-        verify(variable, times(1)).addAttribute(argThat(is(equalTo(new Attribute("format", "UInt_16")))));
-        verify(variable, times(1)).addAttribute(argThat(is(equalTo(new Attribute("valid_range", "1...49146")))));
+        verify(variable, times(1)).addAttribute(eq(new Attribute("_Unsigned", "true")));
+        verify(variable, times(1)).addAttribute(eq(new Attribute("units", "NoUnits")));
+        verify(variable, times(1)).addAttribute(eq(new Attribute("format", "UInt_16")));
+        verify(variable, times(1)).addAttribute(eq(new Attribute("valid_range", "1...49146")));
         verifyNoMoreInteractions(variable);
         verifyNoMoreInteractions(writer);
     }
@@ -115,14 +113,7 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
         verify(yVar, times(1)).read();
         verify(reader, times(1)).findDimension("caliop_vfm-cal_ny");
         verify(reader, times(1)).findVariable("caliop_vfm\\.y");
-        final ArgumentMatcher<Array> matches = new ArgumentMatcher<Array>() {
-            @Override
-            public boolean matches(Object argument) {
-                final Array array = (Array) argument;
-                return array.getSize() == 545;
-            }
-        };
-        verify(writer, times(6)).write(same(tarVar), any(), argThat(matches));
+        verify(writer, times(6)).write(same(tarVar), any(), argThat(array -> array.getSize() == 545));
         verifyNoMoreInteractions(yVar, reader, writer);
     }
 
