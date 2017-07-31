@@ -31,7 +31,6 @@ import com.beust.jcommander.internal.Lists;
 import org.junit.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
@@ -98,7 +97,7 @@ public class SstInsituTimeSeriesTest {
 
         when(insituReader.getVariables()).thenReturn(Arrays.asList(v1, v2, v3));
         final Variable newVar = mock(Variable.class);
-        when(writer.addVariable(any(Group.class), any(String.class), any(DataType.class), any(String.class))).thenReturn(newVar);
+        when(writer.addVariable(isNull(), any(String.class), any(DataType.class), any(String.class))).thenReturn(newVar);
 
         insituTimeSeries.addInsituVariables(writer, insituReader);
 

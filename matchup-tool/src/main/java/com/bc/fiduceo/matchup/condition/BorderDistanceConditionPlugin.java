@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 
 Single secondary sensor mode:
 
-    <border-point_distance>
+    <border-distance>
         <primary>
             <nx>2</nx>
             <ny>3</ny>
@@ -44,7 +44,7 @@ Single secondary sensor mode:
             <nx>5</nx>
             <ny>4</ny>
         </secondary>
-    </border-point_distance>
+    </border-distance>
 
 or
 

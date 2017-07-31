@@ -17,7 +17,6 @@
 package com.bc.fiduceo.post.plugin.flag.caliop;
 
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_Reader;
@@ -37,42 +36,55 @@ import java.util.logging.Level;
 
 public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
 
+    public static final String MATCHUP_COUNT = "matchup_count";
+    public static final String CALIOP_VFM_CAL_NY = "caliop_vfm-cal_ny";
+    public static final String CALIOP_VFM_CAL_NX = "caliop_vfm-cal_nx";
+    public static final String CENTER_FCF_FLAGS = "center-fcf-flags";
+    public static final String FLAG_VAR_NAME = "Feature_Classification_Flags";
+
+    final String srcVariableName_fileName;
+    final String srcVariableName_processingVersion;
+    final String targetVariableName_centerFCF;
+    final String srcVariableName_y;
+    final String sensorType;
+
     ReaderCache readerCache;
-    private Variable fileNameVariable;
-    private Variable processingVersionVariable;
-    private int filenameFieldSize;
-    private int matchupCount;
-    private String sensorNamePrefix;
-    private int processingVersionSize;
-    private Variable targetFlagsVariable;
-    private String separatorChar;
-    private String sensorType;
+    Variable fileNameVariable;
+    int filenameFieldSize;
+    Variable processingVersionVariable;
+    int processingVersionSize;
+    Variable targetFlagsVariable;
+
+    public CALIOP_L2_VFM_FLAGS_PP(String srcVariableName_fileName,
+                                  String srcVariableName_processingVersion,
+                                  String srcVariableName_y,
+                                  String targetVariableName_centerFCF) {
+        this.srcVariableName_fileName = srcVariableName_fileName;
+
+        this.srcVariableName_processingVersion = srcVariableName_processingVersion;
+        this.targetVariableName_centerFCF = targetVariableName_centerFCF;
+        this.srcVariableName_y = srcVariableName_y;
+        sensorType = "caliop_vfm-cal";
+    }
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        sensorNamePrefix = "caliop_vfm";
-        sensorType = sensorNamePrefix + "-cal";
-        separatorChar = ".";
-        fileNameVariable = getFileNameVariable(reader, sensorNamePrefix, separatorChar);
-        processingVersionVariable = getProcessingVersionVariable(reader, sensorNamePrefix, separatorChar);
-        filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
-        processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
+        fileNameVariable = NetCDFUtils.getVariable(reader, srcVariableName_fileName);
+        filenameFieldSize = fileNameVariable.getShape(fileNameVariable.getRank() - 1);
 
-        matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
+        processingVersionVariable = NetCDFUtils.getVariable(reader, srcVariableName_processingVersion);
+        processingVersionSize = processingVersionVariable.getShape(processingVersionVariable.getRank() - 1);
 
         final String sourceFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, CALIOP_L2_VFM_Reader.REG_EX);
         final String processingVersion = NetCDFUtils.readString(processingVersionVariable, 0, processingVersionSize);
 
         final CALIOP_L2_VFM_Reader caliopReader = (CALIOP_L2_VFM_Reader) readerCache.getReaderFor(sensorType, Paths.get(sourceFileName), processingVersion);
-        final String flagVarName = "Feature_Classification_Flags";
-        final Variable sourceFlagsVar = caliopReader.find(flagVarName);
+        final Variable sourceFlagsVar = caliopReader.find(FLAG_VAR_NAME);
         final List<Attribute> srcAttributes = sourceFlagsVar.getAttributes();
 
-        final String numFlagsDimName = "center-fcf-flags";
-        writer.addDimension(null, numFlagsDimName, 545);
-        final String dimString = reader.findVariable(toValidName("caliop_vfm.Latitude")).getDimensionsString() + " " + numFlagsDimName;
-        final String targetName = sensorNamePrefix + separatorChar + "Center_" + flagVarName;
-        targetFlagsVariable = writer.addVariable(null, targetName, DataType.SHORT, dimString);
+        writer.addDimension(null, CENTER_FCF_FLAGS, 545);
+        final String dimString = MATCHUP_COUNT + " " + CALIOP_VFM_CAL_NY + " " + CALIOP_VFM_CAL_NX + " " + CENTER_FCF_FLAGS;
+        targetFlagsVariable = writer.addVariable(null, targetVariableName_centerFCF, DataType.SHORT, dimString);
         for (Attribute srcAttribute : srcAttributes) {
             targetFlagsVariable.addAttribute(srcAttribute);
         }
@@ -84,17 +96,17 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
         final int[] srcShape = {1, 5515};
         final int[] targetOrigin = {0, 0, 0, 0};
         final int[] targetShape = {1, 1, 1, 545};
-        final int yWindowSize = NetCDFUtils.getDimensionLength("caliop_vfm-cal_ny", reader);
+        final int yWindowSize = NetCDFUtils.getDimensionLength(CALIOP_VFM_CAL_NY, reader);
         final int yWindowOffset = yWindowSize / 2;
 
-        final Array yMatchupCenter = reader.findVariable(toValidName("caliop_vfm.y")).read();
+        final Array yMatchupCenter = reader.findVariable(toValidName(srcVariableName_y)).read();
 
+        final int matchupCount = (int) yMatchupCenter.getSize();
         for (int i = 0; i < matchupCount; i++) {
             final String sourceFileName = getSourceFileName(fileNameVariable, i, filenameFieldSize, CALIOP_L2_VFM_Reader.REG_EX);
             final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);
             final CALIOP_L2_VFM_Reader caliopReader = (CALIOP_L2_VFM_Reader) readerCache.getReaderFor(sensorType, Paths.get(sourceFileName), processingVersion);
-            final String flagVarName = "Feature_Classification_Flags";
-            final Variable sourceFlagsVar = caliopReader.find(flagVarName);
+            final Variable sourceFlagsVar = caliopReader.find(FLAG_VAR_NAME);
             final int centerY = yMatchupCenter.getInt(i);
             targetOrigin[0] = i;
             for (int j = 0; j < yWindowSize; j++) {
