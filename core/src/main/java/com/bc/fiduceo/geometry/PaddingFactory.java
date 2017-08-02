@@ -41,13 +41,13 @@ public class PaddingFactory {
     /**
      * Creates a bounding polygon around the given {@link com.bc.fiduceo.geometry.LineString} coordinates.
      * @param lineString the LineString to envelope
-     * @param footprintWidth the full width. Padding will be applied using half width.
+     * @param envelopeWithKm the full width. Padding will be applied using half width.
      * @param geometryFactory instance to create discrete Geometry instances.
      * @return a polygon geometry which encloses the input lineString
      */
-    public static Polygon createLinePadding(LineString lineString, double footprintWidth, GeometryFactory geometryFactory) {
+    public static Polygon createLinePadding(LineString lineString, double envelopeWithKm, GeometryFactory geometryFactory) {
         final Point[] coordinates = lineString.getCoordinates();
-        final PaddingFactory paddingFactory = new PaddingFactory(geometryFactory, footprintWidth);
+        final PaddingFactory paddingFactory = new PaddingFactory(geometryFactory, envelopeWithKm);
         final int size = coordinates.length;
         final ArrayList<Point> polygonPoints = new ArrayList<>();
         for (int i = 0; i < size; i++) {
