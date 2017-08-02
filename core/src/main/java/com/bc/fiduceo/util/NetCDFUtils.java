@@ -164,7 +164,6 @@ public class NetCDFUtils {
         return attribute.getNumericValue().floatValue();
     }
 
-    // @todo 2 tb/tb add test
     public static double getAttributeDouble(Variable variable, String name, double defaultValue) {
         final Attribute attribute = variable.findAttribute(name);
         if (attribute == null) {

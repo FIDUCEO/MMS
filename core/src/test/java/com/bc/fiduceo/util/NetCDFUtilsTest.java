@@ -430,6 +430,26 @@ public class NetCDFUtilsTest {
     }
 
     @Test
+    public void testGetAttributeDouble_attributeValue() {
+        final Attribute attribute = mock(Attribute.class);
+        final Variable variable = mock(Variable.class);
+
+        when(variable.findAttribute("doppel")).thenReturn(attribute);
+        when(attribute.getNumericValue()).thenReturn(2.9833);
+
+        final double attributeDouble = NetCDFUtils.getAttributeDouble(variable, "doppel", -19.8);
+        assertEquals(2.9833, attributeDouble, 1e-8);
+    }
+
+    @Test
+    public void testGetAttributeDouble_defaultValue() {
+        final Variable variable = mock(Variable.class);
+
+        final double attributeDouble = NetCDFUtils.getAttributeDouble(variable, "duppeell", -13.9);
+        assertEquals(-13.9, attributeDouble, 1e-8);
+    }
+
+    @Test
     public void testGetGlobalAttributeSafe() throws IOException {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Attribute attribute = mock(Attribute.class);
