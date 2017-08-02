@@ -4,15 +4,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -80,16 +79,19 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
 
         final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
         assertNotNull(boundingGeometry);
-        assertTrue(boundingGeometry instanceof LineString);
+        assertTrue(boundingGeometry instanceof Polygon);
 
         Point[] coordinates = boundingGeometry.getCoordinates();
-        assertEquals(62, coordinates.length);
+        assertEquals(125, coordinates.length);
 
-        assertEquals(16.231642, coordinates[0].getLon(), 1e-6);
-        assertEquals(-61.987904, coordinates[0].getLat(), 1e-6);
+        assertEquals(16.317764, coordinates[0].getLon(), 1e-6);
+        assertEquals(16.317764, coordinates[124].getLon(), 1e-6);
 
-        assertEquals(173.01501, coordinates[61].getLon(), 1e-5);
-        assertEquals(71.7348, coordinates[61].getLat(), 1e-5);
+        assertEquals(-61.968286, coordinates[0].getLat(), 1e-6);
+        assertEquals(-61.968286, coordinates[124].getLat(), 1e-6);
+
+        assertEquals(172.877640, coordinates[61].getLon(), 1e-5);
+        assertEquals(71.747820, coordinates[61].getLat(), 1e-5);
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);

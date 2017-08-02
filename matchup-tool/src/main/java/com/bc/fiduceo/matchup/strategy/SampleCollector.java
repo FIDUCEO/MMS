@@ -63,6 +63,9 @@ class SampleCollector {
         for (SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
             final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
+            if (pixelLocations == null) {
+                continue;
+            }
             for (int i = 0; i < pixelLocations.length; i++) {
                 Point2D pixelLocation = pixelLocations[i];
                 final int x = (int) pixelLocation.getX();
