@@ -24,7 +24,6 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-// @todo 2 tb/tb write tests 2017-04-24
 enum InstrumentGroup {
     GENERIC,
     AMSU_A,

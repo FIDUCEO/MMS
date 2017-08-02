@@ -175,8 +175,8 @@ class AddIASISpectrum extends PostProcessing {
         return new Rectangle(0, 0, productSize.getNx(), productSize.getNy());
     }
 
-    // @todo 2 tb/** make static and add test 2017-06-14
-    private List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<ucar.nc2.Dimension> dimensions) {
+    // package access for testing only tb 2017-08-02
+    static List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<ucar.nc2.Dimension> dimensions) {
         final List<ucar.nc2.Dimension> targetDimensions = new ArrayList<>();
         targetDimensions.addAll(dimensions);
 

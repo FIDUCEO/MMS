@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin.iasi;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.jdom.Element;
@@ -43,7 +44,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -84,7 +85,7 @@ public class AddIASISpectrumTest {
         when(writer.addDimension(null, "iasi_ss", 8700)).thenReturn(iasiSsDimension);
 
         final Variable targetVariable = mock(Variable.class);
-        when(writer.addVariable(anyObject(), eq("GS1cSpect"), eq(DataType.FLOAT), (List<Dimension>) anyObject())).thenReturn(targetVariable);
+        when(writer.addVariable(any(), eq("GS1cSpect"), eq(DataType.FLOAT), (List<Dimension>) any())).thenReturn(targetVariable);
 
         final AddIASISpectrum plugin = new AddIASISpectrum(configuration);
 
@@ -415,5 +416,43 @@ public class AddIASISpectrumTest {
             fail("RuntimeException expecetd");
         } catch (RuntimeException expecetd) {
         }
+    }
+
+    @Test
+    public void testAddSpectrumDimension_noAdditionalDimensions() {
+        final Dimension iasi_ss = new Dimension("iasi_ss", 8700);
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS)).thenReturn(iasi_ss);
+
+        final List<ucar.nc2.Dimension> dimensions = new ArrayList<>();
+
+        final List<Dimension> allDimensions = AddIASISpectrum.addSpectrumDimension(writer, dimensions);
+        assertEquals(1, allDimensions.size());
+        final Dimension spectrumDimension = allDimensions.get(0);
+        assertEquals("iasi_ss", spectrumDimension.getFullName());
+
+        verify(writer, times(1)).addDimension(null, "iasi_ss", EpsMetopConstants.SS);
+        verifyNoMoreInteractions(writer);
+    }
+
+    @Test
+    public void testAddSpectrumDimension_additionalDimensions() {
+        final Dimension iasi_ss = new Dimension("iasi_ss", 8700);
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        when(writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS)).thenReturn(iasi_ss);
+
+        final List<ucar.nc2.Dimension> dimensions = new ArrayList<>();
+        dimensions.add(new Dimension("the_other_one", 156));
+
+        final List<Dimension> allDimensions = AddIASISpectrum.addSpectrumDimension(writer, dimensions);
+        assertEquals(2, allDimensions.size());
+        Dimension spectrumDimension = allDimensions.get(0);
+        assertEquals("the_other_one", spectrumDimension.getFullName());
+
+        spectrumDimension = allDimensions.get(1);
+        assertEquals("iasi_ss", spectrumDimension.getFullName());
+
+        verify(writer, times(1)).addDimension(null, "iasi_ss", EpsMetopConstants.SS);
+        verifyNoMoreInteractions(writer);
     }
 }

@@ -26,7 +26,11 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
@@ -84,8 +88,6 @@ class AddAmsreSolarAngles extends PostProcessing {
         final IndexIterator szaIterator = sza.getIndexIterator();
         final IndexIterator saaIterator = saa.getIndexIterator();
 
-        // @todo 2 tb/tb check if we need to call hasNext for all variables or if it is sufficient to call it once to
-        // initialize the iterators and check on ly one in the loop - as we assume all arrays having the same size 2016-12-16
         while (earthAzimuth.hasNext() && earthIncidence.hasNext() && sunAzimuth.hasNext() && sunElevation.hasNext()) {
             final float sunElevationValue = sunElevation.nextFloat();
             final float earthIncidenceValue = earthIncidence.nextFloat();
