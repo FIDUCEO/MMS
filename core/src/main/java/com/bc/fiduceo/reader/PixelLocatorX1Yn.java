@@ -22,6 +22,7 @@ import org.esa.snap.core.util.math.RsMathUtils;
 import ucar.ma2.Array;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 public class PixelLocatorX1Yn implements PixelLocator {
 
@@ -60,22 +61,31 @@ public class PixelLocatorX1Yn implements PixelLocator {
     @Override
     public Point2D[] getPixelLocation(double lon, double lat) {
         final SphericalDistance sphericalDistance = new SphericalDistance(lon, lat);
-
+        final double maxDistRadian = maxDistanceKm / MEAN_EARTH_RADIUS_IN_KM;
+        final double maxDistDegree = Math.toDegrees(maxDistRadian);
+        final double latMax = Math.min(lat + maxDistDegree, 90);
+        final double latMin = Math.max(lat - maxDistDegree, -90);
+        final ArrayList<Integer> feasible = new ArrayList<>();
+        for (int i = 0; i < maxY; i++) {
+            final double iLat = lats.getDouble(i);
+            if (iLat >= latMin && iLat <= latMax) {
+                feasible.add(i);
+            }
+        }
         int smallestIDX = -1;
         double smallestDistKm = Double.MAX_VALUE;
-        for (int i = 0; i < maxY; i++) {
-            final double iLon = lons.getDouble(i);
-            final double iLat = lats.getDouble(i);
+        for (int idx : feasible) {
+            final double iLon = lons.getDouble(idx);
+            final double iLat = lats.getDouble(idx);
             final double distKm = sphericalDistance.distance(iLon, iLat) * MEAN_EARTH_RADIUS_IN_KM;
             if (distKm < smallestDistKm) {
                 smallestDistKm = distKm;
-                smallestIDX = i;
+                smallestIDX = idx;
             }
         }
         if (smallestDistKm <= maxDistanceKm) {
             return new Point2D.Double[]{new Point2D.Double(0.5, smallestIDX + 0.5)};
-        } else {
-            return null;
         }
+        return null;
     }
 }

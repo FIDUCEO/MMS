@@ -23,6 +23,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.PaddingFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
@@ -73,7 +74,9 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     private static final String end = "Z[DN]\\.hdf";
     public static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
 
-    private final static short[] nadirLineIndices = calcalculateIndizes();
+    private static final short[] nadirLineIndices = calcalculateIndizes();
+    private static final int FOOTPRINT_WIDTH = 5;
+
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
@@ -134,7 +137,8 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         points.add(geometryFactory.createPoint(lons.getFloat(lastPosition), lats.getFloat(lastPosition)));
 
         final LineString lineString = geometryFactory.createLineString(points);
-        acquisitionInfo.setBoundingGeometry(lineString);
+        final Polygon boundingGeometry = PaddingFactory.createLinePadding(lineString, getMaxDistance(), geometryFactory);
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
         acquisitionInfo.setTimeAxes(new TimeAxis[]{geometryFactory.createTimeAxis(lineString, sensingStart, sensingStop)});
 
         return acquisitionInfo;
@@ -150,7 +154,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         if (pixelLocator == null) {
             final Array lons = arrayCache.get("Longitude");
             final Array lats = arrayCache.get("Latitude");
-            final int maxDistanceKm = 5;
+            final double maxDistanceKm = getMaxDistance();
             pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
         }
         return pixelLocator;
@@ -176,7 +180,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         final String[] split = matcher.group().split("-");
         final int[] ymd = new int[3];
         for (int i = 0; i < ymd.length; i++) {
-            ymd[i] = Integer.parseInt( split[i]);
+            ymd[i] = Integer.parseInt(split[i]);
         }
         return ymd;
     }
@@ -220,7 +224,6 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return Collections.unmodifiableList(variables);
     }
 
-
     @Override
     public Dimension getProductSize() throws IOException {
         final Variable latVar = netcdfFile.findVariable("Latitude");
@@ -244,6 +247,10 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return Array.factory(nadirStorage);
     }
 
+    public Variable find(String name) {
+        return netcdfFile.findVariable(name);
+    }
+
     static short[] calcalculateIndizes() {
         final short a1Samples = 55; // altitude region 1
         final short a1Begin = a1Samples;
@@ -264,15 +271,20 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
     }
 
+    private double getMaxDistance() {
+        final double fp2 = Math.pow(FOOTPRINT_WIDTH, 2);
+        return Math.sqrt(2*fp2);
+    }
+
     private List<Variable> initVariables() throws IOException {
         final HashMap<String, Attribute[]> flagCodings = new HashMap<>();
         flagCodings.put("Day_Night_Flag", new Attribute[]{
-                    new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
-                    new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night")
+                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night")
         });
         flagCodings.put("Land_Water_Mask", new Attribute[]{
-                    new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
-                    new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
+                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean")
         });
 
         final ArrayList<Variable> variables = new ArrayList<>();
@@ -361,9 +373,5 @@ public class CALIOP_L2_VFM_Reader implements Reader {
             str = str.substring(0, str.length() - 1);
         }
         return str;
-    }
-
-    public Variable find(String name) {
-        return netcdfFile.findVariable(name);
     }
 }
