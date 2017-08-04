@@ -98,5 +98,4 @@ public class SSTInsituReaderTest {
         assertEquals(2013080010062352L, idArray.getLong(3));
         assertEquals(-32768, idArray.getLong(4));
     }
-
 }

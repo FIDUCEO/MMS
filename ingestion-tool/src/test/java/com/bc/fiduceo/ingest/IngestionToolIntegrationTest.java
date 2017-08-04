@@ -670,7 +670,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_insitu_SST_Drifter() throws SQLException, IOException, ParseException {
+    public void testIngest_insitu_SST_Drifter_v33() throws SQLException, IOException, ParseException {
         // @todo 2 tb/tb we have to supply dates here - which are not used during ingestion - rethink this 2016-11-03
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst", "-start", "2001-165", "-end", "2001-165", "-v", "v03.3"};
 
@@ -692,6 +692,37 @@ public class IngestionToolIntegrationTest {
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
             assertEquals("v03.3", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_insitu_SST_Drifter_v40() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "drifter-sst", "-start", "1996-245", "-end", "1996-248", "-v", "v04.0"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("insitu_0_WMOID_42531_19960904_19960909.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(1996, 9, 4, 22, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1996, 9, 9, 13, 19, 47, 0, observation.getStopTime());
+
+            assertEquals("drifter-sst", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v04.0", "insitu_0_WMOID_42531_19960904_19960909.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v04.0", observation.getVersion());
 
             assertNull(observation.getGeoBounds());
             assertNull(observation.getTimeAxes());
