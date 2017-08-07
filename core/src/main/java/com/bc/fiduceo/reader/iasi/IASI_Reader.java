@@ -47,6 +47,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;

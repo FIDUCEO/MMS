@@ -18,21 +18,20 @@
  *
  */
 
-package com.bc.fiduceo.reader.iasi;
+package com.bc.fiduceo.util;
 
-import com.bc.fiduceo.util.VariablePrototype;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 
 import java.util.List;
 
-class VariableProxy extends VariablePrototype {
+public class VariableProxy extends VariablePrototype {
 
     private final String name;
     private final DataType dataType;
     private final List<Attribute> attributes;
 
-    VariableProxy(String name, DataType dataType, List<Attribute> attributes) {
+    public VariableProxy(String name, DataType dataType, List<Attribute> attributes) {
         this.name = name;
         this.dataType = dataType;
         this.attributes = attributes;

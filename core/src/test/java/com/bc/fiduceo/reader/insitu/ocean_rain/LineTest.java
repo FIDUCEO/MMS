@@ -18,28 +18,21 @@
  *
  */
 
-package com.bc.fiduceo.reader.iasi;
+package com.bc.fiduceo.reader.insitu.ocean_rain;
 
 import org.junit.Test;
-import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class VariableProxyTest {
+public class LineTest {
 
     @Test
     public void testConstructionAndGetter() {
-        final List<Attribute> attributes = new ArrayList<>();
+        final Line line = new Line(116.56f, -22.087f, 12453676, 11.88f);
 
-        final VariableProxy proxy = new VariableProxy("hepp!", DataType.BYTE, attributes);
-
-        assertEquals("hepp!", proxy.getFullName());
-        assertEquals("hepp!", proxy.getShortName());
-        assertEquals(DataType.BYTE, proxy.getDataType());
-        assertEquals(0, proxy.getAttributes().size());
+        assertEquals(116.56f, line.getLon(), 1e-8);
+        assertEquals(-22.087f, line.getLat(), 1e-8);
+        assertEquals(12453676, line.getTime());
+        assertEquals(11.88f, line.getSst(), 1e-8);
     }
 }
