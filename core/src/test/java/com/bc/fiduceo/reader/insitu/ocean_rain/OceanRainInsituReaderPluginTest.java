@@ -18,10 +18,11 @@
  *
  */
 
-package com.bc.fiduceo.reader.insitu.sst_cci;
+package com.bc.fiduceo.reader.insitu.ocean_rain;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,32 +31,32 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class SSTInsituReaderPluginTest {
+public class OceanRainInsituReaderPluginTest {
 
-    private SSTInsituReaderPlugin plugin;
+    private OceanRainInsituReaderPlugin plugin;
 
     @Before
-    public void setUp() throws Exception {
-        plugin = new SSTInsituReaderPlugin();
+    public void setUp() {
+        plugin = new OceanRainInsituReaderPlugin();
     }
 
     @Test
     public void testGetSupportedSensorKeys() throws Exception {
-        final String[] expected = {"drifter-sst", "ship-sst", "gtmba-sst", "radiometer-sst", "argo-sst", "xbt-sst", "mbt-sst", "ctd-sst", "animal-sst", "bottle-sst"};
+        final String[] expected = {"ocean-rain-sst"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
     }
 
     @Test
-    public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);
-        assertNotNull(reader);
-        assertTrue(reader instanceof SSTInsituReader);
+    public void testGetDataType() {
+        assertEquals(DataType.INSITU, plugin.getDataType());
     }
 
     @Test
-    public void testGetDataType() {
-        assertEquals(DataType.INSITU, plugin.getDataType());
+    public void testCreateReader() {
+        final Reader reader = plugin.createReader(null);
+        assertNotNull(reader);
+        assertTrue(reader instanceof OceanRainInsituReader);
     }
 }
