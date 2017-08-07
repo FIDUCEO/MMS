@@ -6,7 +6,7 @@ import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.insitu.SSTInsituReaderPlugin;
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReaderPlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +50,7 @@ public class ReaderCache_IO_Test {
         final Reader reader = readerCache.get(insituFile);
 
         //verification
-        assertEquals("com.bc.fiduceo.reader.insitu.SSTInsituReader",readerFor.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader",readerFor.getClass().getTypeName());
         assertSame(readerFor, reader);
         assertSame(readerFor, secondCallReader);
     }

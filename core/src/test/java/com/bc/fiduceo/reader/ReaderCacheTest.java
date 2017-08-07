@@ -23,21 +23,11 @@ package com.bc.fiduceo.reader;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.archive.Archive;
-import com.bc.fiduceo.archive.ArchiveConfig;
-import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.reader.insitu.SSTInsituReaderPlugin;
 import org.junit.*;
-import ucar.nc2.Variable;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 public class ReaderCacheTest {
 

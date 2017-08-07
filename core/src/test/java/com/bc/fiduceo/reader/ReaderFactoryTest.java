@@ -28,7 +28,7 @@ import com.bc.fiduceo.reader.amsu_mhs.ForReaderFactoryTest_AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
-import com.bc.fiduceo.reader.insitu.SSTInsituReader;
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.reader.modis.ForReaderFactoryTest_MxD06_Reader;
 import org.junit.*;
 

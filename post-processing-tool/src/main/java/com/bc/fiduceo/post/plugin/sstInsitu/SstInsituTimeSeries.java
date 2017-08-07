@@ -24,7 +24,7 @@ import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderCache;
-import com.bc.fiduceo.reader.insitu.SSTInsituReader;
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;

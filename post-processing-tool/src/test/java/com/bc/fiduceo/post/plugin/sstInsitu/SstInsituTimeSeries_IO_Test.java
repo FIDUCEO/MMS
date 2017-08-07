@@ -35,7 +35,7 @@ import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.reader.insitu.SSTInsituReader;
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.jdom.Document;
