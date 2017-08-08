@@ -69,7 +69,7 @@ public class TestUtil {
         return dataDirectory;
     }
 
-    public static void storeProperties(Properties properties, File configDir, String child) throws IOException {
+    private static void storeProperties(Properties properties, File configDir, String child) throws IOException {
         final File propertiesFile = new File(configDir, child);
         if (!propertiesFile.createNewFile()) {
             fail("unable to create test file: " + propertiesFile.getAbsolutePath());
@@ -123,6 +123,9 @@ public class TestUtil {
                 "        </root-path>" +
                 "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
                 "            insitu/SENSOR/VERSION" +
+                "        </rule>" +
+                "        <rule sensors=\"ocean-rain-sst\">\n" +
+                "            insitu/SENSOR/VERSION\n" +
                 "        </rule>" +
                 "        <rule sensors = \"iasi-ma, iasi-mb\">" +
                 "            SENSOR/VERSION/YEAR/MONTH" +

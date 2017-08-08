@@ -55,6 +55,10 @@
             insitu/SENSOR/VERSION
         </rule>
 
+        <rule sensors="ocean-rain-sst">
+            insitu/SENSOR/VERSION
+        </rule>
+
         <rule sensors = "iasi-ma, iasi-mb">
             SENSOR/VERSION/YEAR/MONTH
         </rule>

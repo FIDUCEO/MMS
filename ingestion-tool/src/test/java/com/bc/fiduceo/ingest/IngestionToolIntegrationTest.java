@@ -815,6 +815,36 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_OceanRain_Insitu() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "ocean-rain-sst", "-start", "2011-133", "-end", "2011-134", "-v", "v1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("OceanRAIN_allships_2010-2017_SST.ascii", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2010, 6, 10, 21, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 9, 16, 22, 59, 0, 0, observation.getStopTime());
+
+            assertEquals("ocean-rain-sst", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "ocean-rain-sst", "v1.0", "OceanRAIN_allships_2010-2017_SST.ascii"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
