@@ -63,11 +63,11 @@ class DistanceCondition implements Condition {
         sourceSamples.clear();
     }
 
-    public double getMaxDistanceInKm() {
+    double getMaxDistanceInKm() {
         return maxDistanceInKm;
     }
 
-    public String getSecondarySensorName() {
+    String getSecondarySensorName() {
         return secondarySensorName;
     }
 
