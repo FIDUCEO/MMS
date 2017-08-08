@@ -56,4 +56,15 @@ public class VariableProxy extends VariablePrototype {
     public List<Attribute> getAttributes() {
         return attributes;
     }
+
+    @Override
+    public Attribute findAttribute(String name) {
+        for(final Attribute attribute : attributes) {
+            if (name.equalsIgnoreCase(attribute.getShortName())) {
+                return attribute;
+            }
+        }
+
+        return null;
+    }
 }

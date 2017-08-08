@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class VariableProxyTest {
 
@@ -42,5 +44,33 @@ public class VariableProxyTest {
         assertEquals("hepp!", proxy.getShortName());
         assertEquals(DataType.BYTE, proxy.getDataType());
         assertEquals(0, proxy.getAttributes().size());
+    }
+
+    @Test
+    public void testFindAttribute_noAttributes() {
+        final List<Attribute> attributes = new ArrayList<>();
+
+        final VariableProxy proxy = new VariableProxy("yo!", DataType.DOUBLE, attributes);
+
+        final Attribute attribute = proxy.findAttribute("wo-bis-du");
+        assertNull(attribute);
+    }
+
+    @Test
+    public void testFindAttribute() {
+        final List<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute("here_i_am", "razupaltuff"));
+        attributes.add(new Attribute("very-present", "PeterPresent"));
+
+        final VariableProxy proxy = new VariableProxy("hum!", DataType.FLOAT, attributes);
+
+        Attribute attribute = proxy.findAttribute("very-present");
+        assertNotNull(attribute);
+
+        attribute = proxy.findAttribute("here_i_am");
+        assertNotNull(attribute);
+
+        attribute = proxy.findAttribute("not_in_list");
+        assertNull(attribute);
     }
 }

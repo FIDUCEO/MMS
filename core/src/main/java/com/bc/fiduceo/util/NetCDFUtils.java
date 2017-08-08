@@ -156,6 +156,15 @@ public class NetCDFUtils {
         return attribute.getNumericValue().intValue();
     }
 
+    // @todo 3 tb/** write test 2017-08-08
+    public static int getAttributeInt(Variable variable, String name, int defaultValue) {
+        final Attribute attribute = variable.findAttribute(name);
+        if (attribute == null) {
+            return defaultValue;
+        }
+        return attribute.getNumericValue().intValue();
+    }
+
     public static float getAttributeFloat(Variable variable, String name, float defaultValue) {
         final Attribute attribute = variable.findAttribute(name);
         if (attribute == null) {
@@ -170,6 +179,15 @@ public class NetCDFUtils {
             return defaultValue;
         }
         return attribute.getNumericValue().doubleValue();
+    }
+
+    // @todo 3 tb/** write test 2017-08-08
+    public static String getAttributeString(Variable variable, String name, String defaultValue) {
+        final Attribute attribute = variable.findAttribute(name);
+        if (attribute == null) {
+            return defaultValue;
+        }
+        return attribute.getStringValue();
     }
 
     public static Variable getVariable(NetcdfFile reader, String name) {

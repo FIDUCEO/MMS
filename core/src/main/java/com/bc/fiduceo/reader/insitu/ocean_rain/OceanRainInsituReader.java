@@ -43,20 +43,30 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
 
 public class OceanRainInsituReader implements Reader {
 
     private static final int LINE_SIZE = 64;
     private static final String WHITESPACE_REGEXP = "\\s{1,}";  // means: one or more whitespace characters tb 2017-08-07
 
+    private final HashMap<String, LineDecoder> decoder;
     private FileInputStream inputStream;
-    private long numLines;
+    private int numLines;
     private FileChannel channel;
+    private List<Variable> variableList;
+
+    OceanRainInsituReader() {
+        decoder = new HashMap<>();
+        decoder.put("lon", new LineDecoder.Lon());
+        decoder.put("lat", new LineDecoder.Lat());
+        decoder.put("time", new LineDecoder.Time());
+        decoder.put("sst", new LineDecoder.Sst());
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -64,7 +74,7 @@ public class OceanRainInsituReader implements Reader {
 
         channel = inputStream.getChannel();
         final long fileSize = channel.size();
-        numLines = fileSize / LINE_SIZE;
+        numLines = (int)(fileSize / LINE_SIZE);
     }
 
     @Override
@@ -108,7 +118,7 @@ public class OceanRainInsituReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        return new OceanRainTimeLocator(this);
     }
 
     @Override
@@ -118,53 +128,49 @@ public class OceanRainInsituReader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Variable variable = findVariable(variableName);
+        final Number fillValue = NetCDFUtils.getFillValue(variable);
+        final LineDecoder lineDecoder = decoder.get(variableName);// @todo 1 tb/tb encapsulate and throw on errors 2017-08-08
+
+        final int windowWidth = interval.getX();
+        final int windowHeight = interval.getY();
+        final int windowCenterX = windowWidth / 2;
+        final int windowCenterY = windowHeight / 2;
+
+        final int[] shape = {windowWidth, windowHeight};
+        final Array windowArray = Array.factory(variable.getDataType(), shape);
+        for (int y = 0; y < windowHeight; y++) {
+            for (int x = 0; x < windowWidth; x++) {
+                windowArray.setObject(windowWidth * y + x, fillValue);
+            }
+        }
+
+        final Line line = readLine(centerY);
+        windowArray.setObject(windowWidth * windowCenterY + windowCenterX, lineDecoder.get(line));
+
+        return windowArray;
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return (ArrayInt.D2) readRaw(x, y, interval, "time");
     }
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        final List<Variable> variableList = new ArrayList<>();
-
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_east"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
-        variableList.add(new VariableProxy("lon", DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
-        variableList.add(new VariableProxy("lat", DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "Seconds since 1970-01-01"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
-        variableList.add(new VariableProxy("time", DataType.INT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "celsius"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "sea_surface_temperature"));
-        variableList.add(new VariableProxy("sst", DataType.FLOAT, attributes));
+        ensureVariableListExists();
 
         return variableList;
     }
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        return new Dimension("product_size", 1, numLines);
     }
 
     // package access for testing only tb 2017-08-07
@@ -189,5 +195,49 @@ public class OceanRainInsituReader implements Reader {
             throw new IOException("Could not read full buffer!");
         }
         return decode(lineBuffer);
+    }
+
+    private Variable findVariable(String name) {
+        ensureVariableListExists();
+        for (final Variable variable : variableList) {
+            if (name.equalsIgnoreCase(variable.getShortName())) {
+                return variable;
+            }
+        }
+        throw new RuntimeException("Variable not contained in file: " + name);
+    }
+
+    private void ensureVariableListExists() {
+        if (variableList == null) {
+            createVariables();
+        }
+    }
+
+    private void createVariables() {
+        variableList = new ArrayList<>();
+
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree_east"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
+        variableList.add(new VariableProxy("lon", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
+        variableList.add(new VariableProxy("lat", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "Seconds since 1970-01-01"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
+        variableList.add(new VariableProxy("time", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "celsius"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "sea_surface_temperature"));
+        variableList.add(new VariableProxy("sst", DataType.FLOAT, attributes));
     }
 }

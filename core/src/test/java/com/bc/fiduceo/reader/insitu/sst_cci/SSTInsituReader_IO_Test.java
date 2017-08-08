@@ -482,9 +482,7 @@ public class SSTInsituReader_IO_Test {
         final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 3, _3x3);
 
         assertNotNull(array);
-        assertEquals(2, array.getShape().length);
         assertArrayEquals(new int[]{3, 3}, array.getShape());
-        assertEquals(9, array.getSize());
         assertEquals(DataType.INT, array.getDataType());
         
         NCTestUtils.assertValueAt(-2147483647, 0, 0, array);
@@ -571,7 +569,6 @@ public class SSTInsituReader_IO_Test {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-
     }
 
     @Test

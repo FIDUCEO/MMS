@@ -138,7 +138,7 @@ public class SSTInsituReader implements Reader {
         final int windowCenterY = windowHeight / 2;
 
         final int[] shape = {windowWidth, windowHeight};
-        Array windowArray = Array.factory(sourceArray.getDataType(), shape);
+        final Array windowArray = Array.factory(sourceArray.getDataType(), shape);
         for (int y = 0; y < windowHeight; y++) {
             for (int x = 0; x < windowWidth; x++) {
                 windowArray.setObject(windowWidth * y + x, fillValue);
