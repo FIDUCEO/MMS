@@ -83,6 +83,20 @@ public class SSTInsituReaderTest {
     }
 
     @Test
+    public void testGetLongitudeVariableName() {
+        final SSTInsituReader reader = new SSTInsituReader();
+
+        assertEquals("insitu.lon", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final SSTInsituReader reader = new SSTInsituReader();
+
+        assertEquals("insitu.lat", reader.getLatitudeVariableName());
+    }
+
+    @Test
     public void testCreateIdArray() {
         final int[] mohc_ids = {5674, 11245667, -32768, 10062352, -32768};
         final Array mohcArray = Array.factory(mohc_ids);

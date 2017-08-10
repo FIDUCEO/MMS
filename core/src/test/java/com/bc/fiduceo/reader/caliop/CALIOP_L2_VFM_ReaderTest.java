@@ -74,4 +74,17 @@ public class CALIOP_L2_VFM_ReaderTest {
         assertArrayEquals(new int[]{2010, 6, 2}, ymd);
     }
 
+    @Test
+    public void testGetLongitudeVariableName() {
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Latitude", reader.getLatitudeVariableName());
+    }
 }

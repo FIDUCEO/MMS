@@ -68,6 +68,20 @@ public class ATSR_L1B_ReaderTest {
     }
 
     @Test
+    public void testGetLongitudeVariableName() {
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2017-08-10
+
+        assertEquals("longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2017-08-10
+
+        assertEquals("latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
     public void testGetShape() {
         final Interval interval = new Interval(12, 23);
 

@@ -35,6 +35,20 @@ public class OceanRainInsituReaderTest {
     }
 
     @Test
+    public void testGetLongitudeVariableName() {
+        final OceanRainInsituReader reader = new OceanRainInsituReader();
+
+        assertEquals("lon", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final OceanRainInsituReader reader = new OceanRainInsituReader();
+
+        assertEquals("lat", reader.getLatitudeVariableName());
+    }
+
+    @Test
     public void testDecode() {
         byte[] bytes = "16092016 2126 8294.893056   1474061100   8.9958 -138.0500  28.5\n".getBytes();
 

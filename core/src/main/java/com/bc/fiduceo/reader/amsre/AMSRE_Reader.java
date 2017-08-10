@@ -105,6 +105,16 @@ class AMSRE_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "Longitude";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "Latitude";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final Array latitudes = arrayCache.get(LO_RES_SWATH_GEO_GROUP, "Latitude");

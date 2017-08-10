@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -145,5 +142,19 @@ public class AMSRE_ReaderTest {
 
         matcher = pattern.matcher("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.E2");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Latitude", reader.getLatitudeVariableName());
     }
 }

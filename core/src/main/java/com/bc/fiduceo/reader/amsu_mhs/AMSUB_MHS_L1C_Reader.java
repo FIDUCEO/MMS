@@ -137,6 +137,16 @@ class AMSUB_MHS_L1C_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "Longitude";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "Latitude";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final Array longitudes = arrayCache.getScaled(GEOLOCATION_GROUP_NAME, "Longitude", "Scale", null);

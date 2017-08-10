@@ -107,4 +107,14 @@ public class SimpleNc4ReaderForTestCases implements Reader {
     public Dimension getProductSize() throws IOException {
         throw new RuntimeException("not implemented");
     }
+
+    @Override
+    public String getLongitudeVariableName() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        throw new RuntimeException("not implemented");
+    }
 }

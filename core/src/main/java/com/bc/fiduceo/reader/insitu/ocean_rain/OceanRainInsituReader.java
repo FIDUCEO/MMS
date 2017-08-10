@@ -107,6 +107,16 @@ public class OceanRainInsituReader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "lon";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "lat";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         throw new RuntimeException("not implemented");
     }

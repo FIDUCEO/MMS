@@ -125,6 +125,16 @@ public class AVHRR_GAC_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return null;
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return null;
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");

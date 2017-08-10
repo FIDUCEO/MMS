@@ -114,6 +114,16 @@ class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
         throw new RuntimeException("not implemented");
     }

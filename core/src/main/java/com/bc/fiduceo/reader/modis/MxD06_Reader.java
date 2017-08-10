@@ -88,6 +88,16 @@ class MxD06_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "Longitude";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "Latitude";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         throw new RuntimeException("not implemented");
     }

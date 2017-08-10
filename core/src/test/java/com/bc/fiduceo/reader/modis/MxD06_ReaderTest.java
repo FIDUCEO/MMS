@@ -25,9 +25,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MxD06_ReaderTest {
 
@@ -58,5 +56,19 @@ public class MxD06_ReaderTest {
 
         matcher = pattern.matcher("IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        final MxD06_Reader reader = new MxD06_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final MxD06_Reader reader = new MxD06_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+
+        assertEquals("Latitude", reader.getLatitudeVariableName());
     }
 }

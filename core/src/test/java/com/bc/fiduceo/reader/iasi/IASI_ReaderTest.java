@@ -91,6 +91,16 @@ public class IASI_ReaderTest {
     }
 
     @Test
+    public void testGetLongitudeVariableName() {
+        assertEquals("GGeoSondLoc_Lon", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        assertEquals("GGeoSondLoc_Lat", reader.getLatitudeVariableName());
+    }
+
+    @Test
     public void testGetVariables() throws IOException {
         final List<Variable> variables = reader.getVariables();
         assertNotNull(variables);

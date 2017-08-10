@@ -114,6 +114,16 @@ class SSMT2_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "lon";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "lat";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");

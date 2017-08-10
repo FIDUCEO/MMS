@@ -108,6 +108,16 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "insitu.lon";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "insitu.lat";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         throw new RuntimeException("not implemented");
     }

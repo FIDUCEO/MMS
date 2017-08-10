@@ -116,6 +116,16 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "longitude";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "latitude";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final GeoCoding geoCoding = product.getSceneGeoCoding();

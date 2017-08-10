@@ -116,4 +116,8 @@ public interface Reader extends AutoCloseable {
      * @return the data Dimension
      */
     Dimension getProductSize() throws IOException;
+
+    String getLongitudeVariableName();
+
+    String getLatitudeVariableName();
 }

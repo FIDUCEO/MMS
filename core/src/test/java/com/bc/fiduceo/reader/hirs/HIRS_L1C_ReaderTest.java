@@ -21,13 +21,13 @@
 package com.bc.fiduceo.reader.hirs;
 
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertArrayEquals;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
 
 public class HIRS_L1C_ReaderTest {
 
@@ -67,6 +67,16 @@ public class HIRS_L1C_ReaderTest {
 
         matcher = pattern.matcher("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        assertEquals("lon", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        assertEquals("lat", reader.getLatitudeVariableName());
     }
 
     @Test

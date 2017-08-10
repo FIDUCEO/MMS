@@ -150,6 +150,16 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "GGeoSondLoc_Lon";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "GGeoSondLoc_Lat";
+    }
+
+    @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
         // @todo 1 tb/tb implement correct sub-scene locators here 2015-05-15
         return getPixelLocator_internal();

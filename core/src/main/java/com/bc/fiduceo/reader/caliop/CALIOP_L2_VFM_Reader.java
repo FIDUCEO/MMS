@@ -150,6 +150,16 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "Longitude";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "Latitude";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final Array lons = arrayCache.get("Longitude");

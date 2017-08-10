@@ -187,4 +187,18 @@ public class AMSUB_MHS_L1C_ReaderTest {
     public void testCorrectAzimuth() {
         assertEquals("general_azimuth", AMSUB_MHS_L1C_Reader.correctAzimuth("general_azimith"));
     }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
+
+        assertEquals("Longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
+
+        assertEquals("Latitude", reader.getLatitudeVariableName());
+    }
 }

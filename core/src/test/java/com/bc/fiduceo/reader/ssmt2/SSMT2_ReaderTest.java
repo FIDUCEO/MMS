@@ -25,9 +25,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SSMT2_ReaderTest {
 
@@ -55,5 +53,19 @@ public class SSMT2_ReaderTest {
 
         matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
         assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        final SSMT2_Reader reader = new SSMT2_Reader(null);
+
+        assertEquals("lon", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        final SSMT2_Reader reader = new SSMT2_Reader(null);
+
+        assertEquals("lat", reader.getLatitudeVariableName());
     }
 }

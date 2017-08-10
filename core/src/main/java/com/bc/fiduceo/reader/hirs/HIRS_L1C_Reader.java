@@ -111,6 +111,16 @@ class HIRS_L1C_Reader implements Reader {
     }
 
     @Override
+    public String getLongitudeVariableName() {
+        return "lon";
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return "lat";
+    }
+
+    @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final Array lonArray = arrayCache.get("lon");
