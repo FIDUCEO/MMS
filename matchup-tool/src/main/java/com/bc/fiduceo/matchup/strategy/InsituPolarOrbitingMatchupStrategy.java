@@ -366,14 +366,17 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final List<Sample> insituSamples = new ArrayList<>();
         final Dimension productSize = insituReader.getProductSize();
         final int height = productSize.getNy();
+
+        final String longitudeVariableName = insituReader.getLongitudeVariableName();
+        final String latitudeVariableName = insituReader.getLatitudeVariableName();
+
         for (int i = 0; i < height; i++) {
             final ArrayInt.D2 acquisitionTimeArray = insituReader.readAcquisitionTime(0, i, singlePixel);
             final int acquisitionTime = acquisitionTimeArray.getInt(0);
             final Date acquisitionDate = TimeUtils.create(acquisitionTime * 1000L);
             if (processingInterval.contains(acquisitionDate)) {
-                // @todo 3 tb/tb this is SST-CCI specific - generalise the geolocation access 2016-11-07
-                final Array lon = insituReader.readRaw(0, i, singlePixel, "insitu.lon");
-                final Array lat = insituReader.readRaw(0, i, singlePixel, "insitu.lat");
+                final Array lon = insituReader.readRaw(0, i, singlePixel, longitudeVariableName);
+                final Array lat = insituReader.readRaw(0, i, singlePixel, latitudeVariableName);
 
                 final Sample sample = new Sample(0, i, lon.getDouble(0), lat.getDouble(0), acquisitionDate.getTime());
                 insituSamples.add(sample);
