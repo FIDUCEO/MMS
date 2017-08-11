@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
-import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
 
 public class OceanRainInsituReader implements Reader {
 
@@ -74,7 +73,7 @@ public class OceanRainInsituReader implements Reader {
 
         channel = inputStream.getChannel();
         final long fileSize = channel.size();
-        numLines = (int)(fileSize / LINE_SIZE);
+        numLines = (int) (fileSize / LINE_SIZE);
     }
 
     @Override
