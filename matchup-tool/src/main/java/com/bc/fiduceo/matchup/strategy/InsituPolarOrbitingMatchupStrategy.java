@@ -67,9 +67,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
-        final String primarySensorName = useCaseConfig.getPrimarySensor().getName();
 
-        final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         final ConditionEngine conditionEngine = new ConditionEngine();
         conditionEngine.configure(useCaseConfig);
 
@@ -90,10 +88,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             return new MatchupCollection();
         }
 
-        final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
-        final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
-        final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
-        String[] secSensorNames = mapSecondaryObservations.keySet().toArray(new String[]{});
+        final Map<String, List<SatelliteObservation>> mapSecondaryObservations = retrieveSecondaryObservations(context, timeDeltaSeconds);
+        final String[] secSensorNames = mapSecondaryObservations.keySet().toArray(new String[]{});
 
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsInsituOrder = new HashMap<>();
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
@@ -102,6 +98,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             mapMatchupSetsSatelliteOrder.put(secSensorName, new HashMap<>());
         }
 
+        final String primarySensorName = useCaseConfig.getPrimarySensor().getName();
         for (final SatelliteObservation insituObservation : insituObservations) {
             final Path insituPath = insituObservation.getDataFilePath();
             try (final Reader insituReader = readerFactory.getReader(primarySensorName)) {
@@ -118,24 +115,10 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                         matchupSet.setPrimaryProcessingVersion(insituObservation.getVersion());
                         final Path secPath = matchupSet.getSecondaryObservationPath(secSensorName);
 
-                        final List<MatchupSet> satelliteSets;
-                        if (matchupSetsSatelliteOrder.containsKey(secPath)) {
-                            satelliteSets = matchupSetsSatelliteOrder.get(secPath);
-                        } else {
-                            satelliteSets = new ArrayList<>();
-                            matchupSetsSatelliteOrder.put(secPath, satelliteSets);
-                        }
-
+                        final List<MatchupSet> satelliteSets = getMatchupSets(secPath, matchupSetsSatelliteOrder);
                         satelliteSets.add(matchupSet);
 
-                        final List<MatchupSet> insituSets;
-                        if (matchupSetsInsituOrder.containsKey(insituPath)) {
-                            insituSets = matchupSetsInsituOrder.get(insituPath);
-                        } else {
-                            insituSets = new ArrayList<>();
-                            matchupSetsInsituOrder.put(insituPath, insituSets);
-                        }
-
+                        final List<MatchupSet> insituSets = getMatchupSets(insituPath, matchupSetsInsituOrder);
                         insituSets.add(matchupSet);
                     }
                 }
@@ -181,6 +164,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final int readerCacheSize = context.getSystemConfig().getReaderCacheSize();
         final ReaderCache readerCache = new ReaderCache(readerCacheSize, readerFactory, null);
         final List<MatchupSet> matchupSets = combineBean.matchupCollection.getSets();
+        final ConditionEngineContext conditionEngineContext = ConditionEngine.createContext(context);
         for (MatchupSet matchupSet : matchupSets) {
             final Path primaryObservationPath = matchupSet.getPrimaryObservationPath();
             final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
@@ -194,6 +178,23 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         }
 
         return combineBean.matchupCollection;
+    }
+
+    private List<MatchupSet> getMatchupSets(Path insituPath, Map<Path, List<MatchupSet>> matchupSetsInsituOrder) {
+        final List<MatchupSet> insituSets;
+        if (matchupSetsInsituOrder.containsKey(insituPath)) {
+            insituSets = matchupSetsInsituOrder.get(insituPath);
+        } else {
+            insituSets = new ArrayList<>();
+            matchupSetsInsituOrder.put(insituPath, insituSets);
+        }
+        return insituSets;
+    }
+
+    private Map<String, List<SatelliteObservation>> retrieveSecondaryObservations(ToolContext context, int timeDeltaSeconds) throws SQLException {
+        final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
+        final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
+        return getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
     }
 
     static List<SatelliteObservation> getCandidatesByTime(List<SatelliteObservation> satelliteObservations, Date insituTime, long timeDeltaInMillis) {
