@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.ObservationsSet;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
@@ -88,8 +89,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             return new MatchupCollection();
         }
 
-        final Map<String, List<SatelliteObservation>> mapSecondaryObservations = retrieveSecondaryObservations(context, timeDeltaSeconds);
-        final String[] secSensorNames = mapSecondaryObservations.keySet().toArray(new String[]{});
+        final ObservationsSet secondaryObservationsSet = retrieveSecondaryObservations(context, timeDeltaSeconds);
+        final String[] secSensorNames = secondaryObservationsSet.getSensorKeys();
 
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsInsituOrder = new HashMap<>();
         final Map<String, Map<Path, List<MatchupSet>>> mapMatchupSetsSatelliteOrder = new HashMap<>();
@@ -105,7 +106,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 insituReader.open(insituPath.toFile());
 
                 for (String secSensorName : secSensorNames) {
-                    final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secSensorName);
+                    final List<SatelliteObservation> secondaryObservations = secondaryObservationsSet.get(secSensorName);
                     final Map<Path, List<MatchupSet>> matchupSetsInsituOrder = mapMatchupSetsInsituOrder.get(secSensorName);
                     final Map<Path, List<MatchupSet>> matchupSetsSatelliteOrder = mapMatchupSetsSatelliteOrder.get(secSensorName);
 
@@ -191,7 +192,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return insituSets;
     }
 
-    private Map<String, List<SatelliteObservation>> retrieveSecondaryObservations(ToolContext context, int timeDeltaSeconds) throws SQLException {
+    private ObservationsSet retrieveSecondaryObservations(ToolContext context, int timeDeltaSeconds) throws SQLException {
         final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, context.getStartDate());
         final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, context.getEndDate());
         return getSecondaryObservations(context, searchTimeStart, searchTimeEnd);

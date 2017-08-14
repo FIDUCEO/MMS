@@ -27,6 +27,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.ObservationsSet;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
@@ -83,7 +84,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                 primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
-                final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
+                final ObservationsSet secondaryObservationsSet = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 // todo se multisensor
                 // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
@@ -94,7 +95,7 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
                 // todo se multisensor
                 // still only one secondary sensor case
-                final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
+                final List<SatelliteObservation> secondaryObservations = secondaryObservationsSet.get(secondarySensorName_CaseOneSecondary);
 
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {

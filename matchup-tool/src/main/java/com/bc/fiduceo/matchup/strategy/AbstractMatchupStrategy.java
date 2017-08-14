@@ -32,6 +32,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.ObservationsSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
 import com.bc.fiduceo.matchup.screening.ScreeningEngine;
@@ -44,7 +45,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -145,8 +145,8 @@ public abstract class AbstractMatchupStrategy {
         return primaryObservations;
     }
 
-    Map<String, List<SatelliteObservation>> getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
-        final HashMap<String, List<SatelliteObservation>> mapSecondaryObservations = new HashMap<>();
+    ObservationsSet getSecondaryObservations(ToolContext context, Date searchTimeStart, Date searchTimeEnd) throws SQLException {
+        final ObservationsSet observationsSet = new ObservationsSet();
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Storage storage = context.getStorage();
@@ -156,8 +156,8 @@ public abstract class AbstractMatchupStrategy {
             logger.info("Requesting secondary data ... (" + sensorName + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
             logger.info("Received " + secondaryObservations.size() + " secondary satellite observations of sensor type " + sensorName);
-            mapSecondaryObservations.put(sensorName, secondaryObservations);
+            observationsSet.add(sensorName, secondaryObservations);
         }
-        return mapSecondaryObservations;
+        return observationsSet;
     }
 }

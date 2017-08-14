@@ -16,19 +16,12 @@
  */
 package com.bc.fiduceo.matchup.strategy;
 
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.SamplingPoint;
-import com.bc.fiduceo.core.SatelliteObservation;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.core.Sample;
+import com.bc.fiduceo.matchup.ObservationsSet;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.matchup.condition.ConditionEngine;
 import com.bc.fiduceo.matchup.condition.ConditionEngineContext;
@@ -54,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
@@ -114,14 +106,15 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 //                System.out.println("Equates to " + equation + " seed points at 2280 scanlines per MHS orbit");
 //                >>>>>  e n d  <<<<<
 
-                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryStartTime);
-                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryStopTime);
-                final Map<String, List<SatelliteObservation>> mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 final MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
                 if (primaryMatchups == null) {
                     continue;
                 }
+
+                final Date searchTimeStart = TimeUtils.addSeconds(-timeDeltaSeconds, primaryStartTime);
+                final Date searchTimeEnd = TimeUtils.addSeconds(timeDeltaSeconds, primaryStopTime);
+                final ObservationsSet mapSecondaryObservations = getSecondaryObservations(context, searchTimeStart, searchTimeEnd);
 
                 // todo se multisensor
                 // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
