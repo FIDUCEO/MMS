@@ -75,7 +75,8 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     public static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
 
     private static final short[] nadirLineIndices = calcalculateIndizes();
-    private static final int FOOTPRINT_WIDTH = 5;
+    public static final double FOOTPRINT_WIDTH_KM = 5;
+    public static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
@@ -137,7 +138,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         points.add(geometryFactory.createPoint(lons.getFloat(lastPosition), lats.getFloat(lastPosition)));
 
         final LineString lineString = geometryFactory.createLineString(points);
-        final Polygon boundingGeometry = PaddingFactory.createLinePadding(lineString, getMaxDistance(), geometryFactory);
+        final Polygon boundingGeometry = PaddingFactory.createLinePadding(lineString, FOOTPRINT_WIDTH_KM, geometryFactory);
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
         acquisitionInfo.setTimeAxes(new TimeAxis[]{geometryFactory.createTimeAxis(lineString, sensingStart, sensingStop)});
 
@@ -282,7 +283,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     }
 
     private double getMaxDistance() {
-        final double fp2 = Math.pow(FOOTPRINT_WIDTH, 2);
+        final double fp2 = Math.pow(FOOTPRINT_HALF_WIDTH_KM, 2);
         return Math.sqrt(2*fp2);
     }
 
