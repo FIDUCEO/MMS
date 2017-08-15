@@ -142,6 +142,10 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             int zIndex = 0;
             final int cacheSize = writerConfig.getCacheSize();
             for (MatchupSet set : sets) {
+                int numObservations = set.getNumObservations();
+                if (numObservations == 0) {
+                    continue;
+                }
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
@@ -153,7 +157,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                     ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(secSensorName));
                     logger.info("... and " + secondaryObservationPath.getFileName());
                 }
-                logger.info("Num matchups: " + set.getNumObservations());
+                logger.info("Num matchups: " + numObservations);
 
 
                 final List<SampleSet> sampleSets = set.getSampleSets();
