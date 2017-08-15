@@ -36,20 +36,21 @@ public class PaddingFactoryTest {
         double d = PADDING_DIST_DEGREE;
 
         expectedEnvelope = new Point[6];
-        expectedEnvelope[0] = GF.createPoint(p[0].getLon() - d, p[0].getLat() + d);
-        expectedEnvelope[5] = GF.createPoint(p[0].getLon() - d, p[0].getLat() - d);
-        expectedEnvelope[1] = GF.createPoint(p[1].getLon() - 0, p[1].getLat() + d);
-        expectedEnvelope[4] = GF.createPoint(p[1].getLon() - 0, p[1].getLat() - d);
-        expectedEnvelope[2] = GF.createPoint(p[2].getLon() + d, p[2].getLat() + d);
-        expectedEnvelope[3] = GF.createPoint(p[2].getLon() + d, p[2].getLat() - d);
+        expectedEnvelope[5] = GF.createPoint(p[0].getLon() - d, p[0].getLat() + d);
+        expectedEnvelope[0] = GF.createPoint(p[0].getLon() - d, p[0].getLat() - d);
+        expectedEnvelope[4] = GF.createPoint(p[1].getLon() - 0, p[1].getLat() + d);
+        expectedEnvelope[1] = GF.createPoint(p[1].getLon() - 0, p[1].getLat() - d);
+        expectedEnvelope[3] = GF.createPoint(p[2].getLon() + d, p[2].getLat() + d);
+        expectedEnvelope[2] = GF.createPoint(p[2].getLon() + d, p[2].getLat() - d);
     }
 
     @Test
     public void createLinePadding_alongTheEquator_0DegreeRotation() throws Exception {
         //execution
-        Point[] coordinates = createEnvelope(points, "0/0/0");
+        Polygon envelope = createEnvelope(points, "0/0/0");
+        Point[] points = getPoints(envelope);
         //verification
-        assertEnvelope(expectedEnvelope, coordinates);
+        assertEnvelope(expectedEnvelope, points);
     }
 
     @Test
@@ -59,9 +60,10 @@ public class PaddingFactoryTest {
         transform(points, rotator);
         transform(expectedEnvelope, rotator);
         //execution
-        Point[] envelope = createEnvelope(points, "0, 0, 90");
+        Polygon envelope = createEnvelope(points, "0, 0, 90");
+        Point[] points = getPoints(envelope);
         //verification
-        assertEnvelope(expectedEnvelope, envelope);
+        assertEnvelope(expectedEnvelope, points);
     }
 
     @Test
@@ -71,9 +73,27 @@ public class PaddingFactoryTest {
         transform(points, rotator);
         transform(expectedEnvelope, rotator);
         //execution
-        Point[] envelope = createEnvelope(points, "Hamburg 45°");
+        Polygon envelope = createEnvelope(points, "Hamburg 45°");
+        Point[] points = getPoints(envelope);
         //verification
-        assertEnvelope(expectedEnvelope, envelope);
+        assertEnvelope(expectedEnvelope, points);
+    }
+
+    @Test
+    public void testThatPointsAreInsidePolygonEnvelope() throws Exception {
+        //preparation
+        final Rotator rotator = new Rotator(9.993682, 53.551085, 45);
+        transform(points, rotator);
+        //execution
+        Polygon envelope = createEnvelope(points, "Hamburg 45°");
+        //verification
+        for (int index = 0; index < points.length; index++) {
+            Point point = points[index];
+            Geometry intersection = envelope.getIntersection(point);
+            String pos = "index = " + index;
+            assertNotNull(pos, intersection);
+            assertEquals(pos, point, intersection);
+        }
     }
 
     private void transform(Point[] input, Rotator rotator) {
@@ -87,10 +107,14 @@ public class PaddingFactoryTest {
         }
     }
 
-    private Point[] createEnvelope(Point[] input, String locationName) {
+    private Polygon createEnvelope(Point[] input, String locationName) {
         final LineString lineString = GF.createLineString(Arrays.asList(input));
         final Polygon envelope = PaddingFactory.createLinePadding(lineString, ENVELOPE_WIDTH_KM, GF);
         System.out.println("envelope at " + locationName + " = " + envelope);
+        return envelope;
+    }
+
+    private Point[] getPoints(Polygon envelope) {
         Point[] coordinates = envelope.getCoordinates();
         coordinates = Arrays.copyOf(coordinates, coordinates.length - 1); // remove last Point because it is equal with first point
         return coordinates;

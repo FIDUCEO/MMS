@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup.plot;
 
 import com.bc.fiduceo.core.SamplingPoint;
-import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
@@ -42,17 +41,18 @@ public class MapPlotTool {
         try {
             final String filePath = args[0];
             netcdfFile = NetcdfFile.open(filePath);
-            final Variable lonVariable = netcdfFile.findVariable(args[1]);
-            final Variable latVariable = netcdfFile.findVariable(args[2]);
-            final Variable timeVariable = netcdfFile.findVariable(args[3]);
+
+            final Variable lonVariable = netcdfFile.findVariable(escape(args[1]));
+            final Variable latVariable = netcdfFile.findVariable(escape(args[2]));
+            final Variable timeVariable = netcdfFile.findVariable(escape(args[3]));
 
             final int[] shape = lonVariable.getShape();
-            shape[1] = 1;
-            shape[2] = 1;
             final int[] offsets = new int[shape.length];
             offsets[0] = 0;
             offsets[1] = shape[1]/2;
             offsets[2] = shape[2]/2;
+            shape[1] = 1;
+            shape[2] = 1;
 
             Array lonArray = readScaledIfRequired(lonVariable,offsets, shape);
             lonArray = shiftIfRequired(lonArray);
@@ -67,11 +67,16 @@ public class MapPlotTool {
                 samplingPoints.add(new SamplingPoint(lon, lat, time));
             }
 
-            final String fileName = FileUtils.getFileNameFromPath(filePath);
-            final String pngFileName = FileUtils.exchangeExtension(fileName, ".png");
+//            final String fileName = FileUtils.getFileNameFromPath(filePath);
+//            final String pngFileName = FileUtils.exchangeExtension(fileName, ".png");
             final String outputDir = new File(filePath).getParent();
-            final File targetFile = new File(outputDir, pngFileName);
-            final BufferedImage plot = new SamplingPointPlotter().samples(samplingPoints).filePath(targetFile.getAbsolutePath()).plot();
+            final File targetFile = new File(outputDir, args[4]);
+//            final File targetFile = new File(outputDir, pngFileName);
+            final BufferedImage plot = new SamplingPointPlotter()
+                    .mapStrategyName(SamplingPointPlotter.LON_LAT)
+                    .samples(samplingPoints)
+                    .filePath(targetFile.getAbsolutePath())
+                    .plot();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -81,6 +86,10 @@ public class MapPlotTool {
                 netcdfFile.close();
             }
         }
+    }
+
+    private static String escape(String vname) {
+        return NetcdfFile.makeValidCDLName(vname);
     }
 
     private static Array shiftIfRequired(Array lonArray) {

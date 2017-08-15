@@ -76,8 +76,8 @@ public class PaddingFactory {
             }
 
             final Point[] points = paddingFactory.createPoints(lon, lat, alpha, fil);
-            polygonPoints.add(i, points[0]);
-            polygonPoints.add(i + 1, points[1]);
+            polygonPoints.add(i, points[1]);
+            polygonPoints.add(i + 1, points[0]);
 
         }
 

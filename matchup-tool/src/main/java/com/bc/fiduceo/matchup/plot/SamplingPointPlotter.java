@@ -23,8 +23,14 @@ package com.bc.fiduceo.matchup.plot;
 import com.bc.fiduceo.core.SamplingPoint;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +38,8 @@ import java.util.List;
 
 final class SamplingPointPlotter {
 
+    public static final String TIME_LAT = "timlat";
+    public static final String LON_LAT = "lonlat";
     private List<SamplingPoint> samples;
     private String filePath;
     private boolean show = false;
@@ -172,9 +180,9 @@ final class SamplingPointPlotter {
 
     private MapStrategy getMapStrategy() {
         //noinspection IfCanBeSwitch
-        if ("timlat".equals(mapStrategyName)) {
+        if (TIME_LAT.equals(mapStrategyName)) {
             return new TimeLatMapStrategy(width, height);
-        } else if ("lonlat".equals(mapStrategyName)) {
+        } else if (LON_LAT.equals(mapStrategyName)) {
             return new LonLatMapStrategy(width, height);
         } else {
             return new LonLatMapStrategy(width, height);

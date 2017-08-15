@@ -84,14 +84,14 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(125, coordinates.length);
 
-        assertEquals(16.317764, coordinates[0].getLon(), 1e-6);
-        assertEquals(16.317764, coordinates[124].getLon(), 1e-6);
+        assertEquals(16.189985, coordinates[0].getLon(), 1e-6);
+        assertEquals(16.189985, coordinates[124].getLon(), 1e-6);
 
-        assertEquals(-61.968286, coordinates[0].getLat(), 1e-6);
-        assertEquals(-61.968286, coordinates[124].getLat(), 1e-6);
+        assertEquals(-61.947423, coordinates[0].getLat(), 1e-6);
+        assertEquals(-61.947423, coordinates[124].getLat(), 1e-6);
 
-        assertEquals(172.877640, coordinates[61].getLon(), 1e-5);
-        assertEquals(71.747820, coordinates[61].getLat(), 1e-5);
+        assertEquals(173.05680, coordinates[61].getLon(), 1e-5);
+        assertEquals(71.77782, coordinates[61].getLat(), 1e-5);
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);
