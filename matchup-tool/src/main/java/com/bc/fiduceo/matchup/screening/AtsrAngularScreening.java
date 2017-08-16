@@ -51,21 +51,24 @@ class AtsrAngularScreening implements Screening {
         for (final SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
 
-            final Array nadirElevArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "view_elev_nadir");
-            final Array fwardElevArray = primaryReader.readScaled(primary.x, primary.y, singlePixel, "view_elev_fward");
+            final int primaryX = primary.getX();
+            final int primaryY = primary.getY();
+            final Array nadirElevArray = primaryReader.readScaled(primaryX, primaryY, singlePixel, "view_elev_nadir");
+            final Array fwardElevArray = primaryReader.readScaled(primaryX, primaryY, singlePixel, "view_elev_fward");
 
             double nadirViewZenith = 90.0 - nadirElevArray.getDouble(0);
             double fwardViewZenith = 90.0 - fwardElevArray.getDouble(0);
-            if (primary.x > 256) {
+            if (primaryX > 256) {
                 nadirViewZenith *= -1.0;
                 fwardViewZenith *= -1.0;
             }
 
             final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
-            final Array satelliteZenithAngleArray = reader.readScaled(secondary.x, secondary.y, singlePixel, "satellite_zenith_angle");
+            final int secondaryX = secondary.getX();
+            final Array satelliteZenithAngleArray = reader.readScaled(secondaryX, secondary.getY(), singlePixel, "satellite_zenith_angle");
             double satZenithAngle = satelliteZenithAngleArray.getDouble(0);
-            if (secondary.x > 204) {
+            if (secondaryX > 204) {
                 satZenithAngle *= -1.0;
             }
 

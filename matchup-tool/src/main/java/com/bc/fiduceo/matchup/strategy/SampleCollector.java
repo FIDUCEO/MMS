@@ -62,7 +62,7 @@ class SampleCollector {
         final List<SampleSet> toKeep = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {
             final Sample primary = sampleSet.getPrimary();
-            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.lon, primary.lat);
+            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(primary.getLon(), primary.getLat());
             if (pixelLocations == null) {
                 continue;
             }

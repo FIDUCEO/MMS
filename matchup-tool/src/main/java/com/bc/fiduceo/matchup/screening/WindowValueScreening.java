@@ -89,7 +89,7 @@ public class WindowValueScreening implements Screening {
             final int height = dimension.getNy();
             for (final SampleSet sampleSet : sampleSets) {
                 final Sample sample = sampleFetcher.getSample(sampleSet);
-                readerEvalEnv.setWindow(sample.x, sample.y, width, height);
+                readerEvalEnv.setWindow(sample.getX(), sample.getY(), width, height);
                 int trueCount = 0;
                 int noDataCount = 0;
                 for (int y = 0; y < height; y++) {

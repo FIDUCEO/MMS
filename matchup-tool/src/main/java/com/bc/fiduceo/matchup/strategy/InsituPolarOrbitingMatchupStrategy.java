@@ -324,7 +324,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 final Sample primary = sampleSet.getPrimary();
                 if (depth == 0) {
                     bean.samples[PRIM_IDX] = primary;
-                } else if (primary.time != bean.samples[PRIM_IDX].time) {
+                } else if (primary.getTime() != bean.samples[PRIM_IDX].getTime()) {
                     continue;
                 }
 
@@ -343,8 +343,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
         final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
         for (final Sample insituSample : insituSamples) {
-            final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.time), timeDeltaInMillis);
-            final Geometry point = geometryFactory.createPoint(insituSample.lon, insituSample.lat);
+            final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.getTime()), timeDeltaInMillis);
+            final Geometry point = geometryFactory.createPoint(insituSample.getLon(), insituSample.getLat());
             final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, point);
 
             for (SatelliteObservation candidate : candidatesByGeometry) {

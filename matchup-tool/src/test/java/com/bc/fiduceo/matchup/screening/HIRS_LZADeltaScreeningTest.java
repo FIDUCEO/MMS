@@ -119,8 +119,8 @@ public class HIRS_LZADeltaScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(23, sampleSets.get(0).getPrimary().x);
-        assertEquals(25, sampleSets.get(1).getPrimary().x);
+        assertEquals(23, sampleSets.get(0).getPrimary().getX());
+        assertEquals(25, sampleSets.get(1).getPrimary().getX());
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

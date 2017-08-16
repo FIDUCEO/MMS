@@ -65,7 +65,7 @@ class PathContext {
     }
 
     String getSegment(String pathElement) {
-        String segment = map.get(pathElement);
+        final String segment = map.get(pathElement);
         if (segment == null) {
             return pathElement;
         }

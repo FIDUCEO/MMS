@@ -20,39 +20,20 @@
 
 package com.bc.fiduceo.core;
 
-public class Sample {
+import org.junit.Test;
 
-    private final int x;
-    private final int y;
-    private final double lon;
-    private final double lat;
-    private final long time;
+import static org.junit.Assert.assertEquals;
 
-    public Sample(int x, int y, double lon, double lat, long time) {
-        this.x = x;
-        this.y = y;
-        this.lon = lon;
-        this.lat = lat;
-        this.time = time;
-    }
+public class SampleTest {
 
-    public int getX() {
-        return x;
-    }
+    @Test
+    public void testConstructionAndGetter() {
+        final Sample sample = new Sample(1, 2, 3.0, 4.0, 5);
 
-    public int getY() {
-        return y;
-    }
-
-    public double getLon() {
-        return lon;
-    }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public long getTime() {
-        return time;
+        assertEquals(1, sample.getX());
+        assertEquals(2, sample.getY());
+        assertEquals(3.0, sample.getLon(), 1e-8);
+        assertEquals(4.0, sample.getLat(), 1e-8);
+        assertEquals(5, sample.getTime());
     }
 }

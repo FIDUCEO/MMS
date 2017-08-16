@@ -73,7 +73,7 @@ class AngularScreening implements Screening {
 
         if (hasPrimary) {
             final Sample primaryPixel = sampleSet.getPrimary();
-            final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, configuration.primaryVariableName);
+            final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.getX(), primaryPixel.getY(), singlePixel, configuration.primaryVariableName);
             final IndexIterator indexIterator = szaPrimaryArray.getIndexIterator();
 
             primaryVZA = indexIterator.getDoubleNext();
@@ -81,7 +81,7 @@ class AngularScreening implements Screening {
 
         if (hasSecondary) {
             final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-            final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
+            final Array szaSecondaryArray = secondaryReader.readScaled(secondaryPixel.getX(), secondaryPixel.getY(), singlePixel, configuration.secondaryVariableName);
 
             final IndexIterator indexIterator = szaSecondaryArray.getIndexIterator();
 

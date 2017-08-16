@@ -77,9 +77,9 @@ class OverlapRemoveCondition implements Condition {
                 left = o1.getSecondary(secondaryName);
                 right = o2.getSecondary(secondaryName);
             }
-            final int compareY = Integer.compare(left.y, right.y);
+            final int compareY = Integer.compare(left.getY(), right.getY());
             if (compareY == 0) {
-                return Integer.compare(left.x, right.x);
+                return Integer.compare(left.getX(), right.getX());
             } else {
                 return compareY;
             }

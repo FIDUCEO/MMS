@@ -48,8 +48,8 @@ class BuehlerCloudScreening implements Screening {
             runScreening(matchupSet, primaryReader, true);
         }
 
-        final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
         if (useSecondary) {
+            final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
             runScreening(matchupSet, reader, false);
         }
     }
@@ -126,8 +126,10 @@ class BuehlerCloudScreening implements Screening {
             } else {
                 pixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             }
-            final Array narrowChannelArray = reader.readScaled(pixel.x, pixel.y, singlePixel, narrowChannelName);
-            final Array wideChannelArray = reader.readScaled(pixel.x, pixel.y, singlePixel, wideChannelName);
+            final int pixelX = pixel.getX();
+            final int pixelY = pixel.getY();
+            final Array narrowChannelArray = reader.readScaled(pixelX, pixelY, singlePixel, narrowChannelName);
+            final Array wideChannelArray = reader.readScaled(pixelX, pixelY, singlePixel, wideChannelName);
 
             final double narrowChannelBTemp = narrowChannelArray.getDouble(0);
             final double wideChannelBTemp = wideChannelArray.getDouble(0);
@@ -136,7 +138,7 @@ class BuehlerCloudScreening implements Screening {
                 continue;
             }
 
-            final Array vzaArray = reader.readScaled(pixel.x, pixel.y, singlePixel, vzaVariableName);
+            final Array vzaArray = reader.readScaled(pixelX, pixelY, singlePixel, vzaVariableName);
             final double vza = vzaArray.getDouble(0);
             final double threshold = calculateThreshold(vza);
             if (narrowChannelBTemp < threshold) {

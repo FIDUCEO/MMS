@@ -47,7 +47,7 @@ public class SampleSetTest {
         sampleSet.setPrimary(sample);
         final Sample result = sampleSet.getPrimary();
         assertNotNull(result);
-        assertEquals(sample.lat, result.lat, 1e-8);
+        assertEquals(sample.getLat(), result.getLat(), 1e-8);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class SampleSetTest {
         sampleSet.setSecondary(SampleSet.getOnlyOneSecondaryKey(), sample);
         final Sample result = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertNotNull(result);
-        assertEquals(sample.x, result.x);
+        assertEquals(sample.getX(), result.getX());
     }
 
     @Test

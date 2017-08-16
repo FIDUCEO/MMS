@@ -88,6 +88,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public void writeMMD(MatchupCollection matchupCollection, ToolContext context, IOVariablesList ioVariablesList) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");
@@ -123,7 +124,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             final List<List<IOVariable>> secVariablesList = new ArrayList<>();
             final Interval[] secIntervals = new Interval[secSize];
             for (int i = 0; i < secondarySensors.size(); i++) {
-                Sensor secondarySensor = secondarySensors.get(i);
+                final Sensor secondarySensor = secondarySensors.get(i);
                 final String secondarySensorName = secondarySensor.getName();
                 secSensorNames[i] = secondarySensorName;
                 secVariablesList.add(ioVariablesList.getVariablesFor(secondarySensorName));
@@ -133,7 +134,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
             final List<SampleSetIOVariable> sampleSetVariables = ioVariablesList.getSampleSetIOVariables();
             logger.info("Collected IO Variables");
-
 
             final StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -146,6 +146,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 if (numObservations == 0) {
                     continue;
                 }
+
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
                 final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
                 ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
@@ -343,8 +344,8 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     }
 
     private void writeMmdValues(Sample sample, int zIndex, List<IOVariable> variables, Interval interval) throws IOException, InvalidRangeException {
-        final int x = sample.x;
-        final int y = sample.y;
+        final int x = sample.getX();
+        final int y = sample.getY();
 
         for (IOVariable variable : variables) {
             variable.writeData(x, y, interval, zIndex);

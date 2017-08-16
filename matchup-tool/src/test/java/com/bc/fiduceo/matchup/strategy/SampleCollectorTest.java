@@ -86,11 +86,11 @@ public class SampleCollectorTest {
             final Sample expected = expecteds[i];
             final SampleSet actual = sampleSets.get(i);
             final Sample primary = actual.getPrimary();
-            assertEquals("Index = " + i, expected.x, primary.x);
-            assertEquals("Index = " + i, expected.y, primary.y);
-            assertEquals("Index = " + i, expected.lon, primary.lon, 0.000001);
-            assertEquals("Index = " + i, expected.lat, primary.lat, 0.000001);
-            assertEquals("Index = " + i, expected.time, primary.time);
+            assertEquals("Index = " + i, expected.getX(), primary.getX());
+            assertEquals("Index = " + i, expected.getY(), primary.getY());
+            assertEquals("Index = " + i, expected.getLon(), primary.getLon(), 0.000001);
+            assertEquals("Index = " + i, expected.getLat(), primary.getLat(), 0.000001);
+            assertEquals("Index = " + i, expected.getTime(), primary.getTime());
 
             assertNull(actual.getSecondary(SampleSet.getOnlyOneSecondaryKey()));
         }
@@ -108,20 +108,20 @@ public class SampleCollectorTest {
 
         SampleSet sampleSet = sampleSets.get(0);
         Sample primary = sampleSet.getPrimary();
-        assertEquals(2, primary.x);
+        assertEquals(2, primary.getX());
 
         Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-        assertEquals(15, secondary.x);
-        assertEquals(18, secondary.y);
-        assertEquals(18015L, secondary.time);
+        assertEquals(15, secondary.getX());
+        assertEquals(18, secondary.getY());
+        assertEquals(18015L, secondary.getTime());
 
         sampleSet = sampleSets.get(1);
         primary = sampleSet.getPrimary();
-        assertEquals(6, primary.x);
+        assertEquals(6, primary.getX());
         secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-        assertEquals(19, secondary.x);
-        assertEquals(22, secondary.y);
-        assertEquals(22019L, secondary.time);
+        assertEquals(19, secondary.getX());
+        assertEquals(22, secondary.getY());
+        assertEquals(22019L, secondary.getTime());
     }
 
     @Test
@@ -133,8 +133,8 @@ public class SampleCollectorTest {
         final Sample primaryTwo = new Sample(6, 7, 8.5, 9.5, 200L);
 
         final Point2D[] emptyArray = {};
-        when(locator.getPixelLocation(primaryOne.lon, primaryOne.lat)).thenReturn(emptyArray);
-        when(locator.getPixelLocation(primaryTwo.lon, primaryTwo.lat)).thenReturn(new Point2D[]{new Point2D.Double(12.3, 14.8)});
+        when(locator.getPixelLocation(primaryOne.getLon(), primaryOne.getLat())).thenReturn(emptyArray);
+        when(locator.getPixelLocation(primaryTwo.getLon(), primaryTwo.getLat())).thenReturn(new Point2D[]{new Point2D.Double(12.3, 14.8)});
         when(locator.getGeoLocation(eq(12.5), eq(14.5), isA(Point2D.class))).thenReturn(new Point2D.Double(170.123, 34.321));
 
         final MatchupSet matchupSet = new MatchupSet();
@@ -150,11 +150,11 @@ public class SampleCollectorTest {
         assertSame(primaryTwo, primary);
         final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
         assertNotNull(secondary);
-        assertEquals(34.321, secondary.lat, 1e-8);
-        assertEquals(170.123, secondary.lon, 1e-8);
-        assertEquals(12, secondary.x);
-        assertEquals(14, secondary.y);
-        assertEquals(14012, secondary.time);
+        assertEquals(34.321, secondary.getLat(), 1e-8);
+        assertEquals(170.123, secondary.getLon(), 1e-8);
+        assertEquals(12, secondary.getX());
+        assertEquals(14, secondary.getY());
+        assertEquals(14012, secondary.getTime());
     }
 
     @Test

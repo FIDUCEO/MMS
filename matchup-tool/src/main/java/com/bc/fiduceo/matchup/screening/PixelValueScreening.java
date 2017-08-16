@@ -60,7 +60,7 @@ class PixelValueScreening implements Screening {
                 final Term term = parser.parse(configuration.primaryExpression);
                 for (final SampleSet sampleSet : sampleSets) {
                     final Sample primary = sampleSet.getPrimary();
-                    readerEvalEnv.setLocation(primary.x, primary.y);
+                    readerEvalEnv.setLocation(primary.getX(), primary.getY());
                     final boolean keep = term.evalB(readerEvalEnv);
                     if (!keep) {
                         continue;
@@ -86,7 +86,7 @@ class PixelValueScreening implements Screening {
                 final Term term = parser.parse(configuration.secondaryExpression);
                 for (final SampleSet sampleSet : sampleSets) {
                     final Sample secondary = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
-                    readerEvalEnv.setLocation(secondary.x, secondary.y);
+                    readerEvalEnv.setLocation(secondary.getX(), secondary.getY());
                     final boolean keep = term.evalB(readerEvalEnv);
                     if (!keep) {
                         continue;

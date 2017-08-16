@@ -20,8 +20,8 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.core.Sample;
+import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.SampleSet;
 
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ class TimeDeltaCondition implements Condition {
     }
 
     private boolean isInvalid(Sample primary, Sample secondary) {
-        final long actualTimeDelta = Math.abs(primary.time - secondary.time);
+        final long actualTimeDelta = Math.abs(primary.getTime() - secondary.getTime());
         return actualTimeDelta > maxTimeDeltaInMillis;
     }
 }

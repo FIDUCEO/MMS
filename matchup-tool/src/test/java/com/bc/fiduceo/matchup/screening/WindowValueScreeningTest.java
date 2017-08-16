@@ -113,7 +113,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(0, sampleSets.get(0).getPrimary().x);
+        assertEquals(0, sampleSets.get(0).getPrimary().getX());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(0, sampleSets.get(0).getPrimary().x);
+        assertEquals(0, sampleSets.get(0).getPrimary().getX());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
+        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
     }
 
     @Test
@@ -195,7 +195,7 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
+        assertEquals(4, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
     }
 
     @Test
@@ -228,8 +228,8 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(3, sampleSets.get(0).getPrimary().x);
-        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
+        assertEquals(3, sampleSets.get(0).getPrimary().getX());
+        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
     }
 
     @Test
@@ -262,8 +262,8 @@ public class WindowValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(3, sampleSets.get(0).getPrimary().x);
-        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
+        assertEquals(3, sampleSets.get(0).getPrimary().getX());
+        assertEquals(1, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
     }
 
     void writeTestFile(Path nc4testfile) throws IOException, InvalidRangeException {

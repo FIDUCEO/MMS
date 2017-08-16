@@ -47,12 +47,12 @@ class AngularCosineProportionScreening implements Screening {
 
         for (final SampleSet sampleSet : sampleSets) {
             final Sample primaryPixel = sampleSet.getPrimary();
-            final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.x, primaryPixel.y, singlePixel, configuration.primaryVariableName);
+            final Array szaPrimaryArray = primaryReader.readScaled(primaryPixel.getX(), primaryPixel.getY(), singlePixel, configuration.primaryVariableName);
             final double primaryVZA = szaPrimaryArray.getDouble(0);
 
             final Sample secondaryPixel = sampleSet.getSecondary(SampleSet.getOnlyOneSecondaryKey());
             final Reader reader = secondaryReader.get(SampleSet.getOnlyOneSecondaryKey());
-            final Array szaSecondaryArray = reader.readScaled(secondaryPixel.x, secondaryPixel.y, singlePixel, configuration.secondaryVariableName);
+            final Array szaSecondaryArray = reader.readScaled(secondaryPixel.getX(), secondaryPixel.getY(), singlePixel, configuration.secondaryVariableName);
             final double secondaryVZA = szaSecondaryArray.getDouble(0);
 
             final double primaryCosine = Math.cos(primaryVZA * MathUtils.DTOR);

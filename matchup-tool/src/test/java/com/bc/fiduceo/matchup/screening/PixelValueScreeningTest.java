@@ -113,8 +113,8 @@ public class PixelValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(33, sampleSets.get(0).getPrimary().x);
-        assertEquals(34, sampleSets.get(1).getPrimary().x);
+        assertEquals(33, sampleSets.get(0).getPrimary().getX());
+        assertEquals(34, sampleSets.get(1).getPrimary().getX());
     }
 
     @Test
@@ -158,8 +158,8 @@ public class PixelValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(35, sampleSets.get(0).getPrimary().x);
-        assertEquals(36, sampleSets.get(1).getPrimary().x);
+        assertEquals(35, sampleSets.get(0).getPrimary().getX());
+        assertEquals(36, sampleSets.get(1).getPrimary().getX());
     }
 
     @Test
@@ -203,7 +203,7 @@ public class PixelValueScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
 
-        assertEquals(36, sampleSets.get(0).getPrimary().x);
+        assertEquals(36, sampleSets.get(0).getPrimary().getX());
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

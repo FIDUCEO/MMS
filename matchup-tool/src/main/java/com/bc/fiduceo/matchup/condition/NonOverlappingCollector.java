@@ -53,10 +53,11 @@ class NonOverlappingCollector {
 
         sampleSets = new ArrayList<>();
 
+        // @todo 2 tb/** the same comparison is performed in OverlapRemoveCondition - extract class and unify tb 2017-08-16
         final Comparator<Sample> orderedComparator = (o1, o2) -> {
-            final int compareY = Integer.compare(o1.y, o2.y);
+            final int compareY = Integer.compare(o1.getY(), o2.getY());
             if (compareY == 0) {
-                return Integer.compare(o1.x, o2.x);
+                return Integer.compare(o1.getX(), o2.getX());
             } else {
                 return compareY;
             }
@@ -80,7 +81,7 @@ class NonOverlappingCollector {
     }
 
     boolean areOverlapping(Sample p, Sample q) {
-        return Math.abs(p.x - q.x) < width && Math.abs(p.y - q.y) < height;
+        return Math.abs(p.getX() - q.getX()) < width && Math.abs(p.getY() - q.getY()) < height;
     }
 
     Sample getSample(SampleSet sampleSet) {
@@ -94,10 +95,12 @@ class NonOverlappingCollector {
     private boolean hasOverlap(Sample inputSample) {
         for (Iterator<Sample> iterator = samples.descendingIterator(); iterator.hasNext(); ) {
             final Sample other = iterator.next();
-            if (other.y < inputSample.y - height) {
+            final int otherY = other.getY();
+            final int inputSampleY = inputSample.getY();
+            if (otherY < inputSampleY - height) {
                 break;
             }
-            if (other.y > inputSample.y + height) {
+            if (otherY > inputSampleY + height) {
                 continue;
             }
             if (areOverlapping(inputSample, other)) {

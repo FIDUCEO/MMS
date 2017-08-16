@@ -109,7 +109,7 @@ public class AtsrAngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
-        assertEquals(367, sampleSets.get(0).getPrimary().x);
+        assertEquals(367, sampleSets.get(0).getPrimary().getX());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class AtsrAngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
-        assertEquals(468, sampleSets.get(0).getPrimary().x);
+        assertEquals(468, sampleSets.get(0).getPrimary().getX());
     }
 
     @Test
@@ -188,7 +188,7 @@ public class AtsrAngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
-        assertEquals(68, sampleSets.get(0).getPrimary().x);
+        assertEquals(68, sampleSets.get(0).getPrimary().getX());
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

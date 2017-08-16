@@ -109,8 +109,8 @@ public class AngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
-        assertEquals(23, sampleSets.get(0).getPrimary().x);
-        assertEquals(25, sampleSets.get(1).getPrimary().x);
+        assertEquals(23, sampleSets.get(0).getPrimary().getX());
+        assertEquals(25, sampleSets.get(1).getPrimary().getX());
     }
 
     @Test
@@ -151,8 +151,8 @@ public class AngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
-        assertEquals(33, sampleSets.get(0).getPrimary().x);
-        assertEquals(34, sampleSets.get(1).getPrimary().x);
+        assertEquals(33, sampleSets.get(0).getPrimary().getX());
+        assertEquals(34, sampleSets.get(1).getPrimary().getX());
     }
 
     @Test
@@ -196,7 +196,7 @@ public class AngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(1, sampleSets.size());
-        assertEquals(44, sampleSets.get(0).getPrimary().x);
+        assertEquals(44, sampleSets.get(0).getPrimary().getX());
     }
 
     @Test
@@ -240,8 +240,8 @@ public class AngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
-        assertEquals(53, sampleSets.get(0).getPrimary().x);
-        assertEquals(55, sampleSets.get(1).getPrimary().x);
+        assertEquals(53, sampleSets.get(0).getPrimary().getX());
+        assertEquals(55, sampleSets.get(1).getPrimary().getX());
     }
 
     @Test
@@ -288,8 +288,8 @@ public class AngularScreeningTest {
 
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
-        assertEquals(63, sampleSets.get(0).getPrimary().x);
-        assertEquals(64, sampleSets.get(1).getPrimary().x);
+        assertEquals(63, sampleSets.get(0).getPrimary().getX());
+        assertEquals(64, sampleSets.get(1).getPrimary().getX());
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

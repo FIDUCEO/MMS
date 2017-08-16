@@ -107,8 +107,8 @@ public class AngularCosineProportionScreeningTest {
         sampleSets = matchupSet.getSampleSets();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(33, sampleSets.get(0).getPrimary().x);
-        assertEquals(35, sampleSets.get(1).getPrimary().x);
+        assertEquals(33, sampleSets.get(0).getPrimary().getX());
+        assertEquals(35, sampleSets.get(1).getPrimary().getX());
     }
 
     private SampleSet createSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {

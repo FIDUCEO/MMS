@@ -132,9 +132,9 @@ public class ConditionEngineTest {
         assertEquals(3, matchupSet.getNumObservations());
         final List<SampleSet> resultSet = matchupSet.getSampleSets();
 
-        assertEquals(startTime, resultSet.get(0).getPrimary().time);
-        assertEquals(startTime + fiveDays, resultSet.get(1).getPrimary().time);
-        assertEquals(endTime, resultSet.get(2).getPrimary().time);
+        assertEquals(startTime, resultSet.get(0).getPrimary().getTime());
+        assertEquals(startTime + fiveDays, resultSet.get(1).getPrimary().getTime());
+        assertEquals(endTime, resultSet.get(2).getPrimary().getTime());
     }
 
     @Test

@@ -73,7 +73,7 @@ public class MatchupSetTest {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final SampleSet sampleSet = sampleSets.get(0);
         final Sample primary = sampleSet.getPrimary();
-        assertEquals(expectedSample.lon, primary.lon, 1e-8);
+        assertEquals(expectedSample.getLon(), primary.getLon(), 1e-8);
     }
 
     @Test

@@ -48,11 +48,13 @@ class BorderDistanceCondition implements Condition {
                 final int maxYPrimary = primarySize.getNy() - 1 - configuration.primary_y;
                 for (final SampleSet sampleSet : sourceSamples) {
                     final Sample primary = sampleSet.getPrimary();
-                    if (primary.x < configuration.primary_x || primary.x > maxXPrimary) {
+                    final int primaryX = primary.getX();
+                    if (primaryX < configuration.primary_x || primaryX > maxXPrimary) {
                         continue;
                     }
 
-                    if (primary.y < configuration.primary_y || primary.y > maxYPrimary) {
+                    final int primaryY = primary.getY();
+                    if (primaryY < configuration.primary_y || primaryY > maxYPrimary) {
                         continue;
                     }
                     targetSamples.add(sampleSet);
@@ -64,11 +66,13 @@ class BorderDistanceCondition implements Condition {
                 final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
                 for (final SampleSet sampleSet : sourceSamples) {
                     final Sample secondary = sampleSet.getSecondary(secondaryName);
-                    if (secondary.x < configuration.secondary_x || secondary.x > maxXSecondary) {
+                    final int secondaryX = secondary.getX();
+                    if (secondaryX < configuration.secondary_x || secondaryX > maxXSecondary) {
                         continue;
                     }
 
-                    if (secondary.y < configuration.secondary_y || secondary.y > maxYSecondary) {
+                    final int secondaryY = secondary.getY();
+                    if (secondaryY < configuration.secondary_y || secondaryY > maxYSecondary) {
                         continue;
                     }
                     targetSamples.add(sampleSet);

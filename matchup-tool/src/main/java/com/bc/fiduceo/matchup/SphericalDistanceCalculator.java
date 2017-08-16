@@ -29,6 +29,6 @@ class SphericalDistanceCalculator {
     static double calculateKm(final String secondarySensorName, SampleSet sampleSet) {
         final Sample primary = sampleSet.getPrimary();
         final Sample secondary = sampleSet.getSecondary(secondarySensorName);
-        return Distance.computeSphericalDistanceKm(primary.lon, primary.lat, secondary.lon, secondary.lat);
+        return Distance.computeSphericalDistanceKm(primary.getLon(), primary.getLat(), secondary.getLon(), secondary.getLat());
     }
 }

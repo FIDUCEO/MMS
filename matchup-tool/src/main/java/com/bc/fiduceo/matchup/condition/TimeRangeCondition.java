@@ -33,7 +33,7 @@ class TimeRangeCondition implements Condition {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final List<SampleSet> targetSets = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {
-            final long time = sampleSet.getPrimary().time;
+            final long time = sampleSet.getPrimary().getTime();
             if (time >= startTime && time <= endTime) {
                 targetSets.add(sampleSet);
             }

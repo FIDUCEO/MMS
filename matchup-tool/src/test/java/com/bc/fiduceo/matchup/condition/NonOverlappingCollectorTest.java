@@ -135,8 +135,8 @@ public class NonOverlappingCollectorTest {
 
         final List<SampleSet> sampleSets = primaryCollector.get();
         assertEquals(1, sampleSets.size());
-        assertEquals(23, sampleSets.get(0).getPrimary().x);
-        assertEquals(197, sampleSets.get(0).getPrimary().y);
+        assertEquals(23, sampleSets.get(0).getPrimary().getX());
+        assertEquals(197, sampleSets.get(0).getPrimary().getY());
     }
 
     @Test
@@ -149,8 +149,8 @@ public class NonOverlappingCollectorTest {
 
         final List<SampleSet> sampleSets = secondaryCollector.get();
         assertEquals(1, sampleSets.size());
-        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
-        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
+        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getY());
     }
 
     @Test
@@ -163,8 +163,8 @@ public class NonOverlappingCollectorTest {
 
         final List<SampleSet> sampleSets = namedSecondaryCollector.get();
         assertEquals(1, sampleSets.size());
-        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).x);
-        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).getX());
+        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).getY());
     }
 
     @Test
@@ -191,14 +191,14 @@ public class NonOverlappingCollectorTest {
         final List<SampleSet> sampleSets = primaryCollector.get();
         assertEquals(3, sampleSets.size());
 
-        assertEquals(23, sampleSets.get(0).getPrimary().x);
-        assertEquals(197, sampleSets.get(0).getPrimary().y);
+        assertEquals(23, sampleSets.get(0).getPrimary().getX());
+        assertEquals(197, sampleSets.get(0).getPrimary().getY());
 
-        assertEquals(140, sampleSets.get(1).getPrimary().x);
-        assertEquals(2807, sampleSets.get(1).getPrimary().y);
+        assertEquals(140, sampleSets.get(1).getPrimary().getX());
+        assertEquals(2807, sampleSets.get(1).getPrimary().getY());
 
-        assertEquals(488, sampleSets.get(2).getPrimary().x);
-        assertEquals(1943, sampleSets.get(2).getPrimary().y);
+        assertEquals(488, sampleSets.get(2).getPrimary().getX());
+        assertEquals(1943, sampleSets.get(2).getPrimary().getY());
     }
 
     @Test
@@ -224,11 +224,11 @@ public class NonOverlappingCollectorTest {
         final List<SampleSet> sampleSets = secondaryCollector.get();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
-        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
+        assertEquals(1812, sampleSets.get(0).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getY());
 
-        assertEquals(1107, sampleSets.get(1).getSecondary(SampleSet.getOnlyOneSecondaryKey()).x);
-        assertEquals(11812, sampleSets.get(1).getSecondary(SampleSet.getOnlyOneSecondaryKey()).y);
+        assertEquals(1107, sampleSets.get(1).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getX());
+        assertEquals(11812, sampleSets.get(1).getSecondary(SampleSet.getOnlyOneSecondaryKey()).getY());
     }
 
     @Test
@@ -254,11 +254,11 @@ public class NonOverlappingCollectorTest {
         final List<SampleSet> sampleSets = namedSecondaryCollector.get();
         assertEquals(2, sampleSets.size());
 
-        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).x);
-        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).y);
+        assertEquals(107, sampleSets.get(0).getSecondary(SEC_NAME).getX());
+        assertEquals(1812, sampleSets.get(0).getSecondary(SEC_NAME).getY());
 
-        assertEquals(1107, sampleSets.get(1).getSecondary(SEC_NAME).x);
-        assertEquals(11812, sampleSets.get(1).getSecondary(SEC_NAME).y);
+        assertEquals(1107, sampleSets.get(1).getSecondary(SEC_NAME).getX());
+        assertEquals(11812, sampleSets.get(1).getSecondary(SEC_NAME).getY());
     }
 
     @Test
@@ -268,8 +268,8 @@ public class NonOverlappingCollectorTest {
 
         final Sample sample = primaryCollector.getSample(sampleSet);
         assertNotNull(sample);
-        assertEquals(1, sample.x);
-        assertEquals(2, sample.y);
+        assertEquals(1, sample.getX());
+        assertEquals(2, sample.getY());
     }
 
     @Test
@@ -279,8 +279,8 @@ public class NonOverlappingCollectorTest {
 
         final Sample sample = secondaryCollector.getSample(sampleSet);
         assertNotNull(sample);
-        assertEquals(2, sample.x);
-        assertEquals(3, sample.y);
+        assertEquals(2, sample.getX());
+        assertEquals(3, sample.getY());
     }
 
     @Test
@@ -290,8 +290,8 @@ public class NonOverlappingCollectorTest {
 
         final Sample sample = namedSecondaryCollector.getSample(sampleSet);
         assertNotNull(sample);
-        assertEquals(2, sample.x);
-        assertEquals(3, sample.y);
+        assertEquals(2, sample.getX());
+        assertEquals(3, sample.getY());
     }
 
     @Test
