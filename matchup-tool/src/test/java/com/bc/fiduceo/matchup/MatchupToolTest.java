@@ -83,7 +83,7 @@ public class MatchupToolTest {
 
         matchupTool.printUsageTo(outputStream);
 
-        assertEquals("matchup-tool version 1.2.7" + ls +
+        assertEquals("matchup-tool version 1.2.8-SNAPSHOT" + ls +
                 ls +
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
