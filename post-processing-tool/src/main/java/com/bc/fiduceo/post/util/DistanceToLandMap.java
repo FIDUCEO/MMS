@@ -16,10 +16,11 @@
  */
 package com.bc.fiduceo.post.util;
 
-import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.*;
-import org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn;
+import com.bc.fiduceo.util.NetCDFUtils;
+import ucar.ma2.Array;
+import ucar.ma2.Index;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,11 +28,18 @@ import java.nio.file.Path;
 
 public class DistanceToLandMap {
 
-    private final Path distancePath;
-    private static Band distanceToLand;
-    private static GeoCoding geoCoding;
     private static int instanceCount = 0;
-    private static Product product;
+    private final Path distancePath;
+    private NetcdfFile ncFile;
+    private Array array;
+    private int width;
+    private int height;
+    private Index index;
+    private double lonF;
+    private double latF;
+    private int maxLonIdx;
+    private int maxLatIdx;
+    private double scaleFactor;
 
     public DistanceToLandMap(Path path) {
         distancePath = path;
@@ -44,34 +52,54 @@ public class DistanceToLandMap {
     }
 
     public double getDistance(double longitude, double latitude) throws IOException {
-        final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(latitude, longitude), null);
-        final int x = (int) pixelPos.getX();
-        final int y = (int) pixelPos.getY();
-        return distanceToLand.getPixelDouble(x, y);
+        int latIdx = getLatIdx(latitude);
+        int lonIdx = getLonIdx(longitude);
+        index.set(latIdx, lonIdx);
+        return array.getDouble(index) * scaleFactor;
     }
 
     public void close() {
         instanceCount--;
         if (instanceCount == 0) {
-            distanceToLand = null;
-            geoCoding = null;
-            if (product != null) {
-                product.dispose();
+            try {
+                ncFile.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to close DistanceToLandMap.", e);
             }
+            array = null;
+
+            width = -1;
+            height = -1;
+            index = null;
         }
+    }
+
+    private int getLonIdx(double lon) {
+        double shiftedLon = lon + 180;
+        return Math.min(maxLonIdx, (int) Math.floor(shiftedLon * lonF));
+    }
+
+    private int getLatIdx(double lat) {
+        double shiftedLat = lat * -1 + 90;
+        return Math.min(maxLatIdx, (int) Math.floor(shiftedLat * latF));
     }
 
     private void init() {
         final String absolutePathString = distancePath.toAbsolutePath().toString();
-        final ProductReaderPlugIn readerPlugIn = new BeamNetCdfReaderPlugIn();
-        final ProductReader reader = readerPlugIn.createReaderInstance();
         try {
-            product = reader.readProductNodes(absolutePathString, null);
-            distanceToLand = product.getBand("distance_to_land");
-            distanceToLand.readRasterDataFully();
-            geoCoding = product.getSceneGeoCoding();
+            ncFile = NetCDFUtils.openReadOnly(absolutePathString);
+            Variable distance_to_land = ncFile.findVariable(ncFile.getRootGroup(), "distance_to_land");
+            scaleFactor = distance_to_land.findAttribute("scale_factor").getNumericValue().doubleValue();
+            array = distance_to_land.read();
+            index = array.getIndex();
+            width = distance_to_land.getDimension(1).getLength();
+            maxLonIdx = width - 1;
+            lonF = width / 360.0;
+            height = distance_to_land.getDimension(0).getLength();
+            maxLatIdx = height - 1;
+            latF = height / 180.0;
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading. '" + absolutePathString + "'", e);
+            throw new RuntimeException("Unable to initialize DistanceToLandMap.", e);
         }
     }
 

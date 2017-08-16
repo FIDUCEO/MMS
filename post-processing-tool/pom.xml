@@ -46,18 +46,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-netcdf</artifactId>
-            <version>5.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>edu.ucar</groupId>
-                    <artifactId>netcdf</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf4</artifactId>
         </dependency>
