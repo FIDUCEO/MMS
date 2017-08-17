@@ -43,7 +43,7 @@ public class UseCaseConfig {
 
     public static final String TAG_NAME_ROOT = "use-case-config";
     static final String TAG_NAME_OUTPUT_PATH = "output-path";
-    static final String TAG_NAME_WRITE_DISTANCE = "write-point_distance";
+    static final String TAG_NAME_WRITE_DISTANCE = "write-distance";
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
     static final String TAG_NAME_RANDOM_POINTS_PER_DAY = "random-points-per-day";
