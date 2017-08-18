@@ -51,7 +51,7 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
-public class AVHRR_GAC_Reader_IO_Test {
+public class AVHRR_GAC_Reader_v012_IO_Test {
 
     private File testDataDirectory;
     private AVHRR_GAC_Reader reader;
