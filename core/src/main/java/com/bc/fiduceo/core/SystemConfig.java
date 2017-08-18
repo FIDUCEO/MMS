@@ -72,6 +72,10 @@ public class SystemConfig {
         return archiveConfig;
     }
 
+    public int getReaderCacheSize() {
+        return readerCacheSize;
+    }
+
     private SystemConfig(Document document) {
         this();
 
@@ -90,9 +94,5 @@ public class SystemConfig {
         if (readerCacheSize != null) {
             this.readerCacheSize = Integer.parseInt(readerCacheSize.getTextTrim());
         }
-    }
-
-    public int getReaderCacheSize() {
-        return readerCacheSize;
     }
 }
