@@ -149,7 +149,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_AVHRR_GAC_NOAA17() throws SQLException, IOException, ParseException {
+    public void testIngest_AVHRR_GAC_NOAA17_v012() throws SQLException, IOException, ParseException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n17", "-start", "2007-091", "-end", "2007-093", "-v", "1.01"};
 
         try {
@@ -175,18 +175,18 @@ public class IngestionToolIntegrationTest {
             final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
             final Geometry[] geometries = geometryCollection.getGeometries();
             assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v012[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v012[1], geometryFactory.format(geometries[1]));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 3, 34, 54, 0, timeAxes[0].getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 4, 31, 51, 0, timeAxes[0].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
+            assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v012[0], geometryFactory.format(timeAxes[0].getGeometry()));
 
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 4, 31, 51, 0, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 5, 28, 48, 0, timeAxes[1].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+            assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v012[1], geometryFactory.format(timeAxes[1].getGeometry()));
         } finally {
             storage.clear();
             storage.close();
@@ -194,7 +194,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_AVHRR_GAC_NOAA18() throws SQLException, IOException, ParseException {
+    public void testIngest_AVHRR_GAC_NOAA18_v012() throws SQLException, IOException, ParseException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n18", "-start", "2007-090", "-end", "2007-092", "-v", "1.02"};
 
         try {
@@ -220,18 +220,108 @@ public class IngestionToolIntegrationTest {
             final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
             final Geometry[] geometries = geometryCollection.getGeometries();
             assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N18_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N18_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertEquals(TestData.AVHRR_GAC_N18_GEOMETRIES_v012[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.AVHRR_GAC_N18_GEOMETRIES_v012[1], geometryFactory.format(geometries[1]));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 4, 12, 0, timeAxes[0].getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 55, 11, 500, timeAxes[0].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N18_AXIS_GEOMETRIES[0], geometryFactory.format(timeAxes[0].getGeometry()));
+            assertEquals(TestData.AVHRR_GAC_N18_AXIS_GEOMETRIES_v012[0], geometryFactory.format(timeAxes[0].getGeometry()));
 
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 8, 55, 11, 500, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2007, 4, 1, 9, 46, 11, 0, timeAxes[1].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N18_AXIS_GEOMETRIES[1], geometryFactory.format(timeAxes[1].getGeometry()));
+            assertEquals(TestData.AVHRR_GAC_N18_AXIS_GEOMETRIES_v012[1], geometryFactory.format(timeAxes[1].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_AVHRR_GAC_NOAA10_v013() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n10", "-start", "1988-078", "-end", "1988-078", "-v", "v01.3"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("19880318000900-ESACCI-L1C-AVHRR10_G-fv01.0.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 0, 9, 17, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 2, 3, 15, 0, observation.getStopTime());
+            assertEquals("avhrr-n10", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n10", "v01.3", "1988", "03", "18", "19880318000900-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v01.3", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[1], geometryFactory.format(geometries[1]));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 0, 9, 17, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 1, 6, 16, 0, timeAxes[0].getEndTime());
+            assertEquals(TestData.AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[0], geometryFactory.format(timeAxes[0].getGeometry()));
+
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 1, 6, 16, 0, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(1988, 3, 18, 2, 3, 15, 0, timeAxes[1].getEndTime());
+            assertEquals(TestData.AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[1], geometryFactory.format(timeAxes[1].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_AVHRR_GAC_NOAA11_v013() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n11", "-start", "1991-129", "-end", "1991-129", "-v", "v01.3"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("19910509075100-ESACCI-L1C-AVHRR11_G-fv01.0.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 7, 51, 46, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 9, 45, 41, 0, observation.getStopTime());
+            assertEquals("avhrr-n11", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n11", "v01.3", "1991", "05", "09", "19910509075100-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v01.3", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertTrue(geoBounds instanceof GeometryCollection);
+            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
+            final Geometry[] geometries = geometryCollection.getGeometries();
+            assertEquals(2, geometries.length);
+            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[0], geometryFactory.format(geometries[0]));
+            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[1], geometryFactory.format(geometries[1]));
+
+            final TimeAxis[] timeAxes = observation.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 7, 51, 46, 0, timeAxes[0].getStartTime());
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 8, 48, 43, 500, timeAxes[0].getEndTime());
+            assertEquals(TestData.AVHRR_GAC_N11_AXIS_GEOMETRIES_v013[0], geometryFactory.format(timeAxes[0].getGeometry()));
+
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 8, 48, 43, 500, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(1991, 5, 9, 9, 45, 41, 0, timeAxes[1].getEndTime());
+            assertEquals(TestData.AVHRR_GAC_N11_AXIS_GEOMETRIES_v013[1], geometryFactory.format(timeAxes[1].getGeometry()));
         } finally {
             storage.clear();
             storage.close();
