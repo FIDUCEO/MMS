@@ -218,10 +218,11 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
     }
 
     private void insert_AVHRR_GAC_NOAA19() throws IOException, SQLException {
-        final String processingVersion = "1.02";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19", processingVersion, "2014", "04", "25", "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc"}, true);
+        final String processingVersion = "v01.3";
+        final String sensorKey = "avhrr-n19";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "2014", "04", "25", "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation aatsr = readSatelliteObservation("avhrr-n19", absolutePath, processingVersion);
+        final SatelliteObservation aatsr = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
         storage.insert(aatsr);
     }
 

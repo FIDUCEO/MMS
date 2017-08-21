@@ -21,7 +21,6 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.NCTestUtils;
-import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -56,123 +55,123 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
-        insert_AVHRR_GAC_NOAA17();
-        insert_AVHRR_GAC_NOAA18();
+        insert_AVHRR_GAC_NOAA10();
+        insert_AVHRR_GAC_NOAA11();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1991-129", "-end", "1991-129"};
 
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
+        final File mmdFile = getMmdFilePath(useCaseConfig, "1991-129", "1991-129");
         assertFalse(mmdFile.isFile());
     }
 
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
-       final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(10800, null) // 3 hours - we have one intersecting time interval
-                .withMaxPixelDistanceKm(3, null)   // value in km
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withTimeDeltaSeconds(8500, null)  // 2 hours something - we have one intersecting time interval
+                .withMaxPixelDistanceKm(1.42f, null)   // value in km
                 .withAngularScreening("satellite_zenith_angle", "satellite_zenith_angle", Float.NaN, Float.NaN, 10.f)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
-        insert_AVHRR_GAC_NOAA17();
-        insert_AVHRR_GAC_NOAA18();
+        insert_AVHRR_GAC_NOAA10();
+        insert_AVHRR_GAC_NOAA11();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1991-129", "-end", "1991-129"};
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
+        final File mmdFile = getMmdFilePath(useCaseConfig, "1991-129", "1991-129");
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
-            assertEquals(11605, matchupCount);
-            
-            NCTestUtils.assertVectorVariable("avhrr-n17_x", 0, 52.0, mmd);
-            NCTestUtils.assertVectorVariable("avhrr-n17_y", 1, 13025.0, mmd);
-            NCTestUtils.assertStringVariable("avhrr-n17_file_name", 2, "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
+            assertEquals(1031, matchupCount);
 
-            NCTestUtils.assertVectorVariable("avhrr-n18_x", 3, 79.0, mmd);
-            NCTestUtils.assertVectorVariable("avhrr-n18_y", 4, 2306.0, mmd);
-            NCTestUtils.assertStringVariable("avhrr-n18_file_name", 5, "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc", mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n10_x", 0, 0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n10_y", 1, 9430, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n10_file_name", 2, "19910509045700-ESACCI-L1C-AVHRR10_G-fv01.0.nc", mmd);
 
-            NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 6, 1175405006.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_acquisition_time", 1, 0, 7, 1175415805.0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n11_x", 3, 0, mmd);
+            NCTestUtils.assertVectorVariable("avhrr-n11_y", 4, 5005, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n11_file_name", 5, "19910509075100-ESACCI-L1C-AVHRR11_G-fv01.0.nc", mmd);
 
-            NCTestUtils.assert3DVariable("avhrr-n18_lat", 2, 0, 8, 19.722999572753906, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_lon", 3, 0, 9, -103.84298706054688, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_dtime", 4, 0, 10, 1154.00048828125, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch1", 0, 1, 11, 3.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch2", 1, 1, 12, 0.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch3a", 2, 1, 13, -32768.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch3b", 3, 1, 14, 991.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch4", 4, 1, 15, 668.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ch5", 0, 2, 16, 932.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_satellite_zenith_angle", 1, 2, 17, 3870.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_solar_zenith_angle", 2, 2, 18, 14806.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_relative_azimuth_angle", 3, 2, 19, 5455.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_ict_temp", 4, 2, 20, 1466.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_qual_flags", 0, 3, 21, 0.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_cloud_mask", 1, 3, 22, 7.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_cloud_probability", 2, 3, 23, -128.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n18_l1b_line_number", 3, 3, 24, 2312.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_acquisition_time", 0, 0, 6, -2147483647, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_acquisition_time", 1, 0, 7, 673778009, mmd);
 
-            NCTestUtils.assert3DVariable("avhrr-n17_lat", 4, 3, 25, 19.702999114990234, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n17_lon", 0, 4, 26, -104.16299438476562, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n17_dtime", 1, 4, 27, 6515.00048828125, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n17_ch1", 1, 1, 28, 0.0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-n17_ch2", 2, 1, 29, 5.0, mmd);
-            // @todo 2 tb/** add more assertions here
+            NCTestUtils.assert3DVariable("avhrr-n11_lat", 2, 0, 8, -54.0890007019043, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_lon", 3, 0, 9, -128.2239990234375, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_dtime", 4, 0, 10, 2505.001220703125, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch1", 0, 1, 11, 2, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch2", 1, 1, 12, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch3b", 3, 1, 14, -1446, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch4", 4, 1, 15, -1243, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ch5", 0, 2, 16, -1780, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_satellite_zenith_angle", 1, 2, 17, 6962, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_solar_zenith_angle", 2, 2, 18, 12750, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_relative_azimuth_angle", 3, 2, 19, 7408, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_ict_temp", 4, 2, 20, 1220, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_qual_flags", 0, 3, 21, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_mask", 1, 3, 22, 3, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_cloud_probability", 2, 3, 23, 126, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n11_l1b_line_number", 3, 3, 24, 5029, mmd);
+
+            NCTestUtils.assert3DVariable("avhrr-n10_lat", 4, 3, 25, -56.50600051879883, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_lon", 0, 4, 26, -32768.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_dtime", 1, 4, 27, 4705.4990234375, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch1", 2, 4, 28, 28, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch2", 3, 4, 29, 45, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n10_ch3b", 4, 4, 30, -1560, mmd);
+            // @todo 3 tb/** add more assertions here
         }
     }
 
     @Test
     public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(10000, null)   // 2 hours something, just too small to have an overlapping time interval
+                .withTimeDeltaSeconds(300, null)   // 5 minutes, just too small to have an overlapping time interval
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-02.xml");
 
-        insert_AVHRR_GAC_NOAA17();
-        insert_AVHRR_GAC_NOAA18();
+        insert_AVHRR_GAC_NOAA10();
+        insert_AVHRR_GAC_NOAA11();
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2007-090", "-end", "2007-092"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "1991-129", "-end", "1991-129"};
 
         MatchupToolMain.main(args);
 
-        final File mmdFile = getMmdFilePath(useCaseConfig, "2007-090", "2007-092");
+        final File mmdFile = getMmdFilePath(useCaseConfig, "1991-129", "1991-129");
         assertFalse(mmdFile.isFile());
     }
 
-    private void insert_AVHRR_GAC_NOAA18() throws IOException, SQLException {
-        final String processingVersion = "1.02";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", processingVersion, "2007", "04", "01", "20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
+    private void insert_AVHRR_GAC_NOAA11() throws IOException, SQLException {
+        final String processingVersion = "v01.3";
+        final String sensorKey = "avhrr-n11";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "1991", "05", "09", "19910509075100-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = TestData.createObservation_AVHRR_GAC_NOAA_18(absolutePath, geometryFactory);
-        noaa18.setVersion(processingVersion);
-        storage.insert(noaa18);
+        final SatelliteObservation observation = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        storage.insert(observation);
     }
 
-    private void insert_AVHRR_GAC_NOAA17() throws IOException, SQLException {
-        final String processingVersion = "1.01";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", processingVersion, "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
+    private void insert_AVHRR_GAC_NOAA10() throws IOException, SQLException {
+        final String processingVersion = "v01.3";
+        final String sensorKey = "avhrr-n10";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "1991", "05", "09", "19910509045700-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa17 = TestData.createObservation_AVHRR_GAC_NOAA_17(absolutePath, geometryFactory);
-        noaa17.setVersion(processingVersion);
-        storage.insert(noaa17);
+        final SatelliteObservation observation = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        storage.insert(observation);
     }
 
     private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor primary = new Sensor("avhrr-n17");
+        final Sensor primary = new Sensor("avhrr-n11");
         primary.setPrimary(true);
         sensorList.add(primary);
-        sensorList.add(new Sensor("avhrr-n18"));
+        sensorList.add(new Sensor("avhrr-n10"));
 
         final List<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("avhrr-n17", 5, 5));
-        dimensions.add(new Dimension("avhrr-n18", 5, 5));
+        dimensions.add(new Dimension("avhrr-n11", 5, 5));
+        dimensions.add(new Dimension("avhrr-n10", 5, 5));
 
         return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd02")
                 .withSensors(sensorList)

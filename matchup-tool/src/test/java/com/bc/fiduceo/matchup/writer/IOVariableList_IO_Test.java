@@ -51,7 +51,7 @@ public class IOVariableList_IO_Test {
     @Before
     public void setUp() throws Exception {
         sensorName = "avhrr-n17";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "v01.3", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
         noaa17Path = Paths.get(absolutePath);

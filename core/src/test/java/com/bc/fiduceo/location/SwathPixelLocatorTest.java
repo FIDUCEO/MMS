@@ -17,9 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by Sabine on 29.02.2016.
- */
 @RunWith(IOTestRunner.class)
 public class SwathPixelLocatorTest {
 
@@ -31,7 +28,7 @@ public class SwathPixelLocatorTest {
     @Before
     public void setUp() throws Exception {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "1.01", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "v01.3", "2007", "04", "01", "20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
         netcdfFile = NetcdfFile.open(new File(testDataDirectory, testFilePath).getAbsolutePath());
 
         final Variable lonVar = netcdfFile.findVariable("lon");

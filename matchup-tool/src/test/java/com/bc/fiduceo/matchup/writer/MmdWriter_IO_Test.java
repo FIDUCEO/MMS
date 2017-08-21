@@ -29,7 +29,10 @@ import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.matchup.*;
+import com.bc.fiduceo.matchup.Delegator_MatchupTool;
+import com.bc.fiduceo.matchup.MatchupCollection;
+import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -58,12 +61,16 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
 
-    public static final String SEC_SENSOR_NAME = "avhrr-n11";
+    private static final String SEC_SENSOR_NAME = "avhrr-n11";
+
     private File testDir;
     private MmdWriterConfig writerConfig;
 
@@ -82,13 +89,13 @@ public class MmdWriter_IO_Test {
     }
 
     @Test
-    public void testInitializeVariables_CreateCfConformUnitsAttributeIfIoVariableOnlyContain_unit_isteadOf_units() throws Exception {
+    public void testInitializeVariables_CreateCfConformUnitsAttributeIfIoVariableOnlyContain_unit_insteadOf_units() throws Exception {
         //preparation
         final ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute("halimasch", "brt"));
         attributes.add(new Attribute("unit", "pilz"));
 
-        WindowReadingIOVariable variableWith_unit = new WindowReadingIOVariable(null);
+        final WindowReadingIOVariable variableWith_unit = new WindowReadingIOVariable(null);
         variableWith_unit.setTargetVariableName("targetVarName");
         variableWith_unit.setDimensionNames("matchup_count primary_ny primary_nx");
         variableWith_unit.setDataType("short");
@@ -128,16 +135,20 @@ public class MmdWriter_IO_Test {
             mmd = NetcdfFile.open(mmdFile.toString());
             final List<Variable> variables = mmd.getVariables();
             assertEquals(1, variables.size());
+
             final Variable variable = variables.get(0);
             assertEquals("targetVarName", variable.getShortName());
             assertEquals("short", variable.getDataType().toString());
             assertEquals(3, variable.getAttributes().size());
+
             final Attribute unit = variable.findAttribute("unit");
             assertNotNull(unit);
             assertEquals("pilz", unit.getStringValue());
+
             final Attribute units = variable.findAttribute("units");
             assertNotNull(units);
             assertEquals("pilz", units.getStringValue());
+
             final Attribute halimasch = variable.findAttribute("halimasch");
             assertNotNull(halimasch);
             assertEquals("brt", halimasch.getStringValue());
@@ -260,17 +271,13 @@ public class MmdWriter_IO_Test {
 
             assertThat(sw.toString(), equalToIgnoringWhiteSpace(useCaseConfigAttr.getStringValue()));
 
-
             assertDimension("avhrr-n11_nx", 5, mmd);
             assertDimension("avhrr-n11_ny", 7, mmd);
             assertDimension("avhrr-n12_nx", 3, mmd);
             assertDimension("avhrr-n12_ny", 5, mmd);
             assertDimension("matchup_count", 2346, mmd);
 
-            Variable variable;
-            Attribute att;
-
-            variable = mmd.findVariable("avhrr-n11_ch3b");
+            Variable variable = mmd.findVariable("avhrr-n11_ch3b");
             assertNotNull(variable);
             assertCorrectDimensions(variable, 2346, 7, 5);
             assertEquals(DataType.SHORT, variable.getDataType());
@@ -318,7 +325,7 @@ public class MmdWriter_IO_Test {
     private static MatchupCollection createMatchupCollection_AVHRR(File testDataDirectory) {
         final MatchupCollection matchupCollection = new MatchupCollection();
         final MatchupSet matchupSet = new MatchupSet();
-        final String processingVersion = "v01.2";
+        final String processingVersion = "v01.3";
         final String primaryPath = TestUtil.assembleFileSystemPath(new String[]{testDataDirectory.getAbsolutePath(), "avhrr-n10", processingVersion, "1989", "05", "01", "19890501225800-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
         matchupSet.setPrimaryObservationPath(Paths.get(primaryPath));
         matchupSet.setPrimaryProcessingVersion(processingVersion);
@@ -382,7 +389,7 @@ public class MmdWriter_IO_Test {
             NCTestUtils.assert3DVariable("avhrr-n11_ict_temp", 3, 2, 3, -32768.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_l1b_line_number", 4, 2, 4, -32768.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_qual_flags", 0, 3, 5, 0.0, netcdfFile);
-            NCTestUtils.assert3DVariable("avhrr-n11_relative_azimuth_angle", 1, 3, 6, -32768.0, netcdfFile);
+            NCTestUtils.assert3DVariable("avhrr-n11_relative_azimuth_angle", 1, 3, 6, 14062.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_satellite_zenith_angle", 2, 3, 7, 6957.0, netcdfFile);
             NCTestUtils.assert3DVariable("avhrr-n11_solar_zenith_angle", 3, 3, 0, -32768.0, netcdfFile);
 
