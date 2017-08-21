@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
@@ -31,6 +32,7 @@ import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -39,10 +41,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
-import ucar.nc2.iosp.netcdf3.N3iosp;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -459,7 +462,7 @@ public class AVHRR_GAC_Reader_v013_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset_NOAA10() throws IOException, InvalidRangeException {
         final File avhrrNOAA10File = createAvhrrNOAA10File();
         reader.open(avhrrNOAA10File);
 
@@ -482,160 +485,161 @@ public class AVHRR_GAC_Reader_v013_IO_Test {
             reader.close();
         }
     }
-//
-//    @Test
-//    public void testReadScaled_onlyScaling_onePixel() throws IOException, InvalidRangeException {
-//        final File avhrrNOAA18Path = createAvhrrNOAA18File();
-//        reader.open(avhrrNOAA18Path);
-//
-//        try {
-//            final Array array = reader.readScaled(80, 4601, new Interval(1, 1), "satellite_zenith_angle");
-//            assertNotNull(array);
-//            assertEquals(1, array.getSize());
-//
-//            assertEquals(39.19999912381172, array.getDouble(0), 1e-8);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
-//        final File avhrrNOAA18Path = createAvhrrNOAA18File();
-//        reader.open(avhrrNOAA18Path);
-//
-//        try {
-//            final Array array = reader.readScaled(115, 8081, new Interval(3, 3), "ch2");
-//            assertNotNull(array);
-//
-//            NCTestUtils.assertValueAt(0.014999999621068127, 0, 0, array);
-//            NCTestUtils.assertValueAt(0.010699999729695264, 1, 0, array);
-//            NCTestUtils.assertValueAt(0.008899999775167089, 2, 0, array);
-//
-//            NCTestUtils.assertValueAt(0.01129999971453799, 0, 1, array);
-//            NCTestUtils.assertValueAt(0.008899999775167089, 1, 1, array);
-//            NCTestUtils.assertValueAt(0.008899999775167089, 2, 1, array);
-//
-//            NCTestUtils.assertValueAt(0.017399999560439028, 0, 2, array);
-//            NCTestUtils.assertValueAt(0.008899999775167089, 1, 2, array);
-//            NCTestUtils.assertValueAt(0.010699999729695264, 2, 2, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
-//        final File avhrrNOAA18Path = createAvhrrNOAA18File();
-//        reader.open(avhrrNOAA18Path);
-//
-//        try {
-//            final Array array = reader.readScaled(356, 12234, new Interval(3, 3), "qual_flags");
-//            assertNotNull(array);
-//
-//            NCTestUtils.assertValueAt(17.0, 0, 0, array);
-//            NCTestUtils.assertValueAt(17.0, 1, 0, array);
-//            NCTestUtils.assertValueAt(17.0, 2, 0, array);
-//
-//            NCTestUtils.assertValueAt(17.0, 0, 1, array);
-//            NCTestUtils.assertValueAt(17.0, 1, 1, array);
-//            NCTestUtils.assertValueAt(17.0, 2, 1, array);
-//
-//            NCTestUtils.assertValueAt(18.0, 0, 2, array);
-//            NCTestUtils.assertValueAt(18.0, 1, 2, array);
-//            NCTestUtils.assertValueAt(18.0, 2, 2, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testReadRaw_topRightWindowOut() throws Exception {
-//        final File avhrrNOAA18Path = createAvhrrNOAA18File();
-//
-//        try {
-//            reader.open(avhrrNOAA18Path);
-//            Array array = reader.readRaw(407, 3, new Interval(9, 9), "relative_azimuth_angle");
-//            assertNotNull(array);
-//
-//            NCTestUtils.assertValueAt(-32768.0, 4, 0, array);
-//            NCTestUtils.assertValueAt(-32768.0, 5, 0, array);
-//            NCTestUtils.assertValueAt(-32768.0, 6, 0, array);
-//            NCTestUtils.assertValueAt(-32768.0, 7, 0, array);
-//            NCTestUtils.assertValueAt(-32768.0, 8, 0, array);
-//
-//            NCTestUtils.assertValueAt(-11094.0, 4, 1, array);
-//            NCTestUtils.assertValueAt(-11089.0, 5, 1, array);
-//            NCTestUtils.assertValueAt(-32768.0, 6, 1, array);
-//            NCTestUtils.assertValueAt(-32768.0, 7, 1, array);
-//            NCTestUtils.assertValueAt(-32768.0, 8, 1, array);
-//
-//            NCTestUtils.assertValueAt(-11101.0, 4, 8, array);
-//            NCTestUtils.assertValueAt(-11098.0, 5, 8, array);
-//            NCTestUtils.assertValueAt(-32768.0, 6, 8, array);
-//            NCTestUtils.assertValueAt(-32768.0, 7, 8, array);
-//            NCTestUtils.assertValueAt(-32768.0, 8, 8, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testGetProductSize_NOAA18() throws Exception {
-//        final File avhrrNOAA18Path = createAvhrrNOAA18File();
-//
-//        try {
-//            reader.open(avhrrNOAA18Path);
-//
-//            final Dimension productSize = reader.getProductSize();
-//            assertNotNull(productSize);
-//            assertEquals(409, productSize.getNx());
-//            assertEquals(12239, productSize.getNy());
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testGetProductSize_NOAA17() throws Exception {
-//        final File avhrrNOAA17Path = createAvhrrNOAA10File();
-//
-//        try {
-//            reader.open(avhrrNOAA17Path);
-//
-//            final Dimension productSize = reader.getProductSize();
-//            assertNotNull(productSize);
-//            assertEquals(409, productSize.getNx());
-//            assertEquals(13670, productSize.getNy());
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testGetPixelLocator_NOAA17() throws IOException {
-//        final File avhrrNOAA17Path = createAvhrrNOAA10File();
-//
-//        try {
-//            reader.open(avhrrNOAA17Path);
-//            final PixelLocator pixelLocator = reader.getPixelLocator();
-//            assertNotNull(pixelLocator);
-//
-//            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(-67.608, -4.931);
-//            assertNotNull(pixelLocation);
-//            assertEquals(1, pixelLocation.length);
-//
-//            assertEquals(3.4619535609602408, pixelLocation[0].getX(), 1e-8);
-//            assertEquals(14.308903527451893, pixelLocation[0].getY(), 1e-8);
-//
-//            final Point2D geoLocation = pixelLocator.getGeoLocation(3.5, 14.5, null);
-//            assertNotNull(geoLocation);
-//            assertEquals(-67.60800170898438, geoLocation.getX(), 1e-8);
-//            assertEquals(-4.931000232696533, geoLocation.getY(), 1e-8);
-//        } finally {
-//            reader.close();
-//        }
-//    }
+
+    @Test
+    public void testReadScaled_onlyScaling_onePixel_NOAA11() throws IOException, InvalidRangeException {
+        final File avhrrNOAA11File = createAvhrrNOAA11File();
+        reader.open(avhrrNOAA11File);
+
+        try {
+            final Array array = reader.readScaled(81, 4602, new Interval(1, 1), "dtime");
+            assertNotNull(array);
+            assertEquals(1, array.getSize());
+
+            final Index index = array.getIndex();
+            assertEquals(2300.998779296875, array.getFloat(index), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_onlyScaling_NOAA17() throws IOException, InvalidRangeException {
+        final File avhrrNOAA17File = createAvhrrNOAA17File();
+        reader.open(avhrrNOAA17File);
+
+        try {
+            final Array array = reader.readScaled(116, 8082, new Interval(3, 3), "ch3b");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(266.03999405540526, 0, 0, array);
+            NCTestUtils.assertValueAt(270.3199939597398, 1, 0, array);
+            NCTestUtils.assertValueAt(270.3199939597398, 2, 0, array);
+
+            NCTestUtils.assertValueAt(264.82999408245087, 0, 1, array);
+            NCTestUtils.assertValueAt(268.63999399729073, 1, 1, array);
+            NCTestUtils.assertValueAt(271.26999393850565, 2, 1, array);
+
+            NCTestUtils.assertValueAt(266.03999405540526, 0, 2, array);
+            NCTestUtils.assertValueAt(267.92999401316047, 1, 2, array);
+            NCTestUtils.assertValueAt(271.88999392464757, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_noScale_noOffset_NOAA18() throws IOException, InvalidRangeException {
+        final File avhrrNOAA18File = createAvhrrNOAA18File();
+        reader.open(avhrrNOAA18File);
+
+        try {
+            final Array array = reader.readScaled(357, 12235, new Interval(3, 3), "qual_flags");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-127, 0, 0, array);
+            NCTestUtils.assertValueAt(-127, 1, 0, array);
+            NCTestUtils.assertValueAt(-127, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-127, 0, 1, array);
+            NCTestUtils.assertValueAt(-127, 1, 1, array);
+            NCTestUtils.assertValueAt(-127, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-127, 0, 2, array);
+            NCTestUtils.assertValueAt(-127, 1, 2, array);
+            NCTestUtils.assertValueAt(-127, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topRightWindowOut_NOAA19() throws Exception {
+        final File avhrrNOAA19File = createAvhrrNOAA19File();
+
+        try {
+            reader.open(avhrrNOAA19File);
+            Array array = reader.readRaw(407, 3, new Interval(9, 9), "relative_azimuth_angle");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32768, 4, 0, array);
+            NCTestUtils.assertValueAt(-32768, 5, 0, array);
+            NCTestUtils.assertValueAt(-32768, 6, 0, array);
+            NCTestUtils.assertValueAt(-32768, 7, 0, array);
+            NCTestUtils.assertValueAt(-32768, 8, 0, array);
+
+            NCTestUtils.assertValueAt(-14058, 4, 1, array);
+            NCTestUtils.assertValueAt(-14042, 5, 1, array);
+            NCTestUtils.assertValueAt(-32768, 6, 1, array);
+            NCTestUtils.assertValueAt(-32768, 7, 1, array);
+            NCTestUtils.assertValueAt(-32768, 8, 1, array);
+
+            NCTestUtils.assertValueAt(-14041, 4, 8, array);
+            NCTestUtils.assertValueAt(-14025, 5, 8, array);
+            NCTestUtils.assertValueAt(-32768, 6, 8, array);
+            NCTestUtils.assertValueAt(-32768, 7, 8, array);
+            NCTestUtils.assertValueAt(-32768, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_NOAA10() throws Exception {
+        final File avhrrNOAA10File = createAvhrrNOAA10File();
+
+        try {
+            reader.open(avhrrNOAA10File);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(13677, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_NOAA11() throws Exception {
+        final File avhrrNOAA11File = createAvhrrNOAA11File();
+
+        try {
+            reader.open(avhrrNOAA11File);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(13670, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_NOAA17() throws IOException {
+        final File avhrrNOAA17Path = createAvhrrNOAA17File();
+
+        try {
+            reader.open(avhrrNOAA17Path);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(-27.634003, 6.852);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(157.534117037968, pixelLocation[0].getX(), 1e-8);
+            assertEquals(3305.4403036440513, pixelLocation[0].getY(), 1e-8);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(157.5, 3305.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(-27.634002685546875, geoLocation.getX(), 1e-8);
+            assertEquals(6.8520002365112305, geoLocation.getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File createAvhrrNOAA10File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n10", "v01.3", "1988", "03", "18", "19880318000900-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
