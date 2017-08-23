@@ -40,7 +40,6 @@ class NonOverlappingCollector {
     private final NavigableSet<Sample> samples;
     private String secondaryName;
 
-    @SuppressWarnings("SuspiciousNameCombination")
     NonOverlappingCollector(int width, int height, boolean primary) {
         this(width, height, primary, SampleSet.getOnlyOneSecondaryKey());
     }
@@ -53,17 +52,7 @@ class NonOverlappingCollector {
 
         sampleSets = new ArrayList<>();
 
-        // @todo 2 tb/** the same comparison is performed in OverlapRemoveCondition - extract class and unify tb 2017-08-16
-        final Comparator<Sample> orderedComparator = (o1, o2) -> {
-            final int compareY = Integer.compare(o1.getY(), o2.getY());
-            if (compareY == 0) {
-                return Integer.compare(o1.getX(), o2.getX());
-            } else {
-                return compareY;
-            }
-        };
-
-        samples = new TreeSet<>(orderedComparator);
+        samples = new TreeSet<>(new SwathOrderedSamplesComparator());
     }
 
     void add(SampleSet sampleSet) {

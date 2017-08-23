@@ -81,23 +81,28 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
     }
 
     List<BorderDistanceCondition.Configuration> parseConfiguration(Element element) {
-        if (!getConditionName().equals(element.getName())) {
-            throw new RuntimeException("Illegal XML Element. Tagname '" + getConditionName() + "' expected.");
+        final String conditionName = getConditionName();
+        if (!conditionName.equals(element.getName())) {
+            throw new RuntimeException("Illegal XML Element. Tagname '" + conditionName + "' expected.");
         }
 
         final List primaryElements = element.getChildren("primary");
         if (primaryElements.size() > 1) {
             throw new RuntimeException("Illegal XML Element. Tag name 'primary'. Only one 'primary' definition allowed.");
         }
+
         final ArrayList<BorderDistanceCondition.Configuration> configurations = new ArrayList<>();
         if (primaryElements.size() == 1) {
-            final Element primaryElement = (Element) primaryElements.get(0);
-            final String nx = getMandatoryChildTextTrim(primaryElement, "nx");
-            final String ny = getMandatoryChildTextTrim(primaryElement, "ny");
             final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
             configuration.usePrimary = true;
+
+            final Element primaryElement = (Element) primaryElements.get(0);
+            final String nx = getMandatoryChildTextTrim(primaryElement, "nx");
             configuration.primary_x = Integer.parseInt(nx);
+
+            final String ny = getMandatoryChildTextTrim(primaryElement, "ny");
             configuration.primary_y = Integer.parseInt(ny);
+
             configurations.add(configuration);
         }
 
@@ -108,13 +113,14 @@ public class BorderDistanceConditionPlugin implements ConditionPlugin {
         final List secondaryElements = element.getChildren("secondary");
         for (Object elemObj : secondaryElements) {
             final Element secondaryElement = (Element) elemObj;
+
             final String nxS = getMandatoryChildTextTrim(secondaryElement, "nx");
-            final String nyS = getMandatoryChildTextTrim(secondaryElement, "ny");
             final int nx = Integer.parseInt(nxS);
+
+            final String nyS = getMandatoryChildTextTrim(secondaryElement, "ny");
             final int ny = Integer.parseInt(nyS);
 
             final String namesVal = getValueFromNamesAttribute(secondaryElement);
-
             if (isNullOrEmpty(namesVal)) {
                 final BorderDistanceCondition.Configuration configuration = new BorderDistanceCondition.Configuration();
                 configuration.useSecondary = true;

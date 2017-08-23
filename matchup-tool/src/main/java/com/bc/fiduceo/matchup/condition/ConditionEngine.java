@@ -50,21 +50,24 @@ public class ConditionEngine {
     public void configure(UseCaseConfig useCaseConfig) {
         final Element conditionsElem = useCaseConfig.getDomElement(TAG_NAME_CONDITIONS);
         if (conditionsElem != null) {
+            final ConditionFactory conditionFactory = ConditionFactory.get();
+
             final List<Element> children = conditionsElem.getChildren();
             for (Element child : children) {
-                final Condition condition = ConditionFactory.get().getCondition(child);
+                final Condition condition = conditionFactory.getCondition(child);
                 if (condition != null) {
                     conditionsList.add(condition);
                 }
             }
         }
+        
         conditionsList.add(new TimeRangeCondition());
     }
 
     public long getMaxTimeDeltaInMillis() {
         for (Condition condition : conditionsList) {
             if (condition instanceof TimeDeltaCondition) {
-                TimeDeltaCondition tdc = (TimeDeltaCondition) condition;
+                final TimeDeltaCondition tdc = (TimeDeltaCondition) condition;
                 return tdc.getMaxTimeDeltaInMillis();
             }
         }

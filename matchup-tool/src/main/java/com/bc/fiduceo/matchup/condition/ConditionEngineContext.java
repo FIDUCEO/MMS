@@ -51,7 +51,7 @@ public class ConditionEngineContext {
         this.endDate = endDate;
     }
 
-    public Dimension getPrimarySize() {
+    Dimension getPrimarySize() {
         return primarySize;
     }
 
@@ -59,7 +59,7 @@ public class ConditionEngineContext {
         this.primarySize = primarySize;
     }
 
-    public Dimension getSecondarySize(final String sensorName) {
+    Dimension getSecondarySize(final String sensorName) {
         return secondarySize.get(sensorName);
     }
 
@@ -67,24 +67,24 @@ public class ConditionEngineContext {
         this.secondarySize.put(sensorName, secondarySize);
     }
 
-    public void validateTime() {
+    void validateTime() {
         if (endDate == null || startDate == null || endDate.before(startDate))
-        throw new RuntimeException("End date and/or start date are not valid.");
+            throw new RuntimeException("End date and/or start date are not valid.");
     }
 
-    public void setPrimaryExtractSize(Dimension primaryExtractSize) {
+    void setPrimaryExtractSize(Dimension primaryExtractSize) {
         this.primaryExtractSize = primaryExtractSize;
     }
 
-    public Dimension getPrimaryExtractSize() {
+    Dimension getPrimaryExtractSize() {
         return primaryExtractSize;
     }
 
-    public void setSecondaryExtractSize(Dimension secondaryExtractSize, String sensorName) {
+    void setSecondaryExtractSize(Dimension secondaryExtractSize, String sensorName) {
         this.secondaryExtractSize.put(sensorName, secondaryExtractSize);
     }
 
-    public Dimension getSecondaryExtractSize(final String sensorName) {
+    Dimension getSecondaryExtractSize(final String sensorName) {
         return secondaryExtractSize.get(sensorName);
     }
 }

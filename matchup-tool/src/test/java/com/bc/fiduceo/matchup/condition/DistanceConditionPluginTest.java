@@ -130,6 +130,5 @@ public class DistanceConditionPluginTest {
         final DistanceCondition distanceCondition = (DistanceCondition) condition;
         assertEquals(4.5, distanceCondition.getMaxDistanceInKm(), 1e-250);
         assertEquals(SampleSet.getOnlyOneSecondaryKey(), distanceCondition.getSecondarySensorName());
-
     }
 }

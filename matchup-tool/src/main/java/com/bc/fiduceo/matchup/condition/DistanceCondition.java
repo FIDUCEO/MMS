@@ -74,5 +74,4 @@ class DistanceCondition implements Condition {
     void setSecondarySensorName(String secondarySensorName) {
         this.secondarySensorName = secondarySensorName;
     }
-
 }

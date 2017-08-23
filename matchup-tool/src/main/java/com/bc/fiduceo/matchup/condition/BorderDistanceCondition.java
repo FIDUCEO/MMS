@@ -40,12 +40,14 @@ class BorderDistanceCondition implements Condition {
     public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
         List<SampleSet> sourceSamples = matchupSet.getSampleSets();
         List<SampleSet> targetSamples = sourceSamples;
+
         for (Configuration configuration : configurations) {
             targetSamples = new ArrayList<>();
             if (configuration.usePrimary) {
                 final Dimension primarySize = context.getPrimarySize();
                 final int maxXPrimary = primarySize.getNx() - 1 - configuration.primary_x;
                 final int maxYPrimary = primarySize.getNy() - 1 - configuration.primary_y;
+
                 for (final SampleSet sampleSet : sourceSamples) {
                     final Sample primary = sampleSet.getPrimary();
                     final int primaryX = primary.getX();
@@ -64,6 +66,7 @@ class BorderDistanceCondition implements Condition {
                 final Dimension secondarySize = context.getSecondarySize(secondaryName);
                 final int maxXSecondary = secondarySize.getNx() - 1 - configuration.secondary_x;
                 final int maxYSecondary = secondarySize.getNy() - 1 - configuration.secondary_y;
+
                 for (final SampleSet sampleSet : sourceSamples) {
                     final Sample secondary = sampleSet.getSecondary(secondaryName);
                     final int secondaryX = secondary.getX();

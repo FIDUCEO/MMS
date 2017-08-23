@@ -28,6 +28,23 @@ public class ConditionFactory {
     private static ConditionFactory conditionFactory;
     private final HashMap<String, ConditionPlugin> conditionPluginMap = new HashMap<>();
 
+    public static ConditionFactory get() {
+        if (conditionFactory == null) {
+            conditionFactory = new ConditionFactory();
+        }
+        return conditionFactory;
+    }
+
+    Condition getCondition(Element element) {
+        final String name = element.getName();
+
+        final ConditionPlugin plugin = conditionPluginMap.get(name);
+        if (plugin == null) {
+            throw new IllegalArgumentException("Condition for name '" + name + "' not available.");
+        }
+        return plugin.createCondition(element);
+    }
+
     private ConditionFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ConditionPlugin> conditionPlugins = serviceRegistryManager.getServiceRegistry(ConditionPlugin.class);
@@ -38,22 +55,4 @@ public class ConditionFactory {
             conditionPluginMap.put(key, plugin);
         }
     }
-
-    public static ConditionFactory get() {
-        if (conditionFactory == null) {
-            conditionFactory = new ConditionFactory();
-        }
-        return conditionFactory;
-    }
-
-    public Condition getCondition(Element element) {
-        final String name = element.getName();
-
-        final ConditionPlugin plugin = conditionPluginMap.get(name);
-        if (plugin == null) {
-            throw new IllegalArgumentException("Condition for name '" + name + "' not available.");
-        }
-        return plugin.createCondition(element);
-    }
-
 }
