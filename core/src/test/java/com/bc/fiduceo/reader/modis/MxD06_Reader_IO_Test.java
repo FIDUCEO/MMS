@@ -21,8 +21,10 @@
 package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -34,10 +36,15 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -206,20 +213,191 @@ public class MxD06_Reader_IO_Test {
         }
     }
 
-    // @todo 1 tb/tb continue here 2017-05-31
-//    @Test
-//    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
-//        final File file = getTerraFile();
-//
-//        try {
-//            reader.open(file);
-//            final List<Variable> variables = reader.getVariables();
-//            assertEquals();
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @Test
+    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
 
+        try {
+            reader.open(file);
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(109, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("Latitude", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(2);
+            assertEquals("Scan_Start_Time", variable.getShortName());
+            assertEquals(DataType.DOUBLE, variable.getDataType());
+
+            variable = variables.get(4);
+            assertEquals("Solar_Zenith_Day", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(8);
+            assertEquals("Solar_Azimuth_Night", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(15);
+            assertEquals("Surface_Temperature", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(21);
+            assertEquals("Cloud_Top_Height_Nadir_Night", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(32);
+            assertEquals("Cloud_Top_Temperature_Day", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(43);
+            assertEquals("Cloud_Effective_Emissivity_Night", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(54);
+            assertEquals("os_top_flag_1km", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(65);
+            assertEquals("Cloud_Effective_Radius", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(76);
+            assertEquals("Cloud_Optical_Thickness_37_PCL", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(87);
+            assertEquals("Cloud_Water_Path_37", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(98);
+            assertEquals("Cloud_Water_Path_Uncertainty_1621", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(107);
+            assertEquals("Cloud_Mask_5km", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(34, 108, new Interval(3, 5));
+            assertEquals(15, acquisitionTime.getSize());
+
+            // one scan
+            NCTestUtils.assertValueAt(1360161352, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161352, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161352, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161352, 2, 1, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1360161353, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161353, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161353, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161353, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 211, new Interval(5, 5));
+            assertEquals(25, acquisitionTime.getSize());
+
+            // first scan
+            NCTestUtils.assertValueAt(1242211027, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211027, 1, 0, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1242211029, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211029, 2, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211029, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211029, 2, 2, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1242211030, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211030, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(109, variables.size());
+
+            Variable variable = variables.get(1);
+            assertEquals("Longitude", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(5);
+            assertEquals("Solar_Zenith_Night", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(9);
+            assertEquals("Sensor_Zenith", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(16);
+            assertEquals("Surface_Pressure", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(22);
+            assertEquals("Cloud_Top_Pressure", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(33);
+            assertEquals("Cloud_Top_Temperature_Nadir_Day", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(44);
+            assertEquals("Cloud_Effective_Emissivity_Nadir_Night", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(55);
+            assertEquals("cloud_top_pressure_1km", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(66);
+            assertEquals("Cloud_Effective_Radius_PCL", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(77);
+            assertEquals("Cloud_Effective_Radius_1621", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(88);
+            assertEquals("Cloud_Water_Path_37_PCL", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(99);
+            assertEquals("Cloud_Water_Path_Uncertainty_16", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(108);
+            assertEquals("Quality_Assurance_5km", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
 
     private File getTerraFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod06-te", "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, false);

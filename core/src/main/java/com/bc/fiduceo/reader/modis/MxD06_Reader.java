@@ -29,17 +29,29 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +64,7 @@ class MxD06_Reader implements Reader {
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
+    private TimeLocator timeLocator;
 
     MxD06_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -61,10 +74,12 @@ class MxD06_Reader implements Reader {
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
+        timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
+        timeLocator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -109,16 +124,11 @@ class MxD06_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        final Array time = arrayCache.get("mod06/Data_Fields", "Scan_Start_Time");
-        final int[] offsets = new int[] {0, 0};
-        final int[] shape = time.getShape();
-        shape[1] = 1;
-        try {
-            final Array section = time.section(offsets, shape);
-            return new TimeLocator_TAI1993Vector(section);
-        } catch (InvalidRangeException e) {
-           throw new IOException(e.getMessage());
+        if (timeLocator == null) {
+            createTimeLocator();
         }
+
+        return timeLocator;
     }
 
     @Override
@@ -138,12 +148,70 @@ class MxD06_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final int y_offset = y - height / 2;
+        int[] shape = new int[]{height, width};
+
+        final TimeLocator timeLocator = getTimeLocator();
+
+        final Array acquisitionTime = Array.factory(DataType.INT, shape);
+        final Index index = acquisitionTime.getIndex();
+
+        for (int ya = 0; ya <height; ya++) {
+            final int yRead = y_offset + ya;
+            final long lineTime = timeLocator.getTimeFor(0, yRead);
+            final int lineTimeInSeconds = (int) (lineTime / 1000);
+
+            for (int xa = 0; xa < width; xa++) {
+                index.set(ya, xa);
+                acquisitionTime.setInt(index, lineTimeInSeconds);
+            }
+            
+        }
+        return (ArrayInt.D2) acquisitionTime;
     }
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+        final List<Variable> variablesInFile = netcdfFile.getVariables();
+
+        final ArrayList<Variable> exportVariables = new ArrayList<>();
+        for (Variable variable : variablesInFile) {
+            final String variableName = variable.getShortName();
+            if (variableName.contains("StructMetadata") ||
+                    variableName.contains("CoreMetadata") ||
+                    variableName.contains("Statistics_1km") ||
+                    variableName.contains("Cell_Across_Swath_1km") ||
+                    variableName.contains("Cell_Along_Swath_1km") ||
+                    variableName.contains("Band_Number") ||
+                    variableName.contains("Brightness_Temperature") ||
+                    variableName.contains("Spectral_Cloud_Forcing") ||
+                    variableName.contains("Cloud_Top_Pressure_From_Ratios") ||
+                    variableName.contains("Cloud_Mask_1km") ||
+                    variableName.contains("Extinction_Efficiency_Ice") ||
+                    variableName.contains("Asymmetry_Parameter_Ice") ||
+                    variableName.contains("Single_Scatter_Albedo_Ice") ||
+                    variableName.contains("Extinction_Efficiency_Liq") ||
+                    variableName.contains("Asymmetry_Parameter_Liq") ||
+                    variableName.contains("Single_Scatter_Albedo_Liq") ||
+                    variableName.contains("Cloud_Mask_SPI") ||
+                    variableName.contains("Retrieval_Failure_Metric") ||
+                    variableName.contains("Atm_Corr_Refl") ||
+                    variableName.contains("Quality_Assurance_1km") ||
+                    variableName.contains("ArchiveMetadata")) {
+                continue;
+            }
+
+            if (variableName.equals("Cloud_Mask_5km")) {
+                final List<Attribute> attributes = variable.getAttributes();
+                variable = new VariableProxy(variable.getShortName(), DataType.SHORT, attributes);
+            }
+
+            exportVariables.add(variable);
+        }
+
+        return exportVariables;
     }
 
     @Override
@@ -183,5 +251,18 @@ class MxD06_Reader implements Reader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+    }
+
+    private void createTimeLocator() throws IOException {
+        final Array time = arrayCache.get("mod06/Data_Fields", "Scan_Start_Time");
+        final int[] offsets = new int[]{0, 0};
+        final int[] shape = time.getShape();
+        shape[1] = 1;
+        try {
+            final Array section = time.section(offsets, shape);
+            timeLocator = new TimeLocator_TAI1993Vector(section);
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }
