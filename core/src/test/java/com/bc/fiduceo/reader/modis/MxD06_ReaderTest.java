@@ -71,4 +71,10 @@ public class MxD06_ReaderTest {
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }
+
+    @Test
+    public void testGetGroupName() {
+        assertEquals("mod06/Geolocation_Fields", MxD06_Reader.getGroupName("Longitude"));
+        assertEquals("mod06/Data_Fields", MxD06_Reader.getGroupName("Sensor_Zenith_Night"));
+    }
 }

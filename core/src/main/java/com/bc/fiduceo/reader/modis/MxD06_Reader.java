@@ -29,14 +29,8 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -60,6 +54,7 @@ class MxD06_Reader implements Reader {
     private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
     private static final String GEOLOCATION_GROUP = "mod06/Geolocation_Fields";
+    private static final String DATA_GROUP = "mod06/Data_Fields";
 
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
@@ -138,7 +133,13 @@ class MxD06_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final String groupName = getGroupName(variableName);
+        final Array array = arrayCache.get(groupName, variableName);
+        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, groupName, variableName);
+        if (fillValue == null) {
+            throw new RuntimeException("implement fill value handling here.");
+        }
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270 );
     }
 
     @Override
@@ -167,7 +168,6 @@ class MxD06_Reader implements Reader {
                 index.set(ya, xa);
                 acquisitionTime.setInt(index, lineTimeInSeconds);
             }
-            
         }
         return (ArrayInt.D2) acquisitionTime;
     }
@@ -206,6 +206,20 @@ class MxD06_Reader implements Reader {
             if (variableName.equals("Cloud_Mask_5km")) {
                 final List<Attribute> attributes = variable.getAttributes();
                 variable = new VariableProxy(variable.getShortName(), DataType.SHORT, attributes);
+            }
+
+            if (variableName.equals("Quality_Assurance_5km")) {
+                final List<Attribute> attributes = variable.getAttributes();
+                variable = new VariableProxy("Quality_Assurance_5km_03", DataType.BYTE, attributes);
+                exportVariables.add(variable);
+
+                variable = new VariableProxy("Quality_Assurance_5km_04", DataType.BYTE, attributes);
+                exportVariables.add(variable);
+
+                variable = new VariableProxy("Quality_Assurance_5km_05", DataType.BYTE, attributes);
+                exportVariables.add(variable);
+
+                variable = new VariableProxy("Quality_Assurance_5km_09", DataType.BYTE, attributes);
             }
 
             exportVariables.add(variable);
@@ -264,5 +278,13 @@ class MxD06_Reader implements Reader {
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }
+    }
+
+    // package access for testing only tb 2017-08-28
+    static String getGroupName(String variableName) {
+        if ("Longitude".equals(variableName) || "Latitude".equals(variableName)) {
+            return GEOLOCATION_GROUP;
+        }
+        return DATA_GROUP;
     }
 }

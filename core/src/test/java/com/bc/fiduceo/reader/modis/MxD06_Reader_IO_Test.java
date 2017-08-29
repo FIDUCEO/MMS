@@ -36,6 +36,7 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -220,7 +221,7 @@ public class MxD06_Reader_IO_Test {
         try {
             reader.open(file);
             final List<Variable> variables = reader.getVariables();
-            assertEquals(109, variables.size());
+            assertEquals(112, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("Latitude", variable.getShortName());
@@ -341,7 +342,7 @@ public class MxD06_Reader_IO_Test {
         try {
             reader.open(file);
             final List<Variable> variables = reader.getVariables();
-            assertEquals(109, variables.size());
+            assertEquals(112, variables.size());
 
             Variable variable = variables.get(1);
             assertEquals("Longitude", variable.getShortName());
@@ -392,8 +393,127 @@ public class MxD06_Reader_IO_Test {
             assertEquals(DataType.SHORT, variable.getDataType());
 
             variable = variables.get(108);
-            assertEquals("Quality_Assurance_5km", variable.getShortName());
+            assertEquals("Quality_Assurance_5km_03", variable.getShortName());
             assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(111);
+            assertEquals("Quality_Assurance_5km_09", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(45, 88, new Interval(3, 3), "Scan_Start_Time");
+            NCTestUtils.assertValueAt(5.16364571722655E8, 0, 0, array);
+            NCTestUtils.assertValueAt(5.16364571722655E8, 1, 0, array);
+
+            NCTestUtils.assertValueAt(5.16364573199765E8, 1, 1, array);
+            NCTestUtils.assertValueAt(5.16364573199765E8, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(46, 89, new Interval(3, 3), "Solar_Zenith");
+            NCTestUtils.assertValueAt(6372, 0, 0, array);
+            NCTestUtils.assertValueAt(6368, 1, 0, array);
+
+            NCTestUtils.assertValueAt(6360, 1, 2, array);
+            NCTestUtils.assertValueAt(6356, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Terra_upperLeft() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(0, 0, new Interval(3, 3), "Solar_Zenith_Day");
+            NCTestUtils.assertValueAt(-32768, 0, 0, array);
+            NCTestUtils.assertValueAt(-32768, 1, 0, array);
+
+            NCTestUtils.assertValueAt(-32768, 0, 1, array);
+            NCTestUtils.assertValueAt(7009, 1, 1, array);
+            NCTestUtils.assertValueAt(6998, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Aqua_upperRight() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(269, 0, new Interval(3, 3), "Solar_Zenith_Night");
+            NCTestUtils.assertValueAt(-32768, 0, 0, array);
+            NCTestUtils.assertValueAt(-32768, 1, 0, array);
+            NCTestUtils.assertValueAt(-32768, 2, 0, array);
+
+            NCTestUtils.assertValueAt(9284, 0, 1, array);
+            NCTestUtils.assertValueAt(9276, 1, 1, array);
+            NCTestUtils.assertValueAt(-32768, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Terra_lowerRight() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(269, 405, new Interval(3, 3), "Solar_Azimuth");
+            NCTestUtils.assertValueAt(16553, 0, 0, array);
+            NCTestUtils.assertValueAt(16581, 1, 0, array);
+            NCTestUtils.assertValueAt(-32768, 2, 0, array);
+
+            NCTestUtils.assertValueAt(16547, 0, 1, array);
+            NCTestUtils.assertValueAt(16576, 1, 1, array);
+            NCTestUtils.assertValueAt(-32768, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_5km_Aqua_lowerLeft() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(0, 405, new Interval(3, 3), "Solar_Azimuth_Day");
+            NCTestUtils.assertValueAt(-32768, 0, 0, array);
+            NCTestUtils.assertValueAt(-5067, 1, 0, array);
+            NCTestUtils.assertValueAt(-5041, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-32768, 0, 1, array);
+            NCTestUtils.assertValueAt(-5062, 1, 1, array);
+            NCTestUtils.assertValueAt(-5036, 2, 1, array);
         } finally {
             reader.close();
         }
