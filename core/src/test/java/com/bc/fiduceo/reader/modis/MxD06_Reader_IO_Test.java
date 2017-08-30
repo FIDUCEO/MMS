@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -647,6 +648,160 @@ public class MxD06_Reader_IO_Test {
             NCTestUtils.assertValueAt(-999, 0, 2, array);
             NCTestUtils.assertValueAt(-999, 1, 2, array);
             NCTestUtils.assertValueAt(-999, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_5km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(122, 372, new Interval(3, 3), "Cloud_Effective_Emissivity_Nadir_Day");
+            NCTestUtils.assertValueAt(0.9999999776482582, 0, 0, array);
+            NCTestUtils.assertValueAt(0.9999999776482582, 1, 0, array);
+            NCTestUtils.assertValueAt(0.9999999776482582, 2, 0, array);
+
+            NCTestUtils.assertValueAt(0.9999999776482582, 0, 1, array);
+            NCTestUtils.assertValueAt(0.9999999776482582, 1, 1, array);
+            NCTestUtils.assertValueAt(0.9599999785423279, 2, 1, array);
+
+            NCTestUtils.assertValueAt(0.9199999794363976, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_5km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(163, 388, new Interval(3, 3), "Sensor_Zenith_Day");
+            NCTestUtils.assertValueAt(12.309999724850059, 0, 0, array);
+            NCTestUtils.assertValueAt(12.759999714791775, 1, 0, array);
+            NCTestUtils.assertValueAt(13.219999704509974, 2, 0, array);
+
+            NCTestUtils.assertValueAt(12.309999724850059, 0, 1, array);
+            NCTestUtils.assertValueAt(12.759999714791775, 1, 1, array);
+            NCTestUtils.assertValueAt(13.219999704509974, 2, 1, array);
+
+            NCTestUtils.assertValueAt(13.209999704733491, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_1km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(131, 323, new Interval(3, 3), "cloud_top_pressure_1km");
+            NCTestUtils.assertValueAt(315.0000046938658, 0, 0, array);
+            NCTestUtils.assertValueAt(360.00000536441803, 1, 0, array);
+            NCTestUtils.assertValueAt(905.0000134855509, 2, 0, array);
+
+            NCTestUtils.assertValueAt(390.00000581145287, 0, 1, array);
+            NCTestUtils.assertValueAt(960.0000143051147, 1, 1, array);
+            NCTestUtils.assertValueAt(985.0000146776438, 2, 1, array);
+
+            NCTestUtils.assertValueAt(985.0000146776438, 0, 2, array);
+            NCTestUtils.assertValueAt(985.0000146776438, 1, 2, array);
+            NCTestUtils.assertValueAt(-99.900001488626, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_1km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(101, 182, new Interval(3, 3), "cloud_top_temperature_1km");
+            NCTestUtils.assertValueAt(-14901.29000220634, 0, 0, array);
+            NCTestUtils.assertValueAt(-15009.989999776706, 1, 0, array);
+            NCTestUtils.assertValueAt(-15009.989999776706, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-14899.67000224255, 0, 1, array);
+            NCTestUtils.assertValueAt(-14899.050002256408, 1, 1, array);
+            NCTestUtils.assertValueAt(-15009.989999776706, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-14902.700002174824, 0, 2, array);
+            NCTestUtils.assertValueAt(-14901.8600021936, 1, 2, array);
+            NCTestUtils.assertValueAt(-14900.850002216175, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_Cloud_Mask_5km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(102, 183, new Interval(3, 3), "Cloud_Mask_5km");
+            NCTestUtils.assertValueAt(4889, 0, 0, array);
+            NCTestUtils.assertValueAt(5913, 1, 0, array);
+            NCTestUtils.assertValueAt(5888, 2, 0, array);
+
+            NCTestUtils.assertValueAt(4377, 0, 1, array);
+            NCTestUtils.assertValueAt(4889, 1, 1, array);
+            NCTestUtils.assertValueAt(4889, 2, 1, array);
+
+            NCTestUtils.assertValueAt(4889, 0, 2, array);
+            NCTestUtils.assertValueAt(4377, 1, 2, array);
+            NCTestUtils.assertValueAt(4377, 2, 2, array);
+
+            // test that the shifting is correct
+            final Index index = array.getIndex();
+            final short firstValue = array.getShort(index);
+            assertEquals(4889, firstValue);
+            assertEquals(19, (byte)((firstValue & 0xFF00) >> 8));
+            assertEquals(25, (byte)(firstValue & 0x00FF));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_Cloud_Mask_5km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(103, 284, new Interval(3, 3), "Cloud_Mask_5km");
+            NCTestUtils.assertValueAt(14741, 0, 0, array);
+            NCTestUtils.assertValueAt(14741, 1, 0, array);
+            NCTestUtils.assertValueAt(14741, 2, 0, array);
+
+            NCTestUtils.assertValueAt(14741, 0, 1, array);
+            NCTestUtils.assertValueAt(14741, 1, 1, array);
+            NCTestUtils.assertValueAt(14741, 2, 1, array);
+
+            NCTestUtils.assertValueAt(14741, 0, 2, array);
+            NCTestUtils.assertValueAt(14741, 1, 2, array);
+            NCTestUtils.assertValueAt(14741, 2, 2, array);
+
+            // test that the shifting is correct
+            final Index index = array.getIndex();
+            final short firstValue = array.getShort(index);
+            assertEquals(14741, firstValue);
+            assertEquals(57, (byte)((firstValue & 0xFF00) >> 8));
+            assertEquals(-107, (byte)(firstValue & 0x00FF));
         } finally {
             reader.close();
         }

@@ -45,7 +45,9 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
+import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -56,6 +58,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 
 class MxD06_Reader implements Reader {
 
@@ -151,6 +156,8 @@ class MxD06_Reader implements Reader {
 
         if (is1KmVariable(array)) {
             return readRaw1km(centerX, centerY, interval, array, fillValue);
+        } else if (variableName.equals("Cloud_Mask_5km")) {
+            return readCloudMask5Km(centerX, centerY, interval, array);
         } else {
             return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270);
         }
@@ -158,7 +165,17 @@ class MxD06_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array rawData = readRaw(centerX, centerY, interval, variableName);
+        final String groupName = getGroupName(variableName);
+
+        final double scaleFactor = getScaleFactor(groupName, variableName);
+        final double offset = getOffset(groupName, variableName);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(rawData, scaleOffset);
+        }
+
+        return rawData;
     }
 
     @Override
@@ -324,5 +341,49 @@ class MxD06_Reader implements Reader {
         final int[] origin = new int[]{2, 2};
         final int[] stride = new int[]{5, 5};
         return fullArray.section(origin, shape, stride);
+    }
+
+    private Array readCloudMask5Km(int centerX, int centerY, Interval interval, Array array) throws InvalidRangeException {
+        final int[] shape = array.getShape();
+        shape[2] = 1;
+        final int[] origin = {0, 0, 0};
+        final Array lowByte = array.section(origin, shape);
+
+        origin[2] = 1;
+        final Array highByte = array.section(origin, shape);
+
+        final Array lowSubset = RawDataReader.read(centerX, centerY, interval, 0, lowByte, 270);
+        final Array highSubset = RawDataReader.read(centerX, centerY, interval, 0, highByte, 270);
+        final Array targetArray = Array.factory(DataType.SHORT, lowSubset.getShape());
+
+        final IndexIterator lowIndex = lowSubset.getIndexIterator();
+        final IndexIterator highIndex = highSubset.getIndexIterator();
+        final IndexIterator targetIndex = targetArray.getIndexIterator();
+        while (lowIndex.hasNext() && highIndex.hasNext() && targetIndex.hasNext()) {
+            final short lowByteShifted = (short) (lowIndex.getByteNext() << 8);
+            final short byteNext = (short) (highIndex.getByteNext() & 0xFF);
+            final short combinedFlag = (short) (lowByteShifted | byteNext);
+
+            targetIndex.setShortNext(combinedFlag);
+        }
+
+        return targetArray;
+    }
+
+    // @duplicated code - AVHRR_GAC reader - move to common location tb 2017-08-30
+    private double getOffset(String groupName, String variableName) throws IOException {
+        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, groupName, variableName);
+        if (offsetValue != null) {
+            return offsetValue.doubleValue();
+        }
+        return 0.0;
+    }
+
+    private double getScaleFactor(String groupName, String variableName) throws IOException {
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, groupName, variableName);
+        if (scaleFactorValue != null) {
+            return scaleFactorValue.doubleValue();
+        }
+        return 1.0;
     }
 }
