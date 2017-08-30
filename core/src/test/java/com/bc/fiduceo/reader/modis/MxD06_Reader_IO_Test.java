@@ -519,6 +519,139 @@ public class MxD06_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_1km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(1, 1, new Interval(3, 3), "Cloud_Effective_Radius");
+            NCTestUtils.assertValueAt(2563, 0, 0, array);
+            NCTestUtils.assertValueAt(3277, 1, 0, array);
+
+            NCTestUtils.assertValueAt(-9999, 1, 2, array);
+            NCTestUtils.assertValueAt(4151, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_1km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(174, 389, new Interval(3, 3), "Cloud_Water_Path");
+            NCTestUtils.assertValueAt(266, 0, 0, array);
+            NCTestUtils.assertValueAt(-9999, 1, 0, array);
+
+            NCTestUtils.assertValueAt(17, 1, 2, array);
+            NCTestUtils.assertValueAt(-9999, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_1km_Aqua_upperLeft() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(0, 0, new Interval(3, 3), "Cloud_Phase_Infrared_1km");
+            NCTestUtils.assertValueAt(127, 0, 0, array);
+            NCTestUtils.assertValueAt(127, 1, 0, array);
+            NCTestUtils.assertValueAt(127, 2, 0, array);
+
+            NCTestUtils.assertValueAt(127, 0, 1, array);
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(2, 2, 1, array);
+
+            NCTestUtils.assertValueAt(127, 0, 2, array);
+            NCTestUtils.assertValueAt(2, 1, 2, array);
+            NCTestUtils.assertValueAt(2, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+
+    @Test
+    public void testReadRaw_1km_Terra_upperRight() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(269, 0, new Interval(3, 3), "IRP_CTH_Consistency_Flag_1km");
+            NCTestUtils.assertValueAt(127, 0, 0, array);
+            NCTestUtils.assertValueAt(127, 1, 0, array);
+            NCTestUtils.assertValueAt(127, 2, 0, array);
+
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);  // due to subsampling geometries, this one is also inside the raster tb 2017-08-30
+
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);  // due to subsampling geometries, this one is also inside the raster tb 2017-08-30
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_1km_Aqua_lowerRight() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(269, 405, new Interval(3, 3), "os_top_flag_1km");
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(0, 1, 0, array);
+            NCTestUtils.assertValueAt(0, 2, 0, array);  // due to subsampling geometries, this one is also inside the raster tb 2017-08-30
+
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);  // due to subsampling geometries, this one is also inside the raster tb 2017-08-30
+
+            NCTestUtils.assertValueAt(127, 0, 2, array);
+            NCTestUtils.assertValueAt(127, 1, 2, array);
+            NCTestUtils.assertValueAt(127, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_1km_Terra_lowerLeft() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(0, 405, new Interval(3, 3), "cloud_top_pressure_1km");
+            NCTestUtils.assertValueAt(-999, 0, 0, array);
+            NCTestUtils.assertValueAt(5550, 1, 0, array);
+            NCTestUtils.assertValueAt(2250, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-999, 0, 1, array);
+            NCTestUtils.assertValueAt(4600, 1, 1, array);
+            NCTestUtils.assertValueAt(4800, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-999, 0, 2, array);
+            NCTestUtils.assertValueAt(-999, 1, 2, array);
+            NCTestUtils.assertValueAt(-999, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getTerraFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod06-te", "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, false);
         return getFileAsserted(testFilePath);

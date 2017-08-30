@@ -21,11 +21,14 @@
 package com.bc.fiduceo.reader.modis;
 
 import org.junit.Test;
+import ucar.ma2.Array;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MxD06_ReaderTest {
 
@@ -76,5 +79,16 @@ public class MxD06_ReaderTest {
     public void testGetGroupName() {
         assertEquals("mod06/Geolocation_Fields", MxD06_Reader.getGroupName("Longitude"));
         assertEquals("mod06/Data_Fields", MxD06_Reader.getGroupName("Sensor_Zenith_Night"));
+    }
+
+    @Test
+    public void testIs1KmVariable() {
+        final Array array = mock(Array.class);
+
+        when(array.getShape()).thenReturn(new int[] {100, 100, 34});
+        assertFalse(MxD06_Reader.is1KmVariable(array));
+
+        when(array.getShape()).thenReturn(new int[] {1, 1034, 209});
+        assertTrue(MxD06_Reader.is1KmVariable(array));
     }
 }

@@ -29,7 +29,15 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
@@ -63,6 +71,7 @@ class MxD06_Reader implements Reader {
 
     MxD06_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+
     }
 
     @Override
@@ -139,7 +148,12 @@ class MxD06_Reader implements Reader {
         if (fillValue == null) {
             throw new RuntimeException("implement fill value handling here.");
         }
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270 );
+
+        if (is1KmVariable(array)) {
+            return readRaw1km(centerX, centerY, interval, array, fillValue);
+        } else {
+            return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270);
+        }
     }
 
     @Override
@@ -159,7 +173,7 @@ class MxD06_Reader implements Reader {
         final Array acquisitionTime = Array.factory(DataType.INT, shape);
         final Index index = acquisitionTime.getIndex();
 
-        for (int ya = 0; ya <height; ya++) {
+        for (int ya = 0; ya < height; ya++) {
             final int yRead = y_offset + ya;
             final long lineTime = timeLocator.getTimeFor(0, yRead);
             final int lineTimeInSeconds = (int) (lineTime / 1000);
@@ -286,5 +300,29 @@ class MxD06_Reader implements Reader {
             return GEOLOCATION_GROUP;
         }
         return DATA_GROUP;
+    }
+
+    static boolean is1KmVariable(Array array) {
+        final int[] shape = array.getShape();
+        int maxDim = Integer.MIN_VALUE;
+        for (int dimLength : shape) {
+            if (dimLength > maxDim) {
+                maxDim = dimLength;
+            }
+        }
+
+        return maxDim > 1000;
+    }
+
+    private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws InvalidRangeException {
+        final int x_1km = centerX * 5 + 2;
+        final int y_1km = centerY * 5 + 2;
+        final Interval extendedInterval = new Interval(interval.getX() * 5, interval.getY() * 5);
+        final Array fullArray = RawDataReader.read(x_1km, y_1km, extendedInterval, fillValue, array, 1354);
+
+        final int[] shape = new int[]{interval.getY(), interval.getX()};
+        final int[] origin = new int[]{2, 2};
+        final int[] stride = new int[]{5, 5};
+        return fullArray.section(origin, shape, stride);
     }
 }
