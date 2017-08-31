@@ -807,6 +807,54 @@ public class MxD06_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_Quality_Assurance_5km_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(103, 184, new Interval(3, 3), "Quality_Assurance_5km_03");
+            NCTestUtils.assertValueAt(25, 0, 0, array);
+            NCTestUtils.assertValueAt(22, 1, 0, array);
+            NCTestUtils.assertValueAt(14, 2, 0, array);
+
+            NCTestUtils.assertValueAt(25, 0, 1, array);
+            NCTestUtils.assertValueAt(25, 1, 1, array);
+            NCTestUtils.assertValueAt(25, 2, 1, array);
+
+            NCTestUtils.assertValueAt(19, 0, 2, array);
+            NCTestUtils.assertValueAt(25, 1, 2, array);
+            NCTestUtils.assertValueAt(25, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_Quality_Assurance_5km_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(104, 224, new Interval(3, 3), "Quality_Assurance_5km_04");
+            NCTestUtils.assertValueAt(2, 0, 0, array);
+            NCTestUtils.assertValueAt(14, 1, 0, array);
+            NCTestUtils.assertValueAt(11, 2, 0, array);
+
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(17, 1, 1, array);
+            NCTestUtils.assertValueAt(5, 2, 1, array);
+
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(20, 1, 2, array);
+            NCTestUtils.assertValueAt(7, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getTerraFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod06-te", "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, false);
         return getFileAsserted(testFilePath);

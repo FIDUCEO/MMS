@@ -29,25 +29,12 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -147,9 +134,10 @@ class MxD06_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final String groupName = getGroupName(variableName);
-        final Array array = arrayCache.get(groupName, variableName);
-        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, groupName, variableName);
+        final String rawVariableName = stripLayerSuffix(variableName);
+        final String groupName = getGroupName(rawVariableName);
+        final Array array = arrayCache.get(groupName, rawVariableName);
+        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, groupName, rawVariableName);
         if (fillValue == null) {
             throw new RuntimeException("implement fill value handling here.");
         }
@@ -158,6 +146,8 @@ class MxD06_Reader implements Reader {
             return readRaw1km(centerX, centerY, interval, array, fillValue);
         } else if (variableName.equals("Cloud_Mask_5km")) {
             return readCloudMask5Km(centerX, centerY, interval, array);
+        } else if (variableName.contains("Quality_Assurance_5km")) {
+            return readQualiytAssurance5Km(centerX, centerY, interval, array, variableName);
         } else {
             return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270);
         }
@@ -370,6 +360,15 @@ class MxD06_Reader implements Reader {
         return targetArray;
     }
 
+    private Array readQualiytAssurance5Km(int centerX, int centerY, Interval interval, Array array, String variableName) throws InvalidRangeException {
+        final int layerIndex = extractLayerIndex(variableName);
+        final int[] shape = array.getShape();
+        shape[2] = 1;   // we only want one z-layer
+        final int[] offsets = {0, 0, layerIndex};
+        final Array layerData = array.section(offsets, shape);
+        return RawDataReader.read(centerX, centerY, interval, 0, layerData, 270);
+    }
+
     // @duplicated code - AVHRR_GAC reader - move to common location tb 2017-08-30
     private double getOffset(String groupName, String variableName) throws IOException {
         final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, groupName, variableName);
@@ -385,5 +384,24 @@ class MxD06_Reader implements Reader {
             return scaleFactorValue.doubleValue();
         }
         return 1.0;
+    }
+
+    // package access for testing only tb 2017-08-31
+    static String stripLayerSuffix(String variableName) {
+        if (variableName.contains("Quality_Assurance_5km")) {
+            final int lastUnderscore = variableName.lastIndexOf("_");
+            return variableName.substring(0, lastUnderscore);
+        }
+        return variableName;
+    }
+
+    // package access for testing only tb 2017-08-31
+    static int extractLayerIndex(String variableName) {
+        if (variableName.contains("Quality_Assurance_5km")) {
+            final int lastUnderscore = variableName.lastIndexOf("_");
+            final String intString = variableName.substring(lastUnderscore + 1, variableName.length());
+            return Integer.parseInt(intString);
+        }
+        throw new RuntimeException("Invalid variable name for layer calculations");
     }
 }

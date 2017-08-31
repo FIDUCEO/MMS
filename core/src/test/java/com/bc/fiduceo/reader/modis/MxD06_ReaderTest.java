@@ -91,4 +91,28 @@ public class MxD06_ReaderTest {
         when(array.getShape()).thenReturn(new int[] {1, 1034, 209});
         assertTrue(MxD06_Reader.is1KmVariable(array));
     }
+
+    @Test
+    public void testStripLayerSuffix() {
+        assertEquals("Quality_Assurance_5km", MxD06_Reader.stripLayerSuffix("Quality_Assurance_5km_03"));
+        assertEquals("Quality_Assurance_5km", MxD06_Reader.stripLayerSuffix("Quality_Assurance_5km_09"));
+
+        assertEquals("firlefanz", MxD06_Reader.stripLayerSuffix("firlefanz"));
+        assertEquals("firlefanz_05_09", MxD06_Reader.stripLayerSuffix("firlefanz_05_09"));
+    }
+
+    @Test
+    public void testExtractLayerIndex() {
+        assertEquals(5, MxD06_Reader.extractLayerIndex("Quality_Assurance_5km_05"));
+        assertEquals(9, MxD06_Reader.extractLayerIndex("Quality_Assurance_5km_09"));
+    }
+
+    @Test
+    public void testExtractLayerIndex_incorrectVariableName() {
+        try {
+            MxD06_Reader.extractLayerIndex("a_strange_variable");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }
