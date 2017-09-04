@@ -256,9 +256,9 @@ public class ArrayCache {
 
     private ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
         ArrayContainer container;
-        Variable variable = netcdfFile.findVariable(group, variableName);
+        Variable variable = injectedVariables.get(variableName);
         if (variable == null) {
-            variable = injectedVariables.get(variableName);
+            variable = netcdfFile.findVariable(group, variableName);
             if (variable == null) {
                 throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
             }
