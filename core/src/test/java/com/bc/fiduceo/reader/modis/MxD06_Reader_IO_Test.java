@@ -31,6 +31,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
@@ -43,6 +44,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -850,6 +852,30 @@ public class MxD06_Reader_IO_Test {
             NCTestUtils.assertValueAt(0, 0, 2, array);
             NCTestUtils.assertValueAt(20, 1, 2, array);
             NCTestUtils.assertValueAt(7, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            Point2D geoLocation = pixelLocator.getGeoLocation(24.5, 176.5, null);
+            assertEquals(77.13426184377064, geoLocation.getX(), 1e-8);
+            assertEquals(-61.537593841552734, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(223.5, 296.5, null);
+            assertEquals(49.92273147607591, geoLocation.getX(), 1e-8);
+            assertEquals(-60.453651428222656, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(95.2606428755346, geoLocation.getX(), 1e-8);
+            assertEquals(-65.07981872558594, geoLocation.getY(), 1e-8);
         } finally {
             reader.close();
         }

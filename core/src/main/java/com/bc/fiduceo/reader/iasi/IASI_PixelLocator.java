@@ -67,8 +67,6 @@ class IASI_PixelLocator implements PixelLocator {
 
     @Override
     public Point2D[] getPixelLocation(double lon, double lat) {
-
-
         final Point searchLocation = geometryFactory.createPoint(lon, lat);
         boolean upperContains = false;
         boolean lowerContains = false;
@@ -79,7 +77,7 @@ class IASI_PixelLocator implements PixelLocator {
             lowerContains = true;
         }
         if (!(upperContains || lowerContains)) {
-            // pixel is not inside the swath th 2017-05-02
+            // pixel is not inside the swath tb 2017-05-02
             return new Point2D[0];
         }
 
@@ -98,7 +96,6 @@ class IASI_PixelLocator implements PixelLocator {
             final int pixelIndex = getPixelIndex(sphericalDistance, lineIndex);
             resultList.add(new Point2D.Float(pixelIndex + 0.5f, lineIndex + 0.5f));
         }
-
 
         return resultList.toArray(new Point2D[resultList.size()]);
     }

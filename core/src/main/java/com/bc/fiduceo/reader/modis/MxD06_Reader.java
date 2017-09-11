@@ -29,12 +29,25 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.IndexIterator;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -60,10 +73,10 @@ class MxD06_Reader implements Reader {
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
     private TimeLocator timeLocator;
+    private BowTiePixelLocator pixelLocator;
 
     MxD06_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
-
     }
 
     @Override
@@ -76,6 +89,12 @@ class MxD06_Reader implements Reader {
     @Override
     public void close() throws IOException {
         timeLocator = null;
+
+        if (pixelLocator != null) {
+            pixelLocator.dispose();
+            pixelLocator = null;
+        }
+        
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -110,12 +129,15 @@ class MxD06_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            createPixelLocator();
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        return getPixelLocator();   // we just have 5 minute products, no large geometries tb 2017-09-04
     }
 
     @Override
@@ -296,6 +318,14 @@ class MxD06_Reader implements Reader {
         try {
             final Array section = time.section(offsets, shape);
             timeLocator = new TimeLocator_TAI1993Vector(section);
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private void createPixelLocator() throws IOException {
+        try {
+            pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, "Longitude"), arrayCache.get(GEOLOCATION_GROUP, "Latitude"), geometryFactory);
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }
