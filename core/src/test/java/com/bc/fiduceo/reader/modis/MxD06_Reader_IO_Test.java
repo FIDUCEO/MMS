@@ -876,6 +876,60 @@ public class MxD06_Reader_IO_Test {
             geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
             assertEquals(95.2606428755346, geoLocation.getX(), 1e-8);
             assertEquals(-65.07981872558594, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(77.13426184377064, -61.537593841552734);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(24.510130886993306, pixelLocation[0].getX(), 1e-8);
+            assertEquals(175.14568506679237, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(49.92273147607591, -60.453651428222656);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(223.43297881385755, pixelLocation[0].getX(), 1e-8);
+            assertEquals(296.9555245591323, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(95.2606428755346, -65.07981872558594);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(0.44078038855488644, pixelLocation[0].getX(), 1e-8);
+            assertEquals(0.5176003312977953, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            Point2D geoLocation = pixelLocator.getGeoLocation(263.5, 91.5, null);
+            assertEquals(-42.03668401988397, geoLocation.getX(), 1e-8);
+            assertEquals(40.738407135009766, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(100.5, 278.5, null);
+            assertEquals(-58.31618534674704, geoLocation.getX(), 1e-8);
+            assertEquals(35.175201416015625, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(6.5, 402.5, null);
+            assertEquals(-68.44686075149151, geoLocation.getX(), 1e-8);
+            assertEquals(30.53831672668457, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-42.03668401988397, 40.738407135009766);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(263.33873469101115, pixelLocation[0].getX(), 1e-8);
+            assertEquals(87.96618630056757, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-58.31618534674704, 35.175201416015625);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(100.60881975602334, pixelLocation[0].getX(), 1e-8);
+            assertEquals(278.5518656925673, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-68.44686075149151, 30.53831672668457);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(6.585280731657469, pixelLocation[0].getX(), 1e-8);
+            assertEquals(403.3983919528225, pixelLocation[0].getY(), 1e-8);
         } finally {
             reader.close();
         }

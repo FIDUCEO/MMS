@@ -25,14 +25,8 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.location.PixelLocator;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import com.bc.fiduceo.math.SphericalDistance;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -52,8 +46,6 @@ class BowTiePixelLocator implements PixelLocator {
     private Array longitudes;
     private Array latitudes;
 
-    private int lastCenterLineIndex;
-    private boolean cross180;
     private List<GeoCoding> geoCodingList;
     private List<LineString> centerLinesList;
 
@@ -68,7 +60,7 @@ class BowTiePixelLocator implements PixelLocator {
 
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D point) {
-        final int index = (int) Math.round(y / STRIPE_HEIGHT);
+        final int index = (int) Math.floor(y / STRIPE_HEIGHT);
         final GeoCoding geoCoding = geoCodingList.get(index);
 
         final double geoCodingRelativeY = y - 2 * index;
@@ -83,7 +75,28 @@ class BowTiePixelLocator implements PixelLocator {
 
     @Override
     public Point2D[] getPixelLocation(double lon, double lat) {
-        throw new RuntimeException("not implemented");
+        final SphericalDistance sphericalDistance = new SphericalDistance(lon, lat);
+        int minIndex = 0;
+        int currentIndex = 0;
+        double minDistance = Double.MAX_VALUE;
+        for (final LineString lineString : centerLinesList) {
+            final Point[] lineCoordinates = lineString.getCoordinates();
+            final int centerIndex = lineCoordinates.length / 2;
+            final Point centerPoint = lineCoordinates[centerIndex];
+
+            final double currentDistance = sphericalDistance.distance(centerPoint.getLon(), centerPoint.getLat());
+            if (currentDistance < minDistance) {
+                minDistance = currentDistance;
+                minIndex = currentIndex;
+            }
+            ++currentIndex;
+        }
+
+        final GeoCoding geoCoding = geoCodingList.get(minIndex);
+        final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
+        final double subGeocodingY = pixelPos.getY();
+        final Point2D.Double resultPoint = new Point2D.Double(pixelPos.getX(), subGeocodingY + STRIPE_HEIGHT * minIndex);
+        return new Point2D[]{resultPoint};
     }
 
     void dispose() {
@@ -92,8 +105,7 @@ class BowTiePixelLocator implements PixelLocator {
     }
 
     private void init() throws InvalidRangeException {
-        lastCenterLineIndex = 0;
-        cross180 = false;
+        boolean cross180 = false;
         geoCodingList = new ArrayList<>();
         centerLinesList = new ArrayList<>();
 
@@ -156,7 +168,7 @@ class BowTiePixelLocator implements PixelLocator {
 
         return geometryFactory.createLineString(points);
     }
-    
+
     private class ModisTiePointGrid extends TiePointGrid {
 
         private Product fakeProduct;
