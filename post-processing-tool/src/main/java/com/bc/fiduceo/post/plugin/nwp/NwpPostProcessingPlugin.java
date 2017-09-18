@@ -164,6 +164,11 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
                 sensorExtractConfig.setAn_AL_name(getElementValueTrimmed(anAlbedoElement));
             }
 
+            final Element anLnspElement = sensorExtractionElement.getChild("an-lnsp-name");
+            if (anLnspElement != null) {
+                sensorExtractConfig.setAn_LNSP_name(getElementValueTrimmed(anLnspElement));
+            }
+
             final Element anSKTElement = sensorExtractionElement.getChild("an-skt-name");
             if (anSKTElement != null) {
                 sensorExtractConfig.setAn_SKT_name(getElementValueTrimmed(anSKTElement));

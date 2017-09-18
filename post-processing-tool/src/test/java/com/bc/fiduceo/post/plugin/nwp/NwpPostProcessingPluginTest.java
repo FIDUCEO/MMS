@@ -286,6 +286,7 @@ public class NwpPostProcessingPluginTest {
                 "        <an-t2-name>temp_at_height</an-t2-name>" +
                 "        <an-d2-name>dewy</an-d2-name>" +
                 "        <an-al-name>albe_do</an-al-name>" +
+                "        <an-lnsp-name>log_surf_pressure</an-lnsp-name>" +
                 "        <an-skt-name>skin_temp</an-skt-name>" +
                 "        <an-t-name>temp_profile</an-t-name>" +
                 "        <an-q-name>vapour_profile</an-q-name>" +
@@ -326,6 +327,7 @@ public class NwpPostProcessingPluginTest {
         assertEquals("temp_at_height", sensorConfig.getAn_T2_name());
         assertEquals("dewy", sensorConfig.getAn_D2_name());
         assertEquals("albe_do", sensorConfig.getAn_AL_name());
+        assertEquals("log_surf_pressure", sensorConfig.getAn_LNSP_name());
         assertEquals("skin_temp", sensorConfig.getAn_SKT_name());
         assertEquals("temp_profile", sensorConfig.getAn_T_name());
         assertEquals("vapour_profile", sensorConfig.getAn_Q_name());
