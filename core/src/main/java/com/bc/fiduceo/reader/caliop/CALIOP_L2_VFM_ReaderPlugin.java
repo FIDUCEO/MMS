@@ -25,7 +25,7 @@ public class CALIOP_L2_VFM_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new CALIOP_L2_VFM_Reader(geometryFactory);
+        return new CALIOP_L2_VFM_Reader(geometryFactory, new CaliopUtils());
     }
 
     @Override

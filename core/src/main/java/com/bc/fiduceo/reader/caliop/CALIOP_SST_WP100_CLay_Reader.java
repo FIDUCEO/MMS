@@ -41,7 +41,6 @@ import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -64,8 +63,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
@@ -80,14 +77,16 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
     private static final String start = "CAL_LID_L2_05kmCLay-Standard-V4-10\\.";
     private static final String end = "Z[DN]\\.hdf";
     public static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
-    private final GeometryFactory geometryFactory;
+    final GeometryFactory geometryFactory;
+    final CaliopUtils caliopUtils;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    public CALIOP_SST_WP100_CLay_Reader(GeometryFactory geometryFactory) {
+    public CALIOP_SST_WP100_CLay_Reader(GeometryFactory geometryFactory, final CaliopUtils caliopUtils) {
         this.geometryFactory = geometryFactory;
+        this.caliopUtils = caliopUtils;
     }
 
     @Override
@@ -108,43 +107,7 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        final Variable metadata = netcdfFile.findVariable("metadata");
-        final StructureData structureData = ((Structure) metadata).readStructure();
-        final Array start = structureData.getArray(structureData.findMember("Date_Time_at_Granule_Start"));
-        final Array end = structureData.getArray(structureData.findMember("Date_Time_at_Granule_End"));
-        final Date sensingStart;
-        final Date sensingStop;
-        try {
-            sensingStart = getDate(start);
-            sensingStop = getDate(end);
-        } catch (ParseException e) {
-            throw new IOException(e);
-        }
-        acquisitionInfo.setSensingStart(sensingStart);
-        acquisitionInfo.setSensingStop(sensingStop);
-
-        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
-        final Array lats = arrayCache.get("Latitude");
-        final Array lons = arrayCache.get("Longitude");
-        final int size = (int) lats.getSize();
-        if (size != lons.getSize()) {
-            throw new IOException("Corrupt file. Longitude and Latitude must have the same size!");
-        }
-        final ArrayList<Point> points = new ArrayList<>();
-        final int add = size / 60;
-        final int lastPosition = size - 1;
-        for (int i = 0; i < lastPosition; i += add) {
-            points.add(geometryFactory.createPoint(lons.getFloat(i), lats.getFloat(i)));
-        }
-        points.add(geometryFactory.createPoint(lons.getFloat(lastPosition), lats.getFloat(lastPosition)));
-
-        final LineString lineString = geometryFactory.createLineString(points);
-        final Polygon boundingGeometry = PaddingFactory.createLinePadding(lineString, FOOTPRINT_WIDTH_KM, geometryFactory);
-        acquisitionInfo.setBoundingGeometry(boundingGeometry);
-        acquisitionInfo.setTimeAxes(new TimeAxis[]{geometryFactory.createTimeAxis(lineString, sensingStart, sensingStop)});
-
-        return acquisitionInfo;
+        return getAcquisitionInfo();
     }
 
     @Override
@@ -165,11 +128,7 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final Array lons = arrayCache.get("Longitude");
-            final Array lats = arrayCache.get("Latitude");
-            final double maxDistanceKm = getMaxDistance();
-            pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
-//            pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons.slice(1, 1).copy(), lats.slice(1, 1).copy());
+            createPixelLocator();
         }
         return pixelLocator;
     }
@@ -187,21 +146,11 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        final Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
-        final Matcher matcher = compile.matcher(fileName);
-        //noinspection ResultOfMethodCallIgnored
-        matcher.find();
-        final String[] split = matcher.group().split("-");
-        final int[] ymd = new int[3];
-        for (int i = 0; i < ymd.length; i++) {
-            ymd[i] = Integer.parseInt(split[i]);
-        }
-        return ymd;
+        return caliopUtils.extractYearMonthDayFromFilename(fileName);
     }
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-//        ensureValidInterval(interval);
         final Number fillValue = getFillValue(variableName);
         final Array array = arrayCache.get(variableName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, 1);
@@ -212,6 +161,7 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         ensureValidInterval(interval);
@@ -247,6 +197,53 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
     public Variable find(String name) {
         return netcdfFile.findVariable(name);
+    }
+
+    private AcquisitionInfo getAcquisitionInfo() throws IOException {
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        final Variable metadata = netcdfFile.findVariable("metadata");
+        final StructureData structureData = ((Structure) metadata).readStructure();
+        final Array start = structureData.getArray(structureData.findMember("Date_Time_at_Granule_Start"));
+        final Array end = structureData.getArray(structureData.findMember("Date_Time_at_Granule_End"));
+        final Date sensingStart;
+        final Date sensingStop;
+        try {
+            sensingStart = caliopUtils.getDate(start);
+            sensingStop = caliopUtils.getDate(end);
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
+        acquisitionInfo.setSensingStart(sensingStart);
+        acquisitionInfo.setSensingStop(sensingStop);
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+        final Array lats = arrayCache.get("Latitude");
+        final Array lons = arrayCache.get("Longitude");
+        final int size = (int) lats.getSize();
+        if (size != lons.getSize()) {
+            throw new IOException("Corrupt file. Longitude and Latitude must have the same size!");
+        }
+        final ArrayList<Point> points = new ArrayList<>();
+        final int add = size / 60;
+        final int lastPosition = size - 1;
+        for (int i = 0; i < lastPosition; i += add) {
+            points.add(geometryFactory.createPoint(lons.getFloat(i), lats.getFloat(i)));
+        }
+        points.add(geometryFactory.createPoint(lons.getFloat(lastPosition), lats.getFloat(lastPosition)));
+
+        final LineString lineString = geometryFactory.createLineString(points);
+        final Polygon boundingGeometry = PaddingFactory.createLinePadding(lineString, FOOTPRINT_WIDTH_KM, geometryFactory);
+        acquisitionInfo.setBoundingGeometry(boundingGeometry);
+        acquisitionInfo.setTimeAxes(new TimeAxis[]{geometryFactory.createTimeAxis(lineString, sensingStart, sensingStop)});
+
+        return acquisitionInfo;
+    }
+
+    private void createPixelLocator() throws IOException {
+        final Array lons = arrayCache.get("Longitude");
+        final Array lats = arrayCache.get("Latitude");
+        final double maxDistanceKm = getMaxDistance();
+        pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
     }
 
     private double getMaxDistance() {
@@ -362,35 +359,9 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
     private void ensureFillValue(Variable ncVariable) {
         if (ncVariable.findAttribute(CF_FILL_VALUE_NAME) == null) {
-            final Number fillValue = getFillValue(ncVariable);
+            final Number fillValue = caliopUtils.getFillValue(ncVariable);
             ncVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         }
     }
 
-    private Number getFillValue(Variable ncVariable) {
-        final Attribute fillvalueAttr = ncVariable.findAttribute("fillvalue");
-        if (fillvalueAttr == null) {
-            final DataType dataType = ncVariable.getDataType();
-            final Attribute unsignedAttr = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
-            final boolean unsigned = unsignedAttr != null && Boolean.parseBoolean(unsignedAttr.getStringValue());
-            return NetCDFUtils.getDefaultFillValue(dataType, unsigned);
-        } else {
-            return fillvalueAttr.getNumericValue();
-        }
-    }
-
-    private Date getDate(Array charArray) throws ParseException {
-        final String pattern = "yyyy-MM-dd'T'HH:mm:ss";
-        final String str = charArray.toString().trim();
-        final String analysableUtcStr = stripTrailingZ(str);
-        final ProductData.UTC utc = ProductData.UTC.parse(analysableUtcStr, pattern);
-        return utc.getAsDate();
-    }
-
-    private String stripTrailingZ(String str) {
-        if (str.endsWith("Z")) {
-            str = str.substring(0, str.length() - 1);
-        }
-        return str;
-    }
 }

@@ -1,18 +1,36 @@
-package com.bc.fiduceo.post.plugin.flag.hirs;
+/*
+ * Copyright (C) 2016 Brockmann Consult GmbH
+ * This code was developed for the EC project "Fidelity and Uncertainty in
+ * Climate Data Records from Earth Observations (FIDUCEO)".
+ * Grant Agreement: 638822
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * A copy of the GNU General Public License should have been supplied along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
 
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.INTERCHANNEL_TEST_CLOUDY;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_CLOUDY;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_WARNING;
+package com.bc.fiduceo.post.plugin.hirs.flag;
+
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlags.INTERCHANNEL_TEST_CLOUDY;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_CLOUDY;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlags.SPACE_CONTRAST_TEST_WARNING;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import org.junit.*;
 import ucar.ma2.Array;
@@ -23,7 +41,6 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
 public class HirsL1CloudyFlagsTest {

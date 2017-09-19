@@ -25,7 +25,7 @@ public class CALIOP_SST_WP100_CLay_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
-        return new CALIOP_SST_WP100_CLay_Reader(geometryFactory);
+        return new CALIOP_SST_WP100_CLay_Reader(geometryFactory, new CaliopUtils());
     }
 
     @Override

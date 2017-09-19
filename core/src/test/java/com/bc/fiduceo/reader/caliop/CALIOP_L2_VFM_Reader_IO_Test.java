@@ -50,7 +50,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory().toPath();
-        reader = new CALIOP_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        reader = new CALIOP_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2), new CaliopUtils());
         caliopFile = getCaliopFile();
         reader.open(caliopFile);
     }
@@ -417,16 +417,19 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         //verification
         assertThat(at.getDataType(), is(equalTo(DataType.INT)));
         assertThat(at.getShape(), is(equalTo(expectedShape)));
+        int fillValueCount = 0;
         for (int i = 0; i < at.getSize(); i++) {
             final double ptVal = pt.getDouble(i);
             final int expected;
             if (fillValue.equals(ptVal)) {
                 expected = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+                fillValueCount++;
             } else {
                 expected = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(ptVal));
             }
             assertThat("Loop number " + i, at.getInt(i), is(expected));
         }
+        assertThat(fillValueCount, is(1));
     }
 
     private File getCaliopFile() {

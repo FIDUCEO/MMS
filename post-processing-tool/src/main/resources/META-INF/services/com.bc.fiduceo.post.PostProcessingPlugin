@@ -2,8 +2,9 @@ com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin
 com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin
 com.bc.fiduceo.post.plugin.AddAmsreSolarAnglesPlugin
 com.bc.fiduceo.post.plugin.nwp.NwpPostProcessingPlugin
-com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin
+com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin
 com.bc.fiduceo.post.plugin.ElevationToSolZenAnglePlugin
 com.bc.fiduceo.post.plugin.iasi.AddIASISpectrumPlugin
 com.bc.fiduceo.post.plugin.land_distance.AddLandDistancePlugin
-com.bc.fiduceo.post.plugin.flag.caliop.CALIOP_L2_VFM_FLAGS_PPPlugin
+com.bc.fiduceo.post.plugin.caliop.flag.CALIOP_L2_VFM_FLAGS_PPPlugin
+com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PPPlugin

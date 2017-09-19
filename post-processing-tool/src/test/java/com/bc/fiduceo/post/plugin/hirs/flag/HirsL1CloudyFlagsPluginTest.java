@@ -17,26 +17,24 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.fiduceo.post.plugin.flag.hirs;
+package com.bc.fiduceo.post.plugin.hirs.flag;
 
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_DISTANCE_PRODUCT_FILE_PATH;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_POST_PROCESSING_NAME;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_SENSOR_NAME;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_11_1_uM;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_6_5_uM;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_CLOUD_FLAGS;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LATITUDE;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LONGITUDE;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_PROCESSING_VERSION;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_BT_11_1_mM;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_FILE_NAME;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_X;
-import static com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_Y;
-import static org.hamcrest.CoreMatchers.*;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_DISTANCE_PRODUCT_FILE_PATH;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_POST_PROCESSING_NAME;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_SENSOR_NAME;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_11_1_uM;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_BT_6_5_uM;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_CLOUD_FLAGS;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LATITUDE;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_LONGITUDE;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_PROCESSING_VERSION;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_BT_11_1_mM;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_FILE_NAME;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_X;
+import static com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin.TAG_VAR_NAME_SOURCE_Y;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.jdom.Element;
@@ -83,7 +81,7 @@ public class HirsL1CloudyFlagsPluginTest {
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertNotNull(postProcessing);
-        assertEquals("com.bc.fiduceo.post.plugin.flag.hirs.HirsL1CloudyFlags", postProcessing.getClass().getTypeName());
+        assertEquals("com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlags", postProcessing.getClass().getTypeName());
 
         final HirsL1CloudyFlags hirsL1CloudyFlags = (HirsL1CloudyFlags) postProcessing;
 

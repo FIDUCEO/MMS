@@ -37,7 +37,6 @@ import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -59,11 +58,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CALIOP_L2_VFM_Reader implements Reader {
 
+    public static final double FOOTPRINT_WIDTH_KM = 5;
+    public static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
     private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
     private static final String MM = "(0[1-9]|1[0-2])";
     private static final String DD = "(0[1-9]|[12]\\d|3[01])";
@@ -73,19 +72,33 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     private static final String start = "CAL_LID_L2_VFM-Standard-V4-10\\.";
     private static final String end = "Z[DN]\\.hdf";
     public static final String REG_EX = start + YYYY + "-" + MM + "-" + DD + "T" + hh + "-" + mm + "-" + ss + end;
-
     private static final short[] nadirLineIndices = calcalculateIndizes();
-    public static final double FOOTPRINT_WIDTH_KM = 5;
-    public static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
-
-    private final GeometryFactory geometryFactory;
+    final GeometryFactory geometryFactory;
+    final CaliopUtils caliopUtils;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    public CALIOP_L2_VFM_Reader(GeometryFactory geometryFactory) {
+    public CALIOP_L2_VFM_Reader(GeometryFactory geometryFactory, CaliopUtils caliopUtils) {
         this.geometryFactory = geometryFactory;
+        this.caliopUtils = caliopUtils;
+    }
+
+    public static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
+        final short[] storage = (short[]) array.getStorage();
+        final short[] nadirStorage = new short[545];
+        int nadirIdx = 0;
+        for (int i = 0; i < nadirLineIndices.length; i += 2) {
+            int begin = nadirLineIndices[i];
+            int end = nadirLineIndices[i + 1];
+            final short[] shorts = Arrays.copyOfRange(storage, begin, end + 1);
+            for (short aShort : shorts) {
+                nadirStorage[nadirIdx] = aShort;
+                nadirIdx++;
+            }
+        }
+        return Array.factory(nadirStorage);
     }
 
     @Override
@@ -114,8 +127,8 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         final Date sensingStart;
         final Date sensingStop;
         try {
-            sensingStart = getDate(start);
-            sensingStop = getDate(end);
+            sensingStart = caliopUtils.getDate(start);
+            sensingStop = caliopUtils.getDate(end);
         } catch (ParseException e) {
             throw new IOException(e);
         }
@@ -163,10 +176,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final Array lons = arrayCache.get("Longitude");
-            final Array lats = arrayCache.get("Latitude");
-            final double maxDistanceKm = getMaxDistance();
-            pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
+            createPixelLocator();
         }
         return pixelLocator;
     }
@@ -184,16 +194,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        final Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
-        final Matcher matcher = compile.matcher(fileName);
-        //noinspection ResultOfMethodCallIgnored
-        matcher.find();
-        final String[] split = matcher.group().split("-");
-        final int[] ymd = new int[3];
-        for (int i = 0; i < ymd.length; i++) {
-            ymd[i] = Integer.parseInt(split[i]);
-        }
-        return ymd;
+        return caliopUtils.extractYearMonthDayFromFilename(fileName);
     }
 
     @Override
@@ -209,13 +210,14 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
         ensureValidInterval(interval);
-        final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final String variableName = "Profile_Time";
         final Number fillValue = getFillValue(variableName);
         final Array taiSeconds = readRaw(x, y, interval, variableName).reshapeNoCopy(new int[]{interval.getY(), interval.getX()});
+        final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final Array utcSecondsSince1970 = Array.factory(DataType.INT, taiSeconds.getShape());
         for (int i = 0; i < taiSeconds.getSize(); i++) {
             double val = taiSeconds.getDouble(i);
@@ -242,22 +244,6 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return new Dimension("lat", shape[1], shape[0]);
     }
 
-    public static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
-        final short[] storage = (short[]) array.getStorage();
-        final short[] nadirStorage = new short[545];
-        int nadirIdx = 0;
-        for (int i = 0; i < nadirLineIndices.length; i += 2) {
-            int begin = nadirLineIndices[i];
-            int end = nadirLineIndices[i + 1];
-            final short[] shorts = Arrays.copyOfRange(storage, begin, end + 1);
-            for (short aShort : shorts) {
-                nadirStorage[nadirIdx] = aShort;
-                nadirIdx++;
-            }
-        }
-        return Array.factory(nadirStorage);
-    }
-
     public Variable find(String name) {
         return netcdfFile.findVariable(name);
     }
@@ -282,9 +268,16 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
     }
 
+    private void createPixelLocator() throws IOException {
+        final Array lons = arrayCache.get("Longitude");
+        final Array lats = arrayCache.get("Latitude");
+        final double maxDistanceKm = getMaxDistance();
+        pixelLocator = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
+    }
+
     private double getMaxDistance() {
         final double fp2 = Math.pow(FOOTPRINT_HALF_WIDTH_KM, 2);
-        return Math.sqrt(2*fp2);
+        return Math.sqrt(2 * fp2);
     }
 
     private List<Variable> initVariables() throws IOException {
@@ -354,35 +347,9 @@ public class CALIOP_L2_VFM_Reader implements Reader {
 
     private void ensureFillValue(Variable ncVariable) {
         if (ncVariable.findAttribute(CF_FILL_VALUE_NAME) == null) {
-            final Number fillValue = getFillValue(ncVariable);
+            final Number fillValue = caliopUtils.getFillValue(ncVariable);
             ncVariable.addAttribute(new Attribute(CF_FILL_VALUE_NAME, fillValue));
         }
     }
 
-    private Number getFillValue(Variable ncVariable) {
-        final Attribute fillvalueAttr = ncVariable.findAttribute("fillvalue");
-        if (fillvalueAttr == null) {
-            final DataType dataType = ncVariable.getDataType();
-            final Attribute unsignedAttr = ncVariable.findAttribute(NetCDFUtils.CF_UNSIGNED);
-            final boolean unsigned = unsignedAttr != null && Boolean.parseBoolean(unsignedAttr.getStringValue());
-            return NetCDFUtils.getDefaultFillValue(dataType, unsigned);
-        } else {
-            return fillvalueAttr.getNumericValue();
-        }
-    }
-
-    private Date getDate(Array charArray) throws ParseException {
-        final String pattern = "yyyy-MM-dd'T'HH:mm:ss";
-        final String str = charArray.toString().trim();
-        final String analysableUtcStr = stripTrailingZ(str);
-        final ProductData.UTC utc = ProductData.UTC.parse(analysableUtcStr, pattern);
-        return utc.getAsDate();
-    }
-
-    private String stripTrailingZ(String str) {
-        if (str.endsWith("Z")) {
-            str = str.substring(0, str.length() - 1);
-        }
-        return str;
-    }
 }
