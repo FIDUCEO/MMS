@@ -62,5 +62,10 @@
         <rule sensors = "iasi-ma, iasi-mb">
             SENSOR/VERSION/YEAR/MONTH
         </rule>
+
+        <rule sensors="mod06-te, myd06-aq">
+            SENSOR/VERSION/YEAR/DAY_OF_YEAR
+        </rule>
+
     </archive>
 </system-config>

@@ -141,7 +141,7 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
         }
     }
 
-    private String toValidName(String latName) {
-        return NetcdfFile.makeValidCDLName(latName);
+    private String toValidName(String vName) {
+        return NetcdfFile.makeValidCDLName(vName);
     }
 }

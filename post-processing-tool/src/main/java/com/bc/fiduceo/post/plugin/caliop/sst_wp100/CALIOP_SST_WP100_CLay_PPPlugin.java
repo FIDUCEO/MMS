@@ -29,10 +29,9 @@ import org.jdom.Element;
 public class CALIOP_SST_WP100_CLay_PPPlugin implements PostProcessingPlugin {
 
     static final String TAG_POST_PROCESSING_NAME = "caliop-sst-wp100-clay";
-    static final String TAG_MMD_SOURCE_FILE_VARIABE_NAME = "mmd-caliop-vfm-flags-source-file-variable-name";
+    static final String TAG_MMD_SOURCE_FILE_VARIABE_NAME = "mmd-source-file-variable-name";
     static final String TAG_MMD_PROCESSING_VERSION = "processing-version";
     static final String TAG_MMD_Y_VARIABE_NAME = "mmd-y-variable-name";
-    static final String TAG_TARGET_FCF_VARIABLE_NAME = "target-fcf-variable-name";
 
 
     @Override
@@ -43,13 +42,9 @@ public class CALIOP_SST_WP100_CLay_PPPlugin implements PostProcessingPlugin {
 
         final String srcVariableName_fileName = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         final String processingVersion = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_PROCESSING_VERSION);
-        final String profileId = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_Y_VARIABE_NAME);
-        final String targetVariableName = getMandatoryChildMandatoryTextTrim(element, TAG_TARGET_FCF_VARIABLE_NAME);
+        final String y_variableName = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_Y_VARIABE_NAME);
 
-
-        return new CALIOP_SST_WP100_CLay_PP(srcVariableName_fileName,
-                                            profileId, processingVersion
-        );
+        return new CALIOP_SST_WP100_CLay_PP(srcVariableName_fileName, y_variableName, processingVersion);
     }
 
     @Override

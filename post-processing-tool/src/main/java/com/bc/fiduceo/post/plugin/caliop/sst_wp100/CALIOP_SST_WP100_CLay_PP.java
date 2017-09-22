@@ -30,14 +30,14 @@ import java.io.IOException;
 public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
 
     final String variableName_caliopVFM_fileName;
-    final String variableName_caliopVFM_profileId;
+    final String variableName_caliopVFM_y;
     final String processingVersion;
 
     public CALIOP_SST_WP100_CLay_PP(String variableName_caliopVFM_fileName,
-                                    String variableName_caliopVFM_profileId,
+                                    String variableName_caliopVFM_y,
                                     String processingVersion) {
         this.variableName_caliopVFM_fileName = variableName_caliopVFM_fileName;
-        this.variableName_caliopVFM_profileId = variableName_caliopVFM_profileId;
+        this.variableName_caliopVFM_y = variableName_caliopVFM_y;
         this.processingVersion = processingVersion;
     }
 

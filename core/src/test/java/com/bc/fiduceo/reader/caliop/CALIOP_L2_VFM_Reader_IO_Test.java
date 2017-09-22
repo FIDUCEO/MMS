@@ -97,9 +97,19 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         assertEquals(1, timeAxes.length);
 
         final TimeAxis timeAxis = timeAxes[0];
-        coordinates = timeAxis.getGeometry().getCoordinates();
+        final Geometry taGeometry = timeAxis.getGeometry();
+        coordinates = taGeometry.getCoordinates();
         final Date time = timeAxes[0].getTime(coordinates[0]);
         TestUtil.assertCorrectUTCDate(2011, 1, 2, 23, 37, 1, time);
+
+        final Geometry intersection = boundingGeometry.getIntersection(taGeometry);
+        assertNotNull(intersection);
+        final Point[] coordinates2 = intersection.getCoordinates();
+        for (int i = 0; i < coordinates.length; i++) {
+            Point p1 = coordinates[i];
+            Point p2 = coordinates2[i];
+            assertEquals("pos: " + i, p1.toString(), p2.toString());
+        }
     }
 
     @Test

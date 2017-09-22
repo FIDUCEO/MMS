@@ -80,14 +80,16 @@ class BowTiePixelLocator implements PixelLocator {
         int currentIndex = 0;
         double minDistance = Double.MAX_VALUE;
         for (final LineString lineString : centerLinesList) {
-            final Point[] lineCoordinates = lineString.getCoordinates();
-            final int centerIndex = lineCoordinates.length / 2;
-            final Point centerPoint = lineCoordinates[centerIndex];
+            if (lineString != null) {
+                final Point[] lineCoordinates = lineString.getCoordinates();
+                final int centerIndex = lineCoordinates.length / 2;
+                final Point centerPoint = lineCoordinates[centerIndex];
 
-            final double currentDistance = sphericalDistance.distance(centerPoint.getLon(), centerPoint.getLat());
-            if (currentDistance < minDistance) {
-                minDistance = currentDistance;
-                minIndex = currentIndex;
+                final double currentDistance = sphericalDistance.distance(centerPoint.getLon(), centerPoint.getLat());
+                if (currentDistance < minDistance) {
+                    minDistance = currentDistance;
+                    minIndex = currentIndex;
+                }
             }
             ++currentIndex;
         }
@@ -95,7 +97,14 @@ class BowTiePixelLocator implements PixelLocator {
         final GeoCoding geoCoding = geoCodingList.get(minIndex);
         final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
         final double subGeocodingY = pixelPos.getY();
-        final Point2D.Double resultPoint = new Point2D.Double(pixelPos.getX(), subGeocodingY + STRIPE_HEIGHT * minIndex);
+
+        double y = subGeocodingY + STRIPE_HEIGHT * minIndex;
+        final int index = (int) Math.floor(y / STRIPE_HEIGHT);
+        if (index < (minIndex - 2) || index > (minIndex + 2)) {
+            return null;
+        }
+
+        final Point2D.Double resultPoint = new Point2D.Double(pixelPos.getX(), y);
         return new Point2D[]{resultPoint};
     }
 
@@ -112,6 +121,7 @@ class BowTiePixelLocator implements PixelLocator {
         final int[] shape = longitudes.getShape();
         final int sceneWidth = shape[1];
         final int sceneHeight = shape[0];
+        final Product dummyProduct = new Product("DummyProduct", "type", sceneWidth, sceneHeight);
 
         final int gcRawSize = sceneWidth * STRIPE_HEIGHT;
         shape[0] = 2;   // one scan
@@ -137,8 +147,10 @@ class BowTiePixelLocator implements PixelLocator {
                 geoCodingList.add(null);
                 centerLinesList.add(null);
             } else {
-                final ModisTiePointGrid latTPG = new ModisTiePointGrid("lat" + y, sceneWidth, STRIPE_HEIGHT, 0.5, 0.5, 1, 1, lats);
-                final ModisTiePointGrid lonTPG = new ModisTiePointGrid("lon" + y, sceneWidth, STRIPE_HEIGHT, 0.5, 0.5, 1, 1, lons, true);
+                final TiePointGrid latTPG = new TiePointGrid("lat" + y, sceneWidth, STRIPE_HEIGHT, 0.5, 0.5, 1, 1, lats);
+                final TiePointGrid lonTPG = new TiePointGrid("lon" + y, sceneWidth, STRIPE_HEIGHT, 0.5, 0.5, 1, 1, lons, true);
+                dummyProduct.addTiePointGrid(latTPG);
+                dummyProduct.addTiePointGrid(lonTPG);
 
                 final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, DefaultGeographicCRS.WGS84);
                 cross180 = cross180 || geoCoding.isCrossingMeridianAt180();
@@ -167,29 +179,5 @@ class BowTiePixelLocator implements PixelLocator {
         }
 
         return geometryFactory.createLineString(points);
-    }
-
-    private class ModisTiePointGrid extends TiePointGrid {
-
-        private Product fakeProduct;
-
-        ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints) {
-            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
-            createFakeProduct(gridWidth, gridHeight);
-        }
-
-        ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints, boolean containsAngles) {
-            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
-            createFakeProduct(gridWidth, gridHeight);
-        }
-
-        @Override
-        public ProductNode getOwner() {
-            return fakeProduct;
-        }
-
-        private void createFakeProduct(int width, int height) {
-            fakeProduct = new Product("fake", "fake", width, height);
-        }
     }
 }

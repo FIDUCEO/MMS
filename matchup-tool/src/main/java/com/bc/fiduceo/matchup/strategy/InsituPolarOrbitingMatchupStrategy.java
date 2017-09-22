@@ -181,15 +181,15 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         return combineBean.matchupCollection;
     }
 
-    private List<MatchupSet> getMatchupSets(Path insituPath, Map<Path, List<MatchupSet>> matchupSetsInsituOrder) {
-        final List<MatchupSet> insituSets;
-        if (matchupSetsInsituOrder.containsKey(insituPath)) {
-            insituSets = matchupSetsInsituOrder.get(insituPath);
+    private List<MatchupSet> getMatchupSets(Path path, Map<Path, List<MatchupSet>> matchupSetsOrdered) {
+        final List<MatchupSet> matchuprSets;
+        if (matchupSetsOrdered.containsKey(path)) {
+            matchuprSets = matchupSetsOrdered.get(path);
         } else {
-            insituSets = new ArrayList<>();
-            matchupSetsInsituOrder.put(insituPath, insituSets);
+            matchuprSets = new ArrayList<>();
+            matchupSetsOrdered.put(path, matchuprSets);
         }
-        return insituSets;
+        return matchuprSets;
     }
 
     private ObservationsSet retrieveSecondaryObservations(ToolContext context, int timeDeltaSeconds) throws SQLException {

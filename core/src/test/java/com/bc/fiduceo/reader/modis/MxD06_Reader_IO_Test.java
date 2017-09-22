@@ -59,11 +59,13 @@ public class MxD06_Reader_IO_Test {
 
     private File dataDirectory;
     private MxD06_Reader reader;
+    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws IOException {
         dataDirectory = TestUtil.getTestDataDirectory();
-        reader = new MxD06_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        reader = new MxD06_Reader(geometryFactory);
     }
 
     @Test
@@ -140,6 +142,13 @@ public class MxD06_Reader_IO_Test {
 
             assertEquals(36.58618927001953, coordinates[24].getLon(), 1e-8);
             assertEquals(-73.6755599975586, coordinates[24].getLat(), 1e-8);
+
+            final Dimension psze = reader.getProductSize();
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
+            final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
+            assertNotNull(intersection);
+            assertEquals(false, intersection.isEmpty());
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
@@ -306,6 +315,12 @@ public class MxD06_Reader_IO_Test {
             NCTestUtils.assertValueAt(1360161353, 2, 2, acquisitionTime);
             NCTestUtils.assertValueAt(1360161353, 1, 3, acquisitionTime);
             NCTestUtils.assertValueAt(1360161353, 2, 3, acquisitionTime);
+
+
+// todo implement this test ... fill outside pixels with NetCDF default fill value (_FillValue = -2147483647)
+//            final ArrayInt.D2 acquisitionTimeBorder = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+
+
         } finally {
             reader.close();
         }
@@ -333,6 +348,12 @@ public class MxD06_Reader_IO_Test {
             // next scan
             NCTestUtils.assertValueAt(1242211030, 1, 3, acquisitionTime);
             NCTestUtils.assertValueAt(1242211030, 2, 3, acquisitionTime);
+
+
+// todo implement this test ... fill outside pixels with NetCDF default fill value (_FillValue = -2147483647)
+//            final ArrayInt.D2 acquisitionTimeBorder = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+
+
         } finally {
             reader.close();
         }
