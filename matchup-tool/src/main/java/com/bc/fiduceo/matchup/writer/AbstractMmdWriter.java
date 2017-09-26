@@ -22,14 +22,10 @@ package com.bc.fiduceo.matchup.writer;
 
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderCache;
@@ -52,12 +48,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 abstract class AbstractMmdWriter implements MmdWriter, Target {
@@ -238,15 +229,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         ));
     }
 
-    // @todo 3 tb/** write tests 2017-06-26
     static String getCommaSeparatedListOfSensors(UseCaseConfig useCaseConfig) {
         final StringBuilder sensors = new StringBuilder();
         sensors.append(useCaseConfig.getPrimarySensor().getName());
         final List<Sensor> additionalSensors = useCaseConfig.getSecondarySensors();
-        final Iterator<Sensor> sensorIterator = additionalSensors.iterator();
-        while (sensorIterator.hasNext()) {
+        for (Sensor additionalSensor : additionalSensors) {
             sensors.append(",");
-            sensors.append(sensorIterator.next().getName());
+            sensors.append(additionalSensor.getName());
         }
         return sensors.toString();
     }

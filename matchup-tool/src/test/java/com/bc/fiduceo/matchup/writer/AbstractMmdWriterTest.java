@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.core.Dimension;
@@ -74,5 +75,59 @@ public class AbstractMmdWriterTest {
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
         verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("sensor-names", "SensorName2,SensorName1,SensorName3")));
         verifyNoMoreInteractions(mockWriter);
+    }
+
+    @Test
+    public void testGetCommaSeparatedListOfSensors_onlyPrimary() {
+        final Sensor primarySensor = new Sensor("theMaster");
+        primarySensor.setPrimary(true);
+        final List<Sensor> sensorList = Arrays.asList(
+                primarySensor
+        );
+
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("bla")
+                .withSensors(sensorList).
+                        createConfig();
+
+        final String csList = AbstractMmdWriter.getCommaSeparatedListOfSensors(useCaseConfig);
+        assertEquals("theMaster", csList);
+    }
+
+    @Test
+    public void testGetCommaSeparatedListOfSensors_oneSecondary() {
+        final Sensor primarySensor = new Sensor("theMaster");
+        primarySensor.setPrimary(true);
+        final Sensor secondarySensor = new Sensor("otherOne");
+        final List<Sensor> sensorList = Arrays.asList(
+                primarySensor,
+                secondarySensor
+        );
+
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("bla")
+                .withSensors(sensorList).
+                        createConfig();
+
+        final String csList = AbstractMmdWriter.getCommaSeparatedListOfSensors(useCaseConfig);
+        assertEquals("theMaster,otherOne", csList);
+    }
+
+    @Test
+    public void testGetCommaSeparatedListOfSensors_twoSecondaries() {
+        final Sensor primarySensor = new Sensor("theMaster");
+        primarySensor.setPrimary(true);
+        final Sensor secondarySensor = new Sensor("otherOne");
+        final Sensor thirdSensor = new Sensor("numberThree");
+        final List<Sensor> sensorList = Arrays.asList(
+                primarySensor,
+                thirdSensor,
+                secondarySensor
+        );
+
+        final UseCaseConfig useCaseConfig = new MatchupToolTestUseCaseConfigBuilder("bla")
+                .withSensors(sensorList).
+                        createConfig();
+
+        final String csList = AbstractMmdWriter.getCommaSeparatedListOfSensors(useCaseConfig);
+        assertEquals("theMaster,numberThree,otherOne", csList);
     }
 }
