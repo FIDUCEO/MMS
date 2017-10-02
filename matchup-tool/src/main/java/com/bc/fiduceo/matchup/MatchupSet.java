@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MatchupSet {
 
@@ -92,5 +93,10 @@ public class MatchupSet {
 
     public String getSecondaryProcessingVersion(String sensorName) {
         return secondaryProcessingVersion.get(sensorName);
+    }
+
+    // @todo 2 tb/tb write test 2017-10-02
+    public Set<String> getSecondarySensorKeys() {
+        return secondaryObservationPath.keySet();
     }
 }
