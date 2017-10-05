@@ -74,6 +74,7 @@ class MxD06_Reader implements Reader {
     private ArrayCache arrayCache;
     private TimeLocator timeLocator;
     private BowTiePixelLocator pixelLocator;
+    private Dimension productSize;
 
     MxD06_Reader(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
@@ -94,7 +95,7 @@ class MxD06_Reader implements Reader {
             pixelLocator.dispose();
             pixelLocator = null;
         }
-        
+
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -198,14 +199,22 @@ class MxD06_Reader implements Reader {
         int[] shape = new int[]{height, width};
 
         final TimeLocator timeLocator = getTimeLocator();
+        final int pHeight = getProductSize().getNy();
 
         final Array acquisitionTime = Array.factory(DataType.INT, shape);
         final Index index = acquisitionTime.getIndex();
 
+        final int acquisitionTimeFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
         for (int ya = 0; ya < height; ya++) {
             final int yRead = y_offset + ya;
-            final long lineTime = timeLocator.getTimeFor(0, yRead);
-            final int lineTimeInSeconds = (int) (lineTime / 1000);
+            final int lineTimeInSeconds;
+            if (yRead<0 || yRead >= pHeight) {
+                lineTimeInSeconds = acquisitionTimeFillValue;
+            } else {
+                final long lineTime = timeLocator.getTimeFor(0, yRead);
+                lineTimeInSeconds = (int) (lineTime / 1000);
+            }
 
             for (int xa = 0; xa < width; xa++) {
                 index.set(ya, xa);
@@ -273,9 +282,12 @@ class MxD06_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
-        final int[] shape = longitude.getShape();
-        return new Dimension("shape", shape[1], shape[0]);
+        if (productSize == null) {
+            final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
+            final int[] shape = longitude.getShape();
+            productSize = new Dimension("shape", shape[1], shape[0]);
+        }
+        return productSize;
     }
 
     private void extractAcquisitionTimes(AcquisitionInfo acquisitionInfo) throws IOException {

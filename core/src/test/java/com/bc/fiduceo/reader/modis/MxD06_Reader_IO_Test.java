@@ -34,6 +34,7 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -315,12 +316,73 @@ public class MxD06_Reader_IO_Test {
             NCTestUtils.assertValueAt(1360161353, 2, 2, acquisitionTime);
             NCTestUtils.assertValueAt(1360161353, 1, 3, acquisitionTime);
             NCTestUtils.assertValueAt(1360161353, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
 
+    @Test
+    public void testReadAcquisitionTime_Terra_outside_top() throws IOException, InvalidRangeException {
+        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
-// todo implement this test ... fill outside pixels with NetCDF default fill value (_FillValue = -2147483647)
-//            final ArrayInt.D2 acquisitionTimeBorder = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+        final File file = getTerraFile();
+        try {
+            reader.open(file);
 
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+            assertEquals(25, acquisitionTime.getSize());
 
+            // first scan
+            NCTestUtils.assertValueAt(fillValue, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1360161273, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161273, 2, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161273, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161273, 2, 2, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1360161275, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161275, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Terra_outside_bottom() throws IOException, InvalidRangeException {
+        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        final File file = getTerraFile();
+        try {
+            reader.open(file);
+            final int ny = reader.getProductSize().getNy();
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
+            assertEquals(25, acquisitionTime.getSize());
+
+            // first line
+            NCTestUtils.assertValueAt(1360161570, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161570, 1, 0, acquisitionTime);
+
+            // second line
+            NCTestUtils.assertValueAt(1360161570, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161570, 2, 1, acquisitionTime);
+
+            // third line
+            NCTestUtils.assertValueAt(1360161572, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161572, 3, 2, acquisitionTime);
+
+            // fourth line
+            NCTestUtils.assertValueAt(1360161572, 3, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1360161572, 4, 3, acquisitionTime);
+
+            // fifth line
+            NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
+            NCTestUtils.assertValueAt(fillValue, 4, 4, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -348,12 +410,73 @@ public class MxD06_Reader_IO_Test {
             // next scan
             NCTestUtils.assertValueAt(1242211030, 1, 3, acquisitionTime);
             NCTestUtils.assertValueAt(1242211030, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
 
+    @Test
+    public void testReadAcquisitionTime_Aqua_outside_top() throws IOException, InvalidRangeException {
+        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
-// todo implement this test ... fill outside pixels with NetCDF default fill value (_FillValue = -2147483647)
-//            final ArrayInt.D2 acquisitionTimeBorder = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+        final File file = getAquaFile();
+        try {
+            reader.open(file);
 
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 1, new Interval(5, 5));
+            assertEquals(25, acquisitionTime.getSize());
 
+            // first scan
+            NCTestUtils.assertValueAt(fillValue, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1242210874, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1242210874, 2, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1242210874, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1242210874, 2, 2, acquisitionTime);
+
+            // next scan
+            NCTestUtils.assertValueAt(1242210875, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1242210875, 2, 3, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Aqua_outside_bottom() throws IOException, InvalidRangeException {
+        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        final File file = getAquaFile();
+        try {
+            reader.open(file);
+            final int ny = reader.getProductSize().getNy();
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
+            assertEquals(25, acquisitionTime.getSize());
+
+            // first line
+            NCTestUtils.assertValueAt(1242211171, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211171, 1, 0, acquisitionTime);
+
+            // second line
+            NCTestUtils.assertValueAt(1242211171, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211171, 2, 1, acquisitionTime);
+
+            // third line
+            NCTestUtils.assertValueAt(1242211172, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211172, 3, 2, acquisitionTime);
+
+            // fourth line
+            NCTestUtils.assertValueAt(1242211172, 3, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1242211172, 4, 3, acquisitionTime);
+
+            // fifth line
+            NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
+            NCTestUtils.assertValueAt(fillValue, 4, 4, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -792,8 +915,8 @@ public class MxD06_Reader_IO_Test {
             final Index index = array.getIndex();
             final short firstValue = array.getShort(index);
             assertEquals(4889, firstValue);
-            assertEquals(19, (byte)((firstValue & 0xFF00) >> 8));
-            assertEquals(25, (byte)(firstValue & 0x00FF));
+            assertEquals(19, (byte) ((firstValue & 0xFF00) >> 8));
+            assertEquals(25, (byte) (firstValue & 0x00FF));
         } finally {
             reader.close();
         }
@@ -823,8 +946,8 @@ public class MxD06_Reader_IO_Test {
             final Index index = array.getIndex();
             final short firstValue = array.getShort(index);
             assertEquals(14741, firstValue);
-            assertEquals(57, (byte)((firstValue & 0xFF00) >> 8));
-            assertEquals(-107, (byte)(firstValue & 0x00FF));
+            assertEquals(57, (byte) ((firstValue & 0xFF00) >> 8));
+            assertEquals(-107, (byte) (firstValue & 0x00FF));
         } finally {
             reader.close();
         }
