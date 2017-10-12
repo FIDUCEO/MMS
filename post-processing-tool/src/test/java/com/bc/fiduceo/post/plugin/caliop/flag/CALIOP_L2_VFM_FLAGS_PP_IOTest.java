@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 @RunWith(IOTestRunner.class)
-public class CALIOP_L2_VFM_FLAGS_PPTest {
+public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
     private CALIOP_L2_VFM_FLAGS_PP pp;
 
@@ -73,7 +73,11 @@ public class CALIOP_L2_VFM_FLAGS_PPTest {
         final Path testDirPath = TestUtil.getTestDataDirectory().toPath();
         final Path relMmd15sst = Paths.get("post-processing", "mmd15sst", "mmd15_sst_drifter-sst_amsre-aq_caliop_vfm-cal_2008-149_2008-155.nc");
         final Path absMmd15sst = testDirPath.resolve(relMmd15sst);
-        // open the file with NetCDFUtils is needed because the standard open mechanism changes the file size
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // open the file with NetCDFUtils is needed
+        // because the standard open mechanism changes the file size
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         final NetcdfFile reader = NetCDFUtils.openReadOnly(absMmd15sst.toAbsolutePath().toString());
 
         final String numFlagsDimName = "center-fcf-flags";
