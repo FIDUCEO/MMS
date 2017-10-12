@@ -20,17 +20,14 @@
 
 package com.bc.fiduceo.util;
 
-import com.bc.fiduceo.util.VariableProxy;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class VariableProxyTest {
 
@@ -72,5 +69,17 @@ public class VariableProxyTest {
 
         attribute = proxy.findAttribute("not_in_list");
         assertNull(attribute);
+    }
+
+    @Test
+    public void testSetGetShape() throws Exception {
+        final VariableProxy proxy = new VariableProxy("sa", DataType.INT, null);
+
+        proxy.setShape(new int[]{12,34});
+
+        final int[] shape = proxy.getShape();
+
+        assertNotNull(shape);
+        assertArrayEquals(new int[]{12,34}, shape);
     }
 }

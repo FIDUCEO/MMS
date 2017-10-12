@@ -67,4 +67,13 @@ public class VariableProxy extends VariablePrototype {
 
         return null;
     }
+
+    public void setShape(int[] shape) {
+        this.shape = shape;
+    }
+
+    @Override
+    public int[] getShape() {
+        return this.shape;
+    }
 }
