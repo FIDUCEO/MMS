@@ -63,24 +63,14 @@ import java.util.stream.Collectors;
 public class CALIOP_SST_WP100_CLay_PP_IOTest {
 
     private static final String PREFIX_CALIOP_CLAY = "caliop_clay.";
+    private final static String fiduceoTestDirPefix = "fiduceoTest";
     private CALIOP_SST_WP100_CLay_PP cLay_pp;
     private Path tempDirectory;
 
-    public static boolean deleteTree(File tree) {
-        File[] files = tree.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.deleteOnExit();
-                if (file.isDirectory()) {
-                    deleteTree(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-
-        tree.deleteOnExit();
-        return tree.delete();
+    @BeforeClass
+    public static void beforeClass() {
+        // This is needed because the NetcdfFileWriter does not release the written file after tests.
+        deleteTempDirectoriesFromPreviousComputations();
     }
 
     @Before
@@ -92,13 +82,13 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         // In regular usage the PostProcessingContext will be set by post processing framework.
         cLay_pp.setContext(createPostProcessingContext());
         // a call setContext(...) generates an framework call to initReaderCache() method
-        tempDirectory = Files.createTempDirectory("fiduceo");
+        tempDirectory = Files.createTempDirectory(fiduceoTestDirPefix);
     }
 
     @After
     public void tearDown() throws Exception {
         cLay_pp.forTestsOnly_dispose();
-        deleteTree(tempDirectory.toFile());
+        deleteTempDirectories();
     }
 
     @Test
@@ -251,6 +241,36 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         verify(mVar, times(1)).addAttribute(same(attributes.get(1)));
         verify(mVar, times(1)).addAttribute(same(attributes.get(2)));
         verifyNoMoreInteractions(mVar);
+    }
+
+    private static boolean deleteTree(File tree) {
+        File[] files = tree.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.deleteOnExit();
+                if (file.isDirectory()) {
+                    deleteTree(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        tree.deleteOnExit();
+        return tree.delete();
+    }
+
+    private static void deleteTempDirectoriesFromPreviousComputations() {
+        final File[] files = TestUtil.getTestDir().getParentFile().listFiles();
+        for (File file : files) {
+            if (file.getName().startsWith(fiduceoTestDirPefix)) {
+                deleteTree(file.getAbsoluteFile());
+            }
+        }
+    }
+
+    private void deleteTempDirectories() {
+        deleteTree(tempDirectory.toFile());
     }
 
     private void writeSystemConfig(Path configDirPath) throws IOException {
