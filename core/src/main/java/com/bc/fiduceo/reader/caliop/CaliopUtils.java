@@ -31,9 +31,9 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class CaliopUtils {
+public class CaliopUtils {
 
-    int[] extractYearMonthDayFromFilename(String fileName) {
+    public int[] extractYearMonthDayFromFilename(String fileName) {
         final Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
         final Matcher matcher = compile.matcher(fileName);
         //noinspection ResultOfMethodCallIgnored
@@ -46,7 +46,7 @@ class CaliopUtils {
         return ymd;
     }
 
-    Number getFillValue(Variable ncVariable) {
+    public Number getFillValue(Variable ncVariable) {
         final Attribute fillvalueAttr = ncVariable.findAttribute("fillvalue");
         if (fillvalueAttr == null) {
             final DataType dataType = ncVariable.getDataType();
@@ -58,7 +58,7 @@ class CaliopUtils {
         }
     }
 
-    Date getDate(Array charArray) throws ParseException {
+    public Date getDate(Array charArray) throws ParseException {
         final String pattern = "yyyy-MM-dd'T'HH:mm:ss";
         final String str = charArray.toString().trim();
         final String analysableUtcStr = stripTrailingZ(str);
