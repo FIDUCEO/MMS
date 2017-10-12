@@ -74,20 +74,20 @@ class SphericalDistance extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), Constants.MATCHUP_COUNT);
+        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), Constants.DIMENSION_NAME_MATCHUP_COUNT);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final int count = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
+        final int count = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
 
-        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, Constants.MATCHUP_COUNT);
-        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, Constants.MATCHUP_COUNT);
-        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, Constants.MATCHUP_COUNT);
-        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, Constants.MATCHUP_COUNT);
+        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
 
         Array target = Array.factory(DataType.getType(targetDataType), new int[]{count});
         for (int i = 0; i < count; i++) {

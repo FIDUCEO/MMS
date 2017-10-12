@@ -73,8 +73,8 @@ class SstInsituTimeSeries extends PostProcessing {
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader);
         fileNameVariable = getFileNameVariable(reader, sensorType, "_");
-        filenameFieldSize = NetCDFUtils.getDimensionLength("file_name", reader);
-        matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
+        filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
+        matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
         final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
         addInsituVariables(writer, insituReader);
@@ -182,7 +182,7 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
-        final String dimString = Constants.MATCHUP_COUNT + " " + INSITU_NTIME;
+        final String dimString = Constants.DIMENSION_NAME_MATCHUP_COUNT + " " + INSITU_NTIME;
         writer.addDimension(null, INSITU_NTIME, timeSeriesSize);
         final List<Variable> variables = insituReader.getVariables();
         addVariables(variables, dimString, writer);

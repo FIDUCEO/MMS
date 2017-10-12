@@ -125,7 +125,7 @@ public class SstInsituTimeSeries_IO_Test {
 
         // verification
         final String insituNtime = SstInsituTimeSeries.INSITU_NTIME;
-        final String matchup = Constants.MATCHUP_COUNT;
+        final String matchup = Constants.DIMENSION_NAME_MATCHUP_COUNT;
         final String dimString = matchup + " " + insituNtime;
 
         final InOrder inOrder = inOrder(writer, newVariable);

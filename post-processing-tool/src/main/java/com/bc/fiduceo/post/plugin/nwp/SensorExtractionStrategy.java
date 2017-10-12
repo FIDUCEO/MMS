@@ -146,7 +146,7 @@ class SensorExtractionStrategy extends Strategy {
         final int strideX = calculateStride(shape[2], sensorExtractConfiguration.getX_Dimension());
         final int strideY = calculateStride(shape[1], sensorExtractConfiguration.getY_Dimension());
 
-        final int matchupCount = NetCDFUtils.getDimensionLength(com.bc.fiduceo.post.Constants.MATCHUP_COUNT, reader);
+        final int matchupCount = NetCDFUtils.getDimensionLength(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
 
         final GeoFile geoFile = new GeoFile(matchupCount);
 

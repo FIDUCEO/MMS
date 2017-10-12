@@ -101,7 +101,7 @@ public class SstInsituTimeSeriesTest {
 
         insituTimeSeries.addInsituVariables(writer, insituReader);
 
-        final String dimString = Constants.MATCHUP_COUNT + " " + INSITU_NTIME;
+        final String dimString = Constants.DIMENSION_NAME_MATCHUP_COUNT + " " + INSITU_NTIME;
 
         verify(writer, times(1)).addDimension(null, "insitu.ntime", 34);
         verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);

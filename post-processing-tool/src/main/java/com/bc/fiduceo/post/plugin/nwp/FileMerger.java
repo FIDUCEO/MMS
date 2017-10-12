@@ -71,7 +71,7 @@ class FileMerger {
         final int anFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(analysisSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
@@ -132,7 +132,7 @@ class FileMerger {
         final int fcFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(forecastSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
@@ -160,7 +160,7 @@ class FileMerger {
      */
     void mergeSensorExtractAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
 
         final int x_dim = NetCDFUtils.getDimensionLength("x", analysisFile);
         final int y_dim = NetCDFUtils.getDimensionLength("y", analysisFile) / matchupCount;

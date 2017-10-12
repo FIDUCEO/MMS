@@ -78,9 +78,9 @@ public class TimeSeriesStrategyTest {
     @Test
     public void testPrepare() throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Dimension matchupCountDimension = new Dimension(com.bc.fiduceo.post.Constants.MATCHUP_COUNT, 7);
+        final Dimension matchupCountDimension = new Dimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT, 7);
 
-        when(netcdfFile.findDimension(com.bc.fiduceo.post.Constants.MATCHUP_COUNT)).thenReturn(matchupCountDimension);
+        when(netcdfFile.findDimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT)).thenReturn(matchupCountDimension);
 
         final Variable variable = mock(Variable.class);
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
@@ -104,8 +104,8 @@ public class TimeSeriesStrategyTest {
         verify(writer, times(1)).addDimension(null, "matchup.nwp.an.time", 13);
         verify(writer, times(1)).addDimension(null, "matchup.nwp.fc.time", 14);
 
-        verify(writer, times(1)).addVariable(null, "matchup.nwp.an.t0", DataType.INT, com.bc.fiduceo.post.Constants.MATCHUP_COUNT);
-        verify(writer, times(1)).addVariable(null, "matchup.nwp.fc.t0", DataType.INT, com.bc.fiduceo.post.Constants.MATCHUP_COUNT);
+        verify(writer, times(1)).addVariable(null, "matchup.nwp.an.t0", DataType.INT, com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        verify(writer, times(1)).addVariable(null, "matchup.nwp.fc.t0", DataType.INT, com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT);
 
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");

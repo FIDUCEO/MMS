@@ -292,8 +292,8 @@ class HirsL1CloudyFlags extends PostProcessing {
         data6_5 = var6_5um.read();
         flags = varFlags.read();
 
-        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, Constants.MATCHUP_COUNT);
-        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, Constants.MATCHUP_COUNT);
+        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, Constants.DIMENSION_NAME_MATCHUP_COUNT);
     }
 
     static class MaximumAndFlags {

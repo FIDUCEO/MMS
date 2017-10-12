@@ -51,8 +51,8 @@ class TimeSeriesStrategy extends Strategy {
             writer.addDimension(null, "matchup.nwp.fc.time", timeSeriesConfiguration.getForecastSteps());
         }
 
-        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, Constants.MATCHUP_COUNT);
-        writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.MATCHUP_COUNT);
+        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT);
 
         final TemplateVariables templateVariables = context.getTemplateVariables();
         final List<TemplateVariable> allVariables = templateVariables.getAllTimeSeriesVariables();
@@ -120,7 +120,7 @@ class TimeSeriesStrategy extends Strategy {
         final Variable latVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLatitudeVariableName());
         final Array latitudes = latVariable.read();
 
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.MATCHUP_COUNT, reader);
+        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
 
         final GeoFile geoFile = new GeoFile(matchupCount);
         try {

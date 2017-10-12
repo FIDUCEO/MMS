@@ -50,9 +50,9 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Dimension matchupCountDimension = reader.findDimension(Constants.MATCHUP_COUNT);
+        final Dimension matchupCountDimension = reader.findDimension(Constants.DIMENSION_NAME_MATCHUP_COUNT);
         if (matchupCountDimension == null) {
-            throw new RuntimeException("Expected dimension not present in file: " + Constants.MATCHUP_COUNT);
+            throw new RuntimeException("Expected dimension not present in file: " + Constants.DIMENSION_NAME_MATCHUP_COUNT);
         }
 
         final Context context = createContext(reader, writer);
