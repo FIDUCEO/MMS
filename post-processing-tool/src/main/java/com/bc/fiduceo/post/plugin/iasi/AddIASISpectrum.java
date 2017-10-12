@@ -20,9 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.iasi;
 
-import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.util.JDomUtils;
@@ -42,12 +40,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 class AddIASISpectrum extends PostProcessing {
 
     private final Configuration configuration;
-    private ReaderCache readerCache;
 
     AddIASISpectrum(Configuration configuration) {
         this.configuration = configuration;
@@ -56,17 +52,6 @@ class AddIASISpectrum extends PostProcessing {
     @Override
     protected void initReaderCache() {
         readerCache = createReaderCache(getContext());
-    }
-
-    @Override
-    protected void dispose() {
-        if (readerCache != null) {
-            try {
-                readerCache.close();
-            } catch (IOException e) {
-                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
-            }
-        }
     }
 
     @Override

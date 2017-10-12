@@ -182,24 +182,27 @@ class PostProcessingTool {
             processings.add(postProcessing);
         }
 
-        final SourceTargetManager manager = new SourceTargetManager(processingConfig);
-        for (Path mmdFile : mmdFiles) {
-            Exception ex = null;
-            try {
-                computeFile(mmdFile, manager, processings);
-            } catch (Exception e) {
-                ex = e;
-                logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
-                logger.severe("Cause: " + e.getMessage());
-                e.printStackTrace();
-            } finally {
-                disposePostProcessings(processings);
-                manager.processingDone(mmdFile, ex);
-            }
+        try {
+            final SourceTargetManager manager = new SourceTargetManager(processingConfig);
+            for (Path mmdFile : mmdFiles) {
+                Exception ex = null;
+                try {
+                    computeFile(mmdFile, manager, processings);
+                } catch (Exception e) {
+                    ex = e;
+                    logger.severe("Unable to execute post processing for matchup '" + mmdFile.getFileName().toString() + "'");
+                    logger.severe("Cause: " + e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    manager.processingDone(mmdFile, ex);
+                }
 
-            if (ex != null) {
-                throw ex;  // do not hide exceptions, we need this one to propagate to the main-method tb 2017-04-24
+                if (ex != null) {
+                    throw ex;  // do not hide exceptions, we need this one to propagate to the main-method tb 2017-04-24
+                }
             }
+        } finally {
+            disposePostProcessings(processings);
         }
     }
 

@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.post.plugin.caliop.flag;
 
-import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_Reader;
@@ -36,7 +35,6 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
 
 public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
 
@@ -52,7 +50,6 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
     final String srcVariableName_y;
     final String sensorType;
 
-    ReaderCache readerCache;
     Variable fileNameVariable;
     int filenameFieldSize;
     Variable processingVersionVariable;
@@ -130,18 +127,19 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
         readerCache = createReaderCache(getContext());
     }
 
-    @Override
-    protected void dispose() {
-        if (readerCache != null) {
-            try {
-                readerCache.close();
-            } catch (IOException e) {
-                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
-            }
-        }
-    }
-
     private String toValidName(String vName) {
         return NetcdfFile.makeValidCDLName(vName);
+    }
+
+    void forTestsOnly_setReaderCache(ReaderCache rc) {
+        this.readerCache = rc;
+    }
+
+    ReaderCache forTestsOnly_getReaderCache() {
+        return this.readerCache;
+    }
+
+    void forTestsOnly_dispose() {
+        this.dispose();
     }
 }

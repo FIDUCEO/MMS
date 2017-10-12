@@ -23,6 +23,8 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class CALIOP_SST_WP100_CLay_ReaderPlugin implements ReaderPlugin {
 
+    public final static String SENSOR_NAME = "caliop_clay-cal";
+
     @Override
     public Reader createReader(GeometryFactory geometryFactory) {
         return new CALIOP_SST_WP100_CLay_Reader(geometryFactory, new CaliopUtils());
@@ -30,7 +32,7 @@ public class CALIOP_SST_WP100_CLay_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public String[] getSupportedSensorKeys() {
-        return new String[]{"caliop_clay-cal"};
+        return new String[]{SENSOR_NAME};
     }
 
     @Override

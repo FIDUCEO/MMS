@@ -22,6 +22,7 @@ import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -33,11 +34,12 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public abstract class PostProcessing {
 
     private PostProcessingContext context;
-    private ReaderCache readerCache;
+    protected ReaderCache readerCache;
 
     public PostProcessingContext getContext() {
         return context;
@@ -98,7 +100,14 @@ public abstract class PostProcessing {
      * Is called by the engine when the post-processing job is done to allow cleanup actions.
      */
     protected void dispose() {
-        // the default implementation does nothing. Plugins may override to implement their clean-up chores. tb 2017-07-17
+        // Plugins may override to implement their additional clean-up chores. tb 2017-07-17
+        if (readerCache != null) {
+            try {
+                readerCache.close();
+            } catch (IOException e) {
+                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
+            }
+        }
     }
 
     public static ReaderCache createReaderCache(PostProcessingContext context) {

@@ -38,6 +38,7 @@ class AddLandDistance extends PostProcessing {
 
     @Override
     protected void dispose() {
+        super.dispose();
         if (distanceToLandMap != null) {
             distanceToLandMap.close();
             distanceToLandMap = null;

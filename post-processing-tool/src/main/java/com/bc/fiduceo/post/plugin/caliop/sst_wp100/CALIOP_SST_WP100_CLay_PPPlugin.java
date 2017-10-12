@@ -32,6 +32,7 @@ public class CALIOP_SST_WP100_CLay_PPPlugin implements PostProcessingPlugin {
     static final String TAG_MMD_SOURCE_FILE_VARIABE_NAME = "mmd-source-file-variable-name";
     static final String TAG_MMD_PROCESSING_VERSION = "processing-version";
     static final String TAG_MMD_Y_VARIABE_NAME = "mmd-y-variable-name";
+    static final String TAG_TARGET_VARIABE_PREFIX = "target-variable-prefix";
 
 
     @Override
@@ -43,8 +44,9 @@ public class CALIOP_SST_WP100_CLay_PPPlugin implements PostProcessingPlugin {
         final String srcVariableName_fileName = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         final String processingVersion = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_PROCESSING_VERSION);
         final String y_variableName = getMandatoryChildMandatoryTextTrim(element, TAG_MMD_Y_VARIABE_NAME);
+        final String variablePrefix = getMandatoryChildMandatoryTextTrim(element, TAG_TARGET_VARIABE_PREFIX);
 
-        return new CALIOP_SST_WP100_CLay_PP(srcVariableName_fileName, y_variableName, processingVersion);
+        return new CALIOP_SST_WP100_CLay_PP(srcVariableName_fileName, y_variableName, processingVersion, variablePrefix);
     }
 
     @Override

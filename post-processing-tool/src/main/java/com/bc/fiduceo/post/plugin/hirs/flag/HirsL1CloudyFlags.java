@@ -20,13 +20,13 @@
 
 package com.bc.fiduceo.post.plugin.hirs.flag;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderCache;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayChar;
@@ -42,14 +42,6 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.logging.Level;
-
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MASKS_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FLAG_MEANINGS_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
-import static com.bc.fiduceo.util.NetCDFUtils.getFloatValueFromAttribute;
-import static com.bc.fiduceo.util.NetCDFUtils.getVariable;
 
 class HirsL1CloudyFlags extends PostProcessing {
 
@@ -91,7 +83,6 @@ class HirsL1CloudyFlags extends PostProcessing {
     private int[] shape;
     private int[] xValues;
     private int[] yValues;
-    private ReaderCache readerCache;
 
     HirsL1CloudyFlags(String sensorName, String sourceFileVarName,
                       String sourceXVarName, String sourceYVarName,
@@ -167,21 +158,15 @@ class HirsL1CloudyFlags extends PostProcessing {
 
     @Override
     protected void initReaderCache() {
-        this.readerCache = createReaderCache(getContext());
+        readerCache = createReaderCache(getContext());
     }
 
     @Override
     protected void dispose() {
+        super.dispose();
         if (distanceToLandMap != null) {
             distanceToLandMap.close();
             distanceToLandMap = null;
-        }
-        if (readerCache != null) {
-            try {
-                readerCache.close();
-            } catch (IOException e) {
-                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
-            }
         }
     }
 

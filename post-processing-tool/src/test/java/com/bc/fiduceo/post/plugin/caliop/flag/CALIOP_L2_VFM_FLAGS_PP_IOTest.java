@@ -65,7 +65,7 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
     @After
     public void tearDown() throws Exception {
-        pp.dispose();
+        pp.forTestsOnly_dispose();
     }
 
     @Test
@@ -157,17 +157,17 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
     @Test
     public void testReaderCacheIsInitialized() throws Exception {
-        assertNotNull(pp.readerCache);
+        assertNotNull(pp.forTestsOnly_getReaderCache());
     }
 
     @Test
     public void testDisposeIsCallingReaderCacheClose() throws Exception {
         //preparation
         final ReaderCache readerCache = mock(ReaderCache.class);
-        pp.readerCache = readerCache;
+        pp.forTestsOnly_setReaderCache(readerCache);
 
         //execution
-        pp.dispose();
+        pp.forTestsOnly_dispose();
 
         //verification
         verify(readerCache, times(1)).close();

@@ -19,11 +19,13 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import com.bc.fiduceo.log.FiduceoLogger;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
+import static ucar.nc2.NetcdfFile.makeValidCDLName;
+
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
@@ -38,12 +40,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
 class SstInsituTimeSeries extends PostProcessing {
 
@@ -60,7 +56,6 @@ class SstInsituTimeSeries extends PostProcessing {
     private String sensorType;
     private Variable fileNameVariable;
     private int filenameFieldSize;
-    private ReaderCache readerCache;
 
     SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize, String matchupTimeVarName) {
         this.processingVersion = processingVersion;
@@ -129,17 +124,6 @@ class SstInsituTimeSeries extends PostProcessing {
     @Override
     protected void initReaderCache() {
         readerCache = createReaderCache(getContext());
-    }
-
-    @Override
-    protected void dispose() {
-        if (readerCache != null) {
-            try {
-                readerCache.close();
-            } catch (IOException e) {
-                FiduceoLogger.getLogger().log(Level.WARNING, "IO Exception while disposing the ReaderCache.", e);
-            }
-        }
     }
 
     static String extractSensorType(NetcdfFile reader) {

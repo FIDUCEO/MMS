@@ -42,6 +42,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
         assertEquals("mmd-source-file-variable-name", TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         assertEquals("processing-version", TAG_MMD_PROCESSING_VERSION);
         assertEquals("mmd-y-variable-name", TAG_MMD_Y_VARIABE_NAME);
+        assertEquals("target-variable-prefix", TAG_TARGET_VARIABE_PREFIX);
     }
 
     @Test
@@ -54,10 +55,11 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
         final PostProcessing pp = ppPlugin.createPostProcessing(createValidRootElement());
         assertNotNull(pp);
         assertEquals(CALIOP_SST_WP100_CLay_PP.class, pp.getClass());
-        final CALIOP_SST_WP100_CLay_PP cwp100pp = (CALIOP_SST_WP100_CLay_PP) pp;
-        assertEquals("caliop_vfm-cal_file_name", cwp100pp.variableName_caliopVFM_fileName);
-        assertEquals("caliop_vfm-cal_processing_version", cwp100pp.processingVersion);
-        assertEquals("caliop_vfm-cal_y", cwp100pp.variableName_caliopVFM_y);
+        final CALIOP_SST_WP100_CLay_PP cwp100_CLay_pp = (CALIOP_SST_WP100_CLay_PP) pp;
+        assertEquals("caliop_vfm-cal_file_name", cwp100_CLay_pp.variableName_caliopVFM_fileName);
+        assertEquals("4.10", cwp100_CLay_pp.processingVersion);
+        assertEquals("caliop_vfm-cal_y", cwp100_CLay_pp.variableName_caliopVFM_y);
+        assertEquals("caliop_clay.", cwp100_CLay_pp.variablePrefix);
     }
 
     @Test
@@ -151,11 +153,38 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
         }
     }
 
+    @Test
+    public void createPostProcessing_targetPrefix_missingElement() throws Exception {
+        final Element rootElement = createValidRootElement();
+        rootElement.removeChild(TAG_TARGET_VARIABE_PREFIX);
+        try {
+            ppPlugin.createPostProcessing(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals(RuntimeException.class.getTypeName(), expected.getClass().getTypeName());
+            assertEquals("Child element '" + TAG_TARGET_VARIABE_PREFIX + "' expected", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void createPostProcessing_targetPrefix_empty() throws Exception {
+        final Element rootElement = createValidRootElement();
+        rootElement.getChild(TAG_TARGET_VARIABE_PREFIX).setText("   ");
+        try {
+            ppPlugin.createPostProcessing(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertEquals(RuntimeException.class.getTypeName(), expected.getClass().getTypeName());
+            assertEquals("Value of element '" + TAG_TARGET_VARIABE_PREFIX + "' expected", expected.getMessage());
+        }
+    }
+
     private Element createValidRootElement() {
         final Element root = new Element(TAG_POST_PROCESSING_NAME);
         root.addContent(new Element(TAG_MMD_SOURCE_FILE_VARIABE_NAME).setText("caliop_vfm-cal_file_name"));
-        root.addContent(new Element(TAG_MMD_PROCESSING_VERSION).setText("caliop_vfm-cal_processing_version"));
+        root.addContent(new Element(TAG_MMD_PROCESSING_VERSION).setText("4.10"));
         root.addContent(new Element(TAG_MMD_Y_VARIABE_NAME).setText("caliop_vfm-cal_y"));
+        root.addContent(new Element(TAG_TARGET_VARIABE_PREFIX).setText("caliop_clay."));
         return root;
     }
 
