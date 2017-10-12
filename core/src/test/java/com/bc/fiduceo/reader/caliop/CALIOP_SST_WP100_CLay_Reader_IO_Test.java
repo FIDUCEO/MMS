@@ -89,10 +89,10 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         assertNotNull(acquisitionInfo);
 
         final Date sensingStart = acquisitionInfo.getSensingStart();
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 4, 28, 30, sensingStart);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 0, 50, sensingStart);
 
         final Date sensingStop = acquisitionInfo.getSensingStop();
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 5, 20, 52, sensingStop);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 47, 22, sensingStop);
 
         final NodeType nodeType = acquisitionInfo.getNodeType();
         assertEquals(NodeType.UNDEFINED, nodeType);
@@ -104,14 +104,14 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(125, coordinates.length);
 
-        assertEquals(158.772269, coordinates[0].getLon(), 1e-6);
-        assertEquals(158.772269, coordinates[124].getLon(), 1e-6);
+        assertEquals(-126.55035355587347, coordinates[0].getLon(), 1e-6);
+        assertEquals(-126.55035355587347, coordinates[124].getLon(), 1e-6);
 
-        assertEquals(-66.879679, coordinates[0].getLat(), 1e-6);
-        assertEquals(-66.879679, coordinates[124].getLat(), 1e-6);
+        assertEquals(56.50688283056632, coordinates[0].getLat(), 1e-6);
+        assertEquals(56.50688283056632, coordinates[124].getLat(), 1e-6);
 
-        assertEquals(-41.094352, coordinates[61].getLon(), 1e-5);
-        assertEquals(57.353959, coordinates[61].getLat(), 1e-5);
+        assertEquals(49.23701016344526, coordinates[61].getLon(), 1e-5);
+        assertEquals(-67.03246729901173, coordinates[61].getLat(), 1e-5);
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);
@@ -119,14 +119,14 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         final TimeAxis timeAxis = timeAxes[0];
         coordinates = timeAxis.getGeometry().getCoordinates();
         final Date time = timeAxes[0].getTime(coordinates[0]);
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 4, 28, 30, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 0, 50, time);
     }
 
     @Test
     public void getProductSize() throws Exception {
         final Dimension productSize = reader.getProductSize();
         assertEquals(1, productSize.getNx());
-        assertEquals(4208, productSize.getNy());
+        assertEquals(3744, productSize.getNy());
     }
 
     @Test
@@ -141,16 +141,16 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         final Dimension productSize = reader.getProductSize();
 
         long time = timeLocator.getTimeFor(0, 0);
-        assertEquals(1212035283809L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 4, 28, 3, new Date(time));
+        assertEquals(1212145223799L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 0, 23, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() / 2);
-        assertEquals(1212036849041L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 4, 54, 9, new Date(time));
+        assertEquals(1212146616474L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 23, 36, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() - 1);
-        assertEquals(1212038413552L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 29, 5, 20, 13, new Date(time));
+        assertEquals(1212148008367L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 46, 48, new Date(time));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
 
         Array profile_id = reader.readRaw(0, 5, new Interval(1, 5), "Profile_ID");
         int[] actuals = (int[]) profile_id.get1DJavaArray(Integer.TYPE);
-        int[] expecteds = {107055 + 7, 107070 + 7, 107085 + 7, 107100 + 7, 107115 + 7};
+        int[] expecteds = {37200 + 7, 37215 + 7, 37230 + 7, 37245 + 7, 37260 + 7};
         assertArrayEquals(expecteds, actuals);
     }
 
@@ -253,8 +253,8 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         assertThat(pixelLocator, is(instanceOf(PixelLocatorX1Yn.class)));
 
         final Point2D geoLocation = pixelLocator.getGeoLocation(0, 18, null);
-        assertThat(geoLocation.getX(), is(closeTo(157.919036, 1e-6)));
-        assertThat(geoLocation.getY(), is(closeTo(-66.113822, 1e-6)));
+        assertThat(geoLocation.getX(), is(closeTo(-126.950264, 1e-6)));
+        assertThat(geoLocation.getY(), is(closeTo(55.694767, 1e-6)));
 
         final Point2D[] pixelLocation = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
         assertThat(pixelLocation, is(notNullValue()));
@@ -324,7 +324,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_ID");
         assertThat(a1.getDataType(), is(equalTo(DataType.INT)));
         expected = new int[]{
-                107587, 107602, 107617, 107632, 107647
+                37732, 37747, 37762, 37777, 37792
         };
         assertThat(a1.get1DJavaArray(int.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -334,7 +334,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Latitude");
         assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
         expected = new float[]{
-                -65.272064F, -65.22999F, -65.18795F, -65.14603F, -65.10381F
+                54.82056F, 54.776577F, 54.732635F, 54.68885F, 54.64514F
         };
         assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -344,7 +344,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Longitude");
         assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
         expected = new float[]{
-                157.10263F, 157.06293F, 157.02338F, 156.9844F, 156.9454F
+                -127.40832F, -127.43086F, -127.453285F, -127.475716F, -127.49809F
         };
         assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -354,7 +354,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_Time");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                4.861889450782E8, 4.8618894582220006E8, 4.861889465662E8, 4.861889473102E8, 4.8618894805420005E8
+                4.8629888506920004E8, 4.862988858132E8, 4.8629888655719995E8, 4.8629888730120003E8, 4.8629888804420006E8
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -364,7 +364,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_UTC_Time");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                80529.18679488657, 80529.18680349768, 80529.18681210879, 80529.1868207199, 80529.18682933103
+                80530.4592484861, 80530.45925709722, 80530.45926570833, 80530.45927431945, 80530.45928291898
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -374,7 +374,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Day_Night_Flag");
         assertThat(a1.getDataType(), is(equalTo(DataType.BYTE)));
         expected = new short[]{
-                0, 0, 0, 0, 0
+                1, 1, 1, 1, 1
         };
         assertThat(a1.get1DJavaArray(short.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -384,7 +384,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_x");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                -2717.5980916358153, -2721.188001157519, -2724.7758326051103, -2728.361583807504, -2731.9452526266537
+                -2458.3919067555635, -2462.359185976937, -2466.3252194802126, -2470.2900046437567, -2474.248212170256
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -394,7 +394,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_y");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                1132.1603809497437, 1135.9114650985234, 1139.662241136329, 1143.412706530299, 1147.1628587629582
+                -3231.1852607264345, -3233.7341416710115, -3236.2805931692683, -3238.824613848884, -3241.362787738696
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -404,7 +404,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_z");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                -6448.450232948256, -6446.275181017335, -6444.096140882298, -6441.913113910224, -6439.726101528853
+                5793.67685540881, 5790.576515539656, 5787.472569623185, 5784.365019547965, 5781.2580514207675
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -456,25 +456,26 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
 
         // ---------------------------------------------------------
         // Number_Layers_Found
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Number_Layers_Found").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Number_Layers_Found").copy();
         expected = Array.factory(DataType.BYTE, new int[]{5}, new byte[]{
-                5, 5, 3, 2, 3
+                4, 5, 3, 1, 3
         });
         compare(expected, actual);
         assertArrayEquals((byte[]) expected.getStorage(), (byte[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // Column_Feature_Fraction
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Column_Feature_Fraction").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Column_Feature_Fraction").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5}, new float[]{
-                0.15573786f, 0.15674262f, 0.17583312f, 0.17784262f, 0.17482835f
+                0.10399269F, 0.102987945F, 0.09243798F, 0.096457034F, 0.099471316F
+
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // FeatureFinderQC
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "FeatureFinderQC").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "FeatureFinderQC").copy();
         expected = Array.factory(DataType.SHORT, new int[]{5}, new short[]{
                 0, 0, 0, 0, 0
         });
@@ -483,216 +484,217 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
 
         // ---------------------------------------------------------
         // Feature_Classification_Flags
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Feature_Classification_Flags").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Feature_Classification_Flags").copy();
         expected = Array.factory(DataType.SHORT, new int[]{5, 10}, toShorts(new int[]{
-                36282, 28090, 35258, 43450, 35258, 1, 1, 1, 1, 1,
-                36282, 28090, 35258, 27066, 26066, 1, 1, 1, 1, 1,
-                36282, 28090, 26074, 1, 1, 1, 1, 1, 1, 1,
-                36282, 28090, 1, 1, 1, 1, 1, 1, 1, 1,
-                28090, 35258, 27066, 1, 1, 1, 1, 1, 1, 1
+                36266, 27098, 34818, 25626, 1, 1, 1, 1, 1, 1,
+                36266, 28090, 27098, 34818, 25626, 1, 1, 1, 1, 1,
+                27098, 34818, 25602, 1, 1, 1, 1, 1, 1, 1,
+                27098, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                27098, 34818, 26066, 1, 1, 1, 1, 1, 1, 1
         }));
         compare(expected, actual);
         assertArrayEquals((short[]) expected.getStorage(), (short[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // ExtinctionQC_532
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "ExtinctionQC_532").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "ExtinctionQC_532").copy();
         expected = Array.factory(DataType.SHORT, new int[]{5, 10}, toShorts(new int[]{
-                0, 0, 0, 0, 0, 32768, 32768, 32768, 32768, 32768,
-                0, 0, 0, 0, 0, 32768, 32768, 32768, 32768, 32768,
-                0, 0, 0, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
-                0, 0, 32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
-                0, 0, 0, 32768, 32768, 32768, 32768, 32768, 32768, 32768
-
+                0, 2, 0, 18, 32768, 32768, 32768, 32768, 32768, 32768,
+                0, 0, 0, 0, 18, 32768, 32768, 32768, 32768, 32768,
+                0, 0, 18, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
+                0, 32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
+                0, 0, 82, 32768, 32768, 32768, 32768, 32768, 32768, 32768
         }));
         compare(expected, actual);
         assertArrayEquals((short[]) expected.getStorage(), (short[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // CAD_Score
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "CAD_Score").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "CAD_Score").copy();
         expected = Array.factory(DataType.BYTE, new int[]{5, 10}, new byte[]{
-                99, 99, 98, 98, 98, -127, -127, -127, -127, -127,
-                99, 99, 98, 97, 53, -127, -127, -127, -127, -127,
-                99, 99, 99, -127, -127, -127, -127, -127, -127, -127,
-                99, 99, -127, -127, -127, -127, -127, -127, -127, -127,
-                99, 99, 98, -127, -127, -127, -127, -127, -127, -127
+                21, 99, 2, 5, -127, -127, -127, -127, -127, -127,
+                21, 99, 100, 2, 3, -127, -127, -127, -127, -127,
+                100, 0, 3, -127, -127, -127, -127, -127, -127, -127,
+                99, -127, -127, -127, -127, -127, -127, -127, -127, -127,
+                93, 0, 62, -127, -127, -127, -127, -127, -127, -127
+
         });
         compare(expected, actual);
         assertArrayEquals((byte[]) expected.getStorage(), (byte[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // Layer_IAB_QA_Factor
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Layer_IAB_QA_Factor").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Layer_IAB_QA_Factor").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                0.995821f, 0.99089766f, 0.6696708f, 0.6261782f, 0.6061473f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.995821f, 0.9893216f, 0.6696708f, 0.6049977f, 0.5541164f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.995821f, 0.98823327f, 0.54189193f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.995821f, 0.995319f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.9956598f, 0.6136023f, 0.61971337f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                0.9954777F, 0.9826256F, 0.3578414F, 0.25575027F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.9954777F, 0.99504F, 0.9587685F, 0.3578414F, 0.36825225F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.9775629F, 0.5977695F, 0.363961F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.98636895F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.98466104F, 0.5977695F, 0.6317817F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Opacity_Flag
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Opacity_Flag").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Opacity_Flag").copy();
         expected = Array.factory(DataType.BYTE, new int[]{5, 10}, new byte[]{
-                0, 0, 0, 0, 0, 99, 99, 99, 99, 99,
-                0, 0, 0, 0, 0, 99, 99, 99, 99, 99,
-                0, 0, 0, 99, 99, 99, 99, 99, 99, 99,
-                0, 0, 99, 99, 99, 99, 99, 99, 99, 99,
-                0, 0, 0, 99, 99, 99, 99, 99, 99, 99
+                0, 0, 0, 1, 99, 99, 99, 99, 99, 99,
+                0, 0, 0, 0, 1, 99, 99, 99, 99, 99,
+                0, 0, 1, 99, 99, 99, 99, 99, 99, 99,
+                0, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+                0, 0, 1, 99, 99, 99, 99, 99, 99, 99
+
         });
         compare(expected, actual);
         assertArrayEquals((byte[]) expected.getStorage(), (byte[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // Ice_Water_Path
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Ice_Water_Path").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Ice_Water_Path").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                2.8114026f, 65.97041f, 8.561217f, 7.5695524f, 25.962954f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                2.8114026f, 57.745724f, 8.561217f, 44.144547f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                2.8114026f, 118.50471f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                2.8114026f, 121.064964f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                48.9806f, 31.439783f, 44.92013f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                1.5912719f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                1.5912719f, 6.8650675f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Ice_Water_Path_Uncertainty
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Ice_Water_Path_Uncertainty").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Ice_Water_Path_Uncertainty").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                0.27301234f, 4.4200163f, 1.6050873f, 1.5351523f, 4.3847594f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.27301234f, 3.5729249f, 1.6050873f, 5.090071f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.27301234f, 7.1709604f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.27301234f, 7.3925066f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                2.768608f, 2.612421f, 4.7174597f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                0.22120453F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.22120453F, 0.73038733F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Feature_Optical_Depth_532
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Feature_Optical_Depth_532").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Feature_Optical_Depth_532").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                0.065577f, 1.3179158f, 0.15606333f, 0.123959616f, 0.40751576f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.065577f, 1.1333562f, 0.15606333f, 0.709296f, 0.48402625f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.065577f, 1.9696243f, 0.5130597f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.065577f, 2.0486019f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.9650542f, 0.49028724f, 0.6899106f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                0.030404849F, 3.8703005F, 0.34442773F, 4.399083F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.030404849F, 0.1299083F, 2.5036433F, 0.34442773F, 4.181742F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                1.704152F, 0.009845099F, 4.1139874F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.49172032F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.29203787F, 0.009845099F, 16.28734F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Feature_Optical_Depth_Uncertainty_532
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Feature_Optical_Depth_Uncertainty_532").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Feature_Optical_Depth_Uncertainty_532").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                0.017420875f, 0.33772564f, 0.04859861f, 0.03992325f, 0.12237338f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.017420875f, 0.2896439f, 0.04859861f, 0.19464017f, 0.13815889f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.017420875f, 0.5042736f, 0.14395729f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.017420875f, 0.52427757f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                0.24632958f, 0.12870522f, 0.18619548f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                0.008633511F, 0.674406F, 0.12225014F, 4.768365F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.008633511F, 0.034799386F, 0.40647134F, 0.12225014F, 10.782989F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.2678689F, 0.006549329F, 1.0313892F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.07666045F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                0.046314657F, 0.006549329F, -29.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Layer_Top_Altitude
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Layer_Top_Altitude").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Layer_Top_Altitude").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                7.5373006f, 6.72897f, 5.3218765f, 4.0644736f, 3.6453395f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                7.5373006f, 6.2499595f, 5.3218765f, 4.3937936f, 1.3700393f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                7.5373006f, 6.339774f, 1.3700393f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                7.5373006f, 7.477424f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                7.4175477f, 4.1542883f, 3.5854633f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                8.3605995F, 4.9626184F, 4.244103F, 1.4299157F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                8.3605995F, 7.9564347F, 4.842866F, 4.244103F, 1.4299157F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                4.842866F, 3.9746592F, 1.4299157F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                4.7829895F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                4.872804F, 3.9746592F, 1.4598538F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Layer_Base_Altitude
-        actual = reader.readRaw(5, 10, new Interval(10, 5), "Layer_Base_Altitude").copy();
+        actual = reader.readRaw(5, 244, new Interval(10, 5), "Layer_Base_Altitude").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5, 10}, new float[]{
-                6.72897f, 5.3518147f, 4.6033607f, 3.4956486f, 2.6873183f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                6.72897f, 5.022495f, 4.6033607f, 2.6274421f, 1.2502867f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                6.72897f, 2.2083077f, 1.1604722f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                6.72897f, 2.2681842f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
-                4.1842265f, 2.3579986f, 2.238246f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f
+                7.267857F, 4.1542883F, 3.6752777F, 1.0107814F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                7.267857F, 7.2977953F, 4.094412F, 3.6752777F, 0.92096686F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                3.914783F, 3.735154F, 0.8012142F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                3.705216F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F,
+                3.8249686F, 3.735154F, 0.6515234F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F, -9999.0F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Profile_ID
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Profile_ID").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Profile_ID").copy();
         expected = Array.factory(DataType.INT, new int[]{5}, new int[]{
-                107137, 107152, 107167, 107182, 107197
+                40792, 40807, 40822, 40837, 40852
         });
         compare(expected, actual);
         assertArrayEquals((int[]) expected.getStorage(), (int[]) actual.getStorage());
 
         // ---------------------------------------------------------
         // Latitude
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Latitude").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Latitude").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5}, new float[]{
-                -66.5331f, -66.49134f, -66.44939f, -66.40748f, -66.365486f
+                45.843784F, 45.799698F, 45.755344F, 45.711246F, 45.666977F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Longitude
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Longitude").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Longitude").copy();
         expected = Array.factory(DataType.FLOAT, new int[]{5}, new float[]{
-                158.3462f, 158.30307f, 158.25969f, 158.21677f, 158.17372f
+                -131.29697F, -131.31317F, -131.32945F, -131.3457F, -131.36206F
         });
         compare(expected, actual);
         assertArrayEquals((float[]) expected.getStorage(), (float[]) actual.getStorage(), 1e-6f);
 
         // ---------------------------------------------------------
         // Profile_Time
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Profile_Time").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Profile_Time").copy();
         expected = Array.factory(DataType.DOUBLE, new int[]{5}, new double[]{
-                4.861889227602E8, 4.861889235042E8, 4.8618892424820006E8, 4.861889249922E8, 4.861889257362E8
+                4.862990368342E8, 4.862990375782E8, 4.8629903832220006E8, 4.862990390662E8, 4.862990398102E8
         });
         compare(expected, actual);
         assertArrayEquals((double[]) expected.getStorage(), (double[]) actual.getStorage(), 1e-12);
 
         // ---------------------------------------------------------
         // Profile_UTC_Time
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Profile_UTC_Time").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Profile_UTC_Time").copy();
         expected = Array.factory(DataType.DOUBLE, new int[]{5}, new double[]{
-                80529.1865365764, 80529.1865451875, 80529.18655379862, 80529.18656240973, 80529.18657102084
+                80530.46100502546, 80530.46101363658, 80530.46102224769, 80530.4610308588, 80530.46103946991
         });
         compare(expected, actual);
         assertArrayEquals((double[]) expected.getStorage(), (double[]) actual.getStorage(), 1e-12);
 
         // ---------------------------------------------------------
         // Spacecraft_Position_x
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Spacecraft_Position_x").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Spacecraft_Position_x").copy();
         expected = Array.factory(DataType.DOUBLE, new int[]{5}, new double[]{
-                -2608.955331565842, -2612.606545011657, -2616.2557470659044, -2619.9029355172183, -2623.548108174199
+                -3238.1232287620387, -3241.7810586296328, -3245.4371029142653, -3249.0913590425157, -3252.7438244406785
         });
         compare(expected, actual);
         assertArrayEquals((double[]) expected.getStorage(), (double[]) actual.getStorage(), 1e-12);
 
         // ---------------------------------------------------------
         // Spacecraft_Position_y
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Spacecraft_Position_y").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Spacecraft_Position_y").copy();
         expected = Array.factory(DataType.DOUBLE, new int[]{5}, new double[]{
-                1019.507306015573, 1023.2664508586447, 1027.0253637421645, 1030.7840421544531, 1034.542483603354
+                -3698.935030599059, -3700.9609798573824, -3702.9842430029626, -3705.0048189428885, -3707.02270658471
         });
         compare(expected, actual);
         assertArrayEquals((double[]) expected.getStorage(), (double[]) actual.getStorage(), 1e-12);
 
         // ---------------------------------------------------------
         // Spacecraft_Position_z
-        actual = reader.readRaw(0, 10, new Interval(1, 5), "Spacecraft_Position_z").copy();
+        actual = reader.readRaw(0, 244, new Interval(1, 5), "Spacecraft_Position_z").copy();
         expected = Array.factory(DataType.DOUBLE, new int[]{5}, new double[]{
-                -6511.835638911349, -6509.780795522994, -6507.721926987995, -6505.659034526308, -6503.592119346765
+                5089.42880100277, 5085.635729484134, 5081.839488903023, 5078.040081538584, 5074.237509669909
         });
         compare(expected, actual);
         assertArrayEquals((double[]) expected.getStorage(), (double[]) actual.getStorage(), 1e-12);
@@ -713,7 +715,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
     }
 
     private File getCaliopFile() {
-        final Path relPath = Paths.get("caliop_clay-cal", "4.10", "2008", "05", "29", "CAL_LID_L2_05kmCLay-Standard-V4-10.2008-05-29T04-28-32ZD.hdf");
+        final Path relPath = Paths.get("caliop_clay-cal", "4.10", "2008", "05", "30", "CAL_LID_L2_05kmCLay-Standard-V4-10.2008-05-30T11-00-51ZN.hdf");
         final Path testFilePath = testDataDirectory.resolve(relPath);
         assertThat(Files.exists(testFilePath), is(true));
         return testFilePath.toFile();
@@ -722,34 +724,34 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
     private Expectation[] getVariables_Expectations() {
         return new Expectation[]{
                 /* idx: 0 */
-                new Expectation("Number_Layers_Found", DataType.BYTE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Number_Layers_Found", DataType.BYTE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Int_8"),
                         new Attribute("valid_range", "0...10"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -127))),
                 /* idx: 1 */
-                new Expectation("Column_Feature_Fraction", DataType.FLOAT, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Column_Feature_Fraction", DataType.FLOAT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...1.0"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 2 */
-                new Expectation("FeatureFinderQC", DataType.SHORT, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("FeatureFinderQC", DataType.SHORT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("_Unsigned", "true"),
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "0...32767"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (short) -1))),
                 /* idx: 3 */
-                new Expectation("Feature_Classification_Flags", DataType.SHORT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Feature_Classification_Flags", DataType.SHORT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("_Unsigned", "true"),
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "1...49146"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (short) -1))),
                 /* idx: 4 */
-                new Expectation("ExtinctionQC_532", DataType.SHORT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("ExtinctionQC_532", DataType.SHORT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("_Unsigned", "true"),
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
@@ -757,112 +759,112 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
                         new Attribute("fillvalue", (short) -32768),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (short) -32768))),
                 /* idx: 5 */
-                new Expectation("CAD_Score", DataType.BYTE, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("CAD_Score", DataType.BYTE, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Int_8"),
                         new Attribute("valid_range", "-101...106"),
                         new Attribute("fillvalue", (byte) -127),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -127))),
                 /* idx: 6 */
-                new Expectation("Layer_IAB_QA_Factor", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Layer_IAB_QA_Factor", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...1.0"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 7 */
-                new Expectation("Opacity_Flag", DataType.BYTE, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Opacity_Flag", DataType.BYTE, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Int_8"),
                         new Attribute("valid_range", "0...1"),
                         new Attribute("fillvalue", (byte) 99),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) 99))),
                 /* idx: 8 */
-                new Expectation("Ice_Water_Path", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Ice_Water_Path", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "gram per square meter"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...200.0"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 9 */
-                new Expectation("Ice_Water_Path_Uncertainty", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Ice_Water_Path_Uncertainty", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "gram per square meter"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...99.99"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 10 */
-                new Expectation("Feature_Optical_Depth_532", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Feature_Optical_Depth_532", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...5.0"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 11 */
-                new Expectation("Feature_Optical_Depth_Uncertainty_532", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Feature_Optical_Depth_Uncertainty_532", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "0.0...TBD"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 12 */
-                new Expectation("Layer_Top_Altitude", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Layer_Top_Altitude", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "kilometers"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "-0.5...30.1"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 13 */
-                new Expectation("Layer_Base_Altitude", DataType.FLOAT, new int[]{4208, 10}, Arrays.asList(
+                new Expectation("Layer_Base_Altitude", DataType.FLOAT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "kilometers"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "-0.5...30.1"),
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 14 */
-                new Expectation("Profile_ID", DataType.INT, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Profile_ID", DataType.INT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Int_32"),
                         new Attribute("valid_range", "1...3153600000"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.INT, false)))),
                 /* idx: 15 */
-                new Expectation("Latitude", DataType.FLOAT, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Latitude", DataType.FLOAT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "degrees"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "-90.0...90.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
                 /* idx: 16 */
-                new Expectation("Longitude", DataType.FLOAT, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Longitude", DataType.FLOAT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "degrees"),
                         new Attribute("format", "Float_32"),
                         new Attribute("valid_range", "-180.0...180.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
                 /* idx: 17 */
-                new Expectation("Profile_Time", DataType.DOUBLE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Profile_Time", DataType.DOUBLE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "seconds"),
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "4.204E8...1.072E9"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                 /* idx: 18 */
-                new Expectation("Profile_UTC_Time", DataType.DOUBLE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Profile_UTC_Time", DataType.DOUBLE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "60426.0...261231.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                 /* idx: 19 */
-                new Expectation("Spacecraft_Position_x", DataType.DOUBLE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Spacecraft_Position_x", DataType.DOUBLE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "kilometers"),
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "-8000.0...8000.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                 /* idx: 20 */
-                new Expectation("Spacecraft_Position_y", DataType.DOUBLE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Spacecraft_Position_y", DataType.DOUBLE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "kilometers"),
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "-8000.0...8000.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
                 /* idx: 21 */
-                new Expectation("Spacecraft_Position_z", DataType.DOUBLE, new int[]{4208, 1}, Arrays.asList(
+                new Expectation("Spacecraft_Position_z", DataType.DOUBLE, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "kilometers"),
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "-8000.0...8000.0"),
