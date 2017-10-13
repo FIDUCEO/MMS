@@ -2,3 +2,4 @@ com.bc.fiduceo.matchup.condition.BorderDistanceConditionPlugin
 com.bc.fiduceo.matchup.condition.DistanceConditionPlugin
 com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin
 com.bc.fiduceo.matchup.condition.OverlapRemoveConditionPlugin
+com.bc.fiduceo.matchup.condition.UniqueSamplesConditionPlugin
