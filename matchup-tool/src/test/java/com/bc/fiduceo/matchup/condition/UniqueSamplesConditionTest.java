@@ -93,6 +93,36 @@ public class UniqueSamplesConditionTest {
     }
 
     @Test
+    public void testApply_twoSecondaryToOnePrimaryMatchup() {
+        final UniqueSamplesCondition.Configuration configuration = new UniqueSamplesCondition.Configuration();
+        configuration.referenceSensorKey = "second";
+        configuration.associatedSensorKey = "first";
+
+        final UniqueSamplesCondition condition = new UniqueSamplesCondition(configuration);
+
+        final MatchupSet matchupSet = new MatchupSet();
+        final ArrayList<SampleSet> sampleSets = new ArrayList<>();
+
+        SampleSet sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(18, 19, -108.3, 23.7, 100000000));
+        sampleSet.setSecondary("first", new Sample(119, 119, -108.35, 23.71, 10000004));
+        sampleSets.add(sampleSet);
+
+        sampleSet = new SampleSet();
+        sampleSet.setPrimary(new Sample(18, 19, -108.3, 23.7, 100000000));
+        sampleSet.setSecondary("first", new Sample(118, 119, -108.32, 23.69, 10000003));
+        sampleSets.add(sampleSet);
+
+        matchupSet.setSampleSets(sampleSets);
+
+        condition.apply(matchupSet, new ConditionEngineContext());
+        assertEquals(1, matchupSet.getNumObservations());
+        final SampleSet remaining = matchupSet.getSampleSets().get(0);
+        assertEquals(18, remaining.getPrimary().getX());
+        assertEquals(118, remaining.getSecondary("first").getX());
+    }
+
+    @Test
     public void testGetReference_secondary() {
         final UniqueSamplesCondition.Configuration configuration = new UniqueSamplesCondition.Configuration();
         configuration.referenceSensorKey = "reference";
