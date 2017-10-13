@@ -17,7 +17,13 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayByte;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayLong;
+import ucar.ma2.ArrayShort;
 
 import java.io.IOException;
 
@@ -126,7 +132,7 @@ public abstract class WindowReader {
             int yRaw = y + offsetY;
             for (int x = 0; x < width; x++) {
                 int xRaw = x + offsetX;
-                if ((rawHeight == 0 || (yRaw >= 0 && yRaw < rawHeight)) && (rawWidth == 0 || (xRaw >= 0 && xRaw < rawWidth))) {
+                if ((yRaw >= 0 && yRaw < rawHeight) && (xRaw >= 0 && xRaw < rawWidth)) {
                     rawSetter.set(y, x, yRaw, xRaw);
                 } else {
                     fillSetter.set(y, x);

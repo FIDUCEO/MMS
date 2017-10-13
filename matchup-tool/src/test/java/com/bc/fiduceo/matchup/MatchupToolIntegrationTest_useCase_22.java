@@ -91,24 +91,24 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
 
             NCTestUtils.assertStringVariable("amsub-n15_file_name", 17, "NSS.AMBX.NK.D01165.S1136.E1320.B1604142.WI.h5", mmd);
 
-            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount01", 0, 0, 220, 0.0, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount01", 0, 0, 220, 9.969209968386869E36, mmd);
             NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount02", 1, 0, 221, 0.0, mmd);
             NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount03", 2, 0, 222, 0.0, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount04", 0, 1, 223, 0.0, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount05", 1, 1, 224, 0.0, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount04", 0, 1, 223, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount05", 1, 1, 224, 9.969209968386869E36, mmd);
             NCTestUtils.assert3DVariable("ssmt2-f14_Temperature_misc_housekeeping_thermistorcount18", 2, 1, 225, 0.0, mmd);
             NCTestUtils.assert3DVariable("ssmt2-f14_acquisition_time", 0, 2, 226, 992523255, mmd);
 
             NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_DayofYear_1", 1, 2, 227, 165.0, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_DayofYear_1", 2, 2, 228, 165.0, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatAlt", 0, 0, 229, 863.03125, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatHeading", 1, 0, 230, 80.15132904052734, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatLat", 2, 0, 231, 81.10199737548828, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_DayofYear_1", 2, 2, 228, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatAlt", 0, 0, 229, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatHeading", 1, 0, 230, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatLat", 2, 0, 231, 9.969209968386869E36, mmd);
             NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SatLong", 0, 1, 232, 38.29920959472656, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SecondsofDay_1", 1, 1, 233, 46471.42346683411, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SecondsofDay_2", 2, 1, 234, 46463.41565651333, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_Year_1", 0, 2, 235, 2001.0, mmd);
-            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_Year_2", 1, 2, 236, 2001.0, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SecondsofDay_1", 1, 1, 233, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_SecondsofDay_2", 2, 1, 234, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_Year_1", 0, 2, 235, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("ssmt2-f14_ancil_data_Year_2", 1, 2, 236, 9.969209968386869E36, mmd);
 
             NCTestUtils.assert3DVariable("ssmt2-f14_channel_quality_flag_ch1", 2, 2, 237, 1.0, mmd);
 

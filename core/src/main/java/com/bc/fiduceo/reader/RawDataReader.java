@@ -62,10 +62,8 @@ public class RawDataReader {
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
 
-        final int rawHeight;
-        final int rawWidth;
-        rawHeight = shape[0];
-        rawWidth = shape[1];
+        final int rawHeight = shape[0];
+        final int rawWidth = shape[1];
         final int offsetX = centerX - windowWidth / 2;
         final int offsetY = centerY - windowHeight / 2;
 

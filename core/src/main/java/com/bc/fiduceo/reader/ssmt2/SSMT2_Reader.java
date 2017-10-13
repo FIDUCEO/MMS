@@ -619,9 +619,10 @@ class SSMT2_Reader implements Reader {
             final int[] sourceShape = dataArray.getShape();
             final Index sourceIdx = dataArray.getIndex();
             final int srcHeight = sourceShape[0];
+            final int srcWidth = sourceShape[1];
             fillArray(offsetX, offsetY,
                     targetWidth, targetHeight,
-                    0, srcHeight,
+                    srcWidth, srcHeight,
                     (y, x) -> {
                         targetIdx.set(y, x);
                         targetArray.setDouble(targetIdx, fillValue);

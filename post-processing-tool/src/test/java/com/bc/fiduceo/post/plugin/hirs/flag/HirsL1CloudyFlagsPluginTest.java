@@ -461,7 +461,7 @@ public class HirsL1CloudyFlagsPluginTest {
     }
 
     @Test
-    public void testCreatePostProcessing_YrocessingVersionVarNameElementIsMissing() throws Exception {
+    public void testCreatePostProcessing_processingVersionVarNameElementIsMissing() throws Exception {
         element.removeChild(TAG_VAR_NAME_SOURCE_Y);
 
         try {
