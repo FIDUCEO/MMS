@@ -157,7 +157,7 @@ public class ArrayCache {
      * @return the string value or null
      * @throws IOException
      */
-    public String getStringAttributeValue(String attributeName, String variableName) throws IOException {
+    String getStringAttributeValue(String attributeName, String variableName) throws IOException {
         final Array array = get(variableName);
         if (array != null) {
             return getAttributeStringValue(attributeName, variableName);

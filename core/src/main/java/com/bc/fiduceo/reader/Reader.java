@@ -35,18 +35,61 @@ import java.util.List;
 
 public interface Reader extends AutoCloseable {
 
+    /**
+     * Opens the reader using the file passed in.
+     *
+     * @param file the file to open
+     * @throws IOException on disk errors or other IO oddities
+     */
     void open(File file) throws IOException;
 
+    /**
+     * Closes the reader again, releases all resources acquired.
+     *
+     * @throws IOException on file system problems
+     */
     void close() throws IOException;
 
+    /**
+     * Extracts the acquisition information of the current product.
+     *
+     * @return the acquisitoin information
+     * @throws IOException on reading errors
+     */
     AcquisitionInfo read() throws IOException;
 
+    /**
+     * Returns the regular expression to be used for filtering files of the supported format from the file system.
+     *
+     * @return the regular expression
+     */
     String getRegEx();
 
+    /**
+     * Returns a pixel locator object for the file currently opened. This pixel locator is
+     * valid for the full satellite acquisition, i.e. it can return multiple (x,y) positions
+     * for the same (lon, lat) in case of acquisition ambiguities or self-overlap.
+     *
+     * @return the pixel locator
+     * @throws IOException on file system errors
+     */
     PixelLocator getPixelLocator() throws IOException;
 
+    /**
+     * Returns a pixel locator optimized for the observation geometry passed in.
+     *
+     * @param sceneGeometry the area currently being investigated
+     * @return the pixel locator
+     * @throws IOException on file system errors
+     */
     PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException;
 
+    /**
+     * Returns a time locator for the currently opened product.
+     *
+     * @return the time locator
+     * @throws IOException ob file system errors
+     */
     TimeLocator getTimeLocator() throws IOException;
 
     int[] extractYearMonthDayFromFilename(String fileName);
@@ -62,9 +105,7 @@ public interface Reader extends AutoCloseable {
      * @param centerY      the center y position.
      * @param interval     the window sizes.
      * @param variableName the name of the data variable.
-     *
      * @return a data Array containing the data of the defined window.
-     *
      * @throws IOException
      * @throws InvalidRangeException
      */
@@ -78,9 +119,9 @@ public interface Reader extends AutoCloseable {
      * of the border, the outside array positions are filled with the fill value defined by the
      * product.
      *
-     * @param centerX the center x position.
-     * @param centerY the center y position.
-     * @param interval the window sizes.
+     * @param centerX      the center x position.
+     * @param centerY      the center y position.
+     * @param interval     the window sizes.
      * @param variableName the name of the data variable.
      * @return a data Array containing the data of the defined window.
      * @throws IOException
@@ -91,8 +132,9 @@ public interface Reader extends AutoCloseable {
     /**
      * Reads an {@link Array} of acquisition time values per pixel.
      * The unit value is seconds since 1970-01-01 00:00:00.
-     * @param x the center x position of the window reading process.
-     * @param y the center y position of the window reading process.
+     *
+     * @param x        the center x position of the window reading process.
+     * @param y        the center y position of the window reading process.
      * @param interval the window sizes.
      * @return an {@link Array} of acquisition time values per pixel. Pixels not containing a valid acquisition time
      * are set to -2147483647 (the NetCDF default fill value for integer)
@@ -104,6 +146,7 @@ public interface Reader extends AutoCloseable {
      * It is mandatory, that all the number data type variables has a CF conform <code>_FillValue</code> set.
      * If a fill value attribute already exist, but not with a CF conform name, the attribute must be
      * duplicated and the CF conform name must be set.
+     *
      * @return a {@link List list} of {@link Variable variables}.
      * @throws InvalidRangeException
      * @throws IOException
