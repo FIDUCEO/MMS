@@ -54,8 +54,8 @@ public class SwathPixelLocatorTest {
 
         final int border = 15;
         final double delta = 0.49999;
-        for (int h = 0; h < height; h++) {
-            for (int w = border; w < width - border; w++) {
+        for (int h = 0; h < height; h+=10) {
+            for (int w = border; w < width - border; w+=10) {
                 final double y = h + 0.5;
                 final double x = w + 0.5;
                 final Point2D geoPos = pixelLocator.getGeoLocation(x, y, null);
