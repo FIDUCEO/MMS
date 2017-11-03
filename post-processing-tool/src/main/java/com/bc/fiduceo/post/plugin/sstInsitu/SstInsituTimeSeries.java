@@ -138,7 +138,7 @@ class SstInsituTimeSeries extends PostProcessing {
         throw new RuntimeException("Unable to extract sensor type.");
     }
 
-    Range computeInsituRange(int matchupPos, SSTInsituReader insituReader) throws IOException, InvalidRangeException {
+    Range computeInsituRange(final int matchupPos, SSTInsituReader insituReader) throws IOException, InvalidRangeException {
         final String name = "insitu.time";
         final Array sourceArray = insituReader.getSourceArray(name);
         final int[] times = (int[]) sourceArray.getStorage();

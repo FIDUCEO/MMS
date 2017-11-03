@@ -7,7 +7,11 @@
     <groupId>com.bc.fiduceo</groupId>
     <artifactId>fiduceo-master</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.3.1</version>
+
+    <properties>
+       <mms.version>1.3.1</mms.version>
+    </properties>
 
     <modules>
         <module>google-s2</module>
