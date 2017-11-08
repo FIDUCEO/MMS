@@ -1,0 +1,107 @@
+<!--
+  ~ Copyright (C) 2017 Brockmann Consult GmbH
+  ~ This code was developed for the EC project "Fidelity and Uncertainty in
+  ~ Climate Data Records from Earth Observations (FIDUCEO)".
+  ~ Grant Agreement: 638822
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it
+  ~  under the terms of the GNU General Public License as published by the Free
+  ~  Software Foundation; either version 3 of the License, or (at your option)
+  ~  any later version.
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT
+  ~  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~  more details.
+  ~
+  ~  A copy of the GNU General Public License should have been supplied along
+  ~  with this program; if not, see http://www.gnu.org/licenses/
+  ~
+  -->
+
+<post-processing-config>
+
+    <create-new-files>
+        <output-directory>/group_workspaces/cems2/esacci_sst/mms_new/mmd/mmd03_post_processed/animal-sst_aatsr-en
+        </output-directory>
+    </create-new-files>
+
+    <post-processings>
+
+        <sst-insitu-time-series>
+            <version>v04.0</version>
+            <time-range-in-seconds>259200</time-range-in-seconds>
+            <time-series-size>432</time-series-size>
+            <secondary-sensor-matchup-time-variable>atsr.3.acquisition_time</secondary-sensor-matchup-time-variable>
+        </sst-insitu-time-series>
+
+        <nwp>
+            <cdo-home>/usr/local/bin/cdo</cdo-home>
+            <nwp-aux-dir>/the/auxiliary/files</nwp-aux-dir>
+
+            <delete-on-exit>true</delete-on-exit>
+
+            <time-series-extraction>
+                <analysis-steps>19</analysis-steps>
+                <forecast-steps>33</forecast-steps>
+
+                <time-variable-name>animal-sst_acquisition-time</time-variable-name>
+                <longitude-variable-name>animal-sst_insitu.lon</longitude-variable-name>
+                <latitude-variable-name>animal-sst_insitu.lat</latitude-variable-name>
+
+                <analysis-center-time-name>matchup.nwp.an.t0</analysis-center-time-name>
+                <forecast-center-time-name>matchup.nwp.fc.t0</forecast-center-time-name>
+
+                <an-ci-name>matchup.nwp.an.sea_ice_fraction</an-ci-name>
+                <an-sstk-name>matchup.nwp.an.sea_surface_temperature</an-sstk-name>
+                <an-u10-name>matchup.nwp.an.10m_east_wind_component</an-u10-name>
+                <an-v10-name>matchup.nwp.an.10m_north_wind_component</an-v10-name>
+                <an-tcwv-name>matchup.nwp.an.total_column_water_vapour</an-tcwv-name>
+                <an-clwc-name>matchup.nwp.an.cloud_liquid_water_content</an-clwc-name>
+
+                <fc-sstk-name>matchup.nwp.fc.sea_surface_temperature</fc-sstk-name>
+                <fc-sshf-name>matchup.nwp.fc.surface_sensible_heat_flux</fc-sshf-name>
+                <fc-slhf-name>matchup.nwp.fc.surface_latent_heat_flux</fc-slhf-name>
+                <fc-blh-name>matchup.nwp.fc.boundary_layer_height</fc-blh-name>
+                <fc-u10-name>matchup.nwp.fc.10m_east_wind_component</fc-u10-name>
+                <fc-v10-name>matchup.nwp.fc.10m_north_wind_component</fc-v10-name>
+                <fc-t2-name>matchup.nwp.fc.2m_temperature</fc-t2-name>
+                <fc-d2-name>matchup.nwp.fc.2m_dew_point</fc-d2-name>
+                <fc-ssrd-name>matchup.nwp.fc.downward_surface_solar_radiation</fc-ssrd-name>
+                <fc-strd-name>matchup.nwp.fc.downward_surface_thermal_radiation</fc-strd-name>
+                <fc-ssr-name>matchup.nwp.fc.surface_solar_radiation</fc-ssr-name>
+                <fc-str-name>matchup.nwp.fc.surface_thermal_radiation</fc-str-name>
+                <fc-ewss-name>matchup.nwp.fc.turbulent_stress_east_component</fc-ewss-name>
+                <fc-nsss-name>matchup.nwp.fc.turbulent_stress_north_component</fc-nsss-name>
+                <fc-e-name>matchup.nwp.fc.evaporation</fc-e-name>
+                <fc-tp-name>matchup.nwp.fc.total_precipitation</fc-tp-name>
+                <fc-msl-name>matchup.nwp.fc.mean_sea_level_pressure</fc-msl-name>
+                <fc-tcwv-name>matchup.nwp.fc.total_column_water_vapour</fc-tcwv-name>
+                <fc-clwc-name>matchup.nwp.an.cloud_liquid_water_content</fc-clwc-name>
+            </time-series-extraction>
+
+            <sensor-extraction>
+                <an-ci-name>atsr.3.nwp.sea_ice_fraction</an-ci-name>
+                <an-asn-name>atsr.3.nwp.snow_albedo</an-asn-name>
+                <an-sstk-name>atsr.3.nwp.sea_surface_temperature</an-sstk-name>
+                <an-tcwv-name>atsr.3.nwp.total_column_water_vapour</an-tcwv-name>
+                <an-msl-name>atsr.3.nwp.mean_sea_level_pressure</an-msl-name>
+                <an-tcc-name>atsr.3.nwp.total_cloud_cover</an-tcc-name>
+                <an-u10-name>atsr.3.nwp.10m_east_wind_component</an-u10-name>
+                <an-v10-name>atsr.3.nwp.10m_north_wind_component</an-v10-name>
+                <an-t2-name>atsr.3.nwp.2m_temperature</an-t2-name>
+                <an-d2-name>atsr.3.nwp.2m_dew_point</an-d2-name>
+                <an-al-name>atsr.3.nwp.albedo</an-al-name>
+                <an-lnsp-name>atsr.3.nwp.log_surface_pressure</an-lnsp-name>
+                <an-skt-name>atsr.3.nwp.skin_temperature</an-skt-name>
+                <an-t-name>atsr.3.nwp.temperature_profile</an-t-name>
+                <an-q-name>atsr.3.nwp.water_vapour_profile</an-q-name>
+                <an-o3-name>atsr.3.nwp.ozone_profile</an-o3-name>
+                <an-clwc-name>atsr.3.nwp.cloud_liquid_water</an-clwc-name>
+                <an-ciwc-name>atsr.3.nwp.cloud_ice_water</an-ciwc-name>
+                <an-tp-name>atsr.3.nwp.total_precip</an-tp-name>
+            </sensor-extraction>
+        </nwp>
+
+    </post-processings>
+
+</post-processing-config>
