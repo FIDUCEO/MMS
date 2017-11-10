@@ -61,6 +61,7 @@ import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 class PostProcessingTool {
 
     private final static Logger logger = FiduceoLogger.getLogger();
+    private final static String SUPPRESSED_ATTRIBUTE = "_NCProperties";
     private final PostProcessingContext context;
 
     PostProcessingTool(PostProcessingContext context) {
@@ -316,6 +317,9 @@ class PostProcessingTool {
         Group newGroup = writer.addGroup(newParent, oldGroup.getShortName());
 
         for (Attribute att : oldGroup.getAttributes()) {
+            if (att.getFullName().contains(SUPPRESSED_ATTRIBUTE)) {
+                continue;
+            }
             newGroup.addAttribute(att);
         }
 
