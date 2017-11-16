@@ -224,7 +224,12 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
             throw new IOException("Corrupt file. Longitude and Latitude must have the same size!");
         }
         final ArrayList<Point> points = new ArrayList<>();
-        final int add = size / 60;
+        final int add;
+        if (size < 60) {
+            add = 60;
+        } else {
+            add = size / 60;
+        }
         final int lastPosition = size - 1;
         for (int i = 0; i < lastPosition; i += add) {
             points.add(geometryFactory.createPoint(lons.getFloat(i), lats.getFloat(i)));
