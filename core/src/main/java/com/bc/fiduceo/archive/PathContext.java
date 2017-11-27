@@ -61,7 +61,7 @@ class PathContext {
         utcCalendar.set(Calendar.YEAR, year);
         utcCalendar.set(Calendar.MONTH, month - 1);
         utcCalendar.set(Calendar.DAY_OF_MONTH, day);
-        map.put("DAY_OF_YEAR", String.format("%02d", utcCalendar.get(Calendar.DAY_OF_YEAR)));
+        map.put("DAY_OF_YEAR", String.format("%03d", utcCalendar.get(Calendar.DAY_OF_YEAR)));
     }
 
     String getSegment(String pathElement) {
