@@ -21,6 +21,8 @@
 package com.bc.fiduceo.db;
 
 
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -40,9 +42,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public abstract class StorageTest_SatelliteObservation {
 
@@ -74,6 +73,39 @@ public abstract class StorageTest_SatelliteObservation {
     public void testGet_emptyDatabase() throws SQLException {
         final List<SatelliteObservation> satelliteObservations = storage.get();
         assertEquals(0, satelliteObservations.size());
+    }
+
+    @Test
+    public void testIsAlreadyRegistered_true() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME);
+        queryParameter.setPath(DATA_FILE_PATH);
+        assertTrue(storage.isAlreadyRegistered(queryParameter));
+    }
+
+    @Test
+    public void testIsAlreadyRegistered_false_SensorName() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME + "other");
+        queryParameter.setPath(DATA_FILE_PATH);
+        assertFalse(storage.isAlreadyRegistered(queryParameter));
+    }
+
+    @Test
+    public void testIsAlreadyRegistered_false_DataFilePath() throws SQLException, ParseException {
+        final SatelliteObservation observation = createSatelliteObservation();
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(SENSOR_NAME);
+        queryParameter.setPath(DATA_FILE_PATH + "other");
+        assertFalse(storage.isAlreadyRegistered(queryParameter));
     }
 
     @Test

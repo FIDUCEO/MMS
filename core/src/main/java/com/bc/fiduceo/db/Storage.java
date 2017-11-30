@@ -82,6 +82,16 @@ public class Storage {
         driver.open(dataSource);
     }
 
+    public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {
+        if (driver instanceof PostGISDriver) {
+            final PostGISDriver postGISDriver = (PostGISDriver) this.driver;
+            return postGISDriver.isAlreadyRegistered(queryParameter);
+        } else {
+            final List<SatelliteObservation> observations = driver.get(queryParameter);
+            return observations.size() > 0;
+        }
+    }
+
     private Driver createDriver(BasicDataSource dataSource) {
         // ensure all dates are interpreted as UTC
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));

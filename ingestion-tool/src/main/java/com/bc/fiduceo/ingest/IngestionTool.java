@@ -90,6 +90,7 @@ class IngestionTool {
         final Storage storage = context.getStorage();
 
         final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setSensorName(sensorType);
 
         final SystemConfig systemConfig = context.getSystemConfig();
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
@@ -107,8 +108,10 @@ class IngestionTool {
             }
 
             queryParameter.setPath(dataFilePath);
-            final List<SatelliteObservation> observations = storage.get(queryParameter);
-            if (observations.size() > 0) {
+            boolean registered = storage.isAlreadyRegistered(queryParameter);
+//            final List<SatelliteObservation> observations = storage.get(queryParameter);
+//            if (observations.size() > 0) {
+            if (registered) {
                 logger.info("The file '" + dataFilePath + "' is already registered to the database. Skipping");
                 continue;
             }

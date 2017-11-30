@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2015 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
@@ -29,6 +28,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.postgis.PGgeometry;
 
 import java.sql.PreparedStatement;
@@ -206,6 +206,24 @@ public class PostGISDriver extends AbstractDriver {
         return resultList;
     }
 
+    public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {
+        final StringBuilder sql = new StringBuilder("SELECT count(*) FROM satellite_observation WHERE ");
+        final String sensorName = queryParameter.getSensorName();
+        if (StringUtils.isNotNullAndNotEmpty(sensorName)) {
+            sql.append("sensorid = (SELECT id FROM sensor WHERE name = '")
+                    .append(sensorName)
+                    .append("') AND ");
+        }
+        final String path = queryParameter.getPath();
+        sql.append(" datafile = '")
+                .append(path)
+                .append("';");
+        final Statement statement = connection.createStatement();
+        final ResultSet resultSet = statement.executeQuery(sql.toString());
+        resultSet.next();
+        final int numValues = resultSet.getInt(1);
+        return numValues > 0;
+    }
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
         final PGgeometry axis = (PGgeometry) resultSet.getObject("Axis");
