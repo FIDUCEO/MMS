@@ -48,7 +48,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,8 +108,6 @@ class IngestionTool {
 
             queryParameter.setPath(dataFilePath);
             boolean registered = storage.isAlreadyRegistered(queryParameter);
-//            final List<SatelliteObservation> observations = storage.get(queryParameter);
-//            if (observations.size() > 0) {
             if (registered) {
                 logger.info("The file '" + dataFilePath + "' is already registered to the database. Skipping");
                 continue;
