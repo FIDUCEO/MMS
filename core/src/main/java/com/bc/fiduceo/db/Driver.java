@@ -60,4 +60,5 @@ public interface Driver {
 
     int insert(Sensor sensor) throws SQLException;
 
+    boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException;
 }

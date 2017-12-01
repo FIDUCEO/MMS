@@ -83,13 +83,7 @@ public class Storage {
     }
 
     public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {
-        if (driver instanceof PostGISDriver) {
-            final PostGISDriver postGISDriver = (PostGISDriver) this.driver;
-            return postGISDriver.isAlreadyRegistered(queryParameter);
-        } else {
-            final List<SatelliteObservation> observations = driver.get(queryParameter);
-            return observations.size() > 0;
-        }
+        return driver.isAlreadyRegistered(queryParameter);
     }
 
     private Driver createDriver(BasicDataSource dataSource) {

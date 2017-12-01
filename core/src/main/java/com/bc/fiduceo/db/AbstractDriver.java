@@ -22,6 +22,7 @@
 package com.bc.fiduceo.db;
 
 
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -33,6 +34,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 abstract class AbstractDriver implements Driver {
 
@@ -106,6 +108,12 @@ abstract class AbstractDriver implements Driver {
             return generatedKeys.getInt(1);
         }
         return -1;
+    }
+
+    @Override
+    public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {
+        final List<SatelliteObservation> observations = get(queryParameter);
+        return observations.size() > 0;
     }
 
     // package access for testing only tb 2016-11-29
