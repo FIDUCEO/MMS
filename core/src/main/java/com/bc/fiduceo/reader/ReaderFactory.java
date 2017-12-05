@@ -39,6 +39,7 @@ public class ReaderFactory {
     private final GeometryFactory geometryFactory;
 
     public static ReaderFactory get(GeometryFactory geometryFactory) {
+        // todo 3 se/** if readerFactory instance exists, method argument is ignored 2017-12-05
         if (readerFactory == null) {
             readerFactory = new ReaderFactory(geometryFactory);
         }
