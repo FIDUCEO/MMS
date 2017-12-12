@@ -6,8 +6,7 @@ import com.bc.fiduceo.core.TimeRange;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.nc2.Attribute;
-import ucar.nc2.Variable;
+import ucar.ma2.DataType;
 
 import java.util.Date;
 import java.util.List;
@@ -15,8 +14,6 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class StrategyTest {
 
@@ -55,6 +52,20 @@ public class StrategyTest {
 
         TestUtil.assertCorrectUTCDate(1976, 5, 3, 19, 33, 20, timeRange.getStartDate());
         TestUtil.assertCorrectUTCDate(1977, 12, 3, 12, 26, 40, timeRange.getStopDate());
+    }
+
+    @Test
+    public void testExtractTimeRange_3D_dataset_fillValue() {
+        final int[] times = {-2147483647, 1362719282, 1362719282, -2147483647, 1362719289, 1362719289, -2147483647, 1362719295, 1362719295,
+                -2147483647, 1362719289, 1362719289, -2147483647, 1362719295, 1362719295, -2147483647, 1362719301, 1362719301
+        };
+        final Array timesArray = Array.factory(DataType.INT, new int[]{2, 3, 3}, times);
+
+        final TimeRange timeRange = Strategy.extractTimeRange(timesArray, -2147483647);
+        assertNotNull(timeRange);
+
+        TestUtil.assertCorrectUTCDate(2013, 3, 8, 5, 8, 2, timeRange.getStartDate());
+        TestUtil.assertCorrectUTCDate(2013, 3, 8, 5, 8, 21, timeRange.getStopDate());
     }
 
     @Test

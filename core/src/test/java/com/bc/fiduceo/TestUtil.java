@@ -30,11 +30,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,9 +38,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TestUtil {
 
@@ -168,25 +162,25 @@ public class TestUtil {
         final Calendar calendar = ProductData.UTC.createCalendar();
         calendar.setTime(utcDate);
 
-        assertEquals(year, calendar.get(Calendar.YEAR));
-        assertEquals(month, calendar.get(Calendar.MONTH) + 1);
-        assertEquals(day, calendar.get(Calendar.DAY_OF_MONTH));
-        assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
-        assertEquals(minute, calendar.get(Calendar.MINUTE));
-        assertEquals(second, calendar.get(Calendar.SECOND));
+        assertEquals("year: ", year, calendar.get(Calendar.YEAR));
+        assertEquals("month: ", month, calendar.get(Calendar.MONTH) + 1);
+        assertEquals("day: ", day, calendar.get(Calendar.DAY_OF_MONTH));
+        assertEquals("hour: ", hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals("minute: ", minute, calendar.get(Calendar.MINUTE));
+        assertEquals("second: ", second, calendar.get(Calendar.SECOND));
     }
 
     public static void assertCorrectUTCDate(int year, int month, int day, int hour, int minute, int second, int millisecond, Date utcDate) {
         final Calendar calendar = ProductData.UTC.createCalendar();
         calendar.setTime(utcDate);
 
-        assertEquals("year", year, calendar.get(Calendar.YEAR));
-        assertEquals("month", month, calendar.get(Calendar.MONTH) + 1);
-        assertEquals("day", day, calendar.get(Calendar.DAY_OF_MONTH));
-        assertEquals("hour", hour, calendar.get(Calendar.HOUR_OF_DAY));
-        assertEquals("minute", minute, calendar.get(Calendar.MINUTE));
-        assertEquals("second", second, calendar.get(Calendar.SECOND));
-        assertEquals("millisecond", millisecond, calendar.get(Calendar.MILLISECOND));
+        assertEquals("year: ", year, calendar.get(Calendar.YEAR));
+        assertEquals("month: ", month, calendar.get(Calendar.MONTH) + 1);
+        assertEquals("day: ", day, calendar.get(Calendar.DAY_OF_MONTH));
+        assertEquals("hour: ", hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals("minute: ", minute, calendar.get(Calendar.MINUTE));
+        assertEquals("second: ", second, calendar.get(Calendar.SECOND));
+        assertEquals("millisecond: ", millisecond, calendar.get(Calendar.MILLISECOND));
     }
 
     public static void assertWithinLastMinute(Date expected, Date actual) {
