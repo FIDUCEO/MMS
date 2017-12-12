@@ -48,6 +48,9 @@ class BowTiePixelLocator implements PixelLocator {
 
     private List<GeoCoding> geoCodingList;
     private List<LineString> centerLinesList;
+    private int sceneWidth;
+    private int sceneHeight;
+    private int listSize;
 
 
     BowTiePixelLocator(Array longitudes, Array latitudes, GeometryFactory geometryFactory) throws InvalidRangeException {
@@ -60,8 +63,17 @@ class BowTiePixelLocator implements PixelLocator {
 
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D point) {
-        final int index = (int) Math.floor(y / STRIPE_HEIGHT);
+        if (x < 0 || y < 0 || x > sceneWidth || y > sceneHeight) {
+            return null;
+        }
+        int index = (int) Math.floor(y / STRIPE_HEIGHT);
+        if (index == listSize) {
+            index--;
+        }
         final GeoCoding geoCoding = geoCodingList.get(index);
+        if (geoCoding == null) {
+            return null;
+        }
 
         final double geoCodingRelativeY = y - 2 * index;
         final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, geoCodingRelativeY), null);
@@ -119,8 +131,8 @@ class BowTiePixelLocator implements PixelLocator {
         centerLinesList = new ArrayList<>();
 
         final int[] shape = longitudes.getShape();
-        final int sceneWidth = shape[1];
-        final int sceneHeight = shape[0];
+        sceneWidth = shape[1];
+        sceneHeight = shape[0];
         final Product dummyProduct = new Product("DummyProduct", "type", sceneWidth, sceneHeight);
 
         final int gcRawSize = sceneWidth * STRIPE_HEIGHT;
@@ -160,6 +172,7 @@ class BowTiePixelLocator implements PixelLocator {
                 centerLinesList.add(centerLine);
             }
         }
+        listSize = geoCodingList.size();
     }
 
     private LineString createCenterLine(TiePointGeoCoding geoCoding, final int sceneWidth) {
