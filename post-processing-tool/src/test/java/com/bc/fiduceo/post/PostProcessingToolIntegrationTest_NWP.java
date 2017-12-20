@@ -132,7 +132,7 @@ public class PostProcessingToolIntegrationTest_NWP {
             NCTestUtils.assert4DVariable("amsre.nwp.cloud_ice_water", 1, 1, 6, 1, 0.0, mmd);
             NCTestUtils.assert4DVariable("amsre.nwp.cloud_liquid_water", 2, 1, 7, 2, 0.0, mmd);
 
-            NCTestUtils.assert3DVariable("amsre.nwp.log_surface_pressure", 3, 1, 8, 11.510656356811523, mmd);
+            NCTestUtils.assert3DVariable("specific_lnsp_name", 3, 1, 8, 11.510656356811523, mmd);
             NCTestUtils.assert3DVariable("amsre.nwp.mean_sea_level_pressure", 4, 1, 0, 100534.4765625, mmd);
 
             NCTestUtils.assert4DVariable("amsre.nwp.ozone_profile", 0, 2, 1, 3, 2.187581230828073E-6, mmd);
@@ -207,6 +207,7 @@ public class PostProcessingToolIntegrationTest_NWP {
                 "                <z-dimension-name>amsre.nwp.nz</z-dimension-name>\n" +
                 "                <longitude-variable-name>amsre.longitude</longitude-variable-name>\n" +
                 "                <latitude-variable-name>amsre.latitude</latitude-variable-name>\n" +
+                "                <an-lnsp-name>specific_lnsp_name</an-lnsp-name>\n" +
                 "            </sensor-extraction>\n" +
                 "        </nwp>\n" +
                 "    </post-processings>\n" +
