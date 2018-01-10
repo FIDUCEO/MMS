@@ -100,6 +100,20 @@ public class UseCaseConfigValidationTest {
     }
 
     @Test
+    public void testValidation_valid_withLocation() {
+        final UseCaseConfig useCaseConfig = createValidConfig();
+
+        final List<Sensor> sensors = useCaseConfig.getSensors();
+        assertFalse(sensors.remove(0).isPrimary());
+
+        useCaseConfig.setLon(45.8);
+        useCaseConfig.setLat(-19.03);
+
+        final ValidationResult result = useCaseConfig.checkValid();
+        assertTrue(result.isValid());
+    }
+
+    @Test
     public void testValidation_invalid_missingDimension() {
         final UseCaseConfig useCaseConfig = createValidConfig();
 

@@ -219,7 +219,9 @@ public class UseCaseConfig {
             setInvalidWithMessage("Primary sensor not configured.", validationResult);
         }
         if (getSecondarySensors().size() == 0) {
-            setInvalidWithMessage("No additional sensor configured.", validationResult);
+            if (!hasLocation()) {
+                setInvalidWithMessage("No additional sensor configured.", validationResult);
+            }
         }
         for (final Sensor sensor : sensors) {
             if (!hasDimensionFor(sensor.getName())) {

@@ -20,18 +20,15 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,17 +46,19 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
     @Test
     public void testMatchup_CIRCAS_location_extracts() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+                .withLocationElement(-58.230045, 36.67764)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-circas.xml");
 
-//        insert_MHS_NOAA18();
-//        insert_OceanRain();
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2011-235", "-end", "2011-235"};
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2011-235", "2011-235");
-//        assertTrue(mmdFile.isFile());
+        insert_MOD06_Terra();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2013-036", "-end", "2013-038"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2013-036", "2013-038");
+        assertTrue(mmdFile.isFile());
+
+        // @todo 1 tb/tb more assertions here 2018-01-10
 //
 //        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
 //            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
@@ -87,23 +86,14 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
 //        }
     }
 
-//    private void insert_OceanRain() throws IOException, SQLException {
-//        final String sensorKey = "ocean-rain-sst";
-//        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", sensorKey, "v1.0", "OceanRAIN_allships_2010-2017_SST.ascii"}, true);
-//        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-//
-//        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
-//        storage.insert(satelliteObservation);
-//    }
+    private void insert_MOD06_Terra() throws IOException, SQLException {
+        final String sensorKey = "mod06-te";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, true);
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-//    private void insert_MHS_NOAA18() throws IOException, SQLException {
-//        final String sensorKey = "mhs-n18";
-//        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1.0", "2011", "08", "23", "190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5"}, true);
-//        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-//
-//        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
-//        storage.insert(satelliteObservation);
-//    }
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v006");
+        storage.insert(satelliteObservation);
+    }
 
     private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();

@@ -69,6 +69,15 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return useCaseConfig;
     }
 
+    MatchupToolTestUseCaseConfigBuilder withLocationElement(double lon, double lat) {
+        final Element location = ensureChild(getRootElement(), "location");
+
+        addChild(location, "lon", Double.toString(lon));
+        addChild(location, "lat", Double.toString(lat));
+
+        return this;
+    }
+
     UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular");

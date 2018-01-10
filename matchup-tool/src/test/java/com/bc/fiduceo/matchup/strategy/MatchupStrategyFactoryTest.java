@@ -70,7 +70,7 @@ public class MatchupStrategyFactoryTest {
     }
 
     @Test
-    public void testThatFactoryReturnsSeedPointStrategy() throws Exception {
+    public void testCreateSeedPointStrategy() {
         String configString = "<use-case-config name=\"use case 23\">" +
                 "    <random-points-per-day>" +
                 "        114" +
@@ -83,5 +83,16 @@ public class MatchupStrategyFactoryTest {
         assertTrue(strategy instanceof SeedPointMatchupStrategy);
     }
 
-    // @todo 1 tb/tb add more tests - insitu not as primary sensor --> exception, etc ... 2016-11-04
+    @Test
+    public void testCreatePointExtractionStrategy() {
+        final Sensor primary = new Sensor("mod06-te", "v006");
+        primary.setPrimary(true);
+        sensors.add(primary);
+
+        useCaseConfig.setLon(-2.56);
+        useCaseConfig.setLat(11.6);
+
+        final AbstractMatchupStrategy strategy = MatchupStrategyFactory.get(useCaseConfig, Logger.getAnonymousLogger());
+        assertTrue(strategy instanceof PointExtractionStrategy);
+    }
 }

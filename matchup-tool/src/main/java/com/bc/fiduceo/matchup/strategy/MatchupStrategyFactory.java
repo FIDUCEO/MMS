@@ -33,9 +33,14 @@ import java.util.logging.Logger;
 public class MatchupStrategyFactory {
 
     public static AbstractMatchupStrategy get(UseCaseConfig useCaseConfig, Logger logger) {
-        if (useCaseConfig.getRandomPointsPerDay()>0) {
+        if (useCaseConfig.getRandomPointsPerDay() > 0) {
             return new SeedPointMatchupStrategy(logger);
         }
+
+        if (useCaseConfig.hasLocation()) {
+            return new PointExtractionStrategy(logger);
+        }
+
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
 
@@ -51,7 +56,7 @@ public class MatchupStrategyFactory {
         }
 
         if (secondaryDataTypes.size() != 1) {
-            throw new RuntimeException("No matchup strategy registerd for a combination with different secondary data types");
+            throw new RuntimeException("No matchup strategy registered for this combination of data types");
         }
 
         final DataType secondaryType = secondaryDataTypes.iterator().next();
