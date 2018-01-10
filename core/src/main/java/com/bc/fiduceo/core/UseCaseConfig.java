@@ -52,6 +52,9 @@ public class UseCaseConfig {
     static final String TAG_NAME_DIMENSIONS = "dimensions";
     static final String TAG_NAME_DIMENSION = "dimension";
     static final String TAG_NAME_TEST_RUN = "test-run";
+    private static final String TAG_NAME_LOCATION = "location";
+    private static final String TAG_NAME_LON = "lon";
+    private static final String TAG_NAME_LAT = "lat";
     static final String TAG_NAME_NX = "nx";
     static final String TAG_NAME_NY = "ny";
     public static final String TAG_NAME_NAME = "name";
@@ -64,17 +67,15 @@ public class UseCaseConfig {
     private boolean writeDistance;
     private int randomPointsPerDay;
     private boolean testRun;
+    private double lon;
+    private double lat;
 
     public UseCaseConfig() {
         sensors = new ArrayList<>();
         dimensions = new ArrayList<>();
         testRun = false;
-    }
-
-    private UseCaseConfig(Document document) {
-        this();
-        this.document = document;
-        init();
+        lon = Double.NaN;
+        lat = Double.NaN;
     }
 
     public static UseCaseConfig load(InputStream inputStream) {
@@ -180,6 +181,26 @@ public class UseCaseConfig {
         this.testRun = testRun;
     }
 
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public boolean hasLocation() {
+        return !(Double.isNaN(lon) || Double.isNaN(lat));
+    }
+
     public ValidationResult checkValid() {
         final ValidationResult validationResult = new ValidationResult();
         if (StringUtils.isNullOrEmpty(name)) {
@@ -224,14 +245,22 @@ public class UseCaseConfig {
         return false;
     }
 
+    private UseCaseConfig(Document document) {
+        this();
+        this.document = document;
+        init();
+    }
+
     @SuppressWarnings("unchecked")
     private void init() {
         final Element rootElement = getMandatoryRootElement(UseCaseConfig.TAG_NAME_ROOT, document);
         setName(getValueFromNameAttributeMandatory(rootElement));
+
         final Element outputPath = rootElement.getChild(TAG_NAME_OUTPUT_PATH);
         if (outputPath != null) {
             setOutputPath(outputPath.getValue());
         }
+
         final Element sensorsElem = rootElement.getChild(TAG_NAME_SENSORS);
         if (sensorsElem != null) {
             final List<Element> sensorList = sensorsElem.getChildren(TAG_NAME_SENSOR);
@@ -249,6 +278,7 @@ public class UseCaseConfig {
                 sensors.add(sensor);
             }
         }
+
         final Element dimensions = rootElement.getChild(TAG_NAME_DIMENSIONS);
         if (dimensions != null) {
             final List<Element> dimensionList = dimensions.getChildren(TAG_NAME_DIMENSION);
@@ -274,6 +304,21 @@ public class UseCaseConfig {
         final Element testRunElem = rootElement.getChild(TAG_NAME_TEST_RUN);
         if (testRunElem != null) {
             testRun = true;
+        }
+
+        final Element locationElement = rootElement.getChild(TAG_NAME_LOCATION);
+        if (locationElement != null) {
+            final Element lonElement = locationElement.getChild(TAG_NAME_LON);
+            if (lonElement != null) {
+                final String lonText = getMandatoryText(lonElement);
+                lon = Double.parseDouble(lonText);
+            }
+
+            final Element latElement = locationElement.getChild(TAG_NAME_LAT);
+            if (latElement != null) {
+                final String latText = getMandatoryText(latElement);
+                lat = Double.parseDouble(latText);
+            }
         }
     }
 

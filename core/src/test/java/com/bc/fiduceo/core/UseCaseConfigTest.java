@@ -51,6 +51,8 @@ public class UseCaseConfigTest {
         useCaseConfig = UseCaseConfig.load(new ByteArrayInputStream("<use-case-config name=\"testName\"/>".getBytes()));
     }
 
+
+
     @Test
     public void testLoad__useCaseName() {
         final String useCaseXml = "<use-case-config name=\"use-case 17\"></use-case-config>";
@@ -376,6 +378,11 @@ public class UseCaseConfigTest {
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         assertNotNull(dimensions);
         assertEquals(0, dimensions.size());
+
+        assertTrue(Double.isNaN(useCaseConfig.getLon()));
+        assertTrue(Double.isNaN(useCaseConfig.getLat()));
+
+        assertFalse(useCaseConfig.isTestRun());
     }
 
     @Test
@@ -412,8 +419,8 @@ public class UseCaseConfigTest {
     @Test
     public void testRandomPointsPerDay_valid() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <random-points-per-day>432</random-points-per-day>" +
-                                  "</use-case-config>";
+                "    <random-points-per-day>432</random-points-per-day>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
@@ -423,10 +430,10 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testRandomPointsPerDay_empty() {
+    public void testLoad_randomPointsPerDay_empty() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <random-points-per-day>   </random-points-per-day>" +
-                                  "</use-case-config>";
+                "    <random-points-per-day>   </random-points-per-day>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         try {
@@ -439,10 +446,10 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testRandomPointsPerDay_zero() {
+    public void testLoad_randomPointsPerDay_zero() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <random-points-per-day> 0 </random-points-per-day>" +
-                                  "</use-case-config>";
+                "    <random-points-per-day> 0 </random-points-per-day>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         try {
@@ -455,10 +462,10 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testRandomPointsPerDay_negative() {
+    public void testLoad_randomPointsPerDay_negative() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
-                                  "    <random-points-per-day>  -1 </random-points-per-day>" +
-                                  "</use-case-config>";
+                "    <random-points-per-day>  -1 </random-points-per-day>" +
+                "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
 
         try {
@@ -468,5 +475,45 @@ public class UseCaseConfigTest {
             final String expected = "Unable to initialize use case configuration: Value of element 'random-points-per-day' >= 1 expected. But was '-1'.";
             assertEquals(expected, e.getMessage());
         }
+    }
+
+    @Test
+    public void testSetGetLon() {
+        useCaseConfig.setLon(22.78);
+        final double lonReturned = useCaseConfig.getLon();
+        assertEquals(22.78, lonReturned, 1e-8);
+    }
+
+    @Test
+    public void testSetGetLat() {
+        useCaseConfig.setLat(32.88);
+        final double latReturned = useCaseConfig.getLat();
+        assertEquals(32.88, latReturned, 1e-8);
+    }
+
+    @Test
+    public void testHasLocation() {
+        assertFalse(useCaseConfig.hasLocation());
+
+        useCaseConfig.setLat(34.1);
+        assertFalse(useCaseConfig.hasLocation());
+
+        useCaseConfig.setLon(106.2);
+        assertTrue(useCaseConfig.hasLocation());
+    }
+
+    @Test
+    public void testLoad_location() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                "    <location>" +
+                "        <lon>-11.08</lon>" +
+                "        <lat>22.12</lat>" +
+                "    </location>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig config = UseCaseConfig.load(inputStream);
+        assertEquals(-11.08, config.getLon(), 1e-8);
+        assertEquals(22.12, config.getLat(), 1e-8);
     }
 }

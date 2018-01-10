@@ -51,7 +51,7 @@ public class DistanceToLandMap {
         instanceCount++;
     }
 
-    public double getDistance(double longitude, double latitude) throws IOException {
+    public double getDistance(double longitude, double latitude) {
         int latIdx = getLatIdx(latitude);
         int lonIdx = getLonIdx(longitude);
         index.set(latIdx, lonIdx);
