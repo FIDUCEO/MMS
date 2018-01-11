@@ -19,6 +19,8 @@ import java.util.List;
 
 class AMSR2_Reader implements Reader {
 
+    private static final String REG_EX = "GW1AM2_\\d{12}_\\d{3}[AD]_L1SGRTBR_\\d{7}.h5(.gz)?";
+
     AMSR2_Reader(GeometryFactory geometryFactory) {
     }
 
@@ -39,7 +41,7 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public String getRegEx() {
-        throw new RuntimeException("not implemented");
+        return REG_EX;
     }
 
     @Override
@@ -89,11 +91,11 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public String getLongitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return "Longitude of Observation Point for 89A";
     }
 
     @Override
     public String getLatitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return "Latitude of Observation Point for 89A";
     }
 }

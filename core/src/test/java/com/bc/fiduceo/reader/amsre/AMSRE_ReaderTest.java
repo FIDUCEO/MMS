@@ -62,7 +62,7 @@ public class AMSRE_ReaderTest {
     }
 
     @Test
-    public void testGetUtcDate_wrongFormat() throws IOException {
+    public void testGetUtcDate_wrongFormat() {
         final String rangeStartDate = "you_cant";
         final String rangeStartTime = "parse_this";
 
