@@ -156,7 +156,6 @@ public class NetCDFUtils {
         return attribute.getNumericValue().intValue();
     }
 
-    // @todo 3 tb/** write test 2017-08-08
     public static int getAttributeInt(Variable variable, String name, int defaultValue) {
         final Attribute attribute = variable.findAttribute(name);
         if (attribute == null) {

@@ -20,24 +20,38 @@
 
 package com.bc.fiduceo.util;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.esa.snap.core.datamodel.ProductData;
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 public class NetCDFUtilsTest {
 
     @Test
-    public void testGetDefaultFillValue_Array_Double() throws Exception {
+    public void testGetDefaultFillValue_Array_Double() {
         final Array array = mock(Array.class);
         when(array.getDataType()).thenReturn(DataType.DOUBLE);
 
@@ -46,7 +60,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetDefaultFillValue_Array_Long() throws Exception {
+    public void testGetDefaultFillValue_Array_Long() {
         final Array array = mock(Array.class);
         when(array.getDataType()).thenReturn(DataType.LONG);
 
@@ -69,7 +83,7 @@ public class NetCDFUtilsTest {
         try {
             NetCDFUtils.getDefaultFillValue(String.class);
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -88,13 +102,13 @@ public class NetCDFUtilsTest {
         assertEquals(N3iosp.NC_FILL_BYTE, NetCDFUtils.getDefaultFillValue(DataType.BYTE, false));
         assertEquals(N3iosp.NC_FILL_UBYTE, NetCDFUtils.getDefaultFillValue(DataType.BYTE, true));
     }
-    
+
     @Test
     public void testGetDefaultFillValue_withUnsigned_invalidInput() {
         try {
             NetCDFUtils.getDefaultFillValue(DataType.SEQUENCE, true);
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -112,12 +126,13 @@ public class NetCDFUtilsTest {
         assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UTC));
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testGetNetcdfDataType_invalidInput() {
         try {
             NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UNDEFINED);
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -136,7 +151,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeString() throws IOException {
+    public void testGetGlobalAttributeString() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Attribute attribute = mock(Attribute.class);
 
@@ -161,7 +176,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeInt() throws IOException {
+    public void testGetGlobalAttributeInt() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Attribute attribute = mock(Attribute.class);
 
@@ -173,7 +188,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeInt_missingAttribute() throws IOException {
+    public void testGetGlobalAttributeInt_missingAttribute() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
 
         when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
@@ -227,7 +242,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_DOUBLE() throws Exception {
+    public void testEnsureFillValue_DOUBLE() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.DOUBLE);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -242,7 +257,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_FLOAT() throws Exception {
+    public void testEnsureFillValue_FLOAT() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.FLOAT);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -257,7 +272,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_LONG() throws Exception {
+    public void testEnsureFillValue_LONG() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.LONG);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -272,7 +287,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_INT() throws Exception {
+    public void testEnsureFillValue_INT() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.INT);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -287,7 +302,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_SHORT() throws Exception {
+    public void testEnsureFillValue_SHORT() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.SHORT);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -302,7 +317,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_BYTE() throws Exception {
+    public void testEnsureFillValue_BYTE() {
         final Variable mock = mock(Variable.class);
         when(mock.getDataType()).thenReturn(DataType.BYTE);
         when(mock.findAttribute(anyString())).thenReturn(null);
@@ -317,7 +332,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testEnsureFillValue_DOUBLE_existingFillValue() throws Exception {
+    public void testEnsureFillValue_DOUBLE_existingFillValue() {
         final Variable mock = mock(Variable.class);
         when(mock.findAttribute(anyString())).thenReturn(new Attribute("name", "value"));
 
@@ -364,7 +379,7 @@ public class NetCDFUtilsTest {
         try {
             NetCDFUtils.getVariable(netcdfFile, "not_there");
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -405,8 +420,28 @@ public class NetCDFUtilsTest {
         try {
             NetCDFUtils.getVariable(fileWriter, "not_there");
             fail("RuntimeException expected");
-        } catch (RuntimeException expected){
+        } catch (RuntimeException expected) {
         }
+    }
+
+    @Test
+    public void testGetAttributeInt_attributeValue() {
+        final Attribute attribute = mock(Attribute.class);
+        final Variable variable = mock(Variable.class);
+
+        when(variable.findAttribute("herman")).thenReturn(attribute);
+        when(attribute.getNumericValue()).thenReturn(36);
+
+        final int attributeInt = NetCDFUtils.getAttributeInt(variable, "herman", -999);
+        assertEquals(36, attributeInt);
+    }
+
+    @Test
+    public void testGetAttributeInt_defaultValue() {
+        final Variable variable = mock(Variable.class);
+
+        final int attributeInt = NetCDFUtils.getAttributeInt(variable, "is_not_present", -999);
+        assertEquals(-999, attributeInt);
     }
 
     @Test
@@ -450,7 +485,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeSafe() throws IOException {
+    public void testGetGlobalAttributeSafe() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Attribute attribute = mock(Attribute.class);
 
@@ -461,7 +496,7 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    public void testGetGlobalAttributeSafe_missingAttribute() throws IOException {
+    public void testGetGlobalAttributeSafe_missingAttribute() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
 
         when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
