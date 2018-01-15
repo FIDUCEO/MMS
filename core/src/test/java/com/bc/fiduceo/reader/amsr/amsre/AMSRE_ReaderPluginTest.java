@@ -18,37 +18,45 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsre;
+package com.bc.fiduceo.reader.amsr.amsre;
 
+
+import com.bc.fiduceo.reader.DataType;
+import com.bc.fiduceo.reader.Reader;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class VariableNamesConverterTest {
+public class AMSRE_ReaderPluginTest {
 
-    private VariableNamesConverter converter;
+    private AMSRE_ReaderPlugin plugin;
 
     @Before
     public void setUp() {
-        converter = new VariableNamesConverter();
+        plugin = new AMSRE_ReaderPlugin();
     }
 
     @Test
-    public void testToMMS() {
-        assertEquals("10_7H_Res_1_TB", converter.toMms("10.7H_Res.1_TB"));
-        assertEquals("36_5H_Res_1_TB", converter.toMms("36.5H_Res.1_TB"));
+    public void testGetSupportedSensorKeys(){
+        final String[] expected = {"amsre-aq"};
+        final String[] keys = plugin.getSupportedSensorKeys();
 
-        assertEquals("Res1_Surf", converter.toMms("Res1_Surf"));
-        assertEquals("Latitude", converter.toMms("Latitude"));
+        assertArrayEquals(expected, keys);
     }
 
     @Test
-    public void testToHDF() {
-        assertEquals("18.7H_Res.1_TB", converter.toHdf("18_7H_Res_1_TB"));
-        assertEquals("89.0V_Res.1_TB", converter.toHdf("89_0V_Res_1_TB"));
+    public void testGetDataType() {
+         assertEquals(DataType.POLAR_ORBITING_SATELLITE, plugin.getDataType());
+    }
 
-        assertEquals("Earth_Incidence", converter.toHdf("Earth_Incidence"));
-        assertEquals("Scan_Quality_Flag", converter.toHdf("Scan_Quality_Flag"));
+    @Test
+    public void testCreateReader() {
+        final Reader reader = plugin.createReader(null);
+        assertNotNull(reader);
+        assertTrue(reader instanceof AMSRE_Reader);
     }
 }

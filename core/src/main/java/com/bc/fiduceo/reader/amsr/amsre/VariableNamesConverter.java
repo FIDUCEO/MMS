@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsre;
+package com.bc.fiduceo.reader.amsr.amsre;
 
 import java.util.HashMap;
 import java.util.Map;

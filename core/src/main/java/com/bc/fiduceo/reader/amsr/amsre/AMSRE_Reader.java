@@ -18,12 +18,11 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsre;
+package com.bc.fiduceo.reader.amsr.amsre;
 
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
@@ -31,6 +30,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
@@ -93,7 +93,7 @@ class AMSRE_Reader implements Reader {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         setSensingTimes(acquisitionInfo);
-        setNodeType(acquisitionInfo);
+        AmsrUtils.setNodeType(acquisitionInfo, netcdfFile);
         setGeometries(acquisitionInfo);
 
         return acquisitionInfo;
@@ -317,17 +317,6 @@ class AMSRE_Reader implements Reader {
         }
     }
 
-    // Package access for testing only tb 2016-09-02
-    static void assignNodeType(AcquisitionInfo acquisitionInfo, String orbitDirection) {
-        if ("Ascending".equalsIgnoreCase(orbitDirection)) {
-            acquisitionInfo.setNodeType(NodeType.ASCENDING);
-        } else if ("Descending".equalsIgnoreCase(orbitDirection)) {
-            acquisitionInfo.setNodeType(NodeType.DESCENDING);
-        } else {
-            acquisitionInfo.setNodeType(NodeType.UNDEFINED);
-        }
-    }
-
     // Package access for testing only tb 2016-09-06
     static String getGroupNameForVariable(String variableName) {
         if (variableName.equals("Time") || variableName.equals("Longitude") || variableName.equals("Latitude")) {
@@ -358,12 +347,6 @@ class AMSRE_Reader implements Reader {
 
         final ProductData.UTC sensingStop = getUtcData(rangeEndingDateAttribute, rangeEndingTimeAttribute);
         acquisitionInfo.setSensingStop(sensingStop.getAsDate());
-    }
-
-    private void setNodeType(AcquisitionInfo acquisitionInfo) throws IOException {
-        final Attribute orbitDirectionAttribute = NetCDFUtils.getGlobalAttributeSafe("OrbitDirection", netcdfFile);
-        final String orbitDirection = orbitDirectionAttribute.getStringValue();
-        assignNodeType(acquisitionInfo, orbitDirection);
     }
 
     private BoundingPolygonCreator getBoundingPolygonCreator() {

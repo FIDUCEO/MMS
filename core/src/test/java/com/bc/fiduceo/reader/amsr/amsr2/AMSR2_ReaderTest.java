@@ -1,12 +1,20 @@
-package com.bc.fiduceo.reader.amsr2;
+package com.bc.fiduceo.reader.amsr.amsr2;
 
+import com.bc.fiduceo.TestUtil;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.nc2.Attribute;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class AMSR2_ReaderTest {
 
@@ -47,15 +55,31 @@ public class AMSR2_ReaderTest {
         assertFalse(matcher.matches());
     }
 
-    //Latitude of Observation Point for 89A
-
     @Test
     public void testGetLongitudeVariableName() {
-        assertEquals("Longitude of Observation Point for 89A", reader.getLongitudeVariableName());
+        assertEquals("Longitude_of_Observation_Point_for_89A", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        assertEquals("Latitude of Observation Point for 89A", reader.getLatitudeVariableName());
+        assertEquals("Latitude_of_Observation_Point_for_89A", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testGetUtcData() throws IOException {
+        final Attribute timeAttribute = new Attribute("whatever", "2013-07-01T09:42:53.154Z");
+        final ProductData.UTC utcDate = AMSR2_Reader.getUtcDate(timeAttribute);
+        assertNotNull(utcDate);
+        TestUtil.assertCorrectUTCDate(2013, 7, 1, 9, 42, 53, utcDate.getAsDate());
+    }
+
+    @Test
+    public void testGetUtcData_wrongStringRaisesIOException() {
+        final Attribute timeAttribute = new Attribute("not_correct", "2013-07-01:early_afternoon");
+        try {
+            AMSR2_Reader.getUtcDate(timeAttribute);
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
     }
 }

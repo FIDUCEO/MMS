@@ -18,12 +18,10 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsre;
+package com.bc.fiduceo.reader.amsr.amsre;
 
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.nc2.Attribute;
@@ -32,7 +30,10 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,20 +78,6 @@ public class AMSRE_ReaderTest {
             fail("IOException expected");
         } catch (IOException expected) {
         }
-    }
-
-    @Test
-    public void testAssignNodeType() {
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-
-        AMSRE_Reader.assignNodeType(acquisitionInfo, "Ascending");
-        assertEquals(NodeType.ASCENDING, acquisitionInfo.getNodeType());
-
-        AMSRE_Reader.assignNodeType(acquisitionInfo, "Descending");
-        assertEquals(NodeType.DESCENDING, acquisitionInfo.getNodeType());
-
-        AMSRE_Reader.assignNodeType(acquisitionInfo, "quer");
-        assertEquals(NodeType.UNDEFINED, acquisitionInfo.getNodeType());
     }
 
     @Test

@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.amsre;
+package com.bc.fiduceo.reader.amsr.amsre;
 
 
 import com.bc.fiduceo.geometry.GeometryFactory;

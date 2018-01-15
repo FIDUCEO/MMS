@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.amsr2;
+package com.bc.fiduceo.reader.amsr.amsr2;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;

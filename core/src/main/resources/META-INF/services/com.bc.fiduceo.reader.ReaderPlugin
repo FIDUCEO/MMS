@@ -4,7 +4,7 @@ com.bc.fiduceo.reader.hirs.HIRS_L1C_ReaderPlugin
 com.bc.fiduceo.reader.iasi.IASI_ReaderPlugin
 com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_ReaderPlugin
 com.bc.fiduceo.reader.atsr.ATSR_L1B_ReaderPlugin
-com.bc.fiduceo.reader.amsre.AMSRE_ReaderPlugin
+com.bc.fiduceo.reader.amsr.amsre.AMSRE_ReaderPlugin
 com.bc.fiduceo.reader.ssmt2.SSMT2_ReaderPlugin
 com.bc.fiduceo.reader.modis.MxD06_ReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_ReaderPlugin

@@ -51,9 +51,7 @@ public class ArrayCache {
     public Array get(String variableName) throws IOException {
         ArrayContainer container = cache.get(variableName);
         if (container == null) {
-            synchronized (netcdfFile) {
-                container = readArrayAndAttributes(variableName, null);
-            }
+            container = readArrayAndAttributes(variableName, null);
             cache.put(variableName, container);
         }
 
@@ -114,9 +112,7 @@ public class ArrayCache {
         if (arrayContainer == null) {
             arrayContainer = cache.get(variableName);
             if (arrayContainer == null) {
-                synchronized (netcdfFile) {
-                    arrayContainer = readArrayAndAttributes(variableName, null);
-                }
+                arrayContainer = readArrayAndAttributes(variableName, null);
                 cache.put(variableName, arrayContainer);
             }
 
@@ -258,7 +254,9 @@ public class ArrayCache {
         ArrayContainer container;
         Variable variable = injectedVariables.get(variableName);
         if (variable == null) {
-            variable = netcdfFile.findVariable(group, variableName);
+            synchronized (netcdfFile) {
+                variable = netcdfFile.findVariable(group, variableName);
+            }
             if (variable == null) {
                 throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
             }
