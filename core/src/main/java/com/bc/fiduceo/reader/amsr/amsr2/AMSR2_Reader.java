@@ -7,19 +7,14 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -27,12 +22,14 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 class AMSR2_Reader implements Reader {
 
     private static final String REG_EX = "GW1AM2_\\d{12}_\\d{3}[AD]_L1SGRTBR_\\d{7}.h5(.gz)?";
+    private static final String[] LAND_OCEAN_FLAG_EXTENSIONS = new String[]{"6", "10", "23", "36"};
 
     private static final String LON_VARIABLE_NAME = "Longitude_of_Observation_Point_for_89A";
     private static final String LAT_VARIABLE_NAME = "Latitude_of_Observation_Point_for_89A";
@@ -91,7 +88,8 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array scan_time = arrayCache.get("Scan_Time");
+        return new TimeLocator_TAI1993Vector(scan_time);
     }
 
     @Override
@@ -116,7 +114,48 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+        final List<Variable> variables = new ArrayList<>();
+
+        final List<Variable> fileVariables = netcdfFile.getVariables();
+        for (final Variable fileVariable: fileVariables) {
+            final String shortName = fileVariable.getShortName();
+            if(shortName.contains("(original,89GHz") ||
+                    shortName.contains("Attitude_Data") ||
+                    shortName.contains("Position_in_Orbit") ||
+                    shortName.contains("Navigation_Data") ||
+                    shortName.contains("Latitude_of_Observation_Point") ||  // we add the relevant sub-sampled arrays during file-open tb 2018-01-16
+                    shortName.contains("Longitude_of_Observation_Point") ||
+                    shortName.contains("Pixel_Data_Quality_89")||
+                    shortName.contains("Scan_Data_Quality")||   // we may need this tb 2018-01-16
+                    shortName.contains("Land_Ocean_Flag_89")) {
+                continue;
+            }
+
+            if (shortName.contains("Land_Ocean_Flag_6_to_36")) {
+                final int[] shape = fileVariable.getShape();
+                shape[0] = 1;   // pick a single layer
+                final int[] origin = {0, 0, 0};
+                final String variableNamePrefix = "Land_Ocean_Flag_";
+                for (int i = 0; i < LAND_OCEAN_FLAG_EXTENSIONS.length; i++) {
+                    origin[0] = i;
+                    final Section section = new Section(origin, shape);
+                    final Variable channelVariable = fileVariable.section(section);
+                    channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
+                    variables.add(channelVariable);
+                }
+                continue;
+            }
+
+            if (shortName.contains("Pixel_Data_Quality_6_to_36")) {
+                final PixelDataQualityVariable qualityVariable = new PixelDataQualityVariable(fileVariable);
+                variables.add(qualityVariable);
+                continue;
+            }
+
+            variables.add(fileVariable);
+        }
+
+        return variables;
     }
 
     @Override

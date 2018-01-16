@@ -228,11 +228,9 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException {
-        final List<Variable> variables = new ArrayList<>();
-
         final Group geoLocationGroup = netcdfFile.findGroup(LO_RES_SWATH_GEO_GROUP);
         final List<Variable> geolocationVariables = geoLocationGroup.getVariables();
-        variables.addAll(geolocationVariables);
+        final List<Variable> variables = new ArrayList<>(geolocationVariables);
 
         final Group dataGroup = netcdfFile.findGroup(LO_RES_SWATH_DATA_GROUP);
         final List<Variable> dataGroupVariables = dataGroup.getVariables();
@@ -273,7 +271,7 @@ class AMSRE_Reader implements Reader {
                 final int[] shape = variable.getShape();
                 shape[1] = 1;   // pick a single layer
                 final int[] origin = {0, 0};
-                String variableNamePrefix = "Channel_Quality_Flag_";
+                final String variableNamePrefix = "Channel_Quality_Flag_";
                 for (int i = 0; i < CHANNEL_QUALITY_FLAG_EXTENSIONS.length; i++) {
                     origin[1] = i;
                     final Section section = new Section(origin, shape);

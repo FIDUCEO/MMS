@@ -25,21 +25,24 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class AMSR2_Reader_IO_Test {
@@ -103,6 +106,91 @@ public class AMSR2_Reader_IO_Test {
             time = timeAxis.getTime(coordinates[12]);
             TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 12, 1, time);
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator() throws IOException {
+        final File amsr2File = getAmsr2File();
+
+        try {
+            reader.open(amsr2File);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+            assertTrue(timeLocator instanceof TimeLocator_TAI1993Vector);
+
+            long time = timeLocator.getTimeFor(68, 0);
+            assertEquals(1372671701158L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 9, 41, 41, new Date(time));
+
+            time = timeLocator.getTimeFor(69, 1000);
+            assertEquals(1372673201011L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 6, 41, new Date(time));
+
+            time = timeLocator.getTimeFor(70, 1994);
+            assertEquals(1372674691867L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 31, 31, new Date(time));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables() throws IOException, InvalidRangeException {
+        final File amsr2File = getAmsr2File();
+
+        try {
+            reader.open(amsr2File);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(47, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("Area_Mean_Height", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(4);
+            assertEquals("Brightness_Temperature_(res06,18.7GHz,V)", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(9);
+            assertEquals("Brightness_Temperature_(res06,6.9GHz,H)", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(13);
+            assertEquals("Brightness_Temperature_(res06,89.0GHz,H)", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(25);
+            assertEquals("Brightness_Temperature_(res23,18.7GHz,H)", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(38);
+            assertEquals("Earth_Incidence", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(39);
+            assertEquals("Land_Ocean_Flag_6", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(41);
+            assertEquals("Land_Ocean_Flag_23", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+
+            variable = variables.get(43);
+            assertEquals("Pixel_Data_Quality_6_to_36", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+
+            variable = variables.get(44);
+            assertEquals("Scan_Time", variable.getShortName());
+            assertEquals(DataType.DOUBLE, variable.getDataType());
+
+            variable = variables.get(46);
+            assertEquals("Sun_Elevation", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
         } finally {
             reader.close();
         }

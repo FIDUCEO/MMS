@@ -32,6 +32,7 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
+//@todo 2 tb/tb write tests 2018-01-16
 @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 class GeolocationVariable extends VariablePrototype {
 

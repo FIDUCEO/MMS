@@ -123,6 +123,7 @@ public class AMSRE_Reader_IO_Test {
 
             time = timeLocator.getTimeFor(68, 1000);
             assertEquals(1108620038998L, time);
+            TestUtil.assertCorrectUTCDate(2005, 2, 17, 6, 0, 38, new Date(time));
 
             time = timeLocator.getTimeFor(68, 1994);
             assertEquals(1108621529890L, time);
@@ -211,7 +212,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize() throws IOException, InvalidRangeException {
+    public void testGetProductSize() throws IOException {
         final File file = getAmsreFile();
 
         try {
