@@ -59,12 +59,11 @@ class GeolocationVariable extends VariablePrototype {
     public Array read() throws IOException {
         final int[] shape = variable.getShape();
         final int[] origin = new int[]{0, 0};
-        final int[] shapeSubset = new int[]{shape[0], shape[1]/2};
         final int[] stride = new int[] {1, 2};
         try {
-            final Section section = new Section(origin, shapeSubset, stride);
+            final Section section = new Section(origin, shape, stride);
 
-            return variable.read(section);
+            return variable.read(section).copy();
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }

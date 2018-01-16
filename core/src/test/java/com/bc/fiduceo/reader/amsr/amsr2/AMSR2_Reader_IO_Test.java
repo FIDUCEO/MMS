@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.amsr.amsr2;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -79,13 +80,13 @@ public class AMSR2_Reader_IO_Test {
             assertNotNull(boundingGeometry);
 
             Point[] coordinates = boundingGeometry.getCoordinates();
-            assertEquals(57, coordinates.length);
+            assertEquals(69, coordinates.length);
 
             assertEquals(176.48370361328125, coordinates[0].getLon(), 1e-8);
             assertEquals(-72.13760375976562, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(-64.33760070800781, coordinates[28].getLon(), 1e-8);
-            assertEquals(81.37730407714844, coordinates[28].getLat(), 1e-8);
+            assertEquals(-60.5750846862793, coordinates[28].getLon(), 1e-8);
+            assertEquals(79.94698333740234, coordinates[28].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
@@ -93,18 +94,17 @@ public class AMSR2_Reader_IO_Test {
             final TimeAxis timeAxis = timeAxes[0];
             coordinates = timeAxis.getGeometry().getCoordinates();
             assertEquals(22, coordinates.length);
-            assertEquals(127.08951568603516, coordinates[1].getLon(), 1e-8);
-            assertEquals(-76.40843963623047, coordinates[1].getLat(), 1e-8);
+            assertEquals(109.5756301879883, coordinates[1].getLon(), 1e-8);
+            assertEquals(-79.83582305908203, coordinates[1].getLat(), 1e-8);
 
-            assertEquals(52.38159942626954, coordinates[12].getLon(), 1e-8);
-            assertEquals(14.875041007995609, coordinates[12].getLat(), 1e-8);
-
+            assertEquals(47.50423812866211, coordinates[12].getLon(), 1e-8);
+            assertEquals(15.753782272338867, coordinates[12].getLat(), 1e-8);
 
             Date time = timeAxis.getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2013, 7, 1, 9, 42, 53, time);
 
             time = timeAxis.getTime(coordinates[12]);
-            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 12, 1, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 11, 56, time);
 
         } finally {
             reader.close();
@@ -191,6 +191,21 @@ public class AMSR2_Reader_IO_Test {
             variable = variables.get(46);
             assertEquals("Sun_Elevation", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize() throws IOException {
+        final File amsr2File = getAmsr2File();
+
+        try {
+            reader.open(amsr2File);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(243, productSize.getNx());
+            assertEquals(2044, productSize.getNy());
         } finally {
             reader.close();
         }

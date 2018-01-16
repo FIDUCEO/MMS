@@ -117,16 +117,16 @@ class AMSR2_Reader implements Reader {
         final List<Variable> variables = new ArrayList<>();
 
         final List<Variable> fileVariables = netcdfFile.getVariables();
-        for (final Variable fileVariable: fileVariables) {
+        for (final Variable fileVariable : fileVariables) {
             final String shortName = fileVariable.getShortName();
-            if(shortName.contains("(original,89GHz") ||
+            if (shortName.contains("(original,89GHz") ||
                     shortName.contains("Attitude_Data") ||
                     shortName.contains("Position_in_Orbit") ||
                     shortName.contains("Navigation_Data") ||
                     shortName.contains("Latitude_of_Observation_Point") ||  // we add the relevant sub-sampled arrays during file-open tb 2018-01-16
                     shortName.contains("Longitude_of_Observation_Point") ||
-                    shortName.contains("Pixel_Data_Quality_89")||
-                    shortName.contains("Scan_Data_Quality")||   // we may need this tb 2018-01-16
+                    shortName.contains("Pixel_Data_Quality_89") ||
+                    shortName.contains("Scan_Data_Quality") ||   // we may need this tb 2018-01-16
                     shortName.contains("Land_Ocean_Flag_89")) {
                 continue;
             }
@@ -160,7 +160,9 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array longitudes = arrayCache.get(LON_VARIABLE_NAME);
+        final int[] shape = longitudes.getShape();
+        return new Dimension("size", shape[1], shape[0]);
     }
 
     @Override
