@@ -46,7 +46,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class AMSR2_Reader_IO_Test {
@@ -142,7 +144,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables() throws IOException, InvalidRangeException {
+    public void testGetVariables() throws IOException {
         final File amsr2File = getAmsr2File();
 
         try {
@@ -186,7 +188,7 @@ public class AMSR2_Reader_IO_Test {
             variable = variables.get(45);
             assertEquals("Latitude_of_Observation_Point_for_89A", variable.getShortName());
             assertEquals(DataType.FLOAT, variable.getDataType());
-            
+
             variable = variables.get(46);
             assertEquals("Land_Ocean_Flag_10", variable.getShortName());
             assertEquals(DataType.BYTE, variable.getDataType());
@@ -194,7 +196,7 @@ public class AMSR2_Reader_IO_Test {
             variable = variables.get(47);
             assertEquals("Land_Ocean_Flag_36", variable.getShortName());
             assertEquals(DataType.BYTE, variable.getDataType());
-            
+
             variable = variables.get(48);
             assertEquals("Pixel_Data_Quality_6_to_36", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
@@ -246,6 +248,90 @@ public class AMSR2_Reader_IO_Test {
             reader.close();
         }
     }
+
+    @Test
+    public void testReadRaw_onBorders() throws IOException, InvalidRangeException {
+        final File file = getAmsr2File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(3, 3);
+            // upper left
+            Array array = reader.readRaw(0, 0, interval, "Brightness_Temperature_(res06,10.7GHz,V)");
+            NCTestUtils.assertValueAt(-1, 0, 0, array);
+            NCTestUtils.assertValueAt(-1, 1, 0, array);
+            NCTestUtils.assertValueAt(24946, 1, 1, array);
+            NCTestUtils.assertValueAt(24940, 2, 1, array);
+
+            // upper center
+            array = reader.readRaw(125, 0, interval, "Brightness_Temperature_(res10,10.7GHz,H)");
+            NCTestUtils.assertValueAt(-1, 0, 0, array);
+            NCTestUtils.assertValueAt(-1, 1, 0, array);
+            NCTestUtils.assertValueAt(17707, 1, 1, array);
+            NCTestUtils.assertValueAt(17793, 1, 2, array);
+
+            // upper right
+            array = reader.readRaw(242, 0, interval, "Earth_Incidence");
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 2, 1, array);
+            NCTestUtils.assertValueAt(5527, 0, 1, array);
+            NCTestUtils.assertValueAt(5527, 1, 2, array);
+
+            // right center
+            array = reader.readRaw(242, 1023, interval, "Land_Ocean_Flag_6");
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(-1, 2, 0, array);
+            NCTestUtils.assertValueAt(-1, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+
+            // lower right
+            array = reader.readRaw(242, 2043, interval, "Latitude_of_Observation_Point_for_89A");
+            NCTestUtils.assertValueAt(74.34542846679688, 0, 0, array);
+            NCTestUtils.assertValueAt(74.36033630371094, 0, 1, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 2, 0, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 2, 2, array);
+
+            // bottom center
+            array = reader.readRaw(121, 2043, interval, "Pixel_Data_Quality_6_to_36");
+            NCTestUtils.assertValueAt(0, 1, 0, array);
+            NCTestUtils.assertValueAt(-4, 1, 1, array);
+            NCTestUtils.assertValueAt(-32767, 2, 2, array);
+
+            // lower left
+            array = reader.readRaw(0, 2043, interval, "Position_in_Orbit");
+            NCTestUtils.assertValueAt(9.969209968386869E36, 0, 0, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 0, 1, array);
+            NCTestUtils.assertValueAt(5972.236457044598, 1, 1, array);
+            NCTestUtils.assertValueAt(5972.236457044598, 2, 1, array);
+
+            // left center
+            array = reader.readRaw(0, 1045, interval, "Scan_Time");
+            NCTestUtils.assertValueAt(9.969209968386869E36, 0, 0, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36, 0, 1, array);
+            NCTestUtils.assertValueAt(6.468269035062965E8, 1, 1, array);
+            NCTestUtils.assertValueAt(6.468269035062965E8, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    // @todo 1 tb/tb continue here 2018-01-17
+//    @Test
+//    public void testReadScaled() throws IOException, InvalidRangeException {
+//        final File file = getAmsr2File();
+//
+//        try {
+//            reader.open(file);
+//
+//            final Interval interval = new Interval(5, 5);
+//            Array array = reader.readScaled(67, 1289, interval, "Earth_Incidence");
+//            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+//            NCTestUtils.assertValueAt(-32767, 2, 1, array);
+//        } finally {
+//            reader.close();
+//        }
+//    }
 
     @Test
     public void testGetProductSize() throws IOException {
