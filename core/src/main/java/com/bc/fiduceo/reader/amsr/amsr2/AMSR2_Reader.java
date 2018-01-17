@@ -7,7 +7,15 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
@@ -24,6 +32,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 class AMSR2_Reader implements Reader {
@@ -48,8 +58,7 @@ class AMSR2_Reader implements Reader {
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
 
-        arrayCache.inject(new GeolocationVariable(LON_VARIABLE_NAME, netcdfFile));
-        arrayCache.inject(new GeolocationVariable(LAT_VARIABLE_NAME, netcdfFile));
+        initializeVariables();
     }
 
     @Override
@@ -99,7 +108,11 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Array rawArray = arrayCache.get(escapedName);
+        final Dimension productSize = getProductSize();
+        final Number fillValue = getFillValue(escapedName);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
     }
 
     @Override
@@ -125,35 +138,19 @@ class AMSR2_Reader implements Reader {
                     shortName.contains("Navigation_Data") ||
                     shortName.contains("Latitude_of_Observation_Point") ||  // we add the relevant sub-sampled arrays during file-open tb 2018-01-16
                     shortName.contains("Longitude_of_Observation_Point") ||
+                    shortName.contains("Land_Ocean_Flag_6_to_36") || // we add this during open tb 2018-01-17
+                    shortName.contains("Pixel_Data_Quality_6_to_36") || // we add this during open tb 2018-01-17
                     shortName.contains("Pixel_Data_Quality_89") ||
                     shortName.contains("Scan_Data_Quality") ||   // we may need this tb 2018-01-16
                     shortName.contains("Land_Ocean_Flag_89")) {
                 continue;
             }
 
-            if (shortName.contains("Land_Ocean_Flag_6_to_36")) {
-                final int[] shape = fileVariable.getShape();
-                shape[0] = 1;   // pick a single layer
-                final int[] origin = {0, 0, 0};
-                final String variableNamePrefix = "Land_Ocean_Flag_";
-                for (int i = 0; i < LAND_OCEAN_FLAG_EXTENSIONS.length; i++) {
-                    origin[0] = i;
-                    final Section section = new Section(origin, shape);
-                    final Variable channelVariable = fileVariable.section(section);
-                    channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
-                    variables.add(channelVariable);
-                }
-                continue;
-            }
-
-            if (shortName.contains("Pixel_Data_Quality_6_to_36")) {
-                final PixelDataQualityVariable qualityVariable = new PixelDataQualityVariable(fileVariable);
-                variables.add(qualityVariable);
-                continue;
-            }
-
             variables.add(fileVariable);
         }
+
+        final List<Variable> injectedVariables = arrayCache.getInjectedVariables();
+        variables.addAll(injectedVariables);
 
         return variables;
     }
@@ -221,5 +218,52 @@ class AMSR2_Reader implements Reader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+    }
+
+    private Number getFillValue(String variableName) throws IOException {
+        final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
+        if (fillValue != null) {
+            return fillValue;
+        }
+
+        if (variableName.equalsIgnoreCase("Area_Mean_Height")) {
+            return -99999;
+        } else if (variableName.contains("Brightness_Temperature")) {
+            return 65535;
+        } else if (variableName.contains("Earth_")) {
+            return -32767;
+        } else if (variableName.contains("Land_Ocean_Flag")) {
+            return 255;
+        }
+
+        final Array array = arrayCache.get(variableName);
+        return NetCDFUtils.getDefaultFillValue(array);
+    }
+
+    private void initializeVariables() throws IOException {
+        arrayCache.inject(new GeolocationVariable(LON_VARIABLE_NAME, netcdfFile));
+        arrayCache.inject(new GeolocationVariable(LAT_VARIABLE_NAME, netcdfFile));
+        
+        try {
+            Variable fileVariable = netcdfFile.findVariable("Land_Ocean_Flag_6_to_36");
+            final int[] shape = fileVariable.getShape();
+            shape[0] = 1;   // pick a single layer
+            final int[] origin = {0, 0, 0};
+            final String variableNamePrefix = "Land_Ocean_Flag_";
+            for (int i = 0; i < LAND_OCEAN_FLAG_EXTENSIONS.length; i++) {
+                origin[0] = i;
+                final Section section = new Section(origin, shape);
+                final Variable channelVariable = fileVariable.section(section);
+                channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
+                arrayCache.inject(channelVariable);
+            }
+
+            fileVariable = netcdfFile.findVariable("Pixel_Data_Quality_6_to_36");
+            final PixelDataQualityVariable qualityVariable = new PixelDataQualityVariable(fileVariable);
+            arrayCache.inject(qualityVariable);
+
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }

@@ -29,6 +29,8 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +153,7 @@ public class ArrayCache {
      * @param attributeName the attribute name
      * @param variableName  the variable name
      * @return the string value or null
-     * @throws IOException
+     * @throws IOException on disk access failures
      */
     String getStringAttributeValue(String attributeName, String variableName) throws IOException {
         final Array array = get(variableName);
@@ -169,7 +171,7 @@ public class ArrayCache {
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
      * @return the string value or null
-     * @throws IOException
+     * @throws IOException on disk access failures
      */
     public String getStringAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
         final Array array = get(groupName, variableName);
@@ -187,7 +189,7 @@ public class ArrayCache {
      * @param attributeName the attribute name
      * @param variableName  the variable name
      * @return the number value or null
-     * @throws IOException
+     * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String variableName) throws IOException {
         final Array array = get(variableName);
@@ -205,7 +207,7 @@ public class ArrayCache {
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
      * @return the number value or null
-     * @throws IOException
+     * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
         final Array array = get(groupName, variableName);
@@ -219,6 +221,13 @@ public class ArrayCache {
 
     public void inject(Variable variable) {
         injectedVariables.put(variable.getShortName(), variable);
+    }
+
+    public List<Variable> getInjectedVariables() {
+        final HashMap<String, Variable> variableHashMap = this.injectedVariables;
+        final ArrayList<Variable> resultList = new ArrayList<>(variableHashMap.size());
+        resultList.addAll(variableHashMap.values());
+        return resultList;
     }
 
     private String getAttributeStringValue(String attributeName, String variableKey) {

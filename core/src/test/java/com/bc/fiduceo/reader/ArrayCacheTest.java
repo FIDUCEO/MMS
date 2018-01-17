@@ -33,7 +33,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -266,7 +270,7 @@ public class ArrayCacheTest {
     }
 
     @Test
-    public void testArrayThrowsWhenVariableIsNotPresent() throws IOException {
+    public void testArrayThrowsWhenVariableIsNotPresent() {
         try {
             arrayCache.get("not_present_variable");
             fail("IOException expected");
@@ -279,7 +283,7 @@ public class ArrayCacheTest {
     }
 
     @Test
-    public void testArrayThrowsWhenVariableInGroupIsNotPresent() throws IOException {
+    public void testArrayThrowsWhenVariableInGroupIsNotPresent() {
         try {
             arrayCache.get("a_group", "not_present_variable");
             fail("IOException expected");
@@ -293,7 +297,7 @@ public class ArrayCacheTest {
     }
 
     @Test
-    public void testArrayThrowsWhenGroupIsNotPresent() throws IOException {
+    public void testArrayThrowsWhenGroupIsNotPresent() {
         try {
             arrayCache.get("a_shitty_group", "not_present_variable");
             fail("IOException expected");
@@ -462,5 +466,30 @@ public class ArrayCacheTest {
         final Array injectedArray = arrayCache.get("injected");
         assertNotNull(injectedArray);
         assertEquals(2, injectedArray.getInt(0));
+    }
+
+    @Test
+    public void testGetInjectedVariables_empty() {
+        final List<Variable> injectedVariables = arrayCache.getInjectedVariables();
+        assertNotNull(injectedVariables);
+        assertEquals(0, injectedVariables.size());
+    }
+
+    @Test
+    public void testGetInjectedVariables_twoOfThem() {
+        Variable variable = mock(Variable.class);
+        when(variable.getShortName()).thenReturn("first");
+        arrayCache.inject(variable);
+
+        variable = mock(Variable.class);
+        when(variable.getShortName()).thenReturn("second");
+        arrayCache.inject(variable);
+
+        final List<Variable> injectedVariables = arrayCache.getInjectedVariables();
+        assertNotNull(injectedVariables);
+        assertEquals(2, injectedVariables.size());
+
+        assertEquals("first", injectedVariables.get(0).getShortName());
+        assertEquals("second", injectedVariables.get(1).getShortName());
     }
 }
