@@ -66,8 +66,8 @@ import java.util.List;
 
 public class CALIOP_SST_WP100_CLay_Reader implements Reader {
 
-    public static final double FOOTPRINT_WIDTH_KM = 5;
-    public static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
+    private static final double FOOTPRINT_WIDTH_KM = 5;
+    private static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
     private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
     private static final String MM = "(0[1-9]|1[0-2])";
     private static final String DD = "(0[1-9]|[12]\\d|3[01])";
@@ -84,7 +84,7 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    public CALIOP_SST_WP100_CLay_Reader(GeometryFactory geometryFactory, final CaliopUtils caliopUtils) {
+    CALIOP_SST_WP100_CLay_Reader(GeometryFactory geometryFactory, final CaliopUtils caliopUtils) {
         this.geometryFactory = geometryFactory;
         this.caliopUtils = caliopUtils;
     }

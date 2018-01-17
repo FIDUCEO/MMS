@@ -16,8 +16,6 @@
  */
 package com.bc.fiduceo.reader.caliop;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -59,10 +57,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+
 public class CALIOP_L2_VFM_Reader implements Reader {
 
-    public static final double FOOTPRINT_WIDTH_KM = 5;
-    public static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
+    private static final double FOOTPRINT_WIDTH_KM = 5;
+    private static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
     private static final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
     private static final String MM = "(0[1-9]|1[0-2])";
     private static final String DD = "(0[1-9]|[12]\\d|3[01])";
@@ -80,12 +80,12 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    public CALIOP_L2_VFM_Reader(GeometryFactory geometryFactory, CaliopUtils caliopUtils) {
+    CALIOP_L2_VFM_Reader(GeometryFactory geometryFactory, CaliopUtils caliopUtils) {
         this.geometryFactory = geometryFactory;
         this.caliopUtils = caliopUtils;
     }
 
-    public static Array readNadirClassificationFlags(Array array) throws InvalidRangeException {
+    public static Array readNadirClassificationFlags(Array array) {
         final short[] storage = (short[]) array.getStorage();
         final short[] nadirStorage = new short[545];
         int nadirIdx = 0;
@@ -238,12 +238,12 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws IOException {
+    public List<Variable> getVariables() {
         return Collections.unmodifiableList(variables);
     }
 
     @Override
-    public Dimension getProductSize() throws IOException {
+    public Dimension getProductSize() {
         final Variable latVar = netcdfFile.findVariable("Latitude");
         final int[] shape = latVar.getShape();
         return new Dimension("lat", shape[1], shape[0]);
@@ -285,7 +285,7 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         return Math.sqrt(2 * fp2);
     }
 
-    private List<Variable> initVariables() throws IOException {
+    private List<Variable> initVariables() {
         final HashMap<String, Attribute[]> flagCodings = new HashMap<>();
         flagCodings.put("Day_Night_Flag", new Attribute[]{
                 new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
@@ -304,8 +304,8 @@ public class CALIOP_L2_VFM_Reader implements Reader {
         for (Variable ncVariable : ncVariables) {
             final String fullName = ncVariable.getFullName();
             if (ncVariable.getGroup() != rootGroup
-                || fullName.contains("metadata")
-                || fullName.contains("Feature_Classification_Flags")) {
+                    || fullName.contains("metadata")
+                    || fullName.contains("Feature_Classification_Flags")) {
                 continue;
             }
             if (flagCodings.containsKey(fullName)) {
