@@ -126,7 +126,7 @@ class AMSR2_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() {
         final List<Variable> variables = new ArrayList<>();
 
         final List<Variable> fileVariables = netcdfFile.getVariables();
@@ -243,27 +243,34 @@ class AMSR2_Reader implements Reader {
     private void initializeVariables() throws IOException {
         arrayCache.inject(new GeolocationVariable(LON_VARIABLE_NAME, netcdfFile));
         arrayCache.inject(new GeolocationVariable(LAT_VARIABLE_NAME, netcdfFile));
-        
+
         try {
-            Variable fileVariable = netcdfFile.findVariable("Land_Ocean_Flag_6_to_36");
-            final int[] shape = fileVariable.getShape();
-            shape[0] = 1;   // pick a single layer
-            final int[] origin = {0, 0, 0};
-            final String variableNamePrefix = "Land_Ocean_Flag_";
-            for (int i = 0; i < LAND_OCEAN_FLAG_EXTENSIONS.length; i++) {
-                origin[0] = i;
-                final Section section = new Section(origin, shape);
-                final Variable channelVariable = fileVariable.section(section);
-                channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
-                arrayCache.inject(channelVariable);
-            }
-
-            fileVariable = netcdfFile.findVariable("Pixel_Data_Quality_6_to_36");
-            final PixelDataQualityVariable qualityVariable = new PixelDataQualityVariable(fileVariable);
-            arrayCache.inject(qualityVariable);
-
+            injectLandOceanFlagVariables();
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
+        }
+
+        injectPixelDataQualityVariable();
+    }
+
+    private void injectPixelDataQualityVariable() {
+        final Variable fileVariable = netcdfFile.findVariable("Pixel_Data_Quality_6_to_36");
+        final PixelDataQualityVariable qualityVariable = new PixelDataQualityVariable(fileVariable);
+        arrayCache.inject(qualityVariable);
+    }
+
+    private void injectLandOceanFlagVariables() throws InvalidRangeException {
+        Variable fileVariable = netcdfFile.findVariable("Land_Ocean_Flag_6_to_36");
+        final int[] shape = fileVariable.getShape();
+        shape[0] = 1;   // pick a single layer
+        final int[] origin = {0, 0, 0};
+        final String variableNamePrefix = "Land_Ocean_Flag_";
+        for (int i = 0; i < LAND_OCEAN_FLAG_EXTENSIONS.length; i++) {
+            origin[0] = i;
+            final Section section = new Section(origin, shape);
+            final Variable channelVariable = fileVariable.section(section);
+            channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
+            arrayCache.inject(channelVariable);
         }
     }
 }

@@ -7,11 +7,10 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 class PixelDataQualityVariable extends VariablePrototype {
-
-    // @todo 1 tb/tb add attributes for flag coding 2018-01-17
 
     private final Variable originalVariable;
 
@@ -50,6 +49,9 @@ class PixelDataQualityVariable extends VariablePrototype {
 
     @Override
     public List<Attribute> getAttributes() {
-        return originalVariable.getAttributes();
+        final ArrayList<Attribute> newAttributes = new ArrayList<>(originalVariable.getAttributes());
+        newAttributes.add(new Attribute("flag_values", "2, 3, 8, 12, 32, 48, 128, 192, 32768"));
+        newAttributes.add(new Attribute("flag_meanings", "rfi_pos_6V rfi_cont_6V rfi_pos_6H rfi_cont_6H rfi_pos_7V rfi_cont_7V rfi_pos_7H rfi_cont_7H data_drop_7H"));
+        return newAttributes;
     }
 }
