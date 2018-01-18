@@ -7,22 +7,11 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -117,7 +106,18 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array rawArray = readRaw(centerX, centerY, interval, variableName);
+
+        final double scaleFactor = getScaleFactor(variableName);
+        if (scaleFactor != 1.0) {
+            final double offset = 0.0;
+            if (ReaderUtils.mustScale(scaleFactor, offset)) {
+                final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+                return MAMath.convert2Unpacked(rawArray, scaleOffset);
+            }
+        }
+
+        return rawArray;
     }
 
     @Override
@@ -272,5 +272,12 @@ class AMSR2_Reader implements Reader {
             channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
             arrayCache.inject(channelVariable);
         }
+    }
+
+    private double getScaleFactor(String variableName) throws IOException {
+        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final Number scale_factor = arrayCache.getNumberAttributeValue("SCALE_FACTOR", escapedName);
+
+        return scale_factor.doubleValue();
     }
 }

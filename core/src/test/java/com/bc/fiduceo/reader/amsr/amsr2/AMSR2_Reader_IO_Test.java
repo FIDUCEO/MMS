@@ -316,22 +316,33 @@ public class AMSR2_Reader_IO_Test {
         }
     }
 
-    // @todo 1 tb/tb continue here 2018-01-17
-//    @Test
-//    public void testReadScaled() throws IOException, InvalidRangeException {
-//        final File file = getAmsr2File();
-//
-//        try {
-//            reader.open(file);
-//
-//            final Interval interval = new Interval(5, 5);
-//            Array array = reader.readScaled(67, 1289, interval, "Earth_Incidence");
-//            NCTestUtils.assertValueAt(-32767, 0, 0, array);
-//            NCTestUtils.assertValueAt(-32767, 2, 1, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @Test
+    public void testReadScaled() throws IOException, InvalidRangeException {
+        final File file = getAmsr2File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(104, 923, interval, "Area_Mean_Height");
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+
+            array = reader.readScaled(105, 924, interval, "Brightness_Temperature_(res10,36.5GHz,H)");
+            NCTestUtils.assertValueAt(159.72999642975628, 1, 1, array);
+            NCTestUtils.assertValueAt(159.95999642461538, 2, 2, array);
+
+            array = reader.readScaled(106, 925, interval, "Earth_Azimuth");
+            NCTestUtils.assertValueAt(-179.27999599277973, 2, 1, array);
+            NCTestUtils.assertValueAt(-179.91999597847462, 3, 2, array);
+
+            array = reader.readScaled(107, 926, interval, "Land_Ocean_Flag_36");
+            NCTestUtils.assertValueAt(0, 4, 1, array);
+            NCTestUtils.assertValueAt(0, 0, 3, array);
+        } finally {
+            reader.close();
+        }
+    }
 
     @Test
     public void testGetProductSize() throws IOException {
