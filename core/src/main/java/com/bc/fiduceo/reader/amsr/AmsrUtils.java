@@ -34,6 +34,14 @@ public class AmsrUtils {
         assignNodeType(acquisitionInfo, orbitDirection);
     }
 
+    public static int[] parseYMD(String dateTimePart) {
+        final int year = Integer.parseInt(dateTimePart.substring(0, 4));
+        final int month = Integer.parseInt(dateTimePart.substring(4, 6));
+        final int day = Integer.parseInt(dateTimePart.substring(6, 8));
+
+        return new int[] {year, month, day};
+    }
+
     // package access for testing only tb 2018-01-15
     static void assignNodeType(AcquisitionInfo acquisitionInfo, String orbitDirection) {
         if ("Ascending".equalsIgnoreCase(orbitDirection)) {

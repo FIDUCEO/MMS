@@ -408,15 +408,9 @@ public class AMSRE_Reader_IO_Test {
 
             final Interval interval = new Interval(3, 3);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(72, 1107, interval);
-            assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();
-
-            index.set(0, 0);
-            assertEquals(1108620197, acquisitionTime.getInt(index));
-            index.set(1, 0);
-            assertEquals(1108620199, acquisitionTime.getInt(index));
-            index.set(2, 0);
-            assertEquals(1108620200, acquisitionTime.getInt(index));
+            NCTestUtils.assertValueAt(1108620197, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1108620199, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1108620200, 0, 2, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -430,20 +424,14 @@ public class AMSRE_Reader_IO_Test {
             reader.open(file);
 
             final Interval interval = new Interval(5, 5);
-            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 1107, interval);
-            assertNotNull(acquisitionTime);
-            final Index index = acquisitionTime.getIndex();
+            final int defaultFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
-            index.set(0, 0);
-            assertEquals(NetCDFUtils.getDefaultFillValue(int.class), acquisitionTime.getInt(index));
-            index.set(1, 0);
-            assertEquals(-2147483647, acquisitionTime.getInt(index));
-            index.set(2, 0);
-            assertEquals(-2147483647, acquisitionTime.getInt(index));
-            index.set(0, 1);
-            assertEquals(1108620196, acquisitionTime.getInt(index));
-            index.set(1, 1);
-            assertEquals(1108620197, acquisitionTime.getInt(index));
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 1107, interval);
+            NCTestUtils.assertValueAt(defaultFillValue, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(defaultFillValue, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(defaultFillValue, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1108620196, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1108620200, 1, 3, acquisitionTime);
         } finally {
             reader.close();
         }

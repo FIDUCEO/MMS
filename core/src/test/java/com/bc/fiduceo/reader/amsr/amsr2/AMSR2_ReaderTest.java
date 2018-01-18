@@ -82,4 +82,12 @@ public class AMSR2_ReaderTest {
         } catch (IOException expected) {
         }
     }
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        final int[] ymd = reader.extractYearMonthDayFromFilename("GW1AM2_201307010942_035A_L1SGRTBR_2220220.h5");
+
+        assertEquals(2013, ymd[0]);
+        assertEquals(7, ymd[1]);
+        assertEquals(1, ymd[2]);
+    }
 }

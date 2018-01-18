@@ -7,11 +7,14 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.*;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -20,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
@@ -36,6 +40,7 @@ class AMSR2_Reader implements Reader {
     private final GeometryFactory geometryFactory;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
+    private PixelLocator pixelLocator;
     private BoundingPolygonCreator boundingPolygonCreator;
 
     AMSR2_Reader(GeometryFactory geometryFactory) {
@@ -76,12 +81,21 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            final Array latitudes = arrayCache.get(LAT_VARIABLE_NAME);
+            final Array longitudes = arrayCache.get(LON_VARIABLE_NAME);
+
+            final int[] shape = longitudes.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(longitudes, latitudes, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        return getPixelLocator();
     }
 
     @Override
@@ -92,7 +106,10 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String[] strings = fileName.split("_");
+        final String dateTimePart = strings[1];
+
+        return AmsrUtils.parseYMD(dateTimePart);
     }
 
     @Override
@@ -122,7 +139,22 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array rawTimeTAI = readRaw(x, y, interval, "Scan_Time");
+        final double fillValue = getFillValue("Scan_Time").doubleValue();
+
+        final int acquisitionTimeFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        final Array acquisitionTimeUtc = Array.factory(DataType.INT, rawTimeTAI.getShape());
+        for (int i = 0; i < rawTimeTAI.getSize(); i++) {
+            final double rawTimeTAIDouble = rawTimeTAI.getDouble(i);
+            if (rawTimeTAIDouble != fillValue) {
+                final Date utcDate = TimeUtils.tai1993ToUtc(rawTimeTAIDouble);
+                acquisitionTimeUtc.setInt(i, (int) (utcDate.getTime() * 0.001));
+            } else {
+                acquisitionTimeUtc.setInt(i, acquisitionTimeFillValue);
+            }
+        }
+
+        return (ArrayInt.D2) acquisitionTimeUtc;
     }
 
     @Override

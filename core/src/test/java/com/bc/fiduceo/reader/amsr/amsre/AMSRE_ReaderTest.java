@@ -144,4 +144,20 @@ public class AMSRE_ReaderTest {
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2018-01-18
+        int[] ymd = reader.extractYearMonthDayFromFilename("AMSR_E_L2A_BrightnessTemperatures_V12_200502161217_A.hdf");
+
+        assertEquals(2005, ymd[0]);
+        assertEquals(2, ymd[1]);
+        assertEquals(16, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("AMSR_E_L2A_BrightnessTemperatures_V12_200512061217_A.hdf");
+
+        assertEquals(2005, ymd[0]);
+        assertEquals(12, ymd[1]);
+        assertEquals(6, ymd[2]);
+    }
 }

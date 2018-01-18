@@ -138,7 +138,10 @@ class AMSRE_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String[] strings = fileName.split("_");
+        final String dateTimePart = strings[5];
+
+        return AmsrUtils.parseYMD(dateTimePart);
     }
 
     @Override
