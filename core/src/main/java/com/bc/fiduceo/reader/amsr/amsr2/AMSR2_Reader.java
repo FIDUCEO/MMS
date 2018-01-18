@@ -57,6 +57,8 @@ class AMSR2_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
+        pixelLocator = null;
+        boundingPolygonCreator = null;
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
