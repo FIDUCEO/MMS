@@ -37,6 +37,7 @@ public class SystemConfig {
     private String geometryLibraryType;
     private ArchiveConfig archiveConfig;
     private int readerCacheSize;
+    private String tempDir;
 
     public static SystemConfig loadFrom(File configDirectory) throws IOException {
         final File systemPropertiesFile = new File(configDirectory, "system-config.xml");
@@ -76,6 +77,10 @@ public class SystemConfig {
         return readerCacheSize;
     }
 
+    public String getTempDir() {
+        return tempDir;
+    }
+
     private SystemConfig(Document document) {
         this();
 
@@ -93,6 +98,11 @@ public class SystemConfig {
         final Element readerCacheSize = rootElement.getChild("reader-cache-size");
         if (readerCacheSize != null) {
             this.readerCacheSize = Integer.parseInt(readerCacheSize.getTextTrim());
+        }
+
+        final Element tempDirElement = rootElement.getChild("temp-directory");
+        if (tempDirElement != null) {
+            this.tempDir = tempDirElement.getTextTrim();
         }
     }
 }

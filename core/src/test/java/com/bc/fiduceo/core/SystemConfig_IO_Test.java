@@ -38,7 +38,6 @@ import static org.junit.Assert.fail;
 @RunWith(IOTestRunner.class)
 public class SystemConfig_IO_Test {
 
-
     private File testDir;
 
     @Before
@@ -62,10 +61,12 @@ public class SystemConfig_IO_Test {
         assertNotNull(systemConfig);
 
         assertEquals("S2", systemConfig.getGeometryLibraryType());
-        assertEquals(8, systemConfig.getReaderCacheSize());
+        assertEquals(12, systemConfig.getReaderCacheSize());
 
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
         assertEquals(TestUtil.getTestDataDirectory().getAbsolutePath(), archiveConfig.getRootPath().toString());
+
+        assertEquals(TestUtil.getTestDir().getAbsolutePath(), systemConfig.getTempDir());
     }
 
     @Test

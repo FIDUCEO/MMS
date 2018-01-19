@@ -31,21 +31,12 @@ import org.apache.commons.cli.Options;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.constants.DataFormatType;
 import ucar.nc2.write.Nc4Chunking;
 import ucar.nc2.write.Nc4ChunkingDefault;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -313,7 +304,7 @@ class PostProcessingTool {
         return writer;
     }
 
-    private static void copyHeader(NetcdfFileWriter writer, Group oldGroup, List<String> namesToRemove, Group newParent, int anonymousDimensionIndex) throws IOException, InvalidRangeException {
+    private static void copyHeader(NetcdfFileWriter writer, Group oldGroup, List<String> namesToRemove, Group newParent, int anonymousDimensionIndex) {
         Group newGroup = writer.addGroup(newParent, oldGroup.getShortName());
 
         for (Attribute att : oldGroup.getAttributes()) {

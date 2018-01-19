@@ -25,7 +25,6 @@ import com.bc.fiduceo.archive.ArchiveConfig;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ import static org.junit.Assert.fail;
 public class SystemConfigTest {
 
     @Test
-    public void testLoadAndGet_geometryLibrary() throws IOException {
+    public void testLoadAndGet_geometryLibrary() {
         final String useCaseXml = "<system-config>" +
                 "    <geometry-library name = \"lib_name\" />" +
                 "</system-config>";
@@ -46,7 +45,7 @@ public class SystemConfigTest {
     }
 
     @Test
-    public void testLoadAndGet_invalidRootTag() throws IOException {
+    public void testLoadAndGet_invalidRootTag() {
         final String useCaseXml = "<system-thing>" +
                 "    <geometry-library name = \"lib_name\" />" +
                 "</system-thing>";
@@ -62,7 +61,7 @@ public class SystemConfigTest {
     }
 
     @Test
-    public void testLoadAndGet_archiveConfig() throws IOException {
+    public void testLoadAndGet_archiveConfig() {
         final String useCaseXml = "<system-config>" +
                 "    <archive>" +
                 "        <root-path>" +
@@ -96,7 +95,7 @@ public class SystemConfigTest {
     }
 
     @Test
-    public void testReaderCachSize_FromFile() throws Exception {
+    public void testLoadAndGet_ReaderCacheSize() {
         final String useCaseXml = "<system-config>" +
                 "    <reader-cache-size>32</reader-cache-size>" +
                 "</system-config>";
@@ -105,5 +104,17 @@ public class SystemConfigTest {
         final SystemConfig systemConfig = SystemConfig.load(inputStream);
 
         assertEquals(32, systemConfig.getReaderCacheSize());
+    }
+
+    @Test
+    public void testLoadAndGet_TempDir() {
+        final String useCaseXml = "<system-config>" +
+                "    <temp-directory>/wherever/I/Lay/my/hat</temp-directory>" +
+                "</system-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final SystemConfig systemConfig = SystemConfig.load(inputStream);
+
+        assertEquals("/wherever/I/Lay/my/hat", systemConfig.getTempDir());
     }
 }

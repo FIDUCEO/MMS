@@ -445,8 +445,35 @@ public class AMSR2_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadAcquisitionInfo_compressed() throws IOException {
+        final File amsr2File = getAmsr2CompressedFile();
+
+        try {
+            reader.open(amsr2File);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2017, 7, 16, 5, 10, 43, 876, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2017, 7, 16, 6, 0, 6, 92, sensingStop);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getAmsr2File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2013", "07", "01", "GW1AM2_201307010942_035A_L1SGRTBR_2220220.h5"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private File getAmsr2CompressedFile() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2017", "07", "16", "GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;

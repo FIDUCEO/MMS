@@ -96,7 +96,7 @@ public class ToolContextTest {
     }
 
     @Test
-    public void testSetGetGeometryFactory() throws Exception {
+    public void testSetGetGeometryFactory() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
         context.setGeometryFactory(geometryFactory);

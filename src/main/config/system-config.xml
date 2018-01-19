@@ -27,6 +27,17 @@
     <geometry-library name="S2"/>
 
     <!--
+    Defines the reader-cache-size. This is the number of satellite data readers that is kept open at the same time to
+    avoid repetitive open/close operations on the same file.
+    -->
+    <reader-cache-size>12</reader-cache-size>
+
+    <!--
+    Defines the global temp directory.
+    -->
+    <temp-directory>/tmp</temp-directory>
+
+    <!--
     Configures archiving rules for the data archive
     -->
     <archive>

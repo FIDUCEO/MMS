@@ -128,6 +128,10 @@ public class TestUtil {
                 "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
                 "        </rule>" +
                 "    </archive>" +
+                "    <temp-directory>" +
+                "            " + TestUtil.getTestDir().getAbsolutePath() +
+                "    </temp-directory>" +
+                "    <reader-cache-size>12</reader-cache-size>" +
                 "</system-config>";
 
 
