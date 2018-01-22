@@ -3,6 +3,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -124,8 +125,8 @@ class TimeSeriesStrategy extends Strategy {
 
         final GeoFile geoFile = new GeoFile(matchupCount);
         try {
-            final TempFileManager tempFileManager = context.getTempFileManager();
-            geoFile.createTimeSeries(tempFileManager);
+            final TempFileUtils tempFileUtils = context.getTempFileUtils();
+            geoFile.createTimeSeries(tempFileUtils);
             geoFile.writeTimeSeries(longitudes, latitudes);
         } finally {
             geoFile.close();
@@ -134,12 +135,12 @@ class TimeSeriesStrategy extends Strategy {
     }
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories, Context context) throws IOException, InterruptedException {
-        final TempFileManager tempFileManager = context.getTempFileManager();
+        final TempFileUtils tempFileUtils = context.getTempFileUtils();
 
-        final File ggasTimeSeriesFile = tempFileManager.create("ggas", "nc");
-        final File ggamTimeSeriesFile = tempFileManager.create("ggam", "nc");
-        final File ggamRemappedTimeSeriesFile = tempFileManager.create("ggar", "nc");
-        final File analysisFile = tempFileManager.create("analysis", "nc");
+        final File ggasTimeSeriesFile = tempFileUtils.create("ggas", "nc");
+        final File ggamTimeSeriesFile = tempFileUtils.create("ggam", "nc");
+        final File ggamRemappedTimeSeriesFile = tempFileUtils.create("ggar", "nc");
+        final File analysisFile = tempFileUtils.create("analysis", "nc");
 
         final Configuration configuration = context.getConfiguration();
         final String ggasTimeStepFiles = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 0);
@@ -150,7 +151,7 @@ class TimeSeriesStrategy extends Strategy {
                 analysisFile.getAbsolutePath());
 
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_AN_TEMPLATE, templateProperties);
-        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileManager);
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileUtils);
 
         final ProcessRunner processRunner = new ProcessRunner();
         processRunner.execute(scriptFile.getPath());
@@ -159,13 +160,14 @@ class TimeSeriesStrategy extends Strategy {
     }
 
     private File createForecastFile(File geoFile, List<String> nwpDataDirectories, Context context) throws IOException, InterruptedException {
-        final TempFileManager tempFileManager = context.getTempFileManager();
-        final File gafsTimeSeriesFile = tempFileManager.create("gafs", "nc");
-        final File ggfsTimeSeriesFile = tempFileManager.create("ggfs", "nc");
-        final File ggfrTimeSeriesFile = tempFileManager.create("ggfr", "nc");
-        final File ggfmTimeSeriesFile = tempFileManager.create("ggfm", "nc");
-        final File ggfmRemapTimeSeriesFile = tempFileManager.create("ggfmr", "nc");
-        final File forecastFile = tempFileManager.create("forecast", "nc");
+        final TempFileUtils tempFileUtils = context.getTempFileUtils();
+
+        final File gafsTimeSeriesFile = tempFileUtils.create("gafs", "nc");
+        final File ggfsTimeSeriesFile = tempFileUtils.create("ggfs", "nc");
+        final File ggfrTimeSeriesFile = tempFileUtils.create("ggfr", "nc");
+        final File ggfmTimeSeriesFile = tempFileUtils.create("ggfm", "nc");
+        final File ggfmRemapTimeSeriesFile = tempFileUtils.create("ggfmr", "nc");
+        final File forecastFile = tempFileUtils.create("forecast", "nc");
 
         final Configuration configuration = context.getConfiguration();
         final String gafsTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/gafs", nwpDataDirectories, "gafs[0-9]*.nc", 0);
@@ -178,7 +180,7 @@ class TimeSeriesStrategy extends Strategy {
                 forecastFile.getAbsolutePath());
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_MATCHUP_FC_TEMPLATE, templateProperties);
 
-        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileManager);
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileUtils);
 
         final ProcessRunner processRunner = new ProcessRunner();
         processRunner.execute(scriptFile.getPath());

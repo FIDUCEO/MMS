@@ -23,7 +23,6 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
-import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -35,21 +34,14 @@ class NwpPostProcessing extends PostProcessing {
 
     private final Configuration configuration;
     private final TemplateVariables templateVariables;
-    private final TempFileManager tempFileManager;
 
     NwpPostProcessing(Configuration configuration) {
         this.configuration = configuration;
         templateVariables = new TemplateVariables(configuration);
-        tempFileManager = new TempFileManager();
-
-        final String tempDir = configuration.getTempDir();
-        if (StringUtils.isNotNullAndNotEmpty(tempDir)) {
-            tempFileManager.setTempDir(tempDir);
-        }
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Dimension matchupCountDimension = reader.findDimension(Constants.DIMENSION_NAME_MATCHUP_COUNT);
         if (matchupCountDimension == null) {
             throw new RuntimeException("Expected dimension not present in file: " + Constants.DIMENSION_NAME_MATCHUP_COUNT);
@@ -65,30 +57,27 @@ class NwpPostProcessing extends PostProcessing {
             final Strategy sensorExtracts = StrategyFactory.getSensorExtracts();
             sensorExtracts.prepare(context);
         }
+
+        if (!configuration.isDeleteOnExit()) {
+            getContext().getTempFileUtils().keepAfterCleanup(true);
+        }
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Context context = createContext(reader, writer);
 
-        try {
-            if (configuration.isTimeSeriesExtraction()) {
-                final Strategy timeSeries = StrategyFactory.getTimeSeries();
-                timeSeries.compute(context);
-            }
-
-            if (configuration.isSensorExtraction()) {
-                final Strategy sensorExtracts = StrategyFactory.getSensorExtracts();
-                sensorExtracts.compute(context);
-            }
-
-        } finally {
-            if (configuration.isDeleteOnExit()) {
-                tempFileManager.cleanup();
-            }
+        if (configuration.isTimeSeriesExtraction()) {
+            final Strategy timeSeries = StrategyFactory.getTimeSeries();
+            timeSeries.compute(context);
         }
-    }
 
+        if (configuration.isSensorExtraction()) {
+            final Strategy sensorExtracts = StrategyFactory.getSensorExtracts();
+            sensorExtracts.compute(context);
+        }
+
+    }
 
     private Context createContext(NetcdfFile reader, NetcdfFileWriter writer) {
         final Context context = new Context();
@@ -96,8 +85,8 @@ class NwpPostProcessing extends PostProcessing {
         context.setReader(reader);
         context.setWriter(writer);
         context.setConfiguration(configuration);
-        context.setTempFileManager(tempFileManager);
         context.setTemplateVariables(templateVariables);
+        context.setTempFileUtils(this.getContext().getTempFileUtils());
 
         return context;
     }

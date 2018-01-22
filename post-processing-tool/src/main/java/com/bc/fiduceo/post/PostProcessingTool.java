@@ -23,6 +23,7 @@ package com.bc.fiduceo.post;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -83,6 +84,13 @@ class PostProcessingTool {
 
         final String mmdFilesDir = commandLine.getOptionValue("input-dir");
         context.setMmdInputDirectory(Paths.get(mmdFilesDir));
+
+        final String tempDir = systemConfig.getTempDir();
+        if (StringUtils.isNullOrEmpty(tempDir)) {
+            context.setTempFileUtils(new TempFileUtils());
+        } else {
+            context.setTempFileUtils(new TempFileUtils(tempDir));
+        }
 
         logger.info("Success loading configuration.");
         return context;

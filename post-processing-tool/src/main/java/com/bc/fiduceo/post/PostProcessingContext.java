@@ -19,6 +19,7 @@
 package com.bc.fiduceo.post;
 
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.util.TempFileUtils;
 
 import java.nio.file.Path;
 import java.util.Date;
@@ -30,6 +31,7 @@ public final class PostProcessingContext {
     private Date endDate;
     private PostProcessingConfig processingConfig;
     private Path mmdInputDirectory;
+    private TempFileUtils tempFileUtils;
 
     public void setSystemConfig(SystemConfig systemConfig) {
         this.systemConfig = systemConfig;
@@ -69,5 +71,13 @@ public final class PostProcessingContext {
 
     public Path getMmdInputDirectory() {
         return mmdInputDirectory;
+    }
+
+    public void setTempFileUtils(TempFileUtils tempFileUtils) {
+        this.tempFileUtils = tempFileUtils;
+    }
+
+    public TempFileUtils getTempFileUtils() {
+        return tempFileUtils;
     }
 }

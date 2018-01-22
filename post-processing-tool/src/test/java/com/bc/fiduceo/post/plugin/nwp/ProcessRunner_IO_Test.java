@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,10 +38,10 @@ public class ProcessRunner_IO_Test {
 
     @Test
     public void testWriteExecutableScript() throws IOException {
-        final TempFileManager tempFileManager = new TempFileManager();
+        final TempFileUtils tempFileUtils = new TempFileUtils();
 
         try {
-            final File file = ProcessRunner.writeExecutableScript("the stupid executable script", tempFileManager);
+            final File file = ProcessRunner.writeExecutableScript("the stupid executable script", tempFileUtils);
 
             assertTrue(file.isFile());
             assertTrue(file.canExecute());
@@ -51,7 +52,7 @@ public class ProcessRunner_IO_Test {
             assertEquals(length, reader.read(chars));
             assertEquals("the stupid executable script", new String(chars));
         } finally {
-            tempFileManager.cleanup();
+            tempFileUtils.cleanup();
         }
     }
 }

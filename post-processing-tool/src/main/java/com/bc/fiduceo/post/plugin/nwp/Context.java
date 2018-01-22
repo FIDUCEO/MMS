@@ -1,5 +1,6 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.util.TempFileUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 
@@ -8,7 +9,7 @@ class Context {
     private NetcdfFileWriter writer;
     private Configuration configuration;
     private TemplateVariables templateVariables;
-    private TempFileManager tempFileManager;
+    private TempFileUtils tempFileUtils;
 
     void setReader(NetcdfFile reader) {
         this.reader = reader;
@@ -42,11 +43,11 @@ class Context {
         return templateVariables;
     }
 
-    void setTempFileManager(TempFileManager tempFileManager) {
-        this.tempFileManager = tempFileManager;
+    void setTempFileUtils(TempFileUtils tempFileUtils) {
+        this.tempFileUtils = tempFileUtils;
     }
 
-    TempFileManager getTempFileManager() {
-        return tempFileManager;
+    TempFileUtils getTempFileUtils() {
+        return tempFileUtils;
     }
 }

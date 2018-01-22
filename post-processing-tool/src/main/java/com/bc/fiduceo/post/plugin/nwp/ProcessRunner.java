@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.util.TempFileUtils;
 
 import java.io.*;
 import java.text.MessageFormat;
@@ -32,7 +33,7 @@ class ProcessRunner {
 
     private final Logger logger;
 
-    static File writeExecutableScript(String shellScript, TempFileManager tempFileManager) throws IOException {
+    static File writeExecutableScript(String shellScript, TempFileUtils tempFileManager) throws IOException {
         final File scriptFile = tempFileManager.create("cdo", "sh");
 
         final boolean executable = scriptFile.setExecutable(true);

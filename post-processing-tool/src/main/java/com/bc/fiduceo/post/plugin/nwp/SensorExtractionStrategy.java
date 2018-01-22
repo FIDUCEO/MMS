@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -93,16 +94,16 @@ class SensorExtractionStrategy extends Strategy {
     }
 
     private File createAnalysisFile(File geoFile, List<String> nwpDataDirectories, Context context) throws IOException, InterruptedException {
-        final TempFileManager tempFileManager = context.getTempFileManager();
+        final TempFileUtils tempFileUtils = context.getTempFileUtils();
 
-        final File ggasTimeSeriesFile = tempFileManager.create("ggas", "nc");
-        final File ggamTimeSeriesFile = tempFileManager.create("ggam", "nc");
-        final File spamTimeSeriesFile = tempFileManager.create("spam", "nc");
-        final File gafsTimeSeriesFile = tempFileManager.create("gafs", "nc");
-        final File ggamRemappedFile = tempFileManager.create("ggar", "nc");
-        final File spamRemappedFile = tempFileManager.create("spar", "nc");
-        final File gafsRemappedFile = tempFileManager.create("gafr", "nc");
-        final File analysisFile = tempFileManager.create("analysis", "nc");
+        final File ggasTimeSeriesFile = tempFileUtils.create("ggas", "nc");
+        final File ggamTimeSeriesFile = tempFileUtils.create("ggam", "nc");
+        final File spamTimeSeriesFile = tempFileUtils.create("spam", "nc");
+        final File gafsTimeSeriesFile = tempFileUtils.create("gafs", "nc");
+        final File ggamRemappedFile = tempFileUtils.create("ggar", "nc");
+        final File spamRemappedFile = tempFileUtils.create("spar", "nc");
+        final File gafsRemappedFile = tempFileUtils.create("gafr", "nc");
+        final File analysisFile = tempFileUtils.create("analysis", "nc");
 
         final Configuration configuration = context.getConfiguration();
         final String ggasTimeSteps = NwpUtils.composeFilesString(configuration.getNWPAuxDir() + "/ggas", nwpDataDirectories, "ggas[0-9]*.nc", 1);
@@ -123,7 +124,7 @@ class SensorExtractionStrategy extends Strategy {
                 analysisFile.getAbsolutePath());
 
         final String resolvedExecutable = BashTemplateResolver.resolve(CDO_NWP_TEMPLATE, templateProperties);
-        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileManager);
+        final File scriptFile = ProcessRunner.writeExecutableScript(resolvedExecutable, tempFileUtils);
 
         final ProcessRunner processRunner = new ProcessRunner();
         processRunner.execute(scriptFile.getPath());
@@ -151,7 +152,7 @@ class SensorExtractionStrategy extends Strategy {
         final GeoFile geoFile = new GeoFile(matchupCount);
 
         try {
-            geoFile.createSensorExtract(context.getTempFileManager(), sensorExtractConfiguration);
+            geoFile.createSensorExtract(context.getTempFileUtils(), sensorExtractConfiguration);
             geoFile.writeSensorExtract(longitudes, latitudes, strideX, strideY, sensorExtractConfiguration);
         } finally {
             geoFile.close();

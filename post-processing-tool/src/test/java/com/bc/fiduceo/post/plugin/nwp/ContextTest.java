@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.NetcdfFile;
@@ -51,10 +52,10 @@ public class ContextTest {
     }
 
     @Test
-    public void testSetGetTempFileManager(){
-        final TempFileManager tempFileManager = new TempFileManager();
+    public void testSetGetTempFileUtils() {
+        final TempFileUtils tempFileUtils = mock(TempFileUtils.class);
 
-        context.setTempFileManager(tempFileManager);
-        assertSame(tempFileManager, context.getTempFileManager());
+        context.setTempFileUtils(tempFileUtils);
+        assertSame(tempFileUtils, context.getTempFileUtils());
     }
 }

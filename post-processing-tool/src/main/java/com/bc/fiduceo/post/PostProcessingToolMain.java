@@ -29,7 +29,7 @@ import org.apache.commons.cli.PosixParser;
 
 public class PostProcessingToolMain {
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine;
         try {
@@ -44,7 +44,6 @@ public class PostProcessingToolMain {
             PostProcessingTool.printUsageTo(System.out);
             return;
         }
-
 
         try {
             final PostProcessingContext context = PostProcessingTool.initializeContext(commandLine);

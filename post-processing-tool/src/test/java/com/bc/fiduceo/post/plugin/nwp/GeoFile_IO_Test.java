@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,16 +40,16 @@ import static org.junit.Assert.assertTrue;
 @RunWith(IOTestRunner.class)
 public class GeoFile_IO_Test {
 
-    private TempFileManager tempFileManager;
+    private TempFileUtils tempFileUtils;
 
     @Before
     public void setUp() {
-        tempFileManager = new TempFileManager();
+        tempFileUtils = new TempFileUtils();
     }
 
     @After
     public void tearDown() {
-        tempFileManager.cleanup();
+        tempFileUtils.cleanup();
     }
 
     @Test
@@ -57,7 +58,7 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.createTimeSeries(tempFileManager);
+            geoFile.createTimeSeries(tempFileUtils);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -95,7 +96,7 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.createTimeSeries(tempFileManager);
+            geoFile.createTimeSeries(tempFileUtils);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -134,7 +135,7 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.createTimeSeries(tempFileManager);
+            geoFile.createTimeSeries(tempFileUtils);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -171,7 +172,7 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.createSensorExtract(tempFileManager, sensorExtractConfiguration);
+            geoFile.createSensorExtract(tempFileUtils, sensorExtractConfiguration);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 
@@ -214,7 +215,7 @@ public class GeoFile_IO_Test {
 
         NetcdfFile geoFileNC = null;
         try {
-            geoFile.createSensorExtract(tempFileManager, sensorExtractConfiguration);
+            geoFile.createSensorExtract(tempFileUtils, sensorExtractConfiguration);
             final File file = geoFile.getFile();
             assertTrue(file.isFile());
 

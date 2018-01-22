@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.util.TempFileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
@@ -48,7 +49,7 @@ class GeoFile {
         this.numMatchups = numMatchups;
     }
 
-    void createTimeSeries(TempFileManager tempFileManager) throws IOException {
+    void createTimeSeries(TempFileUtils tempFileManager) throws IOException {
         tempFile = tempFileManager.create("geo", "nc");
 
         createWriter();
@@ -59,7 +60,7 @@ class GeoFile {
     }
 
 
-    void createSensorExtract(TempFileManager tempFileManager, SensorExtractConfiguration config) throws IOException {
+    void createSensorExtract(TempFileUtils tempFileManager, SensorExtractConfiguration config) throws IOException {
         tempFile = tempFileManager.create("geo", "nc");
 
         createWriter();
