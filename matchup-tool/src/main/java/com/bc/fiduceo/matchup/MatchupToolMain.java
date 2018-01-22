@@ -25,14 +25,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import ucar.ma2.InvalidRangeException;
-
-import java.io.IOException;
-import java.sql.SQLException;
 
 public class MatchupToolMain {
 
-    public static void main(String[] args) throws ParseException, IOException, SQLException, InvalidRangeException {
+    public static void main(String[] args) throws ParseException {
         final MatchupTool matchupTool = new MatchupTool();
 
         if (args.length == 0) {

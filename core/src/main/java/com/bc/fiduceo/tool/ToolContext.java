@@ -46,6 +46,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.util.TempFileUtils;
 
 import java.util.Date;
 
@@ -58,6 +59,7 @@ public class ToolContext {
     private UseCaseConfig useCaseConfig;
     private GeometryFactory geometryFactory;
     private ReaderFactory readerFactory;
+    private TempFileUtils tempFileUtils;
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
@@ -113,5 +115,13 @@ public class ToolContext {
 
     public void setReaderFactory(ReaderFactory readerFactory) {
         this.readerFactory = readerFactory;
+    }
+
+    public void setTempFileUtils(TempFileUtils tempFileUtils) {
+        this.tempFileUtils = tempFileUtils;
+    }
+
+    public TempFileUtils getTempFileUtils() {
+        return tempFileUtils;
     }
 }

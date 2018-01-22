@@ -47,6 +47,7 @@ import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,5 +118,13 @@ public class ToolContextTest {
 
         context.setReaderFactory(readerFactory);
         assertSame(readerFactory, context.getReaderFactory());
+    }
+
+    @Test
+    public void testSetGetTempFileUtils() {
+        final TempFileUtils tempFileUtils = new TempFileUtils();
+
+        context.setTempFileUtils(tempFileUtils);
+        assertSame(tempFileUtils, context.getTempFileUtils());
     }
 }
