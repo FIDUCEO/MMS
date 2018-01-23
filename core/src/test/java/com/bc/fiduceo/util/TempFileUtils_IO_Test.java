@@ -55,8 +55,11 @@ public class TempFileUtils_IO_Test {
 
     @Test
     public void testConstruct_default() {
+        final String systemTemp = System.getProperty("java.io.tmpdir");
+        final File expected = new File(systemTemp);
+
         final File tempDir = tempFileUtils.getTempDir();
-        assertEquals(System.getProperty("java.io.tmpdir"), tempDir.getAbsolutePath());
+        assertEquals(expected.getAbsolutePath(), tempDir.getAbsolutePath());
     }
 
     @Test
