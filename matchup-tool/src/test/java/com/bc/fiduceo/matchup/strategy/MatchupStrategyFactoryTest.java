@@ -22,7 +22,9 @@ package com.bc.fiduceo.matchup.strategy;
 
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.TestUseCaseConfig;
+import com.bc.fiduceo.reader.ReaderFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +44,8 @@ public class MatchupStrategyFactoryTest {
         useCaseConfig = new TestUseCaseConfig();
         sensors = new ArrayList<>();
         useCaseConfig.setSensors(sensors);
+
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2),  null);  // we dont need temp file handling here tb 2018-01-23
     }
 
     @Test
@@ -51,7 +55,6 @@ public class MatchupStrategyFactoryTest {
         sensors.add(primary);
 
         sensors.add(new Sensor("mhs-n18", "1.1"));
-
 
         final AbstractMatchupStrategy strategy = MatchupStrategyFactory.get(useCaseConfig, Logger.getAnonymousLogger());
         assertTrue(strategy instanceof PolarOrbitingMatchupStrategy);
