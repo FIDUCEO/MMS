@@ -19,13 +19,14 @@ package com.bc.fiduceo.reader.caliop;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class CALIOP_L2_VFM_ReaderPlugin implements ReaderPlugin {
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new CALIOP_L2_VFM_Reader(geometryFactory, new CaliopUtils());
+    public Reader createReader(ReaderContext readerContext) {
+        return new CALIOP_L2_VFM_Reader(readerContext, new CaliopUtils());
     }
 
     @Override

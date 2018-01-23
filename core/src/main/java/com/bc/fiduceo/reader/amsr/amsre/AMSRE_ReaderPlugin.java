@@ -24,13 +24,14 @@ package com.bc.fiduceo.reader.amsr.amsre;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class AMSRE_ReaderPlugin implements ReaderPlugin {
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new AMSRE_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContext) {
+        return new AMSRE_Reader(readerContext);
     }
 
     @Override

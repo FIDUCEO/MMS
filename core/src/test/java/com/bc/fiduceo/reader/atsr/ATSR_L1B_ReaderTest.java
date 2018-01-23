@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class ATSR_L1B_ReaderTest {
     public void testGetRegEx() {
         final String expected = "AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)";
 
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2016-08-10
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2016-08-10
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -69,14 +70,14 @@ public class ATSR_L1B_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2017-08-10
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2017-08-10
 
         assertEquals("longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(null);// we do not need a gemetry factory here tb 2017-08-10
+        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2017-08-10
 
         assertEquals("latitude", reader.getLatitudeVariableName());
     }

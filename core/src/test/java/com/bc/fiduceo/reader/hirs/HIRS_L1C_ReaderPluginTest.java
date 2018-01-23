@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.hirs;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class HIRS_L1C_ReaderPluginTest {
     @Test
     public void testCreateReader() {
         // we dont't need a GeometryFactory for this test tb 2016-08-01
-        final Reader reader = plugin.createReader(null);
+        final Reader reader = plugin.createReader(new ReaderContext());
         assertNotNull(reader);
         assertTrue(reader instanceof HIRS_L1C_Reader);
     }

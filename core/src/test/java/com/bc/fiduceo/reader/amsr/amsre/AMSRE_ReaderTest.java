@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.amsr.amsre;
 
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.nc2.Attribute;
@@ -110,7 +111,7 @@ public class AMSRE_ReaderTest {
     public void testGetRegEx() {
         final String expected = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z].hdf";
 
-        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2016-09-07
+        final AMSRE_Reader reader = new AMSRE_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2016-09-07
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -133,21 +134,21 @@ public class AMSRE_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+        final AMSRE_Reader reader = new AMSRE_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2017-08-10
+        final AMSRE_Reader reader = new AMSRE_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
-        final AMSRE_Reader reader = new AMSRE_Reader(null); // we do not need a geometry factory for this test tb 2018-01-18
+        final AMSRE_Reader reader = new AMSRE_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2018-01-18
         int[] ymd = reader.extractYearMonthDayFromFilename("AMSR_E_L2A_BrightnessTemperatures_V12_200502161217_A.hdf");
 
         assertEquals(2005, ymd[0]);

@@ -30,6 +30,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
@@ -59,7 +60,11 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        reader = new AVHRR_GAC_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new AVHRR_GAC_Reader(readerContext);
     }
 
     @Test

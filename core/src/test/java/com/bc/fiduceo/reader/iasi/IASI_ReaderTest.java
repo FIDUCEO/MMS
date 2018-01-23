@@ -40,6 +40,7 @@
 
 package com.bc.fiduceo.reader.iasi;
 
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,7 @@ public class IASI_ReaderTest {
 
     @Before
     public void setUp() throws Exception {
-        reader = new IASI_Reader(null); // we do not need a geometry factory in this test tb 2017-04-24
+        reader = new IASI_Reader(new ReaderContext()); // we do not need a geometry factory in this test tb 2017-04-24
     }
 
     @Test

@@ -3,14 +3,15 @@ package com.bc.fiduceo.reader.caliop;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 import ucar.ma2.Array;
 
 public class CALIOP_L2_VFM_ReaderTest {
 
     @Test
-    public void calculateIndizes() throws Exception {
-        short[] is = CALIOP_L2_VFM_Reader.calcalculateIndizes();
+    public void testCalculateIndizes() {
+        final short[] is = CALIOP_L2_VFM_Reader.calcalculateIndizes();
 
         assertNotNull(is);
         assertEquals(6, is.length);
@@ -23,7 +24,7 @@ public class CALIOP_L2_VFM_ReaderTest {
     }
 
     @Test
-    public void readNadirClassificationFlags() throws Exception {
+    public void testReadNadirClassificationFlags() {
         //preparation
         final short[] storage = createFullStorage();
         final Array array = Array.factory(storage);
@@ -61,9 +62,9 @@ public class CALIOP_L2_VFM_ReaderTest {
     }
 
     @Test
-    public void testExtractYearMonthDayFromFilename() throws Exception {
+    public void testExtractYearMonthDayFromFilename() {
         final CaliopUtils spyCaliopUtils = spy(new CaliopUtils());
-        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null, spyCaliopUtils);
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(new ReaderContext(), spyCaliopUtils);
         int[] ymd = reader.extractYearMonthDayFromFilename("CAL_LID_L2_VFM-Standard-V4-10.2008-05-31T00-11-58ZN.hdf");
         assertArrayEquals(new int[]{2008, 5, 31}, ymd);
         verify(spyCaliopUtils, times(1)).extractYearMonthDayFromFilename(anyString());
@@ -71,14 +72,14 @@ public class CALIOP_L2_VFM_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null, new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(new ReaderContext(), new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(null, new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
+        final CALIOP_L2_VFM_Reader reader = new CALIOP_L2_VFM_Reader(new ReaderContext(), new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }

@@ -30,6 +30,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.jdom2.Element;
 import ucar.ma2.Array;
@@ -52,7 +53,7 @@ class AIRS_L1B_Reader implements Reader {
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
 
-    AIRS_L1B_Reader(GeometryFactory geometryFactory) {
+    AIRS_L1B_Reader(ReaderContext readerContext) {
         logger = FiduceoLogger.getLogger();
     }
 

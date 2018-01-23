@@ -32,13 +32,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.PixelLocatorX1Yn;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -84,8 +78,8 @@ public class CALIOP_SST_WP100_CLay_Reader implements Reader {
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
-    CALIOP_SST_WP100_CLay_Reader(GeometryFactory geometryFactory, final CaliopUtils caliopUtils) {
-        this.geometryFactory = geometryFactory;
+    CALIOP_SST_WP100_CLay_Reader(ReaderContext readerContext, final CaliopUtils caliopUtils) {
+        this.geometryFactory = readerContext.getGeometryFactory();
         this.caliopUtils = caliopUtils;
     }
 

@@ -29,15 +29,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
@@ -76,8 +68,8 @@ class MxD06_Reader implements Reader {
     private BowTiePixelLocator pixelLocator;
     private Dimension productSize;
 
-    MxD06_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    MxD06_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     @Override

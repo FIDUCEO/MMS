@@ -90,8 +90,8 @@ public class IASI_Reader implements Reader {
     private List<Variable> variableList;
     private HashMap<String, ReadProxy> proxiesMap;
 
-    IASI_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    IASI_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
         iis = null;
         geolocationData = null;
         pixelLocator = null;

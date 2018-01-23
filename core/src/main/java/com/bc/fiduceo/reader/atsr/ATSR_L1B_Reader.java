@@ -28,12 +28,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
@@ -73,8 +68,8 @@ class ATSR_L1B_Reader implements Reader {
     private Product product;
     private ATSR_PixelLocator pixelLocator;
 
-    ATSR_L1B_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    ATSR_L1B_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     @Override

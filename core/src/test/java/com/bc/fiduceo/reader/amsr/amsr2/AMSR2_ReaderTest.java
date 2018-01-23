@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.amsr.amsr2;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class AMSR2_ReaderTest {
 
     @Before
     public void setUp() {
-        reader = new AMSR2_Reader(null); // we do not need a geometry factory for this test tb 2018-01-11
+        reader = new AMSR2_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2018-01-11
     }
 
     @Test

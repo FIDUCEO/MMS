@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.ssmt2;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SSMT2_ReaderPlugin implements ReaderPlugin {
@@ -30,8 +31,8 @@ public class SSMT2_ReaderPlugin implements ReaderPlugin {
     private static final String[] SUPPORTED_KEYS = {"ssmt2-f11", "ssmt2-f12", "ssmt2-f14", "ssmt2-f15"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new SSMT2_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContext) {
+        return new SSMT2_Reader(readerContext);
     }
 
     @Override

@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.amsu_mhs;
 
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -40,7 +41,7 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
 
         final String regEx = reader.getRegEx();
         assertEquals("\\w*.+[AMBX|MHSX].+[A-Z0-9]{2,3}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[A-Z]{2}(.[A-Z]\\d{7})?.h5", regEx);
@@ -190,14 +191,14 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
 
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(null);
+        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }

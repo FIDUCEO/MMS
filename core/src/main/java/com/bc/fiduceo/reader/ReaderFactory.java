@@ -37,6 +37,7 @@ public class ReaderFactory {
 
     private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
     private final GeometryFactory geometryFactory;
+    private final ReaderContext readerContext;
 
     public static ReaderFactory get(GeometryFactory geometryFactory) {
         // todo 3 se/** if readerFactory instance exists, method argument is ignored 2017-12-05
@@ -52,7 +53,7 @@ public class ReaderFactory {
         }
 
         final ReaderPlugin readerPlugin = getReaderPluginSafe(sensorPlatformKey);
-        return readerPlugin.createReader(geometryFactory);
+        return readerPlugin.createReader(readerContext);
     }
 
     public DataType getDataType(String sensorPlatformKey) {
@@ -70,6 +71,8 @@ public class ReaderFactory {
 
     private ReaderFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+        readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(geometryFactory);
 
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);

@@ -33,6 +33,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.WindowReader;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -73,12 +74,15 @@ public class SSMT2_Reader_IO_Test {
 
     @Before
     public void setUp() throws IOException {
-        ssmt2Reader = new SSMT2_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        ssmt2Reader = new SSMT2_Reader(readerContext);
         testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @Test
-    public void testReadAcquisitionInfo_F11() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_F11() throws IOException {
         final File f11File = createSSMT2_F11_File();
 
         try (SSMT2_Reader reader = this.ssmt2Reader) {
@@ -118,7 +122,7 @@ public class SSMT2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo_F14() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_F14() throws IOException {
         final File f14File = createSSMT2_F14_File();
 
         try (SSMT2_Reader reader = this.ssmt2Reader) {
@@ -158,7 +162,7 @@ public class SSMT2_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize() throws IOException, InvalidRangeException {
+    public void testGetProductSize() throws IOException {
         final File file = createSSMT2_F14_File();
 
         try (SSMT2_Reader reader = this.ssmt2Reader) {

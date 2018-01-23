@@ -29,6 +29,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,10 @@ public class IASI_Reader_IO_Test {
 
     @Before
     public void setUp() throws IOException {
-        reader = new IASI_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new IASI_Reader(readerContext);
     }
 
     @Test
@@ -930,7 +934,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadSpectrum_MA_v5() throws IOException, InvalidRangeException {
+    public void testReadSpectrum_MA_v5() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -956,7 +960,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadSpectrum_MA_v4() throws IOException, InvalidRangeException {
+    public void testReadSpectrum_MA_v4() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
 
         try {

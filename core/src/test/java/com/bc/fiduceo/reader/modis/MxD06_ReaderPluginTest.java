@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class MxD06_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);// we don't need a geometry factory for this test tb 2017-05-29
+        final Reader reader = plugin.createReader(new ReaderContext());// we don't need a geometry factory for this test tb 2017-05-29
         assertNotNull(reader);
         assertTrue(reader instanceof MxD06_Reader);
     }

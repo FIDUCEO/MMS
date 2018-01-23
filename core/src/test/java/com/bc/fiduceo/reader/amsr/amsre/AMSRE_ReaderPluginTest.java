@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.amsr.amsre;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class AMSRE_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);
+        final Reader reader = plugin.createReader(new ReaderContext());
         assertNotNull(reader);
         assertTrue(reader instanceof AMSRE_Reader);
     }

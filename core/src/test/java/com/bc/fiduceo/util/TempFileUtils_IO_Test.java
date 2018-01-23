@@ -136,6 +136,7 @@ public class TempFileUtils_IO_Test {
         assertTrue(file_1.isFile());
         assertTrue(file_2.isFile());
         assertTrue(file_3.isFile());
+        // will be cleaned in teardown tb 2018-01-22
     }
 
     @Test

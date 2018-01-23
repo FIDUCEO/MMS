@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class HIRS_L1C_ReaderPlugin implements ReaderPlugin {
@@ -31,8 +32,8 @@ public class HIRS_L1C_ReaderPlugin implements ReaderPlugin {
     private static final String[] SENSOR_KEYS = {"hirs-ma", "hirs-mb", "hirs-n06", "hirs-n07", "hirs-n08", "hirs-n09", "hirs-n10", "hirs-n11", "hirs-n12", "hirs-n14", "hirs-n15", "hirs-n16", "hirs-n17", "hirs-n18", "hirs-n19", "hirs-tn"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new HIRS_L1C_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContext) {
+        return new HIRS_L1C_Reader(readerContext);
     }
 
     @Override

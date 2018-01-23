@@ -64,8 +64,8 @@ class AMSRE_Reader implements Reader {
     private PixelLocator pixelLocator;
     private final VariableNamesConverter namesConverter;
 
-    AMSRE_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    AMSRE_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
         namesConverter = new VariableNamesConverter();
     }
 

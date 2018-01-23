@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.ssmt2;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +38,7 @@ public class SSMT2_ReaderPluginTest {
     }
 
     @Test
-    public void testGetSupportedSensorKey() throws Exception {
+    public void testGetSupportedSensorKey() {
         final String[] expected = {"ssmt2-f11", "ssmt2-f12", "ssmt2-f14", "ssmt2-f15"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
@@ -46,7 +47,7 @@ public class SSMT2_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);
+        final Reader reader = plugin.createReader(new ReaderContext());
         assertNotNull(reader);
         assertTrue(reader instanceof SSMT2_Reader);
     }

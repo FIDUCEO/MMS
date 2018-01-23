@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.insitu.sst_cci;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SSTInsituReaderPlugin implements ReaderPlugin {
@@ -30,7 +31,7 @@ public class SSTInsituReaderPlugin implements ReaderPlugin {
     private final String[] SUPPORTED_KEYS = {"drifter-sst", "ship-sst", "gtmba-sst", "radiometer-sst", "argo-sst", "xbt-sst", "mbt-sst", "ctd-sst", "animal-sst", "bottle-sst"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
+    public Reader createReader(ReaderContext readerContext) {
         return new SSTInsituReader();
     }
 

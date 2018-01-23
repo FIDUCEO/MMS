@@ -80,8 +80,8 @@ class AMSUB_MHS_L1C_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private boolean isAmsuB;
 
-    AMSUB_MHS_L1C_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    AMSUB_MHS_L1C_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     @Override

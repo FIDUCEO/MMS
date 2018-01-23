@@ -35,6 +35,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
@@ -63,7 +64,11 @@ public class MxD06_Reader_IO_Test {
     public void setUp() throws IOException {
         dataDirectory = TestUtil.getTestDataDirectory();
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        reader = new MxD06_Reader(geometryFactory);
+
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(geometryFactory);
+
+        reader = new MxD06_Reader(readerContext);
     }
 
     @After

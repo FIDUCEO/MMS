@@ -39,6 +39,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class AMSUB_MHS_L1C_ReaderPlugin implements ReaderPlugin {
@@ -51,8 +52,8 @@ public class AMSUB_MHS_L1C_ReaderPlugin implements ReaderPlugin {
     }
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new AMSUB_MHS_L1C_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContext) {
+        return new AMSUB_MHS_L1C_Reader(readerContext);
     }
 
     @Override

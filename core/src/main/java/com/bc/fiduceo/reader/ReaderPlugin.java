@@ -7,10 +7,10 @@ public interface ReaderPlugin {
     /**
      * Creates a new instance of a reader associated to this plugin. The reader is not opened.
      *
-     * @param geometryFactory the geometry factory to be used
+     * @param readerContext the reader context class
      * @return the reader object
      */
-    Reader createReader(GeometryFactory geometryFactory);
+    Reader createReader(ReaderContext readerContext);
 
     /**
      * Returns and array of Sensor-Keys supported by this reader.

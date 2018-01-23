@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader.insitu.ocean_rain;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class OceanRainInsituReaderPlugin implements ReaderPlugin {
@@ -30,7 +31,7 @@ public class OceanRainInsituReaderPlugin implements ReaderPlugin {
     private final String[] SUPPORTED_KEYS = {"ocean-rain-sst"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
+    public Reader createReader(ReaderContext readerContext) {
         return new OceanRainInsituReader();
     }
 

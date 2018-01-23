@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.atsr;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +55,7 @@ public class ATSR_L1B_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);// we don't need a geometry factory for this test tb 2016-08-08
+        final Reader reader = plugin.createReader(new ReaderContext());// we don't need a geometry factory for this test tb 2016-08-08
         assertNotNull(reader);
         assertTrue(reader instanceof ATSR_L1B_Reader);
     }

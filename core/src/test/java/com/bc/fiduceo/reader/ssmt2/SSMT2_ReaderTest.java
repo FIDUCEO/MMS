@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.ssmt2;
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -39,7 +40,7 @@ public class SSMT2_ReaderTest {
     public void testGetRegEx() {
         final String expected = "F(11|12|14|15)[0-9]{12}.nc";
 
-        assertEquals(expected, new SSMT2_Reader(null).getRegEx());
+        assertEquals(expected, new SSMT2_Reader(new ReaderContext()).getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
         Matcher matcher = pattern.matcher("F11199401280412.nc");
@@ -57,14 +58,14 @@ public class SSMT2_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final SSMT2_Reader reader = new SSMT2_Reader(null);
+        final SSMT2_Reader reader = new SSMT2_Reader(new ReaderContext());
 
         assertEquals("lon", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final SSMT2_Reader reader = new SSMT2_Reader(null);
+        final SSMT2_Reader reader = new SSMT2_Reader(new ReaderContext());
 
         assertEquals("lat", reader.getLatitudeVariableName());
     }

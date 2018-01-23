@@ -29,18 +29,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
-import com.bc.fiduceo.reader.Read2dFrom3d;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
-import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -91,8 +80,8 @@ class SSMT2_Reader implements Reader {
     private PixelLocator pixelLocator;
     private TimeLocator_YearDoyMs timeLocator;
 
-    SSMT2_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    SSMT2_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     @Override

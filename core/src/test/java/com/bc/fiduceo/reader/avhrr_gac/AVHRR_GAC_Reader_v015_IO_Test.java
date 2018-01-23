@@ -34,6 +34,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,11 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        reader = new AVHRR_GAC_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new AVHRR_GAC_Reader(readerContext);
     }
 
     @Test

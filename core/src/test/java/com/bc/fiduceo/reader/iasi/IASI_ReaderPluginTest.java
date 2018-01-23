@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -48,8 +49,8 @@ public class IASI_ReaderPluginTest {
     }
 
     @Test
-    public void testCreateReader() throws Exception {
-        final Reader reader = plugin.createReader(null);
+    public void testCreateReader() {
+        final Reader reader = plugin.createReader(new ReaderContext());
         assertNotNull(reader);
         assertTrue(reader instanceof IASI_Reader);
     }

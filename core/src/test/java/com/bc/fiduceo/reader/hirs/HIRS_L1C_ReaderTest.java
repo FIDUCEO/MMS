@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.hirs;
 
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class HIRS_L1C_ReaderTest {
 
     @Before
     public void setUp() throws Exception {
-        reader = new HIRS_L1C_Reader(null);    // we do not need a geometry factory for this test tb 2016-08-02
+        reader = new HIRS_L1C_Reader(new ReaderContext());    // we do not need a geometry factory for this test tb 2016-08-02
     }
 
     @Test

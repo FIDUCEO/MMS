@@ -29,6 +29,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -59,7 +60,11 @@ public class AMSRE_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory();
-        reader = new AMSRE_Reader(new GeometryFactory(GeometryFactory.Type.S2));
+
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new AMSRE_Reader(readerContext);
     }
 
     @Test

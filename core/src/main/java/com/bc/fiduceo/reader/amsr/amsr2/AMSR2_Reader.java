@@ -43,8 +43,8 @@ class AMSR2_Reader implements Reader {
     private PixelLocator pixelLocator;
     private BoundingPolygonCreator boundingPolygonCreator;
 
-    AMSR2_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    AMSR2_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     @Override

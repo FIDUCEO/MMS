@@ -19,6 +19,7 @@ package com.bc.fiduceo.reader.caliop;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class CALIOP_SST_WP100_CLay_ReaderPlugin implements ReaderPlugin {
@@ -26,8 +27,8 @@ public class CALIOP_SST_WP100_CLay_ReaderPlugin implements ReaderPlugin {
     public final static String SENSOR_NAME = "caliop_clay-cal";
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new CALIOP_SST_WP100_CLay_Reader(geometryFactory, new CaliopUtils());
+    public Reader createReader(ReaderContext readerContext) {
+        return new CALIOP_SST_WP100_CLay_Reader(readerContext, new CaliopUtils());
     }
 
     @Override

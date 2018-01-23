@@ -26,14 +26,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -68,8 +61,8 @@ class HIRS_L1C_Reader implements Reader {
     private PixelLocator pixelLocator;
     private ArrayCache arrayCache;
 
-    HIRS_L1C_Reader(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
+    HIRS_L1C_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
         fillValueCache = new HashMap<>();
     }
 

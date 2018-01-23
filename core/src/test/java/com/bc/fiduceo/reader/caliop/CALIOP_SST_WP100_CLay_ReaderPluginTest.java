@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.*;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 
 public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
@@ -37,7 +38,7 @@ public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
     }
 
     @Test
-    public void getSupportedSensorKeys() throws Exception {
+    public void testGetSupportedSensorKeys()  {
         //execution
         final String[] supportedSensorKeys = plugin.getSupportedSensorKeys();
 
@@ -47,7 +48,7 @@ public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
     }
 
     @Test
-    public void getDataType() throws Exception {
+    public void testGetDataType() {
         //execution
         final DataType dataType = plugin.getDataType();
 
@@ -57,18 +58,19 @@ public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
     }
 
     @Test
-    public void createReader() throws Exception {
+    public void testCreateReader(){
         //preparation
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
         //execution
-        final Reader reader = plugin.createReader(geometryFactory);
+        final Reader reader = plugin.createReader(readerContext);
 
         //verification
         final Class<CALIOP_SST_WP100_CLay_Reader> expectedType = CALIOP_SST_WP100_CLay_Reader.class;
         assertThat(reader, is(instanceOf(expectedType)));
         final CALIOP_SST_WP100_CLay_Reader clayReader = (CALIOP_SST_WP100_CLay_Reader) reader;
-        assertThat(clayReader.geometryFactory, is(sameInstance(geometryFactory)));
+        assertThat(clayReader.geometryFactory, is(sameInstance(readerContext.getGeometryFactory())));
         assertThat(clayReader.caliopUtils, is(notNullValue()));
         assertThat(clayReader.caliopUtils, is(instanceOf(CaliopUtils.class)));
     }

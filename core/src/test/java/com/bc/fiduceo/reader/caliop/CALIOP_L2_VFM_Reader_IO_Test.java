@@ -14,10 +14,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.PixelLocatorX1Yn;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
@@ -50,7 +47,10 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory().toPath();
-        reader = new CALIOP_L2_VFM_Reader(new GeometryFactory(GeometryFactory.Type.S2), new CaliopUtils());
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new CALIOP_L2_VFM_Reader(readerContext, new CaliopUtils());
         caliopFile = getCaliopFile();
         reader.open(caliopFile);
     }

@@ -39,6 +39,7 @@ package com.bc.fiduceo.reader.iasi;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class IASI_ReaderPlugin implements ReaderPlugin {
@@ -46,8 +47,8 @@ public class IASI_ReaderPlugin implements ReaderPlugin {
     private static final String[] SENSOR_KEYS = new String[]{"iasi-ma", "iasi-mb"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new IASI_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContext) {
+        return new IASI_Reader(readerContext);
     }
 
     @Override

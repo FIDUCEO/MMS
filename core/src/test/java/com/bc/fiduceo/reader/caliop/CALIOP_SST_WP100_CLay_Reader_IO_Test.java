@@ -34,10 +34,7 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.PixelLocatorX1Yn;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
@@ -70,7 +67,11 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         testDataDirectory = TestUtil.getTestDataDirectory().toPath();
-        reader = new CALIOP_SST_WP100_CLay_Reader(new GeometryFactory(GeometryFactory.Type.S2), new CaliopUtils());
+
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+
+        reader = new CALIOP_SST_WP100_CLay_Reader(readerContext, new CaliopUtils());
         caliopFile = getCaliopFile();
         reader.open(caliopFile);
     }
@@ -179,8 +180,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
     }
 
     @Test
-    public void getRegEx() throws Exception {
-
+    public void getRegEx() {
         final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
         final String MM = "(0[1-9]|1[0-2])";
         final String DD = "(0[1-9]|[12]\\d|3[01])";

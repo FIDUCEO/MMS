@@ -23,14 +23,15 @@ package com.bc.fiduceo.reader.caliop;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 
 public class CALIOP_SST_WP100_CLay_ReaderTest {
 
     @Test
-    public void testExtractYearMonthDayFromFilename() throws Exception {
+    public void testExtractYearMonthDayFromFilename() {
         final CaliopUtils spyCaliopUtils = spy(new CaliopUtils());
-        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(null, spyCaliopUtils);
+        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(new ReaderContext(), spyCaliopUtils);
         int[] ymd = reader.extractYearMonthDayFromFilename("CAL_LID_L2_05kmCLay-Standard-V4-10.2011-09-13T00-27-29ZD.hdf");
         assertArrayEquals(new int[]{2011, 9, 13}, ymd);
         verify(spyCaliopUtils, times(1)).extractYearMonthDayFromFilename(anyString());
@@ -38,14 +39,14 @@ public class CALIOP_SST_WP100_CLay_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(null, new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
+        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(new ReaderContext(), new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(null, new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
+        final CALIOP_SST_WP100_CLay_Reader reader = new CALIOP_SST_WP100_CLay_Reader(new ReaderContext(), new CaliopUtils()); // we do not need a geometry factory for this test tb 2017-08-10
 
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }

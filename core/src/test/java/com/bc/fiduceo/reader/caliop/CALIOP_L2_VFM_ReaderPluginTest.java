@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.*;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 
 public class CALIOP_L2_VFM_ReaderPluginTest {
@@ -18,14 +19,14 @@ public class CALIOP_L2_VFM_ReaderPluginTest {
     }
 
     @Test
-    public void createReader() throws Exception {
-        //preparation
+    public void testCreateReader() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        //execution
-        final Reader reader = plugin.createReader(geometryFactory);
+        final ReaderContext readerContext = new ReaderContext();
+        readerContext.setGeometryFactory(geometryFactory);
 
-        //verification
+        final Reader reader = plugin.createReader(readerContext);
+
         final Class<CALIOP_L2_VFM_Reader> expectedType = CALIOP_L2_VFM_Reader.class;
         assertThat(reader, is(instanceOf(expectedType)));
         final CALIOP_L2_VFM_Reader vfmReader = (CALIOP_L2_VFM_Reader) reader;
@@ -35,7 +36,7 @@ public class CALIOP_L2_VFM_ReaderPluginTest {
     }
 
     @Test
-    public void getSupportedSensorKeys() throws Exception {
+    public void testGetSupportedSensorKeys() {
         //execution
         final String[] supportedSensorKeys = plugin.getSupportedSensorKeys();
 
@@ -45,7 +46,7 @@ public class CALIOP_L2_VFM_ReaderPluginTest {
     }
 
     @Test
-    public void getDataType() throws Exception {
+    public void testGetDataType() {
         //execution
         final DataType dataType = plugin.getDataType();
 
@@ -53,5 +54,4 @@ public class CALIOP_L2_VFM_ReaderPluginTest {
         final DataType expected = DataType.POLAR_ORBITING_SATELLITE;
         assertThat(dataType, is(equalTo(expected)));
     }
-
 }

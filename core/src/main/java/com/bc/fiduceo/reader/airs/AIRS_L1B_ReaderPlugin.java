@@ -39,6 +39,7 @@ package com.bc.fiduceo.reader.airs;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class AIRS_L1B_ReaderPlugin implements ReaderPlugin {
@@ -46,8 +47,8 @@ public class AIRS_L1B_ReaderPlugin implements ReaderPlugin {
     private static final String[] SENSOR_KEYS = {"airs-aq"};
 
     @Override
-    public Reader createReader(GeometryFactory geometryFactory) {
-        return new AIRS_L1B_Reader(geometryFactory);
+    public Reader createReader(ReaderContext readerContexty) {
+        return new AIRS_L1B_Reader(readerContexty);
     }
 
     @Override

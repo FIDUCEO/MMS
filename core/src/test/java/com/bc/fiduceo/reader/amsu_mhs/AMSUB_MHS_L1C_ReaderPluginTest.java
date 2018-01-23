@@ -43,6 +43,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.*;
 
 public class AMSUB_MHS_L1C_ReaderPluginTest {
@@ -69,7 +70,7 @@ public class AMSUB_MHS_L1C_ReaderPluginTest {
 
     @Test
     public void testCreateReader() {
-        final Reader reader = plugin.createReader(null);
+        final Reader reader = plugin.createReader(new ReaderContext());
         assertNotNull(reader);
         assertTrue(reader instanceof AMSUB_MHS_L1C_Reader);
     }
