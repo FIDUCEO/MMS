@@ -33,7 +33,9 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import org.esa.snap.core.datamodel.SnapAvoidCodeDuplicationClass_SwathPixelLocator;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +65,7 @@ public class AMSR2_Reader_IO_Test {
 
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+        readerContext.setTempFileUtils(new TempFileUtils());
 
         reader = new AMSR2_Reader(readerContext);
     }
@@ -465,6 +468,10 @@ public class AMSR2_Reader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2017, 7, 16, 6, 0, 6, 92, sensingStop);
+
+            final String extractedFileName = FileUtils.getFilenameWithoutExtension(amsr2File);
+            final File extractedFile = new File(amsr2File.getParent(), extractedFileName);
+            assertFalse(extractedFile.isFile());
         } finally {
             reader.close();
         }

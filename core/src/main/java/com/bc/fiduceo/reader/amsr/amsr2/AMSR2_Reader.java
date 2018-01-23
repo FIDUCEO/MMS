@@ -9,22 +9,24 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
@@ -37,19 +39,26 @@ class AMSR2_Reader implements Reader {
     private static final String LON_VARIABLE_NAME = "Longitude_of_Observation_Point_for_89A";
     private static final String LAT_VARIABLE_NAME = "Latitude_of_Observation_Point_for_89A";
 
-    private final GeometryFactory geometryFactory;
+    private final ReaderContext readerContext;
     private NetcdfFile netcdfFile;
     private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private BoundingPolygonCreator boundingPolygonCreator;
+    private File tempFile;
 
     AMSR2_Reader(ReaderContext readerContext) {
-        this.geometryFactory = readerContext.getGeometryFactory();
+        this.readerContext = readerContext;
     }
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
+        if (isCompressed(file)) {
+            tempFile = readerContext.createTempFile("amsr2", "h5");
+            decompress(file, tempFile);
+            netcdfFile = NetcdfFile.open(tempFile.getPath());
+        } else {
+            netcdfFile = NetcdfFile.open(file.getPath());
+        }
         arrayCache = new ArrayCache(netcdfFile);
 
         initializeVariables();
@@ -62,6 +71,10 @@ class AMSR2_Reader implements Reader {
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
+        }
+        if (tempFile != null) {
+            readerContext.deleteTempFile(tempFile);
+            tempFile = null;
         }
     }
 
@@ -219,6 +232,11 @@ class AMSR2_Reader implements Reader {
         }
     }
 
+    // package access for testing only tb 2018-01-23
+    static boolean isCompressed(File file) {
+        return FileUtils.getExtension(file).equalsIgnoreCase(".gz");
+    }
+
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
         final Attribute startDateTime = NetCDFUtils.getGlobalAttributeSafe("ObservationStartDateTime", netcdfFile);
         final Attribute endDateTime = NetCDFUtils.getGlobalAttributeSafe("ObservationEndDateTime", netcdfFile);
@@ -229,7 +247,7 @@ class AMSR2_Reader implements Reader {
     private BoundingPolygonCreator getBoundingPolygonCreator() {
         if (boundingPolygonCreator == null) {
             // @todo 2 tb/tb move intervals to config 2018-01-15
-            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(20, 100), geometryFactory);
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(20, 100), readerContext.getGeometryFactory());
         }
 
         return boundingPolygonCreator;
@@ -251,7 +269,7 @@ class AMSR2_Reader implements Reader {
         geometries.setBoundingGeometry(boundingGeometry);
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), readerContext.getGeometryFactory());
     }
 
     private Number getFillValue(String variableName) throws IOException {
@@ -313,5 +331,40 @@ class AMSR2_Reader implements Reader {
         final Number scale_factor = arrayCache.getNumberAttributeValue("SCALE_FACTOR", escapedName);
 
         return scale_factor.doubleValue();
+    }
+
+    /**
+     * Uncompresses a file in gzip format to a tmp file.
+     *
+     * @param gzipFile existing file in gzip format
+     * @param tmpFile  new file for the uncompressed content
+     * @throws IOException if reading the input, decompression, or writing the output fails
+     */
+    private static void decompress(File gzipFile, File tmpFile) throws IOException {
+        final byte[] buffer = new byte[32768];
+
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = new GZIPInputStream(new FileInputStream(gzipFile), 32768);
+            out = new BufferedOutputStream(new FileOutputStream(tmpFile));
+            int noOfBytesRead;
+            while ((noOfBytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, noOfBytesRead);
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 }

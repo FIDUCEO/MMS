@@ -53,6 +53,6 @@ public class PostProcessingToolMain {
             FiduceoLogger.getLogger().severe(e.getMessage());
             e.printStackTrace();
             System.exit(-1);
-        } 
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -90,5 +91,11 @@ public class AMSR2_ReaderTest {
         assertEquals(2013, ymd[0]);
         assertEquals(7, ymd[1]);
         assertEquals(1, ymd[2]);
+    }
+
+    @Test
+    public void testIsCompressed() {
+        assertTrue(AMSR2_Reader.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz")));
+        assertFalse(AMSR2_Reader.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5")));
     }
 }
