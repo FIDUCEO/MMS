@@ -37,7 +37,7 @@ public class ReaderCacheTest {
     @Before
     public void setUp() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        readerFactory = ReaderFactory.get(geometryFactory);
+        readerFactory = ReaderFactory.create(geometryFactory, null);    // we don't need temp file support here tb 2018-01-23
         readerCache = new ReaderCache(2, readerFactory, null);
     }
 
@@ -48,7 +48,7 @@ public class ReaderCacheTest {
     }
 
     @Test
-    public void testAddAndGet() throws IOException {
+    public void testAddAndGet() {
         final Reader reader = mock(Reader.class);
 
         readerCache.add(reader, Paths.get("a/relative/path"));
@@ -57,7 +57,7 @@ public class ReaderCacheTest {
     }
 
     @Test
-    public void testAddTwoAndGet() throws IOException {
+    public void testAddTwoAndGet() {
         final Reader reader_1 = mock(Reader.class);
         final Reader reader_2 = mock(Reader.class);
 

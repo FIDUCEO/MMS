@@ -34,6 +34,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
+import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -210,7 +211,14 @@ class IngestionTool {
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
 
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        final String tempDir = systemConfig.getTempDir();
+        if (StringUtils.isNullOrEmpty(tempDir)) {
+            context.setTempFileUtils(new TempFileUtils());
+        } else {
+            context.setTempFileUtils(new TempFileUtils(tempDir));
+        }
+
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils());
         context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);

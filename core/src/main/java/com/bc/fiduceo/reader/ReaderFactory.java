@@ -23,6 +23,7 @@ package com.bc.fiduceo.reader;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.util.TempFileUtils;
 import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.StringUtils;
 
@@ -36,13 +37,18 @@ public class ReaderFactory {
     private static ReaderFactory readerFactory;
 
     private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
-    private final GeometryFactory geometryFactory;
     private final ReaderContext readerContext;
 
-    public static ReaderFactory get(GeometryFactory geometryFactory) {
-        // todo 3 se/** if readerFactory instance exists, method argument is ignored 2017-12-05
+    public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils) {
         if (readerFactory == null) {
             readerFactory = new ReaderFactory(geometryFactory);
+        }
+        return readerFactory;
+    }
+
+    public static ReaderFactory get() {
+        if (readerFactory == null) {
+            throw new RuntimeException("Called get() before initialisation");
         }
         return readerFactory;
     }
@@ -61,6 +67,11 @@ public class ReaderFactory {
         return readerPlugin.getDataType();
     }
 
+    static void clear() {
+        // just for testing - to be able to reset tb 2018-01-23
+        readerFactory = null;
+    }
+
     private ReaderPlugin getReaderPluginSafe(String sensorPlatformKey) {
         final ReaderPlugin readerPlugin = readerPluginHashMap.get(sensorPlatformKey);
         if (readerPlugin == null) {
@@ -70,7 +81,6 @@ public class ReaderFactory {
     }
 
     private ReaderFactory(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
         readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
 

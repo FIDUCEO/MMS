@@ -32,7 +32,7 @@ import java.util.List;
  * side and to look for point nearest to this close to 3/4 of points). <p/>
  * <p>
  * The point-in-polygon test determines one equator crossing of the polygon and turns it
- * by 90 degrees to get a point that is for sure outside of the polygon. Then, the test
+ * by 90 degrees to create a point that is for sure outside of the polygon. Then, the test
  * counts the number of crossings of polygon edges with the meridian between the sampling
  * point and the equator and the number of crossings between this equator point and the 90
  * degree point (using the shorter connection between them). If the number of crossings is

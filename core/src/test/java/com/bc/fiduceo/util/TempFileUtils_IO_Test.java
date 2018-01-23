@@ -140,6 +140,23 @@ public class TempFileUtils_IO_Test {
     }
 
     @Test
+    public void testCreateAndDelete() throws IOException {
+        final File file_1 = tempFileUtils.create("ggam", "nc");
+        final File file_2 = tempFileUtils.create("ggap", "nc");
+        final File file_3 = tempFileUtils.create("cdo", "sh");
+
+        assertTrue(file_1.isFile());
+        assertTrue(file_2.isFile());
+        assertTrue(file_3.isFile());
+
+        tempFileUtils.delete(file_2);
+
+        assertTrue(file_1.isFile());
+        assertFalse(file_2.isFile());
+        assertTrue(file_3.isFile());
+    }
+
+    @Test
     public void testCreate_customDir() throws IOException {
         File tempFile = null;
         try {

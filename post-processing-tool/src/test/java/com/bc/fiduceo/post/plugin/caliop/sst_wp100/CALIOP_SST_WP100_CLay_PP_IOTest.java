@@ -30,9 +30,11 @@ import static org.mockito.Mockito.*;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.junit.*;
@@ -83,6 +85,8 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         cLay_pp.setContext(createPostProcessingContext());
         // a call setContext(...) generates an framework call to initReaderCache() method
         tempDirectory = Files.createTempDirectory(fiduceoTestDirPefix);
+
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null);
     }
 
     @After
@@ -329,6 +333,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
     private PostProcessingContext createPostProcessingContext() throws IOException {
         PostProcessingContext pp_context = new PostProcessingContext();
         pp_context.setSystemConfig(createSystemConfig());
+        pp_context.setReaderFactory(ReaderFactory.get());
         return pp_context;
     }
 

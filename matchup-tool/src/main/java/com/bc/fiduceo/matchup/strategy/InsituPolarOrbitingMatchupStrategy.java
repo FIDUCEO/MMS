@@ -75,7 +75,7 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final ScreeningEngine screeningEngine = new ScreeningEngine(context);
 
         final GeometryFactory geometryFactory = context.getGeometryFactory();
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        final ReaderFactory readerFactory = ReaderFactory.get();
 
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);

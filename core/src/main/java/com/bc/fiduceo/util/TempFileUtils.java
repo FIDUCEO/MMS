@@ -57,12 +57,24 @@ public class TempFileUtils {
         return tempFile;
     }
 
+    public void delete(File tempFile) {
+        deleteFileIfExists(tempFile);
+
+        tempFileList.remove(tempFile);
+    }
+
     public void cleanup() {
         if (keepAfterCleanup) {
             return;
         }
-        
+
         for (final File tempFile : tempFileList) {
+            deleteFileIfExists(tempFile);
+        }
+    }
+
+    private void deleteFileIfExists(File tempFile) {
+        if (tempFile.isFile()) {
             if (!tempFile.delete()) {
                 FiduceoLogger.getLogger().warning("Unable to delete file: " + tempFile.getAbsolutePath());
             }

@@ -20,25 +20,21 @@
 
 package com.bc.fiduceo.post.plugin.caliop.flag;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.reader.ReaderCache;
+import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.NetCDFUtils;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,6 +43,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 @RunWith(IOTestRunner.class)
 public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
@@ -54,17 +53,19 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
     @Before
     public void setUp() throws Exception {
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null);
+
         pp = new CALIOP_L2_VFM_FLAGS_PP("caliop_vfm.file_name",
-                                        "caliop_vfm.processing_version",
-                                        "caliop_vfm.y",
-                                        "caliop_vfm.Center_Feature_Classification_Flags");
+                "caliop_vfm.processing_version",
+                "caliop_vfm.y",
+                "caliop_vfm.Center_Feature_Classification_Flags");
         // In regular usage the PostProcessingContext will be set by post processing framework.
         pp.setContext(createPostProcessingContext());
         // a call setContext(...) generates an framework call to initReaderCache() method
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pp.forTestsOnly_dispose();
     }
 
@@ -109,8 +110,7 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
     public void compute() throws Exception {
         pp.filenameFieldSize = 200;
         pp.processingVersionSize = 30;
-        final Variable tarVar = mock(Variable.class);
-        pp.targetFlagsVariable = tarVar;
+        pp.targetFlagsVariable = mock(Variable.class);
 
         pp.processingVersionVariable = mock(Variable.class);
         when(pp.processingVersionVariable.read(new int[]{0, 0}, new int[]{1, 30})).thenReturn(Array.factory("   4.10   ".toCharArray()));
@@ -141,22 +141,21 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
         assertEquals(1, writer.variables.size());
         assertEquals(6, writer.origins.size());
-        assertArrayEquals(new int[]{0,0,0,0}, writer.origins.get(0));
-        assertArrayEquals(new int[]{0,1,0,0}, writer.origins.get(1));
-        assertArrayEquals(new int[]{0,2,0,0}, writer.origins.get(2));
-        assertArrayEquals(new int[]{1,0,0,0}, writer.origins.get(3));
-        assertArrayEquals(new int[]{1,1,0,0}, writer.origins.get(4));
-        assertArrayEquals(new int[]{1,2,0,0}, writer.origins.get(5));
+        assertArrayEquals(new int[]{0, 0, 0, 0}, writer.origins.get(0));
+        assertArrayEquals(new int[]{0, 1, 0, 0}, writer.origins.get(1));
+        assertArrayEquals(new int[]{0, 2, 0, 0}, writer.origins.get(2));
+        assertArrayEquals(new int[]{1, 0, 0, 0}, writer.origins.get(3));
+        assertArrayEquals(new int[]{1, 1, 0, 0}, writer.origins.get(4));
+        assertArrayEquals(new int[]{1, 2, 0, 0}, writer.origins.get(5));
         assertEquals(6, writer.arrays.size());
         ArrayList<Array> arrays = writer.arrays;
-        for (int i = 0; i < arrays.size(); i++) {
-            Array array = arrays.get(i);
+        for (Array array : arrays) {
             assertEquals(545, array.getSize());
         }
     }
 
     @Test
-    public void testReaderCacheIsInitialized() throws Exception {
+    public void testReaderCacheIsInitialized() {
         assertNotNull(pp.forTestsOnly_getReaderCache());
     }
 
@@ -175,8 +174,9 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
     }
 
     private PostProcessingContext createPostProcessingContext() throws IOException {
-        PostProcessingContext pp_context = new PostProcessingContext();
+        final PostProcessingContext pp_context = new PostProcessingContext();
         pp_context.setSystemConfig(createSystemConfig());
+        pp_context.setReaderFactory(ReaderFactory.get());
         return pp_context;
     }
 
@@ -184,13 +184,13 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
         final String archivePath = TestUtil.getTestDataDirectory().getAbsolutePath();
         return SystemConfig.load(new ByteArrayInputStream(
                 ("<system-config>" +
-                 "    <geometry-library name=\"S2\"/>" +
-                 "    <reader-cache-size>24</reader-cache-size>" +
-                 "    <archive>" +
-                 "        <root-path>" + archivePath + "</root-path>" +
-                 "        <rule sensors=\"drifter-sst, ship-sst\">insitu/SENSOR/VERSION</rule>" +
-                 "    </archive>" +
-                 "</system-config>").getBytes()
+                        "    <geometry-library name=\"S2\"/>" +
+                        "    <reader-cache-size>24</reader-cache-size>" +
+                        "    <archive>" +
+                        "        <root-path>" + archivePath + "</root-path>" +
+                        "        <rule sensors=\"drifter-sst, ship-sst\">insitu/SENSOR/VERSION</rule>" +
+                        "    </archive>" +
+                        "</system-config>").getBytes()
         ));
     }
 
@@ -208,7 +208,7 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
         }
 
         @Override
-        public void write(Variable v, int[] origin, Array values) throws IOException, InvalidRangeException {
+        public void write(Variable v, int[] origin, Array values) {
             variables.add(v);
             origins.add(origin.clone());
             arrays.add(values);

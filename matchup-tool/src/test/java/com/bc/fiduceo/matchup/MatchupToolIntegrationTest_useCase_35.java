@@ -49,7 +49,7 @@ public class MatchupToolIntegrationTest_useCase_35 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_HIRSN18_OceanRain() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(300, null)  // 10 minutes is large enough to get some matchups
+                .withTimeDeltaSeconds(300, null)  // 10 minutes is large enough to create some matchups
                 .withMaxPixelDistanceKm(5, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-35.xml");

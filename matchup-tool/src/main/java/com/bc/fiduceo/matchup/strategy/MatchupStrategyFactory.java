@@ -44,9 +44,7 @@ public class MatchupStrategyFactory {
         final Sensor primarySensor = useCaseConfig.getPrimarySensor();
         final List<Sensor> secondarySensors = useCaseConfig.getSecondarySensors();
 
-        // @todo 3 tb/** this is a piece of dirty code: we assume that the ReaderFactory singleton has already been created
-        // therefore we can use the null argument here. Improve this! 2016-11-04
-        final ReaderFactory readerFactory = ReaderFactory.get(null);
+        final ReaderFactory readerFactory = ReaderFactory.get();
         final DataType primaryType = readerFactory.getDataType(primarySensor.getName());
 
         final Set<DataType> secondaryDataTypes = new HashSet<>();

@@ -68,7 +68,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final ScreeningEngine screeningEngine = new ScreeningEngine(context);
 
         final GeometryFactory geometryFactory = context.getGeometryFactory();
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        final ReaderFactory readerFactory = ReaderFactory.get();
 
         final long timeDeltaInMillis = conditionEngine.getMaxTimeDeltaInMillis();
         final int timeDeltaSeconds = (int) (timeDeltaInMillis / 1000);
@@ -121,7 +121,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
 
                 // todo se multisensor
-                // get(0) is still only one secondary sensor case
+                // create(0) is still only one secondary sensor case
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
                 // todo se multisensor
                 // still only one secondary sensor case

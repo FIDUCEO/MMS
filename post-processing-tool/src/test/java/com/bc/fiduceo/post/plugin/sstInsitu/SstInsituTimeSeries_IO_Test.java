@@ -117,6 +117,7 @@ public class SstInsituTimeSeries_IO_Test {
                  "    </archive>" +
                  "</system-config>").getBytes())));
 
+        context.setReaderFactory(ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null));
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
         insituTimeSeries.setContext(context);
 
@@ -176,7 +177,7 @@ public class SstInsituTimeSeries_IO_Test {
     public void computeInsituRange() throws Exception {
         final int seconds = 80000;
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("any", seconds, 300, "matchupTimeVarName");
-        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory("S2"));
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory("S2"), null); // we don't need temp file support here tb 2018-01-23
         final Reader insituReader = readerFactory.getReader("animal-sst");
 
         final File insituFile = testDataDirectory.toPath()

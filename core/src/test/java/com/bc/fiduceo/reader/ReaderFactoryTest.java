@@ -39,11 +39,11 @@ public class ReaderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        readerFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
+        readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
     }
 
     @Test
-    public void testGetAVHHRReader() throws Exception {
+    public void testGetAVHHRReader()  {
         final Reader reader = readerFactory.getReader("avhrr-n06");
 
         assertNotNull(reader);
@@ -146,12 +146,34 @@ public class ReaderFactoryTest {
 
     @Test
     public void testSingletonBehaviour() {
-        final ReaderFactory factory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(factory);
 
-        final ReaderFactory secondCallFactory = ReaderFactory.get(new GeometryFactory(GeometryFactory.Type.S2));
+        final ReaderFactory secondCallFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(secondCallFactory);
 
         assertSame(factory, secondCallFactory);
+    }
+
+    @Test
+    public void testGet() {
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+
+        final ReaderFactory factoryFromGet = ReaderFactory.get();
+
+        assertSame(factory, factoryFromGet);
+    }
+
+    @Test
+    public void testGet_throwsWehnNotCreated() {
+        ReaderFactory.clear();
+
+        try {
+            ReaderFactory.get();
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+
     }
 }

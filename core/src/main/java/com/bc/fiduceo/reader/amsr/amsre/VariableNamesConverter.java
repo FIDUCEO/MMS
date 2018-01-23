@@ -63,6 +63,6 @@ class VariableNamesConverter {
             }
         }
 
-        throw new RuntimeException("Invalid state, we should never get here!");
+        throw new RuntimeException("Invalid state, we should never create here!");
     }
 }

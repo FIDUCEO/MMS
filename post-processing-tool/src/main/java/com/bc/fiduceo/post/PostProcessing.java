@@ -21,7 +21,6 @@ package com.bc.fiduceo.post;
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
@@ -76,7 +75,6 @@ public abstract class PostProcessing {
      *
      * @param reader the NetcdfFile opened on the input MMD file
      * @param writer the NetcdfFileWriter opened on the target MMD, in define-mode
-     *
      * @throws IOException           on disk access failures
      * @throws InvalidRangeException on other occasions
      */
@@ -90,7 +88,6 @@ public abstract class PostProcessing {
      *
      * @param reader the NetcdfFile opened on the input MMD file
      * @param writer the NetcdfFileWriter opened on the target MMD, in write-mode
-     *
      * @throws IOException           on disk access failures
      * @throws InvalidRangeException on other occasions
      */
@@ -110,13 +107,12 @@ public abstract class PostProcessing {
         }
     }
 
-    public static ReaderCache createReaderCache(PostProcessingContext context) {
+    protected static ReaderCache createReaderCache(PostProcessingContext context) {
         final SystemConfig systemConfig = context.getSystemConfig();
         final int readerCacheSize = systemConfig.getReaderCacheSize();
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
         final Archive archive = new Archive(archiveConfig);
-        final String geometryLibraryType = systemConfig.getGeometryLibraryType();
-        final ReaderFactory readerFactory = ReaderFactory.get(new GeometryFactory(geometryLibraryType));
+        final ReaderFactory readerFactory = context.getReaderFactory();
         return new ReaderCache(readerCacheSize, readerFactory, archive);
     }
 

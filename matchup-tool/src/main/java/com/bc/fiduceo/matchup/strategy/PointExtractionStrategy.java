@@ -50,7 +50,7 @@ class PointExtractionStrategy extends AbstractMatchupStrategy {
     }
 
     @Override
-    public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
+    public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException {
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         if (primaryObservations.size() == 0) {
             logger.warning("No satellite data in time interval:" + context.getStartDate() + " - " + context.getEndDate());
@@ -59,7 +59,7 @@ class PointExtractionStrategy extends AbstractMatchupStrategy {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final GeometryFactory geometryFactory = context.getGeometryFactory();
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final ReaderFactory readerFactory = ReaderFactory.get();
 
         final double lon = useCaseConfig.getLon();
         final double lat = useCaseConfig.getLat();

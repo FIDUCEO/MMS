@@ -20,32 +20,18 @@
 
 package com.bc.fiduceo.matchup;
 
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.core.ValidationResult;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.strategy.AbstractMatchupStrategy;
 import com.bc.fiduceo.matchup.strategy.MatchupStrategyFactory;
-import com.bc.fiduceo.matchup.writer.AcquisitionTimeReadingIOVariable;
-import com.bc.fiduceo.matchup.writer.CenterXWritingIOVariable;
-import com.bc.fiduceo.matchup.writer.CenterYWritingIOVariable;
-import com.bc.fiduceo.matchup.writer.IOVariable;
-import com.bc.fiduceo.matchup.writer.IOVariablesList;
-import com.bc.fiduceo.matchup.writer.MmdWriter;
-import com.bc.fiduceo.matchup.writer.MmdWriterConfig;
-import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
-import com.bc.fiduceo.matchup.writer.ProcessingVersionWritingIOVariable;
-import com.bc.fiduceo.matchup.writer.ReaderContainer;
-import com.bc.fiduceo.matchup.writer.SourcePathWritingIOVariable;
-import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
+import com.bc.fiduceo.matchup.writer.*;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -56,11 +42,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Date;
@@ -69,9 +51,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 class MatchupTool {
 
@@ -148,7 +128,7 @@ class MatchupTool {
 
     static void createIOVariablesPerSensor(IOVariablesList ioVariablesList, MatchupCollection matchupCollection,
                                            final UseCaseConfig useCaseConfig, VariablesConfiguration variablesConfiguration)
-                throws IOException {
+            throws IOException {
 
         final MatchupSet matchupSet = getFirstMatchupSet(matchupCollection);
         final Path primaryPath = matchupSet.getPrimaryObservationPath();
@@ -356,7 +336,14 @@ class MatchupTool {
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
         context.setGeometryFactory(geometryFactory);
 
-        final ReaderFactory readerFactory = ReaderFactory.get(geometryFactory);
+        final String tempDir = systemConfig.getTempDir();
+        if (StringUtils.isNullOrEmpty(tempDir)) {
+            context.setTempFileUtils(new TempFileUtils());
+        } else {
+            context.setTempFileUtils(new TempFileUtils(tempDir));
+        }
+
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils());
         context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);

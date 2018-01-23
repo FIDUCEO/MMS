@@ -24,11 +24,7 @@ import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sample;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.core.UseCaseConfigBuilder;
+import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.matchup.Delegator_MatchupTool;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -36,6 +32,7 @@ import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -61,10 +58,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class MmdWriter_IO_Test {
@@ -75,7 +69,7 @@ public class MmdWriter_IO_Test {
     private MmdWriterConfig writerConfig;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         testDir = TestUtil.createTestDirectory();
         writerConfig = new MmdWriterConfig();
         SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
@@ -83,7 +77,7 @@ public class MmdWriter_IO_Test {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SampleSet.resetKey_UseThisMethodInUnitLevelTestsOnly();
         TestUtil.deleteTestDirectory();
     }
@@ -353,7 +347,7 @@ public class MmdWriter_IO_Test {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
-        final ReaderFactory readerFactory = ReaderFactory.get(context.getGeometryFactory());
+        final ReaderFactory readerFactory = ReaderFactory.create(context.getGeometryFactory(), new TempFileUtils());
         context.setReaderFactory(readerFactory);
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 
@@ -417,7 +411,7 @@ public class MmdWriter_IO_Test {
         }
     }
 
-    private UseCaseConfig createUseCaseConfig_AVHRR() throws IOException {
+    private UseCaseConfig createUseCaseConfig_AVHRR() {
         final Sensor primary = new Sensor("avhrr-n10");
         primary.setPrimary(true);
 

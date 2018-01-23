@@ -51,7 +51,7 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(600, null)  // 10 minutes is large enough to get some matchups
+                .withTimeDeltaSeconds(600, null)  // 10 minutes is large enough to create some matchups
                 .withMaxPixelDistanceKm(5, null)
                 .withAngularCosineScreening("Satellite_zenith_angle", "Satellite_zenith_angle", 0.01f)
                 .createConfig();
@@ -138,7 +138,7 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
     @Test
     public void testMatchup_overlappingSensingTimes_additionalDistanceVariable() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(600, null)  // 10 minutes is large enough to get some matchups
+                .withTimeDeltaSeconds(600, null)  // 10 minutes is large enough to create some matchups
                 .withMaxPixelDistanceKm(5, null)
                 .withAngularCosineScreening("Satellite_zenith_angle", "Satellite_zenith_angle", 0.01f)
                 .withSphericalDistanceVariable()

@@ -58,8 +58,8 @@ public class ElevationToSolZenAngleTest {
     @Test
     public void testGetVariableNamesToRemove() {
         final ElevationToSolZenAngle.Configuration configuration = new ElevationToSolZenAngle.Configuration();
-        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source", "tar-get", true));
-        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source_remain", "tar-get-two", false));
+        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source", "tar-create", true));
+        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source_remain", "tar-create-two", false));
 
         final ElevationToSolZenAngle postProcessing = new ElevationToSolZenAngle(configuration);
         final List<String> namesToRemove = postProcessing.getVariableNamesToRemove();
@@ -70,7 +70,7 @@ public class ElevationToSolZenAngleTest {
     @Test
     public void testPrepare_oneVariable() throws IOException, InvalidRangeException {
         final ElevationToSolZenAngle.Configuration configuration = new ElevationToSolZenAngle.Configuration();
-        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source", "tar-get", true));
+        configuration.conversions.add(new ElevationToSolZenAngle.Conversion("source", "tar-create", true));
 
         final ElevationToSolZenAngle postProcessing = new ElevationToSolZenAngle(configuration);
 
@@ -83,12 +83,12 @@ public class ElevationToSolZenAngleTest {
         when(reader.findVariable(null, "source")).thenReturn(sourceVariable);
 
         final Variable targetVariable = mock(Variable.class);
-        when(writer.addVariable(null, "tar-get", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
+        when(writer.addVariable(null, "tar-create", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
 
         postProcessing.prepare(reader, writer);
 
         verify(reader, times(1)).findVariable(null, "source");
-        verify(writer, times(1)).addVariable(null, "tar-get", DataType.FLOAT, dimensions);
+        verify(writer, times(1)).addVariable(null, "tar-create", DataType.FLOAT, dimensions);
         verify(targetVariable, times(1)).addAttribute(anyObject());
         verifyNoMoreInteractions(reader, writer);
     }
