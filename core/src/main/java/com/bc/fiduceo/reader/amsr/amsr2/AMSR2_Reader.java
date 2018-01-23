@@ -31,7 +31,7 @@ import java.util.zip.GZIPInputStream;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
-class AMSR2_Reader implements Reader {
+public class AMSR2_Reader implements Reader {
 
     private static final String REG_EX = "GW1AM2_\\d{12}_\\d{3}[AD]_L1SGRTBR_\\d{7}.h5(.gz)?";
     private static final String[] LAND_OCEAN_FLAG_EXTENSIONS = new String[]{"6", "10", "23", "36"};

@@ -41,7 +41,7 @@ public class ReaderFactory {
 
     public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils) {
         if (readerFactory == null) {
-            readerFactory = new ReaderFactory(geometryFactory);
+            readerFactory = new ReaderFactory(geometryFactory, tempFileUtils);
         }
         return readerFactory;
     }
@@ -80,9 +80,10 @@ public class ReaderFactory {
         return readerPlugin;
     }
 
-    private ReaderFactory(GeometryFactory geometryFactory) {
+    private ReaderFactory(GeometryFactory geometryFactory, TempFileUtils tempFileUtils) {
         readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
+        readerContext.setTempFileUtils(tempFileUtils);
 
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);

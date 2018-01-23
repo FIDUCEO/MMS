@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.airs.ForReaderFactoryTest_AIRS_L1B_Reader;
+import com.bc.fiduceo.reader.amsr.amsr2.AMSR2_Reader;
 import com.bc.fiduceo.reader.amsu_mhs.ForReaderFactoryTest_AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
@@ -51,7 +52,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetAMSUReader() throws Exception {
+    public void testGetAMSUReader() {
         final Reader reader = readerFactory.getReader("amsub-n17");
 
         assertNotNull(reader);
@@ -59,7 +60,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetAIRSReader() throws Exception {
+    public void testGetAIRSReader() {
         final Reader reader = readerFactory.getReader("airs-aq");
 
         assertNotNull(reader);
@@ -67,7 +68,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetIASIReader() throws Exception {
+    public void testGetIASIReader() {
         final Reader reader = readerFactory.getReader("iasi-mb");
 
         assertNotNull(reader);
@@ -75,7 +76,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetHirsReader() throws Exception {
+    public void testGetHirsReader() {
         final Reader reader = readerFactory.getReader("hirs-n11");
 
         assertNotNull(reader);
@@ -83,7 +84,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetSstInsituReader() throws Exception {
+    public void testGetSstInsituReader() {
         final Reader reader = readerFactory.getReader("xbt-sst");
 
         assertNotNull(reader);
@@ -91,7 +92,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetModisCloudReader() throws Exception {
+    public void testGetModisCloudReader() {
         final Reader reader = readerFactory.getReader("myd06-aq");
 
         assertNotNull(reader);
@@ -99,7 +100,15 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetReaderNullKey() throws Exception {
+    public void testGetAMSR2Reader() {
+        final Reader reader = readerFactory.getReader("amsr2-gcw1");
+
+        assertNotNull(reader);
+        assertTrue(reader instanceof AMSR2_Reader);
+    }
+
+    @Test
+    public void testGetReaderNullKey() {
         try {
             readerFactory.getReader(null);
             fail("The key is null");
@@ -108,7 +117,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetReaderEmptyKey() throws Exception {
+    public void testGetReaderEmptyKey() {
         try {
             readerFactory.getReader("");
             fail("IllegalArgumentException expected");
@@ -117,7 +126,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetReaderKeyNonExist() throws Exception {
+    public void testGetReaderKeyNonExist() {
         try {
             readerFactory.getReader("uztierter");
             fail("IllegalArgumentException expected");
@@ -136,7 +145,7 @@ public class ReaderFactoryTest {
     }
 
     @Test
-    public void testGetDataType_invalidSensor() throws Exception {
+    public void testGetDataType_invalidSensor() {
         try {
             readerFactory.getDataType("grepolysium");
             fail("IllegalArgumentException expected");
@@ -164,6 +173,7 @@ public class ReaderFactoryTest {
         assertSame(factory, factoryFromGet);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testGet_throwsWehnNotCreated() {
         ReaderFactory.clear();

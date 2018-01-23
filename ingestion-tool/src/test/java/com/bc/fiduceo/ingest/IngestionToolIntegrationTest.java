@@ -890,6 +890,36 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_AMSR2() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsr2-gcw1", "-start", "2017-196", "-end", "2017-197", "-v", "v220"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2017, 7, 16, 5, 10, 43, 876, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2017, 7, 16, 6, 0, 6, 92, observation.getStopTime());
+
+            assertEquals("amsr2-gcw1", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2017", "07", "16", "GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.DESCENDING, observation.getNodeType());
+            assertEquals("v220", observation.getVersion());
+
+            assertNotNull(observation.getGeoBounds());
+            assertNotNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
