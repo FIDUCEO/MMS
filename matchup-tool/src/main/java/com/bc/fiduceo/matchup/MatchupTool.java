@@ -68,7 +68,12 @@ class MatchupTool {
         final ToolContext context = initialize(commandLine);
         final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
 
-        runMatchupGeneration(context, mmdWriterConfig);
+        try {
+            runMatchupGeneration(context, mmdWriterConfig);
+        } finally {
+            context.getStorage().close();
+            context.getTempFileUtils().cleanup();
+        }
     }
 
     // package access for testing only tb 2016-02-18

@@ -79,6 +79,7 @@ class IngestionTool {
             ingestMetadata(context, sensorType, processingVersion);
         } finally {
             context.getStorage().close();
+            context.getTempFileUtils().cleanup();
         }
     }
 

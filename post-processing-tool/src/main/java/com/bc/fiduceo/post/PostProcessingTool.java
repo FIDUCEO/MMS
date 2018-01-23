@@ -112,6 +112,8 @@ class PostProcessingTool {
             List<Path> mmdFiles = mmdFileStream.collect(Collectors.toList());
 
             computeFiles(mmdFiles);
+        } finally {
+            context.getTempFileUtils().cleanup();
         }
     }
 
