@@ -70,7 +70,7 @@ public class PostProcessingToolTest {
     private Element root;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         root = new Element(CONFIG).addContent(Arrays.asList(
                 new Element(NEW_FILES).addContent(
                         new Element(OUTPUT_DIR).addContent("An_Output_Directory")),
@@ -133,14 +133,14 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testPrintUsage() throws Exception {
+    public void testPrintUsage() {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         PostProcessingTool.printUsageTo(out);
 //        PostProcessingTool.printUsageTo(System.out);
 
         final String ls = System.lineSeparator();
-        final String expected = "post-processing-tool version 1.3.6-SNAPSHOT" + ls +
+        final String expected = "post-processing-tool version 1.3.6" + ls +
                 "" + ls +
                 "usage: post-processing-tool <options>" + ls +
                 "Valid options are:" + ls +
@@ -249,7 +249,7 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testFilenameIsInTimeRange() throws Exception {
+    public void testFilenameIsInTimeRange() {
         final String fileStart = "2005-123";
         final String filename = "AnyCharactersBefore_" + fileStart + "_" + "anyTime" + ".nc";
 

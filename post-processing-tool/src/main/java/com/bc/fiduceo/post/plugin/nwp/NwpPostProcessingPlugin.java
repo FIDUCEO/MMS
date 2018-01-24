@@ -60,11 +60,6 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final String nwpAuxDirValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "nwp-aux-dir");
         configuration.setNWPAuxDir(nwpAuxDirValue);
 
-        final Element tempDirElement = rootElement.getChild("temp-dir");
-        if (tempDirElement != null) {
-            configuration.setTempDir(getElementValueTrimmed(tempDirElement));
-        }
-
         parseTimeExtractionConfiguration(rootElement, configuration);
         parseSensorExtractionConfiguration(rootElement, configuration);
 

@@ -51,8 +51,6 @@ public class UseCaseConfigTest {
         useCaseConfig = UseCaseConfig.load(new ByteArrayInputStream("<use-case-config name=\"testName\"/>".getBytes()));
     }
 
-
-
     @Test
     public void testLoad__useCaseName() {
         final String useCaseXml = "<use-case-config name=\"use-case 17\"></use-case-config>";

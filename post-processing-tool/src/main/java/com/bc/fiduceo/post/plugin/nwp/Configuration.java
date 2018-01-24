@@ -31,7 +31,6 @@ class Configuration {
 
     private TimeSeriesConfiguration timeSeriesConfiguration;
     private SensorExtractConfiguration sensorExtractConfiguration;
-    private String tempDir;
 
     Configuration() {
         deleteOnExit = true;
@@ -59,14 +58,6 @@ class Configuration {
 
     String getNWPAuxDir() {
         return NWPAuxDir;
-    }
-
-    void setTempDir(String tempDir) {
-        this.tempDir = tempDir;
-    }
-
-    String getTempDir() {
-        return tempDir;
     }
 
     boolean isTimeSeriesExtraction() {
