@@ -26,7 +26,12 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.math.SphericalDistance;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.Range;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -106,6 +111,48 @@ class BowTiePixelLocator implements PixelLocator {
             ++currentIndex;
         }
 
+        // check minIndex - 1 to minIndex + 1, if inside product
+        final int[] subSearchIndices = new int[3];
+        subSearchIndices[0] = minIndex - 1 >= 0 ? minIndex - 1 : -1;
+        subSearchIndices[1] = minIndex;
+        subSearchIndices[2] = minIndex + 1 < listSize ? minIndex + 1 : -1;
+
+        final double[] subSearchDistances = new double[]{Double.NaN, Double.NaN, Double.NaN};
+
+        for (int i = 0; i < subSearchIndices.length; i++) {
+            if (subSearchIndices[i] > 0) {
+                final LineString centerLine = centerLinesList.get(subSearchIndices[i]);
+                final Point[] lineCoordinates = centerLine.getCoordinates();
+                double lineDist = Double.MAX_VALUE;
+                for (final Point lineCoordinate : lineCoordinates) {
+                    final double currentDistance = sphericalDistance.distance(lineCoordinate.getLon(), lineCoordinate.getLat());
+                    if (currentDistance < lineDist) {
+                        lineDist = currentDistance;
+                    }
+                }
+
+                subSearchDistances[i] = lineDist;
+            }
+        }
+
+        int minOffset = Integer.MIN_VALUE;
+        minDistance = Double.MAX_VALUE;
+        for (int i = 0; i < subSearchDistances.length; i++) {
+            final double currentDistance = subSearchDistances[i];
+            if (Double.isNaN(currentDistance)) {
+                continue;
+            }
+            if (currentDistance < minDistance) {
+                minDistance = currentDistance;
+                minOffset = i - 1;
+            }
+        }
+
+        if (minOffset == Integer.MIN_VALUE) {
+            return new Point2D[0];
+        }
+
+        minIndex = minIndex + minOffset;
         final GeoCoding geoCoding = geoCodingList.get(minIndex);
         final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
         final double subGeocodingY = pixelPos.getY();
@@ -113,7 +160,7 @@ class BowTiePixelLocator implements PixelLocator {
         double y = subGeocodingY + STRIPE_HEIGHT * minIndex;
         final int index = (int) Math.floor(y / STRIPE_HEIGHT);
         if (index < (minIndex - 2) || index > (minIndex + 2)) {
-            return null;
+            return new Point2D[0];
         }
 
         final Point2D.Double resultPoint = new Point2D.Double(pixelPos.getX(), y);
