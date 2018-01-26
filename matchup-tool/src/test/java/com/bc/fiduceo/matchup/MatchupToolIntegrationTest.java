@@ -24,12 +24,9 @@ import com.bc.fiduceo.IOTestRunner;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.ma2.InvalidRangeException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class MatchupToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
-    private final String expectedPrintUsage = "matchup-tool version 1.3.6" + ls +
+    private final String expectedPrintUsage = "matchup-tool version 1.3.7-SNAPSHOT" + ls +
             ls +
             "usage: matchup-tool <options>" + ls +
             "Valid options are:" + ls +
@@ -49,14 +46,14 @@ public class MatchupToolIntegrationTest {
             "                               configuration directory." + ls;
 
     @Test
-    public void testRunMatchup_notInputParameter_printUsageExpected() throws ParseException, IOException, SQLException, InvalidRangeException {
+    public void testRunMatchup_notInputParameter_printUsageExpected() throws ParseException {
         final String[] args = new String[0];
         final String errOutput = callMatchupToolMain_wrappedWithSystemErrSpy(args);
         assertEquals(expectedPrintUsage, errOutput);
     }
 
     @Test
-    public void testRunMatchup_withHelpParameter_printUsageExpected() throws ParseException, IOException, SQLException, InvalidRangeException {
+    public void testRunMatchup_withHelpParameter_printUsageExpected() throws ParseException {
         String[] args = new String[]{"-h"};
         final String errOut = callMatchupToolMain_wrappedWithSystemErrSpy(args);
         assertEquals(expectedPrintUsage, errOut);
@@ -66,7 +63,7 @@ public class MatchupToolIntegrationTest {
         assertEquals(expectedPrintUsage, errOutput);
     }
 
-    private String callMatchupToolMain_wrappedWithSystemErrSpy(String[] args) throws ParseException, IOException, SQLException, InvalidRangeException {
+    private String callMatchupToolMain_wrappedWithSystemErrSpy(String[] args) throws ParseException {
         final PrintStream err = System.err;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(out);
