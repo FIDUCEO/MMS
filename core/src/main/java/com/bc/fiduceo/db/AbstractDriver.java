@@ -77,7 +77,7 @@ abstract class AbstractDriver implements Driver {
                 "Axis GEOMETRY," +
                 "StartTime TIMESTAMP, " +
                 "StopTime TIMESTAMP, " +
-                "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID))");
+                "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID) ON DELETE CASCADE)");
     }
 
     @Override

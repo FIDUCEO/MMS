@@ -82,7 +82,7 @@ public class PostGISDriver extends AbstractDriver {
                 "Axis GEOMETRY," +
                 "StartTime TIMESTAMP, " +
                 "StopTime TIMESTAMP, " +
-                "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID))");
+                "FOREIGN KEY (ObservationId) REFERENCES SATELLITE_OBSERVATION(ID) ON DELETE CASCADE )");
 
         statement = connection.createStatement();
         statement.execute("CREATE INDEX START_TIME ON SATELLITE_OBSERVATION(StartDate)");
