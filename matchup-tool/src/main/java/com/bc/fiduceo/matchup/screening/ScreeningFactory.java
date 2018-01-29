@@ -18,7 +18,7 @@ package com.bc.fiduceo.matchup.screening;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 import org.jdom.Element;
 
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ScreeningFactory {
     private ScreeningFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ScreeningPlugin> screeningPlugins = serviceRegistryManager.getServiceRegistry(ScreeningPlugin.class);
-        SnapCoreActivator.loadServices(screeningPlugins);
+        ServiceLoader.loadServices(screeningPlugins);
 
         for (ScreeningPlugin plugin : screeningPlugins.getServices()) {
             final String key = plugin.getScreeningName();

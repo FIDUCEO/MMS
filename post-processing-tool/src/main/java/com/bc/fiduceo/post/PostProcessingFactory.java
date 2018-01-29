@@ -21,7 +21,7 @@ package com.bc.fiduceo.post;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 import org.jdom.Element;
 
 import java.util.Collections;
@@ -36,7 +36,7 @@ public final class PostProcessingFactory {
     private PostProcessingFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<PostProcessingPlugin> postProcessingPlugins = serviceRegistryManager.getServiceRegistry(PostProcessingPlugin.class);
-        SnapCoreActivator.loadServices(postProcessingPlugins);
+        ServiceLoader.loadServices(postProcessingPlugins);
 
         for (PostProcessingPlugin plugin : postProcessingPlugins.getServices()) {
             final String key = plugin.getPostProcessingName();

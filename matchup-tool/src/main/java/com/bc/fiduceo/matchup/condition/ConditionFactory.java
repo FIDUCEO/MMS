@@ -18,7 +18,7 @@ package com.bc.fiduceo.matchup.condition;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 import org.jdom.Element;
 
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ConditionFactory {
     private ConditionFactory() {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ConditionPlugin> conditionPlugins = serviceRegistryManager.getServiceRegistry(ConditionPlugin.class);
-        SnapCoreActivator.loadServices(conditionPlugins);
+        ServiceLoader.loadServices(conditionPlugins);
 
         for (ConditionPlugin plugin : conditionPlugins.getServices()) {
             final String key = plugin.getConditionName();

@@ -24,7 +24,7 @@ import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TempFileUtils;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 import org.esa.snap.core.util.StringUtils;
 
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public class ReaderFactory {
 
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);
-        SnapCoreActivator.loadServices(readerRegistry);
+        ServiceLoader.loadServices(readerRegistry);
 
         for (ReaderPlugin plugin : readerRegistry.getServices()) {
             String[] supportedSensorKeys = plugin.getSupportedSensorKeys();

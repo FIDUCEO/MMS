@@ -21,7 +21,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ class DriverUtils {
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<Driver> readerRegistry = serviceRegistryManager.getServiceRegistry(Driver.class);
 
-        SnapCoreActivator.loadServices(readerRegistry);
+        ServiceLoader.loadServices(readerRegistry);
 
         final Set<Driver> driverSet = readerRegistry.getServices();
         if (driverSet.isEmpty()) {
