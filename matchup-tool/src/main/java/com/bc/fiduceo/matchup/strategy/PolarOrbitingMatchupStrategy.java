@@ -95,8 +95,6 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                 // todo se multisensor
                 // still only one secondary sensor case
                 final List<SatelliteObservation> secondaryObservations = secondaryObservationsSet.get(secondarySensorName_CaseOneSecondary);
-
-
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                     // todo se multisensor
                     // still only one secondary sensor case

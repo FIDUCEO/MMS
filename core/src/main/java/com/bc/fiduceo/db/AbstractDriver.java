@@ -119,7 +119,7 @@ abstract class AbstractDriver implements Driver {
     // package access for testing only tb 2016-11-29
     static String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
+        sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
         if (parameter == null) {
             return sql.toString();
         }

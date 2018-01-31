@@ -110,6 +110,72 @@ public class BcS2PolygonTest {
     }
 
     @Test
+    public void testGetIntersection_multipolygon_noIntersection() {
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
+
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        assertNotNull(intersection);
+        assertTrue(intersection.isEmpty());
+    }
+
+    @Test
+    public void testGetIntersection_multipolygon_intersectFirst() {
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((-4.5 -0.5, -4.5 0.5, -3.5 0.5, -3.5 -0.5, -4.5 -0.5)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
+
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        assertNotNull(intersection);
+        assertFalse(intersection.isEmpty());
+
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(5, coordinates.length);
+        assertEquals(-4.0, coordinates[1].getLon(), 1e-8);
+        assertEquals(0.5000190382262163, coordinates[1].getLat(), 1e-8);
+        assertEquals(-4.5, coordinates[3].getLon(), 1e-8);
+        assertEquals(0.0, coordinates[3].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testGetIntersection_multipolygon_intersectSecond() {
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((9.5 0.5, 9.5 1.5, 10.5 1.5, 10.5 0.5, 9.5 0.5))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 11 1, 11 0, 10 0)))");
+
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        assertNotNull(intersection);
+        assertFalse(intersection.isEmpty());
+
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(5, coordinates.length);
+        assertEquals(10.5, coordinates[1].getLon(), 1e-8);
+        assertEquals(0.5, coordinates[1].getLat(), 1e-8);
+        assertEquals(10, coordinates[3].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[3].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testGetIntersection_multipolygon_intersectBoth() {
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((4 0.5, 4 1.5, 10.5 1.5, 10.5 0.5, 4 0.5))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 11 1, 11 0, 10 0)))");
+
+        final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
+        assertNotNull(intersection);
+        assertFalse(intersection.isEmpty());
+
+        final Point[] coordinates = intersection.getCoordinates();
+        assertEquals(10, coordinates.length);
+        assertEquals(4.0, coordinates[1].getLon(), 1e-8);
+        assertEquals(1.0, coordinates[1].getLat(), 1e-8);
+        assertEquals(5.0, coordinates[3].getLon(), 1e-8);
+        assertEquals(0.5004193359893333, coordinates[3].getLat(), 1e-8);
+
+        assertEquals(10.5, coordinates[6].getLon(), 1e-8);
+        assertEquals(1.000038070652874, coordinates[6].getLat(), 1e-8);
+        assertEquals(10, coordinates[8].getLon(), 1e-8);
+        assertEquals(0.5002287142101833, coordinates[8].getLat(), 1e-8);
+    }
+
+    @Test
     public void testGetIntersection_Point_contained() {
         final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
         final BcS2Point point = createBcS2Point("POINT(0 0)");
@@ -405,6 +471,15 @@ public class BcS2PolygonTest {
     private BcS2Polygon createBcS2Polygon(String wellKnownText) {
         S2Polygon polygon = (S2Polygon) s2WKTReader.read(wellKnownText);
         return new BcS2Polygon(polygon);
+    }
+
+    private BcS2MultiPolygon createBcS2MultiPolygon(String wellKnownText) {
+        final List<S2Polygon> polygonList = (List<S2Polygon>) s2WKTReader.read(wellKnownText);
+        final List<Polygon> bcPolygonList = new ArrayList<>();
+        for (final S2Polygon polygon : polygonList) {
+            bcPolygonList.add(new BcS2Polygon(polygon));
+        }
+        return new BcS2MultiPolygon(bcPolygonList);
     }
 
     private BcS2LineString createBcS2LineString(String wellKnownText) {

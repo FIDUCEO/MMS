@@ -130,14 +130,15 @@ public class PostGISDriver extends AbstractDriver {
                 preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(timeAxis.getEndTime()));
                 preparedStatement.executeUpdate();
             }
-        } else {
-            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
-            preparedStatement.setInt(1, observationId);
-            preparedStatement.setNull(2, Types.OTHER);
-            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));
-            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
-            preparedStatement.executeUpdate();
         }
+//        else {
+//            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
+//            preparedStatement.setInt(1, observationId);
+//            preparedStatement.setNull(2, Types.OTHER);
+//            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));
+//            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
+//            preparedStatement.executeUpdate();
+//        }
     }
 
     @Override
@@ -198,7 +199,10 @@ public class PostGISDriver extends AbstractDriver {
             }
             resultSet.previous();   // need to rewind one result because the while loop runs one result too far tb 2016-11-29
 
-            observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[timeAxesList.size()]));
+            //@todo 2 tb/tb writ test for this condition
+            if (!timeAxesList.isEmpty()) {
+                observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[timeAxesList.size()]));
+            }
 
             resultList.add(observation);
         }

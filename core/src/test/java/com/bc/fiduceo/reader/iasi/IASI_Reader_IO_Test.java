@@ -26,7 +26,12 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -41,8 +46,13 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -96,7 +106,7 @@ public class IASI_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
             Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(166, coordinates.length);
             assertEquals(-21.02281951904297, coordinates[3].getLon(), 1e-8);
@@ -105,15 +115,15 @@ public class IASI_Reader_IO_Test {
             assertEquals(-26.05643653869629, coordinates[79].getLon(), 1e-8);
             assertEquals(48.4214973449707, coordinates[79].getLat(), 1e-8);
 
-            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = collection.getGeometries();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2016, 1, 1, 12, 47, 54, 870, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2016, 1, 1, 13, 37, 26, 642, time);
         } finally {
@@ -142,7 +152,7 @@ public class IASI_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
             Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(174, coordinates.length);
             assertEquals(179.3275146484375, coordinates[4].getLon(), 1e-8);
@@ -151,15 +161,15 @@ public class IASI_Reader_IO_Test {
             assertEquals(144.5364990234375, coordinates[80].getLon(), 1e-8);
             assertEquals(45.13542175292969, coordinates[80].getLat(), 1e-8);
 
-            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = collection.getGeometries();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2009, 4, 6, 1, 14, 56, 495, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2009, 4, 6, 2, 7, 24, 266, time);
         } finally {
@@ -188,7 +198,7 @@ public class IASI_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
             Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(166, coordinates.length);
             assertEquals(-19.0395393371582, coordinates[2].getLon(), 1e-8);
@@ -197,15 +207,15 @@ public class IASI_Reader_IO_Test {
             assertEquals(-29.8023567199707, coordinates[78].getLon(), 1e-8);
             assertEquals(41.484779357910156, coordinates[78].getLat(), 1e-8);
 
-            final GeometryCollection collection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = collection.getGeometries();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2014, 4, 25, 12, 47, 56, 879, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2014, 4, 25, 13, 37, 24, 671, time);
         } finally {
@@ -986,7 +996,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadSpectrum_MB() throws IOException, InvalidRangeException {
+    public void testReadSpectrum_MB() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {

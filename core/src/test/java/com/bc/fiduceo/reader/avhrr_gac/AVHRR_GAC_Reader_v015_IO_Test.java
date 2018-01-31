@@ -28,9 +28,10 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -93,12 +94,12 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            Point[] coordinates = geometries[0].getCoordinates();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(147, coordinates.length);
             assertEquals(72.10600280761719, coordinates[0].getLon(), 1e-8);
             assertEquals(78.06099700927734, coordinates[0].getLat(), 1e-8);
@@ -106,7 +107,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
             assertEquals(-145.95700073242188, coordinates[24].getLon(), 1e-8);
             assertEquals(31.524000167846683, coordinates[24].getLat(), 1e-8);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(147, coordinates.length);
             assertEquals(151.36700439453125, coordinates[0].getLon(), 1e-8);
             assertEquals(-65.83399963378906, coordinates[0].getLat(), 1e-8);
@@ -116,11 +117,11 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1984, 3, 13, 16, 20, 41, 0, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1984, 3, 13, 17, 11, 44, 634, time);
         } finally {

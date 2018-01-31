@@ -34,7 +34,6 @@ import java.util.List;
 class BcS2MultiPolygon implements MultiPolygon {
     private List<Polygon> polygonList;
 
-
     BcS2MultiPolygon(List<Polygon> polygonList) {
         this.polygonList = polygonList;
     }
@@ -108,6 +107,17 @@ class BcS2MultiPolygon implements MultiPolygon {
         return polygonList;
     }
 
+    @Override
+    public boolean contains(Geometry geometry) {
+        for (final Polygon polygon : polygonList) {
+            if (polygon.contains(geometry)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private Geometry intersectPoint(BcS2Point other) {
         for (final Polygon polygon : polygonList) {
             if (polygon.contains(other)) {
@@ -171,11 +181,6 @@ class BcS2MultiPolygon implements MultiPolygon {
 
     @Override
     public void shiftLon(double lon) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public boolean contains(Geometry geometry) {
         throw new RuntimeException("not implemented");
     }
 

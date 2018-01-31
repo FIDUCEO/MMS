@@ -422,15 +422,27 @@ public class BcS2MultiPolygonTest {
     }
 
     @Test
-    public void testContains() {
+    public void testContains_outside() {
         final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
-        final BcS2Point bcS2Point = createS2Point("POINT(14 25.4)");
+        final BcS2Point bcS2Point = createS2Point("POINT(-14 -25.4)");
 
-        try {
-            multiPolygon.contains(bcS2Point);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
+        assertFalse(multiPolygon.contains(bcS2Point));
+    }
+
+    @Test
+    public void testContains_insideFirst() {
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
+        final BcS2Point bcS2Point = createS2Point("POINT(11 15)");
+
+        assertTrue(multiPolygon.contains(bcS2Point));
+    }
+
+    @Test
+    public void testContains_insideSecond() {
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((10 0, 60 0, 50 20, 10 50)),((10 70, 60 70, 50 90, 10 90)))");
+        final BcS2Point bcS2Point = createS2Point("POINT(11 75)");
+
+        assertTrue(multiPolygon.contains(bcS2Point));
     }
 
     @Test

@@ -27,8 +27,8 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
@@ -93,12 +93,12 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            Point[] coordinates = geometries[0].getCoordinates();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(127, coordinates.length);
             assertEquals(-47.484375, coordinates[1].getLon(), 1e-8);
             assertEquals(56.96875, coordinates[1].getLat(), 1e-8);
@@ -106,7 +106,7 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(111.625, coordinates[63].getLon(), 1e-8);
             assertEquals(-59.0703125, coordinates[63].getLat(), 1e-8);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(127, coordinates.length);
             assertEquals(144.9609375, coordinates[2].getLon(), 1e-8);
             assertEquals(-65.484375, coordinates[2].getLat(), 1e-8);
@@ -116,11 +116,11 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1979, 10, 14, 16, 24, 1, 110, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1979, 10, 14, 17, 15, 46, 0, time);
         } finally {
@@ -149,12 +149,12 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            Point[] coordinates = geometries[0].getCoordinates();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(133, coordinates.length);
             assertEquals(-175.1171875, coordinates[1].getLon(), 1e-8);
             assertEquals(34.8984375, coordinates[1].getLat(), 1e-8);
@@ -162,7 +162,7 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(-12.171875, coordinates[63].getLon(), 1e-8);
             assertEquals(-38.74999999999999, coordinates[63].getLat(), 1e-8);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(133, coordinates.length);
             assertEquals(5.1328125, coordinates[2].getLon(), 1e-8);
             assertEquals(-53.2109375, coordinates[2].getLat(), 1e-8);
@@ -172,11 +172,11 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 6, 12, 21, 347, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(1989, 3, 17, 7, 7, 9, 0, time);
         } finally {
@@ -205,12 +205,12 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            Point[] coordinates = geometries[0].getCoordinates();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(125, coordinates.length);
             assertEquals(2.4777, coordinates[4].getLon(), 1e-8);
             assertEquals(77.4248, coordinates[4].getLat(), 1e-8);
@@ -218,7 +218,7 @@ public class HIRS_L1C_Reader_IO_Test {
             assertEquals(174.73, coordinates[61].getLon(), 1e-8);
             assertEquals(-69.4306, coordinates[61].getLat(), 1e-8);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(125, coordinates.length);
             assertEquals(-172.6181, coordinates[5].getLon(), 1e-8);
             assertEquals(-81.6821, coordinates[5].getLat(), 1e-8);
@@ -228,11 +228,11 @@ public class HIRS_L1C_Reader_IO_Test {
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 16, 41, 52, 0, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2011, 8, 23, 17, 32, 16, 0, time);
         } finally {
@@ -445,7 +445,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_TIROSN() throws IOException, InvalidRangeException {
+    public void testGetProductSize_TIROSN() throws IOException {
         final File file = getTirosNFile();
 
         try {
@@ -460,7 +460,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_NOAA10() throws IOException, InvalidRangeException {
+    public void testGetProductSize_NOAA10() throws IOException {
         final File file = getNOAA10File();
 
         try {

@@ -34,7 +34,7 @@ public class AbstractDriverTest {
     public void testCreateSql_noParameter() {
         final String sql = AbstractDriver.createSql(null);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId", sql);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-03-13 07:06:40.0'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-03-13 07:06:40.0'", sql);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.startDate <= '2008-05-05 15:06:40.0'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.startDate <= '2008-05-05 15:06:40.0'", sql);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-10-30 18:40:00.0' AND obs.startDate <= '2012-02-23 12:26:40.0'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2011-10-30 18:40:00.0' AND obs.startDate <= '2012-02-23 12:26:40.0'", sql);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE sen.Name = 'fieberthermometer'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE sen.Name = 'fieberthermometer'", sql);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2009-08-11 14:13:20.0' AND sen.Name = 'sensing'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.stopDate >= '2009-08-11 14:13:20.0' AND sen.Name = 'sensing'", sql);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.DataFile = '/whereever/i/lay/my/hat'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.DataFile = '/whereever/i/lay/my/hat'", sql);
     }
 
     @Test
@@ -107,6 +107,6 @@ public class AbstractDriverTest {
 
         final String sql = AbstractDriver.createSql(parameter);
 
-        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID INNER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.Version = 'v2.0'", sql);
+        assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.Version = 'v2.0'", sql);
     }
 }

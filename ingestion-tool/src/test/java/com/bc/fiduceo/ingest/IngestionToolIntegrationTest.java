@@ -28,7 +28,11 @@ import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiPolygon;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
@@ -48,8 +52,14 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -71,10 +81,11 @@ public class IngestionToolIntegrationTest {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
+        //storage = Storage.create(TestUtil.getDataSource_Postgres(), geometryFactory);
 
         TestUtil.writeMmdWriterConfig(configDir);
-        //TestUtil.writeDatabaseProperties_MongoDb(configDir);
-        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        //TestUtil.writeDatabaseProperties_Postgres(configDir);
         TestUtil.writeSystemConfig(configDir);
     }
 
@@ -104,9 +115,9 @@ public class IngestionToolIntegrationTest {
     @Test
     public void testIngest_errorStopDateBeforeStartDate() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{
-                    "-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
-                    "-start", "2001-02-02",
-                    "-end", "2001-01-01"
+                "-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
+                "-start", "2001-02-02",
+                "-end", "2001-01-01"
         };
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
@@ -172,12 +183,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v01.3", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -217,12 +228,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v01.3", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.AVHRR_GAC_N11_GEOMETRIES_v013[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -262,12 +273,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v01.4-cspp", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -278,51 +289,6 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2009, 10, 25, 9, 4, 9, 0, timeAxes[1].getStartTime());
             TestUtil.assertCorrectUTCDate(2009, 10, 25, 10, 0, 39, 0, timeAxes[1].getEndTime());
             assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v014_CSPP[1], geometryFactory.format(timeAxes[1].getGeometry()));
-        } finally {
-            storage.clear();
-            storage.close();
-        }
-    }
-
-    @Test
-    public void testIngest_AVHRR_GAC_NOAA06_v016() throws SQLException, IOException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-n06", "-start", "1979-226", "-end", "1979-227", "-v", "v01.6-temp"};
-
-        try {
-            IngestionToolMain.main(args);
-
-            final List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(1, satelliteObservations.size());
-
-            final SatelliteObservation observation = getSatelliteObservation("19880318000900-ESACCI-L1C-AVHRR10_G-fv01.0.nc", satelliteObservations);
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 0, 9, 17, 0, observation.getStartTime());
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 2, 3, 15, 0, observation.getStopTime());
-            assertEquals("avhrr-n10", observation.getSensor().getName());
-
-            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n10", "v01.3", "1988", "03", "18", "19880318000900-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, true);
-            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
-            assertEquals(expectedPath, observation.getDataFilePath().toString());
-
-            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
-            assertEquals("v01.3", observation.getVersion());
-
-            final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AVHRR_GAC_N10_GEOMETRIES_v013[1], geometryFactory.format(geometries[1]));
-
-            final TimeAxis[] timeAxes = observation.getTimeAxes();
-            assertEquals(2, timeAxes.length);
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 0, 9, 17, 0, timeAxes[0].getStartTime());
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 1, 6, 16, 0, timeAxes[0].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[0], geometryFactory.format(timeAxes[0].getGeometry()));
-
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 1, 6, 16, 0, timeAxes[1].getStartTime());
-            TestUtil.assertCorrectUTCDate(1988, 3, 18, 2, 3, 15, 0, timeAxes[1].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[1], geometryFactory.format(timeAxes[1].getGeometry()));
         } finally {
             storage.clear();
             storage.close();
@@ -351,12 +317,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.AMSUB_N15_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.AMSUB_N15_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.AMSUB_N15_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.AMSUB_N15_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -411,12 +377,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.MHS_N18_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.MHS_N18_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.MHS_N18_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.MHS_N18_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -456,13 +422,13 @@ public class IngestionToolIntegrationTest {
             assertEquals("1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            assertEquals(TestData.HIRS_TN_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.HIRS_TN_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertEquals(TestData.HIRS_TN_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.HIRS_TN_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -502,13 +468,13 @@ public class IngestionToolIntegrationTest {
             assertEquals("1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            assertEquals(TestData.HIRS_N10_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.HIRS_N10_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertEquals(TestData.HIRS_N10_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.HIRS_N10_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -548,13 +514,13 @@ public class IngestionToolIntegrationTest {
             assertEquals("1.0", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            assertEquals(TestData.HIRS_MA_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.HIRS_MA_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertEquals(TestData.HIRS_MA_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.HIRS_MA_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
@@ -846,12 +812,12 @@ public class IngestionToolIntegrationTest {
             assertEquals("v3-6N", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertTrue(geoBounds instanceof GeometryCollection);
-            final GeometryCollection geometryCollection = (GeometryCollection) geoBounds;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            assertEquals(2, geometries.length);
-            assertEquals(TestData.IASI_MA_GEOMETRIES[0], geometryFactory.format(geometries[0]));
-            assertEquals(TestData.IASI_MA_GEOMETRIES[1], geometryFactory.format(geometries[1]));
+            assertTrue(geoBounds instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+            assertEquals(TestData.IASI_MA_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
+            assertEquals(TestData.IASI_MA_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
             assertEquals(2, timeAxes.length);
