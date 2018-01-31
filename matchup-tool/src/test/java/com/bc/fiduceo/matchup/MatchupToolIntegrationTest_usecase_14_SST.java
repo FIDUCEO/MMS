@@ -63,7 +63,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
+        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
         storage.clear();
         storage.initialize();
     }

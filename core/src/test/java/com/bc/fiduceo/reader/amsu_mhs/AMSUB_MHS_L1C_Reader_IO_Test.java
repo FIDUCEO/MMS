@@ -107,25 +107,25 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertSplittedBoundingGeometry(boundingGeometry);
 
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            Point[] coordinates = geometries[0].getCoordinates();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(85, coordinates.length);
             assertCorrectCoordinate(134.58669660005398, 51.18599870693288, coordinates[0]);
             assertCorrectCoordinate(-30.20029923707625, 36.49249907812191, coordinates[24]);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(85, coordinates.length);
             assertCorrectCoordinate(-26.874199321100605, -78.53829801595566, coordinates[0]);
             assertCorrectCoordinate(152.2548961537177, -11.364099712918687, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 6, 30, 33, 808, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 7, 27, 26, 452, time);
         } finally {
@@ -155,25 +155,25 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertSplittedBoundingGeometry(boundingGeometry);
 
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            Point[] coordinates = geometries[0].getCoordinates();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            Point[] coordinates = polygons.get(0).getCoordinates();
             assertEquals(77, coordinates.length);
             assertCorrectCoordinate(-29.04739926620095, 61.10129845645133, coordinates[0]);
             assertCorrectCoordinate(174.45839559281012, 14.75339962729777, coordinates[24]);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(77, coordinates.length);
             assertCorrectCoordinate(-179.27959547101636, -75.27289809844662, coordinates[0]);
             assertCorrectCoordinate(-0.1681, -8.617899782293533, coordinates[24]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 16, 40, 39, 757, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 17, 32, 45, 119, time);
         } finally {
@@ -203,26 +203,26 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertSplittedBoundingGeometry(boundingGeometry);
 
-            final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-            final Geometry[] geometries = geometryCollection.getGeometries();
-            Point[] coordinates = geometries[0].getCoordinates();
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            Point[] coordinates = polygons.get(0).getCoordinates();
 
             assertEquals(79, coordinates.length);
             assertCorrectCoordinate(6.872799826378468, 63.48909839613043, coordinates[0]);
             assertCorrectCoordinate(-144.15319635838387, 9.949399748657015, coordinates[25]);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             assertEquals(79, coordinates.length);
             assertCorrectCoordinate(-131.51429667766934, -78.91139800653036, coordinates[0]);
             assertCorrectCoordinate(40.20729898427817, 5.991999848629348, coordinates[26]);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(2, timeAxes.length);
-            coordinates = geometries[0].getCoordinates();
+            coordinates = polygons.get(0).getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 10, 10, 8, 839, time);
 
-            coordinates = geometries[1].getCoordinates();
+            coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2007, 8, 22, 11, 3, 17, 943, time);
         } finally {
@@ -1111,10 +1111,9 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
 
     private void assertSplittedBoundingGeometry(Geometry boundingGeometry) {
         assertNotNull(boundingGeometry);
-        assertTrue(boundingGeometry instanceof GeometryCollection);
-        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-        final Geometry[] geometries_2 = geometryCollection.getGeometries();
-        assertEquals(2, geometries_2.length);
+        assertTrue(boundingGeometry instanceof MultiPolygon);
+        final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+        assertEquals(2, multiPolygon.getPolygons().size());
     }
 
     private void assertCorrectCoordinate(double expectedLon, double expectedLat, Point coordinate) {

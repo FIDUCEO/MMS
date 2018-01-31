@@ -391,7 +391,23 @@ public class BcS2MultiPolygonTest {
         Object inner = multiPolygon.getInner();
         assertNotNull(inner);
         assertTrue(inner instanceof List);
-        assertEquals(2, ((List) inner).size());
+        final List innerList = (List) inner;
+        assertTrue(innerList.get(0) instanceof S2Polygon);
+    }
+
+    @Test
+    public void testGetPolygons() {
+        final BcS2MultiPolygon multiPolygon = createS2MultiPolygon("MULTIPOLYGON (((21 0, 51 0, 51 20, 21 50)),((21 70, 51 70, 51 90, 21 90)))");
+
+        final List<Polygon> polygons = multiPolygon.getPolygons();
+        assertEquals(2, polygons.size());
+        assertEquals("Polygon: (1) loops:\n" +
+                "loop <\n" +
+                "(0.0, 21.0)\n" +
+                "(0.0, 50.99999999999999)\n" +
+                "(20.0, 51.0)\n" +
+                "(49.99999999999999, 21.0)\n" +
+                ">\n", polygons.get(0).toString());
     }
 
     @Test

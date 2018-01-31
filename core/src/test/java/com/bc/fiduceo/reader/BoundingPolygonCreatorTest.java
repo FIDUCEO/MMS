@@ -21,22 +21,15 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class BoundingPolygonCreatorTest {
 
@@ -206,14 +199,14 @@ public class BoundingPolygonCreatorTest {
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, false);
         assertNotNull(boundingGeometry);
-        assertTrue(boundingGeometry instanceof GeometryCollection);
+        assertTrue(boundingGeometry instanceof MultiPolygon);
 
-        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-        final Geometry[] geometries = geometryCollection.getGeometries();
-        assertEquals(2, geometries.length);
+        final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+        final List<Polygon> polygons = multiPolygon.getPolygons();
+        assertEquals(2, polygons.size());
 
         // check upper part
-        Point[] coordinates = geometries[0].getCoordinates();
+        Point[] coordinates = polygons.get(0).getCoordinates();
         assertEquals(9, coordinates.length);
 
         assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
@@ -229,7 +222,7 @@ public class BoundingPolygonCreatorTest {
         assertEquals(6.402, coordinates[7].getLat(), 1e-8);
 
         // check lower part
-        coordinates = geometries[1].getCoordinates();
+        coordinates = polygons.get(1).getCoordinates();
         assertEquals(9, coordinates.length);
 
         assertEquals(-115.003006, coordinates[0].getLon(), 1e-8);
@@ -252,14 +245,14 @@ public class BoundingPolygonCreatorTest {
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, true);
         assertNotNull(boundingGeometry);
-        assertTrue(boundingGeometry instanceof GeometryCollection);
+        assertTrue(boundingGeometry instanceof MultiPolygon);
 
-        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-        final Geometry[] geometries = geometryCollection.getGeometries();
-        assertEquals(2, geometries.length);
+        final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+        final List<Polygon> polygons = multiPolygon.getPolygons();
+        assertEquals(2, polygons.size());
 
         // check upper part
-        Point[] coordinates = geometries[0].getCoordinates();
+        Point[] coordinates = polygons.get(0).getCoordinates();
         assertEquals(9, coordinates.length);
 
         assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
@@ -275,7 +268,7 @@ public class BoundingPolygonCreatorTest {
         assertEquals(6.373, coordinates[7].getLat(), 1e-8);
 
         // check lower part
-        coordinates = geometries[1].getCoordinates();
+        coordinates = polygons.get(1).getCoordinates();
         assertEquals(9, coordinates.length);
 
         assertEquals(-115.003006, coordinates[0].getLon(), 1e-8);
@@ -298,14 +291,14 @@ public class BoundingPolygonCreatorTest {
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 3, false);
         assertNotNull(boundingGeometry);
-        assertTrue(boundingGeometry instanceof GeometryCollection);
+        assertTrue(boundingGeometry instanceof MultiPolygon);
 
-        final GeometryCollection geometryCollection = (GeometryCollection) boundingGeometry;
-        final Geometry[] geometries = geometryCollection.getGeometries();
-        assertEquals(3, geometries.length);
+        final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+        final List<Polygon> polygons = multiPolygon.getPolygons();
+        assertEquals(3, polygons.size());
 
         // check upper part
-        Point[] coordinates = geometries[0].getCoordinates();
+        Point[] coordinates = polygons.get(0).getCoordinates();
         assertEquals(7, coordinates.length);
 
         assertEquals(-114.985, coordinates[0].getLon(), 1e-8);
@@ -318,7 +311,7 @@ public class BoundingPolygonCreatorTest {
         assertEquals(6.318, coordinates[2].getLat(), 1e-8);
 
         // check middle part
-        coordinates = geometries[1].getCoordinates();
+        coordinates = polygons.get(1).getCoordinates();
         assertEquals(7, coordinates.length);
 
         assertEquals(-114.996994, coordinates[0].getLon(), 1e-8);
@@ -331,7 +324,7 @@ public class BoundingPolygonCreatorTest {
         assertEquals(6.261, coordinates[2].getLat(), 1e-8);
 
         // check lower part
-        coordinates = geometries[2].getCoordinates();
+        coordinates = polygons.get(2).getCoordinates();
         assertEquals(7, coordinates.length);
 
         assertEquals(-115.009, coordinates[0].getLon(), 1e-8);

@@ -21,10 +21,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.*;
 import com.google.common.collect.Lists;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
@@ -49,7 +46,7 @@ public class BoundingPolygonCreator {
         this.geometryFactory = geometryFactory;
     }
 
-    public Geometry createBoundingGeometry(Array longitudes, Array latitudes) {
+    public Polygon createBoundingGeometry(Array longitudes, Array latitudes) {
         final List<Point> coordinates = extractBoundaryCoordinates(longitudes, latitudes);
 
         closePolygon(coordinates);
@@ -58,7 +55,7 @@ public class BoundingPolygonCreator {
     }
 
 
-    public Geometry createBoundingGeometryClockwise(Array longitudes, Array latitudes) {
+    public Polygon createBoundingGeometryClockwise(Array longitudes, Array latitudes) {
         final List<Point> coordinates = extractBoundaryCoordinates(longitudes, latitudes);
 
         closePolygon(coordinates);
@@ -68,7 +65,7 @@ public class BoundingPolygonCreator {
     }
 
     public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits, boolean clockwise) {
-        final Geometry[] geometries = new Geometry[numSplits];
+        final List<Polygon> geometries = new ArrayList<>(numSplits);
 
         final int[] shape = longitudes.getShape();
         int height = shape[0];
@@ -91,9 +88,9 @@ public class BoundingPolygonCreator {
             }
 
             if (clockwise) {
-                geometries[i] = createBoundingGeometryClockwise(longitudesSubset, latitudesSubset);
+                geometries.add(createBoundingGeometryClockwise(longitudesSubset, latitudesSubset));
             } else {
-                geometries[i] = createBoundingGeometry(longitudesSubset, latitudesSubset);
+                geometries.add(createBoundingGeometry(longitudesSubset, latitudesSubset));
             }
 
             yOffset += subsetHeight - 1;
@@ -101,7 +98,7 @@ public class BoundingPolygonCreator {
                 subsetHeight = height - yOffset;
             }
         }
-        return geometryFactory.createGeometryCollection(geometries);
+        return geometryFactory.createMultiPolygon(geometries);
     }
 
     public LineString createTimeAxisGeometry(Array longitudes, Array latitudes) {

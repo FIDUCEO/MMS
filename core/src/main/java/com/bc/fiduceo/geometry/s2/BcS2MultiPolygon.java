@@ -19,12 +19,9 @@
  */
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Polygon;
 import com.google.common.geometry.S2Polyline;
 
 import java.util.ArrayList;
@@ -99,6 +96,15 @@ class BcS2MultiPolygon implements MultiPolygon {
 
     @Override
     public Object getInner() {
+        final ArrayList<S2Polygon> resultList = new ArrayList<>(polygonList.size());
+        for (final Polygon polygon : polygonList) {
+            resultList.add((S2Polygon) polygon.getInner());
+        }
+        return resultList;
+    }
+
+    @Override
+    public List<Polygon> getPolygons() {
         return polygonList;
     }
 

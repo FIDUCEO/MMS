@@ -21,13 +21,7 @@
 package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Loop;
@@ -200,7 +194,7 @@ public class MongoDbDriverTest {
         assertNotNull(geometry);
         assertEquals(9, geometry.getCoordinates().length);
         MultiPolygon multiPolygon = (MultiPolygon) geometry;
-        List<Polygon> polygonsList = (List<Polygon>) multiPolygon.getInner();
+        List<Polygon> polygonsList = multiPolygon.getPolygons();
 
         assertEquals("Polygon: (1) loops:\n" +
                 "loop <\n" +
@@ -246,7 +240,7 @@ public class MongoDbDriverTest {
     }
 
     @Test
-    public void testConvertToGeometry_lineString(){
+    public void testConvertToGeometry_lineString() {
         final double[] lons = {-12.0, -11.0, -10.0};
         final double[] lats = {8.0, 9.0, 10.0};
 
@@ -258,7 +252,7 @@ public class MongoDbDriverTest {
     }
 
     @Test
-    public void testConvertToGeometry_unsupportedGeometry(){
+    public void testConvertToGeometry_unsupportedGeometry() {
         final Document bretzelType = new Document("type", "Bretzel");
 
         try {
@@ -310,7 +304,7 @@ public class MongoDbDriverTest {
         final Date endDate = TimeUtils.parseDOYEndOfDay("2015-013");
         final TimeAxis timeAxis = geometryFactory.createTimeAxis(lineString, startDate, endDate);
 
-        final Document document = MongoDbDriver.convertToDocument(new TimeAxis[] {timeAxis});
+        final Document document = MongoDbDriver.convertToDocument(new TimeAxis[]{timeAxis});
         assertNotNull(document);
 
         final ArrayList<Document> timeAxesDocument = (ArrayList<Document>) document.get("timeAxes");

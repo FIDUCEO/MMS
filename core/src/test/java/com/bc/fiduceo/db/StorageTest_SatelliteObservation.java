@@ -21,8 +21,6 @@
 package com.bc.fiduceo.db;
 
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -32,7 +30,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
-import com.vividsolutions.jts.io.ParseException;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +39,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 public abstract class StorageTest_SatelliteObservation {
 
@@ -62,7 +61,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @After
-    public void tearDown() throws SQLException, IOException {
+    public void tearDown() throws SQLException {
         if (storage != null) {
             storage.clear();
             storage.close();
@@ -76,7 +75,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testIsAlreadyRegistered_true() throws SQLException, ParseException {
+    public void testIsAlreadyRegistered_true() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -87,7 +86,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testIsAlreadyRegistered_false_SensorName() throws SQLException, ParseException {
+    public void testIsAlreadyRegistered_false_SensorName() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -98,7 +97,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testIsAlreadyRegistered_false_DataFilePath() throws SQLException, ParseException {
+    public void testIsAlreadyRegistered_false_DataFilePath() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -109,7 +108,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet() throws SQLException, ParseException {
+    public void testInsert_andGet() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -139,7 +138,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet_boundaryAsLinestring() throws SQLException, ParseException {
+    public void testInsert_andGet_boundaryAsLinestring() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1440000000000L), TimeUtils.create(1440001000000L), "LINESTRING(10 2, 11 6, 12 7, 13 8, 14 9)");
         storage.insert(observation);
 
@@ -155,7 +154,23 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet_noGeometry_noTimeAxes() throws SQLException, ParseException {
+    public void testInsert_andGet_boundaryAsMultipolygon() throws SQLException {
+        final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1440000000000L), TimeUtils.create(1440001000000L), "MULTIPOLYGON(((10 2, 11 6, 12 7, 13 8, 14 9)),((0 0, 1 0, 1 1, 0 1, 0 0)))");
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final SatelliteObservation observationFromDb = result.get(0);
+
+        final Geometry geoBoundsFromDb = observationFromDb.getGeoBounds();
+        final String geoBoundsWkt = geometryFactory.format(geoBoundsFromDb);
+        assertEquals("MULTIPOLYGON(((14.0 9.0,13.0 7.999999999999997,12.000000000000004 7.000000000000001,11.0 6.000000000000001,10.0 2.0,14.0 9.0)),((0.0 0.0,1.0 0.0,0.9999999999999997 1.0,0.0 1.0,0.0 0.0)))", geoBoundsWkt);
+    }
+
+    @Test
+    public void testInsert_andGet_noGeometry_noTimeAxes() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         observation.setGeoBounds(null);
         observation.setTimeAxes(null);
@@ -176,7 +191,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet_twoTimeAxes() throws SQLException, ParseException {
+    public void testInsert_andGet_twoTimeAxes() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
 
         final TimeAxis[] timeAxes = new TimeAxis[2];
@@ -203,7 +218,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_andGet_sensorStoredInDb() throws SQLException, ParseException {
+    public void testInsert_andGet_sensorStoredInDb() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
 
         final Sensor sensor = observation.getSensor();
@@ -217,7 +232,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTime_startTime_matchObservation() throws ParseException, SQLException {
+    public void testSearchByTime_startTime_matchObservation() throws SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -241,7 +256,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTime_startTime_laterThanObservation() throws ParseException, SQLException {
+    public void testSearchByTime_startTime_laterThanObservation() throws SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -255,7 +270,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTime_stopTime_matchObservation() throws ParseException, SQLException {
+    public void testSearchByTime_stopTime_matchObservation() throws SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -279,7 +294,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTime_stopTime_earlierThanObservation() throws ParseException, SQLException {
+    public void testSearchByTime_stopTime_earlierThanObservation() throws SQLException {
         final Date startTime = TimeUtils.create(1000000000L);
         final Date stopTime = TimeUtils.create(1001000000L);
         final SatelliteObservation observation = createSatelliteObservation(startTime, stopTime);
@@ -293,7 +308,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchRange_Earlier() throws ParseException, SQLException {
+    public void testSearchByTimeRange_searchRange_Earlier() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -306,7 +321,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchRange_intersectSensorStart() throws ParseException, SQLException {
+    public void testSearchByTimeRange_searchRange_intersectSensorStart() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -319,7 +334,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchRange_inSensorRange() throws ParseException, SQLException {
+    public void testSearchByTimeRange_searchRange_inSensorRange() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -332,7 +347,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchRange_intersectSensorStop() throws ParseException, SQLException {
+    public void testSearchByTimeRange_searchRange_intersectSensorStop() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -345,7 +360,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByTimeRange_searchRange_later() throws ParseException, SQLException {
+    public void testSearchByTimeRange_searchRange_later() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -358,7 +373,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBySensor_matching() throws ParseException, SQLException {
+    public void testSearchBySensor_matching() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -370,7 +385,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBySensor_notMatching() throws ParseException, SQLException {
+    public void testSearchBySensor_notMatching() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -382,7 +397,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBySensorAndTime_matching() throws ParseException, SQLException {
+    public void testSearchBySensorAndTime_matching() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -396,7 +411,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBySensorAndTime_timeNotMatching() throws ParseException, SQLException {
+    public void testSearchBySensorAndTime_timeNotMatching() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -410,7 +425,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchBySensorAndTime_sensorNotMatching() throws ParseException, SQLException {
+    public void testSearchBySensorAndTime_sensorNotMatching() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation(TimeUtils.create(1000000000L), TimeUtils.create(1001000000L));
         storage.insert(observation);
 
@@ -424,7 +439,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByVersion_notAvailableVersion() throws ParseException, SQLException {
+    public void testSearchByVersion_notAvailableVersion() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -436,7 +451,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByVersion_matchingVersion() throws ParseException, SQLException {
+    public void testSearchByVersion_matchingVersion() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -448,7 +463,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByPath_notAvailablePath() throws ParseException, SQLException {
+    public void testSearchByPath_notAvailablePath() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -460,7 +475,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testSearchByPath_matchingPath() throws ParseException, SQLException {
+    public void testSearchByPath_matchingPath() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         storage.insert(observation);
 
@@ -472,7 +487,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testMultipleTimeAxes() throws ParseException, SQLException {
+    public void testMultipleTimeAxes() throws SQLException {
         final SatelliteObservation observation = createSatelliteObservation();
         final TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
         final TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
@@ -492,7 +507,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testTwoObservations_MultipleTimeAxes() throws ParseException, SQLException {
+    public void testTwoObservations_MultipleTimeAxes() throws SQLException {
         SatelliteObservation observation = createSatelliteObservation(new Date(10000000L), new Date(11000000L));
         TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
         TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
@@ -523,7 +538,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testThreeObservations_twoSensors_MultipleTimeAxes() throws ParseException, SQLException {
+    public void testThreeObservations_twoSensors_MultipleTimeAxes() throws SQLException {
         SatelliteObservation observation = createSatelliteObservation(new Date(10000000L), new Date(11000000L));
         TimeAxis timeAxis_1 = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", new Date(), new Date());
         TimeAxis timeAxis_2 = createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", new Date(), new Date());
@@ -572,7 +587,7 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
 
-    private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) throws ParseException {
+    private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) {
         return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
     }
 
@@ -601,7 +616,7 @@ public abstract class StorageTest_SatelliteObservation {
         return geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);
     }
 
-    private SatelliteObservation createSatelliteObservation() throws ParseException {
+    private SatelliteObservation createSatelliteObservation() {
         final Date startTime = TimeUtils.create(1430000000000L);
         final Date stopTime = TimeUtils.create(1430001000000L);
         return createSatelliteObservation(startTime, stopTime);

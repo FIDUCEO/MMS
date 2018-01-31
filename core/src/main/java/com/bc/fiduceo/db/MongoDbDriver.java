@@ -299,10 +299,10 @@ public class MongoDbDriver extends AbstractDriver {
     // package access for testing only tb 2016-04-20
     @SuppressWarnings("unchecked")
     static List<PolygonCoordinates> gePolygonCoordinates(MultiPolygon multiPolygon) {
-        List<Polygon> s2PolygonList = (List<Polygon>) multiPolygon.getInner();
+        List<Polygon> polygonList = multiPolygon.getPolygons();
         List<PolygonCoordinates> polygonCoordinatesList = new ArrayList<>();
-        for (Polygon s2Polygon : s2PolygonList) {
-            ArrayList<Position> positions = extractPointsFromGeometry(s2Polygon.getCoordinates());
+        for (Polygon polygon : polygonList) {
+            ArrayList<Position> positions = extractPointsFromGeometry(polygon.getCoordinates());
 
             if (!positions.get(0).equals(positions.get(positions.size() - 1))) {
                 positions.add(positions.get(0));

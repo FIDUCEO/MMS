@@ -58,7 +58,7 @@ abstract class AbstractUsecaseIntegrationTest {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        storage = Storage.create(TestUtil.getdatasourceMongoDb(), geometryFactory);
+        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
         storage.clear();
         storage.initialize();
 

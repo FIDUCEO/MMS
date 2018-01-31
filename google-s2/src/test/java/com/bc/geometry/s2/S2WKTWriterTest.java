@@ -98,14 +98,37 @@ public class S2WKTWriterTest {
         secondVertices.add(createS2Point(11, 1));
         secondVertices.add(createS2Point(12, 1));
         secondVertices.add(createS2Point(13, 2));
-        final S2Polyline s2Polyline_2 = new S2Polyline(vertices);
+        final S2Polyline s2Polyline_2 = new S2Polyline(secondVertices);
 
         final ArrayList<S2Polyline> multiLine = new ArrayList<>();
         multiLine.add(s2Polyline_1);
         multiLine.add(s2Polyline_2);
 
         final String wkt = S2WKTWriter.write(multiLine);
-        assertEquals("MULTILINESTRING((0.0 1.0,-1.0 0.56,-1.5000000000000002 0.237),(0.0 1.0,-1.0 0.56,-1.5000000000000002 0.237))", wkt);
+        assertEquals("MULTILINESTRING((0.0 1.0,-1.0 0.56,-1.5000000000000002 0.237),(11.0 0.9999999999999998,12.0 1.0,13.0 1.9999999999999996))", wkt);
+    }
+
+    @Test
+    public void testWriteMultiPolygon() {
+        vertices.add(createS2Point(0, 1));
+        vertices.add(createS2Point(2, 2));
+        vertices.add(createS2Point(1, 1));
+        vertices.add(createS2Point(0, 1));
+        final S2Polygon polygon_1 = new S2Polygon(new S2Loop(vertices));
+
+        final ArrayList<S2Point> secondVertices = new ArrayList<>();
+        secondVertices.add(createS2Point(11, 1));
+        secondVertices.add(createS2Point(12, 1));
+        secondVertices.add(createS2Point(13, 2));
+        secondVertices.add(createS2Point(11, 1));
+        final S2Polygon polygon_2 = new S2Polygon(new S2Loop(secondVertices));
+
+        final ArrayList<S2Polygon> multiPolygon = new ArrayList<>();
+        multiPolygon.add(polygon_1);
+        multiPolygon.add(polygon_2);
+
+        final String wkt = S2WKTWriter.write(multiPolygon);
+        assertEquals("MULTIPOLYGON(((0.0 1.0,2.0 1.9999999999999996,0.9999999999999998 1.0,0.0 1.0,0.0 1.0)),((11.0 0.9999999999999998,12.0 1.0,13.0 1.9999999999999996,11.0 0.9999999999999998,11.0 0.9999999999999998)))", wkt);
     }
 
     private static S2Point createS2Point(double lon, double lat) {

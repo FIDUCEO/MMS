@@ -43,9 +43,10 @@ class IASI_PixelLocator implements PixelLocator {
             throw new RuntimeException("Unable to extract valid bounding geometry");
         }
 
-        final GeometryCollection collection = (GeometryCollection) boundingGeometry;
-        upperPolygon = (Polygon) collection.getGeometries()[0];
-        lowerPolygon = (Polygon) collection.getGeometries()[1];
+        final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+        final List<Polygon> polygons = multiPolygon.getPolygons();
+        upperPolygon = polygons.get(0);
+        lowerPolygon = polygons.get(1);
     }
 
     @Override

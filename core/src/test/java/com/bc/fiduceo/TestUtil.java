@@ -82,7 +82,15 @@ public class TestUtil {
 
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
         final Properties properties = new Properties();
-        final BasicDataSource datasource = TestUtil.getdatasourceMongoDb();
+        final BasicDataSource datasource = TestUtil.getDataSource_MongoDb();
+        convertToProperties(properties, datasource);
+
+        TestUtil.storeProperties(properties, configDir, "database.properties");
+    }
+
+    public static void writeDatabaseProperties_Postgres(File configDir) throws IOException {
+        final Properties properties = new Properties();
+        final BasicDataSource datasource = TestUtil.getDataSource_Postgres();
         convertToProperties(properties, datasource);
 
         TestUtil.storeProperties(properties, configDir, "database.properties");
@@ -99,10 +107,19 @@ public class TestUtil {
         return dataSource;
     }
 
-    public static BasicDataSource getdatasourceMongoDb() {
+    public static BasicDataSource getDataSource_MongoDb() {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("mongodb");
         dataSource.setUrl("mongodb://localhost:27017");
+        dataSource.setUsername("fiduceo");
+        dataSource.setPassword("oecudif");
+        return dataSource;
+    }
+
+    public static BasicDataSource getDataSource_Postgres() {
+        final BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/test");
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
         return dataSource;

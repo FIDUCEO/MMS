@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.db;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import com.bc.fiduceo.TestUtil;
 import org.junit.runner.RunWith;
 
 @RunWith(DatabaseTestRunner.class)
@@ -31,10 +31,6 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
     // in the datasource description below. tb 2016-02-08
 
     public StorageTest_SatelliteObservation_MongoDB() {
-        dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("mongodb");
-        dataSource.setUrl("mongodb://localhost:27017/test");
-        dataSource.setUsername("fiduceo");
-        dataSource.setPassword("oecudif");
+        dataSource = TestUtil.getDataSource_MongoDb();
     }
 }

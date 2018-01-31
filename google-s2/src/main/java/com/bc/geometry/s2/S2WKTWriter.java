@@ -40,6 +40,9 @@ public class S2WKTWriter {
             if (!geometryList.isEmpty() && geometryList.get(0) instanceof S2Polyline) {
                 return writeMultiLinestringWKT((List<S2Polyline>) geometry);
             }
+            if (!geometryList.isEmpty() && geometryList.get(0) instanceof S2Polygon) {
+                return writeMultiPolygonWKT((List<S2Polygon>) geometry);
+            }
         } else if (geometry instanceof S2Point) {
             return writePointWkt((S2Point) geometry);
         } else if (geometry instanceof S2LatLng) {
@@ -54,6 +57,14 @@ public class S2WKTWriter {
     private static String writePolygonWkt(S2Polygon polygon) {
         final StringBuilder builder = new StringBuilder();
         builder.append("POLYGON((");
+
+        writeLoopPoints(polygon, builder);
+
+        builder.append("))");
+        return builder.toString();
+    }
+
+    private static void writeLoopPoints(S2Polygon polygon, StringBuilder builder) {
         final int numLoops = polygon.numLoops();
         for (int i = 0; i < numLoops; i++) {
             final S2Loop loop = polygon.loop(i);
@@ -64,9 +75,6 @@ public class S2WKTWriter {
             }
             appendWktPoint(loop.vertex(0), builder);
         }
-
-        builder.append("))");
-        return builder.toString();
     }
 
     @SuppressWarnings("StringBufferReplaceableByString")
@@ -105,7 +113,6 @@ public class S2WKTWriter {
     }
 
     private static String writeMultiLinestringWKT(List<S2Polyline> geometry) {
-
         final StringBuilder builder = new StringBuilder();
         builder.append("MULTILINESTRING(");
 
@@ -127,6 +134,22 @@ public class S2WKTWriter {
 
         builder.setLength(builder.length() - 1);    // remove last comma tb 2017-06-26
         
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static String writeMultiPolygonWKT(List<S2Polygon> geometry) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("MULTIPOLYGON(");
+
+        for (final S2Polygon polygon : geometry) {
+            builder.append("((");
+            writeLoopPoints(polygon, builder);
+            builder.append(")),");
+        }
+
+       builder.setLength(builder.length() - 1);    // remove last comma tb 2018-01-30
+
         builder.append(")");
         return builder.toString();
     }
