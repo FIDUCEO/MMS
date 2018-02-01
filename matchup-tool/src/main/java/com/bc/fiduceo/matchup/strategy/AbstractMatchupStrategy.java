@@ -28,6 +28,7 @@ import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupCollection;
@@ -81,8 +82,14 @@ public abstract class AbstractMatchupStrategy {
     }
 
     // package access for testing only tb 2016-11-04
+    // @todo 1 tb/tb update tests 2018-02-01
     static boolean isSegmented(Geometry primaryGeoBounds) {
-        return primaryGeoBounds instanceof GeometryCollection && ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
+        if (primaryGeoBounds instanceof GeometryCollection) {
+            return ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;
+        } else if (primaryGeoBounds instanceof MultiPolygon) {
+            return ((MultiPolygon) primaryGeoBounds).getPolygons().size() > 1;
+        }
+        return false;
     }
 
     static List<QueryParameter> getSecondarySensorParameter(UseCaseConfig useCaseConfig, Date searchTimeStart, Date searchTimeEnd) {

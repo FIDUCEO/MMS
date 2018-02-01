@@ -81,15 +81,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final Date primaryStartTime = primaryObservation.getStartTime();
                 final Date primaryStopTime = primaryObservation.getStopTime();
 
-                // @todo 2 tb/tb extract method
-                final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
-                final boolean isPrimarySegmented = AbstractMatchupStrategy.isSegmented(primaryGeoBounds);
-                final Geometry[] primaryGeometries;
-                if (isPrimarySegmented) {
-                    primaryGeometries = ((GeometryCollection) primaryGeoBounds).getGeometries();
-                } else {
-                    primaryGeometries = new Geometry[]{primaryGeoBounds};
-                }
+                final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
 
                 final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
 
@@ -188,6 +180,11 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         }
 
         return matchupCollection;
+    }
+
+    private Geometry[] extractGeometries(SatelliteObservation primaryObservation) {
+        final Geometry primaryGeoBounds = primaryObservation.getGeoBounds();
+        return GeometryUtil.getSubGeometries(primaryGeoBounds);
     }
 
     private List<SamplingPoint> createRandomPoints(ToolContext context, UseCaseConfig useCaseConfig) {

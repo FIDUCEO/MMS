@@ -459,6 +459,40 @@ public class IntersectionEngineTest {
         assertEquals(200, IntersectionEngine.calculateTimeDelta(interval_2, interval_1));
     }
 
+    @Test
+    public void testGetGeometryArray_polygon() {
+        final SatelliteObservation observation = createSatelliteObservation("POLYGON((2 1, 3 1, 3 2, 3 3, 3 4, 2 4, 2 3, 2 2, 2 1))",
+                "LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)", 1000, 2000);
+
+        final Geometry[] geometryArray = IntersectionEngine.getGeometryArray(observation);
+        assertEquals(1, geometryArray.length);
+        assertEquals("POLYGON((1.9999999999999996 1.0,3.0000000000000004 1.0,3.0000000000000004 2.0,3.0000000000000004 3.000000000000001,3.0000000000000004 4.0,2.0 4.0,1.9999999999999996 3.0000000000000004,2.0 1.9999999999999996,1.9999999999999996 1.0))", geometryFactory.format(geometryArray[0]));
+    }
+
+    @Test
+    public void testGetGeometryArray_multiPolygon() {
+        final SatelliteObservation observation = createSatelliteObservation("MULTIPOLYGON(((2 1, 3 1, 3 2, 3 1, 2 1)),((1 1, 2 1, 2 2, 1 2, 1 1)))",
+                "LINESTRING(2.5 1,2.5 2, 2.5 3, 2.5 4)", 1000, 2000);
+
+        final Geometry[] geometryArray = IntersectionEngine.getGeometryArray(observation);
+        assertEquals(2, geometryArray.length);
+        assertEquals("POLYGON((3.0000000000000004 1.0,3.0000000000000004 2.0,3.0000000000000004 1.0,1.9999999999999996 1.0,3.0000000000000004 1.0))", geometryFactory.format(geometryArray[0]));
+        assertEquals("POLYGON((0.9999999999999998 1.0,1.9999999999999996 1.0,2.0 1.9999999999999996,0.9999999999999998 2.0,0.9999999999999998 1.0))", geometryFactory.format(geometryArray[1]));
+    }
+
+    @Test
+    public void testGetGeometryArray_geomeryCollection() {
+        final String[] wkts = new String[]{"POLYGON((2 1, 3 1, 3 2, 3 1, 2 1))", "POLYGON((1 1, 2 1, 2 2, 1 2, 1 1))"};
+        final String[] axes = {"LINESTRING(-1 2, -1 -1)", "LINESTRING(-1 -1, -1 -4)"};
+        final SatelliteObservation observation = createSegmentedSatelliteObservation(wkts,
+                axes, new int[]{1000, 1001}, new int[]{2000, 2001});
+
+        final Geometry[] geometryArray = IntersectionEngine.getGeometryArray(observation);
+        assertEquals(2, geometryArray.length);
+        assertEquals("POLYGON((3.0000000000000004 1.0,3.0000000000000004 2.0,3.0000000000000004 1.0,1.9999999999999996 1.0,3.0000000000000004 1.0))", geometryFactory.format(geometryArray[0]));
+        assertEquals("POLYGON((0.9999999999999998 1.0,1.9999999999999996 1.0,2.0 1.9999999999999996,0.9999999999999998 2.0,0.9999999999999998 1.0))", geometryFactory.format(geometryArray[1]));
+    }
+
     private SatelliteObservation createSatelliteObservation(String polygonWkt, String lineWkt, int startTime, int stopTime) {
         final Geometry polygon = geometryFactory.parse(polygonWkt);
         final LineString lineString = (LineString) geometryFactory.parse(lineWkt);

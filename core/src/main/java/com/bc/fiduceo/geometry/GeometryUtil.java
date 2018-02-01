@@ -21,7 +21,24 @@
 package com.bc.fiduceo.geometry;
 
 
+import java.util.List;
+
 public class GeometryUtil {
+
+    public static Geometry[] getSubGeometries(Geometry composedGeometry) {
+        Geometry[] geometries;
+        if (composedGeometry instanceof GeometryCollection) {
+            final GeometryCollection observationCollection = (GeometryCollection) composedGeometry;
+            geometries = observationCollection.getGeometries();
+        } else if (composedGeometry instanceof MultiPolygon) {
+            final MultiPolygon observationMultiPolygon = (MultiPolygon) composedGeometry;
+            final List<Polygon> polygons = observationMultiPolygon.getPolygons();
+            geometries = polygons.toArray(new Geometry[polygons.size()]);
+        } else {
+            geometries = new Geometry[]{composedGeometry};
+        }
+        return geometries;
+    }
 
     public static String toKml(Polygon polygon) {
         final StringBuilder builder = new StringBuilder();

@@ -24,7 +24,7 @@ package com.bc.fiduceo.math;
 
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.TimeAxis;
 
@@ -57,16 +57,25 @@ public class IntersectionEngine {
         return intersectionList.toArray(new Intersection[intersectionList.size()]);
     }
 
-    private static Geometry[] getGeometryArray(SatelliteObservation observation) {
-        Geometry[] geometries;
-        final Geometry primaryGeometry = observation.getGeoBounds();
-        if (primaryGeometry instanceof GeometryCollection) {
-            final GeometryCollection primaryCollection = (GeometryCollection) primaryGeometry;
-            geometries = primaryCollection.getGeometries();
+    // package access for testing only tb 2018-02-10
+    static Geometry[] getGeometryArray(SatelliteObservation observation) {
+        final Geometry observationGeometry = observation.getGeoBounds();
+        return GeometryUtil.getSubGeometries(observationGeometry);
+    }
+
+    // package access for testing only tb 2015-09-04
+    static int calculateTimeDelta(TimeInterval interval_1, TimeInterval interval_2) {
+        TimeInterval earlier;
+        TimeInterval later;
+        if (interval_1.getStartTime().before(interval_2.getStartTime())) {
+            earlier = interval_1;
+            later = interval_2;
         } else {
-            geometries = new Geometry[]{primaryGeometry};
+            earlier = interval_2;
+            later = interval_1;
         }
-        return geometries;
+
+        return (int) (later.getStartTime().getTime() - earlier.getStopTime().getTime());
     }
 
     private static Intersection getIntersection(Geometry primaryGeometry, Geometry secondaryGeometry, TimeAxis primaryTimeAxis, TimeAxis secondaryTimeAxis) {
@@ -79,8 +88,7 @@ public class IntersectionEngine {
         final Point[] coordinates = intersectionGeometry.getCoordinates();
         final ArrayList<Date> primarySensorTimes = new ArrayList<>(coordinates.length);
         final ArrayList<Date> secondarySensorTimes = new ArrayList<>(coordinates.length);
-        for (int i = 0; i < coordinates.length; i++) {
-            final Point coordinate = coordinates[i];
+        for (final Point coordinate : coordinates) {
             Date time = primaryTimeAxis.getTime(coordinate);
             if (time != null) {
                 primarySensorTimes.add(time);
@@ -108,20 +116,5 @@ public class IntersectionEngine {
         intersection.setGeometry(intersectionGeometry);
         intersection.setTimeInfo(timeInfo);
         return intersection;
-    }
-
-    // package access for testing only tb 2015-09-04
-    static int calculateTimeDelta(TimeInterval interval_1, TimeInterval interval_2) {
-        TimeInterval earlier;
-        TimeInterval later;
-        if (interval_1.getStartTime().before(interval_2.getStartTime())) {
-            earlier = interval_1;
-            later = interval_2;
-        } else {
-            earlier = interval_2;
-            later = interval_1;
-        }
-
-        return (int) (later.getStartTime().getTime() - earlier.getStopTime().getTime());
     }
 }
