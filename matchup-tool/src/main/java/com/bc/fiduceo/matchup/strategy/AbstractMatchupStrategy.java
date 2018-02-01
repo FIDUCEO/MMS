@@ -82,7 +82,6 @@ public abstract class AbstractMatchupStrategy {
     }
 
     // package access for testing only tb 2016-11-04
-    // @todo 1 tb/tb update tests 2018-02-01
     static boolean isSegmented(Geometry primaryGeoBounds) {
         if (primaryGeoBounds instanceof GeometryCollection) {
             return ((GeometryCollection) primaryGeoBounds).getGeometries().length > 1;

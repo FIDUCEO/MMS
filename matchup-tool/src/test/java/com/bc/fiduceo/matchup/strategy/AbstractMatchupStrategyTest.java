@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.UseCaseConfigBuilder;
 import com.bc.fiduceo.db.QueryParameter;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.Reader;
@@ -216,7 +217,7 @@ public class AbstractMatchupStrategyTest {
     }
 
     @Test
-    public void testIsSegmented() throws Exception {
+    public void testIsSegmented_geometryCollection() {
         final GeometryCollection collection = mock(GeometryCollection.class);
 
         when(collection.getGeometries()).thenReturn(new Geometry[1]);
@@ -227,5 +228,22 @@ public class AbstractMatchupStrategyTest {
 
         verify(collection, times(2)).getGeometries();
         verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    public void testIsSegmented_multiPolygon() {
+        final MultiPolygon multiPolygon = mock(MultiPolygon.class);
+
+        when(multiPolygon.getPolygons()).thenReturn(new ArrayList<>());
+        assertEquals(false, AbstractMatchupStrategy.isSegmented(multiPolygon));
+
+        final ArrayList<Polygon> polygons = new ArrayList<>(2);
+        polygons.add(mock(Polygon.class));
+        polygons.add(mock(Polygon.class));
+        when(multiPolygon.getPolygons()).thenReturn(polygons);
+        assertEquals(true, AbstractMatchupStrategy.isSegmented(multiPolygon));
+
+        verify(multiPolygon, times(2)).getPolygons();
+        verifyNoMoreInteractions(multiPolygon);
     }
 }
