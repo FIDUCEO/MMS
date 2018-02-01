@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -92,14 +92,14 @@ public class AtsrAngularScreeningTest {
         when(satZenithAngle.getDouble(0)).thenReturn(18.76);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(367), eq(54), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
-        when(primaryReader.readScaled(eq(368), eq(55), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationLow);
-        when(primaryReader.readScaled(eq(367), eq(54), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
-        when(primaryReader.readScaled(eq(368), eq(55), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
+        when(primaryReader.readScaled(eq(367), eq(54), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
+        when(primaryReader.readScaled(eq(368), eq(55), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationLow);
+        when(primaryReader.readScaled(eq(367), eq(54), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
+        when(primaryReader.readScaled(eq(368), eq(55), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(219), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
-        when(secondaryReader.readScaled(eq(220), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(219), eq(254), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(220), eq(255), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;
@@ -132,14 +132,14 @@ public class AtsrAngularScreeningTest {
         when(satZenithAngle.getDouble(0)).thenReturn(0.76);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(467), eq(54), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationLow);
-        when(primaryReader.readScaled(eq(468), eq(55), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
-        when(primaryReader.readScaled(eq(467), eq(54), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
-        when(primaryReader.readScaled(eq(468), eq(55), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
+        when(primaryReader.readScaled(eq(467), eq(54), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationLow);
+        when(primaryReader.readScaled(eq(468), eq(55), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
+        when(primaryReader.readScaled(eq(467), eq(54), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
+        when(primaryReader.readScaled(eq(468), eq(55), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(119), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
-        when(secondaryReader.readScaled(eq(120), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(119), eq(254), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(120), eq(255), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;
@@ -171,14 +171,14 @@ public class AtsrAngularScreeningTest {
         when(satZenithAngle.getDouble(0)).thenReturn(56.76);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(67), eq(54), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
-        when(primaryReader.readScaled(eq(68), eq(55), anyObject(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
-        when(primaryReader.readScaled(eq(67), eq(54), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevationLow);
-        when(primaryReader.readScaled(eq(68), eq(55), anyObject(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
+        when(primaryReader.readScaled(eq(67), eq(54), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
+        when(primaryReader.readScaled(eq(68), eq(55), any(), eq("view_elev_nadir"))).thenReturn(nadirViewElevationHigh);
+        when(primaryReader.readScaled(eq(67), eq(54), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevationLow);
+        when(primaryReader.readScaled(eq(68), eq(55), any(), eq("view_elev_fward"))).thenReturn(fwardViewElevation);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(19), eq(254), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
-        when(secondaryReader.readScaled(eq(20), eq(255), anyObject(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(19), eq(254), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
+        when(secondaryReader.readScaled(eq(20), eq(255), any(), eq("satellite_zenith_angle"))).thenReturn(satZenithAngle);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.angleDeltaNadir = 10.0;

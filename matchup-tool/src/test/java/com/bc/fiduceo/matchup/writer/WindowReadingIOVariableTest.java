@@ -21,9 +21,9 @@
 package com.bc.fiduceo.matchup.writer;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -84,7 +84,7 @@ public class WindowReadingIOVariableTest {
     }
 
     @Test
-    public void testGetEmptyListAfterInitialisation() throws Exception {
+    public void testGetEmptyListAfterInitialisation() {
         final List<Attribute> attributes = ioVariable.getAttributes();
         assertNotNull(attributes);
         assertEquals(0, attributes.size());
@@ -96,7 +96,7 @@ public class WindowReadingIOVariableTest {
         final Reader readerMock = mock(Reader.class);
 
         final Array data = Array.factory(new int[]{1, 2, 3, 4});
-        when(readerMock.readRaw(anyInt(), anyInt(), anyObject(), anyString())).thenReturn(data);
+        when(readerMock.readRaw(anyInt(), anyInt(), any(), anyString())).thenReturn(data);
         final ReaderContainer sourceContainer = new ReaderContainer();
         sourceContainer.setReader(readerMock);
 
@@ -114,5 +114,4 @@ public class WindowReadingIOVariableTest {
         verifyNoMoreInteractions(readerMock);
         verifyNoMoreInteractions(target);
     }
-
 }

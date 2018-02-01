@@ -21,9 +21,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -105,7 +105,7 @@ public class AddLandDistanceTest {
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         final Variable targetVariable = mock(Variable.class);
-        when(writer.addVariable(anyObject(), eq(configuration.targetVariableName ), eq(DataType.FLOAT), (List<Dimension>) anyObject())).thenReturn(targetVariable);
+        when(writer.addVariable(any(), eq(configuration.targetVariableName ), eq(DataType.FLOAT), (List<Dimension>) any())).thenReturn(targetVariable);
 
         final AddLandDistance plugin = new AddLandDistance(configuration);
 
@@ -156,7 +156,7 @@ public class AddLandDistanceTest {
         verify(reader, times(1)).findVariable(null, "latitude");
         verify(latVariable, times(1)).read();
         verify(writer, times(1)).findVariable("distance_to_land");
-        verify(writer, times(1)).write(anyObject(), anyObject());
+        verify(writer, times(1)).write(any(), any());
         verifyNoMoreInteractions(reader, writer);
     }
 

@@ -37,8 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -87,17 +87,17 @@ public class PixelValueScreeningTest {
         when(calibrationScanArray.getInt(0)).thenReturn(3);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(33), eq(274), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(34), eq(275), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(35), eq(276), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
+        when(primaryReader.readScaled(eq(33), eq(274), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(34), eq(275), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(35), eq(276), any(), eq("scanline_type"))).thenReturn(calibrationScanArray);
 
         final List<Variable> variables = createVariablesList();
         when(primaryReader.getVariables()).thenReturn(variables);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(45), eq(654), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(46), eq(655), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(45), eq(654), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(46), eq(655), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(47), eq(656), any(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
@@ -133,17 +133,17 @@ public class PixelValueScreeningTest {
         when(calibrationScanArray.getInt(0)).thenReturn(3);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(34), eq(275), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(35), eq(276), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(36), eq(277), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(34), eq(275), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(35), eq(276), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(36), eq(277), any(), eq("scanline_type"))).thenReturn(regularScanArray);
 
         final List<Variable> variables = createVariablesList();
         when(primaryReader.getVariables()).thenReturn(variables);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(46), eq(655), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-        when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(46), eq(655), any(), eq("scanline_type"))).thenReturn(calibrationScanArray);
+        when(secondaryReader.readScaled(eq(47), eq(656), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(48), eq(657), any(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
@@ -178,17 +178,17 @@ public class PixelValueScreeningTest {
         when(calibrationScanArray.getInt(0)).thenReturn(3);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(35), eq(276), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(36), eq(277), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(primaryReader.readScaled(eq(37), eq(278), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
+        when(primaryReader.readScaled(eq(35), eq(276), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(36), eq(277), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(primaryReader.readScaled(eq(37), eq(278), any(), eq("scanline_type"))).thenReturn(calibrationScanArray);
 
         final List<Variable> variables = createVariablesList();
         when(primaryReader.getVariables()).thenReturn(variables);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(47), eq(656), anyObject(), eq("scanline_type"))).thenReturn(calibrationScanArray);
-        when(secondaryReader.readScaled(eq(48), eq(657), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
-        when(secondaryReader.readScaled(eq(49), eq(658), anyObject(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(47), eq(656), any(), eq("scanline_type"))).thenReturn(calibrationScanArray);
+        when(secondaryReader.readScaled(eq(48), eq(657), any(), eq("scanline_type"))).thenReturn(regularScanArray);
+        when(secondaryReader.readScaled(eq(49), eq(658), any(), eq("scanline_type"))).thenReturn(regularScanArray);
         when(secondaryReader.getVariables()).thenReturn(variables);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 

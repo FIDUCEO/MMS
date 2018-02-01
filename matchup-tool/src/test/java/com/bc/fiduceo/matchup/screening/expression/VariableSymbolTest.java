@@ -54,8 +54,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -125,7 +125,7 @@ public class VariableSymbolTest {
         final Array array = mock(Array.class);
         when(array.getBoolean(0)).thenReturn(true);
 
-        when(reader.readScaled(eq(167), eq(22348), anyObject(), eq("variable_name"))).thenReturn(array);
+        when(reader.readScaled(eq(167), eq(22348), any(), eq("variable_name"))).thenReturn(array);
 
         final Variable variable = mock(Variable.class);
         when(variable.getFullName()).thenReturn("variable_name");
@@ -133,7 +133,7 @@ public class VariableSymbolTest {
 
         assertTrue(symbol.evalB(evalEnv));
 
-        verify(reader, times(1)).readScaled(eq(167), eq(22348), anyObject(), eq("variable_name"));
+        verify(reader, times(1)).readScaled(eq(167), eq(22348), any(), eq("variable_name"));
         verifyNoMoreInteractions(reader);
     }
 
@@ -146,7 +146,7 @@ public class VariableSymbolTest {
         final Array array = mock(Array.class);
         when(array.getInt(0)).thenReturn(3254);
 
-        when(reader.readScaled(eq(168), eq(22349), anyObject(), eq("int_var"))).thenReturn(array);
+        when(reader.readScaled(eq(168), eq(22349), any(), eq("int_var"))).thenReturn(array);
 
         final Variable variable = mock(Variable.class);
         when(variable.getFullName()).thenReturn("int_var");
@@ -154,7 +154,7 @@ public class VariableSymbolTest {
 
         assertEquals(3254, symbol.evalI(evalEnv));
 
-        verify(reader, times(1)).readScaled(eq(168), eq(22349), anyObject(), eq("int_var"));
+        verify(reader, times(1)).readScaled(eq(168), eq(22349), any(), eq("int_var"));
         verifyNoMoreInteractions(reader);
     }
 
@@ -167,7 +167,7 @@ public class VariableSymbolTest {
         final Array array = mock(Array.class);
         when(array.getDouble(0)).thenReturn(0.088745);
 
-        when(reader.readScaled(eq(169), eq(22350), anyObject(), eq("double_var"))).thenReturn(array);
+        when(reader.readScaled(eq(169), eq(22350), any(), eq("double_var"))).thenReturn(array);
 
         final Variable variable = mock(Variable.class);
         when(variable.getFullName()).thenReturn("double_var");
@@ -175,7 +175,7 @@ public class VariableSymbolTest {
 
         assertEquals(0.088745, symbol.evalD(evalEnv), 1e-8);
 
-        verify(reader, times(1)).readScaled(eq(169), eq(22350), anyObject(), eq("double_var"));
+        verify(reader, times(1)).readScaled(eq(169), eq(22350), any(), eq("double_var"));
         verifyNoMoreInteractions(reader);
     }
 }

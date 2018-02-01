@@ -29,8 +29,8 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,7 +45,7 @@ public class SensorExtractionStrategyTest {
 
         final Variable variable = mock(Variable.class);
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        when(writer.addVariable(anyObject(), anyString(), anyObject(), anyString())).thenReturn(variable);
+        when(writer.addVariable(any(), anyString(), any(), anyString())).thenReturn(variable);
 
         final Context context = new Context();
         final Configuration configuration = createConfiguration();

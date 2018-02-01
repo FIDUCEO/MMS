@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,15 +89,15 @@ public class BuehlerCloudScreeningTest {
         when(VZAArray.getDouble(0)).thenReturn(9.65);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch18"))).thenReturn(lowBtempArray);   // condition for removal: ch20 > ch18
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch20"))).thenReturn(highBtempArray);
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch18"))).thenReturn(highBtempArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("btemps_ch18"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("btemps_ch18"))).thenReturn(lowBtempArray);   // condition for removal: ch20 > ch18
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("btemps_ch20"))).thenReturn(highBtempArray);
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("btemps_ch18"))).thenReturn(highBtempArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("btemps_ch18"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
 
         final Reader secondaryReader = mock(Reader.class);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
@@ -138,15 +138,15 @@ public class BuehlerCloudScreeningTest {
         when(lowVZAArray.getDouble(0)).thenReturn(0.63);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch18"))).thenReturn(highBtempArray);
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(43), eq(74), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch18"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(44), eq(75), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(highVZAArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("btemps_ch18"))).thenReturn(highBtempArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
-        when(primaryReader.readScaled(eq(45), eq(76), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("btemps_ch18"))).thenReturn(highBtempArray);
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(43), eq(74), any(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("btemps_ch18"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(44), eq(75), any(), eq("Satellite_zenith_angle"))).thenReturn(highVZAArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("btemps_ch18"))).thenReturn(highBtempArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("btemps_ch20"))).thenReturn(lowBtempArray);
+        when(primaryReader.readScaled(eq(45), eq(76), any(), eq("Satellite_zenith_angle"))).thenReturn(lowVZAArray);
 
         final Reader secondaryReader = mock(Reader.class);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
@@ -186,15 +186,15 @@ public class BuehlerCloudScreeningTest {
         final Reader primaryReader = mock(Reader.class);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(45), eq(454), anyObject(), eq("btemps_ch3"))).thenReturn(highBtempArray);
-        when(secondaryReader.readScaled(eq(45), eq(454), anyObject(), eq("btemps_ch4"))).thenReturn(highBtempArray);
-        when(secondaryReader.readScaled(eq(45), eq(454), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
-        when(secondaryReader.readScaled(eq(46), eq(455), anyObject(), eq("btemps_ch3"))).thenReturn(highBtempArray);
-        when(secondaryReader.readScaled(eq(46), eq(455), anyObject(), eq("btemps_ch4"))).thenReturn(lowBtempArray);
-        when(secondaryReader.readScaled(eq(46), eq(455), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
-        when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("btemps_ch3"))).thenReturn(lowBtempArray); // condition for removal: ch20 > ch18
-        when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("btemps_ch4"))).thenReturn(highBtempArray);
-        when(secondaryReader.readScaled(eq(47), eq(456), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(secondaryReader.readScaled(eq(45), eq(454), any(), eq("btemps_ch3"))).thenReturn(highBtempArray);
+        when(secondaryReader.readScaled(eq(45), eq(454), any(), eq("btemps_ch4"))).thenReturn(highBtempArray);
+        when(secondaryReader.readScaled(eq(45), eq(454), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(secondaryReader.readScaled(eq(46), eq(455), any(), eq("btemps_ch3"))).thenReturn(highBtempArray);
+        when(secondaryReader.readScaled(eq(46), eq(455), any(), eq("btemps_ch4"))).thenReturn(lowBtempArray);
+        when(secondaryReader.readScaled(eq(46), eq(455), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
+        when(secondaryReader.readScaled(eq(47), eq(456), any(), eq("btemps_ch3"))).thenReturn(lowBtempArray); // condition for removal: ch20 > ch18
+        when(secondaryReader.readScaled(eq(47), eq(456), any(), eq("btemps_ch4"))).thenReturn(highBtempArray);
+        when(secondaryReader.readScaled(eq(47), eq(456), any(), eq("Satellite_zenith_angle"))).thenReturn(VZAArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.secondaryNarrowChannelName = "btemps_ch3";

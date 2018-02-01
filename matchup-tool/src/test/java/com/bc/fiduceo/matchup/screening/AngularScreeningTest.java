@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,14 +91,14 @@ public class AngularScreeningTest {
         when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(23), eq(54), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(24), eq(55), anyObject(), eq("VZA"))).thenReturn(highAngleArray);
-        when(primaryReader.readScaled(eq(25), eq(56), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(23), eq(54), any(), eq("VZA"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(24), eq(55), any(), eq("VZA"))).thenReturn(highAngleArray);
+        when(primaryReader.readScaled(eq(25), eq(56), any(), eq("VZA"))).thenReturn(lowAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(223), eq(254), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(224), eq(255), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(225), eq(256), anyObject(), eq("VZA"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(223), eq(254), any(), eq("VZA"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(224), eq(255), any(), eq("VZA"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(225), eq(256), any(), eq("VZA"))).thenReturn(lowAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
@@ -133,14 +133,14 @@ public class AngularScreeningTest {
         when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(33), eq(64), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(34), eq(65), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(55), eq(66), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(33), eq(64), any(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(34), eq(65), any(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(55), eq(66), any(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(233), eq(264), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(234), eq(265), anyObject(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(235), eq(266), anyObject(), eq("satellite_zenith"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(233), eq(264), any(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(234), eq(265), any(), eq("satellite_zenith"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(235), eq(266), any(), eq("satellite_zenith"))).thenReturn(highAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.useSecondary = true;
@@ -175,14 +175,14 @@ public class AngularScreeningTest {
         when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(43), eq(54), anyObject(), eq("the_angle"))).thenReturn(highAngleArray);
-        when(primaryReader.readScaled(eq(44), eq(55), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(45), eq(56), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(43), eq(54), any(), eq("the_angle"))).thenReturn(highAngleArray);
+        when(primaryReader.readScaled(eq(44), eq(55), any(), eq("the_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(45), eq(56), any(), eq("the_angle"))).thenReturn(lowAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(243), eq(254), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(244), eq(255), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(245), eq(256), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(243), eq(254), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(244), eq(255), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(245), eq(256), any(), eq("the_other_angle"))).thenReturn(highAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
@@ -219,14 +219,14 @@ public class AngularScreeningTest {
         when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(53), eq(64), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(54), eq(65), anyObject(), eq("the_angle"))).thenReturn(highAngleArray);
-        when(primaryReader.readScaled(eq(55), eq(66), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(53), eq(64), any(), eq("the_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(54), eq(65), any(), eq("the_angle"))).thenReturn(highAngleArray);
+        when(primaryReader.readScaled(eq(55), eq(66), any(), eq("the_angle"))).thenReturn(lowAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(253), eq(264), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(254), eq(265), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
-        when(secondaryReader.readScaled(eq(255), eq(266), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(253), eq(264), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(254), eq(265), any(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(255), eq(266), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.usePrimary = true;
@@ -269,14 +269,14 @@ public class AngularScreeningTest {
         when(lowAngleArray.getIndexIterator()).thenReturn(lowAngleIterator);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(63), eq(74), anyObject(), eq("the_angle"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(64), eq(75), anyObject(), eq("the_angle"))).thenReturn(highAngleArray);
-        when(primaryReader.readScaled(eq(65), eq(76), anyObject(), eq("the_angle"))).thenReturn(tooHighAngleArray);
+        when(primaryReader.readScaled(eq(63), eq(74), any(), eq("the_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(64), eq(75), any(), eq("the_angle"))).thenReturn(highAngleArray);
+        when(primaryReader.readScaled(eq(65), eq(76), any(), eq("the_angle"))).thenReturn(tooHighAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(263), eq(274), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
-        when(secondaryReader.readScaled(eq(264), eq(275), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(265), eq(276), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(263), eq(274), any(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(264), eq(275), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(265), eq(276), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryVariableName = "the_angle";

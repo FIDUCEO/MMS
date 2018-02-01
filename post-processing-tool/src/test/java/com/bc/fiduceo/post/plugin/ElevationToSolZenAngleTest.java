@@ -36,8 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -89,7 +88,7 @@ public class ElevationToSolZenAngleTest {
 
         verify(reader, times(1)).findVariable(null, "source");
         verify(writer, times(1)).addVariable(null, "tar-create", DataType.FLOAT, dimensions);
-        verify(targetVariable, times(1)).addAttribute(anyObject());
+        verify(targetVariable, times(1)).addAttribute(any());
         verifyNoMoreInteractions(reader, writer);
     }
 

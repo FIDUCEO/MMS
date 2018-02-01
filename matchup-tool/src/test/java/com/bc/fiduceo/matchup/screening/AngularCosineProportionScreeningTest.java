@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -87,14 +87,14 @@ public class AngularCosineProportionScreeningTest {
         when(outAngleArray.getDouble(0)).thenReturn(48.93);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(33), eq(64), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(lowAngleArray);
-        when(primaryReader.readScaled(eq(34), eq(65), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(outAngleArray);
-        when(primaryReader.readScaled(eq(35), eq(66), anyObject(), eq("Satellite_zenith_angle"))).thenReturn(highAngleArray);
+        when(primaryReader.readScaled(eq(33), eq(64), any(), eq("Satellite_zenith_angle"))).thenReturn(lowAngleArray);
+        when(primaryReader.readScaled(eq(34), eq(65), any(), eq("Satellite_zenith_angle"))).thenReturn(outAngleArray);
+        when(primaryReader.readScaled(eq(35), eq(66), any(), eq("Satellite_zenith_angle"))).thenReturn(highAngleArray);
 
         final Reader secondaryReader = mock(Reader.class);
-        when(secondaryReader.readScaled(eq(45), eq(354), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
-        when(secondaryReader.readScaled(eq(46), eq(355), anyObject(), eq("the_other_angle"))).thenReturn(lowAngleArray);
-        when(secondaryReader.readScaled(eq(47), eq(356), anyObject(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(45), eq(354), any(), eq("the_other_angle"))).thenReturn(highAngleArray);
+        when(secondaryReader.readScaled(eq(46), eq(355), any(), eq("the_other_angle"))).thenReturn(lowAngleArray);
+        when(secondaryReader.readScaled(eq(47), eq(356), any(), eq("the_other_angle"))).thenReturn(highAngleArray);
         secondaryReaderMap.put(secondarySensorName, secondaryReader);
 
         configuration.primaryVariableName = "Satellite_zenith_angle";

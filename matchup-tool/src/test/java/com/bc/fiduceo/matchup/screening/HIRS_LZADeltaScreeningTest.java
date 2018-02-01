@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -93,20 +93,20 @@ public class HIRS_LZADeltaScreeningTest {
         when(righPosArray.getInt(0)).thenReturn(28);
 
         final Reader primaryReader = mock(Reader.class);
-        when(primaryReader.readScaled(eq(23), eq(174), anyObject(), eq("lza"))).thenReturn(midLZAArray);
-        when(primaryReader.readScaled(eq(23), eq(174), anyObject(), eq("scanpos"))).thenReturn(leftPosArray);
-        when(primaryReader.readScaled(eq(24), eq(175), anyObject(), eq("lza"))).thenReturn(highLZAArray);
-        when(primaryReader.readScaled(eq(24), eq(175), anyObject(), eq("scanpos"))).thenReturn(righPosArray);
-        when(primaryReader.readScaled(eq(25), eq(176), anyObject(), eq("lza"))).thenReturn(lowLZAArray);
-        when(primaryReader.readScaled(eq(25), eq(176), anyObject(), eq("scanpos"))).thenReturn(righPosArray);
+        when(primaryReader.readScaled(eq(23), eq(174), any(), eq("lza"))).thenReturn(midLZAArray);
+        when(primaryReader.readScaled(eq(23), eq(174), any(), eq("scanpos"))).thenReturn(leftPosArray);
+        when(primaryReader.readScaled(eq(24), eq(175), any(), eq("lza"))).thenReturn(highLZAArray);
+        when(primaryReader.readScaled(eq(24), eq(175), any(), eq("scanpos"))).thenReturn(righPosArray);
+        when(primaryReader.readScaled(eq(25), eq(176), any(), eq("lza"))).thenReturn(lowLZAArray);
+        when(primaryReader.readScaled(eq(25), eq(176), any(), eq("scanpos"))).thenReturn(righPosArray);
 
         final Reader secondReader = mock(Reader.class);
-        when(secondReader.readScaled(eq(35), eq(554), anyObject(), eq("lza"))).thenReturn(lowLZAArray);
-        when(secondReader.readScaled(eq(35), eq(554), anyObject(), eq("scanpos"))).thenReturn(leftPosArray);
-        when(secondReader.readScaled(eq(36), eq(555), anyObject(), eq("lza"))).thenReturn(lowLZAArray);
-        when(secondReader.readScaled(eq(36), eq(555), anyObject(), eq("scanpos"))).thenReturn(leftPosArray);
-        when(secondReader.readScaled(eq(37), eq(556), anyObject(), eq("lza"))).thenReturn(midLZAArray);
-        when(secondReader.readScaled(eq(37), eq(556), anyObject(), eq("scanpos"))).thenReturn(righPosArray);
+        when(secondReader.readScaled(eq(35), eq(554), any(), eq("lza"))).thenReturn(lowLZAArray);
+        when(secondReader.readScaled(eq(35), eq(554), any(), eq("scanpos"))).thenReturn(leftPosArray);
+        when(secondReader.readScaled(eq(36), eq(555), any(), eq("lza"))).thenReturn(lowLZAArray);
+        when(secondReader.readScaled(eq(36), eq(555), any(), eq("scanpos"))).thenReturn(leftPosArray);
+        when(secondReader.readScaled(eq(37), eq(556), any(), eq("lza"))).thenReturn(midLZAArray);
+        when(secondReader.readScaled(eq(37), eq(556), any(), eq("scanpos"))).thenReturn(righPosArray);
         secondaryReaderMap.put(secondarySensorName, secondReader);
 
 

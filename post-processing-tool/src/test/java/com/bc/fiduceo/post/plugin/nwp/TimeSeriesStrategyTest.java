@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,7 +76,7 @@ public class TimeSeriesStrategyTest {
     }
 
     @Test
-    public void testPrepare() throws IOException, InvalidRangeException {
+    public void testPrepare()  {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension matchupCountDimension = new Dimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT, 7);
 
@@ -84,7 +84,7 @@ public class TimeSeriesStrategyTest {
 
         final Variable variable = mock(Variable.class);
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        when(writer.addVariable(anyObject(), anyString(), anyObject(), anyString())).thenReturn(variable);
+        when(writer.addVariable(any(), anyString(), any(), anyString())).thenReturn(variable);
 
         final Configuration configuration = createConfiguration();
         final Context context = new Context();
