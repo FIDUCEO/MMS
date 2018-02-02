@@ -140,7 +140,7 @@ public class PostProcessingToolTest {
 //        PostProcessingTool.printUsageTo(System.out);
 
         final String ls = System.lineSeparator();
-        final String expected = "post-processing-tool version 1.3.7" + ls +
+        final String expected = "post-processing-tool version 1.3.8-SNAPSHOT" + ls +
                 "" + ls +
                 "usage: post-processing-tool <options>" + ls +
                 "Valid options are:" + ls +
@@ -262,7 +262,7 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testGetDate() throws Exception {
+    public void testGetDate() {
         final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.getOptionValue("start")).thenReturn("TheDateString");
 
@@ -272,7 +272,7 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testGetDate_emptyString() throws Exception {
+    public void testGetDate_emptyString() {
         final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.getOptionValue("start")).thenReturn("");
 
@@ -285,7 +285,7 @@ public class PostProcessingToolTest {
     }
 
     @Test
-    public void testGetDate_null() throws Exception {
+    public void testGetDate_null() {
         final CommandLine commandLine = mock(CommandLine.class);
         when(commandLine.getOptionValue("start")).thenReturn(null);
 
