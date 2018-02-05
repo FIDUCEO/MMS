@@ -20,22 +20,26 @@
 package com.bc.fiduceo.post;
 
 import org.jdom.Element;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_DATA_TYPE;
 import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_TARGET;
 import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_VAR_NAME;
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PostProcessingFactoryTest {
 
     private PostProcessingFactory postProcessingFactory;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         postProcessingFactory = PostProcessingFactory.get();
     }
 
@@ -45,31 +49,41 @@ public class PostProcessingFactoryTest {
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
         assertEquals(11, plugins.size());
-        /* 01 */  assertTrue(plugins.containsKey("dummy-post-processing"));
-        /* 02 */  assertTrue(plugins.containsKey("spherical-distance"));
-        /* 03 */  assertTrue(plugins.containsKey("sst-insitu-time-series"));
-        /* 04 */  assertTrue(plugins.containsKey("add-amsre-solar-angles"));
-        /* 05 */  assertTrue(plugins.containsKey("nwp"));
-        /* 06 */  assertTrue(plugins.containsKey("hirs-l1-cloudy-flags"));
-        /* 07 */  assertTrue(plugins.containsKey("elevation-to-solzen-angle"));
-        /* 08 */  assertTrue(plugins.containsKey("add-iasi-spectrum"));
-        /* 09 */  assertTrue(plugins.containsKey("add-distance-to-land"));
-        /* 10 */  assertTrue(plugins.containsKey("caliop-level2-vfm-flags"));
-        /* 11 */  assertTrue(plugins.containsKey("caliop-sst-wp100-clay"));
+        /* 01 */
+        assertTrue(plugins.containsKey("dummy-post-processing"));
+        /* 02 */
+        assertTrue(plugins.containsKey("spherical-distance"));
+        /* 03 */
+        assertTrue(plugins.containsKey("sst-insitu-time-series"));
+        /* 04 */
+        assertTrue(plugins.containsKey("add-amsr-solar-angles"));
+        /* 05 */
+        assertTrue(plugins.containsKey("nwp"));
+        /* 06 */
+        assertTrue(plugins.containsKey("hirs-l1-cloudy-flags"));
+        /* 07 */
+        assertTrue(plugins.containsKey("elevation-to-solzen-angle"));
+        /* 08 */
+        assertTrue(plugins.containsKey("add-iasi-spectrum"));
+        /* 09 */
+        assertTrue(plugins.containsKey("add-distance-to-land"));
+        /* 10 */
+        assertTrue(plugins.containsKey("caliop-level2-vfm-flags"));
+        /* 11 */
+        assertTrue(plugins.containsKey("caliop-sst-wp100-clay"));
     }
 
     @Test
-    public void testGetPostProcessing() throws Exception {
-
+    public void testGetPostProcessing() {
         final Element element = new Element("spherical-distance").addContent(Arrays.asList(
-                    new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
-                                new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
-                                new Element(TAG_NAME_DATA_TYPE).addContent("Float")
-                    )),
-                    new Element("primary-lat-variable").addContent("p_lat"),
-                    new Element("primary-lon-variable").addContent("p_lon"),
-                    new Element("secondary-lat-variable").addContent("s_lat"),
-                    new Element("secondary-lon-variable").addContent("s_lon")
+                new Element(TAG_NAME_TARGET).addContent(Arrays.asList(
+                        new Element(TAG_NAME_VAR_NAME).addContent("post_sphere_distance"),
+                        new Element(TAG_NAME_DATA_TYPE).addContent("Float")
+                )),
+                new Element("primary-lat-variable").addContent("p_lat"),
+                new Element("primary-lon-variable").addContent("p_lon"),
+                new Element("secondary-lat-variable").addContent("s_lat"),
+                new Element("secondary-lon-variable").addContent("s_lon")
         ));
 
         final PostProcessing postProcessing = postProcessingFactory.getPostProcessing(element);
@@ -78,8 +92,7 @@ public class PostProcessingFactoryTest {
     }
 
     @Test
-    public void testGetPostProcessing_nonExistingPostProcessing() throws Exception {
-
+    public void testGetPostProcessing_nonExistingPostProcessing() {
         final Element element = new Element("non-existing-post-processing");
 
         try {

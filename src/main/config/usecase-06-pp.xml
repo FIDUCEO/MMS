@@ -27,7 +27,7 @@
 
     <post-processings>
 
-        <add-amsre-solar-angles>
+        <add-amsr-solar-angles>
             <sun-elevation-variable name="amsre.Sun_Elevation"/>
             <sun-azimuth-variable name="amsre.Sun_Azimuth"/>
             <earth-incidence-variable name="amsre.satellite_zenith_angle"/>
@@ -35,7 +35,7 @@
 
             <sza-target-variable name="amsre.solar_zenith_angle"/>
             <saa-target-variable name="amsre.solar_azimuth_angle"/>
-        </add-amsre-solar-angles>
+        </add-amsr-solar-angles>
 
         <sst-insitu-time-series>
             <version>v03.3</version>

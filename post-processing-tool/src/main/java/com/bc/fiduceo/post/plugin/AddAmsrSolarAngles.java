@@ -36,7 +36,7 @@ import ucar.nc2.iosp.netcdf3.N3iosp;
 import java.io.IOException;
 import java.util.List;
 
-class AddAmsreSolarAngles extends PostProcessing {
+class AddAmsrSolarAngles extends PostProcessing {
 
     private Configuration configuration;
 
@@ -46,11 +46,11 @@ class AddAmsreSolarAngles extends PostProcessing {
         final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
         final Variable variable = writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
-        variable.addAttribute(new Attribute("description", "Calculated from AMSRE data as sza = Sun_Elevation + Earth_Incidence"));
+        variable.addAttribute(new Attribute("description", "Calculated from AMSR data as sza = Sun_Elevation + Earth_Incidence"));
         variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
 
         writer.addVariable(null, configuration.saaVariable, DataType.FLOAT, dimensions);
-        variable.addAttribute(new Attribute("description", "Calculated from AMSRE data as saa = (Earth_Azimuth - Sun_Azimuth - 180.0) mod 360.0"));
+        variable.addAttribute(new Attribute("description", "Calculated from AMSR data as saa = (Earth_Azimuth - Sun_Azimuth - 180.0) mod 360.0"));
         variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
     }
 
@@ -72,7 +72,6 @@ class AddAmsreSolarAngles extends PostProcessing {
         final Array saa = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
 
         calculateAngles(earthAzimuth, earthIncidence, sunAzimuth, sunElevation, sza, saa);
-
 
         final String szaEscapedName = NetcdfFile.makeValidCDLName(configuration.szaVariable);
         final Variable szaVariable = writer.findVariable(szaEscapedName);

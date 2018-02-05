@@ -28,23 +28,23 @@ import org.jdom.Element;
 
 /* The XML template for this post processing class looks like:
 
-    <add-amsre-solar-angles>
+    <add-amsr-solar-angles>
         <sun-elevation-variable name = "Sun_Elevation" />
         <sun-azimuth-variable name = "Sun_Azimuth" />
         <earth-incidence-variable name = "Earth_Incidence" />
         <earth-azimuth-variable name = "Earth_Azimuth" />
         <sza-target-variable name = "amsre.solar_zenith_angle" />
         <saa-target-variable name = "amsre.solar_azimuth_angle" />
-    </add-amsre-solar-angles>
+    </add-amsr-solar-angles>
  */
 
-public class AddAmsreSolarAnglesPlugin implements PostProcessingPlugin {
+public class AddAmsrSolarAnglesPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        final AddAmsreSolarAngles.Configuration configuration = createConfiguration(element);
+        final AddAmsrSolarAngles.Configuration configuration = createConfiguration(element);
 
-        final AddAmsreSolarAngles solarAnglesPostProcessing = new AddAmsreSolarAngles();
+        final AddAmsrSolarAngles solarAnglesPostProcessing = new AddAmsrSolarAngles();
         solarAnglesPostProcessing.configure(configuration);
 
         return solarAnglesPostProcessing;
@@ -52,12 +52,12 @@ public class AddAmsreSolarAnglesPlugin implements PostProcessingPlugin {
 
     @Override
     public String getPostProcessingName() {
-        return "add-amsre-solar-angles";
+        return "add-amsr-solar-angles";
     }
 
     // package access for testing only tb 2016-12-14
-    static AddAmsreSolarAngles.Configuration createConfiguration(Element element) {
-        final AddAmsreSolarAngles.Configuration configuration = new AddAmsreSolarAngles.Configuration();
+    static AddAmsrSolarAngles.Configuration createConfiguration(Element element) {
+        final AddAmsrSolarAngles.Configuration configuration = new AddAmsrSolarAngles.Configuration();
 
         configuration.sunElevationVariable = getNameAttribute(element, "sun-elevation-variable");
         configuration.sunAzimuthVariable = getNameAttribute(element, "sun-azimuth-variable");

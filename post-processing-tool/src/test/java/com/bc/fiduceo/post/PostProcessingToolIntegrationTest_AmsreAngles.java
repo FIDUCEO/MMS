@@ -57,7 +57,7 @@ public class PostProcessingToolIntegrationTest_AmsreAngles {
     }
 
     @Test
-    public void testAddAngleVariables() throws ParseException, IOException, InvalidRangeException {
+    public void testAddAngleVariables() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory();
 
         writeConfiguration();
@@ -87,14 +87,14 @@ public class PostProcessingToolIntegrationTest_AmsreAngles {
                 "        </output-directory>\n" +
                 "    </create-new-files>\n" +
                 "    <post-processings>\n" +
-                "        <add-amsre-solar-angles>\n" +
+                "        <add-amsr-solar-angles>\n" +
                 "            <sun-elevation-variable name = \"amsre.Sun_Elevation\" />\n" +
                 "            <sun-azimuth-variable name = \"amsre.Sun_Azimuth\" />\n" +
                 "            <earth-incidence-variable name = \"amsre.satellite_zenith_angle\" />\n" +
                 "            <earth-azimuth-variable name = \"amsre.satellite_azimuth_angle\" />\n" +
                 "            <sza-target-variable name = \"amsre.solar_zenith_angle\" />\n" +
                 "            <saa-target-variable name = \"amsre.solar_azimuth_angle\" />\n" +
-                "        </add-amsre-solar-angles>" +
+                "        </add-amsr-solar-angles>" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";
 

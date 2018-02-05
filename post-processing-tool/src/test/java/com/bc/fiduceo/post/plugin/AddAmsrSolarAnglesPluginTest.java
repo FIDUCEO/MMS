@@ -34,27 +34,27 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class AddAmsreSolarAnglesPluginTest {
+public class AddAmsrSolarAnglesPluginTest {
 
-    private static final String FULL_CONFIG = "<add-amsre-solar-angles>" +
+    private static final String FULL_CONFIG = "<add-amsr-solar-angles>" +
             "    <sun-elevation-variable name = \"sun_up\" />" +
             "    <sun-azimuth-variable name = \"sun_angle\" />" +
             "    <earth-incidence-variable name = \"ground_angle\" />" +
             "    <earth-azimuth-variable name = \"ground_round\" />" +
             "    <sza-target-variable name = \"sun_zenith_angle\" />" +
             "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
-            "</add-amsre-solar-angles>";
+            "</add-amsr-solar-angles>";
 
-    private AddAmsreSolarAnglesPlugin plugin;
+    private AddAmsrSolarAnglesPlugin plugin;
 
     @Before
     public void setUp() {
-        plugin = new AddAmsreSolarAnglesPlugin();
+        plugin = new AddAmsrSolarAnglesPlugin();
     }
 
     @Test
     public void testGetPostProcessingName() {
-        assertEquals("add-amsre-solar-angles", plugin.getPostProcessingName());
+        assertEquals("add-amsr-solar-angles", plugin.getPostProcessingName());
     }
 
     @Test
@@ -63,17 +63,17 @@ public class AddAmsreSolarAnglesPluginTest {
 
         final PostProcessing postProcessing = plugin.createPostProcessing(rootElement);
         assertNotNull(postProcessing);
-        assertTrue(postProcessing instanceof AddAmsreSolarAngles);
+        assertTrue(postProcessing instanceof AddAmsrSolarAngles);
     }
 
     @Test
     public void testCreateConfiguration_emptyConfig() throws JDOMException, IOException {
-        final String XML = "<add-amsre-solar-angles>" +
-                "</add-amsre-solar-angles>";
+        final String XML = "<add-amsr-solar-angles>" +
+                "</add-amsr-solar-angles>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
         try {
-            AddAmsreSolarAnglesPlugin.createConfiguration(rootElement);
+            AddAmsrSolarAnglesPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -81,18 +81,18 @@ public class AddAmsreSolarAnglesPluginTest {
 
     @Test
     public void testCreateConfiguration_missingValues() throws JDOMException, IOException {
-        String XML = "<add-amsre-solar-angles>" +
+        String XML = "<add-amsr-solar-angles>" +
                 "    <sun-elevation-variable name = \"bla\" />" +
                 "<!-- missing sun azimuth -->" +
                 "    <earth-incidence-variable name = \"ground_angle\" />" +
                 "    <earth-azimuth-variable name = \"ground_round\" />" +
                 "    <sza-target-variable name = \"sun_zenith_angle\" />" +
                 "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
-                "</add-amsre-solar-angles>";
+                "</add-amsr-solar-angles>";
         Element rootElement = TestUtil.createDomElement(XML);
 
         try {
-            AddAmsreSolarAnglesPlugin.createConfiguration(rootElement);
+            AddAmsrSolarAnglesPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -102,7 +102,7 @@ public class AddAmsreSolarAnglesPluginTest {
     public void testCreateConfiguration() throws JDOMException, IOException {
         final Element rootElement = TestUtil.createDomElement(FULL_CONFIG);
 
-        final AddAmsreSolarAngles.Configuration configuration = AddAmsreSolarAnglesPlugin.createConfiguration(rootElement);
+        final AddAmsrSolarAngles.Configuration configuration = AddAmsrSolarAnglesPlugin.createConfiguration(rootElement);
         assertEquals("sun_up", configuration.sunElevationVariable);
         assertEquals("sun_angle", configuration.sunAzimuthVariable);
         assertEquals("ground_angle", configuration.earthIncidenceVariable);

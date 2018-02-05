@@ -44,24 +44,24 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class AddAmsreSolarAnglesTest {
+public class AddAmsrSolarAnglesTest {
 
-    private AddAmsreSolarAngles addAmsreSolarAngles;
+    private AddAmsrSolarAngles addAmsrSolarAngles;
     private NetcdfFile reader;
     private NetcdfFileWriter writer;
 
     @Before
     public void setUp() {
-        addAmsreSolarAngles = new AddAmsreSolarAngles();
+        addAmsrSolarAngles = new AddAmsrSolarAngles();
 
-        final AddAmsreSolarAngles.Configuration configuration = new AddAmsreSolarAngles.Configuration();
+        final AddAmsrSolarAngles.Configuration configuration = new AddAmsrSolarAngles.Configuration();
         configuration.earthAzimuthVariable = "Earth_Azimuth";
         configuration.earthIncidenceVariable = "Earth_Incidence";
         configuration.sunElevationVariable = "Sun_Elevation";
         configuration.sunAzimuthVariable = "Sun_Azimuth";
         configuration.szaVariable = "sun_zenith_angle";
         configuration.saaVariable = "sun_azimuth_angle";
-        addAmsreSolarAngles.configure(configuration);
+        addAmsrSolarAngles.configure(configuration);
 
         reader = mock(NetcdfFile.class);
         writer = mock(NetcdfFileWriter.class);
@@ -80,7 +80,7 @@ public class AddAmsreSolarAnglesTest {
         when(writer.addVariable(null, "sun_zenith_angle", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
         when(writer.addVariable(null, "sun_azimuth_angle", DataType.FLOAT, dimensions)).thenReturn(targetVariable);
 
-        addAmsreSolarAngles.prepare(reader, writer);
+        addAmsrSolarAngles.prepare(reader, writer);
 
         verify(writer, times(1)).addVariable(null, "sun_zenith_angle", DataType.FLOAT, dimensions);
         verify(writer, times(1)).addVariable(null, "sun_azimuth_angle", DataType.FLOAT, dimensions);
@@ -91,7 +91,7 @@ public class AddAmsreSolarAnglesTest {
     @Test
     public void testPrepare_missingInputVariable() {
         try {
-            addAmsreSolarAngles.prepare(reader, writer);
+            addAmsrSolarAngles.prepare(reader, writer);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -114,7 +114,7 @@ public class AddAmsreSolarAnglesTest {
         when(writer.findVariable("sun_zenith_angle")).thenReturn(mock(Variable.class));
         when(writer.findVariable("sun_azimuth_angle")).thenReturn(mock(Variable.class));
 
-        addAmsreSolarAngles.compute(reader, writer);
+        addAmsrSolarAngles.compute(reader, writer);
 
         verify(reader, times(1)).findVariable(null, "Earth_Incidence");
         verify(reader, times(1)).findVariable(null, "Sun_Elevation");
@@ -145,7 +145,7 @@ public class AddAmsreSolarAnglesTest {
         final Array sza = Array.factory(DataType.FLOAT, shape);
         final Array saa = Array.factory(DataType.FLOAT, shape);
 
-        AddAmsreSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
+        AddAmsrSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
 
         final float[] expectedSza = new float[]{96.505005f, 96.505005f, 96.604996f, 96.604996f, 96.604996f, 96.705f, 96.604996f, 96.705f, 96.805f};
         final float[] expectedSaa = new float[]{10.769989f, 10.5f, 10.109985f, 10.72998f, 10.350006f, 9.960022f, 10.48999f, 10.210022f, 9.799988f};
@@ -172,7 +172,7 @@ public class AddAmsreSolarAnglesTest {
         final Array sza = Array.factory(DataType.FLOAT, shape);
         final Array saa = Array.factory(DataType.FLOAT, shape);
 
-        AddAmsreSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
+        AddAmsrSolarAngles.calculateAngles(earthAzimuthArray, earthIncidenceArray, sunAzimuthArray, sunElevationArray, sza, saa);
 
         final float[] expectedSza = new float[]{96.505005f, N3iosp.NC_FILL_FLOAT, 96.604996f, N3iosp.NC_FILL_FLOAT, 96.604996f, 96.705f, 96.604996f, 96.705f, 96.805f};
         final float[] expectedSaa = new float[]{10.769989f, 10.5f, 10.109985f, 10.72998f, 10.350006f, N3iosp.NC_FILL_FLOAT, 10.48999f, N3iosp.NC_FILL_FLOAT, 9.799988f};
