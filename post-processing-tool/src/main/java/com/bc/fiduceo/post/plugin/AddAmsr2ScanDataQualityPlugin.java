@@ -22,17 +22,29 @@ package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
+import com.bc.fiduceo.util.JDomUtils;
+import org.jdom.Attribute;
 import org.jdom.Element;
 
 public class AddAmsr2ScanDataQualityPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        throw new RuntimeException("not implemented");
+        return new AddAmsr2ScanDataQuality();
     }
 
     @Override
     public String getPostProcessingName() {
         return "add-amsr2-scan-data-quality";
+    }
+
+    public static AddAmsr2ScanDataQuality.Configuration createConfiguration(Element rootElement) {
+        final Element childElement = JDomUtils.getMandatoryChild(rootElement, "target-variable");
+        final Attribute nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
+
+        final AddAmsr2ScanDataQuality.Configuration configuration = new AddAmsr2ScanDataQuality.Configuration();
+        configuration.targetVariableName = nameAttribute.getValue().trim();
+
+        return configuration;
     }
 }

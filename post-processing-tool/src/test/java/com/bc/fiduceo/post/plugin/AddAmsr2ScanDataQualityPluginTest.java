@@ -20,12 +20,22 @@
 
 package com.bc.fiduceo.post.plugin;
 
+import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.PostProcessing;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class AddAmsr2ScanDataQualityPluginTest {
+
+    private static final String FULL_CONFIG = "<add-amsr2-scan-data-quality>" +
+            "    <target-variable name = \"amsr2-gcw1_Scan_Data_Qualitye\" />" +
+            "</add-amsr2-scan-data-quality>";
 
     private AddAmsr2ScanDataQualityPlugin plugin;
 
@@ -37,5 +47,50 @@ public class AddAmsr2ScanDataQualityPluginTest {
     @Test
     public void testGetPostProcessingName() {
         assertEquals("add-amsr2-scan-data-quality", plugin.getPostProcessingName());
+    }
+
+    @Test
+    public void testCreatePostProcessing() throws JDOMException, IOException {
+        final Element rootElement = TestUtil.createDomElement(FULL_CONFIG);
+
+        final PostProcessing postProcessing = plugin.createPostProcessing(rootElement);
+        assertNotNull(postProcessing);
+        assertTrue(postProcessing instanceof AddAmsr2ScanDataQuality);
+    }
+
+    @Test
+    public void testCreateConfiguration_emptyConfig() throws JDOMException, IOException {
+        final String XML = "<add-amsr2-scan-data-quality>" +
+                "</add-amsr2-scan-data-quality>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration_missingValue() throws JDOMException, IOException {
+        final String XML = "<add-amsr2-scan-data-quality>" +
+                "    <target-variable/>" +
+                "</add-amsr2-scan-data-quality>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        try {
+            AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testCreateConfiguration() throws JDOMException, IOException {
+        final Element rootElement = TestUtil.createDomElement(FULL_CONFIG);
+
+        final AddAmsr2ScanDataQuality.Configuration configuration = AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
+        assertNotNull(configuration);
+        assertEquals("amsr2-gcw1_Scan_Data_Qualitye", configuration.targetVariableName);
     }
 }
