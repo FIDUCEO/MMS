@@ -60,7 +60,7 @@ public class PostProcessingToolIntegrationTest_IASISpectrum {
     }
 
     @Test
-    public void testAddIASISpectrum() throws ParseException, IOException, InvalidRangeException {
+    public void testAddIASISpectrum() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory("mmd03");
 
         writeConfiguration();
@@ -88,7 +88,7 @@ public class PostProcessingToolIntegrationTest_IASISpectrum {
     }
 
     @Test
-    public void testAddIASISpectrum_3x1() throws ParseException, IOException, InvalidRangeException {
+    public void testAddIASISpectrum_3x1() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory("mmd03_3x1");
 
         writeConfiguration();

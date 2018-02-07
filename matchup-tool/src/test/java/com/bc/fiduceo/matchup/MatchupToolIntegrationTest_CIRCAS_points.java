@@ -38,13 +38,20 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_CIRCAS_location_extracts() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_CIRCAS_location_extracts() throws IOException, ParseException, SQLException {
+        final File mmdWriterConfig = new File(configDir, "mmd-writer-config.xml");
+        if (!mmdWriterConfig.delete()) {
+            fail("unable to delete test file");
+        }
+        TestUtil.writeMmdWriterConfig(configDir, MODIS_EXCLUDES_TAG);
+
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withLocationElement(-58.230045, 36.67764)
                 .createConfig();
@@ -109,4 +116,109 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "circas").getPath())
                 .withDimensions(dimensions);
     }
+
+    private static final String MODIS_EXCLUDES_TAG ="<variables-configuration> \n" +
+            "            <sensors names=\"mod06-te, myd06-aq\">\n" +
+            "            <exclude source-name=\"Solar_Zenith\"/>\n" +
+            "            <exclude source-name=\"Solar_Zenith_Day\"/>\n" +
+            "            <exclude source-name=\"Solar_Zenith_Night\"/>\n" +
+            "            <exclude source-name=\"Solar_Azimuth\"/>\n" +
+            "            <exclude source-name=\"Solar_Azimuth_Day\"/>\n" +
+            "            <exclude source-name=\"Solar_Azimuth_Night\"/>\n" +
+            "            <exclude source-name=\"Sensor_Zenith\"/>\n" +
+            "            <exclude source-name=\"Sensor_Zenith_Day\"/>\n" +
+            "            <exclude source-name=\"Sensor_Zenith_Night\"/>\n" +
+            "            <exclude source-name=\"Sensor_Azimuth\"/>\n" +
+            "            <exclude source-name=\"Sensor_Azimuth_Day\"/>\n" +
+            "            <exclude source-name=\"Sensor_Azimuth_Night\"/>\n" +
+            "            <exclude source-name=\"Surface_Temperature\"/>\n" +
+            "            <exclude source-name=\"Surface_Pressure\"/>\n" +
+            "            <exclude source-name=\"Cloud_Height_Method\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Height\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Height_Nadir\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Height_Nadir_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Height_Nadir_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Nadir\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Nadir_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Nadir_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature_Nadir\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature_Nadir_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Temperature_Nadir_Day\"/>\n" +
+            "            <exclude source-name=\"Tropopause_Height\"/>\n" +
+            "            <exclude source-name=\"Cloud_Fraction_Nadir\"/>\n" +
+            "            <exclude source-name=\"Cloud_Fraction_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Fraction_Nadir_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Fraction_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Fraction_Nadir_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity_Nadir\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity_Nadir_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Emissivity_Nadir_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Top_Pressure_Infrared\"/>\n" +
+            "            <exclude source-name=\"Radiance_Variance\"/>\n" +
+            "            <exclude source-name=\"Cloud_Phase_Infrared_Night\"/>\n" +
+            "            <exclude source-name=\"Cloud_Phase_Infrared_Day\"/>\n" +
+            "            <exclude source-name=\"Cloud_Phase_Infrared_1km\"/>\n" +
+            "            <exclude source-name=\"IRP_CTH_Consistency_Flag_1km\"/>\n" +
+            "            <exclude source-name=\"os_top_flag_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_top_pressure_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_top_height_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_top_temperature_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_emissivity_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_top_method_1km\"/>\n" +
+            "            <exclude source-name=\"surface_temperature_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_emiss11_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_emiss12_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_emiss13_1km\"/>\n" +
+            "            <exclude source-name=\"cloud_emiss85_1km\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_16_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_37\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_37_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_16_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_37\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_37_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_1621_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_1621_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_1621_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_16_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_37\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_37_PCL\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_Uncertainty\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_Uncertainty_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_Uncertainty_37\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_Uncertainty_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_Uncertainty_37\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_Uncertainty\"/>\n" +
+            "            <exclude source-name=\"Cloud_Effective_Radius_Uncertainty_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Optical_Thickness_Uncertainty_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_Uncertainty_1621\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_Uncertainty_16\"/>\n" +
+            "            <exclude source-name=\"Cloud_Water_Path_Uncertainty_37\"/>\n" +
+            "            <exclude source-name=\"Above_Cloud_Water_Vapor_094\"/>\n" +
+            "            <exclude source-name=\"IRW_Low_Cloud_Temperature_From_COP\"/>\n" +
+            "            <exclude source-name=\"Cloud_Phase_Optical_Properties\"/>\n" +
+            "            <exclude source-name=\"Cloud_Multi_Layer_Flag\"/>\n" +
+            "            <exclude source-name=\"Cirrus_Reflectance\"/>\n" +
+            "            <exclude source-name=\"Cirrus_Reflectance_Flag\"/>\n" +
+            "        </sensors>\n" +
+            "    </variables-configuration>";
 }

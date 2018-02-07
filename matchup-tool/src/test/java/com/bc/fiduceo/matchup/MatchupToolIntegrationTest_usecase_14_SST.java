@@ -141,7 +141,7 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
                                        "        </sensors>" +
                                        "    </variables-configuration>" +
                                        "</mmd-writer-config>";
-        TestUtil.writeMmdWriterConfig(configDir, writerConfigXml);
+        TestUtil.writeMmdWriterConfigFile(configDir, writerConfigXml);
 
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                     .withTimeDeltaSeconds(2100, null)

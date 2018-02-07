@@ -30,7 +30,12 @@ public class AddAmsr2ScanDataQualityPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        return new AddAmsr2ScanDataQuality();
+        final AddAmsr2ScanDataQuality.Configuration configuration = createConfiguration(element);
+
+        final AddAmsr2ScanDataQuality postProcessing = new AddAmsr2ScanDataQuality();
+        postProcessing.configure(configuration);
+        
+        return postProcessing;
     }
 
     @Override
@@ -39,11 +44,15 @@ public class AddAmsr2ScanDataQualityPlugin implements PostProcessingPlugin {
     }
 
     public static AddAmsr2ScanDataQuality.Configuration createConfiguration(Element rootElement) {
-        final Element childElement = JDomUtils.getMandatoryChild(rootElement, "target-variable");
-        final Attribute nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
-
         final AddAmsr2ScanDataQuality.Configuration configuration = new AddAmsr2ScanDataQuality.Configuration();
+
+        Element childElement = JDomUtils.getMandatoryChild(rootElement, "target-variable");
+        Attribute nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
         configuration.targetVariableName = nameAttribute.getValue().trim();
+
+        childElement = JDomUtils.getMandatoryChild(rootElement, "reference-variable");
+        nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
+        configuration.referenceVariableName = nameAttribute.getValue().trim();
 
         return configuration;
     }

@@ -167,10 +167,21 @@ public class TestUtil {
                 "    <netcdf-format>N4</netcdf-format>" +
                 "</mmd-writer-config>";
 
-        writeMmdWriterConfig(configDir, config);
+        writeMmdWriterConfigFile(configDir, config);
     }
 
-    public static void writeMmdWriterConfig(File configDir, String xml) throws IOException {
+    public static void writeMmdWriterConfig(File configDir, String additionalTags) throws IOException {
+        final String config = "<mmd-writer-config>" +
+                "    <overwrite>false</overwrite>" +
+                "    <cache-size>2048</cache-size>" +
+                "    <netcdf-format>N4</netcdf-format>" +
+                additionalTags +
+                "</mmd-writer-config>";
+
+        writeMmdWriterConfigFile(configDir, config);
+    }
+
+    public static void writeMmdWriterConfigFile(File configDir, String xml) throws IOException {
         final File propertiesFile = new File(configDir, "mmd-writer-config.xml");
         if (!propertiesFile.createNewFile()) {
             fail("unable to create test file: " + propertiesFile.getAbsolutePath());

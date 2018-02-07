@@ -48,7 +48,7 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(11, plugins.size());
+        assertEquals(12, plugins.size());
         /* 01 */
         assertTrue(plugins.containsKey("dummy-post-processing"));
         /* 02 */
@@ -71,6 +71,8 @@ public class PostProcessingFactoryTest {
         assertTrue(plugins.containsKey("caliop-level2-vfm-flags"));
         /* 11 */
         assertTrue(plugins.containsKey("caliop-sst-wp100-clay"));
+        /* 12 */
+        assertTrue(plugins.containsKey("add-amsr2-scan-data-quality"));
     }
 
     @Test

@@ -29,7 +29,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
 public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_overlappingTimes_noGeometryMatch() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_overlappingTimes_noGeometryMatch() throws IOException, ParseException, SQLException {
         insert_AMSRE();
         insert_Insitu("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc");
 
@@ -66,7 +66,7 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
     }
 
     @Test
-    public void testMatchup_noInsituDataInInterval() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_noInsituDataInInterval() throws IOException, ParseException, SQLException {
         insert_AMSRE();
         insert_Insitu("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
 
