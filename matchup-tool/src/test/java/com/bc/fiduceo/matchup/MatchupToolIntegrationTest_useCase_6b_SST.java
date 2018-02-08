@@ -46,7 +46,7 @@ public class MatchupToolIntegrationTest_useCase_6b_SST extends AbstractUsecaseIn
     @Test
     public void testMatchup() throws IOException, ParseException, SQLException {
         insert_AMSR2();
-        insert_Insitu("gtmba-sst", "insitu_3_WMOID_14040_20070113_20160717.nc");
+        insert_Insitu("gtmba-sst", "insitu_3_WMOID_99099_20130701_20130701.nc");
 
         final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
         final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(500000, null)
@@ -56,7 +56,7 @@ public class MatchupToolIntegrationTest_useCase_6b_SST extends AbstractUsecaseIn
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2013-181", "-end", "2013-183"};
         MatchupToolMain.main(args);
-//
+
 //        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
 //        assertFalse(mmdFile.isFile());
     }
