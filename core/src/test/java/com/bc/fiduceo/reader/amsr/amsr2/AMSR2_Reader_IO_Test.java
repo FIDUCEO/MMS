@@ -477,6 +477,34 @@ public class AMSR2_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScanDataQuality() throws IOException, InvalidRangeException {
+        final File file = getAmsr2File();
+
+        try {
+            reader.open(file);
+
+            Array scanDataQuality = reader.readScanDataQuality(12);
+            int[] shape = scanDataQuality.getShape();
+            assertEquals(512, shape[0]);
+
+            assertEquals(-36, scanDataQuality.getByte(0));
+            assertEquals(67, scanDataQuality.getByte(3));
+            assertEquals(3, scanDataQuality.getByte(6));
+
+            scanDataQuality = reader.readScanDataQuality(1596);
+            shape = scanDataQuality.getShape();
+            assertEquals(512, shape[0]);
+
+            assertEquals(0, scanDataQuality.getByte(9));
+            assertEquals(0, scanDataQuality.getByte(12));
+            assertEquals(66, scanDataQuality.getByte(15));
+
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getAmsr2File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2013", "07", "01", "GW1AM2_201307010942_035A_L1SGRTBR_2220220.h5"}, false);
         final File file = new File(testDataDirectory, testFilePath);

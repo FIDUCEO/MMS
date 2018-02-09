@@ -23,13 +23,10 @@ package com.bc.fiduceo.post.plugin;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
-
-import java.io.IOException;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -47,9 +44,9 @@ public class AddAmsr2ScanDataQualityTest {
     private NetcdfFileWriter writer;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         final AddAmsr2ScanDataQuality.Configuration configuration = new AddAmsr2ScanDataQuality.Configuration();
-        configuration.referenceVariableName = "amsr2-gcw1_lat";
+        configuration.filenameVariableName = "amsr2-gcw1_file_name";
         configuration.targetVariableName = "amsr2-gcw1_Scan_Data_Quality";
 
         plugin = new AddAmsr2ScanDataQuality();
@@ -60,7 +57,7 @@ public class AddAmsr2ScanDataQualityTest {
     }
 
     @Test
-    public void testPrepare() throws IOException, InvalidRangeException {
+    public void testPrepare() {
         final Dimension dimension = mock(Dimension.class);
         when(dimension.getLength()).thenReturn(107);
         when(reader.findDimension("matchup_count")).thenReturn(dimension);
@@ -73,12 +70,13 @@ public class AddAmsr2ScanDataQualityTest {
         verify(reader, times(1)).findDimension("matchup_count");
         verifyNoMoreInteractions(reader);
 
+        verify(writer, times(1)).addDimension(null, "scan_data_quality", 512);
         verify(writer, times(1)).addVariable(eq(null), eq("amsr2-gcw1_Scan_Data_Quality"), eq(DataType.BYTE), anyList());
         verifyNoMoreInteractions(writer);
     }
 
     @Test
-    public void testPrepare_missingInputVariable() throws IOException, InvalidRangeException {
+    public void testPrepare_missingInputVariable() {
         try {
             plugin.prepare(reader, writer);
             fail("RuntimeException expected");

@@ -34,7 +34,9 @@ import static org.junit.Assert.*;
 public class AddAmsr2ScanDataQualityPluginTest {
 
     private static final String FULL_CONFIG = "<add-amsr2-scan-data-quality>" +
-            "    <reference-variable name = \"amsr2-gcw1_longitude\" />" +
+            "    <filename-variable name = \"amsr2-gcw1_file_name\" />" +
+            "    <processing-version-variable name = \"amsr2-gcw1_processing_version\" />" +
+            "    <y-variable name = \"amsr2-gcw1_y\" />" +
             "    <target-variable name = \"amsr2-gcw1_Scan_Data_Quality\" />" +
             "</add-amsr2-scan-data-quality>";
 
@@ -93,6 +95,8 @@ public class AddAmsr2ScanDataQualityPluginTest {
         final AddAmsr2ScanDataQuality.Configuration configuration = AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
         assertNotNull(configuration);
         assertEquals("amsr2-gcw1_Scan_Data_Quality", configuration.targetVariableName);
-        assertEquals("amsr2-gcw1_longitude", configuration.referenceVariableName);
+        assertEquals("amsr2-gcw1_file_name", configuration.filenameVariableName);
+        assertEquals("amsr2-gcw1_processing_version", configuration.processingVersionVariableName);
+        assertEquals("amsr2-gcw1_y", configuration.yCoordinateVariableName);
     }
 }

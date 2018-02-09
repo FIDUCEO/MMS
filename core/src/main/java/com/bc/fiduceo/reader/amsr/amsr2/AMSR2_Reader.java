@@ -219,6 +219,15 @@ public class AMSR2_Reader implements Reader {
         return LAT_VARIABLE_NAME;
     }
 
+    public Array readScanDataQuality(int scanNumber) throws IOException, InvalidRangeException {
+        final Array scanDataQuality = arrayCache.get("Scan_Data_Quality");
+
+        final int[] origin = new int[] {scanNumber, 0};
+        final int[] shape = new int[] {1, 512};
+
+        return scanDataQuality.section(origin, shape).copy();
+    }
+
     // package access for testing only tb 2018-01-15
     static ProductData.UTC getUtcDate(Attribute attribute) throws IOException {
         final String stringValue = attribute.getStringValue();

@@ -35,7 +35,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ class AddIASISpectrum extends PostProcessing {
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Variable referenceVariable = NetCDFUtils.getVariable(reader, configuration.referenceVariableName);
         final List<ucar.nc2.Dimension> dimensions = referenceVariable.getDimensions();
 
@@ -173,7 +173,7 @@ class AddIASISpectrum extends PostProcessing {
     // @todo 2 tb/** make static and add test 2017-06-14
     private void copySpectrumToTargetArray(ArrayFloat.D4 writeArray, int yWriteIndex, int xWriteIndex, Array spectrum) {
         // @todo 2 tb/** check if there exists a method to copy the vector in one run 2017-06-14
-        for (int k = 0; k < EpsMetopConstants.SS; k++ ) {
+        for (int k = 0; k < EpsMetopConstants.SS; k++) {
             final float spectrumValue = spectrum.getFloat(k);
             writeArray.set(0, yWriteIndex, xWriteIndex, k, spectrumValue);
         }

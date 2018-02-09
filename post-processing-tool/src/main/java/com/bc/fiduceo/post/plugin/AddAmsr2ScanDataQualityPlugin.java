@@ -50,9 +50,17 @@ public class AddAmsr2ScanDataQualityPlugin implements PostProcessingPlugin {
         Attribute nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
         configuration.targetVariableName = nameAttribute.getValue().trim();
 
-        childElement = JDomUtils.getMandatoryChild(rootElement, "reference-variable");
+        childElement = JDomUtils.getMandatoryChild(rootElement, "filename-variable");
         nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
-        configuration.referenceVariableName = nameAttribute.getValue().trim();
+        configuration.filenameVariableName = nameAttribute.getValue().trim();
+
+        childElement = JDomUtils.getMandatoryChild(rootElement, "processing-version-variable");
+        nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
+        configuration.processingVersionVariableName = nameAttribute.getValue().trim();
+
+        childElement = JDomUtils.getMandatoryChild(rootElement, "y-variable");
+        nameAttribute = JDomUtils.getMandatoryAttribute(childElement, "name");
+        configuration.yCoordinateVariableName = nameAttribute.getValue().trim();
 
         return configuration;
     }
