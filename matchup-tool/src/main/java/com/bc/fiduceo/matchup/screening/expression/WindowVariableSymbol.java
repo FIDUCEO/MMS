@@ -61,7 +61,6 @@ class WindowVariableSymbol implements Symbol {
 
     @Override
     public int evalI(EvalEnv env) throws EvalException {
-        // @todo 1 tb/tb write test 2017-03-24
         final Array array = fetchPixel((WindowReaderEvalEnv) env);
         final int intValue = array.getInt(array.getIndex());
         if (intValue == fillValue.intValue()) {
