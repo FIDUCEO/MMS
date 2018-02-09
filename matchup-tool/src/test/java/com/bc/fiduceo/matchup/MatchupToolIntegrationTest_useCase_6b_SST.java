@@ -20,15 +20,19 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,102 +41,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_6b_SST extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup() throws IOException, ParseException, SQLException {
+    public void testMatchup() throws IOException, ParseException, SQLException, InvalidRangeException {
         insert_AMSR2();
         insert_Insitu("gtmba-sst", "insitu_3_WMOID_99099_20130701_20130701.nc");
 
         final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(500000, null)
-                .withMaxPixelDistanceKm(120.f, null)
+        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
+                .withMaxPixelDistanceKm(12.f, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6b_sst.xml");
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2013-181", "-end", "2013-183"};
         MatchupToolMain.main(args);
 
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
-//        assertFalse(mmdFile.isFile());
-    }
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2013-181", "2013-183");
+        assertTrue(mmdFile.isFile());
 
-//    @Test
-//    public void testMatchup_noInsituDataInInterval() throws IOException, ParseException, SQLException {
-//        insert_AMSRE();
-//        insert_Insitu("drifter-sst", "insitu_0_WMOID_46942_19951026_19951027.nc");
-//
-//        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-//        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(3600, null)
-//                .withMaxPixelDistanceKm(1.41f, null)
-//                .createConfig();
-//        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
-//        assertFalse(mmdFile.isFile());
-//    }
-//
-//    @Test
-//    public void testMatchup_drifter() throws IOException, ParseException, SQLException, InvalidRangeException {
-//        insert_AMSRE();
-//        insert_Insitu("drifter-sst", "insitu_0_WMOID_71612_20040223_20151010.nc");
-//
-//        final MatchupToolTestUseCaseConfigBuilder useCaseConfigBuilder = createUseCaseConfigBuilder();
-//        final UseCaseConfig useCaseConfig = useCaseConfigBuilder.withTimeDeltaSeconds(43200, null)
-//                .withMaxPixelDistanceKm(6.f, null)
-//                .createConfig();
-//        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-6c_sst.xml");
-//
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2005-048", "-end", "2005-048"};
-//        MatchupToolMain.main(args);
-//
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2005-048", "2005-048");
-//        assertTrue(mmdFile.isFile());
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
-//            assertEquals(1, matchupCount);
-//
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 0, 0, 0, -22297, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 1, 0, 0, -15307, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 2, 0, 0, -17409, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_18_7V_Res_1_TB", 3, 0, 0, -12157, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_23_8H_Res_1_TB", 4, 0, 0, -12691, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_23_8V_Res_1_TB", 0, 1, 0, -9726, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_36_5H_Res_1_TB", 1, 1, 0, -11837, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_36_5V_Res_1_TB", 2, 1, 0, -8744, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_6_9H_Res_1_TB", 3, 1, 0, -23637, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_6_9V_Res_1_TB", 4, 1, 0, -16271, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_89_0H_Res_1_TB", 0, 2, 0, -6233, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_89_0V_Res_1_TB", 1, 2, 0, -5851, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Channel_Quality_Flag_10H", 2, 2, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Latitude", 3, 2, 0, -1051, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Geostationary_Reflection_Longitude", 4, 2, 0, -1363, mmd);
-//            NCTestUtils.assert3DVariable("amsre-aq_Sun_Glint_Angle", 0, 3, 0, 1406, mmd);
-//
-//            NCTestUtils.assert3DVariable("drifter-sst_acquisition_time", 0, 0, 0, 1108599012, mmd);
-//            NCTestUtils.assertStringVariable("drifter-sst_file_name", 0, "insitu_0_WMOID_71612_20040223_20151010.nc", mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.lat", 0, 0, 0, -51.040000915527344, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.lon", 0, 0, 0, 18.610000610351562, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.mohc_id", 0, 0, 0, 392166, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sea_surface_temperature", 0, 0, 0, 1.7000000476837158, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_depth", 0, 0, 0, 0.2, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_qc_flag", 0, 0, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_track_flag", 0, 0, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.sst_uncertainty", 0, 0, 0, 0.389, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.time", 0, 0, 0, 856138212, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sst_insitu.id", 0, 0, 0, 2005020000392166L, mmd);
-//            NCTestUtils.assertVectorVariable("drifter-sst_x", 0, 0, mmd);
-//            NCTestUtils.assertVectorVariable("drifter-sst_y", 0, 8485, mmd);
-//        }
-//    }
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(5, matchupCount);
+
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Area_Mean_Height", 0, 0, 0, 0.0, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Brightness_Temperature_(res06,6.9GHz,H)", 1, 0, 1, 8868, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Brightness_Temperature_(res10,36.5GHz,V)", 2, 0, 2, 22494, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Brightness_Temperature_(res23,89.0GHz,H)", 3, 0, 3, 24975, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Earth_Azimuth", 4, 0, 4, 16793, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Land_Ocean_Flag_36", 0, 1, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Scan_Time", 1, 1, 1, 6.468264070538166E8, mmd);
+            NCTestUtils.assert3DVariable("amsr2-gcw1_Sun_Elevation", 2, 1, 2, -1049, mmd);
+        }
+    }
 
     private void insert_AMSR2() throws IOException, SQLException {
         final String sensorKey = "amsr2-gcw1";
@@ -145,9 +89,9 @@ public class MatchupToolIntegrationTest_useCase_6b_SST extends AbstractUsecaseIn
     }
 
     private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "v04.0", fileName}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "vFake", fileName}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation insitu = readSatelliteObservation("gtmba-sst", absolutePath, "v04.0");
+        final SatelliteObservation insitu = readSatelliteObservation("gtmba-sst", absolutePath, "vFake");
         storage.insert(insitu);
     }
 
