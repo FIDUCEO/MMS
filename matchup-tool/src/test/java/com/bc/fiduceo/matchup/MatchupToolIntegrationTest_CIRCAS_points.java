@@ -20,15 +20,18 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +48,7 @@ import static org.junit.Assert.fail;
 public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_CIRCAS_location_extracts() throws IOException, ParseException, SQLException {
+    public void testMatchup_CIRCAS_location_extracts() throws IOException, ParseException, SQLException, InvalidRangeException {
         final File mmdWriterConfig = new File(configDir, "mmd-writer-config.xml");
         if (!mmdWriterConfig.delete()) {
             fail("unable to delete test file");
@@ -65,32 +68,23 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
         final File mmdFile = getMmdFilePath(useCaseConfig, "2013-036", "2013-038");
         assertTrue(mmdFile.isFile());
 
-        // @todo 1 tb/tb more assertions here 2018-01-10
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
-//            assertEquals(10, matchupCount);
-//
-//            NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 0, 899425, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_Longitude", 0, 0, 1, 595288, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_Satellite_azimuth_angle", 0, 0, 2, 5531, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_Satellite_zenith_angle", 0, 0, 3, 5503, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_Solar_azimuth_angle", 0, 0, 4, 7118, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_Solar_zenith_angle", 0, 0, 5, 7856, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_acquisition_time", 0, 0, 6, 1314060561, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch1", 0, 0, 7, 21296, mmd);
-//            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch2", 0, 0, 8, 24782, mmd);
-//
-//            NCTestUtils.assert3DVariable("ocean-rain-sst_acquisition_time", 0, 0, 0, 1314060300, mmd);
-//            NCTestUtils.assertStringVariable("ocean-rain-sst_file_name", 1, "OceanRAIN_allships_2010-2017_SST.ascii", mmd);
-//            NCTestUtils.assert3DVariable("ocean-rain-sst_lat", 0, 0, 2, 89.93270111083984, mmd);
-//            NCTestUtils.assert3DVariable("ocean-rain-sst_lon", 0, 0, 3, 62.43450164794922, mmd);
-//            NCTestUtils.assertStringVariable("ocean-rain-sst_processing_version", 30, 4, "v1.0", mmd);
-//            NCTestUtils.assert3DVariable("ocean-rain-sst_sst", 0, 0, 5, -1.600000023841858, mmd);
-//            NCTestUtils.assert3DVariable("ocean-rain-sst_time", 0, 0, 6, 1314060660, mmd);
-//            NCTestUtils.assertVectorVariable("ocean-rain-sst_x", 7, 0, mmd);
-//            NCTestUtils.assertVectorVariable("ocean-rain-sst_y", 8, 549953, mmd);
-//        }
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(1, matchupCount);
+
+            NCTestUtils.assert3DVariable("mod06-te_Cloud_Fraction", 0, 0, 0, 28, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Cloud_Mask_5km", 0, 0, 0, 16277, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Cloud_Optical_Thickness", 0, 0, 0, -9999, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Cloud_Optical_Thickness_Uncertainty", 0, 0, 0, -9999, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Cloud_Phase_Infrared", 0, 0, 0, 1, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Latitude", 0, 0, 0, 36.67763900756836, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Longitude", 0, 0, 0, -58.230045318603516, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Quality_Assurance_5km_03", 0, 0, 0, 7, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Quality_Assurance_5km_04", 0, 0, 0, 18, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Quality_Assurance_5km_05", 0, 0, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("mod06-te_Quality_Assurance_5km_09", 0, 0, 0, -53, mmd);
+        }
     }
 
     private void insert_MOD06_Terra() throws IOException, SQLException {
