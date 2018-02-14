@@ -62,10 +62,13 @@ class SstInsituTimeSeries extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         sensorType = extractSensorType(reader, configuration);
-        fileNameVariable = getFileNameVariable(reader, sensorType, "_");
+        fileNameVariable = getFileNameVariable(reader, sensorType, configuration);
+
         filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
+
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
+
         final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), configuration.processingVersion);
         addInsituVariables(writer, insituReader);
     }
@@ -125,7 +128,7 @@ class SstInsituTimeSeries extends PostProcessing {
         if (StringUtils.isNotNullAndNotEmpty(configuration.insituSensorName)) {
             return configuration.insituSensorName;
         }
-        
+
         final List<Variable> variables = reader.getVariables();
         for (Variable variable : variables) {
             final String shortName = variable.getShortName();
@@ -135,6 +138,14 @@ class SstInsituTimeSeries extends PostProcessing {
             }
         }
         throw new RuntimeException("Unable to extract sensor type.");
+    }
+
+    static Variable getFileNameVariable(NetcdfFile reader, final String sensorType, Configuration configuration) {
+        if (StringUtils.isNullOrEmpty(configuration.fileNameVariableName)) {
+            return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
+        }
+
+        return NetCDFUtils.getVariable(reader, configuration.fileNameVariableName);
     }
 
     Range computeInsituRange(final int matchupPos, SSTInsituReader insituReader) {
@@ -234,5 +245,6 @@ class SstInsituTimeSeries extends PostProcessing {
         int timeSeriesSize;
         String matchupTimeVarName;
         String insituSensorName;
+        String fileNameVariableName;
     }
 }

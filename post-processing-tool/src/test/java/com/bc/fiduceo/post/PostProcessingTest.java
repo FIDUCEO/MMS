@@ -19,13 +19,8 @@
 
 package com.bc.fiduceo.post;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
@@ -35,12 +30,18 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class PostProcessingTest {
 
     private PostProcessing postProcessing;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         postProcessing = new PostProcessing() {
             @Override
             protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
@@ -48,69 +49,19 @@ public class PostProcessingTest {
             }
 
             @Override
-            protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+            protected void compute(NetcdfFile reader, NetcdfFileWriter writer) {
 
             }
         };
     }
 
     @Test
-    public void testContextProperty() throws Exception {
+    public void testContextProperty() {
         final PostProcessingContext context = new PostProcessingContext();
 
         postProcessing.setContext(context);
 
         assertSame(context, postProcessing.getContext());
-    }
-
-    @Test
-    public void getFileNameVariable_Success() throws IOException {
-        final NetcdfFile reader = mock(NetcdfFile.class);
-        final Variable expectedVariable = mock(Variable.class);
-        when(reader.findVariable(null, "sensor-name_file_name")).thenReturn(expectedVariable);
-
-        //action
-        final Variable fileNameVariable = PostProcessing.getFileNameVariable(reader, "sensor-name", "_");
-
-        assertSame(expectedVariable, fileNameVariable);
-    }
-
-    @Test
-    public void getFileNameVariable_VariableDoesNotExist() throws IOException {
-        final NetcdfFile reader = mock(NetcdfFile.class);
-
-        try {
-            PostProcessing.getFileNameVariable(reader, "sensor-name", "_");
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is(equalTo("Input Variable 'sensor-name_file_name' not present in input file")));
-            assertThat(expected.getClass(), is(equalTo(RuntimeException.class)));
-        }
-    }
-
-    @Test
-    public void getProcessingVersionVariable_Success() throws IOException {
-        final NetcdfFile reader = mock(NetcdfFile.class);
-        final Variable expectedVariable = mock(Variable.class);
-        when(reader.findVariable(null, "sensor-name_processing_version")).thenReturn(expectedVariable);
-
-        //action
-        final Variable processingVersionVariable = PostProcessing.getProcessingVersionVariable(reader, "sensor-name", "_");
-
-        assertSame(expectedVariable, processingVersionVariable);
-    }
-
-    @Test
-    public void getProcessingVersionVariable_VariableDoesNotExist() throws IOException {
-        final NetcdfFile reader = mock(NetcdfFile.class);
-
-        try {
-            PostProcessing.getProcessingVersionVariable(reader, "sensor-name", "_");
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage(), is(equalTo("Input Variable 'sensor-name_processing_version' not present in input file")));
-            assertThat(expected.getClass(), is(equalTo(RuntimeException.class)));
-        }
     }
 
     @Test
@@ -134,7 +85,7 @@ public class PostProcessingTest {
         final String fileNamePattern = ".*_\\d{8}_\\d{8}.nc";
         final String invalidFileName = "invalid_file_name_12345678.nc";
         final String expectedErrorMessage =
-                    "The file name '" + invalidFileName + "' does not match the regular expression '" + fileNamePattern + "'";
+                "The file name '" + invalidFileName + "' does not match the regular expression '" + fileNamePattern + "'";
 
         final Array array = mock(Array.class);
         final Variable fileNameVariable = mock(Variable.class);

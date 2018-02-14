@@ -35,6 +35,7 @@ import java.util.Collections;
 
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.INSITU_NTIME;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -57,7 +58,7 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void extractSensorType() {
+    public void testExtractSensorType() {
         final Variable variable = mock(Variable.class);
         when(variable.getShortName()).thenReturn("sensor-name_insitu.sonstwas");
 
@@ -69,7 +70,7 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void extractSensorType_fromConfiguration() {
+    public void testExtractSensorType_fromConfiguration() {
         configuration.insituSensorName = "the_one_we_want";
 
         final String sensorType = SstInsituTimeSeries.extractSensorType(reader, configuration);
@@ -78,7 +79,7 @@ public class SstInsituTimeSeriesTest {
     }
 
     @Test
-    public void extractSensorType_DoesNotContainVariablesWithNameContaining_insituDot() {
+    public void testExtractSensorType_DoesNotContainVariablesWithNameContaining_insituDot() {
         final Variable v1 = mock(Variable.class);
         when(v1.getShortName()).thenReturn("DontContainInsituWithUnderscoreAndDot_1");
 
@@ -95,9 +96,40 @@ public class SstInsituTimeSeriesTest {
         }
     }
 
+    @Test
+    public void testGetFileNameVariable() {
+        final Variable variable = mock(Variable.class);
+
+        when(reader.findVariable(null, "sensor-name_file_name")).thenReturn(variable);
+
+        final Variable fileNameVariable = SstInsituTimeSeries.getFileNameVariable(reader, "sensor-name", configuration);
+
+        assertSame(variable, fileNameVariable);
+    }
 
     @Test
-    public void addInsituVariables() throws Exception {
+    public void testGetFileNameVariable_notInFile() {
+        try {
+            SstInsituTimeSeries.getFileNameVariable(reader, "sensor-name", configuration);
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetFileNameVariable_fromConfig() {
+        configuration.fileNameVariableName = "from_config_variable";
+        final Variable variable = mock(Variable.class);
+
+        when(reader.findVariable(null, "from_config_variable")).thenReturn(variable);
+
+        final Variable fileNameVariable = SstInsituTimeSeries.getFileNameVariable(reader, "don't care", configuration);
+
+        assertSame(variable, fileNameVariable);
+    }
+
+
+    @Test
+    public void testAddInsituVariables() throws Exception {
         final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
         configuration.processingVersion = "v123";
         configuration.timeRangeSeconds = 234;

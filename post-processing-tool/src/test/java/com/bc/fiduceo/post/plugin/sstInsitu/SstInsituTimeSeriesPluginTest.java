@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_FILE_NAME_VARIABLE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_INSITU_SENSOR;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
@@ -108,6 +109,25 @@ public class SstInsituTimeSeriesPluginTest {
     @Test
     public void testParseConfiguration_withSensorName_emptyTag() {
         element.addContent(new Element(TAG_NAME_INSITU_SENSOR));
+
+        try {
+            SstInsituTimeSeriesPlugin.parseConfiguration(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testParseConfiguration_withFileName() {
+        element.addContent(new Element(TAG_NAME_FILE_NAME_VARIABLE).addContent("the_data_file"));
+
+        final SstInsituTimeSeries.Configuration configuration = SstInsituTimeSeriesPlugin.parseConfiguration(element);
+        assertEquals("the_data_file", configuration.fileNameVariableName);
+    }
+
+    @Test
+    public void testParseConfiguration_withFileName_emptyTag() {
+        element.addContent(new Element(TAG_NAME_FILE_NAME_VARIABLE));
 
         try {
             SstInsituTimeSeriesPlugin.parseConfiguration(element);
