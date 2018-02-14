@@ -83,7 +83,7 @@ public class MatchupToolTest {
 
         matchupTool.printUsageTo(outputStream);
 
-        assertEquals("matchup-tool version 1.3.8-SNAPSHOT" + ls +
+        assertEquals("matchup-tool version 1.3.8" + ls +
                 ls +
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
@@ -341,7 +341,7 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCreateExtraVariables() throws Exception {
+    public void testCreateExtraVariables() {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
@@ -421,7 +421,7 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCreateExtraVariables_sensorRename() throws Exception {
+    public void testCreateExtraVariables_sensorRename() {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
@@ -450,7 +450,7 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCreateExtraVariables_variableRenaming() throws Exception {
+    public void testCreateExtraVariables_variableRenaming() {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
