@@ -30,28 +30,43 @@ public class SstInsituTimeSeriesPlugin implements PostProcessingPlugin {
     static final String TAG_NAME_VERSION = "version";
     static final String TAG_NAME_TIME_RANGE_SECONDS = "time-range-in-seconds";
     static final String TAG_NAME_TIME_SERIES_SIZE = "time-series-size";
+    static final String TAG_NAME_INSITU_SENSOR = "insitu-sensor";
     static final String TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE = "secondary-sensor-matchup-time-variable";
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        if (!getPostProcessingName().equals(element.getName())) {
-            throw new RuntimeException("Illegal XML Element. Tagname '" + getPostProcessingName() + "' expected.");
-        }
-        final String processingVersion = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_VERSION);
+        final SstInsituTimeSeries.Configuration configuration = parseConfiguration(element);
 
-        final String timeRange = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_RANGE_SECONDS);
-        final int timeRangeSeconds = Integer.parseInt(timeRange);
-
-        final String seriesSize = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_SERIES_SIZE);
-        final int timeSeriesSize = Integer.parseInt(seriesSize);
-
-        final String matchupTimeVarName = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE);
-
-        return new SstInsituTimeSeries(processingVersion, timeRangeSeconds, timeSeriesSize, matchupTimeVarName);
+        return new SstInsituTimeSeries(configuration);
     }
 
     @Override
     public String getPostProcessingName() {
         return TAG_NAME_SST_INSITU_TIME_SERIES;
+    }
+
+    // package access for testing only tb 2018-02-14
+    static SstInsituTimeSeries.Configuration parseConfiguration(Element element) {
+        if (!TAG_NAME_SST_INSITU_TIME_SERIES.equals(element.getName())) {
+            throw new RuntimeException("Illegal XML Element. Tagname '" + TAG_NAME_SST_INSITU_TIME_SERIES + "' expected.");
+        }
+
+        final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
+        configuration.processingVersion = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_VERSION);
+
+        final String timeRange = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_RANGE_SECONDS);
+        configuration.timeRangeSeconds = Integer.parseInt(timeRange);
+
+        final String seriesSize = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_TIME_SERIES_SIZE);
+        configuration.timeSeriesSize = Integer.parseInt(seriesSize);
+
+        configuration.matchupTimeVarName = JDomUtils.getMandatoryChildMandatoryTextTrim(element, TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE);
+
+        final Element insituSensorElement = element.getChild(TAG_NAME_INSITU_SENSOR);
+        if (insituSensorElement != null) {
+            configuration.insituSensorName = JDomUtils.getMandatoryText(insituSensorElement);
+        }
+
+        return configuration;
     }
 }

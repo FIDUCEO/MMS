@@ -19,16 +19,11 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.INSITU_NTIME;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.reader.Reader;
 import com.beust.jcommander.internal.Lists;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -38,34 +33,62 @@ import ucar.nc2.Variable;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.INSITU_NTIME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 public class SstInsituTimeSeriesTest {
 
+    private NetcdfFile reader;
+    private SstInsituTimeSeries.Configuration configuration;
+
+    @Before
+    public void setUp() {
+        reader = mock(NetcdfFile.class);
+        configuration = new SstInsituTimeSeries.Configuration();
+    }
+
     @Test
-    public void extractSensorType_Success() throws Exception {
+    public void extractSensorType() {
         final Variable variable = mock(Variable.class);
         when(variable.getShortName()).thenReturn("sensor-name_insitu.sonstwas");
 
-        final NetcdfFile reader = mock(NetcdfFile.class);
         when(reader.getVariables()).thenReturn(Collections.singletonList(variable));
 
-        final String sensorType = SstInsituTimeSeries.extractSensorType(reader);
+        final String sensorType = SstInsituTimeSeries.extractSensorType(reader, configuration);
 
         assertEquals("sensor-name", sensorType);
     }
 
     @Test
-    public void extractSensorType_DoesNotContainVariablesWithNameContainig_insituDot() throws Exception {
+    public void extractSensorType_fromConfiguration() {
+        configuration.insituSensorName = "the_one_we_want";
+
+        final String sensorType = SstInsituTimeSeries.extractSensorType(reader, configuration);
+
+        assertEquals("the_one_we_want", sensorType);
+    }
+
+    @Test
+    public void extractSensorType_DoesNotContainVariablesWithNameContaining_insituDot() {
         final Variable v1 = mock(Variable.class);
         when(v1.getShortName()).thenReturn("DontContainInsituWithUnderscoreAndDot_1");
 
         final Variable v2 = mock(Variable.class);
         when(v2.getShortName()).thenReturn("DontContainInsituWithUnderscoreAndDot_2");
 
-        final NetcdfFile reader = mock(NetcdfFile.class);
         when(reader.getVariables()).thenReturn(Arrays.asList(v1, v2));
 
         try {
-            SstInsituTimeSeries.extractSensorType(reader);
+            SstInsituTimeSeries.extractSensorType(reader, configuration);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("Unable to extract sensor type.", expected.getMessage());
@@ -75,7 +98,12 @@ public class SstInsituTimeSeriesTest {
 
     @Test
     public void addInsituVariables() throws Exception {
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v123", 234, 34, "matchupTimeVarName");
+        final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
+        configuration.processingVersion = "v123";
+        configuration.timeRangeSeconds = 234;
+        configuration.timeSeriesSize = 34;
+        configuration.matchupTimeVarName = "matchupTimeVarName";
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries(configuration);
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
 

@@ -19,20 +19,29 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.PostProcessingPlugin;
+import org.jdom.Element;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_INSITU_SENSOR;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
-import com.bc.fiduceo.post.PostProcessing;
-import com.bc.fiduceo.post.PostProcessingPlugin;
-import org.jdom.Element;
-import org.junit.*;
-
-import java.util.Arrays;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class SstInsituTimeSeriesPluginTest {
 
@@ -40,7 +49,7 @@ public class SstInsituTimeSeriesPluginTest {
     private Element element;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         plugin = new SstInsituTimeSeriesPlugin();
         element = new Element(TAG_NAME_SST_INSITU_TIME_SERIES).addContent(Arrays.asList(
                 new Element(TAG_NAME_VERSION).addContent("v03.3"),
@@ -51,33 +60,59 @@ public class SstInsituTimeSeriesPluginTest {
     }
 
     @Test
-    public void testThatPluginImplementsInterfacePostProcessingPlugin() throws Exception {
+    public void testThatPluginImplementsInterfacePostProcessingPlugin() {
         assertThat(plugin, instanceOf(PostProcessingPlugin.class));
     }
 
     @Test
-    public void testThatPluginReturnsASstInsituTimeSeriesPostProcessing() throws Exception {
+    public void testThatPluginReturnsASstInsituTimeSeriesPostProcessing() {
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
 
         assertThat(postProcessing, is(not(nullValue())));
         assertThat(postProcessing, instanceOf(PostProcessing.class));
         assertThat(postProcessing, instanceOf(SstInsituTimeSeries.class));
-        final SstInsituTimeSeries insituTimeSeries = (SstInsituTimeSeries) postProcessing;
-        // @todo 3 tb/** use configuration class instead of checking fields of prost-processing 2016-12-23
-        assertThat(insituTimeSeries.processingVersion, is(equalTo("v03.3")));
-        assertThat(insituTimeSeries.timeRangeSeconds, is(equalTo(36 * 60 * 60)));
-        assertThat(insituTimeSeries.timeSeriesSize, is(equalTo(96)));
-        assertThat(insituTimeSeries.matchupTimeVarName, is(equalTo("amsre.acquisition_time")));
     }
 
     @Test
-    public void chreatePostProcessing_throwsExceptionIfTheNameOfTheRootElementIsWrong() throws Exception {
+    public void createPostProcessing_throwsExceptionIfTheNameOfTheRootElementIsWrong() {
         try {
             plugin.createPostProcessing(new Element("wrongName"));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertThat(expected.getMessage(), is(equalTo("Illegal XML Element. Tagname '" + plugin.getPostProcessingName() + "' expected.")));
         }
+    }
 
+    @Test
+    public void testParseConfiguration() {
+        final SstInsituTimeSeries.Configuration configuration = SstInsituTimeSeriesPlugin.parseConfiguration(element);
+        assertEquals("v03.3", configuration.processingVersion);
+        assertEquals(36 * 60 * 60, configuration.timeRangeSeconds);
+        assertEquals(96, configuration.timeSeriesSize);
+        assertEquals("amsre.acquisition_time", configuration.matchupTimeVarName);
+        assertNull(configuration.insituSensorName);
+    }
+
+    @Test
+    public void testParseConfiguration_withSensorName() {
+        element.addContent(new Element(TAG_NAME_INSITU_SENSOR).addContent("bottle-sst"));
+
+        final SstInsituTimeSeries.Configuration configuration = SstInsituTimeSeriesPlugin.parseConfiguration(element);
+        assertEquals("v03.3", configuration.processingVersion);
+        assertEquals(36 * 60 * 60, configuration.timeRangeSeconds);
+        assertEquals(96, configuration.timeSeriesSize);
+        assertEquals("amsre.acquisition_time", configuration.matchupTimeVarName);
+        assertEquals("bottle-sst", configuration.insituSensorName);
+    }
+
+    @Test
+    public void testParseConfiguration_withSensorName_emptyTag() {
+        element.addContent(new Element(TAG_NAME_INSITU_SENSOR));
+
+        try {
+            SstInsituTimeSeriesPlugin.parseConfiguration(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

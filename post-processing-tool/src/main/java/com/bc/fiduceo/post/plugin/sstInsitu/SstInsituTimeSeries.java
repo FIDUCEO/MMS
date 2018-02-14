@@ -19,15 +19,12 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-import static ucar.nc2.NetcdfFile.makeValidCDLName;
-
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.util.NetCDFUtils;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -41,37 +38,35 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
+import static ucar.nc2.NetcdfFile.makeValidCDLName;
+
 class SstInsituTimeSeries extends PostProcessing {
 
     private static final String FILE_NAME_PATTERN_D8_D8_NC = ".*_\\d{8}_\\d{8}.nc";
     static final String INSITU_NTIME = "insitu.ntime";
 
-    // @todo 3 tb/** maybe move this to a configuration class? 2016-12-23
-    final String processingVersion;
-    final int timeRangeSeconds;
-    final int timeSeriesSize;
-    final String matchupTimeVarName;
+    private final Configuration configuration;
 
     private int matchupCount;
     private String sensorType;
     private Variable fileNameVariable;
     private int filenameFieldSize;
 
-    SstInsituTimeSeries(String processingVersion, int timeRangeSeconds, int timeSeriesSize, String matchupTimeVarName) {
-        this.processingVersion = processingVersion;
-        this.timeRangeSeconds = timeRangeSeconds;
-        this.timeSeriesSize = timeSeriesSize;
-        this.matchupTimeVarName = matchupTimeVarName;
+    SstInsituTimeSeries(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        sensorType = extractSensorType(reader);
+        sensorType = extractSensorType(reader, configuration);
         fileNameVariable = getFileNameVariable(reader, sensorType, "_");
         filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
         matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
-        final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
+        final Reader insituReader = readerCache.getReaderFor(sensorType, Paths.get(insituFileName), configuration.processingVersion);
         addInsituVariables(writer, insituReader);
     }
 
@@ -81,7 +76,7 @@ class SstInsituTimeSeries extends PostProcessing {
         final int[] y1D = (int[]) yVariable1D.read().getStorage();
         final Variable yVariable2D = writer.findVariable(makeValidCDLName("insitu.y"));
 
-        final Variable satMatchupVar = NetCDFUtils.getVariable(reader, matchupTimeVarName);
+        final Variable satMatchupVar = NetCDFUtils.getVariable(reader, configuration.matchupTimeVarName);
         final int[] satMatchupShape = satMatchupVar.getShape();
         final int xIdx = satMatchupShape[2] / 2;
         final int yIdx = satMatchupShape[1] / 2;
@@ -95,7 +90,7 @@ class SstInsituTimeSeries extends PostProcessing {
 
         for (int i = 0; i < matchupCount; i++) {
             final String insituFileName = getSourceFileName(fileNameVariable, i, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
-            final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getReaderFor(sensorType, Paths.get(insituFileName), processingVersion);
+            final SSTInsituReader insituReader = (SSTInsituReader) readerCache.getReaderFor(sensorType, Paths.get(insituFileName), configuration.processingVersion);
             Range range = computeInsituRange(y1D[i], insituReader);
             final int[] origin1D = {range.min};
             final int timeSeriesLength = getTimeSeriesLength(range);
@@ -126,7 +121,11 @@ class SstInsituTimeSeries extends PostProcessing {
         readerCache = createReaderCache(getContext());
     }
 
-    static String extractSensorType(NetcdfFile reader) {
+    static String extractSensorType(NetcdfFile reader, Configuration configuration) {
+        if (StringUtils.isNotNullAndNotEmpty(configuration.insituSensorName)) {
+            return configuration.insituSensorName;
+        }
+        
         final List<Variable> variables = reader.getVariables();
         for (Variable variable : variables) {
             final String shortName = variable.getShortName();
@@ -138,13 +137,13 @@ class SstInsituTimeSeries extends PostProcessing {
         throw new RuntimeException("Unable to extract sensor type.");
     }
 
-    Range computeInsituRange(final int matchupPos, SSTInsituReader insituReader) throws IOException, InvalidRangeException {
+    Range computeInsituRange(final int matchupPos, SSTInsituReader insituReader) {
         final String name = "insitu.time";
         final Array sourceArray = insituReader.getSourceArray(name);
         final int[] times = (int[]) sourceArray.getStorage();
         final int matchupTime = times[matchupPos];
-        final int minTime_ = matchupTime - (timeRangeSeconds / 2);
-        final int maxTime = minTime_ + timeRangeSeconds;
+        final int minTime_ = matchupTime - (configuration.timeRangeSeconds / 2);
+        final int maxTime = minTime_ + configuration.timeRangeSeconds;
         final int minTime = minTime_ < 0 ? 0 : minTime_;
         int minIdx = matchupPos;
         int maxIdx = matchupPos;
@@ -167,7 +166,7 @@ class SstInsituTimeSeries extends PostProcessing {
 
     void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
         final String dimString = Constants.DIMENSION_NAME_MATCHUP_COUNT + " " + INSITU_NTIME;
-        writer.addDimension(null, INSITU_NTIME, timeSeriesSize);
+        writer.addDimension(null, INSITU_NTIME, configuration.timeSeriesSize);
         final List<Variable> variables = insituReader.getVariables();
         addVariables(variables, dimString, writer);
         addAdditionalVariables(writer, dimString);
@@ -227,5 +226,13 @@ class SstInsituTimeSeries extends PostProcessing {
             this.min = min;
             this.max = max;
         }
+    }
+
+    static class Configuration {
+        String processingVersion;
+        int timeRangeSeconds;
+        int timeSeriesSize;
+        String matchupTimeVarName;
+        String insituSensorName;
     }
 }

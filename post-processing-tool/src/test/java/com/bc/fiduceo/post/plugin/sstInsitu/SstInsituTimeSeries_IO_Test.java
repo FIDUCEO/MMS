@@ -19,12 +19,6 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.*;
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
@@ -42,8 +36,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -58,7 +54,29 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
+
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SECONDARY_SENSOR_MATCHUP_TIME_VARIABLE;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_SST_INSITU_TIME_SERIES;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(IOTestRunner.class)
 public class SstInsituTimeSeries_IO_Test {
@@ -76,7 +94,7 @@ public class SstInsituTimeSeries_IO_Test {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         final File testDir = TestUtil.getTestDir();
         if (testDir.isDirectory()) {
             FileUtils.deleteTree(testDir);
@@ -106,19 +124,25 @@ public class SstInsituTimeSeries_IO_Test {
         final PostProcessingContext context = new PostProcessingContext();
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
                 ("<system-config>" +
-                 "    <geometry-library name = \"S2\" />" +
-                 "    <archive>" +
-                 "        <root-path>" +
-                 "            " + testDataDirectory.getAbsolutePath() +
-                 "        </root-path>" +
-                 "        <rule sensors = \"animal-sst\">" +
-                 "            insitu/SENSOR/VERSION" +
-                 "        </rule>" +
-                 "    </archive>" +
-                 "</system-config>").getBytes())));
+                        "    <geometry-library name = \"S2\" />" +
+                        "    <archive>" +
+                        "        <root-path>" +
+                        "            " + testDataDirectory.getAbsolutePath() +
+                        "        </root-path>" +
+                        "        <rule sensors = \"animal-sst\">" +
+                        "            insitu/SENSOR/VERSION" +
+                        "        </rule>" +
+                        "    </archive>" +
+                        "</system-config>").getBytes())));
 
         context.setReaderFactory(ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null));
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("v03.3", 124, 16, "matchupTimeVarName");
+
+        final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
+        configuration.processingVersion = "v03.3";
+        configuration.timeRangeSeconds = 124;
+        configuration.timeSeriesSize = 16;
+        configuration.matchupTimeVarName = "matchupTimeVarName";
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries(configuration);
         insituTimeSeries.setContext(context);
 
         // method under test
@@ -133,34 +157,34 @@ public class SstInsituTimeSeries_IO_Test {
         inOrder.verify(writer, times(1)).addDimension(null, insituNtime, 16);
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.time", DataType.INT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.lon", DataType.FLOAT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sea_surface_temperature", DataType.FLOAT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_uncertainty", DataType.FLOAT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_depth", DataType.FLOAT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_qc_flag", DataType.SHORT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.sst_track_flag", DataType.SHORT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.mohc_id", DataType.INT, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.id", DataType.LONG, dimString);
-        inOrder.verify(newVariable, times(1)).addAll(any(List.class));
+        inOrder.verify(newVariable, times(1)).addAll(anyList());
 
         inOrder.verify(writer, times(1)).addVariable(null, "insitu.y", DataType.INT, dimString);
         inOrder.verify(newVariable, times(1)).addAttribute(new Attribute(CF_FILL_VALUE_NAME, -2147483647));
@@ -176,7 +200,14 @@ public class SstInsituTimeSeries_IO_Test {
     @Test
     public void computeInsituRange() throws Exception {
         final int seconds = 80000;
-        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries("any", seconds, 300, "matchupTimeVarName");
+
+        final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
+        configuration.processingVersion = "any";
+        configuration.timeRangeSeconds = seconds;
+        configuration.timeSeriesSize = 300;
+        configuration.matchupTimeVarName = "matchupTimeVarName";
+        final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries(configuration);
+
         final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory("S2"), null); // we don't need temp file support here tb 2018-01-23
         final Reader insituReader = readerFactory.getReader("animal-sst");
 
@@ -199,7 +230,9 @@ public class SstInsituTimeSeries_IO_Test {
     @Test
     public void computeOneProduct() throws Exception {
         FiduceoLogger.setLevelSilent();
-        configDir.mkdirs();
+        if (!configDir.mkdirs()) {
+            fail("Unable to create test directory");
+        }
 
 
         final File systemConfigFile = new File(configDir, "system-config.xml");
@@ -233,7 +266,9 @@ public class SstInsituTimeSeries_IO_Test {
             new XMLOutputter(Format.getPrettyFormat()).output(postProcConfig, stream);
         }
 
-        dataDir.mkdirs();
+        if (!dataDir.mkdirs()) {
+            fail("Unable to create test directory");
+        }
         final String filename = "mmd6c_sst_animal-sst_amsre-aq_2004-008_2004-014.nc";
 
         final Path src = testDataDirectory.toPath()

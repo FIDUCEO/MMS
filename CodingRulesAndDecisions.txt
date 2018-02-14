@@ -2,6 +2,17 @@
       the past, so that any developer can read this document and should be able to implement
       compatible code.
 
+General stuff
+-------------
+- only check code to Github when the tests run green. The procedure should always be
+  - git pull github master
+  - mvn clean install
+  - git push github master (only if all tests have run successfully
+
+- when adding a feature or changing software configuration - document it!
+  - add all tasks done for the current version to CHANGES.md
+  - document it in the manual (/fs1/projects/ongoing/Fiduceo/docs/wp3)
+
 
  Reader implementation:
 ************************
