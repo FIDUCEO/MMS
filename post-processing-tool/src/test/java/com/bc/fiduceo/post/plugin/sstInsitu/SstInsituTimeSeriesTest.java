@@ -127,6 +127,36 @@ public class SstInsituTimeSeriesTest {
         assertSame(variable, fileNameVariable);
     }
 
+    @Test
+    public void testGetInsitu_Y_Variable() {
+        final Variable variable = mock(Variable.class);
+
+        when(reader.findVariable(null, "sensor-name_y")).thenReturn(variable);
+
+        final Variable fileNameVariable = SstInsituTimeSeries.getInsitu_Y_Variable(reader, "sensor-name", configuration);
+
+        assertSame(variable, fileNameVariable);
+    }
+
+    @Test
+    public void testGetInsitu_Y_Variable_notInFile() {
+        try {
+            SstInsituTimeSeries.getInsitu_Y_Variable(reader, "sensor-name", configuration);
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetInsitu_Y_Variable_fromConfig() {
+        configuration.yVariableName = "from_config_variable";
+        final Variable variable = mock(Variable.class);
+
+        when(reader.findVariable(null, "from_config_variable")).thenReturn(variable);
+
+        final Variable fileNameVariable = SstInsituTimeSeries.getInsitu_Y_Variable(reader, "don't care", configuration);
+
+        assertSame(variable, fileNameVariable);
+    }
 
     @Test
     public void testAddInsituVariables() throws Exception {

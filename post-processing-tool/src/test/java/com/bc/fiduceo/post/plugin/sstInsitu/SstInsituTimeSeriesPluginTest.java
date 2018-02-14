@@ -34,6 +34,7 @@ import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_RANGE_SECONDS;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_TIME_SERIES_SIZE;
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_VERSION;
+import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin.TAG_NAME_Y_VARIABLE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -128,6 +129,25 @@ public class SstInsituTimeSeriesPluginTest {
     @Test
     public void testParseConfiguration_withFileName_emptyTag() {
         element.addContent(new Element(TAG_NAME_FILE_NAME_VARIABLE));
+
+        try {
+            SstInsituTimeSeriesPlugin.parseConfiguration(element);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testParseConfiguration_withYVariable() {
+        element.addContent(new Element(TAG_NAME_Y_VARIABLE).addContent("why_variable"));
+
+        final SstInsituTimeSeries.Configuration configuration = SstInsituTimeSeriesPlugin.parseConfiguration(element);
+        assertEquals("why_variable", configuration.yVariableName);
+    }
+
+    @Test
+    public void testParseConfiguration_withYVariable_emptyTag() {
+        element.addContent(new Element(TAG_NAME_Y_VARIABLE));
 
         try {
             SstInsituTimeSeriesPlugin.parseConfiguration(element);

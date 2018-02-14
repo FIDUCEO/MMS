@@ -75,7 +75,7 @@ class SstInsituTimeSeries extends PostProcessing {
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable yVariable1D = getInsitu_Y_Variable(reader, sensorType);
+        final Variable yVariable1D = getInsitu_Y_Variable(reader, sensorType, configuration);
         final int[] y1D = (int[]) yVariable1D.read().getStorage();
         final Variable yVariable2D = writer.findVariable(makeValidCDLName("insitu.y"));
 
@@ -140,12 +140,22 @@ class SstInsituTimeSeries extends PostProcessing {
         throw new RuntimeException("Unable to extract sensor type.");
     }
 
+    // package access for testing only tb 2018-02-14
     static Variable getFileNameVariable(NetcdfFile reader, final String sensorType, Configuration configuration) {
         if (StringUtils.isNullOrEmpty(configuration.fileNameVariableName)) {
             return NetCDFUtils.getVariable(reader, sensorType + "_file_name");
         }
 
         return NetCDFUtils.getVariable(reader, configuration.fileNameVariableName);
+    }
+
+    // package access for testing only tb 2018-02-14
+    static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType, Configuration configuration) {
+        if (StringUtils.isNullOrEmpty(configuration.yVariableName)) {
+            return NetCDFUtils.getVariable(reader, sensorType + "_y");
+        }
+
+        return NetCDFUtils.getVariable(reader, configuration.yVariableName);
     }
 
     Range computeInsituRange(final int matchupPos, SSTInsituReader insituReader) {
@@ -181,10 +191,6 @@ class SstInsituTimeSeries extends PostProcessing {
         final List<Variable> variables = insituReader.getVariables();
         addVariables(variables, dimString, writer);
         addAdditionalVariables(writer, dimString);
-    }
-
-    private static Variable getInsitu_Y_Variable(NetcdfFile reader, final String sensorType) {
-        return NetCDFUtils.getVariable(reader, sensorType + "_y");
     }
 
     private Array createDeltaTime2D(int satelliteMatchupTime, Variable timeVar2D, Variable dtimeVar2D, int[] origin2D, int[] shape2D) throws IOException, InvalidRangeException {
@@ -246,5 +252,6 @@ class SstInsituTimeSeries extends PostProcessing {
         String matchupTimeVarName;
         String insituSensorName;
         String fileNameVariableName;
+        String yVariableName;
     }
 }
