@@ -10,10 +10,10 @@ fi
 
 workflow=$(basename ${1%.py})
 
-if [ ! -e $WORKING_DIR/$workflow.pid ]; then
+if [ ! -e ${WORKING_DIR}/${workflow}.pid ]; then
     echo "missing $workflow.pid file in $WORKING_DIR"
     ps -elf|grep python
     exit 1
 fi
 
-kill $(cat $WORKING_DIR/$workflow.pid)
+kill $(cat ${WORKING_DIR}/${workflow}.pid)

@@ -16,16 +16,16 @@ echo "workflow: $workflow"
 
 if [ -e ${workflow}.pid ]
 then
-    if kill -0 $(cat $workflow.pid) 2> /dev/null
+    if kill -0 $(cat ${workflow}.pid) 2> /dev/null
     then
-        ps -elf | grep $(cat $workflow.pid) | grep -v grep
+        ps -elf | grep $(cat ${workflow}.pid) | grep -v grep
         echo "process already running"
         echo "delete $workflow.pid file if running process is not the workflow"
         exit 1
     fi
 fi
 
-nohup ${MMS_PYTHON_EXEC} ${MMS_HOME}/bin/python/$workflow.py > $WORKING_DIR/$workflow.out 2>&1 &
-echo $! > $WORKING_DIR/$workflow.pid
+nohup ${MMS_PYTHON_EXEC} ${MMS_HOME}/bin/python/${workflow}.py > ${WORKING_DIR}/${workflow}.out 2>&1 &
+echo $! > ${WORKING_DIR}/${workflow}.pid
 sleep 8
 cat $WORKING_DIR/$workflow.status
