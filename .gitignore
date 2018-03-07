@@ -2,5 +2,8 @@
 *.ipr
 *.iws
 .idea
+.local
 target/
 /ingestion-tool/src/temp/
+temp.txt
+/out/
