@@ -54,7 +54,7 @@ public class IntersectionEngine {
                 }
             }
         }
-        return intersectionList.toArray(new Intersection[intersectionList.size()]);
+        return intersectionList.toArray(new Intersection[0]);
     }
 
     // package access for testing only tb 2018-02-10
