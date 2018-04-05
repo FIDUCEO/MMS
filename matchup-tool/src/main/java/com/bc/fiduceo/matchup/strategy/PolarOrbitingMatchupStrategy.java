@@ -93,42 +93,42 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
                     logger.info("... no intersections found");
                     continue;
                 }
-                logger.info("... done. Found "+ intersectingIntervals.length + " intersections");
+                logger.info("... done. Found " + intersectingIntervals.length + " intersections");
 
-                final MatchupSet matchupSet = new MatchupSet();
-                matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
-                matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                 // todo se multisensor
                 // still only one secondary sensor case
-                matchupSet.setSecondaryObservationPath(secondarySensorName_CaseOneSecondary, secondaryObservation.getDataFilePath());
-                // todo se multisensor
-                // still only one secondary sensor case
-                matchupSet.setSecondaryProcessingVersion(secondarySensorName_CaseOneSecondary, secondaryObservation.getVersion());
-
-                // @todo 2 tb/tb extract method
                 final Geometry secondaryGeoBounds = secondaryObservation.getGeoBounds();
                 final boolean isSecondarySegmented = AbstractMatchupStrategy.isSegmented(secondaryGeoBounds);
 
                 try (final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
                     primaryReader.open(primaryObservation.getDataFilePath().toFile());
 
-                    for (final Intersection intersection : intersectingIntervals) {
-                        final TimeInfo timeInfo = intersection.getTimeInfo();
-                        if (timeInfo.getMinimalTimeDelta() >= timeDeltaInMillis) {
-                            logger.info("Intersection time delta too large, skipping");
-                            continue;
-                        }
-
-                        // todo se multisensor
-                        // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
-                        final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+                    // todo se multisensor
+                    // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
+                    final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
+                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
                         // todo se multisensor
                         // still only one secondary sensor case
-                        try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
-                            secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                        secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
+
+                        for (final Intersection intersection : intersectingIntervals) {
+                            final TimeInfo timeInfo = intersection.getTimeInfo();
+                            if (timeInfo.getMinimalTimeDelta() >= timeDeltaInMillis) {
+                                logger.info("Intersection time delta too large, skipping");
+                                continue;
+                            }
+
+                            final MatchupSet matchupSet = new MatchupSet();
+                            matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
+                            matchupSet.setPrimaryProcessingVersion(primaryObservation.getVersion());
                             // todo se multisensor
                             // still only one secondary sensor case
-                            secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
+                            matchupSet.setSecondaryObservationPath(secondarySensorName_CaseOneSecondary, secondaryObservation.getDataFilePath());
+                            // todo se multisensor
+                            // still only one secondary sensor case
+                            matchupSet.setSecondaryProcessingVersion(secondarySensorName_CaseOneSecondary, secondaryObservation.getVersion());
+
                             final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
                             final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
 

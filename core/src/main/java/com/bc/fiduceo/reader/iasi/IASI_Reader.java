@@ -43,7 +43,9 @@ package com.bc.fiduceo.reader.iasi;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -78,7 +80,7 @@ public class IASI_Reader implements Reader {
     private GiadrScaleFactors giadrScaleFactors;
     private IASI_TimeLocator timeLocator;
     private GeolocationData geolocationData;
-    private IASI_PixelLocator pixelLocator;
+    private PixelLocator pixelLocator;
 
     private final GeometryFactory geometryFactory;
 
@@ -307,7 +309,8 @@ public class IASI_Reader implements Reader {
         if (pixelLocator == null) {
             final GeolocationData geolocationData = getGeolocationData();
 
-            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
+            pixelLocator = new IASI_TP_PixelLocator(geolocationData, geometryFactory);
+//            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
         }
         return pixelLocator;
     }

@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.plot;
 
 import com.bc.fiduceo.core.SamplingPoint;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
@@ -67,11 +68,11 @@ public class MapPlotTool {
                 samplingPoints.add(new SamplingPoint(lon, lat, time));
             }
 
-//            final String fileName = FileUtils.getFileNameFromPath(filePath);
-//            final String pngFileName = FileUtils.exchangeExtension(fileName, ".png");
+            final String fileName = FileUtils.getFileNameFromPath(filePath);
+            final String pngFileName = FileUtils.exchangeExtension(fileName, ".png");
             final String outputDir = new File(filePath).getParent();
-            final File targetFile = new File(outputDir, args[4]);
-//            final File targetFile = new File(outputDir, pngFileName);
+            //final File targetFile = new File(outputDir, args[4]);
+            final File targetFile = new File(outputDir, pngFileName);
             final BufferedImage plot = new SamplingPointPlotter()
                     .mapStrategyName(SamplingPointPlotter.LON_LAT)
                     .samples(samplingPoints)

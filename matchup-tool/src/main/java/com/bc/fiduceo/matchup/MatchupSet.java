@@ -99,4 +99,8 @@ public class MatchupSet {
     public Set<String> getSecondarySensorKeys() {
         return secondaryObservationPath.keySet();
     }
+
+    public void addSampleSets(List<SampleSet> sampleSets) {
+        this.sampleSets.addAll(sampleSets);
+    }
 }

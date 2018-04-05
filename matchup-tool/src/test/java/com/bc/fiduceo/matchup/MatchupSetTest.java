@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -38,7 +39,7 @@ public class MatchupSetTest {
     private Path path;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         matchupSet = new MatchupSet();
         path = mock(Path.class);
     }
@@ -77,7 +78,7 @@ public class MatchupSetTest {
     }
 
     @Test
-    public void testProperty_ProcessingVersion() throws Exception {
+    public void testProperty_ProcessingVersion()  {
         assertNull(matchupSet.getPrimaryProcessingVersion());
         matchupSet.setPrimaryProcessingVersion("prim");
         assertEquals("prim", matchupSet.getPrimaryProcessingVersion());
@@ -89,5 +90,21 @@ public class MatchupSetTest {
         assertEquals("sec", matchupSet.getSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey()));
         matchupSet.setSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey(), null);
         assertNull(matchupSet.getSecondaryProcessingVersion(SampleSet.getOnlyOneSecondaryKey()));
+    }
+
+    @Test
+    public void testAddSampleSets() {
+        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
+        assertEquals(0, sampleSets.size());
+
+        final List<SampleSet> toAddSets = new ArrayList<>();
+        toAddSets.add(new SampleSet());
+        toAddSets.add(new SampleSet());
+        toAddSets.add(new SampleSet());
+
+        matchupSet.addSampleSets(toAddSets);
+
+        final List<SampleSet> secondSampleSets = matchupSet.getSampleSets();
+        assertEquals(3, secondSampleSets.size());
     }
 }

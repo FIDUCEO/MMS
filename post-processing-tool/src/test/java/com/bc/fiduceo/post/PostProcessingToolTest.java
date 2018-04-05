@@ -137,10 +137,9 @@ public class PostProcessingToolTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         PostProcessingTool.printUsageTo(out);
-//        PostProcessingTool.printUsageTo(System.out);
 
         final String ls = System.lineSeparator();
-        final String expected = "post-processing-tool version 1.3.8" + ls +
+        final String expected = "post-processing-tool version 1.3.9-SNAPSHOT" + ls +
                 "" + ls +
                 "usage: post-processing-tool <options>" + ls +
                 "Valid options are:" + ls +

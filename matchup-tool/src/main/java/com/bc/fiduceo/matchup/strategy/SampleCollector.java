@@ -20,12 +20,12 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
@@ -54,7 +54,6 @@ class SampleCollector {
      * @param sampleSets    the input data - will be empty after the operation!
      * @param timeLocator   the time locator for the sample locations
      * @param secSensorName
-     *
      * @return the result list with the sampleSets that contain two observations
      */
     List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator, final String secSensorName) {
