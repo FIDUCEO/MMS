@@ -87,10 +87,13 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             // still only one secondary sensor case
             final List<SatelliteObservation> secondaryObservations = secondaryObservationsSet.get(secondarySensorName_CaseOneSecondary);
             for (final SatelliteObservation secondaryObservation : secondaryObservations) {
+                logger.info("Calculating intersections ... ");
                 final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                 if (intersectingIntervals.length == 0) {
+                    logger.info("... no intersections found");
                     continue;
                 }
+                logger.info("... done. Found "+ intersectingIntervals.length + " intersections");
 
                 final MatchupSet matchupSet = new MatchupSet();
                 matchupSet.setPrimaryObservationPath(primaryObservation.getDataFilePath());
@@ -111,42 +114,49 @@ class PolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
 
                     for (final Intersection intersection : intersectingIntervals) {
                         final TimeInfo timeInfo = intersection.getTimeInfo();
-                        if (timeInfo.getMinimalTimeDelta() < timeDeltaInMillis) {
-                            // todo se multisensor
-                            // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
-                            final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+                        if (timeInfo.getMinimalTimeDelta() >= timeDeltaInMillis) {
+                            logger.info("Intersection time delta too large, skipping");
+                            continue;
+                        }
+
+                        // todo se multisensor
+                        // needed by method applyConditionsAndScreenings(...) which is ready to handle multiple secondary sensor
+                        final HashMap<String, Reader> secondaryReaderMap = new HashMap<>();
+                        // todo se multisensor
+                        // still only one secondary sensor case
+                        try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
+                            secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
                             // todo se multisensor
                             // still only one secondary sensor case
-                            try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
-                                secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                            secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
+                            final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
+                            final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
+
+                            if (primaryPixelLocator == null || secondaryPixelLocator == null) {
+                                logger.warning("Unable to create valid pixel locators. Skipping intersection segment.");
+                                continue;
+                            }
+
+                            logger.info("Start collecting primary pixels ... ");
+                            SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
+                            sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
+                            logger.info("... done. Found " + matchupSet.getNumObservations() + " observations");
+
+                            logger.info("Start collecting associated pixels ... ");
+                            sampleCollector = new SampleCollector(context, secondaryPixelLocator);
+                            // todo se multisensor
+                            // still only one secondary sensor case
+                            final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), secondarySensorName_CaseOneSecondary);
+                            matchupSet.setSampleSets(completeSamples);
+                            logger.info("... done. Found " + matchupSet.getNumObservations() + " associated observations");
+
+                            if (matchupSet.getNumObservations() > 0) {
                                 // todo se multisensor
                                 // still only one secondary sensor case
-                                secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
-                                final PixelLocator primaryPixelLocator = getPixelLocator(primaryReader, isPrimarySegmented, (Polygon) intersection.getPrimaryGeometry());
-                                final PixelLocator secondaryPixelLocator = getPixelLocator(secondaryReader, isSecondarySegmented, (Polygon) intersection.getSecondaryGeometry());
-
-                                if (primaryPixelLocator == null || secondaryPixelLocator == null) {
-                                    logger.warning("Unable to create valid pixel locators. Skipping intersection segment.");
-                                    continue;
-                                }
-
-                                SampleCollector sampleCollector = new SampleCollector(context, primaryPixelLocator);
-                                sampleCollector.addPrimarySamples((Polygon) intersection.getGeometry(), matchupSet, primaryReader.getTimeLocator());
-
-                                sampleCollector = new SampleCollector(context, secondaryPixelLocator);
-                                // todo se multisensor
-                                // still only one secondary sensor case
-                                final List<SampleSet> completeSamples = sampleCollector.addSecondarySamples(matchupSet.getSampleSets(), secondaryReader.getTimeLocator(), secondarySensorName_CaseOneSecondary);
-                                matchupSet.setSampleSets(completeSamples);
-
+                                // uses the secondaryReaderMap instantiated above
+                                applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaderMap);
                                 if (matchupSet.getNumObservations() > 0) {
-                                    // todo se multisensor
-                                    // still only one secondary sensor case
-                                    // uses the secondaryReaderMap instantiated above
-                                    applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaderMap);
-                                    if (matchupSet.getNumObservations() > 0) {
-                                        matchupCollection.add(matchupSet);
-                                    }
+                                    matchupCollection.add(matchupSet);
                                 }
                             }
                         }

@@ -73,7 +73,6 @@ public abstract class AbstractMatchupStrategy {
             conditionEngineContext.setSecondarySize(secondarySize, sensorName);
         }
 
-        logger.info("Found " + matchupSet.getNumObservations() + " matchup pixels");
         conditionEngine.process(matchupSet, conditionEngineContext);
         logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
 
