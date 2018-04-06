@@ -92,44 +92,44 @@ public class PostProcessingToolTest {
         assertNotNull(o);
         assertEquals("config", o.getLongOpt());
         assertEquals("Defines the configuration directory. Defaults to './config'.", o.getDescription());
-        assertEquals(true, o.hasArg());
-        assertEquals(false, o.isRequired());
+        assertTrue(o.hasArg());
+        assertFalse(o.isRequired());
 
 
         o = options.getOption("i");
         assertNotNull(o);
         assertEquals("input-dir", o.getLongOpt());
         assertEquals("Defines the path to the input mmd files directory.", o.getDescription());
-        assertEquals(true, o.hasArg());
-        assertEquals(true, o.isRequired());
+        assertTrue(o.hasArg());
+        assertTrue(o.isRequired());
 
         o = options.getOption("end");
         assertNotNull(o);
         assertEquals("end-date", o.getLongOpt());
         assertEquals("Defines the processing end-date, format 'yyyy-DDD'. DDD = Day of year.", o.getDescription());
-        assertEquals(true, o.hasArg());
-        assertEquals(true, o.isRequired());
+        assertTrue(o.hasArg());
+        assertTrue(o.isRequired());
 
         o = options.getOption("h");
         assertNotNull(o);
         assertEquals("help", o.getLongOpt());
         assertEquals("Prints the tool usage.", o.getDescription());
-        assertEquals(false, o.hasArg());
-        assertEquals(false, o.isRequired());
+        assertFalse(o.hasArg());
+        assertFalse(o.isRequired());
 
         o = options.getOption("j");
         assertNotNull(o);
         assertEquals("job-config", o.getLongOpt());
         assertEquals("Defines the path to post processing job configuration file. Path is relative to the configuration directory.", o.getDescription());
-        assertEquals(true, o.hasArg());
-        assertEquals(true, o.isRequired());
+        assertTrue(o.hasArg());
+        assertTrue(o.isRequired());
 
         o = options.getOption("start");
         assertNotNull(o);
         assertEquals("start-date", o.getLongOpt());
         assertEquals("Defines the processing start-date, format 'yyyy-DDD'. DDD = Day of year.", o.getDescription());
-        assertEquals(true, o.hasArg());
-        assertEquals(true, o.isRequired());
+        assertTrue(o.hasArg());
+        assertTrue(o.isRequired());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class PostProcessingToolTest {
         PostProcessingTool.printUsageTo(out);
 
         final String ls = System.lineSeparator();
-        final String expected = "post-processing-tool version 1.3.9-SNAPSHOT" + ls +
+        final String expected = "post-processing-tool version 1.3.9" + ls +
                 "" + ls +
                 "usage: post-processing-tool <options>" + ls +
                 "Valid options are:" + ls +
