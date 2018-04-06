@@ -69,20 +69,20 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
-            assertEquals(9, matchupCount);
+            assertEquals(22, matchupCount);
             
-            NCTestUtils.assert3DVariable("amsub-n15_Latitude", 0, 0, 0, 744233.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_Longitude", 0, 0, 1, -385331.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_Satellite_azimuth_angle", 0, 0, 2, 19563.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_Satellite_zenith_angle", 0, 0, 3, 3859.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_Solar_azimuth_angle", 0, 0, 4, 13371.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_Solar_zenith_angle", 0, 0, 5, 6727.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_acquisition_time", 0, 0, 0, 1187783149.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch16", 0, 0, 1, 17371.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch17", 0, 0, 2, 18808.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch18", 0, 0, 3, 24152.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch19", 0, 0, 4, 25313.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch20", 0, 0, 5, 23665.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Latitude", 0, 0, 0, 740248, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Longitude", 0, 0, 1, -128073, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Satellite_azimuth_angle", 0, 0, 2, 19549, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Satellite_zenith_angle", 0, 0, 3, 3335, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Solar_azimuth_angle", 0, 0, 4, 13438, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_Solar_zenith_angle", 0, 0, 5, 6799, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_acquisition_time", 0, 0, 0, 1187777087, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch16", 0, 0, 1, 22659, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch17", 0, 0, 2, 25166, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch18", 0, 0, 3, 24345, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch19", 0, 0, 4, 25645, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_btemps_ch20", 0, 0, 5, 26744, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch16", 0, 0, 0, 0.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch17", 0, 0, 1, 0.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_chanqual_ch18", 0, 0, 2, 0.0, mmd);
@@ -91,29 +91,29 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
             NCTestUtils.assertStringVariable("amsub-n15_file_name", 5, "L0502033.NSS.AMBX.NK.D07234.S1004.E1149.B4821213.WI.h5", mmd);
 
-            NCTestUtils.assert3DVariable("amsub-n15_instrtemp", 0, 0, 0, 29273.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_instrtemp", 0, 0, 0, 29281, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_qualind", 0, 0, 1, 0.0, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_scanqual", 0, 0, 2, 0.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_scnlin", 0, 0, 3, 2284.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlin", 0, 0, 3, 5, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_scnlindy", 0, 0, 4, 234.0, mmd);
-            NCTestUtils.assert3DVariable("amsub-n15_scnlintime", 0, 0, 5, 42349120.0, mmd);
+            NCTestUtils.assert3DVariable("amsub-n15_scnlintime", 0, 0, 5, 36266453, mmd);
             NCTestUtils.assert3DVariable("amsub-n15_scnlinyr", 0, 0, 0, 2007.0, mmd);
 
-            NCTestUtils.assertVectorVariable("amsub-n15_x", 1, 14.0, mmd);
-            NCTestUtils.assertVectorVariable("amsub-n15_y", 2, 2283.0, mmd);
+            NCTestUtils.assertVectorVariable("amsub-n15_x", 1, 16, mmd);
+            NCTestUtils.assertVectorVariable("amsub-n15_y", 2, 5, mmd);
 
-            NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 3, 744460.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_Longitude", 0, 0, 4, -384918.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_Satellite_azimuth_angle", 0, 0, 5, 24945.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_Satellite_zenith_angle", 0, 0, 0, 3788.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_Solar_azimuth_angle", 0, 0, 1, 13630.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_Solar_zenith_angle", 0, 0, 2, 6680.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_acquisition_time", 0, 0, 3, 1187783732.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch1", 0, 0, 4, 17519.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch2", 0, 0, 5, 19169.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch3", 0, 0, 0, 23988.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch4", 0, 0, 1, 24827.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch5", 0, 0, 2, 23354.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 3, 753918, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Longitude", 0, 0, 4, -129896, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Satellite_azimuth_angle", 0, 0, 5, 24901, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Satellite_zenith_angle", 0, 0, 0, 4058, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Solar_azimuth_angle", 0, 0, 1, 13648, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_Solar_zenith_angle", 0, 0, 2, 6701, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_acquisition_time", 0, 0, 3, 1187777612, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch1", 0, 0, 4, 22611, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch2", 0, 0, 5, 25588, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch3", 0, 0, 0, 24179, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch4", 0, 0, 1, 25075, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_btemps_ch5", 0, 0, 2, 26131, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch1", 0, 0, 3, 0.0, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch2", 0, 0, 4, 0.0, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_chanqual_ch3", 0, 0, 5, 0.0, mmd);
@@ -122,16 +122,16 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
 
             NCTestUtils.assertStringVariable("mhs-n18_file_name", 2, "NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5", mmd);
 
-            NCTestUtils.assert3DVariable("mhs-n18_instrtemp", 0, 0, 3, 29376.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_instrtemp", 0, 0, 3, 29340, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_qualind", 0, 0, 4, 0.0, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_scanqual", 0, 0, 5, 0.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_scnlin", 0, 0, 0, 2373.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlin", 0, 0, 0, 76, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_scnlindy", 0, 0, 1, 234.0, mmd);
-            NCTestUtils.assert3DVariable("mhs-n18_scnlintime", 0, 0, 2, 42937943.0, mmd);
+            NCTestUtils.assert3DVariable("mhs-n18_scnlintime", 0, 0, 2, 36812610, mmd);
             NCTestUtils.assert3DVariable("mhs-n18_scnlinyr", 0, 0, 3, 2007.0, mmd);
 
-            NCTestUtils.assertVectorVariable("mhs-n18_x", 4, 14.0, mmd);
-            NCTestUtils.assertVectorVariable("mhs-n18_y", 5, 2374.0, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_x", 4, 19, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_y", 5, 79, mmd);
         }
     }
 
@@ -156,12 +156,12 @@ public class MatchupToolIntegrationTest_useCase_17 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            NCTestUtils.assertVectorVariable("mhs-n18_amsub-n15_matchup_spherical_distance", 0, 3.3357553482055664, mmd);
+            NCTestUtils.assertVectorVariable("mhs-n18_amsub-n15_matchup_spherical_distance", 0, 3.1593990325927734, mmd);
         }
     }
 
     @Test
-    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(30, null)   // 30 seconds, just too small to have an overlapping time interval
                 .createConfig();

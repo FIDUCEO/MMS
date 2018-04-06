@@ -61,48 +61,42 @@ public class MatchupToolIntegrationTest_useCase_03_SST extends AbstractUsecaseIn
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2003-302", "-end", "2006-304"};
         MatchupToolMain.main(args);
 
-//        final File mmdFile = getMmdFilePath(useCaseConfig, "2014-115", "2014-115");
-//        assertTrue(mmdFile.isFile());
-//
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
-//            assertEquals(817, matchupCount);
-//
-//            NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_INST_MDR", 0, 0, 0, 0, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_DEGRADED_PROC_MDR", 0, 0, 1, 0, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_EARTH_SATELLITE_DISTANCE", 0, 0, 2, 7191921, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstCol", 0, 0, 3, 1764.0, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedFirstLin", 0, 0, 4, -5024.0, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbCol", 0, 0, 3, 68, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GCcsImageClassifiedNbLin", 0, 0, 4, 66, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GCcsRadAnalNbClass", 0, 0, 5, 4, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEPSDatIasi", 0, 0, 6, 1398430077961L, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEPSIasiMode", 0, 0, 7, 161, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEPSOPSProcessingMode", 0, 0, 8, 0, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEPS_CCD", 0, 0, 9, 1, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEPS_SP", 0, 0, 10, 10, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BCldFrac", 0, 0, 11, 66, mmd);
-//            NCTestUtils.assert3DVariable("iasi-mb_GEUMAvhrr1BLandFrac", 0, 0, 12, 2, mmd);
-//
-//            NCTestUtils.assert3DVariable("avhrr-n19_acquisition_time", 0, 0, 100, 1398430788, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch1", 1, 0, 101, 308, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch2", 2, 0, 102, 114, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch3a", 3, 0, 103, -32768, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch3b", 4, 0, 104, 1801, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch4", 5, 0, 105, -212, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ch5", 6, 0, 106, -553, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_cloud_mask", 7, 0, 107, 7, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_cloud_probability", 8, 0, 108, -128, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_dtime", 9, 0, 109, 6128.5, mmd);
-//            NCTestUtils.assertStringVariable("avhrr-n19_file_name", 10, "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc", mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_ict_temp", 11, 0, 111, 1560, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_l1b_line_number", 12, 0, 112, 12279, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_lat", 13, 0, 113, 64.36499786376953, mmd);
-//            NCTestUtils.assert3DVariable("avhrr-n19_lon", 14, 0, 114, -25.902008056640625, mmd);
-//        }
-    }
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2003-302", "2006-304");
+        assertTrue(mmdFile.isFile());
 
-//
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            assertEquals(10, matchupCount);
+
+            NCTestUtils.assert3DVariable("avhrr-n17_acquisition_time", 0, 0, 0, 1162208239, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch1", 1, 0, 1, 359, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch2", 2, 0, 2, 212, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch3a", 3, 0, 3, 593, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch3b", 4, 0, 4, -32768, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch4", 0, 1, 5, 2189, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ch5", 1, 1, 6, 1992, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_cloud_mask", 2, 1, 7, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_cloud_probability", 3, 1, 8, -1, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_dtime", 4, 1, 9, 2183.00048828125, mmd);
+            NCTestUtils.assertStringVariable("avhrr-n17_file_name", 0, "20061030110000-ESACCI-L1C-AVHRR17_G-fv01.0.nc", mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_ict_temp", 0, 2, 1, 1437, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_l1b_line_number", 1, 2, 2, 4368, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_lat", 2, 2, 3, -0.02500000037252903, mmd);
+            NCTestUtils.assert3DVariable("avhrr-n17_lon", 3, 2, 4, -22.933013916015625, mmd);
+
+            NCTestUtils.assert3DVariable("gtmba-sst_acquisition_time", 0, 0, 0, 1162180800, mmd);
+            NCTestUtils.assertStringVariable("gtmba-sst_file_name", 1, "insitu_3_WMOID_31007_19990306_20160920.nc", mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.collection", 0, 0, 2, 1, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.id", 0, 0, 3, 2006100000935922L, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.lat", 0, 0, 4, -0.009999999776482582, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.lon", 0, 0, 5, -22.989999771118164, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.mohc_id", 0, 0, 6, 943364, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.prof_id", 0, 0, 7, 943364, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.qc1", 0, 0, 8, 0, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.qc2", 0, 0, 0, -99, mmd);
+            NCTestUtils.assert3DVariable("gtmba-sst_insitu.sea_surface_temperature", 0, 0, 0, 26.100000381469727, mmd);
+        }
+    }
 
     private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
         final List<Sensor> sensorList = new ArrayList<>();

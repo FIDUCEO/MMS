@@ -69,6 +69,7 @@ class IASI_TP_PixelLocator implements PixelLocator {
             final int remainingHeight = height - split_height;
             latSubset = latitudes.section(new int[]{split_height, 0}, new int[]{remainingHeight, width}, new int[]{1, 1}).copy();
             lonSubset = longitudes.section(new int[]{split_height, 0}, new int[]{remainingHeight, width}, new int[]{1, 1}).copy();
+
             final TiePointGrid lon_lower = new TiePointGrid("lon_lower", width, remainingHeight, 0.5, 0.5, 1, 1, (float[]) lonSubset.copyTo1DJavaArray());
             final TiePointGrid lat_lower = new TiePointGrid("lat_lower", width, remainingHeight, 0.5, 0.5, 1, 1, (float[]) latSubset.copyTo1DJavaArray());
             lowerGeocoding = new TiePointGeoCoding(lat_lower, lon_lower);

@@ -1,3 +1,8 @@
+### Updates from version 1.3.8 to 1.3.9
+* Improved performance of IASI geo-coding
+* Speed up in polar-orbiting matchup strategy
+* Corrected handling of multiple intersecting areas in one orbit file
+
 ### Updates from version 1.3.7 to 1.3.8
 * Added optional "insitu-sensor" parameter to SSTInsituTimeSeries post-processing configuration
 * Added post-processing that copies the AMSR2 Scan_Data_Quality variable to the MMD

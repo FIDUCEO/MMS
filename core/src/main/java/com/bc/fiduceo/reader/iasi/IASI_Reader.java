@@ -76,7 +76,6 @@ public class IASI_Reader implements Reader {
 
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
-    private MainProductHeaderRecord mainProductHeaderRecord;
     private GiadrScaleFactors giadrScaleFactors;
     private IASI_TimeLocator timeLocator;
     private GeolocationData geolocationData;
@@ -190,7 +189,7 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final MDR_1C[] mdRs = getMDRs(centerY, interval.getY());
         final int xOffset = centerX - interval.getX() / 2;
         final int yOffset = centerY - interval.getY() / 2;
@@ -222,7 +221,7 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final ReadProxy readProxy = proxiesMap.get(variableName);
 
         Array array = readRaw(centerX, centerY, interval, variableName);
@@ -235,7 +234,7 @@ public class IASI_Reader implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array timeInMillis = readRaw(x, y, interval, "GEPSDatIasi");
         final Array timeInSeconds = Array.factory(int.class, timeInMillis.getShape());
         final long size = timeInMillis.getSize();
@@ -310,7 +309,6 @@ public class IASI_Reader implements Reader {
             final GeolocationData geolocationData = getGeolocationData();
 
             pixelLocator = new IASI_TP_PixelLocator(geolocationData, geometryFactory);
-//            pixelLocator = new IASI_PixelLocator(geolocationData, geometryFactory);
         }
         return pixelLocator;
     }
@@ -323,7 +321,7 @@ public class IASI_Reader implements Reader {
             throw new IOException("Illegal Main Product Header Record");
         }
 
-        mainProductHeaderRecord = new MainProductHeaderRecord();
+        final MainProductHeaderRecord mainProductHeaderRecord = new MainProductHeaderRecord();
         mainProductHeaderRecord.readRecord(iis);
 
         final List<InternalPointerRecord> iprList = readInternalPointerRecordList();
