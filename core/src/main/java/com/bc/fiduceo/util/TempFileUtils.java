@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Brockmann Consult GmbH
+ * Copyright (C) 2018 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822

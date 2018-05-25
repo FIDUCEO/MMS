@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Brockmann Consult GmbH
+ * Copyright (C) 2018 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -18,25 +18,8 @@
  *
  */
 
-/*
- * $Id$
- *
- * Copyright (C) 2010 by Brockmann Consult (info@brockmann-consult.de)
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation. This program is distributed in the hope it will
- * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
 package com.bc.fiduceo.reader.airs;
 
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -47,8 +30,8 @@ public class AIRS_L1B_ReaderPlugin implements ReaderPlugin {
     private static final String[] SENSOR_KEYS = {"airs-aq"};
 
     @Override
-    public Reader createReader(ReaderContext readerContexty) {
-        return new AIRS_L1B_Reader(readerContexty);
+    public Reader createReader(ReaderContext readerContext) {
+        return new AIRS_L1B_Reader(readerContext);
     }
 
     @Override
@@ -58,6 +41,6 @@ public class AIRS_L1B_ReaderPlugin implements ReaderPlugin {
 
     @Override
     public DataType getDataType() {
-        throw new RuntimeException("not implemented");
+        return DataType.POLAR_ORBITING_SATELLITE;
     }
 }

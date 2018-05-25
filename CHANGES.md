@@ -1,3 +1,7 @@
+### Updates from version 1.3.9 to 1.4.0
+* SOON ... AIRS reader implemented
+
+
 ### Updates from version 1.3.8 to 1.3.9
 * Improved performance of IASI geo-coding
 * Speed up in polar-orbiting matchup strategy

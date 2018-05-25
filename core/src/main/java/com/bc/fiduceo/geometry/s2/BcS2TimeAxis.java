@@ -94,13 +94,12 @@ class BcS2TimeAxis implements TimeAxis {
         }
 
         final long offsetTime = calculateLineDuration(searchPoint);
-        final long startMillis = startTime.getTime() + offsetTime;
-
         if (offsetTime > timeInterval) {
             return null;    // projection is outside the time axis range, beyond the last point tb 2015-11-23
         }
 
-        return TimeUtils.create(startMillis);
+        final long timeMillis = startTime.getTime() + offsetTime;
+        return TimeUtils.create(timeMillis);
     }
 
     @Override
@@ -124,11 +123,11 @@ class BcS2TimeAxis implements TimeAxis {
     }
 
     // package access for testing only tb 2015-11-20
-    S2Polyline createSubLineTo(S2Point intersectionStartPoint) {
+    S2Polyline createSubLineTo(S2Point point) {
         final List<S2Point> vertices = new ArrayList<>();
 
-        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(intersectionStartPoint);
-        final S2Point projectedIntersection = polyline.projectToEdge(intersectionStartPoint, nearestEdgeIndex);
+        final int nearestEdgeIndex = polyline.getNearestEdgeIndex(point);
+        final S2Point projectedIntersection = polyline.projectToEdge(point, nearestEdgeIndex);
         if (nearestEdgeIndex == 0) {
             vertices.add(polyline.vertex(0));
             vertices.add(projectedIntersection);
@@ -142,8 +141,8 @@ class BcS2TimeAxis implements TimeAxis {
         return new S2Polyline(vertices);
     }
 
-    private long calculateLineDuration(S2Point intersectionStartPoint) {
-        final S2Polyline offsetGeometry = createSubLineTo(intersectionStartPoint);
+    private long calculateLineDuration(S2Point point) {
+        final S2Polyline offsetGeometry = createSubLineTo(point);
         final S1Angle offsetAngle = offsetGeometry.getArclengthAngle();
         return (long) (timeInterval * offsetAngle.radians() * invLength);
     }

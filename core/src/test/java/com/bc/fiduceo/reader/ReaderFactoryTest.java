@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Brockmann Consult GmbH
+ * Copyright (C) 2018 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -17,6 +17,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  *
  */
+
 package com.bc.fiduceo.reader;
 
 import static org.hamcrest.Matchers.*;

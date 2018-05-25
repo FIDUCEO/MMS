@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Brockmann Consult GmbH
+ * Copyright (C) 2018 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -23,7 +23,6 @@ package com.bc.fiduceo.reader.airs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
@@ -49,12 +48,13 @@ import java.util.logging.Logger;
 
 class AIRS_L1B_Reader implements Reader {
 
-
+    final ReaderContext readerContext;
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
 
     AIRS_L1B_Reader(ReaderContext readerContext) {
         logger = FiduceoLogger.getLogger();
+        this.readerContext = readerContext;
     }
 
     @Override
@@ -71,6 +71,7 @@ class AIRS_L1B_Reader implements Reader {
     public void close() throws IOException {
         if (netcdfFile != null) {
             netcdfFile.close();
+            netcdfFile = null;
         }
     }
 
@@ -97,16 +98,16 @@ class AIRS_L1B_Reader implements Reader {
         acquisitionInfo.setNodeType(nodeType);
 
         final Date sensingStart = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE),
-                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
+                                                       HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
         final Date sensingStop = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_DATE),
-                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME));
+                                                      HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME));
 
         acquisitionInfo.setSensingStart(sensingStart);
         acquisitionInfo.setSensingStop(sensingStop);
 
-        throw new RuntimeException("incomplete code, continue implementing tb 2016-04-13");
+//        throw new RuntimeException("incomplete code, continue implementing tb 2016-04-13");
 
-//        return acquisitionInfo;
+        return acquisitionInfo;
     }
 
     @Override

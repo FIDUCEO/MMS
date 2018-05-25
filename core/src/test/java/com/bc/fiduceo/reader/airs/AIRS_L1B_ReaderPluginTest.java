@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Brockmann Consult GmbH
+ * Copyright (C) 2018 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -20,11 +20,14 @@
 
 package com.bc.fiduceo.reader.airs;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 import org.junit.*;
-
-import static org.junit.Assert.*;
 
 public class AIRS_L1B_ReaderPluginTest {
 
@@ -35,10 +38,9 @@ public class AIRS_L1B_ReaderPluginTest {
         plugin = new AIRS_L1B_ReaderPlugin();
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void testImplementsReaderPluginInterface() {
-        assertTrue(plugin instanceof ReaderPlugin);
+        assertThat(plugin, instanceOf(ReaderPlugin.class));
     }
 
     @Test
@@ -50,8 +52,23 @@ public class AIRS_L1B_ReaderPluginTest {
 
     @Test
     public void testCreateReaderInstance() throws Exception {
-        final Reader reader = plugin.createReader(null);
-        assertNotNull(reader);
-        assertTrue(reader instanceof AIRS_L1B_Reader);
+        //preparation
+        final ReaderContext readerContext = new ReaderContext();
+
+        //execution
+        final Reader reader = plugin.createReader(readerContext);
+
+        //verification
+        assertThat(reader, is(notNullValue()));
+        assertThat(reader, is(instanceOf(AIRS_L1B_Reader.class)));
+        final AIRS_L1B_Reader airs_reader = (AIRS_L1B_Reader) reader;
+        assertThat(airs_reader.readerContext, is(sameInstance(readerContext)));
+    }
+
+    @Test
+    public void testDataType() {
+        final DataType dataType = plugin.getDataType();
+
+        assertThat(dataType, is(equalTo(DataType.POLAR_ORBITING_SATELLITE)));
     }
 }
