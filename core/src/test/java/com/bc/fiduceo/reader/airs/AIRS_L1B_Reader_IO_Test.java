@@ -20,41 +20,38 @@
 
 package com.bc.fiduceo.reader.airs;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import org.esa.snap.core.datamodel.ProductData;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(IOTestRunner.class)
 public class AIRS_L1B_Reader_IO_Test {
 
-    private static Path airsDataPath;
-    private static DateFormat dateFormat;
-
+    private Path airsDataPath;
+    private DateFormat dateFormat;
     private AIRS_L1B_Reader airsL1bReader;
-
-    @BeforeClass
-    public static void setUpClass() throws IOException {
-        airsDataPath = TestUtil.getTestDataDirectory().toPath().resolve("airs-aq");
-        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    }
 
     @Before
     public void setUp() throws IOException {
+        airsDataPath = TestUtil.getTestDataDirectory().toPath().resolve("airs-aq");
+        dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         airsL1bReader = new AIRS_L1B_Reader(null);
     }
 
