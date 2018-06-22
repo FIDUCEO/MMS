@@ -37,10 +37,10 @@ import java.util.Map;
 
 public class ArrayCache {
 
-    private final NetcdfFile netcdfFile;
+    protected final NetcdfFile netcdfFile;
+    protected final HashMap<String, Variable> injectedVariables;
     private final HashMap<String, ArrayContainer> cache;
     private final HashMap<String, ArrayContainer> scaledCache;
-    private final HashMap<String, Variable> injectedVariables;
 
     public ArrayCache(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
@@ -151,26 +151,11 @@ public class ArrayCache {
      * Retrieves the string representation of the attribute. Returns null if attribute is not present.
      *
      * @param attributeName the attribute name
-     * @param variableName  the variable name
-     * @return the string value or null
-     * @throws IOException on disk access failures
-     */
-    String getStringAttributeValue(String attributeName, String variableName) throws IOException {
-        final Array array = get(variableName);
-        if (array != null) {
-            return getAttributeStringValue(attributeName, variableName);
-        }
-
-        return null;
-    }
-
-    /**
-     * Retrieves the string representation of the attribute. Returns null if attribute is not present.
-     *
-     * @param attributeName the attribute name
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
+     *
      * @return the string value or null
+     *
      * @throws IOException on disk access failures
      */
     public String getStringAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
@@ -188,7 +173,9 @@ public class ArrayCache {
      *
      * @param attributeName the attribute name
      * @param variableName  the variable name
+     *
      * @return the number value or null
+     *
      * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String variableName) throws IOException {
@@ -206,7 +193,9 @@ public class ArrayCache {
      * @param attributeName the attribute name
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
+     *
      * @return the number value or null
+     *
      * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
@@ -228,6 +217,51 @@ public class ArrayCache {
         final ArrayList<Variable> resultList = new ArrayList<>(variableHashMap.size());
         resultList.addAll(variableHashMap.values());
         return resultList;
+    }
+
+    protected ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
+        ArrayContainer container;
+        Variable variable = injectedVariables.get(variableName);
+        if (variable == null) {
+            synchronized (netcdfFile) {
+                variable = netcdfFile.findVariable(group, variableName);
+            }
+            if (variable == null) {
+                throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
+            }
+        }
+        container = new ArrayContainer();
+        container.array = variable.read();
+
+        final List<Attribute> attributes = variable.getAttributes();
+        for (final Attribute attribute : attributes) {
+            container.attributes.put(attribute.getFullName(), attribute);
+        }
+        return container;
+    }
+
+    // package access for testing only tb 2016-04-14
+    static String createGroupedName(String groupName, String variableName) {
+        return groupName + "_" + variableName;
+    }
+
+    /**
+     * Retrieves the string representation of the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param variableName  the variable name
+     *
+     * @return the string value or null
+     *
+     * @throws IOException on disk access failures
+     */
+    String getStringAttributeValue(String attributeName, String variableName) throws IOException {
+        final Array array = get(variableName);
+        if (array != null) {
+            return getAttributeStringValue(attributeName, variableName);
+        }
+
+        return null;
     }
 
     private String getAttributeStringValue(String attributeName, String variableKey) {
@@ -254,32 +288,6 @@ public class ArrayCache {
         return null;
     }
 
-    // package access for testing only tb 2016-04-14
-    static String createGroupedName(String groupName, String variableName) {
-        return groupName + "_" + variableName;
-    }
-
-    private ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
-        ArrayContainer container;
-        Variable variable = injectedVariables.get(variableName);
-        if (variable == null) {
-            synchronized (netcdfFile) {
-                variable = netcdfFile.findVariable(group, variableName);
-            }
-            if (variable == null) {
-                throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
-            }
-        }
-        container = new ArrayContainer();
-        container.array = variable.read();
-
-        final List<Attribute> attributes = variable.getAttributes();
-        for (final Attribute attribute : attributes) {
-            container.attributes.put(attribute.getFullName(), attribute);
-        }
-        return container;
-    }
-
     private ArrayContainer readArrayAndAttributesFromGroup(String variableName, String groupName) throws IOException {
         ArrayContainer container;
         final Group group = netcdfFile.findGroup(groupName);
@@ -297,15 +305,16 @@ public class ArrayCache {
         }
     }
 
-    private class ArrayContainer {
-        Array array;
-        Map<String, Attribute> attributes;
+    protected class ArrayContainer {
 
-        ArrayContainer() {
+        public Array array;
+        public Map<String, Attribute> attributes;
+
+        public ArrayContainer() {
             attributes = new HashMap<>();
         }
 
-        Attribute get(String name) {
+        protected Attribute get(String name) {
             return attributes.get(name);
         }
     }

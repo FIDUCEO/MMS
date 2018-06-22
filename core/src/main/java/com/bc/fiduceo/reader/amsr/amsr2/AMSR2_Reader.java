@@ -274,11 +274,8 @@ public class AMSR2_Reader implements Reader {
         }
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
 
-        final Geometries geometries = new Geometries();
-        geometries.setBoundingGeometry(boundingGeometry);
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(lonArray, latArray);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), readerContext.getGeometryFactory());
+        ReaderUtils.setTimeAxes(acquisitionInfo, timeAxisGeometry, readerContext.getGeometryFactory());
     }
 
     private Number getFillValue(String variableName) throws IOException {

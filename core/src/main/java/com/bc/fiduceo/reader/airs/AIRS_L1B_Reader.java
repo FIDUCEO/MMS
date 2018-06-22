@@ -23,14 +23,22 @@ package com.bc.fiduceo.reader.airs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.VariablePrototype;
+import com.bc.fiduceo.util.VariableProxy;
+import org.esa.snap.core.datamodel.SnapAvoidCodeDuplicationClass_SwathPixelLocator;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -39,6 +47,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+import ucar.nc2.dataset.VariableDS;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +60,10 @@ class AIRS_L1B_Reader implements Reader {
     final ReaderContext readerContext;
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
+    private BoundingPolygonCreator boundingPolygonCreator;
+    private AirsArrayCache arrayCache;
+    private PixelLocator pixelLocator;
+
 
     AIRS_L1B_Reader(ReaderContext readerContext) {
         logger = FiduceoLogger.getLogger();
@@ -59,12 +72,22 @@ class AIRS_L1B_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            final Array latitudes = arrayCache.get(getLatitudeVariableName());
+            final Array longitudes = arrayCache.get(getLongitudeVariableName());
+
+            final int[] shape = longitudes.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(longitudes, latitudes, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
+        arrayCache = new AirsArrayCache(netcdfFile);
     }
 
     @Override
@@ -77,25 +100,13 @@ class AIRS_L1B_Reader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        acquisitionInfo.setNodeType(readNodeType());
+
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMetaString = HdfEOSUtil.getEosMetadata(HdfEOSUtil.CORE_METADATA, rootGroup);
         final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
-
-        final NodeType nodeType = readNodeType();
-
-        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
-        if (l1bAirsGroup == null) {
-            throw new IOException("'L1B_AIRS_Science' data group not found");
-        }
-        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
-        final Variable latitudeVariable = geolocationFields.findVariable("Latitude");
-        final Variable longitudeVariable = geolocationFields.findVariable("Longitude");
-        final Array latitudes = latitudeVariable.read();
-        final Array longitudes = longitudeVariable.read();
-
-
-        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
-        acquisitionInfo.setNodeType(nodeType);
 
         final Date sensingStart = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE),
                                                        HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
@@ -105,7 +116,22 @@ class AIRS_L1B_Reader implements Reader {
         acquisitionInfo.setSensingStart(sensingStart);
         acquisitionInfo.setSensingStop(sensingStop);
 
-//        throw new RuntimeException("incomplete code, continue implementing tb 2016-04-13");
+
+        final Group l1bAirsGroup = rootGroup.findGroup("L1B_AIRS_Science");
+        if (l1bAirsGroup == null) {
+            throw new IOException("'L1B_AIRS_Science' data group not found");
+        }
+        final Group geolocationFields = l1bAirsGroup.findGroup("Geolocation_Fields");
+        final Variable latitudeVariable = geolocationFields.findVariable(getLatitudeVariableName());
+        final Variable longitudeVariable = geolocationFields.findVariable(getLongitudeVariableName());
+        final Array latitudes = latitudeVariable.read();
+        final Array longitudes = longitudeVariable.read();
+        if (boundingPolygonCreator == null) {
+            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(10, 50), readerContext.getGeometryFactory());
+        }
+        acquisitionInfo.setBoundingGeometry(boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes));
+        final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
+        ReaderUtils.setTimeAxes(acquisitionInfo, timeAxisGeometry, readerContext.getGeometryFactory());
 
         return acquisitionInfo;
     }
@@ -117,12 +143,12 @@ class AIRS_L1B_Reader implements Reader {
 
     @Override
     public String getLongitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return "Longitude";
     }
 
     @Override
     public String getLatitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return "Latitude";
     }
 
     @Override

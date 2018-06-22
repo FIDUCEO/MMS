@@ -368,11 +368,8 @@ class AMSRE_Reader implements Reader {
         }
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
 
-        final Geometries geometries = new Geometries();
-        geometries.setBoundingGeometry(boundingGeometry);
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        ReaderUtils.setTimeAxes(acquisitionInfo, timeAxisGeometry, geometryFactory);
     }
 
     private Number getFillValue(String groupName, String variableName) throws IOException {

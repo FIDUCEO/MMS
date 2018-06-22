@@ -1,8 +1,10 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.ImageUtils;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.Point2D;
@@ -31,6 +33,8 @@ public class SnapAvoidCodeDuplicationClass_SwathPixelLocator implements PixelLoc
     public SnapAvoidCodeDuplicationClass_SwathPixelLocator(Array lonArray, Array latArray, int width, int height) {
         this.width = width;
         this.height = height;
+        lonArray = NetCDFUtils.toFloat(lonArray);
+        latArray = NetCDFUtils.toFloat(latArray);
         PlanarImage lonImg = getPlanarImage(lonArray, width, height);
         PlanarImage latImg = getPlanarImage(latArray, width, height);
         GeoApproximation[] approximations = GeoApproximation.createApproximations(lonImg, latImg, null, 0.1);
