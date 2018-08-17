@@ -53,7 +53,9 @@ class TimeSeriesStrategy extends Strategy {
         }
 
         writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        NetCDFUtils.ensureFillValue(
+                writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT)
+        );
 
         final TemplateVariables templateVariables = context.getTemplateVariables();
         final List<TemplateVariable> allVariables = templateVariables.getAllTimeSeriesVariables();
@@ -90,15 +92,15 @@ class TimeSeriesStrategy extends Strategy {
         final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
         try {
             analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
-            forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
+            final Variable analysisVariable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
             final int[] analysisCenterTimes = fileMerger.mergeTimeSeriesAnalysisFile(writer, analysisNetCDF);
-            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF);
+            writer.write(analysisVariable, Array.factory(analysisCenterTimes));
 
-            Variable variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
-            writer.write(variable, Array.factory(analysisCenterTimes));
-
-            variable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
-            writer.write(variable, Array.factory(forecastCenterTimes));
+            forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
+            final Variable forecastVariable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
+            final int forecastFillValue = NetCDFUtils.getFillValue(forecastVariable).intValue();
+            final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF, forecastFillValue);
+            writer.write(forecastVariable, Array.factory(forecastCenterTimes));
         } finally {
             if (analysisNetCDF != null) {
                 analysisNetCDF.close();

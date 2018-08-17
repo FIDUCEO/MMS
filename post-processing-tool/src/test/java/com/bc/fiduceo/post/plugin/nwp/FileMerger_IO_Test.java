@@ -147,7 +147,8 @@ public class FileMerger_IO_Test {
         final FileMerger fileMerger = new FileMerger(configuration, templateVariables);
 
         try (NetcdfFile analysis = NetcdfFile.open(forecastFile.getAbsolutePath())) {
-            final int[] centerTimes = fileMerger.mergeForecastFile(netcdfFileWriter, analysis);
+            final int fillValue = 0;
+            final int[] centerTimes = fileMerger.mergeForecastFile(netcdfFileWriter, analysis, fillValue);
             assertEquals(9, centerTimes.length);
             assertEquals(1073692800, centerTimes[0]);
             assertEquals(1074092400, centerTimes[7]);

@@ -1,25 +1,23 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
+import org.mockito.InOrder;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.io.IOException;
 import java.util.Properties;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TimeSeriesStrategyTest {
 
@@ -77,27 +75,33 @@ public class TimeSeriesStrategyTest {
 
     @Test
     public void testPrepare()  {
+        //preparation
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Dimension matchupCountDimension = new Dimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT, 7);
-
-        when(netcdfFile.findDimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT)).thenReturn(matchupCountDimension);
-
-        final Variable variable = mock(Variable.class);
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        when(writer.addVariable(any(), anyString(), any(), anyString())).thenReturn(variable);
-
         final Configuration configuration = createConfiguration();
         final Context context = new Context();
         context.setConfiguration(configuration);
         context.setReader(netcdfFile);
         context.setWriter(writer);
         context.setTemplateVariables(new TemplateVariables(configuration));
+        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
+        final Dimension matchupCountDimension = new Dimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT, 7);
+        when(netcdfFile.findDimension(com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT)).thenReturn(matchupCountDimension);
+
+        final Variable variable = mock(Variable.class);
+        when(writer.addVariable(any(), anyString(), any(), anyString())).thenReturn(variable);
+
+        final String varNameFcCenterTime = timeSeriesConfiguration.getFcCenterTimeName();
+        final Variable varFcCenterTime = mock(Variable.class);
+        when(varFcCenterTime.getDataType()).thenReturn(DataType.INT);
+        when(writer.addVariable(any(), eq(varNameFcCenterTime), any(), anyString())).thenReturn(varFcCenterTime);
+
+        //execution
         final TimeSeriesStrategy timeSeriesStrategy = new TimeSeriesStrategy();
         timeSeriesStrategy.prepare(context);
 
-        final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
-
+        //verification
         verify(writer, times(1)).hasDimension(null, "matchup.nwp.an.time");
         verify(writer, times(1)).hasDimension(null, "matchup.nwp.fc.time");
 
@@ -105,7 +109,13 @@ public class TimeSeriesStrategyTest {
         verify(writer, times(1)).addDimension(null, "matchup.nwp.fc.time", 14);
 
         verify(writer, times(1)).addVariable(null, "matchup.nwp.an.t0", DataType.INT, com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        verify(writer, times(1)).addVariable(null, "matchup.nwp.fc.t0", DataType.INT, com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT);
+
+        final InOrder inOrder = inOrder(writer, varFcCenterTime);
+        inOrder.verify(writer, times(1)).addVariable(null, varNameFcCenterTime, DataType.INT, com.bc.fiduceo.post.Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        inOrder.verify(varFcCenterTime, times(1)).findAttribute(CF_FILL_VALUE_NAME);
+        inOrder.verify(varFcCenterTime, times(1)).getDataType();
+        inOrder.verify(varFcCenterTime, times(1)).addAttribute(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        verifyNoMoreInteractions(varFcCenterTime);
 
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_CI_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");
         verify(writer, times(1)).addVariable(null, timeSeriesConfiguration.getAn_U10_name(), DataType.FLOAT, "matchup_count matchup.nwp.an.time");

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.math.FracIndex;
@@ -30,9 +31,11 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 class FileMerger {
 
@@ -110,11 +113,12 @@ class FileMerger {
      *
      * @param netcdfFileWriter the MMD file writer
      * @param forecastFile     the projected and re-gridded ERA-interim forecast file
+     * @param fillValue        the value to initialize the returned center times array
      * @return the extraction center times per matchup
      * @throws IOException           when something goes wrong
      * @throws InvalidRangeException internal error
      */
-    int[] mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile) throws IOException, InvalidRangeException {
+    int[] mergeForecastFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile forecastFile, int fillValue) throws IOException, InvalidRangeException {
         final Map<Variable, Variable> forecastVariablesMap = getForecastVariablesMap(netcdfFileWriter, forecastFile);
         final TimeSeriesConfiguration timeSeriesConfiguration = configuration.getTimeSeriesConfiguration();
 
@@ -135,14 +139,18 @@ class FileMerger {
         final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
+        Arrays.fill(centerTimes, fillValue);
+        final Logger logger = FiduceoLogger.getLogger();
         for (int i = 0; i < matchupCount; i++) {
             final int targetTime = mmdTimeArray.getInt(i);
             final int timeStep = NwpUtils.nearestTimeStep(forecastTimeArray, targetTime);
-            if (timeStep - fcPastTimeStepCount < 0 || timeStep + fcFutureTimeStepCount > forecastTimeArray.getSize() - 1) {
-                throw new RuntimeException("Not enough time steps in NWP time series.");
+            final int startIdx = timeStep - fcPastTimeStepCount;
+            if (startIdx < 0 || startIdx + forecastSteps > forecastTimeArray.getSize() - 1) {
+                logger.warning("Not enough time steps in NWP time series for matchup index " + i);
+                continue;
             }
 
-            final int[] sourceStart = {timeStep - fcPastTimeStepCount, 0, i, 0};
+            final int[] sourceStart = {startIdx, 0, i, 0};
             NwpUtils.copyValues(forecastVariablesMap, netcdfFileWriter, i, sourceStart, fcSourceShape);
             centerTimes[i] = forecastTimeArray.getInt(timeStep);
         }
