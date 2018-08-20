@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 git pull github master
 mvn clean install package assembly:directory
 
