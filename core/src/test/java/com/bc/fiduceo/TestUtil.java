@@ -20,25 +20,34 @@
 
 package com.bc.fiduceo;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.*;
+import java.util.regex.Pattern;
 
 public class TestUtil {
 
@@ -61,23 +70,6 @@ public class TestUtil {
             fail("Property 'dataDirectory' supplied does not exist: '" + dataDirectoryProperty + "'");
         }
         return dataDirectory;
-    }
-
-    private static void storeProperties(Properties properties, File configDir, String child) throws IOException {
-        final File propertiesFile = new File(configDir, child);
-        if (!propertiesFile.createNewFile()) {
-            fail("unable to create test file: " + propertiesFile.getAbsolutePath());
-        }
-
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(propertiesFile);
-            properties.store(outputStream, "");
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
-        }
     }
 
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
@@ -127,29 +119,29 @@ public class TestUtil {
 
     public static void writeSystemConfig(File configDir) throws IOException {
         final String systemConfigXML = "<system-config>" +
-                "    <geometry-library name = \"S2\" />" +
-                "    <archive>" +
-                "        <root-path>" +
-                "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
-                "        </root-path>" +
-                "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
-                "            insitu/SENSOR/VERSION" +
-                "        </rule>" +
-                "        <rule sensors=\"ocean-rain-sst\">\n" +
-                "            insitu/SENSOR/VERSION\n" +
-                "        </rule>" +
-                "        <rule sensors = \"iasi-ma, iasi-mb\">" +
-                "            SENSOR/VERSION/YEAR/MONTH" +
-                "        </rule>" +
-                "        <rule sensors = \"mod06-te, myd06-aq\">" +
-                "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
-                "        </rule>" +
-                "    </archive>" +
-                "    <temp-directory>" +
-                "            " + TestUtil.getTestDir().getAbsolutePath() +
-                "    </temp-directory>" +
-                "    <reader-cache-size>12</reader-cache-size>" +
-                "</system-config>";
+                                       "    <geometry-library name = \"S2\" />" +
+                                       "    <archive>" +
+                                       "        <root-path>" +
+                                       "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
+                                       "        </root-path>" +
+                                       "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
+                                       "            insitu/SENSOR/VERSION" +
+                                       "        </rule>" +
+                                       "        <rule sensors=\"ocean-rain-sst\">\n" +
+                                       "            insitu/SENSOR/VERSION\n" +
+                                       "        </rule>" +
+                                       "        <rule sensors = \"iasi-ma, iasi-mb\">" +
+                                       "            SENSOR/VERSION/YEAR/MONTH" +
+                                       "        </rule>" +
+                                       "        <rule sensors = \"mod06-te, myd06-aq\">" +
+                                       "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
+                                       "        </rule>" +
+                                       "    </archive>" +
+                                       "    <temp-directory>" +
+                                       "            " + TestUtil.getTestDir().getAbsolutePath() +
+                                       "    </temp-directory>" +
+                                       "    <reader-cache-size>12</reader-cache-size>" +
+                                       "</system-config>";
 
 
         final File systemConfigFile = new File(configDir, "system-config.xml");
@@ -162,21 +154,21 @@ public class TestUtil {
 
     public static void writeMmdWriterConfig(File configDir) throws IOException {
         final String config = "<mmd-writer-config>" +
-                "    <overwrite>false</overwrite>" +
-                "    <cache-size>2048</cache-size>" +
-                "    <netcdf-format>N4</netcdf-format>" +
-                "</mmd-writer-config>";
+                              "    <overwrite>false</overwrite>" +
+                              "    <cache-size>2048</cache-size>" +
+                              "    <netcdf-format>N4</netcdf-format>" +
+                              "</mmd-writer-config>";
 
         writeMmdWriterConfigFile(configDir, config);
     }
 
     public static void writeMmdWriterConfig(File configDir, String additionalTags) throws IOException {
         final String config = "<mmd-writer-config>" +
-                "    <overwrite>false</overwrite>" +
-                "    <cache-size>2048</cache-size>" +
-                "    <netcdf-format>N4</netcdf-format>" +
-                additionalTags +
-                "</mmd-writer-config>";
+                              "    <overwrite>false</overwrite>" +
+                              "    <cache-size>2048</cache-size>" +
+                              "    <netcdf-format>N4</netcdf-format>" +
+                              additionalTags +
+                              "</mmd-writer-config>";
 
         writeMmdWriterConfigFile(configDir, config);
     }
@@ -319,10 +311,64 @@ public class TestUtil {
         }
     }
 
+    /**
+     * Creates a matcher of {@link String} that matches when the examined string matches the
+     * specified pattern.
+     * <p/>
+     * For example:
+     * <pre>assertThat("Sabine", matchesPattern("..bi.."))</pre>
+     *
+     * @param pattern the pattern to match strings
+     */
+    @Factory
+    public static Matcher<String> matchesPattern(final String pattern) {
+        return new StringPatternMatcher(pattern);
+    }
+
+    private static void storeProperties(Properties properties, File configDir, String child) throws IOException {
+        final File propertiesFile = new File(configDir, child);
+        if (!propertiesFile.createNewFile()) {
+            fail("unable to create test file: " + propertiesFile.getAbsolutePath());
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(propertiesFile);
+            properties.store(outputStream, "");
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
+    }
+
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {
         properties.setProperty("driverClassName", datasource.getDriverClassName());
         properties.setProperty("url", datasource.getUrl());
         properties.setProperty("username", datasource.getUsername());
         properties.setProperty("password", datasource.getPassword());
+    }
+
+    static class StringPatternMatcher extends TypeSafeMatcher<String> {
+
+        private final Pattern compiledPattern;
+
+        public StringPatternMatcher(String pattern) {
+            if (pattern == null) {
+                throw new IllegalArgumentException("Non-null pattern required.");
+            }
+
+            this.compiledPattern = Pattern.compile(pattern);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a string matching the pattern '" + compiledPattern.pattern() + "'");
+        }
+
+        @Override
+        protected boolean matchesSafely(String item) {
+            return compiledPattern.matcher(item).matches();
+        }
     }
 }

@@ -20,14 +20,20 @@
 
 package com.bc.fiduceo.post.plugin.iasi;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
+import org.hamcrest.CoreMatchers;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -36,21 +42,10 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class AddIASISpectrumTest {
 
@@ -171,250 +166,267 @@ public class AddIASISpectrumTest {
         assertEquals("proc-ver", configuration.processingVersionVariableName);
     }
 
-    static Element createFullConfigElement() throws JDOMException, IOException {
-        final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"reffi\" />" +
-                "    <x-variable name=\"exxi\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
-
-        return TestUtil.createDomElement(configXML);
-    }
-
     @Test
     public void testCreateConfiguration_missingTargetVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <reference-variable name=\"reffi\" />" +
-                "    <x-variable name=\"exxi\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <reference-variable name=\"reffi\" />" +
+                                 "    <x-variable name=\"exxi\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString("target-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingTargetVariableNameAttribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable  />" +
-                "    <reference-variable name=\"reffi\" />" +
-                "    <x-variable name=\"exxi\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable  />" +
+                                 "    <reference-variable name=\"reffi\" />" +
+                                 "    <x-variable name=\"exxi\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("target-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingReferenceVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <x-variable name=\"exxi\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <x-variable name=\"exxi\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString("reference-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingReferenceVariable_nameAttribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable  />" +
-                "    <x-variable name=\"exxi\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable  />" +
+                                 "    <x-variable name=\"exxi\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("reference-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingXVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), CoreMatchers.containsString("x-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingXVariable_nameAtribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable  />" +
-                "    <y-variable name=\"yppsi\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable  />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("x-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingYVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), CoreMatchers.containsString("y-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingYVariable_nameAttribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <y-variable  />" +
-                "    <file-name-variable name=\"fileName\" />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <y-variable  />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("y-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingFileNameVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <y-variable  name=\"ypps\"/>" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <y-variable  name=\"ypps\"/>" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), CoreMatchers.containsString("file-name-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingFileNameVariable_nameAttribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <y-variable  name=\"ypps\"/>" +
-                "    <file-name-variable />" +
-                "    <processing-version-variable name=\"proc-ver\" />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <y-variable  name=\"ypps\"/>" +
+                                 "    <file-name-variable />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("file-name-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingProcessingVersionVariable() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <y-variable  name=\"ypps\"/>" +
-                "    <file-name-variable name=\"filius\"/>" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <y-variable  name=\"ypps\"/>" +
+                                 "    <file-name-variable name=\"filius\"/>" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), CoreMatchers.containsString("processing-version-variable"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingProcessingVersionVariable_nameAttribute() throws JDOMException, IOException {
         final String configXML = "<add-iasi-spectrum>" +
-                "    <target-variable name=\"schnecktrum\" />" +
-                "    <reference-variable name=\"ref\" />" +
-                "    <x-variable name=\"echs\" />" +
-                "    <y-variable  name=\"ypps\"/>" +
-                "    <file-name-variable name=\"filius\"/>" +
-                "    <processing-version-variable  />" +
-                "</add-iasi-spectrum>";
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"ref\" />" +
+                                 "    <x-variable name=\"echs\" />" +
+                                 "    <y-variable  name=\"ypps\"/>" +
+                                 "    <file-name-variable name=\"filius\"/>" +
+                                 "    <processing-version-variable  />" +
+                                 "</add-iasi-spectrum>";
 
         final Element rootElement = TestUtil.createDomElement(configXML);
 
         try {
             AddIASISpectrum.createConfiguration(rootElement);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("processing-version-variable"));
         }
     }
 
@@ -454,5 +466,18 @@ public class AddIASISpectrumTest {
 
         verify(writer, times(1)).addDimension(null, "iasi_ss", EpsMetopConstants.SS);
         verifyNoMoreInteractions(writer);
+    }
+
+    static Element createFullConfigElement() throws JDOMException, IOException {
+        final String configXML = "<add-iasi-spectrum>" +
+                                 "    <target-variable name=\"schnecktrum\" />" +
+                                 "    <reference-variable name=\"reffi\" />" +
+                                 "    <x-variable name=\"exxi\" />" +
+                                 "    <y-variable name=\"yppsi\" />" +
+                                 "    <file-name-variable name=\"fileName\" />" +
+                                 "    <processing-version-variable name=\"proc-ver\" />" +
+                                 "</add-iasi-spectrum>";
+
+        return TestUtil.createDomElement(configXML);
     }
 }

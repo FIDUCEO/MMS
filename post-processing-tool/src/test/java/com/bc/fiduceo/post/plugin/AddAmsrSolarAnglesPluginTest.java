@@ -20,30 +20,28 @@
 
 package com.bc.fiduceo.post.plugin;
 
+import static com.bc.fiduceo.TestUtil.matchesPattern;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.PostProcessing;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class AddAmsrSolarAnglesPluginTest {
 
     private static final String FULL_CONFIG = "<add-amsr-solar-angles>" +
-            "    <sun-elevation-variable name = \"sun_up\" />" +
-            "    <sun-azimuth-variable name = \"sun_angle\" />" +
-            "    <earth-incidence-variable name = \"ground_angle\" />" +
-            "    <earth-azimuth-variable name = \"ground_round\" />" +
-            "    <sza-target-variable name = \"sun_zenith_angle\" />" +
-            "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
-            "</add-amsr-solar-angles>";
+                                              "    <sun-elevation-variable name = \"sun_up\" />" +
+                                              "    <sun-azimuth-variable name = \"sun_angle\" />" +
+                                              "    <earth-incidence-variable name = \"ground_angle\" />" +
+                                              "    <earth-azimuth-variable name = \"ground_round\" />" +
+                                              "    <sza-target-variable name = \"sun_zenith_angle\" />" +
+                                              "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
+                                              "</add-amsr-solar-angles>";
 
     private AddAmsrSolarAnglesPlugin plugin;
 
@@ -69,32 +67,34 @@ public class AddAmsrSolarAnglesPluginTest {
     @Test
     public void testCreateConfiguration_emptyConfig() throws JDOMException, IOException {
         final String XML = "<add-amsr-solar-angles>" +
-                "</add-amsr-solar-angles>";
+                           "</add-amsr-solar-angles>";
         final Element rootElement = TestUtil.createDomElement(XML);
 
         try {
             AddAmsrSolarAnglesPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), matchesPattern("Child element '.*' expected"));
         }
     }
 
     @Test
     public void testCreateConfiguration_missingValues() throws JDOMException, IOException {
         String XML = "<add-amsr-solar-angles>" +
-                "    <sun-elevation-variable name = \"bla\" />" +
-                "<!-- missing sun azimuth -->" +
-                "    <earth-incidence-variable name = \"ground_angle\" />" +
-                "    <earth-azimuth-variable name = \"ground_round\" />" +
-                "    <sza-target-variable name = \"sun_zenith_angle\" />" +
-                "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
-                "</add-amsr-solar-angles>";
+                     "    <sun-elevation-variable name = \"bla\" />" +
+                     "<!-- missing sun azimuth -->" +
+                     "    <earth-incidence-variable name = \"ground_angle\" />" +
+                     "    <earth-azimuth-variable name = \"ground_round\" />" +
+                     "    <sza-target-variable name = \"sun_zenith_angle\" />" +
+                     "    <saa-target-variable name = \"sun_azimuth_angle\" />" +
+                     "</add-amsr-solar-angles>";
         Element rootElement = TestUtil.createDomElement(XML);
 
         try {
             AddAmsrSolarAnglesPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString("'sun-azimuth-variable'"));
         }
     }
 

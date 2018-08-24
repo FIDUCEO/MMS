@@ -34,8 +34,9 @@ public class JDomUtils {
 
     public static Attribute getMandatoryAttribute(final Element element, final String name) {
         final Attribute attribute = element.getAttribute(name);
+        String elementName = element.getName();
         if (attribute == null) {
-            throw new RuntimeException(ATTRIBUTE + " '" + name + "' expected");
+            throw new RuntimeException(ATTRIBUTE + " '" + name + "' expected at element '" + elementName + "'");
         }
         return attribute;
     }

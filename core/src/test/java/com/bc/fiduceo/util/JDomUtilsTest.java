@@ -74,13 +74,13 @@ public class JDomUtilsTest {
 
     @Test
     public void testGetMandatoryAttribute_notPresent() {
-        final Element element = new Element("element");
+        final Element element = new Element("element-name");
 
         try {
             JDomUtils.getMandatoryAttribute(element, "mandatory");
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Attribute 'mandatory' expected", expected.getMessage());
+            assertEquals("Attribute 'mandatory' expected at element 'element-name'", expected.getMessage());
         }
     }
 
@@ -242,7 +242,7 @@ public class JDomUtilsTest {
             JDomUtils.getValueFromNameAttributeMandatory(element);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertEquals("Attribute 'name' expected", expected.getMessage());
+            assertEquals("Attribute 'name' expected at element 'elem'", expected.getMessage());
         }
 
         //preparation

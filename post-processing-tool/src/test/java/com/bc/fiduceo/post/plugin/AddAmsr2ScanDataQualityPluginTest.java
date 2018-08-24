@@ -20,16 +20,16 @@
 
 package com.bc.fiduceo.post.plugin;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.PostProcessing;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class AddAmsr2ScanDataQualityPluginTest {
 
@@ -71,6 +71,7 @@ public class AddAmsr2ScanDataQualityPluginTest {
             AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), containsString("target-variable"));
         }
     }
 
@@ -85,6 +86,10 @@ public class AddAmsr2ScanDataQualityPluginTest {
             AddAmsr2ScanDataQualityPlugin.createConfiguration(rootElement);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            String lowerMessage = expected.getMessage().toLowerCase();
+            assertThat(lowerMessage, containsString("'name'"));
+            assertThat(lowerMessage, containsString("attribute"));
+            assertThat(lowerMessage, containsString("target-variable"));
         }
     }
 

@@ -20,6 +20,10 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.*;
+
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
@@ -33,23 +37,12 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.Test;
+import org.hamcrest.CoreMatchers;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class AbstractMatchupStrategyTest {
 
@@ -135,6 +128,7 @@ public class AbstractMatchupStrategyTest {
             AbstractMatchupStrategy.getPrimarySensorParameter(context);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
+            assertThat(expected.getMessage(), CoreMatchers.containsString("primary sensor not present in configuration file"));
         }
     }
 
