@@ -67,8 +67,8 @@ public class RawDataReader {
         final int offsetX = centerX - windowWidth / 2;
         final int offsetY = centerY - windowHeight / 2;
 
-        if (inputDimension == InputDimension.ONE_D ||
-                inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
+        if (inputDimension == InputDimension.ONE_D
+            || inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
             return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         } else {
             boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);

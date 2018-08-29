@@ -20,10 +20,13 @@
 
 package com.bc.fiduceo.reader.airs;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -32,15 +35,26 @@ import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.*;
 import org.junit.runner.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(IOTestRunner.class)
 public class AIRS_L1B_Reader_IO_Test {
@@ -49,15 +63,39 @@ public class AIRS_L1B_Reader_IO_Test {
     private final String CloseToFirstProductOfTheDay = "AIRS.2010.01.07.005.L1B.AIRS_Rad.v5.0.0.0.G10007113615.hdf";
     private final String CloseToLastProductOfTheDay = "AIRS.2010.01.07.236.L1B.AIRS_Rad.v5.0.0.0.G10008113144.hdf";
     private final String LastProductOfTheDay = "AIRS.2010.01.07.240.L1B.AIRS_Rad.v5.0.0.0.G10008113232.hdf";
-
+    private final String[] expVariableNames = new String[]{
+            "Latitude", "Longitude", "Time",
+            "scanang",
+            "satheight", "satroll", "satpitch", "satyaw", "satgeoqa",
+            "glintgeoqa", "moongeoqa", "ftptgeoqa", "zengeoqa", "demgeoqa",
+            "nadirTAI",
+            "sat_lat", "sat_lon",
+            "scan_node_type",
+            "satzen", "satazi", "solzen", "solazi",
+            "glintlat", "glintlon", "sun_glint_distance",
+            "topog", "topog_err",
+            "landFrac", "landFrac_err",
+            "state",
+            "CalScanSummary",
+            "spaceview_selection",
+            "Rdiff_swindow", "Rdiff_lwindow",
+            "SceneInhomogeneous",
+            "dust_flag", "dust_score",
+            "spectral_clear_indicator",
+            "BT_diff_SO2",
+            "OpMode",
+            "EDCBOARD",
+            };
+    private final Interval interval_1_1 = new Interval(1, 1);
     private Path airsDataPath;
     private DateFormat dateFormat;
-
     private AIRS_L1B_Reader airsL1bReader;
 
     @Before
     public void setUp() throws IOException {
-        airsDataPath = TestUtil.getTestDataDirectory().toPath().resolve("airs-aq");
+        airsDataPath = TestUtil.getTestDataDirectory().toPath()
+                .resolve("airs-aq").resolve("v5.0.0.0").resolve("2010").resolve("007");
+
         dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         final ReaderContext readerContext = new ReaderContext();
@@ -71,7 +109,8 @@ public class AIRS_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo_FirstProductOfTheDay() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_FirstProductOfTheDay() throws IOException, ParseException, InvalidRangeException {
+
         airsL1bReader.open(airsDataPath.resolve(FirstProductOfTheDay).toFile());
 
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
@@ -98,20 +137,41 @@ public class AIRS_L1B_Reader_IO_Test {
                 new IndexedPoint(3, -155.5917138838205, -18.46488718833132)
         };
 
-
         assertAquisitionInfo(acquisitionInfo,
                              sensingStart, sensingStop, nodeType,
                              numBoundingCoordinates, boundingPoints,
                              timeAxisDuration, numTimeAxisPoints, expTimeAxisPoints);
 
-        assertEquals("Latitude", airsL1bReader.getLatitudeVariableName());
-        assertEquals("Longitude", airsL1bReader.getLongitudeVariableName());
+        final Dimension productSize = airsL1bReader.getProductSize();
+        assertNotNull(productSize);
+        assertEquals(90, productSize.getNx());
+        assertEquals(135, productSize.getNy());
+
         final PixelLocator pixelLocator = airsL1bReader.getPixelLocator();
         assertNotNull(pixelLocator);
+        final Point2D geoLocation = pixelLocator.getGeoLocation(10.5, 12.5, new Point2D.Double());
+        final Point2D[] pixelLocations = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
+        assertNotNull(pixelLocations);
+        assertEquals(1, pixelLocations.length);
+        final Point2D pixelLocation = pixelLocations[0];
+        assertNotNull(pixelLocation);
+        assertEquals(10.5, pixelLocation.getX(), 0.05);
+        assertEquals(12.5, pixelLocation.getY(), 0.05);
+
+        final TimeLocator timeLocator = airsL1bReader.getTimeLocator();
+        assertNotNull(timeLocator);
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(0, 0)).getTime(), timeLocator.getTimeFor(0, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(1, 0)).getTime(), timeLocator.getTimeFor(1, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(44, 61)).getTime(), timeLocator.getTimeFor(44, 61));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(47, 68)).getTime(), timeLocator.getTimeFor(47, 68));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 133)).getTime(), timeLocator.getTimeFor(89, 133));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 134)).getTime(), timeLocator.getTimeFor(89, 134));
+
+        assertGetVariables(airsL1bReader);
     }
 
     @Test
-    public void testReadAcquisitionInfo_CloseToFirstProductOfTheDay() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_CloseToFirstProductOfTheDay() throws IOException, ParseException, InvalidRangeException {
         airsL1bReader.open(airsDataPath.resolve(CloseToFirstProductOfTheDay).toFile());
 
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
@@ -144,10 +204,37 @@ public class AIRS_L1B_Reader_IO_Test {
                              sensingStart, sensingStop, nodeType,
                              numBoundingCoordinates, boundingPoints,
                              timeAxisDuration, numTimeAxisPoints, expTimeAxisPoints);
+
+        final Dimension productSize = airsL1bReader.getProductSize();
+        assertNotNull(productSize);
+        assertEquals(90, productSize.getNx());
+        assertEquals(135, productSize.getNy());
+
+        final PixelLocator pixelLocator = airsL1bReader.getPixelLocator();
+        assertNotNull(pixelLocator);
+        final Point2D geoLocation = pixelLocator.getGeoLocation(10.5, 12.5, new Point2D.Double());
+        final Point2D[] pixelLocations = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
+        assertNotNull(pixelLocations);
+        assertEquals(1, pixelLocations.length);
+        final Point2D pixelLocation = pixelLocations[0];
+        assertNotNull(pixelLocation);
+        assertEquals(10.5, pixelLocation.getX(), 0.05);
+        assertEquals(12.5, pixelLocation.getY(), 0.05);
+
+        final TimeLocator timeLocator = airsL1bReader.getTimeLocator();
+        assertNotNull(timeLocator);
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(0, 0)).getTime(), timeLocator.getTimeFor(0, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(1, 0)).getTime(), timeLocator.getTimeFor(1, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(44, 61)).getTime(), timeLocator.getTimeFor(44, 61));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(47, 68)).getTime(), timeLocator.getTimeFor(47, 68));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 133)).getTime(), timeLocator.getTimeFor(89, 133));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 134)).getTime(), timeLocator.getTimeFor(89, 134));
+
+        assertGetVariables(airsL1bReader);
     }
 
     @Test
-    public void testReadAcquisitionInfo_CloseToLastProductOfTheDay() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_CloseToLastProductOfTheDay() throws IOException, ParseException, InvalidRangeException {
         airsL1bReader.open(airsDataPath.resolve(CloseToLastProductOfTheDay).toFile());
 
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
@@ -179,10 +266,37 @@ public class AIRS_L1B_Reader_IO_Test {
                              sensingStart, sensingStop, nodeType,
                              numBoundingCoordinates, boundingPoints,
                              timeAxisDuration, numTimeAxisPoints, expTimeAxisPoints);
+
+        final Dimension productSize = airsL1bReader.getProductSize();
+        assertNotNull(productSize);
+        assertEquals(90, productSize.getNx());
+        assertEquals(135, productSize.getNy());
+
+        final PixelLocator pixelLocator = airsL1bReader.getPixelLocator();
+        assertNotNull(pixelLocator);
+        final Point2D geoLocation = pixelLocator.getGeoLocation(10.5, 12.5, new Point2D.Double());
+        final Point2D[] pixelLocations = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
+        assertNotNull(pixelLocations);
+        assertEquals(1, pixelLocations.length);
+        final Point2D pixelLocation = pixelLocations[0];
+        assertNotNull(pixelLocation);
+        assertEquals(10.5, pixelLocation.getX(), 0.05);
+        assertEquals(12.5, pixelLocation.getY(), 0.05);
+
+        final TimeLocator timeLocator = airsL1bReader.getTimeLocator();
+        assertNotNull(timeLocator);
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(0, 0)).getTime(), timeLocator.getTimeFor(0, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(1, 0)).getTime(), timeLocator.getTimeFor(1, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(44, 61)).getTime(), timeLocator.getTimeFor(44, 61));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(47, 68)).getTime(), timeLocator.getTimeFor(47, 68));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 133)).getTime(), timeLocator.getTimeFor(89, 133));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 134)).getTime(), timeLocator.getTimeFor(89, 134));
+
+        assertGetVariables(airsL1bReader);
     }
 
     @Test
-    public void testReadAcquisitionInfo_LastProductOfTheDay() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_LastProductOfTheDay() throws IOException, ParseException, InvalidRangeException {
         airsL1bReader.open(airsDataPath.resolve(LastProductOfTheDay).toFile());
 
         final AcquisitionInfo acquisitionInfo = airsL1bReader.read();
@@ -215,7 +329,118 @@ public class AIRS_L1B_Reader_IO_Test {
                              numBoundingCoordinates, boundingPoints,
                              timeAxisDuration, numTimeAxisPoints, expTimeAxisPoints);
 
+        final Dimension productSize = airsL1bReader.getProductSize();
+        assertNotNull(productSize);
+        assertEquals(90, productSize.getNx());
+        assertEquals(135, productSize.getNy());
 
+        final PixelLocator pixelLocator = airsL1bReader.getPixelLocator();
+        assertNotNull(pixelLocator);
+        final Point2D geoLocation = pixelLocator.getGeoLocation(10.5, 12.5, new Point2D.Double());
+        final Point2D[] pixelLocations = pixelLocator.getPixelLocation(geoLocation.getX(), geoLocation.getY());
+        assertNotNull(pixelLocations);
+        assertEquals(1, pixelLocations.length);
+        final Point2D pixelLocation = pixelLocations[0];
+        assertNotNull(pixelLocation);
+        assertEquals(10.5, pixelLocation.getX(), 0.05);
+        assertEquals(12.5, pixelLocation.getY(), 0.05);
+
+        final TimeLocator timeLocator = airsL1bReader.getTimeLocator();
+        assertNotNull(timeLocator);
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(0, 0)).getTime(), timeLocator.getTimeFor(0, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(1, 0)).getTime(), timeLocator.getTimeFor(1, 0));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(44, 61)).getTime(), timeLocator.getTimeFor(44, 61));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(47, 68)).getTime(), timeLocator.getTimeFor(47, 68));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 133)).getTime(), timeLocator.getTimeFor(89, 133));
+        assertEquals(TimeUtils.tai1993ToUtc(readTai93(89, 134)).getTime(), timeLocator.getTimeFor(89, 134));
+
+        assertGetVariables(airsL1bReader);
+    }
+
+    @Test
+    public void testReadRawAndScaledFrom1dVariable() throws IOException, InvalidRangeException {
+        airsL1bReader.open(airsDataPath.resolve(FirstProductOfTheDay).toFile());
+        final Array arrayRaw = airsL1bReader.readRaw(87, 1, new Interval(5, 5), "satheight");
+        final Array arrayScaled = airsL1bReader.readScaled(87, 1, new Interval(5, 5), "satheight");
+
+        assertNotNull(arrayRaw);
+        assertTrue(arrayRaw instanceof ArrayFloat.D2);
+        final ArrayFloat.D2 d2Raw = (ArrayFloat.D2) arrayRaw;
+        float[] fRaw = (float[]) d2Raw.get1DJavaArray(Float.class);
+
+        assertNotNull(arrayScaled);
+        assertTrue(arrayScaled instanceof ArrayFloat.D2);
+        final ArrayFloat.D2 d2Scaled = (ArrayFloat.D2) arrayScaled;
+        float[] fScaled = (float[]) d2Scaled.get1DJavaArray(Float.class);
+
+        final float[] expectedRawAndScaled = new float[]{
+                -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                718.0556f, 718.0556f, 718.0556f, 718.0556f, 718.0556f,
+                717.98834f, 717.98834f, 717.98834f, 717.98834f, 717.98834f,
+                717.92114f, 717.92114f, 717.92114f, 717.92114f, 717.92114f,
+                717.8539f, 717.8539f, 717.8539f, 717.8539f, 717.8539f,
+                };
+
+        assertArrayEquals(expectedRawAndScaled, fRaw, 1e-8f);
+        assertArrayEquals(expectedRawAndScaled, fScaled, 1e-8f);
+    }
+
+    @Test
+    public void testReadFrom2dVariable() throws IOException, InvalidRangeException {
+        airsL1bReader.open(airsDataPath.resolve(FirstProductOfTheDay).toFile());
+        final Array array = airsL1bReader.readRaw(1, 1, new Interval(5, 5), "BT_diff_SO2");
+        assertNotNull(array);
+        assertTrue(array instanceof ArrayFloat.D2);
+        final ArrayFloat.D2 d2 = (ArrayFloat.D2) array;
+        float[] f = (float[]) d2.get1DJavaArray(Float.class);
+        final float[] expected = new float[]{
+                -9999.0f, -9999.0f, -9999.0f, -9999.0f, -9999.0f,
+                -9999.0f, -2.1013947f, -1.8912964f, -1.5602264f, -1.8875885f,
+                -9999.0f, -1.9546509f, -1.8443756f, -1.8810272f, -1.7983246f,
+                -9999.0f, -2.3438263f, -2.243332f, -2.0015259f, -1.9786682f,
+                -9999.0f, -2.1965332f, -2.193283f, -1.809494f, -1.878479f
+        };
+        assertArrayEquals(expected, f, 1e-8f);
+    }
+
+    @Test
+    public void readAcquisitionTime() throws Exception {
+        //preparation
+        airsL1bReader.open(airsDataPath.resolve(FirstProductOfTheDay).toFile());
+        final int x = 1;
+        final int y = 1;
+        final Interval interval = new Interval(5, 5);
+        final Array pt = airsL1bReader.readRaw(x, y, interval, "Time");
+        final int[] expectedShape = {5, 5};
+        assertThat(pt.getShape(), is(equalTo(expectedShape)));
+        final List<Variable> variables = airsL1bReader.getVariables();
+        Number fillValue = null;
+        for (Variable variable : variables) {
+            if (variable.getShortName().equals("Time")) {
+                fillValue = variable.findAttribute(NetCDFUtils.CF_FILL_VALUE_NAME).getNumericValue();
+            }
+        }
+        assertThat(fillValue, is(notNullValue()));
+
+        //execution
+        final ArrayInt.D2 at = airsL1bReader.readAcquisitionTime(x, y, interval);
+
+        //verification
+        assertThat(at.getDataType(), is(equalTo(DataType.INT)));
+        assertThat(at.getShape(), is(equalTo(expectedShape)));
+        int fillValueCount = 0;
+        for (int i = 0; i < at.getSize(); i++) {
+            final double ptVal = pt.getDouble(i);
+            final int expected;
+            if (fillValue.equals(ptVal)) {
+                expected = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+                fillValueCount++;
+            } else {
+                expected = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(ptVal));
+            }
+            assertThat("Loop number " + i, at.getInt(i), is(expected));
+        }
+        assertThat(fillValueCount, is(9));
     }
 
     private void assertAquisitionInfo(AcquisitionInfo acquisitionInfo, String sensingStart, String sensingStop, NodeType nodeType, int numBoundingCoordinates, IndexedPoint[] boundingPoints, int timeAxisDuration, int numTimeAxisPoints, IndexedPoint[] expTimeAxisPoints) throws ParseException {
@@ -265,6 +490,21 @@ public class AIRS_L1B_Reader_IO_Test {
     private void assertCoordinate(String msg, double expectedLon, double expectedLat, Point coordinate) {
         assertEquals(expectedLon, coordinate.getLon(), 1e-8);
         assertEquals(expectedLat, coordinate.getLat(), 1e-8);
+    }
+
+    private void assertGetVariables(AIRS_L1B_Reader reader) throws InvalidRangeException {
+        final List<Variable> variables = reader.getVariables();
+        assertEquals(expVariableNames.length, variables.size());
+        for (int i = 0; i < variables.size(); i++) {
+            Variable variable = variables.get(i);
+            final String name = variable.getShortName();
+            assertEquals("Assertion error at pos: " + i, expVariableNames[i], name);
+        }
+    }
+
+    private double readTai93(int x, int y) throws IOException, InvalidRangeException {
+        final Array array = airsL1bReader.readRaw(x, y, interval_1_1, "Time");
+        return array.getDouble(array.getIndex());
     }
 
     static class IndexedPoint {

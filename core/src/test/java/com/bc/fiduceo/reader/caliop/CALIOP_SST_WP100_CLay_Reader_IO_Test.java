@@ -413,6 +413,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
 
     @Test
     public void readAcquisitionTime() throws Exception {
+        //preparation
         final int x = 0;
         final int y = 4;
         final Interval interval = new Interval(1, 13);
