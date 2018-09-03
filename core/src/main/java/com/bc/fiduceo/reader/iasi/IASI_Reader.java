@@ -40,6 +40,8 @@
 
 package com.bc.fiduceo.reader.iasi;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -47,11 +49,19 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
-import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.VariableProxy;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -60,10 +70,9 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 
 public class IASI_Reader implements Reader {
@@ -197,7 +206,7 @@ public class IASI_Reader implements Reader {
         final Dimension productSize = getProductSize();
 
         final ReadProxy readProxy = proxiesMap.get(variableName);
-        final Number fillValue = NetCDFUtils.getDefaultFillValue(readProxy.getDataType());
+        final Number fillValue = getDefaultFillValue(readProxy.getDataType());
         final Array array = Array.factory(readProxy.getDataType(), shape);
 
         final Index index = array.getIndex();
@@ -296,11 +305,7 @@ public class IASI_Reader implements Reader {
 
     public static float[] getDefaultFloatSpect() {
         final float[] gs1cSpectDecoded = new float[EpsMetopConstants.SS];
-
-        final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
-        for (int i = 0; i < EpsMetopConstants.SS; i++) {
-            gs1cSpectDecoded[i] = fillValue;
-        }
+        Arrays.fill(gs1cSpectDecoded, getDefaultFillValue(float.class).floatValue());
         return gs1cSpectDecoded;
     }
 
@@ -515,51 +520,51 @@ public class IASI_Reader implements Reader {
         List<Variable> variableList = new ArrayList<>();
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Quality of MDR has been degraded from nominal due to an instrument degradation"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("DEGRADED_INST_MDR", DataType.BYTE, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Quality of MDR has been degraded from nominal due to a processing degradation"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("DEGRADED_PROC_MDR", DataType.BYTE, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Instrument mode"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GEPSIasiMode", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Processing mode"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GEPSOPSProcessingMode", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "On Board Time (Coarse time + Fine time)"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(long.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(long.class)));
         variableList.add(new VariableProxy("OBT", DataType.LONG, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Date of IASI measure (on board UTC)"));
         attributes.add(new Attribute(CF_UNITS_NAME, "s"));
         attributes.add(new Attribute(CF_LONG_NAME, "On board UTC in in milliseconds since 1970-01-01 00:00:00"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(long.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(long.class)));
         variableList.add(new VariableProxy("OnboardUTC", DataType.LONG, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Date of IASI measure (corrected UTC)"));
         attributes.add(new Attribute(CF_UNITS_NAME, "ms"));
         attributes.add(new Attribute(CF_LONG_NAME, "Corrected UTC in in milliseconds since 1970-01-01 00:00:00"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(long.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(long.class)));
         variableList.add(new VariableProxy("GEPSDatIasi", DataType.LONG, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Corner Cube Direction for all observational targets."));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("GEPS_CCD", DataType.BYTE, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Scan position for all observational targets."));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GEPS_SP", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
@@ -567,49 +572,49 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute(CF_STANDARD_NAME, "status_flag"));
         attributes.add(new Attribute(CF_FLAG_MASKS_NAME, "1 2 4 8 16 32 64 128 256 512 1024 2048 4096"));
         attributes.add(new Attribute(CF_FLAG_MEANINGS_NAME, "hardware spikes_b1 spikes_b2 spikes_b3 nzbd_cal_error onboard_general_qual overflow_underflow spectral_calib_error rad_post_calib_error summary_flag miss_sounder_data miss_iis_data miss_avhrr_data"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(short.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(short.class)));
         variableList.add(new VariableProxy("GQisFlagQualDetailed", DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "System-IASI general quality index"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GQisQualIndex", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "IIS imager quality index inside 1c product"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GQisQualIndexIIS", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Geometric quality index for sounder product"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GQisQualIndexLoc", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Radiometric quality index for sounder product"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GQisQualIndexRad", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Spectral quality index for sounder product"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GQisQualIndexSpect", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "System-TEC quality index for IIS"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GQisSysTecIISQual", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "System-TEC quality index for sounder"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GQisSysTecSondQual", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Location of pixel centre in geodetic coordinates for each sounder pixel (lon)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degrees_east"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondLoc_Lon", DataType.INT, attributes));
 
@@ -617,7 +622,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("description", "Location of pixel centre in geodetic coordinates for each sounder pixel (lat)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degrees_north"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondLoc_Lat", DataType.INT, attributes));
 
@@ -625,7 +630,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (zenith)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "sensor_zenith_angle"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degree"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Zenith", DataType.INT, attributes));
 
@@ -633,7 +638,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("description", "Measurement angles for each sounder pixel (azimuth)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "sensor_azimuth_angle"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degree"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesMETOP_Azimuth", DataType.INT, attributes));
 
@@ -641,7 +646,7 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (zenith)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "solar_zenith_angle"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degree"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesSUN_Zenith", DataType.INT, attributes));
 
@@ -649,34 +654,34 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute("description", "Solar angles at the surface for each sounder pixel (azimuth)"));
         attributes.add(new Attribute(CF_STANDARD_NAME, "solar_azimuth_angle"));
         attributes.add(new Attribute(CF_UNITS_NAME, "degree"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1e-6));
         variableList.add(new VariableProxy("GGeoSondAnglesSUN_Azimuth", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Distance of satellite from Earth centre"));
         attributes.add(new Attribute(CF_UNITS_NAME, "m"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("EARTH_SATELLITE_DISTANCE", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Sample width of IASI 1C spectra (same as 1B)"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("IDefSpectDWn1b", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Number of the first sample of IASI 1C spectra (same as 1B)"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("IDefNsfirst1b", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Number of the last sample of IASI 1C spectra (same as 1B)"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("IDefNslast1b", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Radiance Analysis: Number of identified classes in the sounder FOV"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("GCcsRadAnalNbClass", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
@@ -684,54 +689,54 @@ public class IASI_Reader implements Reader {
         attributes.add(new Attribute(CF_STANDARD_NAME, "status_flag"));
         attributes.add(new Attribute(CF_FLAG_MASKS_NAME, "1"));
         attributes.add(new Attribute(CF_FLAG_MEANINGS_NAME, "iis_image"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(int.class)));
         variableList.add(new VariableProxy("IDefCcsMode", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Radiance Analysis: Number of useful lines"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(short.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(short.class)));
         variableList.add(new VariableProxy("GCcsImageClassifiedNbLin", DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Radiance Analysis: Number of useful columns"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(short.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(short.class)));
         variableList.add(new VariableProxy("GCcsImageClassifiedNbCol", DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "First line of the classified image (number in the Avhrr raster, as per section 2.5 )"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GCcsImageClassifiedFirstLin", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "First column of the classified image (number in the Avhrr raster, as per section 2.5 )"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GCcsImageClassifiedFirstCol", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Variance of IIS image"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GIacVarImagIIS", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Average of IIS image"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(float.class)));
         variableList.add(new VariableProxy("GIacAvgImagIIS", DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Cloud fraction in IASI FOV from AVHRR 1B in IASI FOV"));
         attributes.add(new Attribute(CF_UNITS_NAME, "%"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("GEUMAvhrr1BCldFrac", DataType.BYTE, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Land and Coast fraction in IASI FOV from AVHRR 1B"));
         attributes.add(new Attribute(CF_UNITS_NAME, "%"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("GEUMAvhrr1BLandFrac", DataType.BYTE, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute("description", "Quality indicator. If the quality is good, it gives the coverage of snow/ice."));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(byte.class)));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(byte.class)));
         variableList.add(new VariableProxy("GEUMAvhrr1BQual", DataType.BYTE, attributes));
         return variableList;
     }
