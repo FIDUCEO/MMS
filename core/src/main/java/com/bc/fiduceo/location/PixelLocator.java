@@ -43,7 +43,7 @@ public interface PixelLocator {
      *
      * @param lon The pixel longitude [-180.0, 180.0].
      * @param lat The pixel latitude [-90.0, 90.0].
-     * @return an array of points if one or two pixel locations was found, {@code null} otherwise.
+     * @return an array of points if one or two pixel locations was found, an empty array otherwise.
      */
     Point2D[] getPixelLocation(double lon, double lat);
 }

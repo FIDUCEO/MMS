@@ -86,6 +86,6 @@ public class PixelLocatorX1Yn implements PixelLocator {
         if (smallestDistKm <= maxDistanceKm) {
             return new Point2D.Double[]{new Point2D.Double(0.5, smallestIDX + 0.5)};
         }
-        return null;
+        return new Point2D[0];
     }
 }

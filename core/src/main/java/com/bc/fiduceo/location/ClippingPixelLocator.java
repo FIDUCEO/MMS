@@ -46,6 +46,6 @@ class ClippingPixelLocator implements PixelLocator {
                 points.add(point2D);
             }
         }
-        return points.toArray(new Point2D[points.size()]);
+        return points.toArray(new Point2D[0]);
     }
 }

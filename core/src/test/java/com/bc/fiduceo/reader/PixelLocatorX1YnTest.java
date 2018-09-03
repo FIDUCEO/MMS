@@ -140,8 +140,9 @@ public class PixelLocatorX1YnTest {
             rotator.transformInversely(toFar);
             final double toFarLon = toFar.getX();
             final double toFarLat = toFar.getY();
-            assertThat("Loop number " + i, pixelLocatorX1Yn.getPixelLocation(toFarLon, toFarLat), is(nullValue()));
+            final Point2D[] pixelLocations = pixelLocatorX1Yn.getPixelLocation(toFarLon, toFarLat);
+            assertThat("Loop number " + i, pixelLocations, is(notNullValue()));
+            assertThat("Loop number " + i, pixelLocations.length, is(0));
         }
     }
-
 }

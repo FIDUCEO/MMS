@@ -122,16 +122,18 @@ class BowTiePixelLocator implements PixelLocator {
         for (int i = 0; i < subSearchIndices.length; i++) {
             if (subSearchIndices[i] > 0) {
                 final LineString centerLine = centerLinesList.get(subSearchIndices[i]);
-                final Point[] lineCoordinates = centerLine.getCoordinates();
-                double lineDist = Double.MAX_VALUE;
-                for (final Point lineCoordinate : lineCoordinates) {
-                    final double currentDistance = sphericalDistance.distance(lineCoordinate.getLon(), lineCoordinate.getLat());
-                    if (currentDistance < lineDist) {
-                        lineDist = currentDistance;
+                if (centerLine != null) {
+                    final Point[] lineCoordinates = centerLine.getCoordinates();
+                    double lineDist = Double.MAX_VALUE;
+                    for (final Point lineCoordinate : lineCoordinates) {
+                        final double currentDistance = sphericalDistance.distance(lineCoordinate.getLon(), lineCoordinate.getLat());
+                        if (currentDistance < lineDist) {
+                            lineDist = currentDistance;
+                        }
                     }
-                }
 
-                subSearchDistances[i] = lineDist;
+                    subSearchDistances[i] = lineDist;
+                }
             }
         }
 
