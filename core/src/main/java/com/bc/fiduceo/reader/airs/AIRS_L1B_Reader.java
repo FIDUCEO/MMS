@@ -61,7 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-class AIRS_L1B_Reader implements Reader {
+public class AIRS_L1B_Reader implements Reader {
 
     final ReaderContext readerContext;
     private final Logger logger;
@@ -254,6 +254,15 @@ class AIRS_L1B_Reader implements Reader {
             productSize = new Dimension("product size", ls[1], ls[0]);
         }
         return productSize;
+    }
+
+    public Array readSpectrum(int minY, int minX, int[] readShape, String varName) throws IOException, InvalidRangeException {
+        final Variable variable = getVariable(varName);
+        return variable.read(new int[]{minY, minX, 0}, readShape);
+    }
+
+    public Variable getVariable(String varName) throws IOException {
+        return arrayCache.getVar(varName);
     }
 
     private NodeType readNodeType() {

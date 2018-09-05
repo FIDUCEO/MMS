@@ -26,12 +26,22 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AirsArrayCache extends ArrayCache {
 
+    private final Map<String, Variable> variables;
+
     public AirsArrayCache(NetcdfFile netcdfFile) {
         super(netcdfFile);
+        variables = new HashMap<>();
+    }
+
+    public Variable getVar(String varName) throws IOException {
+        get(varName);
+        return variables.get(varName);
     }
 
     protected ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
@@ -53,6 +63,7 @@ public class AirsArrayCache extends ArrayCache {
         }
         final ArrayContainer container = new ArrayContainer();
         container.array = variable.read();
+        variables.put(variableName, variable);
 
         final List<Attribute> attributes = variable.getAttributes();
         for (final Attribute attribute : attributes) {
@@ -60,5 +71,4 @@ public class AirsArrayCache extends ArrayCache {
         }
         return container;
     }
-
 }

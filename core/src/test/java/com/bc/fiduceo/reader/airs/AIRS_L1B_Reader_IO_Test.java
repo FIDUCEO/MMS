@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.airs;
 
+import static com.bc.fiduceo.reader.airs.AIRS_Constants.AIRS_NUM_CHANELS;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -54,7 +55,9 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(IOTestRunner.class)
 public class AIRS_L1B_Reader_IO_Test {
@@ -441,6 +444,49 @@ public class AIRS_L1B_Reader_IO_Test {
             assertThat("Loop number " + i, at.getInt(i), is(expected));
         }
         assertThat(fillValueCount, is(9));
+    }
+
+    @Test
+    public void testReadSpectrum_radiance() throws IOException, InvalidRangeException {
+        //preparation
+        airsL1bReader.open(airsDataPath.resolve(FirstProductOfTheDay).toFile());
+
+        //execution
+        final Array radiances = airsL1bReader.readSpectrum(18, 8, new int[]{5, 5, AIRS_NUM_CHANELS}, "radiances");
+
+        //verification
+        assertNotNull(radiances);
+        assertArrayEquals(new int[]{5, 5, AIRS_NUM_CHANELS}, radiances.getShape());
+        final HashMap<Integer, float[]> expectations = new HashMap<>();
+        expectations.put(0, new float[]{
+                51.0f, 50.0f, 50.75f, 48.75f, 51.0f,
+                51.5f, 50.5f, 50.75f, 49.5f, 50.25f,
+                50.25f, 50.0f, 50.5f, 50.75f, 50.0f,
+                52.25f, 50.75f, 51.25f, 50.0f, 50.0f,
+                50.75f, 49.5f, 50.5f, 52.25f, 51.0f
+
+        });
+        expectations.put(1000, new float[]{
+                73.96875f, 74.03125f, 74.3125f, 74.4375f, 74.375f,
+                74.09375f, 74.25f, 74.03125f, 74.03125f, 73.8125f,
+                73.9375f, 74.15625f, 73.9375f, 73.65625f, 73.78125f,
+                73.5f, 73.8125f, 73.5625f, 72.75f, 72.21875f,
+                73.5f, 73.40625f, 71.5f, 70.28125f, 70.8125f
+
+        });
+        expectations.put(AIRS_NUM_CHANELS -1, new float[]{
+                0.5551758f, 0.5805664f, 0.58251953f, 0.5805664f, 0.5839844f,
+                0.5449219f, 0.56347656f, 0.5722656f, 0.57910156f, 0.5834961f,
+                0.5410156f, 0.5498047f, 0.55615234f, 0.56347656f, 0.578125f,
+                0.546875f, 0.5498047f, 0.57714844f, 0.6381836f, 0.66796875f,
+                0.5317383f, 0.5654297f, 0.70996094f, 0.765625f, 0.7265625f
+
+        });
+        for (Map.Entry<Integer, float[]> entry : expectations.entrySet()) {
+            int channel = entry.getKey();
+            final float[] expected = entry.getValue();
+            assertArrayEquals("Wrong values at channel: " + channel, expected, (float[]) radiances.section(new int[]{0, 0, channel}, new int[]{5, 5, 1}).copy().getStorage(), 0.000001f);
+        }
     }
 
     private void assertAquisitionInfo(AcquisitionInfo acquisitionInfo, String sensingStart, String sensingStop, NodeType nodeType, int numBoundingCoordinates, IndexedPoint[] boundingPoints, int timeAxisDuration, int numTimeAxisPoints, IndexedPoint[] expTimeAxisPoints) throws ParseException {
