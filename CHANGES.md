@@ -1,8 +1,9 @@
 ### Updates from version 1.4.0 to 1.4.1
-* SOON ... AIRS reader implemented
+* AIRS reader implemented
+* AIRS post processing to add channel data implemented
+* Bugfix BowTiePixellocator
 
 ### Updates from version 1.3.9 to 1.4.0
-* SOON ... AIRS reader implemented
 * Improve NWP Post Processing 
 
 ### Updates from version 1.3.8 to 1.3.9
