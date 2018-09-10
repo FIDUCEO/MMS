@@ -133,7 +133,7 @@ public class TestUtil {
                                        "        <rule sensors = \"iasi-ma, iasi-mb\">" +
                                        "            SENSOR/VERSION/YEAR/MONTH" +
                                        "        </rule>" +
-                                       "        <rule sensors = \"mod06-te, myd06-aq\">" +
+                                       "        <rule sensors = \"mod06-te, myd06-aq, airs-aq\">" +
                                        "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
                                        "        </rule>" +
                                        "    </archive>" +

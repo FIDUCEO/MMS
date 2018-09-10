@@ -48,7 +48,7 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(12, plugins.size());
+        assertEquals(13, plugins.size());
         /* 01 */
         assertTrue(plugins.containsKey("dummy-post-processing"));
         /* 02 */
@@ -73,6 +73,8 @@ public class PostProcessingFactoryTest {
         assertTrue(plugins.containsKey("caliop-sst-wp100-clay"));
         /* 12 */
         assertTrue(plugins.containsKey("add-amsr2-scan-data-quality"));
+        /* 13 */
+        assertTrue(plugins.containsKey("add-airs-channel-data"));
     }
 
     @Test

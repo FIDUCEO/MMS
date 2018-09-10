@@ -56,6 +56,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -258,7 +259,14 @@ public class AIRS_L1B_Reader implements Reader {
 
     public Array readSpectrum(int minY, int minX, int[] readShape, String varName) throws IOException, InvalidRangeException {
         final Variable variable = getVariable(varName);
-        return variable.read(new int[]{minY, minX, 0}, readShape);
+
+        final int rank = variable.getRank();
+        final int[] shape = variable.getShape();
+        if (rank == 2 && !Arrays.equals(shape, new int[]{productSize.getNy(), productSize.getNx()})) {
+            return variable.read(new int[]{minY, 0}, new int[]{readShape[0], readShape[2]});
+        } else {
+            return variable.read(new int[]{minY, minX, 0}, readShape);
+        }
     }
 
     public Variable getVariable(String varName) throws IOException {

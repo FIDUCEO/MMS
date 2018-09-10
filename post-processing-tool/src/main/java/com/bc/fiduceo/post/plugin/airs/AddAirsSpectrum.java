@@ -28,8 +28,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMatrix;
-import ucar.ma2.MAVector;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -88,7 +86,7 @@ public class AddAirsSpectrum extends PostProcessing {
         final Variable processingVersionVariable = NetCDFUtils.getVariable(reader, srcVariableName_processingVersion);
 
         final int cutHeight = cutOutDims[1].getLength();
-        final int cutWidth = cutOutDims[0].getLength();
+        final int cutWidth = cutOutDims[2].getLength();
 
         final Variable xVariable = NetCDFUtils.getVariable(reader, srcVariableName_x);
         final Variable yVariable = NetCDFUtils.getVariable(reader, srcVariableName_y);
@@ -102,7 +100,7 @@ public class AddAirsSpectrum extends PostProcessing {
         for (int i = 0; i < matchup_count; i++) {
             final String fileName = NetCDFUtils.readString(fileNameVariable, i, fileNameSize);
             final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);
-            final String sensorKey = "airs_aq";
+            final String sensorKey = "airs-aq";
             final AIRS_L1B_Reader airsReader = (AIRS_L1B_Reader) readerCache.getReaderFor(sensorKey, Paths.get(fileName), processingVersion);
             final int proNx = airsReader.getProductSize().getNx();
             final int proNy = airsReader.getProductSize().getNy();
@@ -123,31 +121,35 @@ public class AddAirsSpectrum extends PostProcessing {
             int readWidth = cutWidth;
             int readMinX = minX;
             int readMinY = minY;
-            boolean fillValueArrayNeeded = false;
+            boolean fillValueArrayNeeded_reasonX = false;
+            boolean fillValueArrayNeeded_reasonY = false;
             if (minX < 0) {
                 readWidth += minX;
                 readMinX = 0;
                 writeOrigin3DSlice[2] = Math.abs(minX);
-                fillValueArrayNeeded = true;
+                fillValueArrayNeeded_reasonX = true;
             } else if (minX + cutWidth > proNx) {
                 readWidth += (proNx - minX - cutWidth);
-                fillValueArrayNeeded = true;
+                fillValueArrayNeeded_reasonX = true;
             }
             if (minY < 0) {
                 readHeight += minY;
                 readMinY = 0;
                 writeOrigin3DSlice[1] = Math.abs(minY);
-                fillValueArrayNeeded = true;
+                fillValueArrayNeeded_reasonY = true;
             } else if (minY + cutHeight > proNy) {
                 readHeight += (proNy - minY - cutHeight);
-                fillValueArrayNeeded = true;
+                fillValueArrayNeeded_reasonY = true;
             }
             int[] shape = new int[]{readHeight, readWidth, AIRS_NUM_CHANELS};
             final Array radiancesCuboid = airsReader.readSpectrum(readMinY, readMinX, shape, "radiances");
-
+            final Array calFlagCuboid = airsReader.readSpectrum(readMinY, readMinX, shape, "CalFlag");
+            final Array spaceViewDeltaCuboid = airsReader.readSpectrum(readMinY, readMinX, shape, "SpaceViewDelta");
 
             final Variable radVar = variablesMap.get(targetRadiancesVariableName);
-            if (fillValueArrayNeeded) {
+            final Variable calVar = variablesMap.get(targetCalFlagVariableName);
+            final Variable spaceVar = variablesMap.get(targetSpaceViewDeltaVariableName);
+            if (fillValueArrayNeeded_reasonX || fillValueArrayNeeded_reasonY) {
                 final Number fillValue = NetCDFUtils.getFillValue(radVar);
                 final Array fillValueRadiancesCuboid = Array.factory(radVar.getDataType(), new int[]{cutHeight, cutWidth, AIRS_NUM_CHANELS});
                 final IndexIterator iterator = fillValueRadiancesCuboid.getIndexIterator();
@@ -156,7 +158,33 @@ public class AddAirsSpectrum extends PostProcessing {
                 }
                 writer.write(radVar, writeOrigin3DFull, Array.makeArrayRankPlusOne(fillValueRadiancesCuboid));
             }
+            if (fillValueArrayNeeded_reasonY) {
+                final Number calFill = NetCDFUtils.getFillValue(calVar);
+                final Array fillValueCalFlagCuboid = Array.factory(calVar.getDataType(), new int[]{cutHeight, cutWidth, AIRS_NUM_CHANELS});
+                final IndexIterator calFlagIt = fillValueCalFlagCuboid.getIndexIterator();
+                while (calFlagIt.hasNext()) {
+                    calFlagIt.setObjectNext(calFill);
+                }
+                writer.write(calVar, writeOrigin3DFull, Array.makeArrayRankPlusOne(fillValueCalFlagCuboid));
+
+                final Number spaceFill = NetCDFUtils.getFillValue(spaceVar);
+                final Array fillValueSpaceViewDeltaCuboid = Array.factory(spaceVar.getDataType(), new int[]{cutHeight, cutWidth, AIRS_NUM_CHANELS});
+                final IndexIterator spaceIt = fillValueSpaceViewDeltaCuboid.getIndexIterator();
+                while (spaceIt.hasNext()) {
+                    spaceIt.setObjectNext(spaceFill);
+                }
+                writer.write(spaceVar, writeOrigin3DFull, Array.makeArrayRankPlusOne(fillValueSpaceViewDeltaCuboid));
+            }
             writer.write(radVar, writeOrigin3DSlice, Array.makeArrayRankPlusOne(radiancesCuboid));
+
+            final Array calFlagCuboidReshaped = calFlagCuboid.reshapeNoCopy(new int[]{1, readHeight, 1, AIRS_NUM_CHANELS});
+            final Array spaceViewDeltaCuboidReshaped = spaceViewDeltaCuboid.reshapeNoCopy(new int[]{1, readHeight, 1, AIRS_NUM_CHANELS});
+            for (int x = 0; x < readWidth; x++) {
+                final int[] clone = writeOrigin3DSlice.clone();
+                clone[2] +=x;
+                writer.write(calVar, clone, calFlagCuboidReshaped);
+                writer.write(spaceVar, clone, spaceViewDeltaCuboidReshaped);
+            }
         }
     }
 
