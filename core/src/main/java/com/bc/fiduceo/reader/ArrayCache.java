@@ -36,10 +36,11 @@ import java.util.Map;
 
 public class ArrayCache {
 
-    protected final NetcdfFile netcdfFile;
-    protected final HashMap<String, Variable> injectedVariables;
+    private final NetcdfFile netcdfFile;
+    private final HashMap<String, Variable> injectedVariables;
     private final HashMap<String, ArrayContainer> cache;
     private final HashMap<String, ArrayContainer> scaledCache;
+    private VariableFinder variableFinder;
 
     public ArrayCache(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
@@ -47,6 +48,7 @@ public class ArrayCache {
         cache = new HashMap<>();
         scaledCache = new HashMap<>();
         injectedVariables = new HashMap<>();
+        variableFinder = netcdfFile::findVariable;
     }
 
     public Array get(String variableName) throws IOException {
@@ -168,6 +170,15 @@ public class ArrayCache {
     }
 
     /**
+     * Replaces the default variable finder with the given.
+     * @param variableFinder
+     */
+    public ArrayCache withVariableFinder(VariableFinder variableFinder) {
+        this.variableFinder = variableFinder;
+        return this;
+    }
+
+    /**
      * Retrieves the number representation of the attribute. Returns null if attribute is not present.
      *
      * @param attributeName the attribute name
@@ -218,27 +229,6 @@ public class ArrayCache {
         return resultList;
     }
 
-    protected ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
-        ArrayContainer container;
-        Variable variable = injectedVariables.get(variableName);
-        if (variable == null) {
-            synchronized (netcdfFile) {
-                variable = netcdfFile.findVariable(group, variableName);
-            }
-            if (variable == null) {
-                throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
-            }
-        }
-        container = new ArrayContainer();
-        container.array = variable.read();
-
-        final List<Attribute> attributes = variable.getAttributes();
-        for (final Attribute attribute : attributes) {
-            container.attributes.put(attribute.getFullName(), attribute);
-        }
-        return container;
-    }
-
     // package access for testing only tb 2016-04-14
     static String createGroupedName(String groupName, String variableName) {
         return groupName + "_" + variableName;
@@ -287,6 +277,27 @@ public class ArrayCache {
         return null;
     }
 
+    private ArrayContainer readArrayAndAttributes(String variableName, Group group) throws IOException {
+        ArrayContainer container;
+        Variable variable = injectedVariables.get(variableName);
+        if (variable == null) {
+            synchronized (netcdfFile) {
+                variable = variableFinder.findVariable(group, variableName);
+            }
+            if (variable == null) {
+                throw new IOException("requested variable '" + variableName + "' not present in file: " + netcdfFile.getLocation());
+            }
+        }
+        container = new ArrayContainer();
+        container.array = variable.read();
+
+        final List<Attribute> attributes = variable.getAttributes();
+        for (final Attribute attribute : attributes) {
+            container.attributes.put(attribute.getFullName(), attribute);
+        }
+        return container;
+    }
+
     private ArrayContainer readArrayAndAttributesFromGroup(String variableName, String groupName) throws IOException {
         ArrayContainer container;
         final Group group = netcdfFile.findGroup(groupName);
@@ -304,16 +315,24 @@ public class ArrayCache {
         }
     }
 
-    protected class ArrayContainer {
+    /**
+     * To find a variable in a netcdf file
+     */
+    public interface VariableFinder {
 
-        public Array array;
-        public Map<String, Attribute> attributes;
+        Variable findVariable(Group group, String variableName);
+    }
 
-        public ArrayContainer() {
+    private class ArrayContainer {
+
+        Array array;
+        Map<String, Attribute> attributes;
+
+        ArrayContainer() {
             attributes = new HashMap<>();
         }
 
-        protected Attribute get(String name) {
+        Attribute get(String name) {
             return attributes.get(name);
         }
     }

@@ -96,7 +96,6 @@ public class AddAirsSpectrum extends PostProcessing {
         final int matchup_count = NetCDFUtils.getDimensionLength("matchup_count", reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
-        final int[] origin = new int[4];
         for (int i = 0; i < matchup_count; i++) {
             final String fileName = NetCDFUtils.readString(fileNameVariable, i, fileNameSize);
             final String processingVersion = NetCDFUtils.readString(processingVersionVariable, i, processingVersionSize);

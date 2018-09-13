@@ -32,6 +32,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Read2dFrom1d;
 import com.bc.fiduceo.reader.Read2dFrom2d;
@@ -68,7 +69,7 @@ public class AIRS_L1B_Reader implements Reader {
     private final Logger logger;
     private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
-    private AirsArrayCache arrayCache;
+    private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private boolean needVariablesInitialisation = true;
     private ArrayList<Variable> variablesList;
@@ -84,7 +85,7 @@ public class AIRS_L1B_Reader implements Reader {
     @Override
     public void open(File file) throws IOException {
         netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new AirsArrayCache(netcdfFile);
+        arrayCache = new ArrayCache(netcdfFile).withVariableFinder((group, variableName) -> findVariable(variableName));
     }
 
     @Override
@@ -258,7 +259,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     public Array readSpectrum(int minY, int minX, int[] readShape, String varName) throws IOException, InvalidRangeException {
-        final Variable variable = getVariable(varName);
+        final Variable variable = findVariable(varName);
 
         final int rank = variable.getRank();
         final int[] shape = variable.getShape();
@@ -267,10 +268,6 @@ public class AIRS_L1B_Reader implements Reader {
         } else {
             return variable.read(new int[]{minY, minX, 0}, readShape);
         }
-    }
-
-    public Variable getVariable(String varName) throws IOException {
-        return arrayCache.getVar(varName);
     }
 
     private NodeType readNodeType() {
@@ -357,4 +354,17 @@ public class AIRS_L1B_Reader implements Reader {
         }
         return null;
     }
+
+    private Variable findVariable(String varName) {
+        synchronized (netcdfFile) {
+            final List<Variable> variables = netcdfFile.getVariables();
+            for (Variable var : variables) {
+                if (var.getShortName().equals(varName)) {
+                    return var;
+                }
+            }
+        }
+        return null;
+    }
+
 }
