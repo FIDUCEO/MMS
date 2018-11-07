@@ -333,6 +333,35 @@ class Workflow:
 
         monitor.wait_for_completion_and_terminate()
 
+    def run_test_job(self, hosts, simulation=False, logdir='trace'):
+        """
+
+        :param hosts: list
+        :param logdir: str
+        :param simulation: bool
+        :return:
+        """
+        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+
+        sensors = self._get_primary_sensors()
+        for sensor in sensors:
+            sensor_period = sensor.get_period()
+            date = sensor_period.get_start_date() - datetime.timedelta(days=1)
+            data_version = sensor.get_data_version()
+            while date < sensor_period.get_end_date():
+                chunk = self._get_next_period(date)
+                start_string = self._get_year_day_of_year(chunk.get_start_date())
+                end_string = self._get_year_day_of_year(chunk.get_end_date())
+                sensor_name = sensor.get_name()
+                job_name = 'ingest-' + sensor_name + '-' + start_string + '-' + end_string
+                post_condition = 'stored-' + sensor_name + '-' + start_string + '-' + end_string
+
+                job = Job(job_name, 'minimal_job.sh', [job_name], [post_condition],
+                          [sensor_name, start_string, end_string, data_version, self._get_config_dir()])
+                monitor.execute(job)
+
+                date = chunk.get_end_date()
+
     def run_matchup(self, hosts, simulation=False, logdir='trace'):
         """
 
