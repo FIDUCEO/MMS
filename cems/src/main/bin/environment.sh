@@ -3,12 +3,19 @@
 # project name (to identify the job groups on the cluster
 export PROJECT=bc_test_project
 
-export WORKING_DIR=/group_workspaces/cems2/esacci_sst/mms/test
+# export WORKING_DIR=/group_workspaces/cems2/esacci_sst/mms/test
 export PM_LOG_DIR=/group_workspaces/cems2/esacci_sst/mms/test/log
-export PM_EXE_DIR=/group_workspaces/cems2/esacci_sst/mms/test
+export PM_EXE_DIR=/group_workspaces/cems2/esacci_sst/mms/bin
+export PM_PYTHON_EXEC='/usr/bin/python'
+
+export PATH=${PM_EXE_DIR}:$PATH
 
 # ensure that processes exit
 set -e
+
+if [ -z "${WORKING_DIR}" ]; then
+    WORKING_DIR=`pwd -P`
+fi
 
 submit_job() {
     jobname=$1

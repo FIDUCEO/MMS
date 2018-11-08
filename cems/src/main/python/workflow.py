@@ -1,7 +1,6 @@
 import calendar
 
 import datetime
-import exceptions
 from datetime import timedelta
 
 from job import Job
@@ -99,7 +98,7 @@ class Workflow:
         period = Period(start_date, end_date)
         for sensor in self._get_primary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
-                raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
+                raise ValueError("Periods of sensor '" + name + "' must not intersect.")
         if version == '':
             self.primary_sensors.add(Sensor(name, period))
         else:
@@ -123,7 +122,7 @@ class Workflow:
         period = Period(start_date, end_date)
         for sensor in self._get_secondary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
-                raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
+                raise ValueError("Periods of sensor '" + name + "' must not intersect.")
 
         if version == '':
             self.secondary_sensors.add(Sensor(name, period))
