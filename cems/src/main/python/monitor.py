@@ -19,4 +19,4 @@ class Monitor:
         :type job: Job
         """
         self.pm.execute(job.get_call(), job.get_preconditions(), job.get_postconditions(), job.get_parameters(),
-                        log_prefix=job.get_name())
+                        logprefix=job.get_name())
