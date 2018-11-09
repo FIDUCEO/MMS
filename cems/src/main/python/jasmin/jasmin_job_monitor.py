@@ -8,6 +8,9 @@ from status_codes import StatusCodes
 class JasminJobMonitor:
     @staticmethod
     def main():
+        if len(sys.argv) <= 1:
+            return 1
+
         pm_request = sys.argv[1]
 
         monitor = JasminJobMonitor()
