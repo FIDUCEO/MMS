@@ -5,7 +5,7 @@ export PROJECT=bc_test_project
 
 # export WORKING_DIR=/group_workspaces/cems2/esacci_sst/mms/test
 export PM_EXE_DIR=/group_workspaces/cems2/esacci_sst/mms/bin
-export PM_PYTHON_EXEC='/usr/bin/python'
+export PM_PYTHON_EXEC='/group_workspaces/cems2/esacci_sst/software/miniconda3/bin/python'
 
 export PATH=${PM_EXE_DIR}:$PATH
 

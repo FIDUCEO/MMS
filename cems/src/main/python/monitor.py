@@ -11,7 +11,7 @@ class Monitor:
         :type log_dir: str
         :type simulation: bool
         """
-        self.pm = PMonitor(preconditions, usecase, hosts, calls, logdir=log_dir, simulation=simulation)
+        self.pm = PMonitor(preconditions, usecase, hosts, calls, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
 
     def execute(self, job):
         """

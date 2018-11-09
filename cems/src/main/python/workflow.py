@@ -214,6 +214,8 @@ class Workflow:
                 sensor_name = sensor.get_name()
                 input_pre_condition = 'ingest-' + sensor_name + '-' + start_string + '-' + end_string
                 preconditions.append(input_pre_condition)
+                input_pre_condition = 'dummy_job-' + sensor_name + '-' + start_string + '-' + end_string
+                preconditions.append(input_pre_condition)
                 date = chunk.get_end_date()
 
         return preconditions
@@ -355,7 +357,7 @@ class Workflow:
                 job_name = 'dummy_job-' + sensor_name + '-' + start_string + '-' + end_string
                 post_condition = 'stored-' + sensor_name + '-' + start_string + '-' + end_string
 
-                job = Job(job_name, 'dummy_job_run.sh', [job_name], [post_condition],
+                job = Job(job_name, 'dummy_job_start.sh', [job_name], [post_condition],
                           [sensor_name, start_string, end_string, data_version, self._get_config_dir()])
                 monitor.execute(job)
 
