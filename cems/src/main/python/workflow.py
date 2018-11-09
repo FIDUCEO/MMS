@@ -151,7 +151,7 @@ class Workflow:
                         try:
                             sensor_pair = SensorPair(p, s, self.get_production_period())
                             sensor_pairs.add(sensor_pair)
-                        except exceptions.ValueError:
+                        except ValueError:
                             pass
         else:
             for p in primary_sensors:
@@ -329,8 +329,6 @@ class Workflow:
                 monitor.execute(job)
 
                 date = chunk.get_end_date()
-
-        monitor.wait_for_completion_and_terminate()
 
     def run_test_job(self, hosts, simulation=False, logdir='trace'):
         """

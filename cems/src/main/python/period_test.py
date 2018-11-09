@@ -1,5 +1,4 @@
 import datetime
-import exceptions
 import unittest
 
 from period import Period
@@ -25,9 +24,9 @@ class PeriodTests(unittest.TestCase):
 
     def test_period_construction_invalid(self):
         try:
-            period_1 = Period('2010-01-01', '2009-01-01')
-            self.fail()
-        except exceptions.ValueError:
+            Period('2010-01-01', '2009-01-01')
+            self.fail("ValueError expected")
+        except ValueError:
             pass
 
     def test_get_period_intersection(self):
