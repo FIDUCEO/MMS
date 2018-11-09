@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-from lib.status_codes import StatusCodes
+from status_codes import StatusCodes
 
 
 class JasminJobMonitor:
