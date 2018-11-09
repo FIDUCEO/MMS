@@ -231,58 +231,58 @@ class WorkflowTest(unittest.TestCase):
         monitor = w._get_monitor(list([('localhost', 10)]), list(), self.logdir, True)
         self.assertNotEqual(monitor, None)
 
-    def test_ingest_avhrr(self):
-        w = Workflow('test', 11, 'config/dir')
-        w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
+    # def test_ingest_avhrr(self):
+    #     w = Workflow('test', 11, 'config/dir')
+    #     w.add_primary_sensor('avhrr-n12', '1995-06-01', '1996-06-05')
+    #
+    #     w.run_ingestion(list([('localhost', 5)]), True, self.logdir)
+    #
+    #     with open('test.status', 'r') as status:
+    #         self.assertEqual('37 created, 0 running, 0 backlog, 37 processed, 0 failed\n', status.readline())
+    #
+    #     with open('test.report', 'r') as report:
+    #         self.assertEqual(37, len(report.readlines()))
 
-        w.run_ingestion(list([('localhost', 5)]), True, self.logdir)
+    # def test_ingest_avhrr_n07(self):
+    #     w = Workflow('test', 7,'/group_workspaces/cems2/fiduceo/Software/mms/config')
+    #     w.add_primary_sensor('avhrr-n07', '1981-09-01', '1985-01-30', 'v01.2')
+    #
+    #     w.run_ingestion(list([('localhost', 24)]), True, self.logdir)
+    #
+    #     with open('test.status', 'r') as status:
+    #         self.assertEqual('203 created, 0 running, 0 backlog, 203 processed, 0 failed\n', status.readline())
+    #
+    #     with open('test.report', 'r') as report:
+    #         self.assertEqual(203, len(report.readlines()))
 
-        with open('test.status', 'r') as status:
-            self.assertEqual('37 created, 0 running, 0 backlog, 37 processed, 0 failed\n', status.readline())
+    # def test_matchup_avhrr_n08_avhrr_n07(self):
+    #     w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config')
+    #     w.add_primary_sensor('avhrr-n18', '2008-05-01', '2008-05-31', 'v01.2')
+    #     w.add_secondary_sensor('avhrr-n17', '2008-05-01', '2008-05-31', 'v01.2')
+    #
+    #     w.set_usecase_config('usecase-02.xml')
+    #     w.run_matchup(list([('localhost', 4)]), True, self.logdir)
+    #
+    #     with open('test.status', 'r') as status:
+    #         self.assertEqual('5 created, 0 running, 0 backlog, 5 processed, 0 failed\n', status.readline())
+    #
+    #     with open('test.report', 'r') as report:
+    #         self.assertEqual(5, len(report.readlines()))
 
-        with open('test.report', 'r') as report:
-            self.assertEqual(37, len(report.readlines()))
-
-    def test_ingest_avhrr_n07(self):
-        w = Workflow('test', 7,'/group_workspaces/cems2/fiduceo/Software/mms/config')
-        w.add_primary_sensor('avhrr-n07', '1981-09-01', '1985-01-30', 'v01.2')
-
-        w.run_ingestion(list([('localhost', 24)]), True, self.logdir)
-
-        with open('test.status', 'r') as status:
-            self.assertEqual('203 created, 0 running, 0 backlog, 203 processed, 0 failed\n', status.readline())
-
-        with open('test.report', 'r') as report:
-            self.assertEqual(203, len(report.readlines()))
-
-    def test_matchup_avhrr_n08_avhrr_n07(self):
-        w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config')
-        w.add_primary_sensor('avhrr-n18', '2008-05-01', '2008-05-31', 'v01.2')
-        w.add_secondary_sensor('avhrr-n17', '2008-05-01', '2008-05-31', 'v01.2')
-
-        w.set_usecase_config('usecase-02.xml')
-        w.run_matchup(list([('localhost', 4)]), True, self.logdir)
-
-        with open('test.status', 'r') as status:
-            self.assertEqual('5 created, 0 running, 0 backlog, 5 processed, 0 failed\n', status.readline())
-
-        with open('test.report', 'r') as report:
-            self.assertEqual(5, len(report.readlines()))
-
-    def test_post_processing_mmd6c(self):
-        period = Period('2007-05-01', '2008-11-16')
-        w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config', period)
-
-        w.set_usecase_config('post-processing_06x.xml')
-        w.set_input_dir('/home/tom/the/data')
-
-        w.run_post_processing(list([('localhost', 4)]), True, self.logdir)
-
-        with open('test.status', 'r') as status:
-            self.assertEqual('93 created, 0 running, 0 backlog, 93 processed, 0 failed\n', status.readline())
-
-        with open('test.report', 'r') as report:
-            self.assertEqual(93, len(report.readlines()))
+    # def test_post_processing_mmd6c(self):
+    #     period = Period('2007-05-01', '2008-11-16')
+    #     w = Workflow('test', 7, '/group_workspaces/cems2/fiduceo/Software/mms/config', period)
+    #
+    #     w.set_usecase_config('post-processing_06x.xml')
+    #     w.set_input_dir('/home/tom/the/data')
+    #
+    #     w.run_post_processing(list([('localhost', 4)]), True, self.logdir)
+    #
+    #     with open('test.status', 'r') as status:
+    #         self.assertEqual('93 created, 0 running, 0 backlog, 93 processed, 0 failed\n', status.readline())
+    #
+    #     with open('test.report', 'r') as report:
+    #         self.assertEqual(93, len(report.readlines()))
 
     def test_set_get_input_dir(self):
         w = Workflow('test', 4)

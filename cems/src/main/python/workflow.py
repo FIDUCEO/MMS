@@ -330,6 +330,8 @@ class Workflow:
 
                 date = chunk.get_end_date()
 
+        monitor.wait_for_completion()
+
     def run_test_job(self, hosts, simulation=False, logdir='trace'):
         """
 
@@ -358,6 +360,8 @@ class Workflow:
                 monitor.execute(job)
 
                 date = chunk.get_end_date()
+
+        monitor.wait_for_completion()
 
     def run_matchup(self, hosts, simulation=False, logdir='trace'):
         """
@@ -391,7 +395,7 @@ class Workflow:
 
                 date = chunk.get_end_date()
 
-        monitor.wait_for_completion_and_terminate()
+        monitor.wait_for_completion()
 
     def run_post_processing(self, hosts, simulation=False, logdir='trace'):
         """
@@ -420,4 +424,4 @@ class Workflow:
 
             date = chunk.get_end_date()
 
-        monitor.wait_for_completion_and_terminate()
+        monitor.wait_for_completion()

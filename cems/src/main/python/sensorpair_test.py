@@ -1,4 +1,3 @@
-import exceptions
 import unittest
 
 from period import Period
@@ -28,13 +27,14 @@ class SensorPairTest(unittest.TestCase):
 
         try:
             SensorPair(sensor_1, sensor_2)
-            self.fail()
-        except exceptions.ValueError:
+            self.fail("ValueError expected")
+        except ValueError:
             pass
 
         try:
             SensorPair(sensor_2, sensor_1)
-        except exceptions.ValueError:
+            self.fail("ValueError expected")
+        except ValueError:
             pass
 
     def test_sensor_pair_construction_with_production_period(self):
@@ -50,8 +50,8 @@ class SensorPairTest(unittest.TestCase):
 
         try:
             SensorPair(sensor_1, sensor_2, Period((2000,8,1), (2000, 9, 1)))
-            self.fail()
-        except exceptions.ValueError:
+            self.fail("ValueError exoected")
+        except ValueError:
             pass
 
 

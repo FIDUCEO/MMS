@@ -20,3 +20,6 @@ class Monitor:
         """
         self.pm.execute(job.get_call(), job.get_preconditions(), job.get_postconditions(), job.get_parameters(),
                         logprefix=job.get_name())
+
+    def wait_for_completion(self):
+        self.pm.wait_for_completion()
