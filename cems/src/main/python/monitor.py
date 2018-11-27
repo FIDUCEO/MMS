@@ -11,7 +11,7 @@ class Monitor:
         :type log_dir: str
         :type simulation: bool
         """
-        self.pm = PMonitor(preconditions, usecase, hosts, calls, log_dir=log_dir, simulation=simulation)
+        self.pm = PMonitor(preconditions, usecase, hosts, calls, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
 
     def execute(self, job):
         """
@@ -19,10 +19,7 @@ class Monitor:
         :type job: Job
         """
         self.pm.execute(job.get_call(), job.get_preconditions(), job.get_postconditions(), job.get_parameters(),
-                        log_prefix=job.get_name())
+                        logprefix=job.get_name())
 
     def wait_for_completion(self):
         self.pm.wait_for_completion()
-
-    def wait_for_completion_and_terminate(self):
-        self.pm.wait_for_completion_and_terminate()

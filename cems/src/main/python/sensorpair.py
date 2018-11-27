@@ -1,4 +1,3 @@
-import exceptions
 
 
 class SensorPair:
@@ -11,12 +10,12 @@ class SensorPair:
         :raise exceptions.ValueError: If the periods of primary and secondary sensors do not overlap.
         """
         if not primary_sensor.get_period().is_intersecting(secondary_sensor.get_period()):
-            raise exceptions.ValueError, "The periods of primary and secondary sensors do not overlap."
+            raise ValueError("The periods of primary and secondary sensors do not overlap.")
         if production_period is not None:
             if not primary_sensor.get_period().is_intersecting(production_period):
-                raise exceptions.ValueError, "The periods of primary sensor and production do not overlap."
+                raise ValueError("The periods of primary sensor and production do not overlap.")
             if not secondary_sensor.get_period().is_intersecting(production_period):
-                raise exceptions.ValueError, "The periods of secondary sensor and production do not overlap."
+                raise ValueError("The periods of secondary sensor and production do not overlap.")
         self.primary_sensor = primary_sensor
         self.secondary_sensor = secondary_sensor
 

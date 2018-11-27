@@ -1,7 +1,6 @@
 import calendar
 
 import datetime
-import exceptions
 from datetime import timedelta
 
 from job import Job
@@ -99,7 +98,7 @@ class Workflow:
         period = Period(start_date, end_date)
         for sensor in self._get_primary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
-                raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
+                raise ValueError("Periods of sensor '" + name + "' must not intersect.")
         if version == '':
             self.primary_sensors.add(Sensor(name, period))
         else:
@@ -123,7 +122,7 @@ class Workflow:
         period = Period(start_date, end_date)
         for sensor in self._get_secondary_sensors():
             if sensor.get_name() == name and sensor.get_period().is_intersecting(period):
-                raise exceptions.ValueError, "Periods of sensor '" + name + "' must not intersect."
+                raise ValueError("Periods of sensor '" + name + "' must not intersect.")
 
         if version == '':
             self.secondary_sensors.add(Sensor(name, period))
@@ -152,7 +151,7 @@ class Workflow:
                         try:
                             sensor_pair = SensorPair(p, s, self.get_production_period())
                             sensor_pairs.add(sensor_pair)
-                        except exceptions.ValueError:
+                        except ValueError:
                             pass
         else:
             for p in primary_sensors:
@@ -214,6 +213,8 @@ class Workflow:
                 end_string = self._get_year_day_of_year(chunk.get_end_date())
                 sensor_name = sensor.get_name()
                 input_pre_condition = 'ingest-' + sensor_name + '-' + start_string + '-' + end_string
+                preconditions.append(input_pre_condition)
+                input_pre_condition = 'dummy_job-' + sensor_name + '-' + start_string + '-' + end_string
                 preconditions.append(input_pre_condition)
                 date = chunk.get_end_date()
 
@@ -331,7 +332,38 @@ class Workflow:
 
                 date = chunk.get_end_date()
 
-        monitor.wait_for_completion_and_terminate()
+        monitor.wait_for_completion()
+
+    def run_test_job(self, hosts, simulation=False, logdir='trace'):
+        """
+
+        :param hosts: list
+        :param logdir: str
+        :param simulation: bool
+        :return:
+        """
+        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+
+        sensors = self._get_primary_sensors()
+        for sensor in sensors:
+            sensor_period = sensor.get_period()
+            date = sensor_period.get_start_date() - datetime.timedelta(days=1)
+            data_version = sensor.get_data_version()
+            while date < sensor_period.get_end_date():
+                chunk = self._get_next_period(date)
+                start_string = self._get_year_day_of_year(chunk.get_start_date())
+                end_string = self._get_year_day_of_year(chunk.get_end_date())
+                sensor_name = sensor.get_name()
+                job_name = 'dummy_job-' + sensor_name + '-' + start_string + '-' + end_string
+                post_condition = 'stored-' + sensor_name + '-' + start_string + '-' + end_string
+
+                job = Job(job_name, 'dummy_job_start.sh', [job_name], [post_condition],
+                          [sensor_name, start_string, end_string, data_version, self._get_config_dir()])
+                monitor.execute(job)
+
+                date = chunk.get_end_date()
+
+        monitor.wait_for_completion()
 
     def run_matchup(self, hosts, simulation=False, logdir='trace'):
         """
@@ -365,7 +397,7 @@ class Workflow:
 
                 date = chunk.get_end_date()
 
-        monitor.wait_for_completion_and_terminate()
+        monitor.wait_for_completion()
 
     def run_post_processing(self, hosts, simulation=False, logdir='trace'):
         """
@@ -394,4 +426,4 @@ class Workflow:
 
             date = chunk.get_end_date()
 
-        monitor.wait_for_completion_and_terminate()
+        monitor.wait_for_completion()
