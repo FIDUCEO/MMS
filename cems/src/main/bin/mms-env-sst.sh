@@ -8,6 +8,7 @@
 
 # project name (to identify the job groups on the cluster
 export PROJECT=bc_sst_cci
+export MMS_ENV_NAME=mms-env-sst.sh
 
 export PM_EXE_DIR=/group_workspaces/cems2/esacci_sst/mms_new/bin
 export PM_PYTHON_EXEC='/group_workspaces/cems2/esacci_sst/software/miniconda3/envs/fiduceo_mms/bin/python'

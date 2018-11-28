@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. ${MMS_HOME}/bin/${MMS_ENV_NAME}
+# source environment definitions
+. ${PM_EXE_DIR}/${MMS_ENV_NAME}
 
 start_date=$1
 end_date=$2
@@ -14,8 +15,6 @@ echo ${jobname}
 command="${task}_run.sh ${start_date} ${end_date} ${config_dir} ${use_case_config}"
 
 echo "`date -u +%Y%m%d-%H%M%S` submitting job '${jobname}'"
-
-read_task_jobs ${jobname}
 
 if [ -z ${jobs} ]; then
     submit_job ${jobname} ${command}

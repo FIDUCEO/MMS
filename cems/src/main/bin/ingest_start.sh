@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. ${MMS_HOME}/bin/${MMS_ENV_NAME}
+# source environment definitions
+. ${PM_EXE_DIR}/${MMS_ENV_NAME}
 
 sensor=$1
 start_date=$2
@@ -15,8 +16,6 @@ echo ${jobname}
 command="${task}_run.sh ${sensor} ${start_date} ${end_date} ${data_version} ${config_dir}"
 
 echo "`date -u +%Y%m%d-%H%M%S` submitting job '${jobname}'"
-
-read_task_jobs ${jobname}
 
 if [ -z ${jobs} ]; then
     submit_job ${jobname} ${command}
