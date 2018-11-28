@@ -1,4 +1,5 @@
 ### Updates from version 1.4.0 to 1.4.1
+* migrated to asynchronous PMonitor
 * AIRS reader implemented
 * AIRS post processing to add channel data implemented
 * Bugfix BowTiePixellocator
