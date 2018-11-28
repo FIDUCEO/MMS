@@ -10,4 +10,4 @@ config_dir=$5
 
 echo "`date -u +%Y%m%d-%H%M%S` ingestion ${start_date} - ${end_date} ..."
 
-${MMS_HOME}/bin/ingestion-tool.sh -s ${sensor} -start ${start_date} -end ${end_date} -v ${data_version} -c ${config_dir}
+${PM_EXE_DIR}/ingestion-tool.sh -s ${sensor} -start ${start_date} -end ${end_date} -v ${data_version} -c ${config_dir}

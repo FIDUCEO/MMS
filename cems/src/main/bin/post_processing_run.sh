@@ -10,4 +10,4 @@ config_dir=$5
 
 echo "`date -u +%Y%m%d-%H%M%S` ingestion ${start_date} - ${end_date} ..."
 
-${MMS_HOME}/bin/post-processing-tool.sh -i ${input_dir} -start ${start_date} -end ${end_date} -j ${job_config} -c ${config_dir}
+${PM_EXE_DIR}/post-processing-tool.sh -i ${input_dir} -start ${start_date} -end ${end_date} -j ${job_config} -c ${config_dir}
