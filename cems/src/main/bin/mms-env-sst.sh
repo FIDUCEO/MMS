@@ -28,7 +28,7 @@ submit_job() {
     jobname=$1
     command=$2
 
-    bsubmit="bsub -R rusage[mem=20000] -M 20000 -q short-serial -n 1 -W 12:00 -P ${PROJECT} -cwd ${WORKING_DIR} -oo ${PM_LOG_DIR}/${jobname}.out -eo ${PM_LOG_DIR}/${jobname}.err -J ${jobname} ${PM_EXE_DIR}/${command} ${@:4}"
+    bsubmit="bsub -R rusage[mem=20000] -M 20000 -q short-serial -n 1 -W 12:00 -P ${PROJECT} -cwd ${WORKING_DIR} -oo ${PM_LOG_DIR}/${jobname}.out -eo ${PM_LOG_DIR}/${jobname}.err -J ${jobname} ${PM_EXE_DIR}/${command} ${@:3}"
 
     rm -f ${PM_LOG_DIR}/${jobname}.out
     rm -f ${PM_LOG_DIR}/${jobname}.err
