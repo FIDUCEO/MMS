@@ -65,6 +65,17 @@
         </fileSet>
 
         <fileSet>
+            <directory>cems/src/main/python/jasmin</directory>
+            <outputDirectory>python/jasmin</outputDirectory>
+            <directoryMode>0774</directoryMode>
+            <includes>
+                <include>*.py</include>
+            </includes>
+            <fileMode>0774</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
             <directory>ingestion-tool/src/main/bin</directory>
             <outputDirectory/>
             <directoryMode>0774</directoryMode>
