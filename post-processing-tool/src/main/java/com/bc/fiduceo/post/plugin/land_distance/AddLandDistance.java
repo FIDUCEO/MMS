@@ -8,7 +8,11 @@ import org.jdom.Element;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -26,7 +30,7 @@ class AddLandDistance extends PostProcessing {
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Variable longitudeVariable = NetCDFUtils.getVariable(reader, configuration.lonVariableName);
         final List<Dimension> dimensions = longitudeVariable.getDimensions();
 

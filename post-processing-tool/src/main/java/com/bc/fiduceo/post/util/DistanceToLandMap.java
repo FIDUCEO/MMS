@@ -30,16 +30,14 @@ public class DistanceToLandMap {
 
     private static int instanceCount = 0;
     private final Path distancePath;
-    private NetcdfFile ncFile;
-    private Array array;
-    private int width;
-    private int height;
-    private Index index;
-    private double lonF;
-    private double latF;
-    private int maxLonIdx;
-    private int maxLatIdx;
-    private double scaleFactor;
+    private static NetcdfFile ncFile;
+    private static Array array;
+    private static Index index;
+    private static double lonF;
+    private static double latF;
+    private static int maxLonIdx;
+    private static int maxLatIdx;
+    private static double scaleFactor;
 
     public DistanceToLandMap(Path path) {
         distancePath = path;
@@ -67,9 +65,6 @@ public class DistanceToLandMap {
                 throw new RuntimeException("Unable to close DistanceToLandMap.", e);
             }
             array = null;
-
-            width = -1;
-            height = -1;
             index = null;
         }
     }
@@ -92,10 +87,10 @@ public class DistanceToLandMap {
             scaleFactor = distance_to_land.findAttribute("scale_factor").getNumericValue().doubleValue();
             array = distance_to_land.read();
             index = array.getIndex();
-            width = distance_to_land.getDimension(1).getLength();
+            final int width = distance_to_land.getDimension(1).getLength();
             maxLonIdx = width - 1;
             lonF = width / 360.0;
-            height = distance_to_land.getDimension(0).getLength();
+            final int height = distance_to_land.getDimension(0).getLength();
             maxLatIdx = height - 1;
             latF = height / 180.0;
         } catch (IOException e) {
