@@ -85,6 +85,7 @@ public class AVHRR_GAC_Reader implements Reader {
     public void close() throws IOException {
         timeLocator = null;
         pixelLocator = null;
+        arrayCache = null;
         boundingPolygonCreator = null;
         if (netcdfFile != null) {
             netcdfFile.close();

@@ -81,7 +81,7 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testParseDateAttribute_NullAttribute() throws Exception {
+    public void testParseDateAttribute_NullAttribute() {
         try {
             AVHRR_GAC_Reader.parseDate(null);
             fail("IO Exception expected");
@@ -90,7 +90,7 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testParseDateAttribute_Return_Null_Value() throws Exception {
+    public void testParseDateAttribute_Return_Null_Value() {
         try {
             AVHRR_GAC_Reader.parseDate("");
             fail("IO Exception expected");
@@ -108,7 +108,7 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testConvertToAcquisitionTime_1970_01_01() throws Exception {
+    public void testConvertToAcquisitionTime_1970_01_01() {
         final int startTimeMilliSecondsSince1970 = 0;
         final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
                 new float[]{1.1f, 2.2f, 3.3f},
@@ -125,7 +125,7 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testConvertToAcquisitionTime_1970_01_01_useFillValue() throws Exception {
+    public void testConvertToAcquisitionTime_1970_01_01_useFillValue() {
         final int startTimeMilliSecondsSince1970 = 0;
         final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
                 new float[]{1.1f, 2.2f, -19.7f},

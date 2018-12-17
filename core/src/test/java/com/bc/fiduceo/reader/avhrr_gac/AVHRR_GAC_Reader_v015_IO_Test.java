@@ -78,7 +78,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
         final File file = createAvhrrNOAA08File();
 
         try {
-            reader.open(file);
+            reader.open(file);      
 
             final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
