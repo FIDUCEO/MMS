@@ -248,6 +248,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return boundingPolygonCreator;
     }
 
+    // @todo 2 tb/tb make this method part of a generic NetCDF reader 2019-01-07
     private Number getFillValue(String variableName) throws IOException {
         final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
         if (fillValue != null) {
@@ -319,6 +320,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
     }
 
+    // @todo 1 tb/tb replace this with getProuctSize() call and remove method 2019-01-07
     // package access for testing only tb 2016-03-31
     static int getProductWidth(NetcdfFile netcdfFile) {
         final List<Dimension> dimensions = netcdfFile.getDimensions();

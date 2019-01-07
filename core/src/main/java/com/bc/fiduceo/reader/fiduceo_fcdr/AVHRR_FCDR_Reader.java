@@ -5,21 +5,13 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
+import ucar.ma2.DataType;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -27,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
 public class AVHRR_FCDR_Reader implements Reader {
 
@@ -38,6 +32,7 @@ public class AVHRR_FCDR_Reader implements Reader {
     private File file;
     private BoundingPolygonCreator boundingPolygonCreator;
     private ArrayCache arrayCache;
+    private TimeLocator timeLocator;
 
     AVHRR_FCDR_Reader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -48,13 +43,16 @@ public class AVHRR_FCDR_Reader implements Reader {
         this.file = file;
         netcdfFile = NetcdfFile.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
+        timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
         file = null;
+        timeLocator = null;
         boundingPolygonCreator = null;
         arrayCache = null;
+
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
@@ -96,7 +94,10 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (timeLocator == null) {
+            timeLocator = new AVHRR_FCDR_TimeLocator(arrayCache.get("Time"));
+        }
+        return timeLocator;
     }
 
     @Override
@@ -106,7 +107,11 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array rawArray = arrayCache.get(variableName);
+        final Number fillValue = getFillValue(variableName);
+
+        final Dimension productSize = getProductSize();
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
     }
 
     @Override
@@ -116,7 +121,28 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array rawTimeArray = readRaw(x, y, interval, "Time");
+
+        final Number fillValue = getFillValue("Time");
+        final int[] shape = rawTimeArray.getShape();
+        int height = shape[0];
+        int width = shape[1];
+        final ArrayInt.D2 integerTimeArray = new ArrayInt.D2(height, width);
+        final int targetFillValue = (int) NetCDFUtils.getDefaultFillValue(DataType.INT, false);
+        final Index index = rawTimeArray.getIndex();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                index.set(i, j);
+                final double rawTime = rawTimeArray.getDouble(index);
+                if (!fillValue.equals(rawTime)) {
+                    integerTimeArray.set(i, j, (int) Math.round(rawTime));
+                } else{
+                    integerTimeArray.set(i, j, targetFillValue);
+                }
+            }
+        }
+
+        return integerTimeArray;
     }
 
     @Override
@@ -124,9 +150,12 @@ public class AVHRR_FCDR_Reader implements Reader {
         throw new RuntimeException("not implemented");
     }
 
+    // @todo 1 tb/tb can be a NetCDF generic method 2019-01-07
     @Override
-    public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+    public Dimension getProductSize() {
+        final Variable ch1 = netcdfFile.findVariable("Ch1");
+        final int[] shape = ch1.getShape();
+        return new com.bc.fiduceo.core.Dimension("Ch1", shape[1], shape[0]);
     }
 
     @Override
@@ -184,5 +213,16 @@ public class AVHRR_FCDR_Reader implements Reader {
         }
 
         return boundingPolygonCreator;
+    }
+
+    // @todo 2 tb/tb make this method part of a generic NetCDF reader 2019-01-07
+    // @todo 1 tb/tb duplicated AVHRR_GAC 2019-01-07
+    private Number getFillValue(String variableName) throws IOException {
+        final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
+        if (fillValue != null) {
+            return fillValue;
+        }
+        final Array array = arrayCache.get(variableName);
+        return NetCDFUtils.getDefaultFillValue(array);
     }
 }

@@ -1,7 +1,9 @@
 package com.bc.fiduceo.reader.fiduceo_fcdr;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -15,6 +17,8 @@ import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.InvalidRangeException;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,26 +144,82 @@ public class AVHRR_FCDR_Reader_IO_Test {
         }
     }
 
-//    @Test
-//    public void testGetTimeLocatorNOAA12() throws IOException {
-//        final File file = createAvhrrNOAA12File();
-//
-//        try {
-//            reader.open(file);
-//            final TimeLocator timeLocator = reader.getTimeLocator();
-//            assertNotNull(timeLocator);
-//
-//            final long referenceTime = 448042841000L;
-//            assertEquals(referenceTime, timeLocator.getTimeFor(169, 0));
-//            assertEquals(referenceTime + 494, timeLocator.getTimeFor(168, 1));
-//            assertEquals(referenceTime + 6997, timeLocator.getTimeFor(169, 14));
-//            assertEquals(referenceTime + 507493, timeLocator.getTimeFor(170, 1015));
-//            assertEquals(referenceTime + 1007996, timeLocator.getTimeFor(171, 2016));
-//            assertEquals(referenceTime + 6122997, timeLocator.getTimeFor(172, 12246));
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @SuppressWarnings("PointlessArithmeticExpression")
+    @Test
+    public void testGetTimeLocatorNOAA12() throws IOException {
+        final File file = createAvhrrNOAA12File();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final long referenceTime = 703260853;
+            assertEquals(referenceTime, timeLocator.getTimeFor(169, 0));
+            assertEquals(referenceTime + 0, timeLocator.getTimeFor(168, 1));
+            assertEquals(referenceTime + 7, timeLocator.getTimeFor(169, 14));
+            assertEquals(referenceTime + 507, timeLocator.getTimeFor(170, 1015));
+            assertEquals(referenceTime + 1008, timeLocator.getTimeFor(171, 2016));
+            assertEquals(referenceTime + 5123, timeLocator.getTimeFor(172, 10246));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocatorMETOPA() throws IOException {
+        final File file = createAvhrrMetopAFile();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            final long referenceTime = 1478590649;
+            assertEquals(referenceTime, timeLocator.getTimeFor(117, 0));
+            assertEquals(referenceTime + 1, timeLocator.getTimeFor(118, 1));
+            assertEquals(referenceTime + 1, timeLocator.getTimeFor(119, 2));
+            assertEquals(referenceTime + 53, timeLocator.getTimeFor(120, 105));
+            assertEquals(referenceTime + 54, timeLocator.getTimeFor(121, 107));
+            assertEquals(referenceTime + 2618, timeLocator.getTimeFor(122, 5235));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA12File();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(38, 217, new Interval(3, 3));
+            NCTestUtils.assertValueAt(703260961, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(703260961, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(703260962, 2, 2, acquisitionTime);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_borderPixel() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMetopAFile();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(408, 1298, new Interval(3, 3));
+            NCTestUtils.assertValueAt(1478591298, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1478591298, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 2, 2, acquisitionTime);
+
+        } finally {
+            reader.close();
+        }
+    }
 
     private File createAvhrrNOAA12File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n12-fcdr", "vBeta", "1992", "04", "14", "FIDUCEO_FCDR_L1C_AVHRR_NOAA12_19920414141412_19920414155532_EASY_vBeta_fv2.0.0.nc"}, false);
