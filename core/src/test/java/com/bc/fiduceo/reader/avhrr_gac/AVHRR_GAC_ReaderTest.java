@@ -29,18 +29,13 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayFloat;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ConstantConditions")
 public class AVHRR_GAC_ReaderTest {
@@ -163,9 +158,9 @@ public class AVHRR_GAC_ReaderTest {
 
     @Test
     public void testGetSecondsSince1970() {
-         assertEquals(0, AVHRR_GAC_Reader.getSecondsSince1970(0, 0));
-         assertEquals(1, AVHRR_GAC_Reader.getSecondsSince1970(1000, 0));
-         assertEquals(2, AVHRR_GAC_Reader.getSecondsSince1970(0, 2));
-         assertEquals(4, AVHRR_GAC_Reader.getSecondsSince1970(2000, 2));
+        assertEquals(0, AVHRR_GAC_Reader.getSecondsSince1970(0, 0));
+        assertEquals(1, AVHRR_GAC_Reader.getSecondsSince1970(1000, 0));
+        assertEquals(2, AVHRR_GAC_Reader.getSecondsSince1970(0, 2));
+        assertEquals(4, AVHRR_GAC_Reader.getSecondsSince1970(2000, 2));
     }
 }
