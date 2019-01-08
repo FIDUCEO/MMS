@@ -162,36 +162,6 @@ public class AVHRR_GAC_ReaderTest {
     }
 
     @Test
-    public void testGetProductWidth() {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        Dimension dimension = mock(Dimension.class);
-        when(dimension.getFullName()).thenReturn("ni");
-        when(dimension.getLength()).thenReturn(108);
-        ArrayList<Dimension> dimensionList = new ArrayList<>();
-        dimensionList.add(dimension);
-        when(netcdfFile.getDimensions()).thenReturn(dimensionList);
-
-        assertEquals(108, AVHRR_GAC_Reader.getProductWidth(netcdfFile));
-    }
-
-    @Test
-    public void testGetProductWidth_dimensionMissing() {
-        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Dimension dimension = mock(Dimension.class);
-        when(dimension.getFullName()).thenReturn("theWrongOne");
-        when(dimension.getLength()).thenReturn(2008);
-        final ArrayList<Dimension> dimensionList = new ArrayList<>();
-        dimensionList.add(dimension);
-        when(netcdfFile.getDimensions()).thenReturn(dimensionList);
-
-        try {
-            AVHRR_GAC_Reader.getProductWidth(netcdfFile);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test
     public void testGetSecondsSince1970() {
          assertEquals(0, AVHRR_GAC_Reader.getSecondsSince1970(0, 0));
          assertEquals(1, AVHRR_GAC_Reader.getSecondsSince1970(1000, 0));

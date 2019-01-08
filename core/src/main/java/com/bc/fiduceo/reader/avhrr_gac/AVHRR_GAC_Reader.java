@@ -175,8 +175,8 @@ public class AVHRR_GAC_Reader implements Reader {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
 
-        final int defaultWidth = getProductWidth(netcdfFile);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, defaultWidth);
+        final com.bc.fiduceo.core.Dimension productSize = getProductSize();
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
     }
 
     @Override
@@ -318,17 +318,5 @@ public class AVHRR_GAC_Reader implements Reader {
     static int getSecondsSince1970(long startTimeMilliSecondsSince1970, float seconds) {
         final float milliSeconds = seconds * 1000.f;
         return (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
-    }
-
-    // @todo 1 tb/tb replace this with getProuctSize() call and remove method 2019-01-07
-    // package access for testing only tb 2016-03-31
-    static int getProductWidth(NetcdfFile netcdfFile) {
-        final List<Dimension> dimensions = netcdfFile.getDimensions();
-        for (final Dimension dimension : dimensions) {
-            if ("ni".equalsIgnoreCase(dimension.getFullName())) {
-                return dimension.getLength();
-            }
-        }
-        throw new RuntimeException("missing dimension 'ni'");
     }
 }
