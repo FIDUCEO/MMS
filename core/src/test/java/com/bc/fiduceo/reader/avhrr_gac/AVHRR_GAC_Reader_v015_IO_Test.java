@@ -27,12 +27,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -52,9 +47,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
@@ -78,7 +71,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
         final File file = createAvhrrNOAA08File();
 
         try {
-            reader.open(file);      
+            reader.open(file);
 
             final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
@@ -339,7 +332,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
         reader.open(file);
 
         try {
-            Array array = reader.readRaw(405, 12243, new Interval(9, 9), "relative_azimuth_angle");
+            final Array array = reader.readRaw(405, 12243, new Interval(9, 9), "relative_azimuth_angle");
             assertNotNull(array);
 
             NCTestUtils.assertValueAt(15678, 3, 3, array);

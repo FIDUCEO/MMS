@@ -5,29 +5,24 @@ import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class AVHRR_FCDR_Reader_IO_Test {
@@ -54,7 +49,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
 
             final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
-            
+
             final Date sensingStart = acquisitionInfo.getSensingStart();
             TestUtil.assertCorrectUTCDate(1992, 4, 14, 14, 14, 12, sensingStart);
 
@@ -221,6 +216,173 @@ public class AVHRR_FCDR_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testGetVariables() throws IOException {
+        final File file = createAvhrrNOAA12File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(35, variables.size());
+            Variable variable = variables.get(1);
+            assertEquals("longitude", variable.getFullName());
+
+            variable = variables.get(9);
+            assertEquals("Ch3a", variable.getFullName());
+
+            variable = variables.get(16);
+            assertEquals("scanline_origl1b", variable.getFullName());
+
+            variable = variables.get(25);
+            assertEquals("u_common_Ch3a", variable.getFullName());
+
+            variable = variables.get(34);
+            assertEquals("u_common_Ch5", variable.getFullName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_windowCenter() throws Exception {
+        final File file = createAvhrrMetopAFile();
+        reader.open(file);
+        try {
+            final Array array = reader.readRaw(29, 6067, new Interval(3, 3), "Ch3a");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(12613, 0, 0, array);
+            NCTestUtils.assertValueAt(12685, 1, 0, array);
+            NCTestUtils.assertValueAt(12661, 2, 0, array);
+            NCTestUtils.assertValueAt(12781, 0, 1, array);
+            NCTestUtils.assertValueAt(12542, 1, 1, array);
+            NCTestUtils.assertValueAt(12398, 2, 1, array);
+            NCTestUtils.assertValueAt(12637, 0, 2, array);
+            NCTestUtils.assertValueAt(12422, 1, 2, array);
+            NCTestUtils.assertValueAt(12446, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomWindowOut() throws Exception {
+        final File file = createAvhrrNOAA12File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(78, 12159, new Interval(3, 3), "Time");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(7.0326693159027E8, 0, 0, array);
+            NCTestUtils.assertValueAt(7.0326693159027E8, 1, 0, array);
+            NCTestUtils.assertValueAt(7.0326693159027E8, 2, 0, array);
+            NCTestUtils.assertValueAt(7.03266932091522E8, 0, 1, array);
+            NCTestUtils.assertValueAt(7.03266932091522E8, 1, 1, array);
+            NCTestUtils.assertValueAt(7.03266932091522E8, 2, 1, array);
+            NCTestUtils.assertValueAt(Double.NaN, 0, 2, array);
+            NCTestUtils.assertValueAt(Double.NaN, 1, 2, array);
+            NCTestUtils.assertValueAt(Double.NaN, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topWindowOut() throws Exception {
+        final File file = createAvhrrMetopAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(5, 1, new Interval(3, 4), "latitude");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32768, 0, 0, array);
+            NCTestUtils.assertValueAt(-32768, 1, 0, array);
+            NCTestUtils.assertValueAt(-32768, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-23515, 0, 1, array);
+            NCTestUtils.assertValueAt(-23569, 1, 1, array);
+            NCTestUtils.assertValueAt(-23621, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_leftWindowOut() throws Exception {
+        final File file = createAvhrrNOAA12File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(0, 122, new Interval(5, 5), "relative_azimuth_angle");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 1, 0, array);
+            NCTestUtils.assertValueAt(1928, 2, 0, array);
+            NCTestUtils.assertValueAt(1930, 3, 0, array);
+            NCTestUtils.assertValueAt(1931, 4, 0, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 4, array);
+            NCTestUtils.assertValueAt(-32767, 1, 4, array);
+            NCTestUtils.assertValueAt(1939, 2, 4, array);
+            NCTestUtils.assertValueAt(1939, 3, 4, array);
+            NCTestUtils.assertValueAt(1940, 4, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_topLeftWindowOut() throws Exception {
+        final File file = createAvhrrMetopAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(2, 3, new Interval(9, 9), "satellite_zenith_angle");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 4, 0, array);
+            NCTestUtils.assertValueAt(-32767, 8, 0, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 4, array);
+            NCTestUtils.assertValueAt(6742, 4, 4, array);
+            NCTestUtils.assertValueAt(6563, 8, 4, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 8, array);
+            NCTestUtils.assertValueAt(6742, 4, 8, array);
+            NCTestUtils.assertValueAt(6563, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomRightWindowOut() throws Exception {
+        final File file = createAvhrrNOAA12File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(406, 12159, new Interval(9, 9), "solar_zenith_angle");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(5559, 3, 3, array);
+            NCTestUtils.assertValueAt(5544, 4, 4, array);
+            NCTestUtils.assertValueAt(-32767, 6, 6, array);
+            NCTestUtils.assertValueAt(-32767, 8, 8, array);
+
+            NCTestUtils.assertValueAt(5574, 2, 2, array);
+            NCTestUtils.assertValueAt(5542, 4, 2, array);
+            NCTestUtils.assertValueAt(-32767, 6, 8, array);
+            NCTestUtils.assertValueAt(-32767, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File createAvhrrNOAA12File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n12-fcdr", "vBeta", "1992", "04", "14", "FIDUCEO_FCDR_L1C_AVHRR_NOAA12_19920414141412_19920414155532_EASY_vBeta_fv2.0.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
@@ -234,5 +396,4 @@ public class AVHRR_FCDR_Reader_IO_Test {
         assertTrue(file.isFile());
         return file;
     }
-
 }

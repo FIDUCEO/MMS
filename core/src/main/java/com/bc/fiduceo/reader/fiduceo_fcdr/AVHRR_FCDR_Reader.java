@@ -26,6 +26,21 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     private static final int NUM_SPLITS = 2;
 
+    // these variales do not have dimensionality that can be handled by the core MMS engine. They need to be
+    // transferred using a post-processing step tb 2019-01-08
+    private static String[] VARIABLE_NAMES_TO_REMOVE = {"SRF_wavelengths",
+            "SRF_weights",
+            "channel",
+            "channel_correlation_matrix_independent",
+            "channel_correlation_matrix_structured",
+            "cross_element_correlation_coefficients",
+            "cross_line_correlation_coefficients",
+            "lookup_table_BT",
+            "lookup_table_radiance",
+            "quality_channel_bitmask",
+            "x",
+            "y"};
+
     private final GeometryFactory geometryFactory;
 
     private NetcdfFile netcdfFile;
@@ -136,7 +151,7 @@ public class AVHRR_FCDR_Reader implements Reader {
                 final double rawTime = rawTimeArray.getDouble(index);
                 if (!fillValue.equals(rawTime)) {
                     integerTimeArray.set(i, j, (int) Math.round(rawTime));
-                } else{
+                } else {
                     integerTimeArray.set(i, j, targetFillValue);
                 }
             }
@@ -146,8 +161,19 @@ public class AVHRR_FCDR_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+    public List<Variable> getVariables() {
+        // 1-D variables: @todo 1 tb/tb check if we need to handle these separately 2019-01-09
+        // Time
+        // quality_scanline_bitmask
+        // scanline_map_to_origl1bfile
+        // scanline_origl1b
+        final List<Variable> fileVariables = netcdfFile.getVariables();
+        for (String var_name : VARIABLE_NAMES_TO_REMOVE) {
+            final Variable variable = netcdfFile.findVariable(var_name);
+            fileVariables.remove(variable);
+        }
+
+        return fileVariables;
     }
 
     // @todo 1 tb/tb can be a NetCDF generic method 2019-01-07

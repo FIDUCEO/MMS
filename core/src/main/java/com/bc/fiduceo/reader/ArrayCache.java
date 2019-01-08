@@ -109,7 +109,6 @@ public class ArrayCache {
         return arrayContainer.array;
     }
 
-    // @todo tb/** this is only used in tests - do we really need it? tb 2016-12-16
     public Array getScaled(String variableName, String scaleAttributeName, String offsetAttributeName) throws IOException {
         ArrayContainer arrayContainer = scaledCache.get(variableName);
         if (arrayContainer == null) {
@@ -171,7 +170,7 @@ public class ArrayCache {
 
     /**
      * Replaces the default variable finder with the given.
-     * @param variableFinder
+     * @param variableFinder a variable selection strategy
      */
     public ArrayCache withVariableFinder(VariableFinder variableFinder) {
         this.variableFinder = variableFinder;

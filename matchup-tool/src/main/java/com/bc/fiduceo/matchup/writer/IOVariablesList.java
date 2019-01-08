@@ -112,12 +112,7 @@ public class IOVariablesList {
 
             final String dimensionNames = createDimensionNames(dimension);
             final List<Variable> variables = reader.getVariables();
-            final String targetSensorName;
-            if (sensorRenames.containsKey(sensorName)) {
-                targetSensorName = sensorRenames.get(sensorName);
-            } else {
-                targetSensorName = sensorName;
-            }
+            final String targetSensorName = sensorRenames.getOrDefault(sensorName, sensorName);
 
             for (final Variable variable : variables) {
                 final String shortName = variable.getShortName();
