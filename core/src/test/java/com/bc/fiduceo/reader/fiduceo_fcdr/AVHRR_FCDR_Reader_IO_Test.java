@@ -3,6 +3,7 @@ package com.bc.fiduceo.reader.fiduceo_fcdr;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
@@ -378,6 +379,97 @@ public class AVHRR_FCDR_Reader_IO_Test {
             NCTestUtils.assertValueAt(5542, 4, 2, array);
             NCTestUtils.assertValueAt(-32767, 6, 8, array);
             NCTestUtils.assertValueAt(-32767, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMetopAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(101, 2019, new Interval(3, 3), "Ch3b");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(292.53999999999996, 0, 0, array);
+            NCTestUtils.assertValueAt(280.23999999999995, 1, 0, array);
+            NCTestUtils.assertValueAt(281.73999999999995, 2, 0, array);
+
+            NCTestUtils.assertValueAt(293.59999999999997, 0, 1, array);
+            NCTestUtils.assertValueAt(286.10999999999996, 1, 1, array);
+            NCTestUtils.assertValueAt(287.78999999999996, 2, 1, array);
+
+            NCTestUtils.assertValueAt(293.989999999999952, 0, 2, array);
+            NCTestUtils.assertValueAt(290.41999999999996, 1, 2, array);
+            NCTestUtils.assertValueAt(291.85999999999996, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA12File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(122, 3757, new Interval(3, 3), "latitude");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-66.167179122, 0, 0, array);
+            NCTestUtils.assertValueAt(-66.1891524484, 1, 0, array);
+            NCTestUtils.assertValueAt(-66.2111257748, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-66.1452057956, 0, 1, array);
+            NCTestUtils.assertValueAt(-66.167179122, 1, 1, array);
+            NCTestUtils.assertValueAt(-66.1891524484, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-66.1204858034, 0, 2, array);
+            NCTestUtils.assertValueAt(-66.1424591298, 1, 2, array);
+            NCTestUtils.assertValueAt(-66.1644324562, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMetopAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(266, 4622, new Interval(3, 3), "data_quality_bitmask");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(0, 1, 0, array);
+            NCTestUtils.assertValueAt(0, 2, 0, array);
+
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize() throws Exception {
+        final File file = createAvhrrNOAA12File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(12160, productSize.getNy());
         } finally {
             reader.close();
         }

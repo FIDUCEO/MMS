@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 
 public class AVHRR_FCDR_Reader implements Reader {
 
@@ -131,7 +133,15 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array array = readRaw(centerX, centerY, interval, variableName);
+
+        final double scaleFactor = getScaleFactor(variableName);
+        final double offset = getOffset(variableName);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(array, scaleOffset);
+        }
+        return array;
     }
 
     @Override
@@ -250,5 +260,21 @@ public class AVHRR_FCDR_Reader implements Reader {
         }
         final Array array = arrayCache.get(variableName);
         return NetCDFUtils.getDefaultFillValue(array);
+    }
+
+    private double getOffset(String variableName) throws IOException {
+        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, variableName);
+        if (offsetValue != null) {
+            return offsetValue.doubleValue();
+        }
+        return 0.0;
+    }
+
+    private double getScaleFactor(String variableName) throws IOException {
+        final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, variableName);
+        if (scaleFactorValue != null) {
+            return scaleFactorValue.doubleValue();
+        }
+        return 1.0;
     }
 }

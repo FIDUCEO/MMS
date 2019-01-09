@@ -258,6 +258,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return NetCDFUtils.getDefaultFillValue(array);
     }
 
+    // @todo 2 tb/tb move to generic NetCDF reader
     private double getOffset(String variableName) throws IOException {
         final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, variableName);
         if (offsetValue != null) {
@@ -266,6 +267,7 @@ public class AVHRR_GAC_Reader implements Reader {
         return 0.0;
     }
 
+    // @todo 2 tb/tb move to generic NetCDF reader
     private double getScaleFactor(String variableName) throws IOException {
         final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, variableName);
         if (scaleFactorValue != null) {
