@@ -932,6 +932,36 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_AVHRR_FCDR() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-ma-fcdr", "-start", "2016-312", "-end", "2016-314", "-v", "vBeta"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 11, 8, 7, 37, 29, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 11, 8, 8, 28, 17, observation.getStopTime());
+
+            assertEquals("avhrr-ma-fcdr", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "vBeta", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("vBeta", observation.getVersion());
+
+            assertNotNull(observation.getGeoBounds());
+            assertNotNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
