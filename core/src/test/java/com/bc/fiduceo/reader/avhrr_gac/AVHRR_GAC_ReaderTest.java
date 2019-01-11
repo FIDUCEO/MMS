@@ -163,4 +163,19 @@ public class AVHRR_GAC_ReaderTest {
         assertEquals(2, AVHRR_GAC_Reader.getSecondsSince1970(0, 2));
         assertEquals(4, AVHRR_GAC_Reader.getSecondsSince1970(2000, 2));
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("19940307023300-ESACCI-L1C-AVHRR11_G-fv01.0.nc");
+
+        assertEquals(1994, ymd[0]);
+        assertEquals(3, ymd[1]);
+        assertEquals(7, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("20161122200700-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
+
+        assertEquals(2016, ymd[0]);
+        assertEquals(11, ymd[1]);
+        assertEquals(22, ymd[2]);
+    }
 }

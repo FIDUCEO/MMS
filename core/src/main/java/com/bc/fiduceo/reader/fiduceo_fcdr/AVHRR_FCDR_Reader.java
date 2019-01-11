@@ -7,16 +7,31 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.location.PixelLocatorFactory;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +65,7 @@ public class AVHRR_FCDR_Reader implements Reader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private ArrayCache arrayCache;
     private TimeLocator timeLocator;
+    private PixelLocator pixelLocator;
 
     AVHRR_FCDR_Reader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -67,6 +83,7 @@ public class AVHRR_FCDR_Reader implements Reader {
     public void close() throws IOException {
         file = null;
         timeLocator = null;
+        pixelLocator = null;
         boundingPolygonCreator = null;
         arrayCache = null;
 
@@ -101,12 +118,27 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (pixelLocator == null) {
+            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled("longitude", "scale_factor", "add_offset");
+            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled("latitude", "scale_factor", "add_offset");
+            final int[] shape = lonStorage.getShape();
+            final int width = shape[1];
+            final int height = shape[0];
+            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
+        }
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array longitudes = arrayCache.get("lon");
+        final int[] shape = longitudes.getShape();
+        final int height = shape[0];
+        final int width = shape[1];
+        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
+        final PixelLocator pixelLocator = getPixelLocator();
+
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
@@ -119,7 +151,14 @@ public class AVHRR_FCDR_Reader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final Date date = parseStartDate(fileName);
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(date);
+        final int[] ymd = new int[3];
+        ymd[0] = utcCalendar.get(Calendar.YEAR);
+        ymd[1] = utcCalendar.get(Calendar.MONTH) + 1;
+        ymd[2] = utcCalendar.get(Calendar.DAY_OF_MONTH);
+        return ymd;
     }
 
     @Override

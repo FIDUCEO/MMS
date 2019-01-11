@@ -50,15 +50,31 @@ public class AVHRR_FCDR_ReaderTest {
 
     @Test
     public void test_parseStartDate() {
-        final Date startDate =  AVHRR_FCDR_Reader.parseStartDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA11_19920327133425_19920327151625_EASY_vBeta_fv2.0.0.nc");
+        final Date startDate = AVHRR_FCDR_Reader.parseStartDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA11_19920327133425_19920327151625_EASY_vBeta_fv2.0.0.nc");
 
         TestUtil.assertCorrectUTCDate(1992, 3, 27, 13, 34, 25, startDate);
     }
 
     @Test
     public void test_parseStopDate() {
-        final Date startDate =  AVHRR_FCDR_Reader.parseStopDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA15_20011205154420_20011205172532_EASY_vBeta_fv2.0.0.nc");
+        final Date startDate = AVHRR_FCDR_Reader.parseStopDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA15_20011205154420_20011205172532_EASY_vBeta_fv2.0.0.nc");
 
         TestUtil.assertCorrectUTCDate(2001, 12, 5, 17, 25, 32, startDate);
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        final AVHRR_FCDR_Reader reader = new AVHRR_FCDR_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2019-01-11
+        int[] ymd = reader.extractYearMonthDayFromFilename("FIDUCEO_FCDR_L1C_AVHRR_NOAA15_20011205154420_20011205172532_EASY_vBeta_fv2.0.0.nc");
+
+        assertEquals(2001, ymd[0]);
+        assertEquals(12, ymd[1]);
+        assertEquals(5, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("FIDUCEO_FCDR_L1C_AVHRR_NOAA11_19920327133425_19920327151625_EASY_vBeta_fv2.0.0.nc");
+
+        assertEquals(1992, ymd[0]);
+        assertEquals(3, ymd[1]);
+        assertEquals(27, ymd[2]);
     }
 }

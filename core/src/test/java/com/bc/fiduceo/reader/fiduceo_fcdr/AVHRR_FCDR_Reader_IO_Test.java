@@ -7,6 +7,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -18,6 +19,7 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -470,6 +472,31 @@ public class AVHRR_FCDR_Reader_IO_Test {
             assertNotNull(productSize);
             assertEquals(409, productSize.getNx());
             assertEquals(12160, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator() throws IOException {
+        final File file = createAvhrrMetopAFile();
+
+        try {
+            reader.open(file);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(-147.53, -23.51);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(104.24472976552683, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1736.5209274942072, pixelLocation[0].getY(), 1e-8);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(104.5, 1736.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(-147.53990173339844, geoLocation.getX(), 1e-8);
+            assertEquals(-23.514205932617188, geoLocation.getY(), 1e-8);
         } finally {
             reader.close();
         }
