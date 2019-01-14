@@ -10,8 +10,8 @@
 export PROJECT=bc_fiduceo
 export MMS_ENV_NAME=mms-env.sh
 
-export PM_EXE_DIR=/group_workspaces/cems2/fiduceo/Software/mms/bin
-export PM_PYTHON_EXEC='/group_workspaces/cems2/esacci_sst/software/miniconda3/envs/fiduceo_mms/bin/python'
+export PM_EXE_DIR=/gws/nopw/j04/fiduceo/Software/mms/bin
+export PM_PYTHON_EXEC='/gws/nopw/j04/fiduceo/Software/miniconda/miniconda3/envs/fiduceo_mms/bin/python'
 
 export PATH=${PM_EXE_DIR}:$PATH
 
