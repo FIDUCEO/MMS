@@ -1,5 +1,7 @@
 ### Updates from version 1.4.1 to 1.4.2
 * corrected bug in distance-to-land: NPE when two or more instances are allocated
+* added support for FIDUCEO AVHRR FCDR products
+* updated scripts to new JASMIN file system
 
 ### Updates from version 1.4.0 to 1.4.1
 * migrated to asynchronous PMonitor
