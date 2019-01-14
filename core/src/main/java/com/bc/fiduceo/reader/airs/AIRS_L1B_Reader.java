@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.reader.airs;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -36,12 +34,12 @@ import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Read2dFrom1d;
 import com.bc.fiduceo.reader.Read2dFrom2d;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.TimeLocator_TAI1993;
 import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.jdom2.Element;
@@ -63,13 +61,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class AIRS_L1B_Reader implements Reader {
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+
+public class AIRS_L1B_Reader extends NetCDFReader {
 
     final ReaderContext readerContext;
     private final Logger logger;
-    private NetcdfFile netcdfFile = null;
     private BoundingPolygonCreator boundingPolygonCreator;
-    private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private boolean needVariablesInitialisation = true;
     private ArrayList<Variable> variablesList;
@@ -90,10 +88,6 @@ public class AIRS_L1B_Reader implements Reader {
 
     @Override
     public void close() throws IOException {
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
         if (fillValueMap != null) {
             fillValueMap.clear();
             fillValueMap = null;
@@ -109,9 +103,10 @@ public class AIRS_L1B_Reader implements Reader {
 
         needVariablesInitialisation = true;
         productSize = null;
-        arrayCache = null;
         boundingPolygonCreator = null;
         pixelLocator = null;
+
+        super.close();
     }
 
     @Override
@@ -136,12 +131,15 @@ public class AIRS_L1B_Reader implements Reader {
 
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMetaString = HdfEOSUtil.getEosMetadata(HdfEOSUtil.CORE_METADATA, rootGroup);
+        if (coreMetaString == null) {
+            throw new IOException("'coremetadata' attribute not found");
+        }
         final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
 
         final Date sensingStart = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE),
-                                                       HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
+                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME));
         final Date sensingStop = HdfEOSUtil.parseDate(HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_DATE),
-                                                      HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME));
+                HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME));
 
         acquisitionInfo.setSensingStart(sensingStart);
         acquisitionInfo.setSensingStop(sensingStop);
@@ -182,7 +180,7 @@ public class AIRS_L1B_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) throws IOException {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneIndex) {
         // There is no need to implement this method
         // AIRS L1B products do not overlap themself.
         throw new RuntimeException("not implemented");
@@ -297,7 +295,7 @@ public class AIRS_L1B_Reader implements Reader {
         }
     }
 
-    private void initializeVariables() throws InvalidRangeException {
+    private void initializeVariables() {
         final String dimNameY = "L1B_AIRS_Science/GeoTrack";
         final String dimNameX = "L1B_AIRS_Science/GeoXTrack";
         final String dimNameChannels = "L1B_AIRS_Science/Data_Fields/Channel";
@@ -315,8 +313,8 @@ public class AIRS_L1B_Reader implements Reader {
             int[] shape = variable.getShape();
             final int rank = variable.getRank();
             if (shape[0] != height
-                || rank > 2
-                || rank == 2 && shape[1] == numChannels) {
+                    || rank > 2
+                    || rank == 2 && shape[1] == numChannels) {
                 continue;
             }
 
@@ -355,16 +353,14 @@ public class AIRS_L1B_Reader implements Reader {
         return null;
     }
 
-    private Variable findVariable(String varName) {
-        synchronized (netcdfFile) {
-            final List<Variable> variables = netcdfFile.getVariables();
-            for (Variable var : variables) {
-                if (var.getShortName().equals(varName)) {
-                    return var;
-                }
+    private Variable findVariable(String varName) throws IOException {
+        final List<Variable> variables = netcdfFile.getVariables();
+        for (Variable var : variables) {
+            if (var.getShortName().equals(varName)) {
+                return var;
             }
         }
-        return null;
+        throw new IOException("Variable not found: " + varName);
     }
 
 }

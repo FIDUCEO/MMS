@@ -29,7 +29,19 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
+import com.bc.fiduceo.reader.Read2dFrom3d;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
+import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -40,10 +52,8 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.ma2.Section;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -53,7 +63,7 @@ import java.util.List;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
 
-class SSMT2_Reader implements Reader {
+class SSMT2_Reader extends NetCDFReader {
 
     private static final int NUM_SPLITS = 2;
 
@@ -71,8 +81,6 @@ class SSMT2_Reader implements Reader {
 
     private final GeometryFactory geometryFactory;
 
-    private NetcdfFile netcdfFile;
-    private ArrayCache arrayCache;
     private BoundingPolygonCreator boundingPolygonCreator;
     private boolean needVariablesInitialisation = true;
     private ArrayList<Variable> variablesList;
@@ -85,22 +93,14 @@ class SSMT2_Reader implements Reader {
     }
 
     @Override
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
-    }
-
-    @Override
     public void close() throws IOException {
         needVariablesInitialisation = true;
         readersMap = null;
         variablesList = null;
         pixelLocator = null;
         timeLocator = null;
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+
+        super.close();
     }
 
     @Override
@@ -194,7 +194,7 @@ class SSMT2_Reader implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Dimension productSize = getProductSize();
         final int maxX = productSize.getNx() - 1;
         final int maxY = productSize.getNy() - 1;
@@ -224,7 +224,7 @@ class SSMT2_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() throws InvalidRangeException {
         ensureInitialisation();
         return variablesList;
     }
@@ -241,7 +241,7 @@ class SSMT2_Reader implements Reader {
         return startDateString + "T" + startTimeString.substring(0, startTimeString.length() - 7);
     }
 
-    HashMap<String, WindowReader> getReadersMap() throws IOException, InvalidRangeException {
+    HashMap<String, WindowReader> getReadersMap() throws InvalidRangeException {
         ensureInitialisation();
         return readersMap;
     }

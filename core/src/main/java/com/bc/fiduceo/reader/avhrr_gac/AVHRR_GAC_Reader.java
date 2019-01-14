@@ -28,14 +28,13 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Geometries;
 import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -45,7 +44,6 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -53,11 +51,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
-
-public class AVHRR_GAC_Reader implements Reader {
+public class AVHRR_GAC_Reader extends NetCDFReader {
 
     private static final int NUM_SPLITS = 2;
     private static final String START_TIME_ATTRIBUTE_NAME = "start_time";
@@ -65,10 +59,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
     private final GeometryFactory geometryFactory;
 
-    private NetcdfFile netcdfFile;
-
     private BoundingPolygonCreator boundingPolygonCreator;
-    private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
     private long startTimeMilliSecondsSince1970;
@@ -79,8 +70,7 @@ public class AVHRR_GAC_Reader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
+        super.open(file);
 
         final String startTimeString = NetCDFUtils.getGlobalAttributeString(START_TIME_ATTRIBUTE_NAME, netcdfFile);
         startTimeMilliSecondsSince1970 = parseDate(startTimeString).getTime();
@@ -92,12 +82,8 @@ public class AVHRR_GAC_Reader implements Reader {
     public void close() throws IOException {
         timeLocator = null;
         pixelLocator = null;
-        arrayCache = null;
         boundingPolygonCreator = null;
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+        super.close();
     }
 
     @Override
@@ -198,7 +184,7 @@ public class AVHRR_GAC_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
-        final double scaleFactor = getScaleFactor(variableName);
+        final double scaleFactor = getScaleFactorCf(variableName);
         final double offset = getOffset(variableName);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
@@ -261,34 +247,6 @@ public class AVHRR_GAC_Reader implements Reader {
         }
 
         return boundingPolygonCreator;
-    }
-
-    // @todo 2 tb/tb make this method part of a generic NetCDF reader 2019-01-07
-    private Number getFillValue(String variableName) throws IOException {
-        final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
-        if (fillValue != null) {
-            return fillValue;
-        }
-        final Array array = arrayCache.get(variableName);
-        return NetCDFUtils.getDefaultFillValue(array);
-    }
-
-    // @todo 2 tb/tb move to generic NetCDF reader
-    private double getOffset(String variableName) throws IOException {
-        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, variableName);
-        if (offsetValue != null) {
-            return offsetValue.doubleValue();
-        }
-        return 0.0;
-    }
-
-    // @todo 2 tb/tb move to generic NetCDF reader
-    private double getScaleFactor(String variableName) throws IOException {
-        final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, variableName);
-        if (scaleFactorValue != null) {
-            return scaleFactorValue.doubleValue();
-        }
-        return 1.0;
     }
 
     // package access for testing only tb 2016-03-02

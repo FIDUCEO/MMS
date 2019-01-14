@@ -25,14 +25,13 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -47,12 +46,11 @@ import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
 
-public class SSTInsituReader implements Reader {
+public class SSTInsituReader extends NetCDFReader {
 
     private final Map<String, Number> fillValueMap = new HashMap<>();
     private final Map<String, Array> arrayMap = new HashMap<>();
 
-    private NetcdfFile netcdfFile;
     private String insituType;
     private List<Variable> variables;
 
@@ -98,7 +96,7 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() {
         return variables;
     }
 
@@ -118,17 +116,17 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() throws IOException {
+    public PixelLocator getPixelLocator() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public TimeLocator getTimeLocator() throws IOException {
+    public TimeLocator getTimeLocator() {
         return (x, y) -> millisSince1978 + ((long) getTime(y)) * 1000L;
     }
 
@@ -138,7 +136,7 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) {
         final Array sourceArray = arrayMap.get(variableName);
         final Number fillValue = fillValueMap.get(variableName);
 
@@ -163,12 +161,12 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         final Array acquisitionTime_1978 = readRaw(x, y, interval, "insitu.time");
         final int fillValue = fillValueMap.get("insitu.time").intValue();
         final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
@@ -185,7 +183,7 @@ public class SSTInsituReader implements Reader {
     }
 
     @Override
-    public Dimension getProductSize() throws IOException {
+    public Dimension getProductSize() {
         return new Dimension("product_size", 1, getNumObservations());
     }
 

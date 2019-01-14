@@ -319,7 +319,7 @@ public class ArrayCache {
      */
     public interface VariableFinder {
 
-        Variable findVariable(Group group, String variableName);
+        Variable findVariable(Group group, String variableName) throws IOException;
     }
 
     private class ArrayContainer {

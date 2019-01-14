@@ -28,6 +28,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
@@ -35,10 +36,8 @@ import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
-class AMSRE_Reader implements Reader {
+class AMSRE_Reader extends NetCDFReader {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String[] CHANNEL_QUALITY_FLAG_EXTENSIONS = new String[]{"6V", "6H", "10V", "10H", "18V", "18H", "23V", "23H", "36V", "36H", "89V", "89H"};
@@ -58,9 +57,7 @@ class AMSRE_Reader implements Reader {
     private static final String REG_EX = "AMSR_E_L2A_BrightnessTemperatures_V\\d{2}_\\d{12}_[A-Z].hdf";
 
     private final GeometryFactory geometryFactory;
-    private NetcdfFile netcdfFile;
     private BoundingPolygonCreator boundingPolygonCreator;
-    private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private final VariableNamesConverter namesConverter;
 
@@ -69,20 +66,12 @@ class AMSRE_Reader implements Reader {
         namesConverter = new VariableNamesConverter();
     }
 
-    @Override
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
-    }
 
     @Override
     public void close() throws IOException {
         pixelLocator = null;
         boundingPolygonCreator = null;
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+        super.close();
     }
 
     @Override
@@ -196,8 +185,8 @@ class AMSRE_Reader implements Reader {
 
         final String hdfVariableName = namesConverter.toHdf(variableName);
         final String groupName = getGroupNameForVariable(hdfVariableName);
-        double scaleFactor = getScaleFactor(groupName, hdfVariableName);
-        double offset = getOffset(groupName, hdfVariableName);
+        double scaleFactor = getScaleFactor(groupName, hdfVariableName, "SCALE_FACTOR", false);
+        double offset = getOffset(groupName, hdfVariableName, "OFFSET");
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -383,30 +372,12 @@ class AMSRE_Reader implements Reader {
 
     static int getLayerIndexFromChannelFlagName(String channelQualityFlagName) {
         final int extensionIndex = channelQualityFlagName.lastIndexOf("_") + 1;
-        final String extension = channelQualityFlagName.substring(extensionIndex, channelQualityFlagName.length());
+        final String extension = channelQualityFlagName.substring(extensionIndex);
         for (int i = 0; i < CHANNEL_QUALITY_FLAG_EXTENSIONS.length; i++) {
             if (CHANNEL_QUALITY_FLAG_EXTENSIONS[i].equals(extension)) {
                 return i;
             }
         }
         throw new RuntimeException("Invalid channel variable extension: " + channelQualityFlagName);
-    }
-
-    // @todo 3 tb/tb copied from AVHRR reader - move to common helper class 2016-09-06
-    private double getOffset(String groupName, String variableName) throws IOException {
-        final Number offsetValue = arrayCache.getNumberAttributeValue("OFFSET", groupName, variableName);
-        if (offsetValue != null) {
-            return offsetValue.doubleValue();
-        }
-        return 0.0;
-    }
-
-    // @todo 3 tb/tb copied from AVHRR reader - move to common helper class 2016-09-06
-    private double getScaleFactor(String groupName, String variableName) throws IOException {
-        final Number scaleFactorValue = arrayCache.getNumberAttributeValue("SCALE_FACTOR", groupName, variableName);
-        if (scaleFactorValue != null) {
-            return scaleFactorValue.doubleValue();
-        }
-        return 1.0;
     }
 }

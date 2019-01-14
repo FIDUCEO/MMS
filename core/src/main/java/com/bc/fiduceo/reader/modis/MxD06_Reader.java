@@ -29,7 +29,15 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
@@ -42,7 +50,6 @@ import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -51,10 +58,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
-
-class MxD06_Reader implements Reader {
+class MxD06_Reader extends NetCDFReader {
 
     private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
@@ -62,8 +66,6 @@ class MxD06_Reader implements Reader {
     private static final String DATA_GROUP = "mod06/Data_Fields";
 
     private final GeometryFactory geometryFactory;
-    private NetcdfFile netcdfFile;
-    private ArrayCache arrayCache;
     private TimeLocator timeLocator;
     private BowTiePixelLocator pixelLocator;
     private Dimension productSize;
@@ -74,8 +76,7 @@ class MxD06_Reader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
+        super.open(file);
         timeLocator = null;
     }
 
@@ -87,11 +88,7 @@ class MxD06_Reader implements Reader {
             pixelLocator.dispose();
             pixelLocator = null;
         }
-
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+        super.close();
     }
 
     @Override
@@ -173,7 +170,7 @@ class MxD06_Reader implements Reader {
         final Array rawData = readRaw(centerX, centerY, interval, variableName);
         final String groupName = getGroupName(variableName);
 
-        final double scaleFactor = getScaleFactor(groupName, variableName);
+        final double scaleFactor = getScaleFactorCf(groupName, variableName);
         final double offset = getOffset(groupName, variableName);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
@@ -184,7 +181,7 @@ class MxD06_Reader implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final int height = interval.getY();
         final int width = interval.getX();
         final int y_offset = y - height / 2;
@@ -201,7 +198,7 @@ class MxD06_Reader implements Reader {
         for (int ya = 0; ya < height; ya++) {
             final int yRead = y_offset + ya;
             final int lineTimeInSeconds;
-            if (yRead<0 || yRead >= pHeight) {
+            if (yRead < 0 || yRead >= pHeight) {
                 lineTimeInSeconds = acquisitionTimeFillValue;
             } else {
                 final long lineTime = timeLocator.getTimeFor(0, yRead);
@@ -217,7 +214,7 @@ class MxD06_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
 
         final ArrayList<Variable> exportVariables = new ArrayList<>();
@@ -285,6 +282,9 @@ class MxD06_Reader implements Reader {
     private void extractAcquisitionTimes(AcquisitionInfo acquisitionInfo) throws IOException {
         final Group rootGroup = netcdfFile.getRootGroup();
         final String coreMetaString = HdfEOSUtil.getEosMetadata("CoreMetadata.0", rootGroup);
+        if (coreMetaString == null) {
+            throw new IOException("'CoreMetadata.0' attribute not found");
+        }
         final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
         final String rangeBeginDateElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE);
         final String rangeBeginTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME);
@@ -403,23 +403,6 @@ class MxD06_Reader implements Reader {
         return RawDataReader.read(centerX, centerY, interval, 0, layerData, 270);
     }
 
-    // @duplicated code - AVHRR_GAC reader - move to common location tb 2017-08-30
-    private double getOffset(String groupName, String variableName) throws IOException {
-        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, groupName, variableName);
-        if (offsetValue != null) {
-            return offsetValue.doubleValue();
-        }
-        return 0.0;
-    }
-
-    private double getScaleFactor(String groupName, String variableName) throws IOException {
-        final Number scaleFactorValue = arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, groupName, variableName);
-        if (scaleFactorValue != null) {
-            return scaleFactorValue.doubleValue();
-        }
-        return 1.0;
-    }
-
     // package access for testing only tb 2017-08-31
     static String stripLayerSuffix(String variableName) {
         if (variableName.contains("Quality_Assurance_5km")) {
@@ -433,7 +416,7 @@ class MxD06_Reader implements Reader {
     static int extractLayerIndex(String variableName) {
         if (variableName.contains("Quality_Assurance_5km")) {
             final int lastUnderscore = variableName.lastIndexOf("_");
-            final String intString = variableName.substring(lastUnderscore + 1, variableName.length());
+            final String intString = variableName.substring(lastUnderscore + 1);
             return Integer.parseInt(intString);
         }
         throw new RuntimeException("Invalid variable name for layer calculations");

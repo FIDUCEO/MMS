@@ -49,6 +49,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -64,16 +65,14 @@ import java.util.Date;
 import java.util.List;
 
 
-class AMSUB_MHS_L1C_Reader implements Reader {
+class AMSUB_MHS_L1C_Reader extends NetCDFReader {
 
     private static final String GEOLOCATION_GROUP_NAME = "Geolocation";
     private static final String DATA_GROUP_NAME = "Data";
     private static final int NUM_SPLITS = 2;
 
     private final GeometryFactory geometryFactory;
-    private NetcdfFile netcdfFile;
 
-    private ArrayCache arrayCache;
     private TimeLocator timeLocator;
     private PixelLocator pixelLocator;
 
@@ -86,8 +85,7 @@ class AMSUB_MHS_L1C_Reader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
+        super.open(file);
         timeLocator = null;
 
         isAmsuB = isAmsub(netcdfFile);
@@ -98,10 +96,7 @@ class AMSUB_MHS_L1C_Reader implements Reader {
         timeLocator = null;
         pixelLocator = null;
         boundingPolygonCreator = null;
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+        super.close();
     }
 
     @Override
@@ -229,7 +224,7 @@ class AMSUB_MHS_L1C_Reader implements Reader {
 
         final String strippedVariableName = ReaderUtils.stripChannelSuffix(rawVariableName);
 
-        double scaleFactor = getScaleFactor(strippedVariableName);
+        double scaleFactor = getScaleFactorCf(strippedVariableName);
         if (ReaderUtils.mustScale(scaleFactor, 0.0)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, 0.0);
             return MAMath.convert2Unpacked(array, scaleOffset);
@@ -413,7 +408,7 @@ class AMSUB_MHS_L1C_Reader implements Reader {
         return fillValue;
     }
 
-    private double getScaleFactor(String variableName) throws IOException {
+    protected double getScaleFactorCf(String variableName) throws IOException {
         final String groupName = getGroupName(variableName);
         final Number scaleFactorValue = arrayCache.getNumberAttributeValue("Scale", groupName, variableName);
         if (scaleFactorValue != null) {

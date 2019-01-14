@@ -3,25 +3,41 @@ package com.bc.fiduceo.reader.amsr.amsr2;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
-import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.ArrayCache;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +47,7 @@ import java.util.zip.GZIPInputStream;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
-public class AMSR2_Reader implements Reader {
+public class AMSR2_Reader extends NetCDFReader {
 
     private static final String REG_EX = "GW1AM2_\\d{12}_\\d{3}[AD]_L1SGRTBR_\\d{7}.h5(.gz)?";
     private static final String[] LAND_OCEAN_FLAG_EXTENSIONS = new String[]{"6", "10", "23", "36"};
@@ -40,8 +56,6 @@ public class AMSR2_Reader implements Reader {
     private static final String LAT_VARIABLE_NAME = "Latitude_of_Observation_Point_for_89A";
 
     private final ReaderContext readerContext;
-    private NetcdfFile netcdfFile;
-    private ArrayCache arrayCache;
     private PixelLocator pixelLocator;
     private BoundingPolygonCreator boundingPolygonCreator;
     private File tempFile;
@@ -140,7 +154,7 @@ public class AMSR2_Reader implements Reader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
-        final double scaleFactor = getScaleFactor(variableName);
+        final double scaleFactor = getScaleFactor(variableName, "SCALE_FACTOR");
         if (scaleFactor != 1.0) {
             final double offset = 0.0;
             if (ReaderUtils.mustScale(scaleFactor, offset)) {
@@ -222,8 +236,8 @@ public class AMSR2_Reader implements Reader {
     public Array readScanDataQuality(int scanNumber) throws IOException, InvalidRangeException {
         final Array scanDataQuality = arrayCache.get("Scan_Data_Quality");
 
-        final int[] origin = new int[] {scanNumber, 0};
-        final int[] shape = new int[] {1, 512};
+        final int[] origin = new int[]{scanNumber, 0};
+        final int[] shape = new int[]{1, 512};
 
         return scanDataQuality.section(origin, shape).copy();
     }
@@ -278,7 +292,7 @@ public class AMSR2_Reader implements Reader {
         ReaderUtils.setTimeAxes(acquisitionInfo, timeAxisGeometry, readerContext.getGeometryFactory());
     }
 
-    private Number getFillValue(String variableName) throws IOException {
+    protected Number getFillValue(String variableName) throws IOException {
         final Number fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
         if (fillValue != null) {
             return fillValue;
@@ -332,13 +346,6 @@ public class AMSR2_Reader implements Reader {
         }
     }
 
-    private double getScaleFactor(String variableName) throws IOException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
-        final Number scale_factor = arrayCache.getNumberAttributeValue("SCALE_FACTOR", escapedName);
-
-        return scale_factor.doubleValue();
-    }
-
     /**
      * Uncompresses a file in gzip format to a tmp file.
      *
@@ -349,27 +356,11 @@ public class AMSR2_Reader implements Reader {
     private static void decompress(File gzipFile, File tmpFile) throws IOException {
         final byte[] buffer = new byte[32768];
 
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = new GZIPInputStream(new FileInputStream(gzipFile), 32768);
-            out = new BufferedOutputStream(new FileOutputStream(tmpFile));
+        try (InputStream in = new GZIPInputStream(new FileInputStream(gzipFile), 32768);
+             OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile))) {
             int noOfBytesRead;
             while ((noOfBytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, noOfBytesRead);
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                }
             }
         }
     }

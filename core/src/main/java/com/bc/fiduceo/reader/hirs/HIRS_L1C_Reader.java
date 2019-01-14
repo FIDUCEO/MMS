@@ -23,10 +23,19 @@ package com.bc.fiduceo.reader.hirs;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -34,10 +43,8 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -47,7 +54,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-class HIRS_L1C_Reader implements Reader {
+class HIRS_L1C_Reader extends NetCDFReader {
 
     private static final int CHANNEL_DIMENSION_INDEX = 2;
     private static final int NUM_BT_CHANNELS = 19;
@@ -57,30 +64,19 @@ class HIRS_L1C_Reader implements Reader {
 
     private final GeometryFactory geometryFactory;
     private final HashMap<String, Number> fillValueCache;
-    private NetcdfFile netcdfFile;
     private PixelLocator pixelLocator;
-    private ArrayCache arrayCache;
 
     HIRS_L1C_Reader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
         fillValueCache = new HashMap<>();
     }
 
-    @Override
-    public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
-    }
 
     @Override
     public void close() throws IOException {
-        arrayCache = null;
         fillValueCache.clear();
         pixelLocator = null;
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
+        super.close();
     }
 
     @Override
@@ -153,10 +149,10 @@ class HIRS_L1C_Reader implements Reader {
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTime(yyDDD);
         return new int[]{
-                    utcCalendar.get(Calendar.YEAR),
-                    utcCalendar.get(Calendar.MONTH) + 1,
-                    utcCalendar.get(Calendar.DAY_OF_MONTH),
-                    };
+                utcCalendar.get(Calendar.YEAR),
+                utcCalendar.get(Calendar.MONTH) + 1,
+                utcCalendar.get(Calendar.DAY_OF_MONTH),
+        };
     }
 
     @Override
@@ -203,14 +199,19 @@ class HIRS_L1C_Reader implements Reader {
         final List<Variable> fileVariables = netcdfFile.getVariables();
         for (final Variable variable : fileVariables) {
             final String variableName = variable.getFullName();
-            if (variableName.equals("bt")) {
-                addLayered3DVariables(result, variable, NUM_BT_CHANNELS);
-            } else if (variableName.equals("radiance")) {
-                addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
-            } else if (variableName.equals("counts")) {
-                addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
-            } else {
-                result.add(variable);
+            switch (variableName) {
+                case "bt":
+                    addLayered3DVariables(result, variable, NUM_BT_CHANNELS);
+                    break;
+                case "radiance":
+                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+                    break;
+                case "counts":
+                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+                    break;
+                default:
+                    result.add(variable);
+                    break;
             }
         }
         return result;
@@ -223,7 +224,7 @@ class HIRS_L1C_Reader implements Reader {
         return new Dimension("lon", shape[1], shape[0]);
     }
 
-    private Number getFillValue(String fullVariableName) {
+    protected Number getFillValue(String fullVariableName) {
         if (!fillValueCache.containsKey(fullVariableName)) {
             final Variable variable = NetCDFUtils.getVariable(netcdfFile, fullVariableName);
             fillValueCache.put(fullVariableName, NetCDFUtils.getFillValue(variable));

@@ -26,7 +26,13 @@ import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.PixelLocatorX1Yn;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -37,7 +43,6 @@ import ucar.ma2.Section;
 import ucar.ma2.StructureData;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
 
@@ -53,7 +58,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
-public class CALIOP_L2_VFM_Reader implements Reader {
+public class CALIOP_L2_VFM_Reader extends NetCDFReader {
 
     private static final double FOOTPRINT_WIDTH_KM = 5;
     private static final double FOOTPRINT_HALF_WIDTH_KM = FOOTPRINT_WIDTH_KM / 2;
@@ -69,8 +74,6 @@ public class CALIOP_L2_VFM_Reader implements Reader {
     private static final short[] nadirLineIndices = calcalculateIndizes();
     final GeometryFactory geometryFactory;
     final CaliopUtils caliopUtils;
-    private NetcdfFile netcdfFile;
-    private ArrayCache arrayCache;
     private PixelLocatorX1Yn pixelLocator;
     private List<Variable> variables;
 
@@ -97,18 +100,16 @@ public class CALIOP_L2_VFM_Reader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
-        arrayCache = new ArrayCache(netcdfFile);
+        super.open(file);
         variables = initVariables();
     }
 
     @Override
     public void close() throws IOException {
-        if (netcdfFile != null) {
-            netcdfFile.close();
-        }
         pixelLocator = null;
         variables = null;
+
+        super.close();
     }
 
     @Override
@@ -332,10 +333,6 @@ public class CALIOP_L2_VFM_Reader implements Reader {
             }
         }
         return variables;
-    }
-
-    private Number getFillValue(String variableName) throws IOException {
-        return arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, variableName);
     }
 
     private void ensureValidInterval(Interval interval) {
