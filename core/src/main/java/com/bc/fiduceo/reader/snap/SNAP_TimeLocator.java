@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
 
 import com.bc.fiduceo.reader.TimeLocator;
@@ -27,12 +27,12 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TimeCoding;
 
-class ATSR_TimeLocator implements TimeLocator {
+public class SNAP_TimeLocator implements TimeLocator {
 
     private final TimeCoding timeCoding;
     private final PixelPos pixelPos;
 
-    ATSR_TimeLocator(Product product) {
+    public SNAP_TimeLocator(Product product) {
         timeCoding = product.getSceneTimeCoding();
         pixelPos = new PixelPos();
     }

@@ -153,12 +153,12 @@ public class AVHRR_FCDR_Reader_IO_Test {
             assertNotNull(timeLocator);
 
             final long referenceTime = 703260853;
-            assertEquals(referenceTime, timeLocator.getTimeFor(169, 0));
-            assertEquals(referenceTime + 0, timeLocator.getTimeFor(168, 1));
-            assertEquals(referenceTime + 7, timeLocator.getTimeFor(169, 14));
-            assertEquals(referenceTime + 507, timeLocator.getTimeFor(170, 1015));
-            assertEquals(referenceTime + 1008, timeLocator.getTimeFor(171, 2016));
-            assertEquals(referenceTime + 5123, timeLocator.getTimeFor(172, 10246));
+            assertEquals(703260852587L, timeLocator.getTimeFor(169, 0));
+            assertEquals(703260853092L, timeLocator.getTimeFor(168, 1));
+            assertEquals(703260859587L, timeLocator.getTimeFor(169, 14));
+            assertEquals(703261360090L, timeLocator.getTimeFor(170, 1015));
+            assertEquals(703261860586L, timeLocator.getTimeFor(171, 2016));
+            assertEquals(703265975587L, timeLocator.getTimeFor(172, 10246));
         } finally {
             reader.close();
         }
@@ -173,13 +173,12 @@ public class AVHRR_FCDR_Reader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            final long referenceTime = 1478590649;
-            assertEquals(referenceTime, timeLocator.getTimeFor(117, 0));
-            assertEquals(referenceTime + 1, timeLocator.getTimeFor(118, 1));
-            assertEquals(referenceTime + 1, timeLocator.getTimeFor(119, 2));
-            assertEquals(referenceTime + 53, timeLocator.getTimeFor(120, 105));
-            assertEquals(referenceTime + 54, timeLocator.getTimeFor(121, 107));
-            assertEquals(referenceTime + 2618, timeLocator.getTimeFor(122, 5235));
+            assertEquals(1478590649018L, timeLocator.getTimeFor(117, 0));
+            assertEquals(1478590649518L, timeLocator.getTimeFor(118, 1));
+            assertEquals(1478590650017L, timeLocator.getTimeFor(119, 2));
+            assertEquals(1478590701516L, timeLocator.getTimeFor(120, 105));
+            assertEquals(1478590702516L, timeLocator.getTimeFor(121, 107));
+            assertEquals(1478593266521L, timeLocator.getTimeFor(122, 5235));
         } finally {
             reader.close();
         }

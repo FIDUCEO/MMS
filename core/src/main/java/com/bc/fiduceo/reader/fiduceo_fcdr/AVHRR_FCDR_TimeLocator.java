@@ -19,6 +19,6 @@ class AVHRR_FCDR_TimeLocator implements TimeLocator {
         index.set(y);
 
         final double doubleTime = timeArray.getDouble(index);
-        return Math.round(doubleTime);
+        return Math.round(doubleTime * 1000.0);
     }
 }

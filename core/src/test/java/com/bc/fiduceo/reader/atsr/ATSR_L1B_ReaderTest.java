@@ -39,7 +39,7 @@ public class ATSR_L1B_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)";
+        final String expected = "AT([12S])_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.([NE])([12])";
 
         final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2016-08-10
         assertEquals(expected, reader.getRegEx());

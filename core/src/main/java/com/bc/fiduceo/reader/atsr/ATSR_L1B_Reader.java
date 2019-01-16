@@ -28,7 +28,14 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.snap.SNAP_TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
@@ -45,7 +52,6 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.*;
@@ -61,7 +67,7 @@ import static ucar.ma2.DataType.SHORT;
 class ATSR_L1B_Reader implements Reader {
 
     private static final Interval INTERVAL = new Interval(5, 20);
-    private static final String REG_EX = "AT(1|2|S)_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.(N|E)(1|2)";
+    private static final String REG_EX = "AT([12S])_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.([NE])([12])";
 
     private final GeometryFactory geometryFactory;
 
@@ -121,7 +127,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() throws IOException {
+    public PixelLocator getPixelLocator() {
         if (pixelLocator == null) {
             final GeoCoding geoCoding = product.getSceneGeoCoding();
 
@@ -131,14 +137,14 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
         // subscene is only relevant for segmented geometries which we do not have tb 2016-08-11
         return getPixelLocator();
     }
 
     @Override
-    public TimeLocator getTimeLocator() throws IOException {
-        return new ATSR_TimeLocator(product);
+    public TimeLocator getTimeLocator() {
+        return new SNAP_TimeLocator(product);
     }
 
     @Override
@@ -147,7 +153,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11
             return readScaled(centerX, centerY, interval, variableName);
@@ -193,7 +199,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
         final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
@@ -212,7 +218,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         // @todo 3 tb/** this method should be combined with the functionality implemented in WindowReader classes. 2016-08-10
         final int width = interval.getX();
         final int height = interval.getY();
@@ -250,7 +256,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException {
+    public List<Variable> getVariables() {
         final List<Variable> result = new ArrayList<>();
 
         final Band[] bands = product.getBands();
@@ -269,7 +275,7 @@ class ATSR_L1B_Reader implements Reader {
     }
 
     @Override
-    public Dimension getProductSize() throws IOException {
+    public Dimension getProductSize() {
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
 

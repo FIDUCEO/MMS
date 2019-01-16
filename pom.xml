@@ -37,6 +37,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.esa.s3tbx</groupId>
+                <artifactId>s3tbx-avhrr-reader</artifactId>
+                <version>6.0.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.13</version>

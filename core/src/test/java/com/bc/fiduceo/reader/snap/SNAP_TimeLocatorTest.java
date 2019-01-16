@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
 
 import org.esa.snap.core.datamodel.Product;
@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ATSR_TimeLocatorTest {
+public class SNAP_TimeLocatorTest {
 
     @Test
     public void testGetTimeFor() {
@@ -40,7 +40,7 @@ public class ATSR_TimeLocatorTest {
 
         when(product.getSceneTimeCoding()).thenReturn(timeCoding);
 
-        final ATSR_TimeLocator timeLocator = new ATSR_TimeLocator(product);
+        final SNAP_TimeLocator timeLocator = new SNAP_TimeLocator(product);
         assertEquals(955324800000L, timeLocator.getTimeFor(2,5));
     }
 }

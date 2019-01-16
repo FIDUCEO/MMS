@@ -22,16 +22,16 @@ public class AVHRR_FCDR_TimeLocatorTest {
         final AVHRR_FCDR_TimeLocator timeLocator = new AVHRR_FCDR_TimeLocator(time);
 
         long pixelTime = timeLocator.getTimeFor(0, 0);
-        assertEquals(703260853, pixelTime);
+        assertEquals(703260852587L, pixelTime);
 
         pixelTime = timeLocator.getTimeFor(108, 0);
-        assertEquals(703260853, pixelTime);
+        assertEquals(703260852587L, pixelTime);
 
         pixelTime = timeLocator.getTimeFor(0, 6);
-        assertEquals(703260856, pixelTime);
+        assertEquals(703260855588L, pixelTime);
 
         pixelTime = timeLocator.getTimeFor(3, 10);
-        assertEquals(703260858, pixelTime);
+        assertEquals(703260857593L, pixelTime);
     }
 
     @Test
