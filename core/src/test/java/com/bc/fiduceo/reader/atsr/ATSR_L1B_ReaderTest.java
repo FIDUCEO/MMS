@@ -105,6 +105,11 @@ public class ATSR_L1B_ReaderTest {
         assertNotNull(array);
         assertEquals(DataType.INT, array.getDataType());
         assertArrayEquals(shape, array.getShape());
+
+        array = ATSR_L1B_Reader.createReadingArray(DataType.BYTE, shape);
+        assertNotNull(array);
+        assertEquals(DataType.BYTE, array.getDataType());
+        assertArrayEquals(shape, array.getShape());
     }
 
     @Test

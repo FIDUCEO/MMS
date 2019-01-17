@@ -26,11 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -50,9 +46,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class ATSR_L1B_Reader_IO_Test {
@@ -248,7 +242,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_ATSR1() throws IOException, InvalidRangeException {
+    public void testGetVariables_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -278,7 +272,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_ATSR2() throws IOException, InvalidRangeException {
+    public void testGetVariables_ATSR2() throws IOException {
         final File file = getAtsr2File();
 
         try {
@@ -308,7 +302,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_AATSR() throws IOException, InvalidRangeException {
+    public void testGetVariables_AATSR() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -338,7 +332,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_ATSR1() throws IOException, InvalidRangeException {
+    public void testGetProductSize_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -353,7 +347,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_AATSR() throws IOException, InvalidRangeException {
+    public void testGetProductSize_AATSR() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -368,7 +362,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_ATSR2() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_ATSR2() throws IOException {
         final File file = getAtsr2File();
 
         try {
@@ -389,7 +383,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_ATSR1_singlePixel() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_ATSR1_singlePixel() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -406,7 +400,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_AATSR_borderPixel_X() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_AATSR_borderPixel_X() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -503,7 +497,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_ATSR2() throws IOException, InvalidRangeException {
+    public void testReadScaled_ATSR2() throws IOException {
         final File file = getAtsr2File();
 
         try {
@@ -563,7 +557,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_AATSR_borderPixel() throws IOException, InvalidRangeException {
+    public void testReadScaled_AATSR_borderPixel() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -604,7 +598,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_AATSR() throws IOException, InvalidRangeException {
+    public void testReadRaw_AATSR() throws IOException {
         final File file = getAatsrFile();
 
         try {

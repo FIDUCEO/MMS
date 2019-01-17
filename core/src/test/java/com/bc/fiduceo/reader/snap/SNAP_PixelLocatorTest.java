@@ -18,8 +18,9 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -35,15 +36,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-public class ATSR_PixelLocatorTest {
+public class SNAP_PixelLocatorTest {
 
-    private ATSR_PixelLocator pixelLocator;
+    private SNAP_PixelLocator pixelLocator;
     private MockGeoCoding geoCoding;
 
     @Before
     public void setUp() {
         geoCoding = new MockGeoCoding();
-        pixelLocator = new ATSR_PixelLocator(geoCoding);
+        pixelLocator = new SNAP_PixelLocator(geoCoding);
     }
 
     @Test
@@ -87,7 +88,7 @@ public class ATSR_PixelLocatorTest {
 
         private boolean returnInvalidPixelPos;
 
-        public void setReturnInvalidPixelPos(boolean returnInvalidPixelPos) {
+        void setReturnInvalidPixelPos(boolean returnInvalidPixelPos) {
             this.returnInvalidPixelPos = returnInvalidPixelPos;
         }
 

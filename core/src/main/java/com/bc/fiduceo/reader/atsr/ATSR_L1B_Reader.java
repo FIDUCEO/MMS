@@ -35,7 +35,9 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.snap.SNAP_TimeLocator;
+import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.dataio.ProductIO;
@@ -72,7 +74,7 @@ class ATSR_L1B_Reader implements Reader {
     private final GeometryFactory geometryFactory;
 
     private Product product;
-    private ATSR_PixelLocator pixelLocator;
+    private SNAP_PixelLocator pixelLocator;
 
     ATSR_L1B_Reader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -131,7 +133,7 @@ class ATSR_L1B_Reader implements Reader {
         if (pixelLocator == null) {
             final GeoCoding geoCoding = product.getSceneGeoCoding();
 
-            pixelLocator = new ATSR_PixelLocator(geoCoding);
+            pixelLocator = new SNAP_PixelLocator(geoCoding);
         }
         return pixelLocator;
     }
@@ -173,7 +175,6 @@ class ATSR_L1B_Reader implements Reader {
         final int xOffset = centerX - width / 2;
         final int yOffset = centerY - height / 2;
 
-        //System.out.println("node = " + dataNode.getName() + " x: " + xOffset + " y: " + yOffset + " w: " + width + " h: " + height);
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
         final int sceneRasterWidth = product.getSceneRasterWidth();
@@ -341,6 +342,8 @@ class ATSR_L1B_Reader implements Reader {
                 return Array.factory(DataType.INT, shape);
             case SHORT:
                 return Array.factory(DataType.INT, shape);
+            case BYTE:
+                return Array.factory(DataType.BYTE, shape);
             default:
                 throw new RuntimeException("unsupported data type: " + targetDataType);
         }

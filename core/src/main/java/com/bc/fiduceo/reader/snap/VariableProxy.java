@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
 
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -37,11 +37,11 @@ import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 // This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
 // all methods with a throws implementation ensures that methods that should be overridden are really overridden;
 // calls into the not completely initialized base class are not possible this was tb 2016-09-26
-class VariableProxy extends VariablePrototype {
+public class VariableProxy extends VariablePrototype {
 
     private final RasterDataNode rasterDataNode;
 
-    VariableProxy(RasterDataNode rasterDataNode) {
+    public VariableProxy(RasterDataNode rasterDataNode) {
         this.rasterDataNode = rasterDataNode;
     }
 

@@ -59,6 +59,12 @@ public class ReaderUtilsTest {
     }
 
     @Test
+    public void testGetDefaultFillValue_ProductData_unsigned_byte() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_UINT8);
+        assertEquals(N3iosp.NC_FILL_UBYTE, fillValue.byteValue(), 1e-8);
+    }
+
+    @Test
     public void testGetDefaultFillValue_ProductData_invalidType() {
         try {
             ReaderUtils.getDefaultFillValue(ProductData.TYPE_UTC);

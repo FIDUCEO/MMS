@@ -24,6 +24,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
+import ucar.ma2.DataType;
 
 import java.util.Date;
 
@@ -46,6 +47,9 @@ public class ReaderUtils {
 
             case ProductData.TYPE_INT8:
                 return NetCDFUtils.getDefaultFillValue(byte.class);
+
+            case ProductData.TYPE_UINT8:
+                return NetCDFUtils.getDefaultFillValue(DataType.BYTE, true);
         }
         throw new RuntimeException("getDefaultFillValue not implemented for type: " + productDataType);
     }

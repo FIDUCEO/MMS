@@ -18,8 +18,9 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
+import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;

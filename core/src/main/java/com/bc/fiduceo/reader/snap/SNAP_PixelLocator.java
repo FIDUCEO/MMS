@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader.atsr;
+package com.bc.fiduceo.reader.snap;
 
 
 import com.bc.fiduceo.location.PixelLocator;
@@ -28,13 +28,13 @@ import org.esa.snap.core.datamodel.PixelPos;
 
 import java.awt.geom.Point2D;
 
-class ATSR_PixelLocator implements PixelLocator {
+public class SNAP_PixelLocator implements PixelLocator {
 
     private final GeoCoding geoCoding;
     private final PixelPos pixelPos;
     private final GeoPos geoPos;
 
-    ATSR_PixelLocator(GeoCoding geoCoding) {
+    public SNAP_PixelLocator(GeoCoding geoCoding) {
         this.geoCoding = geoCoding;
         this.pixelPos = new PixelPos();
         this.geoPos = new GeoPos();
