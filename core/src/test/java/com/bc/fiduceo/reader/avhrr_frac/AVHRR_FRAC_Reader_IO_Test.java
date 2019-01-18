@@ -389,6 +389,15 @@ public class AVHRR_FRAC_Reader_IO_Test {
             assertEquals(133.17033491980123, pixelLocation[0].getX(), 1e-8);
             assertEquals(20044.761999648985, pixelLocation[0].getY(), 1e-8);
 
+            geoLocation = pixelLocator.getGeoLocation(1000.5, 25804.5, null);
+            assertEquals(93.33047104606814, geoLocation.getX(), 1e-8);
+            assertEquals(-11.28578977584838, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(93.3305, -11.2858);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(993.8297375379817, pixelLocation[0].getX(), 1e-8);
+            assertEquals(25804.587643067425, pixelLocation[0].getY(), 1e-8);
+
             pixelLocation = pixelLocator.getPixelLocation(1723, -88);
             assertEquals(0, pixelLocation.length);
         } finally {
