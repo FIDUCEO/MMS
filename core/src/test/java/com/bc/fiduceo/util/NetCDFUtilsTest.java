@@ -25,28 +25,12 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
-import java.io.IOException;
-
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class NetCDFUtilsTest {
 
@@ -482,6 +466,26 @@ public class NetCDFUtilsTest {
 
         final double attributeDouble = NetCDFUtils.getAttributeDouble(variable, "duppeell", -13.9);
         assertEquals(-13.9, attributeDouble, 1e-8);
+    }
+
+    @Test
+    public void testGetAttributeString_attributeValue() {
+        final Attribute attribute = mock(Attribute.class);
+        final Variable variable = mock(Variable.class);
+
+        when(variable.findAttribute("Text")).thenReturn(attribute);
+        when(attribute.getStringValue()).thenReturn("Jippie");
+
+        final String attributeString = NetCDFUtils.getAttributeString(variable, "Text", "default");
+        assertEquals("Jippie", attributeString);
+    }
+
+    @Test
+    public void testGetAttributeString_defaultValue() {
+        final Variable variable = mock(Variable.class);
+
+        final String attributeString = NetCDFUtils.getAttributeString(variable, "what?", "the_default");
+        assertEquals("the_default", attributeString);
     }
 
     @Test

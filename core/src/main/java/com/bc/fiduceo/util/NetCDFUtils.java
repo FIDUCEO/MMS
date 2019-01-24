@@ -26,11 +26,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
 
@@ -180,7 +176,6 @@ public class NetCDFUtils {
         return attribute.getNumericValue().doubleValue();
     }
 
-    // @todo 3 tb/** write test 2017-08-08
     public static String getAttributeString(Variable variable, String name, String defaultValue) {
         final Attribute attribute = variable.findAttribute(name);
         if (attribute == null) {

@@ -8,23 +8,12 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -36,6 +25,8 @@ import java.util.List;
 public class AVHRR_FCDR_Reader extends NetCDFReader {
 
     private static final int NUM_SPLITS = 2;
+    private static final String LONGITUDE_VAR_NAME = "longitude";
+    private static final String LATITUDE_VAR_NAME = "latitude";
 
     // these variales do not have dimensionality that can be handled by the core MMS engine. They need to be
     // transferred using a post-processing step tb 2019-01-08
@@ -106,8 +97,8 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled("longitude", "scale_factor", "add_offset");
-            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled("latitude", "scale_factor", "add_offset");
+            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled(LONGITUDE_VAR_NAME, "scale_factor", "add_offset");
+            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled(LATITUDE_VAR_NAME, "scale_factor", "add_offset");
             final int[] shape = lonStorage.getShape();
             final int width = shape[1];
             final int height = shape[0];
@@ -198,11 +189,6 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
 
     @Override
     public List<Variable> getVariables() {
-        // 1-D variables: @todo 1 tb/tb check if we need to handle these separately 2019-01-09
-        // Time
-        // quality_scanline_bitmask
-        // scanline_map_to_origl1bfile
-        // scanline_origl1b
         final List<Variable> fileVariables = netcdfFile.getVariables();
         for (String var_name : VARIABLE_NAMES_TO_REMOVE) {
             final Variable variable = netcdfFile.findVariable(var_name);
@@ -212,7 +198,6 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
         return fileVariables;
     }
 
-    // @todo 1 tb/tb can be a NetCDF generic method 2019-01-07
     @Override
     public Dimension getProductSize() {
         final Variable ch1 = netcdfFile.findVariable("Ch1");
@@ -222,12 +207,12 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
 
     @Override
     public String getLongitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return LONGITUDE_VAR_NAME;
     }
 
     @Override
     public String getLatitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return LATITUDE_VAR_NAME;
     }
 
     static Date parseStartDate(String fileName) {

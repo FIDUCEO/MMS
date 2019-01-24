@@ -64,7 +64,6 @@ public class AVHRR_FCDR_ReaderTest {
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
-        final AVHRR_FCDR_Reader reader = new AVHRR_FCDR_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2019-01-11
         int[] ymd = reader.extractYearMonthDayFromFilename("FIDUCEO_FCDR_L1C_AVHRR_NOAA15_20011205154420_20011205172532_EASY_vBeta_fv2.0.0.nc");
 
         assertEquals(2001, ymd[0]);
@@ -76,5 +75,15 @@ public class AVHRR_FCDR_ReaderTest {
         assertEquals(1992, ymd[0]);
         assertEquals(3, ymd[1]);
         assertEquals(27, ymd[2]);
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        assertEquals("longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        assertEquals("latitude", reader.getLatitudeVariableName());
     }
 }
