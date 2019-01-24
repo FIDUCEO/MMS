@@ -33,6 +33,7 @@ public class SNAP_PixelLocator implements PixelLocator {
     private final GeoCoding geoCoding;
     private final PixelPos pixelPos;
     private final GeoPos geoPos;
+    private int x_offset = 0;
 
     public SNAP_PixelLocator(GeoCoding geoCoding) {
         this.geoCoding = geoCoding;
@@ -40,9 +41,13 @@ public class SNAP_PixelLocator implements PixelLocator {
         this.geoPos = new GeoPos();
     }
 
+    public void setXOffset(int x_offset) {
+        this.x_offset = x_offset;
+    }
+
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D point) {
-        pixelPos.setLocation(x, y);
+        pixelPos.setLocation(x + x_offset, y);
         final GeoPos geoPos = new GeoPos();
         final GeoPos geoCodingGeoPos = geoCoding.getGeoPos(pixelPos, geoPos);
 
@@ -62,7 +67,7 @@ public class SNAP_PixelLocator implements PixelLocator {
             return new Point2D[0];
         }
 
-        final Point2D.Double pxPos = new Point2D.Double(newPos.getX(), newPos.getY());
+        final Point2D.Double pxPos = new Point2D.Double(newPos.getX() - x_offset, newPos.getY());
         return new Point2D[]{pxPos};
     }
 }

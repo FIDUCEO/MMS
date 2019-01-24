@@ -6,12 +6,12 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.s3tbx.dataio.avhrr.AvhrrConstants;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.dataop.maptransf.Datum;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -49,7 +49,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         return getPixelLocator();   // SNAP does not support region-specific geolocations tb 2019-01-17
     }
 
@@ -168,6 +168,43 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         return (ArrayInt.D2) Array.factory(INT, shape, timeArray);
     }
 
+    @Override
+    public PixelLocator getPixelLocator() throws IOException {
+        final TiePointGrid longitude = product.getTiePointGrid(getLongitudeVariableName());
+        final TiePointGrid latitude = product.getTiePointGrid(getLatitudeVariableName());
+
+        final int gridHeight = latitude.getGridHeight();
+        final int gridWidth = latitude.getGridWidth();
+
+        final float[] lonRawData = (float[]) longitude.getDataElems();
+        final float[] latRawData = (float[]) latitude.getDataElems();
+
+        final TiePointGrid lonCorrected = new TiePointGrid("longitude",
+                gridWidth,
+                gridHeight,
+                25.5,
+                0.5,
+                40,
+                40,
+                lonRawData,
+                TiePointGrid.DISCONT_AT_180);
+
+        final TiePointGrid latCorrected = new TiePointGrid("latitude",
+                gridWidth,
+                gridHeight,
+                25.5,
+                0.5,
+                40,
+                40,
+                latRawData,
+                TiePointGrid.DISCONT_NONE);
+
+        GeoCoding geoCoding = new TiePointGeoCoding(latCorrected, lonCorrected, Datum.WGS_72);
+
+        final SNAP_PixelLocator snap_pixelLocator = new SNAP_PixelLocator(geoCoding);
+        snap_pixelLocator.setXOffset(25);
+        return snap_pixelLocator;
+    }
 
     @Override
     public String getLongitudeVariableName() {

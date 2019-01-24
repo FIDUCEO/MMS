@@ -72,7 +72,7 @@ public abstract class SNAP_Reader implements Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() {
+    public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
             final GeoCoding geoCoding = product.getSceneGeoCoding();
 

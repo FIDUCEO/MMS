@@ -82,7 +82,7 @@ class ATSR_L1B_Reader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         // subscene is only relevant for segmented geometries which we do not have tb 2016-08-11
         return getPixelLocator();
     }
