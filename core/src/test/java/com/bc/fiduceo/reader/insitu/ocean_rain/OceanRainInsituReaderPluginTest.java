@@ -22,14 +22,10 @@ package com.bc.fiduceo.reader.insitu.ocean_rain;
 
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OceanRainInsituReaderPluginTest {
 
@@ -41,7 +37,7 @@ public class OceanRainInsituReaderPluginTest {
     }
 
     @Test
-    public void testGetSupportedSensorKeys() throws Exception {
+    public void testGetSupportedSensorKeys() {
         final String[] expected = {"ocean-rain-sst"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.insitu.ocean_rain;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -27,24 +28,25 @@ import static org.junit.Assert.assertNotNull;
 
 public class OceanRainInsituReaderTest {
 
+    private OceanRainInsituReader reader;
+
+    @Before
+    public void setUp() {
+        reader = new OceanRainInsituReader();
+    }
+
     @Test
     public void testGetRegEx() {
-        final OceanRainInsituReader reader = new OceanRainInsituReader();
-
         assertEquals("OceanRAIN_allships_2010-2017_SST.ascii", reader.getRegEx());
     }
 
     @Test
     public void testGetLongitudeVariableName() {
-        final OceanRainInsituReader reader = new OceanRainInsituReader();
-
         assertEquals("lon", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final OceanRainInsituReader reader = new OceanRainInsituReader();
-
         assertEquals("lat", reader.getLatitudeVariableName());
     }
 
@@ -74,6 +76,5 @@ public class OceanRainInsituReaderTest {
         assertEquals(73.8891f, line.getLat(), 1e-8);
         assertEquals(1276742820, line.getTime());
         assertEquals(-1.8f, line.getSst(), 1e-8);
-
     }
 }
