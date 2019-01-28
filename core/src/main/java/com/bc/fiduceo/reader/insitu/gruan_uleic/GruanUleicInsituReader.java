@@ -177,6 +177,12 @@ class GruanUleicInsituReader implements Reader {
         return "lat";
     }
 
+    public String readSourcePath(int y) {
+        final String lineString = linelist.get(y);
+        final Line line = decodeLine(lineString);
+        return line.path;
+    }
+
     static Line decodeLine(String lineString) {
         final String[] tokens = lineString.split(",");
         final Line line = new Line();

@@ -235,4 +235,16 @@ public class GruanUleicInsituReader_IO_Test {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testReadSourcePath() {
+        String sourcePath = reader.readSourcePath(1);
+        assertEquals("BAR/2009/BAR-RS-01_2_RS92-GDP_002_20090101T180000_1-000-001.nc", sourcePath);
+
+        sourcePath = reader.readSourcePath(109);
+        assertEquals("BAR/2009/BAR-RS-01_2_RS92-GDP_002_20090505T060000_1-000-001.nc", sourcePath);
+
+        sourcePath = reader.readSourcePath(9754);
+        assertEquals("NYA/2015/NYA-RS-01_2_RS92-GDP_002_20150101T120000_1-000-001.nc", sourcePath);
+    }
 }
