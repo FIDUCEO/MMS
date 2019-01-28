@@ -1,18 +1,19 @@
-package com.bc.fiduceo.reader.insitu.ocean_rain;
+package com.bc.fiduceo.reader.insitu;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-class OceanRainTimeLocator implements TimeLocator {
+public class SecsSince1970TimeLocator implements TimeLocator {
 
-    private final OceanRainInsituReader reader;
+    private final Reader reader;
     private final Interval interval;
 
-    OceanRainTimeLocator(OceanRainInsituReader reader) {
+    public SecsSince1970TimeLocator(Reader reader) {
         this.reader = reader;
         interval = new Interval(1, 1);
     }

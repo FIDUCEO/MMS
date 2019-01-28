@@ -28,13 +28,13 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.insitu.SecsSince1970TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -46,12 +46,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 
 public class OceanRainInsituReader implements Reader {
 
     private static final int LINE_SIZE = 64;
-    private static final String WHITESPACE_REGEXP = "\\s{1,}";  // means: one or more whitespace characters tb 2017-08-07
+    private static final String WHITESPACE_REGEXP = "\\s+";  // means: one or more whitespace characters tb 2017-08-07
 
     private final HashMap<String, LineDecoder> decoder;
     private FileInputStream inputStream;
@@ -116,18 +118,18 @@ public class OceanRainInsituReader implements Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() throws IOException {
+    public PixelLocator getPixelLocator() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public TimeLocator getTimeLocator() throws IOException {
-        return new OceanRainTimeLocator(this);
+    public TimeLocator getTimeLocator() {
+        return new SecsSince1970TimeLocator(this);
     }
 
     @Override
@@ -136,7 +138,7 @@ public class OceanRainInsituReader implements Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Variable variable = findVariable(variableName);
         final Number fillValue = NetCDFUtils.getFillValue(variable);
         final LineDecoder lineDecoder = decoder.get(variableName);// @todo 1 tb/tb encapsulate and throw on errors 2017-08-08
@@ -161,24 +163,24 @@ public class OceanRainInsituReader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         return (ArrayInt.D2) readRaw(x, y, interval, "time");
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() {
         ensureVariableListExists();
 
         return variableList;
     }
 
     @Override
-    public Dimension getProductSize() throws IOException {
+    public Dimension getProductSize() {
         return new Dimension("product_size", 1, numLines);
     }
 

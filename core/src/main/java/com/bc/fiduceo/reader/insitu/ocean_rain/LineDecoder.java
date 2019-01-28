@@ -2,7 +2,7 @@ package com.bc.fiduceo.reader.insitu.ocean_rain;
 
 class LineDecoder {
 
-    Object get(Line line){
+    Object get(Line line) {
         throw new RuntimeException("not implemented, override!");
     }
 

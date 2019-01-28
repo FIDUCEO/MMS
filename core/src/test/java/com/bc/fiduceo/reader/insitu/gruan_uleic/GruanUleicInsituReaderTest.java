@@ -54,7 +54,7 @@ public class GruanUleicInsituReaderTest {
         GruanUleicInsituReader.Line line = GruanUleicInsituReader.decodeLine("1232516371.0, -156.61623, 71.323074, BAR/2009/BAR-RS-01_2_RS92-GDP_002_20090121T060000_1-000-001.nc");
         assertNotNull(line);
 
-        TestUtil.assertCorrectUTCDate(2009, 1, 21, 5, 40, 15, 488, line.date);
+        TestUtil.assertCorrectUTCDate(2009, 1, 21, 5, 39, 31, 0, line.date);
         assertEquals(-156.61623, line.lon, 1e-5);
         assertEquals(71.323074, line.lat, 1e-5);
         assertEquals("BAR/2009/BAR-RS-01_2_RS92-GDP_002_20090121T060000_1-000-001.nc", line.path);

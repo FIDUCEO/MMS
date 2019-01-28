@@ -45,8 +45,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-import static org.junit.Assert.*;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class OceanRainInsituReader_IO_Test {
@@ -82,7 +88,7 @@ public class OceanRainInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetVariables() throws Exception {
+    public void testGetVariables() {
         final List<Variable> variables = reader.getVariables();
 
         assertNotNull(variables);
@@ -232,7 +238,7 @@ public class OceanRainInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize() throws Exception {
+    public void testGetProductSize() {
         final Dimension productSize = reader.getProductSize();
 
         assertNotNull(productSize);
@@ -242,7 +248,7 @@ public class OceanRainInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetTimeLocator() throws Exception {
+    public void testGetTimeLocator() {
         final TimeLocator timeLocator = reader.getTimeLocator();
 
         assertNotNull(timeLocator);
@@ -252,7 +258,7 @@ public class OceanRainInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetPixelLocator() throws Exception {
+    public void testGetPixelLocator() {
         try {
             reader.getPixelLocator();
             fail("RuntimeException expected");
@@ -261,7 +267,7 @@ public class OceanRainInsituReader_IO_Test {
     }
 
     @Test
-    public void testGetSubScenePixelLocator() throws Exception {
+    public void testGetSubScenePixelLocator() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Polygon polygon = geometryFactory.createPolygon(Arrays.asList(
                 geometryFactory.createPoint(5, 5),
