@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.airs;
 import static org.junit.Assert.*;
 import static ucar.nc2.NetcdfFileWriter.Version.netcdf4;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.PostProcessingToolMain;
@@ -620,7 +621,7 @@ public class AddAirsSpectrumIOTest {
         final Dimension dimNY = ncWriter.addDimension(null, "airs-aq_ny", cutOutHeight);
         final Dimension dimFN = ncWriter.addDimension(null, "file_name", 128);
         final Dimension dimPV = ncWriter.addDimension(null, "processing_version", 30);
-        final Dimension dimMC = ncWriter.addDimension(null, "matchup_count", numMatchups);
+        final Dimension dimMC = ncWriter.addDimension(null, FiduceoConstants.MATCHUP_COUNT, numMatchups);
         final Variable varFN = ncWriter.addVariable(null, "airs-aq_file_name", DataType.CHAR, Arrays.asList(dimMC, dimFN));
         varFN.addAttribute(new Attribute("description", "file name of the original data file"));
         final Variable varPV = ncWriter.addVariable(null, "airs-aq_processing_version", DataType.CHAR, Arrays.asList(dimMC, dimPV));

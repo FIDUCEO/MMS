@@ -21,6 +21,7 @@ package com.bc.fiduceo.post.plugin.point_distance;
 
 import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.math.Distance;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
@@ -74,20 +75,20 @@ class SphericalDistance extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), FiduceoConstants.MATCHUP_COUNT);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final int count = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
+        final int count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
 
-        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
 
         Array target = Array.factory(DataType.getType(targetDataType), new int[]{count});
         for (int i = 0; i < count; i++) {

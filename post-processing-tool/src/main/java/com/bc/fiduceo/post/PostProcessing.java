@@ -116,7 +116,7 @@ public abstract class PostProcessing {
         return new ReaderCache(readerCacheSize, readerFactory, archive);
     }
 
-    public static String getSourceFileName(Variable fileNameVar, int position, int filenameSize, final String fileNamePattern) throws IOException, InvalidRangeException {
+    protected static String getSourceFileName(Variable fileNameVar, int position, int filenameSize, final String fileNamePattern) throws IOException, InvalidRangeException {
         final String sourceFileName = NetCDFUtils.readString(fileNameVar, position, filenameSize);
         if (!sourceFileName.matches(fileNamePattern)) {
             throw new RuntimeException("The file name '" + sourceFileName + "' does not match the regular expression '" + fileNamePattern + "'");

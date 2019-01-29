@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.iasi;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.iasi.EpsMetopConstants;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
@@ -83,7 +84,7 @@ class AddIASISpectrum extends PostProcessing {
 
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
 
-        final int matchup_count = NetCDFUtils.getDimensionLength("matchup_count", reader);
+        final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
 

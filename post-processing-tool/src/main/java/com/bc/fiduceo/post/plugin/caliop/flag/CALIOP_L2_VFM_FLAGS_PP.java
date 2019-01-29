@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.caliop.flag;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_Reader;
@@ -38,11 +39,10 @@ import java.util.List;
 
 public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
 
-    public static final String MATCHUP_COUNT = "matchup_count";
-    public static final String CALIOP_VFM_CAL_NY = "caliop_vfm-cal_ny";
-    public static final String CALIOP_VFM_CAL_NX = "caliop_vfm-cal_nx";
-    public static final String CENTER_FCF_FLAGS = "center-fcf-flags";
-    public static final String FLAG_VAR_NAME = "Feature_Classification_Flags";
+    private static final String CALIOP_VFM_CAL_NY = "caliop_vfm-cal_ny";
+    private static final String CALIOP_VFM_CAL_NX = "caliop_vfm-cal_nx";
+    private static final String CENTER_FCF_FLAGS = "center-fcf-flags";
+    private static final String FLAG_VAR_NAME = "Feature_Classification_Flags";
 
     final String srcVariableName_fileName;
     final String srcVariableName_processingVersion;
@@ -84,7 +84,7 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
         final List<Attribute> srcAttributes = sourceFlagsVar.getAttributes();
 
         writer.addDimension(null, CENTER_FCF_FLAGS, 545);
-        final String dimString = MATCHUP_COUNT + " " + CALIOP_VFM_CAL_NY + " " + CALIOP_VFM_CAL_NX + " " + CENTER_FCF_FLAGS;
+        final String dimString = FiduceoConstants.MATCHUP_COUNT + " " + CALIOP_VFM_CAL_NY + " " + CALIOP_VFM_CAL_NX + " " + CENTER_FCF_FLAGS;
         targetFlagsVariable = writer.addVariable(null, targetVariableName_centerFCF, DataType.SHORT, dimString);
         for (Attribute srcAttribute : srcAttributes) {
             targetFlagsVariable.addAttribute(srcAttribute);

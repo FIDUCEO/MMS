@@ -19,7 +19,7 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
-import com.bc.fiduceo.post.Constants;
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.reader.Reader;
 import com.beust.jcommander.internal.Lists;
 import org.junit.Before;
@@ -34,17 +34,10 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeries.INSITU_NTIME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SstInsituTimeSeriesTest {
 
@@ -191,7 +184,7 @@ public class SstInsituTimeSeriesTest {
 
         insituTimeSeries.addInsituVariables(writer, insituReader);
 
-        final String dimString = Constants.DIMENSION_NAME_MATCHUP_COUNT + " " + INSITU_NTIME;
+        final String dimString = FiduceoConstants.MATCHUP_COUNT + " " + INSITU_NTIME;
 
         verify(writer, times(1)).addDimension(null, "insitu.ntime", 34);
         verify(writer, times(1)).addVariable(null, "insitu.lat", DataType.FLOAT, dimString);

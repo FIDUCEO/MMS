@@ -21,6 +21,7 @@ package com.bc.fiduceo.post.plugin.airs;
 
 import static com.bc.fiduceo.reader.airs.AIRS_Constants.AIRS_NUM_CHANELS;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -93,7 +94,7 @@ public class AddAirsSpectrum extends PostProcessing {
         final Array xArray = xVariable.read();
         final Array yArray = yVariable.read();
 
-        final int matchup_count = NetCDFUtils.getDimensionLength("matchup_count", reader);
+        final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
         for (int i = 0; i < matchup_count; i++) {

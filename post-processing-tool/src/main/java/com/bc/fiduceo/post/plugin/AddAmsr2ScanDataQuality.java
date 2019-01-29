@@ -1,5 +1,6 @@
 package com.bc.fiduceo.post.plugin;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.amsr.amsr2.AMSR2_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -28,7 +29,7 @@ class AddAmsr2ScanDataQuality extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final Dimension matchupDimension = reader.findDimension("matchup_count");
+        final Dimension matchupDimension = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 
         final Dimension scanDataQualityDimension = writer.addDimension(null, "scan_data_quality", 512);
         final List<Dimension> dimensions = new ArrayList<>();
@@ -46,7 +47,7 @@ class AddAmsr2ScanDataQuality extends PostProcessing {
         final Variable yVariable = NetCDFUtils.getVariable(reader, configuration.yCoordinateVariableName);
         final Array yArray = yVariable.read();
 
-        final int matchup_count = NetCDFUtils.getDimensionLength("matchup_count", reader);
+        final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);

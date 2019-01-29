@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
@@ -217,11 +218,11 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         o.verify(writer).addVariable(null, PREFIX_CALIOP_CLAY + "processing_version", DataType.CHAR, "matchup_count processing_version");
         o.verify(mVar).addAttribute(new Attribute("description", "the processing version of the original data file"));
 
-        o.verify(writer).addVariable(null, PREFIX_CALIOP_CLAY + "x", DataType.INT, "matchup_count");
+        o.verify(writer).addVariable(null, PREFIX_CALIOP_CLAY + "x", DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         o.verify(mVar).addAttribute(new Attribute("description", "pixel original x location in satellite raster"));
         o.verify(mVar).addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
 
-        o.verify(writer).addVariable(null, PREFIX_CALIOP_CLAY + "y", DataType.INT, "matchup_count");
+        o.verify(writer).addVariable(null, PREFIX_CALIOP_CLAY + "y", DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         o.verify(mVar).addAttribute(new Attribute("description", "pixel original y location in satellite raster"));
         o.verify(mVar).addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
 

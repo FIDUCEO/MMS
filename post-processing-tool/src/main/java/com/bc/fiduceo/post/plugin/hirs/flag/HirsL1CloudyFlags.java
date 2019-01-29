@@ -20,20 +20,12 @@
 
 package com.bc.fiduceo.post.plugin.hirs.flag;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.reader.Reader;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayChar;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -42,6 +34,8 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 class HirsL1CloudyFlags extends PostProcessing {
 
@@ -124,12 +118,12 @@ class HirsL1CloudyFlags extends PostProcessing {
         flagVar.addAttribute(new Attribute(CF_FLAG_MASKS_NAME, masks));
         flagVar.addAttribute(new Attribute("flag_coding_name", "hirs_cloudy_flags"));
         flagVar.addAttribute(new Attribute("flag_descriptions", "space contrast test, all pixels are usable"
-                                                                + Separator +
-                                                                "space contrast test, warning, less than 99 percent are usable"
-                                                                + Separator +
-                                                                "space contrast test, cloudy"
-                                                                + Separator +
-                                                                "interchannel test, cloudy"));
+                + Separator +
+                "space contrast test, warning, less than 99 percent are usable"
+                + Separator +
+                "space contrast test, cloudy"
+                + Separator +
+                "interchannel test, cloudy"));
     }
 
     @Override
@@ -247,7 +241,7 @@ class HirsL1CloudyFlags extends PostProcessing {
                 origin2D[0] = z;
                 final String fileName = sourcFileNames.getString(z);
                 final String version = processingVersions.getString(z);
-                Reader srcReader = readerCache.getReaderFor(sensorName,Paths.get(fileName), version);
+                Reader srcReader = readerCache.getReaderFor(sensorName, Paths.get(fileName), version);
                 return srcReader.readScaled(xValues[z], yValues[z], new Interval(45, 45), sourceBt_11_1_um_VarName);
             }
         };
@@ -277,8 +271,8 @@ class HirsL1CloudyFlags extends PostProcessing {
         data6_5 = var6_5um.read();
         flags = varFlags.read();
 
-        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, Constants.DIMENSION_NAME_MATCHUP_COUNT);
-        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, FiduceoConstants.MATCHUP_COUNT);
+        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, FiduceoConstants.MATCHUP_COUNT);
     }
 
     static class MaximumAndFlags {

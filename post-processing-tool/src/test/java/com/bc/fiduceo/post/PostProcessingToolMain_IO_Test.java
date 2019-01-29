@@ -21,6 +21,7 @@ package com.bc.fiduceo.post;
 
 import static org.junit.Assert.*;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.apache.commons.cli.ParseException;
@@ -77,7 +78,7 @@ public class PostProcessingToolMain_IO_Test {
                                             new Element("target").addContent(Arrays.asList(
                                                         new Element("data-type").addContent("Float"),
                                                         new Element("var-name").addContent("post_dist"),
-                                                        new Element("dim-name").addContent(Constants.DIMENSION_NAME_MATCHUP_COUNT)
+                                                        new Element("dim-name").addContent(FiduceoConstants.MATCHUP_COUNT)
                                             )),
                                             new Element("primary-lat-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Latitude"),
                                             new Element("primary-lon-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Longitude"),

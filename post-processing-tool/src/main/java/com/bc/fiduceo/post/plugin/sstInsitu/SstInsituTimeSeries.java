@@ -19,6 +19,7 @@
 
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
@@ -65,7 +66,7 @@ class SstInsituTimeSeries extends PostProcessing {
         fileNameVariable = getFileNameVariable(reader, sensorType, configuration);
 
         filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
-        matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
+        matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
 
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
 
@@ -186,7 +187,7 @@ class SstInsituTimeSeries extends PostProcessing {
     }
 
     void addInsituVariables(NetcdfFileWriter writer, final Reader insituReader) throws IOException, InvalidRangeException {
-        final String dimString = Constants.DIMENSION_NAME_MATCHUP_COUNT + " " + INSITU_NTIME;
+        final String dimString = FiduceoConstants.MATCHUP_COUNT + " " + INSITU_NTIME;
         writer.addDimension(null, INSITU_NTIME, configuration.timeSeriesSize);
         final List<Variable> variables = insituReader.getVariables();
         addVariables(variables, dimString, writer);

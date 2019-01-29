@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.land_distance;
 
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import org.jdom.Element;
@@ -97,7 +98,7 @@ public class AddLandDistanceTest {
 
         final Variable variable = mock(Variable.class);
         final ArrayList<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("matchup_count", 142));
+        dimensions.add(new Dimension(FiduceoConstants.MATCHUP_COUNT, 142));
         dimensions.add(new Dimension("height", 1));
         dimensions.add(new Dimension("width", 1));
         when(variable.getDimensions()).thenReturn(dimensions);

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -70,7 +71,7 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
 
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
             assertEquals(1, matchupCount);
 
             NCTestUtils.assert3DVariable("mod06-te_Cloud_Fraction", 0, 0, 0, 28, mmd);

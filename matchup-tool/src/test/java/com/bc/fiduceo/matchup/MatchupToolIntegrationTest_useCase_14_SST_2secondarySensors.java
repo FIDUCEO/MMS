@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup;
 import static com.bc.fiduceo.NCTestUtils.*;
 import static org.junit.Assert.*;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -82,9 +83,9 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
             assertDimension("file_name", fn_Size, mmd);
             final int pv_Size = 30;
             assertDimension("processing_version", pv_Size, mmd);
-            assertDimension("matchup_count", 4, mmd);
+            assertDimension(FiduceoConstants.MATCHUP_COUNT, 4, mmd);
 
-            final String _1DDims = "matchup_count";
+            final String _1DDims = FiduceoConstants.MATCHUP_COUNT;
 
             final String filenameDims = "matchup_count file_name";
             final String versionDims = "matchup_count processing_version";

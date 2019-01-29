@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.caliop.sst_wp100;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
@@ -109,7 +110,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
         final Variable targetVarY = NetCDFUtils.getVariable(writer, targetVarNameY);
 
         final String sensorName = CALIOP_SST_WP100_CLay_ReaderPlugin.SENSOR_NAME;
-        final int mcSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
+        final int mcSize = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
 
         final Interval interval_1 = new Interval(1, ny);
         final Interval interval_10 = new Interval(10, ny);
@@ -160,7 +161,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
     }
 
     void addVariables(NetcdfFileWriter writer, Reader reader) throws IOException, InvalidRangeException {
-        final String MC = Constants.DIMENSION_NAME_MATCHUP_COUNT;
+        final String MC = FiduceoConstants.MATCHUP_COUNT;
         final String FN = Constants.DIMENSION_NAME_FILE_NAME;
         final String PV = Constants.DIMENSION_NAME_PROCESSING_VERSION;
         final String NY = DIM_NAME_CLAY_NY;

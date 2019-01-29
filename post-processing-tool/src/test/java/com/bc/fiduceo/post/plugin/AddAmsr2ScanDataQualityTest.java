@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.FiduceoConstants;
 import org.junit.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Dimension;
@@ -55,14 +56,14 @@ public class AddAmsr2ScanDataQualityTest {
     public void testPrepare() {
         final Dimension dimension = mock(Dimension.class);
         when(dimension.getLength()).thenReturn(107);
-        when(reader.findDimension("matchup_count")).thenReturn(dimension);
+        when(reader.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(dimension);
 
         final Variable targetVariable = mock(Variable.class);
         when(writer.addVariable(eq(null), eq("amsr2-gcw1_Scan_Data_Quality"), eq(DataType.BYTE), anyList())).thenReturn(targetVariable);
 
         plugin.prepare(reader, writer);
 
-        verify(reader, times(1)).findDimension("matchup_count");
+        verify(reader, times(1)).findDimension(FiduceoConstants.MATCHUP_COUNT);
         verifyNoMoreInteractions(reader);
 
         verify(writer, times(1)).addDimension(null, "scan_data_quality", 512);

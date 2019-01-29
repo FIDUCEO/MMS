@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup;
 
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Sensor;
@@ -358,7 +359,7 @@ public class MatchupToolTest {
         variable = ioVariables.get(0);
         assertEquals("sensorName_x", variable.getTargetVariableName());
         assertEquals("int", variable.getDataType());
-        assertEquals("matchup_count", variable.getDimensionNames());
+        assertEquals(FiduceoConstants.MATCHUP_COUNT, variable.getDimensionNames());
         attributes = variable.getAttributes();
         assertEquals(2, attributes.size());
         attribute = attributes.get(0);
@@ -371,7 +372,7 @@ public class MatchupToolTest {
         variable = ioVariables.get(1);
         assertEquals("sensorName_y", variable.getTargetVariableName());
         assertEquals("int", variable.getDataType());
-        assertEquals("matchup_count", variable.getDimensionNames());
+        assertEquals(FiduceoConstants.MATCHUP_COUNT, variable.getDimensionNames());
         attributes = variable.getAttributes();
         assertEquals(2, attributes.size());
         attribute = attributes.get(0);

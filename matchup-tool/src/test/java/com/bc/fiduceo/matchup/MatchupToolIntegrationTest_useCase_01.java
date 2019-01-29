@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
@@ -65,7 +66,7 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
             assertEquals(37605, matchupCount);
             
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 6, 1139989151, mmd);
@@ -119,7 +120,7 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
         final File mmdFile = getMmdFilePath(useCaseConfig, "2006-046", "2006-046");
         assertTrue(mmdFile.isFile());
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
             assertEquals(1220, matchupCount);
             
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 23, 1139989167, mmd);

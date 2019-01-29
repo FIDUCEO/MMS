@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.util;
 
+import com.bc.fiduceo.FiduceoConstants;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -209,9 +210,9 @@ public class NetCDFUtilsTest {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension dimension = mock(Dimension.class);
         when(dimension.getLength()).thenReturn(22);
-        when(netcdfFile.findDimension("matchup_count")).thenReturn(dimension);
+        when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(dimension);
 
-        assertEquals(22, NetCDFUtils.getDimensionLength("matchup_count", netcdfFile));
+        assertEquals(22, NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile));
     }
 
     @Test
@@ -219,7 +220,7 @@ public class NetCDFUtilsTest {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
 
         try {
-            NetCDFUtils.getDimensionLength("matchup_count", netcdfFile);
+            NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.caliop.flag;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
@@ -125,7 +126,7 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
         final NetcdfFile reader = mock(NetcdfFile.class);
         when(reader.findDimension("caliop_vfm-cal_ny")).thenReturn(new Dimension("name", 3));
-        when(reader.findDimension("matchup_count")).thenReturn(new Dimension("name", 2));
+        when(reader.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension("name", 2));
         when(reader.findVariable("caliop_vfm\\.y")).thenReturn(yVar);
 
         final CapturingWriter writer = new CapturingWriter();

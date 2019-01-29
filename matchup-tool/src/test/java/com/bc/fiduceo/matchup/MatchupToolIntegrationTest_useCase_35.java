@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
@@ -64,7 +65,7 @@ public class MatchupToolIntegrationTest_useCase_35 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-            final int matchupCount = NetCDFUtils.getDimensionLength("matchup_count", mmd);
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
             assertEquals(10, matchupCount);
 
             NCTestUtils.assert3DVariable("mhs-n18_Latitude", 0, 0, 0, 899425, mmd);

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
@@ -172,7 +173,7 @@ class MatchupTool {
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             final DataType dataType = DataType.INT;
             ioVariable.setDataType(dataType.toString());
-            ioVariable.setDimensionNames("matchup_count");
+            ioVariable.setDimensionNames(FiduceoConstants.MATCHUP_COUNT);
             final List<Attribute> attributes = ioVariable.getAttributes();
             final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "pixel original x location in satellite raster"));
@@ -187,7 +188,7 @@ class MatchupTool {
             ioVariable.setTargetVariableName(targetSensorName + separator + varName);
             final DataType dataType = DataType.INT;
             ioVariable.setDataType(dataType.toString());
-            ioVariable.setDimensionNames("matchup_count");
+            ioVariable.setDimensionNames(FiduceoConstants.MATCHUP_COUNT);
             final List<Attribute> attributes = ioVariable.getAttributes();
             final String attName = variablesConfiguration.getRenamedAttributeName(sensorName, varName, DESCRIPTION_ATTRIBUTE_NAME);
             attributes.add(new Attribute(attName, "pixel original y location in satellite raster"));
@@ -409,7 +410,7 @@ class MatchupTool {
         variable.setTargetVariableName(targetVariableName);
 
         variable.setDataType(DataType.FLOAT.toString());
-        variable.setDimensionNames("matchup_count");
+        variable.setDimensionNames(FiduceoConstants.MATCHUP_COUNT);
 
         final List<Attribute> attributes = variable.getAttributes();
         attributes.add(new Attribute(DESCRIPTION_ATTRIBUTE_NAME, "spherical point_distance of matchup center locations"));

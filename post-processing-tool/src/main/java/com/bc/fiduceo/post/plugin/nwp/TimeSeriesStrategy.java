@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TempFileUtils;
@@ -52,9 +53,9 @@ class TimeSeriesStrategy extends Strategy {
             writer.addDimension(null, "matchup.nwp.fc.time", timeSeriesConfiguration.getForecastSteps());
         }
 
-        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        writer.addVariable(null, timeSeriesConfiguration.getAnCenterTimeName(), DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         NetCDFUtils.ensureFillValue(
-                writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, Constants.DIMENSION_NAME_MATCHUP_COUNT)
+                writer.addVariable(null, timeSeriesConfiguration.getFcCenterTimeName(), DataType.INT, FiduceoConstants.MATCHUP_COUNT)
         );
 
         final TemplateVariables templateVariables = context.getTemplateVariables();
@@ -123,7 +124,7 @@ class TimeSeriesStrategy extends Strategy {
         final Variable latVariable = NetCDFUtils.getVariable(reader, timeSeriesConfiguration.getLatitudeVariableName());
         final Array latitudes = latVariable.read();
 
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, reader);
+        final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
 
         final GeoFile geoFile = new GeoFile(matchupCount);
         try {

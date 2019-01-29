@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup.writer;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
@@ -199,6 +200,6 @@ public class IOVariablesList {
     static String createDimensionNames(Dimension dimension) {
         final String dimensionName = dimension.getName();
         final String separator = " ";
-        return "matchup_count" + separator + dimensionName + "_ny" + separator + dimensionName + "_nx";
+        return FiduceoConstants.MATCHUP_COUNT + separator + dimensionName + "_ny" + separator + dimensionName + "_nx";
     }
 }

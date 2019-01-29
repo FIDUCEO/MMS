@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.InvalidRangeException;
@@ -42,9 +43,9 @@ class NwpPostProcessing extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final Dimension matchupCountDimension = reader.findDimension(Constants.DIMENSION_NAME_MATCHUP_COUNT);
+        final Dimension matchupCountDimension = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
         if (matchupCountDimension == null) {
-            throw new RuntimeException("Expected dimension not present in file: " + Constants.DIMENSION_NAME_MATCHUP_COUNT);
+            throw new RuntimeException("Expected dimension not present in file: " + FiduceoConstants.MATCHUP_COUNT);
         }
 
         final Context context = createContext(reader, writer);

@@ -27,6 +27,8 @@ public class FiduceoConstants {
     public static final String VERSION;
     public static final String VERSION_NUMBER;
 
+    public static String MATCHUP_COUNT = "matchup_count";
+
     static {
         InputStream in = FiduceoConstants.class.getResourceAsStream("/fiduceo-version.properties");
         final Properties fiduceoVersionProperties = new Properties();

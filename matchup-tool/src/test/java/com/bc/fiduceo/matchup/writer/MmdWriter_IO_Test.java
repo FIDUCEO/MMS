@@ -269,7 +269,7 @@ public class MmdWriter_IO_Test {
             assertDimension("avhrr-n11_ny", 7, mmd);
             assertDimension("avhrr-n12_nx", 3, mmd);
             assertDimension("avhrr-n12_ny", 5, mmd);
-            assertDimension("matchup_count", 2346, mmd);
+            assertDimension(FiduceoConstants.MATCHUP_COUNT, 2346, mmd);
 
             Variable variable = mmd.findVariable("avhrr-n11_ch3b");
             assertNotNull(variable);

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -74,7 +75,7 @@ class FileMerger {
         final int anFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(analysisSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         for (int i = 0; i < matchupCount; i++) {
@@ -136,7 +137,7 @@ class FileMerger {
         final int fcFutureTimeStepCount = NwpUtils.computeFutureTimeStepCount(forecastSteps);
 
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
 
         final int[] centerTimes = new int[matchupCount];
         Arrays.fill(centerTimes, fillValue);
@@ -168,7 +169,7 @@ class FileMerger {
      */
     void mergeSensorExtractAnalysisFile(NetcdfFileWriter netcdfFileWriter, NetcdfFile analysisFile) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = netcdfFileWriter.getNetcdfFile();
-        final int matchupCount = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_MATCHUP_COUNT, netcdfFile);
+        final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
 
         final int x_dim = NetCDFUtils.getDimensionLength("x", analysisFile);
         final int y_dim = NetCDFUtils.getDimensionLength("y", analysisFile) / matchupCount;
