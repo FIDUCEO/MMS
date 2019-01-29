@@ -105,7 +105,7 @@ public class AddGruanSourceTest {
     static Element createFullConfigElement() throws JDOMException, IOException {
         final String configXML = "<add-gruan-source>" +
                 "    <target-variable name=\"the_quelle\" />" +
-                "    <y-variable name=\"üppsilon\" />" +
+                "    <y-variable name=\"yppsilon\" />" +
                 "    <file-name-variable name=\"fileName\" />" +
                 "    <processing-version-variable name=\"proc-ver\" />" +
                 "</add-gruan-source>";
