@@ -130,6 +130,9 @@ public class TestUtil {
                                        "        <rule sensors=\"ocean-rain-sst\">\n" +
                                        "            insitu/SENSOR/VERSION\n" +
                                        "        </rule>" +
+                                       "        <rule sensors=\"gruan-uleic\">\n" +
+                                       "            insitu/SENSOR/VERSION\n" +
+                                       "        </rule>" +
                                        "        <rule sensors = \"iasi-ma, iasi-mb\">" +
                                        "            SENSOR/VERSION/YEAR/MONTH" +
                                        "        </rule>" +
@@ -299,15 +302,9 @@ public class TestUtil {
     }
 
     public static void writeStringTo(File outFile, String data) throws IOException {
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(outFile);
+        try (FileOutputStream outputStream = new FileOutputStream(outFile)) {
             outputStream.write(data.getBytes());
             outputStream.flush();
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
         }
     }
 
@@ -331,14 +328,8 @@ public class TestUtil {
             fail("unable to create test file: " + propertiesFile.getAbsolutePath());
         }
 
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(propertiesFile);
+        try (FileOutputStream outputStream = new FileOutputStream(propertiesFile)) {
             properties.store(outputStream, "");
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
         }
     }
 
@@ -353,7 +344,7 @@ public class TestUtil {
 
         private final Pattern compiledPattern;
 
-        public StringPatternMatcher(String pattern) {
+        StringPatternMatcher(String pattern) {
             if (pattern == null) {
                 throw new IllegalArgumentException("Non-null pattern required.");
             }

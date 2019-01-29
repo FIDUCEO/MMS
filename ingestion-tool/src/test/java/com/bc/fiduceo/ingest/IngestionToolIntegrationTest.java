@@ -962,6 +962,36 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_GruanUleic_Insitu() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "gruan-uleic", "-start", "2010-135", "-end", "2010-136", "-v", "v1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("nya_matchup_points.txt", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2009, 1, 1, 5, 54, 22, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2018, 3, 27, 11, 9, 35, 0, observation.getStopTime());
+
+            assertEquals("gruan-uleic", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "gruan-uleic", "v1.0", "nya_matchup_points.txt"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
