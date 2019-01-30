@@ -11,6 +11,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,11 @@ public class AVHRR_FCDR_Reader_IO_Test {
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
         reader = new AVHRR_FCDR_Reader(readerContext);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+          reader.close();
     }
 
     @Test
@@ -152,7 +158,6 @@ public class AVHRR_FCDR_Reader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            final long referenceTime = 703260853;
             assertEquals(703260852587L, timeLocator.getTimeFor(169, 0));
             assertEquals(703260853092L, timeLocator.getTimeFor(168, 1));
             assertEquals(703260859587L, timeLocator.getTimeFor(169, 14));
