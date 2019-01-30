@@ -2,7 +2,6 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TempFileUtils;
 import ucar.ma2.Array;

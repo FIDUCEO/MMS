@@ -486,7 +486,7 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCreateExtraVariables_AttibuteRenaming() throws Exception {
+    public void testCreateExtraVariables_AttibuteRenaming() {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
@@ -528,12 +528,12 @@ public class MatchupToolTest {
     }
 
     @Test
-    public void testCreateExtraVariables_excludes___x_y_fileName_aquisitionTime() throws Exception {
+    public void testCreateExtraVariables_excludes___x_y_fileName_aquisitionTime() {
         final String sensorName = "sensorName";
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
         final VariablesConfiguration configuration = new VariablesConfiguration();
-        configuration.addExcludes(sensorName, Arrays.asList("x", "y", FiduceoConstants.FILE_NAME, "processing_version", "acquisition_time"));
+        configuration.addExcludes(sensorName, Arrays.asList("x", "y", FiduceoConstants.FILE_NAME, FiduceoConstants.PROCESSING_VERSION, "acquisition_time"));
 
         MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
 

@@ -22,7 +22,6 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;

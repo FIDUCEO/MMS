@@ -20,7 +20,6 @@
 package com.bc.fiduceo.post.plugin.sstInsitu;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;

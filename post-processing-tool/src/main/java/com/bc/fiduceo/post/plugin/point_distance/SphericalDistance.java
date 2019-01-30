@@ -23,7 +23,6 @@ import static com.bc.fiduceo.util.NetCDFUtils.getCenterPosArrayFromMMDFile;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.math.Distance;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;

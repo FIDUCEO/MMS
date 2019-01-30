@@ -29,6 +29,7 @@ public class FiduceoConstants {
 
     public static final String MATCHUP_COUNT = "matchup_count";
     public static final String FILE_NAME = "file_name";
+    public static final String PROCESSING_VERSION = "processing_version";
 
     static {
         InputStream in = FiduceoConstants.class.getResourceAsStream("/fiduceo-version.properties");

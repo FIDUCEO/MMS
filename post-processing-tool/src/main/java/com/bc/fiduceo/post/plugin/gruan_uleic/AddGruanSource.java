@@ -45,7 +45,7 @@ class AddGruanSource extends PostProcessing {
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
-        final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
+        final int processingVersionSize = NetCDFUtils.getDimensionLength(FiduceoConstants.PROCESSING_VERSION, reader);
 
         final Array targetArray = Array.factory(DataType.CHAR, new int[]{matchup_count, fileNameSize});
 

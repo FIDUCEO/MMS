@@ -378,7 +378,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             netcdfFileWriter.addDimension(null, getDimensionNameNy(dimension.getName()), dimension.getNy());
         }
         netcdfFileWriter.addDimension(null, FiduceoConstants.FILE_NAME, 128);
-        netcdfFileWriter.addDimension(null, "processing_version", 30);
+        netcdfFileWriter.addDimension(null, FiduceoConstants.PROCESSING_VERSION, 30);
         netcdfFileWriter.addDimension(null, FiduceoConstants.MATCHUP_COUNT, numMatchups);
     }
 

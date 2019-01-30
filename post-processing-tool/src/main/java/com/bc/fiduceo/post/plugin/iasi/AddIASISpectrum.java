@@ -86,7 +86,7 @@ class AddIASISpectrum extends PostProcessing {
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
-        final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
+        final int processingVersionSize = NetCDFUtils.getDimensionLength(FiduceoConstants.PROCESSING_VERSION, reader);
 
         final Array fillValueSpectrum = getFillValueSpectrum();
         final ArrayFloat.D4 writeArray = new ArrayFloat.D4(1, height, width, EpsMetopConstants.SS);
@@ -163,8 +163,7 @@ class AddIASISpectrum extends PostProcessing {
 
     // package access for testing only tb 2017-08-02
     static List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, List<ucar.nc2.Dimension> dimensions) {
-        final List<ucar.nc2.Dimension> targetDimensions = new ArrayList<>();
-        targetDimensions.addAll(dimensions);
+        final List<ucar.nc2.Dimension> targetDimensions = new ArrayList<>(dimensions);
 
         final ucar.nc2.Dimension iasi_ss = writer.addDimension(null, "iasi_ss", EpsMetopConstants.SS);
         targetDimensions.add(iasi_ss);

@@ -22,7 +22,6 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.math.FracIndex;
 import ucar.ma2.Array;

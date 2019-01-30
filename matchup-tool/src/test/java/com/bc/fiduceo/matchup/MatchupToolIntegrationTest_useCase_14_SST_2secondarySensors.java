@@ -82,7 +82,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
             final int fn_Size = 128;
             assertDimension(FiduceoConstants.FILE_NAME, fn_Size, mmd);
             final int pv_Size = 30;
-            assertDimension("processing_version", pv_Size, mmd);
+            assertDimension(FiduceoConstants.PROCESSING_VERSION, pv_Size, mmd);
             assertDimension(FiduceoConstants.MATCHUP_COUNT, 4, mmd);
 
             final String _1DDims = FiduceoConstants.MATCHUP_COUNT;

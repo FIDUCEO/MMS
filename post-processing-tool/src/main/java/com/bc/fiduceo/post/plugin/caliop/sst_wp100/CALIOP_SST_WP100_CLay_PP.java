@@ -22,7 +22,6 @@ package com.bc.fiduceo.post.plugin.caliop.sst_wp100;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_Reader;
@@ -55,7 +54,8 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
     final String variableName_caliopVFM_y;
     final String processingVersion;
     final String variablePrefix;
-    final Map<String, Variable> variableMap;
+
+    private final Map<String, Variable> variableMap;
 
     private Variable fileNameVariableVFM;
     private int filenameFieldSize;
@@ -66,7 +66,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
     private String targetVarNameX;
     private String targetVarNameY;
 
-    public CALIOP_SST_WP100_CLay_PP(String variableName_caliopVFM_fileName,
+    CALIOP_SST_WP100_CLay_PP(String variableName_caliopVFM_fileName,
                                     String variableName_caliopVFM_y,
                                     String processingVersion,
                                     String variablePrefix) {
@@ -77,7 +77,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
         this.variableMap = new HashMap<>();
     }
 
-    public void writeString(NetcdfFileWriter writer, Variable var, int pos, String str) throws IOException, InvalidRangeException {
+    private void writeString(NetcdfFileWriter writer, Variable var, int pos, String str) throws IOException, InvalidRangeException {
         final int[] shape = var.getShape();
         final char[] chars = new char[shape[1]];
         str.getChars(0, str.length(), chars, 0);
@@ -164,7 +164,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
     void addVariables(NetcdfFileWriter writer, Reader reader) throws IOException, InvalidRangeException {
         final String MC = FiduceoConstants.MATCHUP_COUNT;
         final String FN = FiduceoConstants.FILE_NAME;
-        final String PV = Constants.DIMENSION_NAME_PROCESSING_VERSION;
+        final String PV = FiduceoConstants.PROCESSING_VERSION;
         final String NY = DIM_NAME_CLAY_NY;
         final String NX = DIM_NAME_CLAY_NX;
 

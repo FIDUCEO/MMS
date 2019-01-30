@@ -25,7 +25,6 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.post.Constants;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
@@ -290,10 +289,7 @@ public class SstInsituTimeSeries_IO_Test {
 
         PostProcessingToolMain.main(args);
 
-        NetcdfFile netcdfFile = null;
-        try {
-            netcdfFile = NetcdfFile.open(target.toAbsolutePath().toString());
-
+        try (NetcdfFile netcdfFile = NetcdfFile.open(target.toAbsolutePath().toString())) {
             // **********  ID  ************
             final Variable insituId = netcdfFile.findVariable(escape("insitu.id"));
             assertEquals("matchup_count insitu.ntime", insituId.getDimensionsString());
@@ -494,10 +490,6 @@ public class SstInsituTimeSeries_IO_Test {
             assertNotNull(netcdfFile.findVariable(escape("insitu.y")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
-        } finally {
-            if (netcdfFile != null) {
-                netcdfFile.close();
-            }
         }
     }
 
