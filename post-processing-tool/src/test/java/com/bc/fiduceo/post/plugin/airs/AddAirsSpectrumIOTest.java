@@ -51,17 +51,17 @@ import java.util.Map;
 @RunWith(IOTestRunner.class)
 public class AddAirsSpectrumIOTest {
 
-    final int cutOutHeight = 7;
-    final int cutOutWidth = 5;
-    final String matchupFileName = "mmd9_9_copy_from_AIRS_TEST_MATCHUP_2010-004_2010-008.nc";
-    final int numMatchups = 9;
-    final int numChannels = 2378;
+    private final int cutOutHeight = 7;
+    private final int cutOutWidth = 5;
+    private final String matchupFileName = "mmd9_9_copy_from_AIRS_TEST_MATCHUP_2010-004_2010-008.nc";
+    private final int numMatchups = 9;
+    private final int numChannels = 2378;
 
-    Path testDirRoot;
-    Path matchupDir;
-    Path postProcOut;
-    Path configDir;
-    Path ppConfigFile;
+    private Path testDirRoot;
+    private Path matchupDir;
+    private Path postProcOut;
+    private Path configDir;
+    private Path ppConfigFile;
 
     @Before
     public void setUp() throws Exception {
@@ -72,7 +72,7 @@ public class AddAirsSpectrumIOTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         TestUtil.deleteTestDirectory();
     }
 
@@ -649,7 +649,7 @@ public class AddAirsSpectrumIOTest {
         final Array arrayF = Array.factory(file);
         final Array arrayV = Array.factory(version);
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < numMatchups; i++) {
             ncWriter.write(varFN, new int[]{i, 0}, arrayF);
             ncWriter.write(varPV, new int[]{i, 0}, arrayV);
         }

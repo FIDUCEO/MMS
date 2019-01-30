@@ -18,10 +18,11 @@
  *
  */
 
-package com.bc.fiduceo.post;
+package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.post.plugin.nwp.CDOTestRunner;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
@@ -60,7 +61,7 @@ public class PostProcessingToolIntegrationTest_NWP {
     }
 
     @Test
-    public void testAddNWPVariables_timeSeries() throws ParseException, IOException, InvalidRangeException {
+    public void testAddNWPVariables_timeSeries() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory();
 
         writeConfiguration_timeSeries();
@@ -109,7 +110,7 @@ public class PostProcessingToolIntegrationTest_NWP {
     }
 
     @Test
-    public void testAddNWPVariables_sensorExtract() throws ParseException, IOException, InvalidRangeException {
+    public void testAddNWPVariables_sensorExtract() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory();
 
         writeConfiguration_sensorExtract();

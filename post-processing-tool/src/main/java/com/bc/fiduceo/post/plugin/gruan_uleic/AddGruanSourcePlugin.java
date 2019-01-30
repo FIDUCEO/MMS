@@ -8,7 +8,8 @@ public class AddGruanSourcePlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        return new AddGruanSource(new AddGruanSource.Configuration());
+        final AddGruanSource.Configuration configuration = AddGruanSource.parseConfiguration(element);
+        return new AddGruanSource(configuration);
     }
 
     @Override

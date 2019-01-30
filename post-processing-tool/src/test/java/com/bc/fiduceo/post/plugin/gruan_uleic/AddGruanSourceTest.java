@@ -7,7 +7,6 @@ import org.jdom.JDOMException;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -18,10 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class AddGruanSourceTest {
 
@@ -36,15 +40,19 @@ public class AddGruanSourceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPrepare() throws IOException, InvalidRangeException {
+    public void testPrepare() {
         final AddGruanSource.Configuration configuration = new AddGruanSource.Configuration();
         configuration.targetVariableName = "the_source_file_name";
 
-        final ArrayList<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension(FiduceoConstants.MATCHUP_COUNT, 142));
-        dimensions.add(new Dimension("file_name", 128));
+        final Dimension matchupDimension = new Dimension(FiduceoConstants.MATCHUP_COUNT, 142);
+        final Dimension fileNameDimension = new Dimension("file_name", 128);
 
-        when(reader.getDimensions()).thenReturn(dimensions);
+        final List<Dimension> dimensions = new ArrayList<>();
+        dimensions.add(matchupDimension);
+        dimensions.add(fileNameDimension);
+
+        when(reader.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupDimension);
+        when(reader.findDimension("file_name")).thenReturn(fileNameDimension);
 
         final Variable targetVariable = mock(Variable.class);
         when(writer.addVariable(any(), eq("the_source_file_name"), eq(DataType.CHAR), (List<Dimension>) any())).thenReturn(targetVariable);
@@ -53,54 +61,67 @@ public class AddGruanSourceTest {
 
         plugin.prepare(reader, writer);
 
-        verify(reader, times(1)).getDimensions();
+        verify(reader, times(2)).findDimension(any());
         verify(writer, times(1)).addVariable(null, "the_source_file_name", DataType.CHAR, dimensions);
         verifyNoMoreInteractions(reader, writer);
     }
 
     @Test
-    public void testExtractTargetDimensions() {
-        final ArrayList<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("ignore", 12));
-        dimensions.add(new Dimension(FiduceoConstants.MATCHUP_COUNT, 142));
-        dimensions.add(new Dimension("file_name", 128));
-        dimensions.add(new Dimension("not_required", 13));
+    public void testParseConfig() throws JDOMException, IOException {
+        final Element configElement = createFullConfigElement();
 
-        final ArrayList<Dimension> extracted = AddGruanSource.extractTargetDimensions(dimensions);
+        final AddGruanSource.Configuration config = AddGruanSource.parseConfiguration(configElement);
+        assertNotNull(config);
 
-        assertEquals(2, extracted.size());
-        assertEquals(FiduceoConstants.MATCHUP_COUNT, extracted.get(0).getShortName());
-        assertEquals("file_name", extracted.get(1).getShortName());
+        assertEquals("the_quelle", config.targetVariableName);
+        assertEquals("yppsilon", config.yCoordinateName);
+        assertEquals("fileName", config.filenameVariableName);
+        assertEquals("proc-ver", config.processingVersionVariableName);
     }
 
     @Test
-    public void testExtractTargetDimensions_missingMatchupCount() {
-        final ArrayList<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("ignore", 12));
-        dimensions.add(new Dimension("file_name", 128));
-        dimensions.add(new Dimension("not_required", 13));
+    public void testExtractTargetDimensions() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension fileNameDimension = new Dimension("file_name", 128);
+        final Dimension matchupCountDimensions = new Dimension(FiduceoConstants.MATCHUP_COUNT, 6);
 
-        try {
-            AddGruanSource.extractTargetDimensions(dimensions);
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
+        when(netcdfFile.findDimension("file_name")).thenReturn(fileNameDimension);
+        when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupCountDimensions);
+
+        final ArrayList<Dimension> dimensions = AddGruanSource.extractTargetDimensions(netcdfFile);
+        assertEquals(2, dimensions.size());
+
+        assertEquals(FiduceoConstants.MATCHUP_COUNT, dimensions.get(0).getFullName());
+        assertEquals("file_name", dimensions.get(1).getFullName());
     }
 
     @Test
     public void testExtractTargetDimensions_missingFileName() {
-        final ArrayList<Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new Dimension("ignore", 12));
-        dimensions.add(new Dimension(FiduceoConstants.MATCHUP_COUNT, 142));
-        dimensions.add(new Dimension("not_required", 13));
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension fileNameDimensions = new Dimension("file_name", 6);
+
+        when(netcdfFile.findDimension("file_name")).thenReturn(fileNameDimensions);
 
         try {
-            AddGruanSource.extractTargetDimensions(dimensions);
+            AddGruanSource.extractTargetDimensions(netcdfFile);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
     }
 
+    @Test
+    public void testExtractTargetDimensions_missingMatchupCount() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Dimension matchupCountDimensions = new Dimension(FiduceoConstants.MATCHUP_COUNT, 6);
+
+        when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupCountDimensions);
+
+        try {
+            AddGruanSource.extractTargetDimensions(netcdfFile);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 
     static Element createFullConfigElement() throws JDOMException, IOException {
         final String configXML = "<add-gruan-source>" +

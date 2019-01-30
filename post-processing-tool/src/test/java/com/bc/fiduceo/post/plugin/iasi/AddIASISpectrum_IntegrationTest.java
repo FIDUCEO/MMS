@@ -18,11 +18,12 @@
  *
  */
 
-package com.bc.fiduceo.post;
+package com.bc.fiduceo.post.plugin.iasi;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.PostProcessingToolMain;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
-public class PostProcessingToolIntegrationTest_IASISpectrum {
+public class AddIASISpectrum_IntegrationTest {
 
     private File configDir;
     private File testDirectory;

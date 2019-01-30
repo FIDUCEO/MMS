@@ -31,7 +31,7 @@ import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 
-class GruanUleicInsituReader implements Reader {
+public class GruanUleicInsituReader implements Reader {
 
     private static final String REG_EX = "[a-z]{3}_matchup_points.txt";
 
@@ -111,7 +111,7 @@ class GruanUleicInsituReader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("notImplemented");
+        return new int[3];
     }
 
     @Override

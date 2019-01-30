@@ -229,11 +229,11 @@ public class GruanUleicInsituReader_IO_Test {
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
-        try {
-            reader.extractYearMonthDayFromFilename("nya_matchup_points.txt");
-            fail("RuntimeException expected");
-        } catch (RuntimeException expected) {
-        }
+        final int[] ints = reader.extractYearMonthDayFromFilename("nya_matchup_points.txt");
+        assertEquals(3, ints.length);
+        assertEquals(0, ints[0]);
+        assertEquals(0, ints[1]);
+        assertEquals(0, ints[2]);
     }
 
     @Test
