@@ -19,8 +19,6 @@
  */
 package com.bc.fiduceo.post.plugin.airs;
 
-import static com.bc.fiduceo.reader.airs.AIRS_Constants.AIRS_NUM_CHANELS;
-
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.reader.airs.AIRS_L1B_Reader;
@@ -44,24 +42,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.bc.fiduceo.reader.airs.AIRS_Constants.AIRS_NUM_CHANELS;
+
 public class AddAirsSpectrum extends PostProcessing {
 
-    // package access for testing only se 2018-08-31
-    final String srcVariableName_fileName;
-    final String srcVariableName_processingVersion;
-    final String srcVariableName_x;
-    final String srcVariableName_y;
-    final String srcVariableName_cutOutReference;
-    final String targetRadiancesVariableName;
-    final String targetCalFlagVariableName;
-    final String targetSpaceViewDeltaVariableName;
-    Dimension[] cutOutDims;
-    final Map<String, Variable> variablesMap;
+    private final String srcVariableName_fileName;
+    private final String srcVariableName_processingVersion;
+    private final String srcVariableName_x;
+    private final String srcVariableName_y;
+    private final String srcVariableName_cutOutReference;
+    private final String targetRadiancesVariableName;
+    private final String targetCalFlagVariableName;
+    private final String targetSpaceViewDeltaVariableName;
+    private Dimension[] cutOutDims;
+    private final Map<String, Variable> variablesMap;
 
-    public AddAirsSpectrum(String srcVariableName_fileName, String srcVariableName_processingVersion,
-                           String srcVariableName_x, String srcVariableName_y, String srcVariableName_cutOutReference,
-                           String targetRadiancesVariableName, String targetCalFlagVariableName,
-                           String targetSpaceViewDeltaVariableName) {
+    AddAirsSpectrum(String srcVariableName_fileName, String srcVariableName_processingVersion,
+                    String srcVariableName_x, String srcVariableName_y, String srcVariableName_cutOutReference,
+                    String targetRadiancesVariableName, String targetCalFlagVariableName,
+                    String targetSpaceViewDeltaVariableName) {
 
         this.srcVariableName_fileName = srcVariableName_fileName;
         this.srcVariableName_processingVersion = srcVariableName_processingVersion;
@@ -75,7 +74,7 @@ public class AddAirsSpectrum extends PostProcessing {
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         cutOutDims = get2dCutOutDimensions(reader);
         final List<ucar.nc2.Dimension> targetDimensions = addSpectrumDimension(writer, cutOutDims);
         addSpectrumVariables(writer, targetDimensions);
@@ -95,7 +94,7 @@ public class AddAirsSpectrum extends PostProcessing {
         final Array yArray = yVariable.read();
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
+        final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
         for (int i = 0; i < matchup_count; i++) {
             final String fileName = NetCDFUtils.readString(fileNameVariable, i, fileNameSize);
@@ -181,7 +180,7 @@ public class AddAirsSpectrum extends PostProcessing {
             final Array spaceViewDeltaCuboidReshaped = spaceViewDeltaCuboid.reshapeNoCopy(new int[]{1, readHeight, 1, AIRS_NUM_CHANELS});
             for (int x = 0; x < readWidth; x++) {
                 final int[] clone = writeOrigin3DSlice.clone();
-                clone[2] +=x;
+                clone[2] += x;
                 writer.write(calVar, clone, calFlagCuboidReshaped);
                 writer.write(spaceVar, clone, spaceViewDeltaCuboidReshaped);
             }
@@ -193,6 +192,7 @@ public class AddAirsSpectrum extends PostProcessing {
         readerCache = createReaderCache(getContext());
     }
 
+    // @todo 2 tb/se write the test 2019-01-30
     // package access for testing only se 2018-08-31
     static List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, Dimension[] cutOutDimensions) {
         final List<Dimension> targetDimensions = new ArrayList<>(Arrays.asList(cutOutDimensions));
@@ -201,6 +201,7 @@ public class AddAirsSpectrum extends PostProcessing {
         return targetDimensions;
     }
 
+    // @todo 2 tb/se write the test 2019-01-30
     // package access for testing only se 2018-08-31
     void addSpectrumVariables(NetcdfFileWriter writer, List<Dimension> targetDimensions) {
         final Variable radiances = writer.addVariable(null, targetRadiancesVariableName, DataType.FLOAT, targetDimensions);
@@ -214,28 +215,29 @@ public class AddAirsSpectrum extends PostProcessing {
         calFlag.addAttribute(new Attribute(CDM.UNSIGNED, "true"));
         calFlag.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, Byte.valueOf("-1")));
         calFlag.addAttribute(new Attribute("description", "Bit field, by channel, for the current scanline. Zero means the channel was well " +
-                                                          "calibrated, for this scanline.\n" +
-                                                          "Bit 7 (MSB): scene over/underflow;\n" +
-                                                          "Bit 6: (value 64) anomaly in offset calculation;\n" +
-                                                          "Bit 5: (value 32) anomaly in gain calculation;\n" +
-                                                          "Bit 4: (value 16) pop detected;\n" +
-                                                          "Bit 3: (value 8) DCR Occurred;\n" +
-                                                          "Bit 2: (value 4) Moon in View;\n" +
-                                                          "Bit 1: (value 2) telemetry out of limit condition;\n" +
-                                                          "Bit 0: (LSB, value 1) cold scene noise"));
+                "calibrated, for this scanline.\n" +
+                "Bit 7 (MSB): scene over/underflow;\n" +
+                "Bit 6: (value 64) anomaly in offset calculation;\n" +
+                "Bit 5: (value 32) anomaly in gain calculation;\n" +
+                "Bit 4: (value 16) pop detected;\n" +
+                "Bit 3: (value 8) DCR Occurred;\n" +
+                "Bit 2: (value 4) Moon in View;\n" +
+                "Bit 1: (value 2) telemetry out of limit condition;\n" +
+                "Bit 0: (LSB, value 1) cold scene noise"));
         calFlag.addAttribute(new Attribute(NetCDFUtils.CF_UNITS_NAME, "mW/m2/cm-1/sr"));
         variablesMap.put(targetCalFlagVariableName, calFlag);
 
         final Variable spaceViewDelta = writer.addVariable(null, targetSpaceViewDeltaVariableName, DataType.FLOAT, targetDimensions);
         spaceViewDelta.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999.0f));
         spaceViewDelta.addAttribute(new Attribute("description", "The median of the four spaceviews immediately following the Earth views in " +
-                                                      "the scanline, minus the median of the spaceviews immediately preceding the " +
-                                                      "Earth views in the scanline (also the magnitude of a \"pop\" in this scanline, " +
-                                                      "when the \"pop detected\" bit is set in CalFlag.)"));
+                "the scanline, minus the median of the spaceviews immediately preceding the " +
+                "Earth views in the scanline (also the magnitude of a \"pop\" in this scanline, " +
+                "when the \"pop detected\" bit is set in CalFlag.)"));
         spaceViewDelta.addAttribute(new Attribute(NetCDFUtils.CF_UNITS_NAME, "dl"));
-        variablesMap.put(targetSpaceViewDeltaVariableName,spaceViewDelta);
+        variablesMap.put(targetSpaceViewDeltaVariableName, spaceViewDelta);
     }
 
+    // @todo 2 tb/se write the test 2019-01-30
     // package access for testing only se 2018-08-31
     Dimension[] get2dCutOutDimensions(NetcdfFile reader) {
         final Variable variable = NetCDFUtils.getVariable(reader, srcVariableName_cutOutReference);

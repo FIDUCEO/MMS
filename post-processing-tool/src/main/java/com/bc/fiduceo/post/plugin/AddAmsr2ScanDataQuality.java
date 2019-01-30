@@ -48,7 +48,7 @@ class AddAmsr2ScanDataQuality extends PostProcessing {
         final Array yArray = yVariable.read();
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
+        final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
 

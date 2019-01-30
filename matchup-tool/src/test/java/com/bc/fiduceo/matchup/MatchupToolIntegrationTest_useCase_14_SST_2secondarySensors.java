@@ -80,7 +80,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
             assertDimension("mhs-n18_nx", 3, mmd);
             assertDimension("mhs-n18_ny", 3, mmd);
             final int fn_Size = 128;
-            assertDimension("file_name", fn_Size, mmd);
+            assertDimension(FiduceoConstants.FILE_NAME, fn_Size, mmd);
             final int pv_Size = 30;
             assertDimension("processing_version", pv_Size, mmd);
             assertDimension(FiduceoConstants.MATCHUP_COUNT, 4, mmd);

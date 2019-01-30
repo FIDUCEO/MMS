@@ -65,7 +65,7 @@ class SstInsituTimeSeries extends PostProcessing {
         sensorType = extractSensorType(reader, configuration);
         fileNameVariable = getFileNameVariable(reader, sensorType, configuration);
 
-        filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
+        filenameFieldSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
 
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);

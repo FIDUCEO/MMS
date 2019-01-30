@@ -44,11 +44,12 @@ import java.util.Map;
 
 public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
 
-    public static final String DIM_NAME_CLAY_NX = "caliop_clay-cal_nx";
-    public static final String DIM_NAME_CLAY_NX_10 = "caliop_clay-cal_nx_10";
-    public static final String DIM_NAME_VFM_NY = "caliop_vfm-cal_ny";
-    public static final String DIM_NAME_CLAY_NY = "caliop_clay-cal_ny";
-    public static final String CLAY_SENSOR_NAME = CALIOP_SST_WP100_CLay_ReaderPlugin.SENSOR_NAME;
+    private static final String DIM_NAME_VFM_NY = "caliop_vfm-cal_ny";
+    private static final String CLAY_SENSOR_NAME = CALIOP_SST_WP100_CLay_ReaderPlugin.SENSOR_NAME;
+    
+    static final String DIM_NAME_CLAY_NX = "caliop_clay-cal_nx";
+    static final String DIM_NAME_CLAY_NX_10 = "caliop_clay-cal_nx_10";
+    static final String DIM_NAME_CLAY_NY = "caliop_clay-cal_ny";
 
     final String variableName_caliopVFM_fileName;
     final String variableName_caliopVFM_y;
@@ -87,7 +88,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         fileNameVariableVFM = NetCDFUtils.getVariable(reader, variableName_caliopVFM_fileName);
-        filenameFieldSize = NetCDFUtils.getDimensionLength(Constants.DIMENSION_NAME_FILE_NAME, reader);
+        filenameFieldSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         ny = NetCDFUtils.getDimensionLength(DIM_NAME_VFM_NY, reader);
 
         final String vfmSourceFileName = getSourceFileName(0);
@@ -162,7 +163,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
 
     void addVariables(NetcdfFileWriter writer, Reader reader) throws IOException, InvalidRangeException {
         final String MC = FiduceoConstants.MATCHUP_COUNT;
-        final String FN = Constants.DIMENSION_NAME_FILE_NAME;
+        final String FN = FiduceoConstants.FILE_NAME;
         final String PV = Constants.DIMENSION_NAME_PROCESSING_VERSION;
         final String NY = DIM_NAME_CLAY_NY;
         final String NX = DIM_NAME_CLAY_NX;
@@ -189,7 +190,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
         var.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         var.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
 
-        targetVarNameFileName = variablePrefix + "file_name";
+        targetVarNameFileName = variablePrefix + FiduceoConstants.FILE_NAME;
         var = writer.addVariable(null, targetVarNameFileName, DataType.CHAR, MC + " " + FN);
         var.addAttribute(new Attribute("description", "file name of the original data file"));
 

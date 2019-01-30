@@ -85,7 +85,7 @@ class AddIASISpectrum extends PostProcessing {
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
+        final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
 
         final Array fillValueSpectrum = getFillValueSpectrum();

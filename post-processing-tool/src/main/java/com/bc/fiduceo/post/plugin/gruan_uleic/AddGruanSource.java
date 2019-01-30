@@ -44,7 +44,7 @@ class AddGruanSource extends PostProcessing {
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);
 
         final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int fileNameSize = NetCDFUtils.getDimensionLength("file_name", reader);
+        final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength("processing_version", reader);
 
         final Array targetArray = Array.factory(DataType.CHAR, new int[]{matchup_count, fileNameSize});
@@ -71,7 +71,7 @@ class AddGruanSource extends PostProcessing {
 
     // package access for testing only tb 2019-01-30
     static ArrayList<Dimension> extractTargetDimensions(NetcdfFile reader) {
-        final Dimension file_name = reader.findDimension("file_name");
+        final Dimension file_name = reader.findDimension(FiduceoConstants.FILE_NAME);
         if (file_name == null) {
             throw new RuntimeException("Required dimension not found: filename");
         }

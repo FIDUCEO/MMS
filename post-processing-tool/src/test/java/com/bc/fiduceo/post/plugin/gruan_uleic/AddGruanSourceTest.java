@@ -45,14 +45,14 @@ public class AddGruanSourceTest {
         configuration.targetVariableName = "the_source_file_name";
 
         final Dimension matchupDimension = new Dimension(FiduceoConstants.MATCHUP_COUNT, 142);
-        final Dimension fileNameDimension = new Dimension("file_name", 128);
+        final Dimension fileNameDimension = new Dimension(FiduceoConstants.FILE_NAME, 128);
 
         final List<Dimension> dimensions = new ArrayList<>();
         dimensions.add(matchupDimension);
         dimensions.add(fileNameDimension);
 
         when(reader.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupDimension);
-        when(reader.findDimension("file_name")).thenReturn(fileNameDimension);
+        when(reader.findDimension(FiduceoConstants.FILE_NAME)).thenReturn(fileNameDimension);
 
         final Variable targetVariable = mock(Variable.class);
         when(writer.addVariable(any(), eq("the_source_file_name"), eq(DataType.CHAR), (List<Dimension>) any())).thenReturn(targetVariable);
@@ -82,25 +82,25 @@ public class AddGruanSourceTest {
     @Test
     public void testExtractTargetDimensions() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Dimension fileNameDimension = new Dimension("file_name", 128);
+        final Dimension fileNameDimension = new Dimension(FiduceoConstants.FILE_NAME, 128);
         final Dimension matchupCountDimensions = new Dimension(FiduceoConstants.MATCHUP_COUNT, 6);
 
-        when(netcdfFile.findDimension("file_name")).thenReturn(fileNameDimension);
+        when(netcdfFile.findDimension(FiduceoConstants.FILE_NAME)).thenReturn(fileNameDimension);
         when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupCountDimensions);
 
         final ArrayList<Dimension> dimensions = AddGruanSource.extractTargetDimensions(netcdfFile);
         assertEquals(2, dimensions.size());
 
         assertEquals(FiduceoConstants.MATCHUP_COUNT, dimensions.get(0).getFullName());
-        assertEquals("file_name", dimensions.get(1).getFullName());
+        assertEquals(FiduceoConstants.FILE_NAME, dimensions.get(1).getFullName());
     }
 
     @Test
     public void testExtractTargetDimensions_missingFileName() {
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
-        final Dimension fileNameDimensions = new Dimension("file_name", 6);
+        final Dimension fileNameDimensions = new Dimension(FiduceoConstants.FILE_NAME, 6);
 
-        when(netcdfFile.findDimension("file_name")).thenReturn(fileNameDimensions);
+        when(netcdfFile.findDimension(FiduceoConstants.FILE_NAME)).thenReturn(fileNameDimensions);
 
         try {
             AddGruanSource.extractTargetDimensions(netcdfFile);

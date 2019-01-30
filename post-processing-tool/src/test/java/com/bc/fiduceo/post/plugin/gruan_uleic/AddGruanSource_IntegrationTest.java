@@ -84,7 +84,7 @@ public class AddGruanSource_IntegrationTest {
         final File mmdFileName = new File(testDirectory, MMD_NAME);
 
         final NetcdfFileWriter writer = NetcdfFileWriter.createNew(netcdf4, mmdFileName.getAbsolutePath());
-        final Dimension dimFileName = writer.addDimension(null, "file_name", 128);
+        final Dimension dimFileName = writer.addDimension(null, FiduceoConstants.FILE_NAME, 128);
         final Dimension dimProcessingVersion = writer.addDimension(null, "processing_version", 30);
         final Dimension dimMatchupCount = writer.addDimension(null, FiduceoConstants.MATCHUP_COUNT, NUM_MATCHUPS);
 

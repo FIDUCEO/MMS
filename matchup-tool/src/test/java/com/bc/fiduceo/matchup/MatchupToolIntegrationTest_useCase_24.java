@@ -471,7 +471,7 @@ public class MatchupToolIntegrationTest_useCase_24 extends AbstractUsecaseIntegr
                 /* 67 */  new Expectation("hirs-n16_y", new Dimension[]{new Dimension(FiduceoConstants.MATCHUP_COUNT, MATCHUP_COUNT)}),
                 /* 68 */  new Expectation("hirs-n16_file_name", new Dimension[]{
                 new Dimension(FiduceoConstants.MATCHUP_COUNT, MATCHUP_COUNT),
-                new Dimension("file_name", FILENAME_LENGTH),
+                new Dimension(FiduceoConstants.FILE_NAME, FILENAME_LENGTH),
         }),
 
                 /* 69 */ new Expectation("hirs-n16_processing_version", new Dimension[]{
@@ -602,7 +602,7 @@ public class MatchupToolIntegrationTest_useCase_24 extends AbstractUsecaseIntegr
                 /* 95 */  new Expectation("amsub-n16_y", new Dimension[]{new Dimension(FiduceoConstants.MATCHUP_COUNT, MATCHUP_COUNT)}),
                 /* 96 */  new Expectation("amsub-n16_file_name", new Dimension[]{
                 new Dimension(FiduceoConstants.MATCHUP_COUNT, MATCHUP_COUNT),
-                new Dimension("file_name", FILENAME_LENGTH),
+                new Dimension(FiduceoConstants.FILE_NAME, FILENAME_LENGTH),
         }),
                 /* 97 */  new Expectation("amsub-n16_processing_version", new Dimension[]{
                 new Dimension(FiduceoConstants.MATCHUP_COUNT, MATCHUP_COUNT),

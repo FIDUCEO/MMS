@@ -459,7 +459,7 @@ public class MatchupToolTest {
         final HashMap<String, String> renames = new HashMap<>();
         renames.put("x", "XcenterX");
         renames.put("y", "YcenterY");
-        renames.put("file_name", "SourceProductFileName");
+        renames.put(FiduceoConstants.FILE_NAME, "SourceProductFileName");
         renames.put("processing_version", "versionOfProcessing");
         renames.put("acquisition_time", "time");
         configuration.addRenames(sensorName, renames);
@@ -492,7 +492,7 @@ public class MatchupToolTest {
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
         final VariablesConfiguration configuration = new VariablesConfiguration();
         configuration.setAttributeRename(sensorName, "x", "description", "desc_r");
-        configuration.setAttributeRename(sensorName, "file_name", "description", "desc_r");
+        configuration.setAttributeRename(sensorName, FiduceoConstants.FILE_NAME, "description", "desc_r");
         configuration.setAttributeRename(sensorName, "processing_version", "description", "desc_r_2");
         configuration.setAttributeRename(sensorName, "acquisition_time", CF_UNITS_NAME, "unit_r");
         configuration.setAttributeRename(sensorName, null, CF_FILL_VALUE_NAME, "_fill_value");
@@ -533,7 +533,7 @@ public class MatchupToolTest {
         final IOVariablesList ioVariablesList = new IOVariablesList(null);
         ioVariablesList.setReaderContainer(sensorName, new ReaderContainer());
         final VariablesConfiguration configuration = new VariablesConfiguration();
-        configuration.addExcludes(sensorName, Arrays.asList("x", "y", "file_name", "processing_version", "acquisition_time"));
+        configuration.addExcludes(sensorName, Arrays.asList("x", "y", FiduceoConstants.FILE_NAME, "processing_version", "acquisition_time"));
 
         MatchupTool.createExtraVariables(sensorName, ioVariablesList, configuration);
 
