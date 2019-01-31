@@ -76,8 +76,8 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         final String fileName = file.getName();
-        acquisitionInfo.setSensingStart(parseStartDate(fileName));
-        acquisitionInfo.setSensingStop(parseStopDate(fileName));
+        acquisitionInfo.setSensingStart(FCDRUtils.parseStartDate(fileName));
+        acquisitionInfo.setSensingStop(FCDRUtils.parseStopDate(fileName));
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
@@ -129,7 +129,7 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        final Date date = parseStartDate(fileName);
+        final Date date = FCDRUtils.parseStartDate(fileName);
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTime(date);
         final int[] ymd = new int[3];
@@ -213,21 +213,6 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
     @Override
     public String getLatitudeVariableName() {
         return LATITUDE_VAR_NAME;
-    }
-
-    static Date parseStartDate(String fileName) {
-        return parseDateFromName(fileName, 30);
-    }
-
-    static Date parseStopDate(String fileName) {
-        return parseDateFromName(fileName, 45);
-    }
-
-    private static Date parseDateFromName(String fileName, int offset) {
-        final int endIdx = offset + 14;
-        final String dateString = fileName.substring(offset, endIdx);
-
-        return TimeUtils.parse(dateString, "yyyyMMddHHmmss");
     }
 
     private Geometries calculateGeometries() throws IOException {

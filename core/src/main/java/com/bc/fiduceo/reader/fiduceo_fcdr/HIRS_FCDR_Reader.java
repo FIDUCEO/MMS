@@ -26,8 +26,26 @@ class HIRS_FCDR_Reader extends NetCDFReader {
     }
 
     @Override
+    public void open(File file) throws IOException {
+        super.open(file);
+        this.file = file;
+    }
+
+    @Override
+    public void close() throws IOException {
+        file = null;
+        super.close();
+    }
+
+    @Override
     public AcquisitionInfo read() throws IOException {
-        return new AcquisitionInfo();
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        final String fileName = file.getName();
+        acquisitionInfo.setSensingStart(FCDRUtils.parseStartDate(fileName));
+        acquisitionInfo.setSensingStop(FCDRUtils.parseStopDate(fileName));
+
+        return acquisitionInfo;
     }
 
     @Override

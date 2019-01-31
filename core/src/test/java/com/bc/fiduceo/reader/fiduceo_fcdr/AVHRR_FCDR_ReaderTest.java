@@ -1,18 +1,14 @@
 package com.bc.fiduceo.reader.fiduceo_fcdr;
 
-import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AVHRR_FCDR_ReaderTest {
 
@@ -46,20 +42,6 @@ public class AVHRR_FCDR_ReaderTest {
 
         matcher = pattern.matcher("L8912163.NSS.AMBX.NK.D08001.S0000.E0155.B5008586.GC.gz.l1c.h5");
         assertFalse(matcher.matches());
-    }
-
-    @Test
-    public void test_parseStartDate() {
-        final Date startDate = AVHRR_FCDR_Reader.parseStartDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA11_19920327133425_19920327151625_EASY_vBeta_fv2.0.0.nc");
-
-        TestUtil.assertCorrectUTCDate(1992, 3, 27, 13, 34, 25, startDate);
-    }
-
-    @Test
-    public void test_parseStopDate() {
-        final Date startDate = AVHRR_FCDR_Reader.parseStopDate("FIDUCEO_FCDR_L1C_AVHRR_NOAA15_20011205154420_20011205172532_EASY_vBeta_fv2.0.0.nc");
-
-        TestUtil.assertCorrectUTCDate(2001, 12, 5, 17, 25, 32, startDate);
     }
 
     @Test

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -47,7 +48,12 @@ public class HIRS_FCDR_Reader_IO_Test {
             final AcquisitionInfo acquisitionInfo = reader.read();
             assertNotNull(acquisitionInfo);
 
-            // @todo 1 tb/tb continue here 2019-01-30
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(1983, 10, 4, 16, 24, 22, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(1983, 10, 4, 18, 6, 14, sensingStop);
+
         } finally {
             reader.close();
         }
