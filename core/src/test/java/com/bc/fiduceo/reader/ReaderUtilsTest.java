@@ -86,6 +86,7 @@ public class ReaderUtilsTest {
     public void testStripChannelSuffix() {
         assertEquals("btemps", ReaderUtils.stripChannelSuffix("btemps_ch17"));
         assertEquals("chanqual", ReaderUtils.stripChannelSuffix("chanqual_ch4"));
+        assertEquals("quality_channel_bitmask", ReaderUtils.stripChannelSuffix("quality_channel_bitmask_ch04"));
 
         assertEquals("Latitude", ReaderUtils.stripChannelSuffix("Latitude"));
         assertEquals("scnlindy", ReaderUtils.stripChannelSuffix("scnlindy"));

@@ -4,16 +4,25 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.*;
-import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayDouble;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -22,13 +31,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class AVHRR_FCDR_Reader extends NetCDFReader {
+public class AVHRR_FCDR_Reader extends FCDR_Reader {
 
     private static final int NUM_SPLITS = 2;
+    // @todo 2 tb/tb move intervals to config 2019-02-18
+    private static final Interval STEP_INTERVAL = new Interval(40, 100);
     private static final String LONGITUDE_VAR_NAME = "longitude";
     private static final String LATITUDE_VAR_NAME = "latitude";
 
-    // these variales do not have dimensionality that can be handled by the core MMS engine. They need to be
+    // these variables do not have dimensionality that can be handled by the core MMS engine. They need to be
     // transferred using a post-processing step tb 2019-01-08
     private static String[] VARIABLE_NAMES_TO_REMOVE = {"SRF_wavelengths",
             "SRF_weights",
@@ -43,30 +54,23 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
             "x",
             "y"};
 
-    private final GeometryFactory geometryFactory;
-
-    private File file;
-    private BoundingPolygonCreator boundingPolygonCreator;
     private TimeLocator timeLocator;
     private PixelLocator pixelLocator;
 
     AVHRR_FCDR_Reader(ReaderContext readerContext) {
-        this.geometryFactory = readerContext.getGeometryFactory();
+        super(readerContext);
     }
 
     @Override
     public void open(File file) throws IOException {
         super.open(file);
-        this.file = file;
         timeLocator = null;
     }
 
     @Override
     public void close() throws IOException {
-        file = null;
         timeLocator = null;
         pixelLocator = null;
-        boundingPolygonCreator = null;
 
         super.close();
     }
@@ -81,7 +85,7 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final Geometries geometries = calculateGeometries();
+        final Geometries geometries = calculateGeometries(false, STEP_INTERVAL);
         final Geometry boundingGeometry = geometries.getBoundingGeometry();
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
@@ -113,7 +117,7 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
         final int[] shape = longitudes.getShape();
         final int height = shape[0];
         final int width = shape[1];
-        final int subsetHeight = getBoundingPolygonCreator().getSubsetHeight(height, NUM_SPLITS);
+        final int subsetHeight = getBoundingPolygonCreator(STEP_INTERVAL).getSubsetHeight(height, NUM_SPLITS);
         final PixelLocator pixelLocator = getPixelLocator();
 
         return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
@@ -125,18 +129,6 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
             timeLocator = new AVHRR_FCDR_TimeLocator(arrayCache.get("Time"));
         }
         return timeLocator;
-    }
-
-    @Override
-    public int[] extractYearMonthDayFromFilename(String fileName) {
-        final Date date = FCDRUtils.parseStartDate(fileName);
-        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-        utcCalendar.setTime(date);
-        final int[] ymd = new int[3];
-        ymd[0] = utcCalendar.get(Calendar.YEAR);
-        ymd[1] = utcCalendar.get(Calendar.MONTH) + 1;
-        ymd[2] = utcCalendar.get(Calendar.DAY_OF_MONTH);
-        return ymd;
     }
 
     @Override
@@ -213,37 +205,5 @@ public class AVHRR_FCDR_Reader extends NetCDFReader {
     @Override
     public String getLatitudeVariableName() {
         return LATITUDE_VAR_NAME;
-    }
-
-    private Geometries calculateGeometries() throws IOException {
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        final Geometries geometries = new Geometries();
-
-        final Array longitudes = arrayCache.getScaled("longitude", "scale_factor", "add_offset");
-        final Array latitudes = arrayCache.getScaled("latitude", "scale_factor", "add_offset");
-        Geometry timeAxisGeometry;
-        Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
-        if (!boundingGeometry.isValid()) {
-            boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, NUM_SPLITS, false);
-            if (!boundingGeometry.isValid()) {
-                throw new RuntimeException("Invalid bounding geometry detected");
-            }
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, NUM_SPLITS);
-        } else {
-            timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
-        }
-
-        geometries.setBoundingGeometry(boundingGeometry);
-        geometries.setTimeAxesGeometry(timeAxisGeometry);
-        return geometries;
-    }
-
-    private BoundingPolygonCreator getBoundingPolygonCreator() {
-        if (boundingPolygonCreator == null) {
-            // @todo 2 tb/tb move intervals to config 2018-12-17
-            boundingPolygonCreator = new BoundingPolygonCreator(new Interval(40, 100), geometryFactory);
-        }
-
-        return boundingPolygonCreator;
     }
 }

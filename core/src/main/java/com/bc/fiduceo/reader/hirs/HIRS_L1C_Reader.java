@@ -42,12 +42,9 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,11 +53,10 @@ import java.util.List;
 
 class HIRS_L1C_Reader extends NetCDFReader {
 
-    private static final int CHANNEL_DIMENSION_INDEX = 2;
     private static final int NUM_BT_CHANNELS = 19;
     private static final int NUM_RADIANCE_CHANNELS = 20;
+    private static final int CHANNEL_DIMENSION_INDEX = 2;
     private static final Interval INTERVAL = new Interval(4, 10);
-    private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     private final GeometryFactory geometryFactory;
     private final HashMap<String, Number> fillValueCache;
@@ -201,13 +197,13 @@ class HIRS_L1C_Reader extends NetCDFReader {
             final String variableName = variable.getFullName();
             switch (variableName) {
                 case "bt":
-                    addLayered3DVariables(result, variable, NUM_BT_CHANNELS);
+                    addLayered3DVariables(result, variable, NUM_BT_CHANNELS, CHANNEL_DIMENSION_INDEX);
                     break;
                 case "radiance":
-                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS, CHANNEL_DIMENSION_INDEX);
                     break;
                 case "counts":
-                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS);
+                    addLayered3DVariables(result, variable, NUM_RADIANCE_CHANNELS, CHANNEL_DIMENSION_INDEX);
                     break;
                 default:
                     result.add(variable);
@@ -230,23 +226,6 @@ class HIRS_L1C_Reader extends NetCDFReader {
             fillValueCache.put(fullVariableName, NetCDFUtils.getFillValue(variable));
         }
         return fillValueCache.get(fullVariableName);
-    }
-
-    private void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels) throws InvalidRangeException {
-        final String variableName = variable.getFullName();
-        final int[] shape = variable.getShape();
-        shape[CHANNEL_DIMENSION_INDEX] = 1;
-        final int[] origin = {0, 0, 0};
-
-        final String variableBaseName = variableName + "_ch";
-        for (int channel = 0; channel < numChannels; channel++) {
-            final Section section = new Section(origin, shape);
-            final Variable channelVariable = variable.section(section);
-            final String channelVariableName = variableBaseName + CHANNEL_INDEX_FORMAT.format(channel + 1);
-            channelVariable.setName(channelVariableName);
-            result.add(channelVariable);
-            origin[CHANNEL_DIMENSION_INDEX]++;
-        }
     }
 
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {

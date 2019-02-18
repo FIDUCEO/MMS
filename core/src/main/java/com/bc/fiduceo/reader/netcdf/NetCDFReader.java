@@ -4,16 +4,24 @@ import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 
 public abstract class NetCDFReader implements Reader {
+
+    private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     protected ArrayCache arrayCache;
     protected NetcdfFile netcdfFile;
@@ -102,5 +110,31 @@ public abstract class NetCDFReader implements Reader {
             return offsetValue.doubleValue();
         }
         return 0.0;
+    }
+
+    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index) throws InvalidRangeException {
+        final int[] origin = {0, 0, 0};
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
+    }
+
+    protected void addChannelVectorVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index) throws InvalidRangeException {
+        final int[] origin = {0, 0};
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
+    }
+
+    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin) throws InvalidRangeException {
+        final String variableName = variable.getFullName();
+        final int[] shape = variable.getShape();
+        shape[channel_dimension_index] = 1;
+
+        final String variableBaseName = variableName + "_ch";
+        for (int channel = 0; channel < numChannels; channel++) {
+            final Section section = new Section(origin, shape);
+            final Variable channelVariable = variable.section(section);
+            final String channelVariableName = variableBaseName + CHANNEL_INDEX_FORMAT.format(channel + 1);
+            channelVariable.setName(channelVariableName);
+            result.add(channelVariable);
+            origin[channel_dimension_index]++;
+        }
     }
 }

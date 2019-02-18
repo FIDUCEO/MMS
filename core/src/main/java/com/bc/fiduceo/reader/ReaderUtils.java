@@ -80,7 +80,7 @@ public class ReaderUtils {
     }
 
     public static String stripChannelSuffix(String fullVariableName) {
-        final int splitIndex = fullVariableName.indexOf("_ch");
+        final int splitIndex = fullVariableName.lastIndexOf("_ch");
         if (splitIndex > 0) {
             return fullVariableName.substring(0, splitIndex);
         }
