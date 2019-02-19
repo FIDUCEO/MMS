@@ -6,12 +6,8 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -20,17 +16,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class HIRS_FCDR_Reader_IO_Test {
@@ -413,22 +409,48 @@ public class HIRS_FCDR_Reader_IO_Test {
         }
     }
 
-    //    @Test
-//    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
-//        final File file = createHirsNOAA07File();
-//
-//        try {
-//            reader.open(file);
-//
-//            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(39, 218, new Interval(3, 3));
-//            NCTestUtils.assertValueAt(703260961, 0, 0, acquisitionTime);
-//            NCTestUtils.assertValueAt(703260961, 1, 1, acquisitionTime);
-//            NCTestUtils.assertValueAt(703260962, 2, 2, acquisitionTime);
-//
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @Test
+    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+        // todo 1 tb/tb test-files only contain zeros. Update when we have a new FCDR. 2019-02-19
+        final File file = createHirsNOAA07File();
+
+        try {
+            reader.open(file);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(39, 218, new Interval(3, 3));
+            NCTestUtils.assertValueAt(0, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(0, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(0, 2, 2, acquisitionTime);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator() throws IOException {
+        final File file = createHirsMetopAFile();
+
+        try {
+            reader.open(file);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(38.5, 782.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(49.66521072387695, geoLocation.getX(), 1e-8);
+            assertEquals(-46.84164047241211, geoLocation.getY(), 1e-8);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(49.66521072387695, -46.84164047241211);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(38.317269513397704, pixelLocation[0].getX(), 1e-8);
+            assertEquals(781.666865947429, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File createHirsNOAA07File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n07-fcdr", "v0.8rc1", "1983", "10", "04", "FIDUCEO_FCDR_L1C_HIRS2_NOAA07_19831004162422_19831004180614_EASY_v0.8rc1_fv2.0.0.nc"}, false);

@@ -6,12 +6,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -49,7 +44,6 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
 
     private HIRS_FCDR_TimeLocator timeLocator;
 
-
     HIRS_FCDR_Reader(ReaderContext readerContext) {
         super(readerContext);
     }
@@ -61,6 +55,8 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
 
     @Override
     public void close() throws IOException {
+        timeLocator = null;
+
         super.close();
     }
 
@@ -88,13 +84,8 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+        return getSubScenePixelLocator(sceneGeometry, STEP_INTERVAL);
     }
 
     @Override
@@ -146,11 +137,11 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return readAcquisitionTime(x, y, interval, "time");
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() throws InvalidRangeException {
         final List<Variable> fileVariables = netcdfFile.getVariables();
         for (String var_name : VARIABLE_NAMES_TO_REMOVE) {
             final Variable variable = netcdfFile.findVariable(var_name);
@@ -190,19 +181,9 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     }
 
     @Override
-    public Dimension getProductSize() throws IOException {
+    public Dimension getProductSize() {
         final Variable lon = netcdfFile.findVariable("longitude");
         final int[] shape = lon.getShape();
         return new com.bc.fiduceo.core.Dimension("Ch1", shape[1], shape[0]);
-    }
-
-    @Override
-    public String getLongitudeVariableName() {
-        return "longitude";
-    }
-
-    @Override
-    public String getLatitudeVariableName() {
-        return "latitude";
     }
 }
