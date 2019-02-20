@@ -452,6 +452,34 @@ public class HIRS_FCDR_Reader_IO_Test {
         }
     }
 
+    @Test
+    public void testGetSubScenePixelLocator() throws IOException {
+        final File file = createHirsNOAA07File();
+
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((149 7, 149 9, 151 9, 151 7, 149 7))");
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getSubScenePixelLocator(polygon);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(32.5, 415.5, null);
+            assertEquals(150.97872924804688, geoLocation.getX(), 1e-8);
+            assertEquals(8.10815715789795, geoLocation.getY(), 1e-8);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(150.97872924804688, 8.10815715789795);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(33.59545482099081, pixelLocation[0].getX(), 1e-8);
+            assertEquals(416.5860033509568, pixelLocation[0].getY(), 1e-8);
+
+        } finally {
+            reader.close();
+        }
+    }
+
     private File createHirsNOAA07File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n07-fcdr", "v0.8rc1", "1983", "10", "04", "FIDUCEO_FCDR_L1C_HIRS2_NOAA07_19831004162422_19831004180614_EASY_v0.8rc1_fv2.0.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
