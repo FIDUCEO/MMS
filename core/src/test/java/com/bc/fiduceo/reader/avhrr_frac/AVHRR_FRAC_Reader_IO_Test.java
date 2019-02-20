@@ -176,7 +176,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
@@ -197,7 +197,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_borderPixel() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_borderPixel() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
@@ -218,7 +218,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled() throws IOException, InvalidRangeException {
+    public void testReadScaled() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
@@ -277,7 +277,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw() throws IOException, InvalidRangeException {
+    public void testReadRaw() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
@@ -327,7 +327,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_corner_pixels() throws IOException, InvalidRangeException {
+    public void testReadRaw_corner_pixels() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
