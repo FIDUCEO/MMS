@@ -199,11 +199,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
                 latRawData,
                 TiePointGrid.DISCONT_NONE);
 
-        GeoCoding geoCoding = new TiePointGeoCoding(latCorrected, lonCorrected, Datum.WGS_72);
-
-        final SNAP_PixelLocator snap_pixelLocator = new SNAP_PixelLocator(geoCoding);
-        snap_pixelLocator.setXOffset(25);
-        return snap_pixelLocator;
+        return new AVHRR_FRAC_PixelLocator(lonCorrected, latCorrected);
     }
 
     @Override

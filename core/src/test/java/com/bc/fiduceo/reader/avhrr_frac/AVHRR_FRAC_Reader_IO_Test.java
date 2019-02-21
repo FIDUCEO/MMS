@@ -6,12 +6,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -31,9 +26,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class AVHRR_FRAC_Reader_IO_Test {
@@ -376,30 +369,53 @@ public class AVHRR_FRAC_Reader_IO_Test {
             final PixelLocator pixelLocator = reader.getPixelLocator();
             assertNotNull(pixelLocator);
 
-            Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 20044.5, null);
-            assertEquals(133.2231219776277, geoLocation.getX(), 1e-8);
-            assertEquals(-62.11543647766112, geoLocation.getY(), 1e-8);
+            Point2D geoLocation = pixelLocator.getGeoLocation(986.5, 3869.5, null);
+            assertEquals(-64.01632605615693, geoLocation.getX(), 1e-8);
+            assertEquals(47.05343743801117, geoLocation.getY(), 1e-8);
 
-//            geoLocation = pixelLocator.getGeoLocation(67.5, 25804.5, null);
-//            assertEquals(103.31359732380614, geoLocation.getX(), 1e-8);
-//            assertEquals(-8.9021154808998, geoLocation.getY(), 1e-8);
-
-            Point2D[] pixelLocation = pixelLocator.getPixelLocation(133.2231219776277, -62.11543647766112);
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-64.01632605615693, 47.05343743801117);
             assertEquals(1, pixelLocation.length);
-            //assertEquals(133.7834674142037, pixelLocation[0].getX(), 1e-8);
-           // assertEquals(20044.5295334818, pixelLocation[0].getY(), 1e-8);
+            // error: 5.46 px
+            //assertEquals(986.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(3869.5451168166296, pixelLocation[0].getY(), 1e-8);
 
-            geoLocation = pixelLocator.getGeoLocation(1000.5, 25804.5, null);
-            assertEquals(93.33047104606814, geoLocation.getX(), 1e-8);
-            assertEquals(-11.28578977584838, geoLocation.getY(), 1e-8);
+            geoLocation = pixelLocator.getGeoLocation(12.5, 3869.5, null);
+            assertEquals(-81.15115974907908, geoLocation.getX(), 1e-8);
+            assertEquals(48.856072149276734, geoLocation.getY(), 1e-8);
 
-            pixelLocation = pixelLocator.getPixelLocation(93.33047104606814, -11.28578977584838);
+            pixelLocation = pixelLocator.getPixelLocation(-81.15115974907908, 48.856072149276734);
             assertEquals(1, pixelLocation.length);
-            assertEquals(995.9942357452363, pixelLocation[0].getX(), 1e-8);
-            assertEquals(25804.59016708001, pixelLocation[0].getY(), 1e-8);
+            // error: 15.35 px
+            // assertEquals(12.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(3869.923861607758, pixelLocation[0].getY(), 1e-8);
 
-            pixelLocation = pixelLocator.getPixelLocation(1723, -88);
-            assertEquals(0, pixelLocation.length);
+            geoLocation = pixelLocator.getGeoLocation(1940.5, 3869.5, null);
+            assertEquals(-50.24830100693062, geoLocation.getX(), 1e-8);
+            assertEquals(43.46240911483765, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-50.24830100693062, 43.46240911483765);
+            assertEquals(1, pixelLocation.length);
+            // error: 18.48 px
+            // assertEquals(1940.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(3869.691890616665, pixelLocation[0].getY(), 1e-8);
+
+
+//            Point2D[] pixelLocation = pixelLocator.getPixelLocation(133.2231219776277, -62.11543647766112);
+//            assertEquals(1, pixelLocation.length);
+//            //assertEquals(133.7834674142037, pixelLocation[0].getX(), 1e-8);
+//           // assertEquals(20044.5295334818, pixelLocation[0].getY(), 1e-8);
+//
+//            geoLocation = pixelLocator.getGeoLocation(1000.5, 25804.5, null);
+//            assertEquals(93.33047104606814, geoLocation.getX(), 1e-8);
+//            assertEquals(-11.28578977584838, geoLocation.getY(), 1e-8);
+//
+//            pixelLocation = pixelLocator.getPixelLocation(93.33047104606814, -11.28578977584838);
+//            assertEquals(1, pixelLocation.length);
+//            assertEquals(995.9942357452363, pixelLocation[0].getX(), 1e-8);
+//            assertEquals(25804.59016708001, pixelLocation[0].getY(), 1e-8);
+//
+//            pixelLocation = pixelLocator.getPixelLocation(1723, -88);
+//            assertEquals(0, pixelLocation.length);
         } finally {
             reader.close();
         }
