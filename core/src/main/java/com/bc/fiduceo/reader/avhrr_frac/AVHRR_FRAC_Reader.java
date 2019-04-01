@@ -232,6 +232,4 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
             readArray.setObject(i, productData.getElemDoubleAt(i));
         }
     }
-
-
 }

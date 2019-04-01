@@ -63,7 +63,7 @@ public class MongoDbDriverTest {
 
         final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
         assertNotNull(geoJSON);
-        assertEquals("{ \"type\" : \"Polygon\", \"coordinates\" : [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]] }",
+        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]]}",
                 geoJSON.toJson());
     }
 
@@ -73,7 +73,7 @@ public class MongoDbDriverTest {
 
         final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
         assertNotNull(geoJSON);
-        assertEquals("{ \"type\" : \"LineString\", \"coordinates\" : [[0.9999999999999998, 2.0], [2.0, 4.0], [3.0000000000000004, -1.0]] }",
+        assertEquals("{\"type\": \"LineString\", \"coordinates\": [[0.9999999999999998, 2.0], [2.0, 4.0], [3.0000000000000004, -1.0]]}",
                 geoJSON.toJson());
     }
 
@@ -83,7 +83,7 @@ public class MongoDbDriverTest {
 
         final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
         assertNotNull(geoJSON);
-        assertEquals("{ \"type\" : \"Point\", \"coordinates\" : [1.9999999999999996, 3.0000000000000004] }",
+        assertEquals("{\"type\": \"Point\", \"coordinates\": [1.9999999999999996, 3.0000000000000004]}",
                 geoJSON.toJson());
     }
 
@@ -144,7 +144,7 @@ public class MongoDbDriverTest {
         com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometryCollection);
         assertNotNull(mongoGeometry);
         assertTrue(mongoGeometry instanceof com.mongodb.client.model.geojson.Polygon);
-        assertEquals("{ \"type\" : \"Polygon\", \"coordinates\" : [[[-4.0, -2.0], [-4.000000000000001, -1.0], [-6.0, -1.0], [-6.0, -2.0], [-4.0, -2.0]]] }",
+        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-4.0, -2.0], [-4.000000000000001, -1.0], [-6.0, -1.0], [-6.0, -2.0], [-4.0, -2.0]]]}",
                 mongoGeometry.toJson());
     }
 
