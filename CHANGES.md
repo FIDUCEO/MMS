@@ -3,7 +3,8 @@
 * added support for FIDUCEO AVHRR FCDR products
 * updated scripts to new JASMIN file system
 * added support for GRUAN reference files
-* added optional paging and offfset to database drivers
+* added optional paging and offset to database drivers
+* updated to SNAP 6.0.8 
 
 ### Updates from version 1.4.0 to 1.4.1
 * migrated to asynchronous PMonitor

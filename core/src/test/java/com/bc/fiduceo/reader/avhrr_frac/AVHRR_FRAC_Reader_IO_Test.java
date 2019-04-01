@@ -218,34 +218,34 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readScaled(15, 235, interval, "radiance_1");
-            NCTestUtils.assertValueAt(122.30326843261719, 0, 0, array);
-            NCTestUtils.assertValueAt(122.58930969238281, 1, 0, array);
+            NCTestUtils.assertValueAt(122.01721954345703, 0, 0, array);
+            NCTestUtils.assertValueAt(122.30326843261719, 1, 0, array);
 
             array = reader.readScaled(16, 236, interval, "radiance_3a");
             NCTestUtils.assertValueAt(15.061016082763672, 0, 1, array);
             NCTestUtils.assertValueAt(15.061016082763672, 1, 1, array);
-            NCTestUtils.assertValueAt(15.241663932800293, 2, 1, array);
+            NCTestUtils.assertValueAt(15.061016082763672, 2, 1, array);
 
             array = reader.readScaled(17, 237, interval, "radiance_4");
-            NCTestUtils.assertValueAt(47.628501892089844, 2, 2, array);
-            NCTestUtils.assertValueAt(47.82387924194336, 3, 2, array);
-            NCTestUtils.assertValueAt(48.801361083984375, 4, 2, array);
+            NCTestUtils.assertValueAt(47.82387924194336, 2, 2, array);
+            NCTestUtils.assertValueAt(47.628501892089844, 3, 2, array);
+            NCTestUtils.assertValueAt(47.82387924194336, 4, 2, array);
 
             array = reader.readScaled(18, 238, interval, "reflec_1");
-            NCTestUtils.assertValueAt(27.267599105834964, 3, 0, array);
-            NCTestUtils.assertValueAt(27.101200103759766, 3, 1, array);
-            NCTestUtils.assertValueAt(26.934799194335938, 3, 2, array);
-            NCTestUtils.assertValueAt(26.768400192260742, 3, 3, array);
+            NCTestUtils.assertValueAt(25.765380859375, 3, 0, array);
+            NCTestUtils.assertValueAt(25.765380859375, 3, 1, array);
+            NCTestUtils.assertValueAt(25.765380859375, 3, 2, array);
+            NCTestUtils.assertValueAt(25.709070205688477, 3, 3, array);
 
             array = reader.readScaled(19, 239, interval, "reflec_3a");
-            NCTestUtils.assertValueAt(21.059200286865234, 2, 0, array);
-            NCTestUtils.assertValueAt(20.820899963378906, 2, 1, array);
+            NCTestUtils.assertValueAt(21.297500610351562, 2, 0, array);
+            NCTestUtils.assertValueAt(21.059200286865234, 2, 1, array);
             NCTestUtils.assertValueAt(20.820899963378906, 2, 2, array);
-            NCTestUtils.assertValueAt(21.53580093383789, 2, 3, array);
+            NCTestUtils.assertValueAt(21.059200286865234, 2, 3, array);
 
             array = reader.readScaled(20, 240, interval, "temp_4");
-            NCTestUtils.assertValueAt(256.4285888671875, 2, 0, array);
-            NCTestUtils.assertValueAt(259.6644287109375, 3, 0, array);
+            NCTestUtils.assertValueAt(252.68516540527344, 2, 0, array);
+            NCTestUtils.assertValueAt(256.4285888671875, 3, 0, array);
 
             array = reader.readScaled(21, 241, interval, "flags");
             NCTestUtils.assertValueAt(0, 4, 0, array);
@@ -277,8 +277,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readRaw(25, 333, interval, "radiance_2");
-            NCTestUtils.assertValueAt(85.879150390625, 3, 0, array);
-            NCTestUtils.assertValueAt(86.09809112548828, 4, 0, array);
+            NCTestUtils.assertValueAt(88.28752136230469, 3, 0, array);
+            NCTestUtils.assertValueAt(85.879150390625, 4, 0, array);
 
             array = reader.readRaw(0, 335, interval, "radiance_3b");
             NCTestUtils.assertValueAt(0.0, 0, 1, array);
@@ -286,14 +286,14 @@ public class AVHRR_FRAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(0.0, 2, 1, array);
 
             array = reader.readRaw(511, 337, interval, "radiance_5");
-            NCTestUtils.assertValueAt(61.82318878173828, 2, 1, array);
-            NCTestUtils.assertValueAt(61.61263656616211, 3, 1, array);
+            NCTestUtils.assertValueAt(61.61263656616211, 2, 1, array);
+            NCTestUtils.assertValueAt(61.82318878173828, 3, 1, array);
             NCTestUtils.assertValueAt(61.61263656616211, 4, 1, array);
 
             array = reader.readRaw(217, 0, interval, "reflec_2");
             NCTestUtils.assertValueAt(0.0, 2, 0, array);
             NCTestUtils.assertValueAt(0.0, 2, 1, array);
-            NCTestUtils.assertValueAt(27.149749755859375, 2, 2, array);
+            NCTestUtils.assertValueAt(27.079999923706055, 2, 2, array);
             NCTestUtils.assertValueAt(27.219499588012695, 2, 3, array);
 
             array = reader.readRaw(219, 33215, interval, "temp_3b");
@@ -303,8 +303,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(0.0, 2, 3, array);
 
             array = reader.readRaw(244, 21770, interval, "temp_5");
-            NCTestUtils.assertValueAt(260.2013244628906, 0, 2, array);
-            NCTestUtils.assertValueAt(264.3916015625, 1, 2, array);
+            NCTestUtils.assertValueAt(264.5557861328125, 0, 2, array);
+            NCTestUtils.assertValueAt(260.2013244628906, 1, 2, array);
 
             array = reader.readRaw(246, 21772, interval, "cloudFlag");
             NCTestUtils.assertValueAt(3, 2, 2, array);
@@ -329,21 +329,21 @@ public class AVHRR_FRAC_Reader_IO_Test {
             Array array = reader.readRaw(0, 0, interval, "radiance_1");
             NCTestUtils.assertValueAt(0.0, 0, 2, array);
             NCTestUtils.assertValueAt(0.0, 1, 2, array);
-            NCTestUtils.assertValueAt(106.28462219238281, 2, 2, array);
-            NCTestUtils.assertValueAt(116.01022338867188, 3, 2, array);
-            NCTestUtils.assertValueAt(120.30093383789062, 4, 2, array);
+            NCTestUtils.assertValueAt(109.43113708496094, 2, 2, array);
+            NCTestUtils.assertValueAt(106.28462219238281, 3, 2, array);
+            NCTestUtils.assertValueAt(116.01022338867188, 4, 2, array);
 
             array = reader.readRaw(2000, 0, interval, "radiance_2");
-            NCTestUtils.assertValueAt(7.716379165649414, 0, 2, array);
+            NCTestUtils.assertValueAt(7.497435569763184, 0, 2, array);
             NCTestUtils.assertValueAt(7.716379165649414, 1, 2, array);
             NCTestUtils.assertValueAt(7.716379165649414, 2, 2, array);
             NCTestUtils.assertValueAt(0.0, 3, 2, array);
             NCTestUtils.assertValueAt(0.0, 4, 2, array);
 
             array = reader.readRaw(2000, 36120, interval, "radiance_3a");
-            NCTestUtils.assertValueAt(12.351310729980469, 0, 2, array);
-            NCTestUtils.assertValueAt(10.661288261413574, 1, 2, array);
-            NCTestUtils.assertValueAt(15.061016082763672, 2, 2, array);
+            NCTestUtils.assertValueAt(16.1448974609375, 0, 2, array);
+            NCTestUtils.assertValueAt(12.351310729980469, 1, 2, array);
+            NCTestUtils.assertValueAt(10.661288261413574, 2, 2, array);
             NCTestUtils.assertValueAt(0.0, 3, 2, array);
             NCTestUtils.assertValueAt(0.0, 4, 2, array);
 
@@ -378,8 +378,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(133.2231, -62.1154);
             assertEquals(1, pixelLocation.length);
-            assertEquals(133.17033491980123, pixelLocation[0].getX(), 1e-8);
-            assertEquals(20044.761999648985, pixelLocation[0].getY(), 1e-8);
+            assertEquals(143.8646932683579, pixelLocation[0].getX(), 1e-8);
+            assertEquals(20044.771857088923, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(1000.5, 25804.5, null);
             assertEquals(93.33047104606814, geoLocation.getX(), 1e-8);
@@ -387,8 +387,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
             pixelLocation = pixelLocator.getPixelLocation(93.3305, -11.2858);
             assertEquals(1, pixelLocation.length);
-            assertEquals(993.8297375379817, pixelLocation[0].getX(), 1e-8);
-            assertEquals(25804.587643067425, pixelLocation[0].getY(), 1e-8);
+            assertEquals(1000.561571522018, pixelLocation[0].getX(), 1e-8);
+            assertEquals(25804.514560896023, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(1723, -88);
             assertEquals(0, pixelLocation.length);
@@ -417,8 +417,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(114.7726, -54.6491);
             assertEquals(1, pixelLocation.length);
-            assertEquals(490.5967612225541, pixelLocation[0].getX(), 1e-8);
-            assertEquals(21176.498130707176, pixelLocation[0].getY(), 1e-8);
+            assertEquals(470.2046655871767, pixelLocation[0].getX(), 1e-8);
+            assertEquals(21176.572688391992, pixelLocation[0].getY(), 1e-8);
         } finally {
             reader.close();
         }

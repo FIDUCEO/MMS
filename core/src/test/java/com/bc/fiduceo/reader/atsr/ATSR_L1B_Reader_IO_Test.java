@@ -26,7 +26,11 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -37,7 +41,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -46,7 +49,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
 public class ATSR_L1B_Reader_IO_Test {
@@ -419,7 +424,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_AATSR_borderPixel_Y() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_AATSR_borderPixel_Y() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -438,7 +443,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_ATSR1() throws IOException, InvalidRangeException {
+    public void testReadScaled_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -648,7 +653,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_AATSR_corner_pixels() throws IOException, InvalidRangeException {
+    public void testReadRaw_AATSR_corner_pixels() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -707,8 +712,8 @@ public class ATSR_L1B_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(29.54, -69.286);
             assertEquals(1, pixelLocation.length);
-            assertEquals(115.677216447776, pixelLocation[0].getX(), 1e-8);
-            assertEquals(32231.685107826648, pixelLocation[0].getY(), 1e-8);
+            assertEquals(115.56506597510548, pixelLocation[0].getX(), 1e-8);
+            assertEquals(32231.633357700204, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(172, -89);
             assertEquals(0, pixelLocation.length);
@@ -737,8 +742,12 @@ public class ATSR_L1B_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(-112.569, -62.085);
             assertEquals(1, pixelLocation.length);
-            assertEquals(74.56849195800083, pixelLocation[0].getX(), 1e-8);
-            assertEquals(33108.49810468967, pixelLocation[0].getY(), 1e-8);
+            assertEquals(74.49068735477553, pixelLocation[0].getX(), 1e-8);
+            assertEquals(33108.47675488554, pixelLocation[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(74.5, 33108.5, null);
+            assertEquals(-112.56937827919018, geoLocation.getX(), 1e-8);
+            assertEquals(-62.08462750196457, geoLocation.getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(172, -89);
             assertEquals(0, pixelLocation.length);

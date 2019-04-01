@@ -27,19 +27,19 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.8</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.8</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.6</version>
             </dependency>
 
             <dependency>
