@@ -281,7 +281,7 @@ public class MongoDbDriverTest {
     }
 
     @Test
-    public void testCreateQueryDocument_NullDoc() throws Exception {
+    public void testCreateQueryDocument_NullDoc() {
         Document queryDocument = MongoDbDriver.createQueryDocument(null);
         assertNotNull(queryDocument);
     }
@@ -327,8 +327,8 @@ public class MongoDbDriverTest {
     }
 
     @Test
-    public void testCreateQueryDocument() throws Exception {
-        QueryParameter queryParameter = new QueryParameter();
+    public void testCreateQueryDocument() {
+        final QueryParameter queryParameter = new QueryParameter();
         queryParameter.setSensorName("amsub_n15");
         queryParameter.setStartTime(TimeUtils.parseDOYBeginOfDay("2015-300"));
         queryParameter.setStopTime(TimeUtils.parseDOYBeginOfDay("2015-302"));
@@ -345,7 +345,6 @@ public class MongoDbDriverTest {
         final Document stopTimeDoc = (Document) queryDocument.get("stopTime");
         final Date stopTime = stopTimeDoc.getDate("$gt");
         assertEquals(queryParameter.getStartTime(), stopTime);
-
 
         final Document sensorDoc = (Document) queryDocument.get("sensor.name");
         final String sensorType = sensorDoc.getString("$eq");

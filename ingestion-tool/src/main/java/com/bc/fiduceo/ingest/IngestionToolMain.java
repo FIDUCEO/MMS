@@ -26,12 +26,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 public class IngestionToolMain {
 
-    public static void main(String[] args) throws ParseException, IOException, SQLException {
+    public static void main(String[] args) throws ParseException {
         final IngestionTool ingestionTool = new IngestionTool();
 
         if (args.length == 0) {

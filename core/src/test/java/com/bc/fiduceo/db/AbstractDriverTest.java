@@ -27,6 +27,8 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractDriverTest {
 
@@ -108,5 +110,84 @@ public class AbstractDriverTest {
         final String sql = AbstractDriver.createSql(parameter);
 
         assertEquals("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId WHERE obs.Version = 'v2.0'", sql);
+    }
+
+    @Test
+    public void testHasWhereClause_noParameter() {
+         assertFalse(AbstractDriver.hasWhereClause(null));
+    }
+
+    @Test
+    public void testHasWhereClause_allParameterEmpty() {
+        assertFalse(AbstractDriver.hasWhereClause(new QueryParameter()));
+    }
+
+    @Test
+    public void testHasWhereClause_insensitiveToPageAndOffset() {
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setPageSize(25);
+        parameter.setOffset(8744);
+
+        assertFalse(AbstractDriver.hasWhereClause(parameter));
+    }
+
+    @Test
+    public void testHasWhereClause_someParamsSet() {
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setPath("/holy/moses");
+        
+        assertTrue(AbstractDriver.hasWhereClause(parameter));
+    }
+
+    @Test
+    public void testAppendLimitAndOffset_noParameter() {
+         final StringBuilder builder = new StringBuilder();
+
+         AbstractDriver.appendLimitAndOffset(null, builder);
+
+         assertEquals("", builder.toString());
+    }
+
+    @Test
+    public void testAppendLimitAndOffset_emptyParameter() {
+        final StringBuilder builder = new StringBuilder();
+
+        AbstractDriver.appendLimitAndOffset(new QueryParameter(), builder);
+
+        assertEquals("", builder.toString());
+    }
+
+    @Test
+    public void testAppendLimitAndOffset_onlyLimit() {
+        final StringBuilder builder = new StringBuilder();
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setPageSize(128);
+
+        AbstractDriver.appendLimitAndOffset(parameter, builder);
+
+        assertEquals(" LIMIT 128", builder.toString());
+    }
+
+    @Test
+    public void testAppendLimitAndOffset_onlyOffset() {
+        final StringBuilder builder = new StringBuilder();
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setOffset(16388);
+
+        AbstractDriver.appendLimitAndOffset(parameter, builder);
+
+        assertEquals(" OFFSET 16388", builder.toString());
+    }
+
+    @Test
+    public void testAppendLimitAndOffset_limitAndOffset() {
+        final StringBuilder builder = new StringBuilder();
+        final QueryParameter parameter = new QueryParameter();
+        parameter.setPageSize(1000);
+        parameter.setOffset(16389);
+
+        AbstractDriver.appendLimitAndOffset(parameter, builder);
+
+        assertEquals(" LIMIT 1000 OFFSET 16389", builder.toString());
     }
 }

@@ -95,7 +95,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_notInputParameter() throws ParseException, IOException, SQLException {
+    public void testIngest_notInputParameter() throws ParseException {
         final String[] args = new String[0];
         final boolean errorOutputExpected = true;
 
@@ -103,7 +103,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_help() throws ParseException, IOException, SQLException {
+    public void testIngest_help() throws ParseException {
         final boolean errorOutputExpected = false;
         String[] args = new String[]{"-h"};
         callMainAndValidateSystemOutput(args, errorOutputExpected);
@@ -340,7 +340,7 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_AMSUB_NOAA15_twice() throws SQLException, IOException, ParseException {
+    public void testIngest_AMSUB_NOAA15_twice() throws SQLException, ParseException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "amsub-n15", "-start", "2007-233", "-end", "2007-235", "-v", "v1.0"};
 
         try {
@@ -992,7 +992,7 @@ public class IngestionToolIntegrationTest {
         }
     }
 
-    private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException, IOException, SQLException {
+    private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
 

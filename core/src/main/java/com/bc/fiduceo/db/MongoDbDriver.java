@@ -23,7 +23,14 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryCollection;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.MultiPolygon;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.TimeAxis;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -153,23 +160,34 @@ public class MongoDbDriver extends AbstractDriver {
 
 
     @Override
-    public int insert(Sensor sensor) throws SQLException {
+    public int insert(Sensor sensor) {
         // we use embedded storage at the moment, no need to separately ingest the sensor tb 2016-02-09
         return -1;
     }
 
     @Override
-    public List<SatelliteObservation> get() throws SQLException {
+    public List<SatelliteObservation> get() {
         return get(null);
     }
 
     @Override
-    public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
+    public List<SatelliteObservation> get(QueryParameter parameter) {
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
         final List<SatelliteObservation> resultList = new ArrayList<>();
 
         final Document queryDocument = createQueryDocument(parameter);
-        final FindIterable<Document> documents = observationCollection.find(queryDocument);
+        int offset = 0;
+        int pageSize = -1;
+        if (parameter != null) {
+            offset = parameter.getOffset();
+            pageSize = parameter.getPageSize();
+        }
+        FindIterable<Document> documents;
+        if (pageSize >= 0) {
+            documents = observationCollection.find(queryDocument).skip(offset).limit(pageSize);
+        } else {
+            documents = observationCollection.find(queryDocument).skip(offset);
+        }
         for (Document document : documents) {
             final SatelliteObservation satelliteObservation = getSatelliteObservation(document);
             resultList.add(satelliteObservation);

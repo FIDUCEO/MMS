@@ -120,7 +120,10 @@ abstract class AbstractDriver implements Driver {
     static String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM SATELLITE_OBSERVATION obs INNER JOIN SENSOR sen ON obs.SensorId = sen.ID LEFT OUTER JOIN TIMEAXIS axis ON obs.ID = axis.ObservationId");
-        if (parameter == null) {
+
+        boolean hasWhereClause = hasWhereClause(parameter);
+        if (!hasWhereClause) {
+            appendLimitAndOffset(parameter, sql);
             return sql.toString();
         }
 
@@ -129,7 +132,6 @@ abstract class AbstractDriver implements Driver {
         boolean appendAnd = false;
 
         final java.util.Date startTime = parameter.getStartTime();
-
         if (startTime != null) {
             sql.append("obs.stopDate >= '");
             sql.append(TimeUtils.format(startTime, DATE_PATTERN));
@@ -184,7 +186,39 @@ abstract class AbstractDriver implements Driver {
             sql.append("'");
         }
 
+        appendLimitAndOffset(parameter, sql);
         return sql.toString();
+    }
+
+    // package access for testing only tb 2019-04-01
+    static void appendLimitAndOffset(QueryParameter parameter, StringBuilder sql) {
+        if (parameter != null) {
+            if (parameter.getPageSize() >= 0) {
+                sql.append(" LIMIT ");
+                sql.append(parameter.getPageSize());
+            }
+            if (parameter.getOffset() >= 0) {
+                sql.append(" OFFSET ");
+                sql.append(parameter.getOffset());
+            }
+        }
+    }
+
+    // package access for testing only tb 2019-04-01
+    static boolean hasWhereClause(QueryParameter parameter) {
+        boolean hasWhereClause = true;
+        if (parameter == null) {
+            return false;
+        }
+
+        if (parameter.getStartTime() == null &&
+                parameter.getStopTime() == null &&
+                parameter.getSensorName() == null &&
+                parameter.getVersion() == null &&
+                parameter.getPath() == null) {
+            hasWhereClause = false;
+        }
+        return hasWhereClause;
     }
 
     Sensor getSensor(int id) throws SQLException {

@@ -28,6 +28,13 @@ public class QueryParameter {
     private String sensorName;
     private String version;
     private String path;
+    private int pageSize;
+    private int offset;
+
+    public QueryParameter() {
+        pageSize = -1;
+        offset = -1;
+    }
 
     public void setStartTime(Date startDate) {
         this.startTime = startDate;
@@ -67,5 +74,21 @@ public class QueryParameter {
 
     public String getPath() {
         return path;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 }

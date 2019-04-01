@@ -586,6 +586,54 @@ public abstract class StorageTest_SatelliteObservation {
         assertEquals(2, timeAxes.length);
     }
 
+    @Test
+    public void testInsertAndGet_withOffset() throws SQLException {
+        SatelliteObservation observation = createSatelliteObservation(new Date(10000000000L), new Date(10000010000L));
+        storage.insert(observation);
+        observation = createSatelliteObservation(new Date(20000000000L), new Date(20000010000L));
+        storage.insert(observation);
+        observation = createSatelliteObservation(new Date(30000000000L), new Date(30000010000L));
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setOffset(1);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(2, satelliteObservations.size());
+
+        final SatelliteObservation observation_1 = satelliteObservations.get(0);
+        assertEquals(20000000000L, observation_1.getStartTime().getTime());
+        assertEquals(20000010000L, observation_1.getStopTime().getTime());
+
+        final SatelliteObservation observation_2 = satelliteObservations.get(1);
+        assertEquals(30000000000L, observation_2.getStartTime().getTime());
+        assertEquals(30000010000L, observation_2.getStopTime().getTime());
+    }
+
+    @Test
+    public void testInsertAndGet_withPaging() throws SQLException {
+        SatelliteObservation observation = createSatelliteObservation(new Date(20000000000L), new Date(20000010000L));
+        storage.insert(observation);
+        observation = createSatelliteObservation(new Date(30000000000L), new Date(30000010000L));
+        storage.insert(observation);
+        observation = createSatelliteObservation(new Date(40000000000L), new Date(40000010000L));
+        storage.insert(observation);
+
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setPageSize(2);
+
+        final List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        assertEquals(2, satelliteObservations.size());
+
+        final SatelliteObservation observation_1 = satelliteObservations.get(0);
+        assertEquals(20000000000L, observation_1.getStartTime().getTime());
+        assertEquals(20000010000L, observation_1.getStopTime().getTime());
+
+        final SatelliteObservation observation_2 = satelliteObservations.get(1);
+        assertEquals(30000000000L, observation_2.getStartTime().getTime());
+        assertEquals(30000010000L, observation_2.getStopTime().getTime());
+    }
+
 
     private SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime) {
         return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))");
