@@ -1,5 +1,6 @@
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
@@ -14,12 +15,14 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
 
 class DbMaintenanceTool {
 
+    private static final int PAGE_SIZE = 512;
     private final Logger logger;
     private Storage storage;
 
@@ -65,11 +68,34 @@ class DbMaintenanceTool {
 
         initialize(commandLine);
 
-        try {
-            //storage.get()
+        final String oldPathSegment = commandLine.getOptionValue("path");
+        final String newPathSegment = commandLine.getOptionValue("replace");
 
-        } finally{
+        try {
+            final QueryParameter queryParameter = new QueryParameter();
+            queryParameter.setOffset(0);
+            queryParameter.setPageSize(PAGE_SIZE);
+
+            List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+            while (satelliteObservations.size() > 0) {
+                updatePaths(oldPathSegment, newPathSegment, satelliteObservations);
+
+                final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
+                queryParameter.setOffset(newOffset);
+                satelliteObservations = storage.get(queryParameter);
+            }
+        } finally {
             cleanup();
+        }
+    }
+
+    private void updatePaths(String oldPathSegment, String newPathSegment, List<SatelliteObservation> satelliteObservations) throws SQLException {
+        for (final SatelliteObservation observation : satelliteObservations) {
+            final String oldPath = observation.getDataFilePath().toString();
+            if (oldPath.contains(oldPathSegment)) {
+                final String newPath = oldPath.replace(oldPathSegment, newPathSegment);
+                storage.updatePath(observation, newPath);
+            }
         }
     }
 

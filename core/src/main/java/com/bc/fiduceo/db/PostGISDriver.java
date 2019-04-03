@@ -142,6 +142,28 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
+    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setStartTime(satelliteObservation.getStartTime());
+        queryParameter.setStopTime(satelliteObservation.getStopTime());
+        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
+        queryParameter.setVersion(satelliteObservation.getVersion());
+        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+
+        final StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
+        sql.append(newPath);
+        sql.append("' ");
+        sql.append("FROM SENSOR AS sen"); //ON obs.SensorId = sen.ID
+
+        appendWhereClause(queryParameter, sql);
+        sql.append(" AND obs.SensorId = sen.ID");
+
+        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+        preparedStatement.executeUpdate();
+    }
+
+    @Override
     public List<SatelliteObservation> get() throws SQLException {
         return get(null);
     }

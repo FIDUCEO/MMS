@@ -101,75 +101,42 @@ public class TestData {
     public static final String MYD06_AQUA_GEOMETRY = "POLYGON((95.26064300537111 -65.07981872558594,91.41659545898438 -63.58655166625977,87.98329162597656 -61.99757385253906,84.89436340332031 -60.328399658203125,82.12572479248047 -58.59123229980469,79.62261962890625 -56.795623779296875,77.36426544189453 -54.95196533203126,75.30549621582031 -53.06605529785157,73.43726348876953 -51.144901275634766,73.22630310058594 -50.90840530395508,64.1862564086914 -53.3798713684082,59.450862884521484 -54.30823516845703,55.53765869140625 -54.90613555908203,51.10907745361328 -55.412124633789055,43.779964447021484 -55.87961959838867,38.31788635253906 -55.94116210937499,38.356098175048835 -58.13196563720704,38.35790634155272 -60.32249832153321,38.2977066040039 -62.509639739990234,38.17641830444336 -64.69609069824219,37.960369110107415 -66.87830352783205,37.64328002929688 -69.05859375,37.27267456054687 -71.23685455322266,36.68335723876952 -73.41138458251953,36.58618927001953 -73.6755599975586,57.71882247924805 -73.32667541503906,67.19878387451172 -72.42704772949219,74.052001953125 -71.41130065917969,80.74118041992188 -70.03903198242188,89.78471374511719 -67.3578109741211,95.26064300537111 -65.07981872558594))";
     public static final String MYD06_AQUA_AXIS_GEOMETRY = "LINESTRING(71.96949005126953 -71.75727844238281,68.91241455078125 -69.7490463256836,66.36650085449219 -67.70148468017578,64.20265197753906 -65.62289428710938,62.34014892578126 -63.52138137817383,60.710369110107415 -61.40043258666993,59.27019500732422 -59.26543807983399,57.97938919067383 -57.1174430847168,56.81534576416015 -54.960414886474624,56.70744323730469 -54.74272155761719)";
 
-    public static SatelliteObservation createObservation_AVHRR_GAC_NOAA_10_v013(String filePath, GeometryFactory geometryFactory) {
-        final SatelliteObservation avhrrObservation = new SatelliteObservation();
-
-        final Geometry[] geometries = new Geometry[2];
-        geometries[0] = geometryFactory.parse(AVHRR_GAC_N10_GEOMETRIES_v013[0]);
-        geometries[1] = geometryFactory.parse(AVHRR_GAC_N10_GEOMETRIES_v013[1]);
-
-        final GeometryCollection boundingGeometry = geometryFactory.createGeometryCollection(geometries);
-        avhrrObservation.setGeoBounds(boundingGeometry);
-
-        avhrrObservation.setSensor(new Sensor("avhrr-n10"));
-        avhrrObservation.setNodeType(NodeType.UNDEFINED);
-        avhrrObservation.setDataFilePath(filePath);
-
-        final Date sensingStart = TimeUtils.parse("1988-03-18 00:09:17.0", "yyyy-MM-dd HH:mm:ss.S");
-        avhrrObservation.setStartTime(sensingStart);
-
-        final Date sensingStop = TimeUtils.parse("1988-03-18 02:03:15.0", "yyyy-MM-dd HH:mm:ss.S");
-        avhrrObservation.setStopTime(sensingStop);
-
-        final TimeAxis[] timeAxes = new TimeAxis[2];
-        LineString lineString = (LineString) geometryFactory.parse(AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[0]);
-        Date axisStart = TimeUtils.parse("1988-03-18 00:09:17.0", "yyyy-MM-dd HH:mm:ss.S");
-        Date axisEnd = TimeUtils.parse("1988-03-18 01:06:16.0", "yyyy-MM-dd HH:mm:ss.S");
-        timeAxes[0] = geometryFactory.createTimeAxis(lineString, axisStart, axisEnd);
-
-        lineString = (LineString) geometryFactory.parse(AVHRR_GAC_N10_AXIS_GEOMETRIES_v013[1]);
-        axisStart = TimeUtils.parse("1988-03-18 01:06:16.0", "yyyy-MM-dd HH:mm:ss.S");
-        axisEnd = TimeUtils.parse("1988-03-18 02:03:15.0", "yyyy-MM-dd HH:mm:ss.S");
-        timeAxes[1] = geometryFactory.createTimeAxis(lineString, axisStart, axisEnd);
-
-        avhrrObservation.setTimeAxes(timeAxes);
-
-        return avhrrObservation;
+    public static final String VERSION = "ver1.0";
+    public static final String SENSOR_NAME = "test_sensor";
+    public static final String DATA_FILE_PATH = "the_data.file";
+    
+    public static SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime, GeometryFactory geometryFactory) {
+        return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))", geometryFactory);
     }
 
-    public static SatelliteObservation createObservation_AVHRR_GAC_NOAA_11_v013(String filePath, GeometryFactory geometryFactory) {
-        final SatelliteObservation avhrrObservation = new SatelliteObservation();
+    public static SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime, String boundaryWkt, GeometryFactory geometryFactory) {
+        final SatelliteObservation observation = new SatelliteObservation();
+        observation.setStartTime(startTime);
+        observation.setStopTime(stopTime);
+        observation.setNodeType(NodeType.ASCENDING);
+        final Geometry geometry = geometryFactory.parse(boundaryWkt);
+        observation.setGeoBounds(geometry);
 
-        final Geometry[] geometries = new Geometry[2];
-        geometries[0] = geometryFactory.parse(AVHRR_GAC_N11_GEOMETRIES_v013[0]);
-        geometries[1] = geometryFactory.parse(AVHRR_GAC_N11_GEOMETRIES_v013[1]);
+        observation.setDataFilePath(DATA_FILE_PATH);
 
-        final GeometryCollection boundingGeometry = geometryFactory.createGeometryCollection(geometries);
-        avhrrObservation.setGeoBounds(boundingGeometry);
+        final TimeAxis timeAxis = createTimeAxis("LINESTRING(1 5, 1 6, 1 7)", startTime, stopTime, geometryFactory);
+        observation.setTimeAxes(new TimeAxis[]{timeAxis});
 
-        avhrrObservation.setSensor(new Sensor("avhrr-n11"));
-        avhrrObservation.setNodeType(NodeType.UNDEFINED);
-        avhrrObservation.setDataFilePath(filePath);
+        observation.setSensor(new Sensor(SENSOR_NAME));
 
-        final Date sensingStart = TimeUtils.parse("1991-05-09 07:51:46.0", "yyyy-MM-dd HH:mm:ss.S");
-        avhrrObservation.setStartTime(sensingStart);
+        observation.setVersion(VERSION);
 
-        final Date sensingStop = TimeUtils.parse("1991-05-09 09:45:41.0", "yyyy-MM-dd HH:mm:ss.S");
-        avhrrObservation.setStopTime(sensingStop);
+        return observation;
+    }
 
-        final TimeAxis[] timeAxes = new TimeAxis[2];
-        LineString lineString = (LineString) geometryFactory.parse(AVHRR_GAC_N11_AXIS_GEOMETRIES_v013[0]);
-        Date axisStart = TimeUtils.parse("1991-05-09 07:51:46.0", "yyyy-MM-dd HH:mm:ss.S");
-        Date axisEnd = TimeUtils.parse("1991-05-09 08:48:43.500", "yyyy-MM-dd HH:mm:ss.S");
-        timeAxes[0] = geometryFactory.createTimeAxis(lineString, axisStart, axisEnd);
+    public static TimeAxis createTimeAxis(String geometry, Date startTime, Date stopTime, GeometryFactory geometryFactory) {
+        final LineString timeAxisGeometry = (LineString) geometryFactory.parse(geometry);
+        return geometryFactory.createTimeAxis(timeAxisGeometry, startTime, stopTime);
+    }
 
-        lineString = (LineString) geometryFactory.parse(AVHRR_GAC_N11_AXIS_GEOMETRIES_v013[1]);
-        axisStart = TimeUtils.parse("1991-05-09 08:48:43.500", "yyyy-MM-dd HH:mm:ss.S");
-        axisEnd = TimeUtils.parse("1991-05-09 09:45:41.0", "yyyy-MM-dd HH:mm:ss.S");
-        timeAxes[1] = geometryFactory.createTimeAxis(lineString, axisStart, axisEnd);
-
-        avhrrObservation.setTimeAxes(timeAxes);
-
-        return avhrrObservation;
+    public static SatelliteObservation createSatelliteObservation(GeometryFactory geometryFactory) {
+        final Date startTime = TimeUtils.create(1430000000000L);
+        final Date stopTime = TimeUtils.create(1430001000000L);
+        return createSatelliteObservation(startTime, stopTime, geometryFactory);
     }
 }

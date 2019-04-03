@@ -45,7 +45,6 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.bson.Document;
 import org.esa.snap.core.util.StringUtils;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,7 +73,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
+    public void open(BasicDataSource dataSource) {
         final String address = parseAddress(dataSource.getUrl());
         final String port = parsePort(dataSource.getUrl());
         final ServerAddress serverAddress = new ServerAddress(address, Integer.parseInt(port));
@@ -93,7 +92,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void close() throws SQLException {
+    public void close() {
         if (mongoClient != null) {
             mongoClient.close();
             mongoClient = null;
@@ -113,7 +112,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void initialize() throws SQLException {
+    public void initialize() {
         final MongoCollection<Document> satelliteObservations = database.getCollection(SATELLITE_DATA_COLLECTION);
         satelliteObservations.createIndex(new BasicDBObject(START_TIME_KEY, 1));
         satelliteObservations.createIndex(new BasicDBObject(STOP_TIME_KEY, 1));
@@ -121,7 +120,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void clear() throws SQLException {
+    public void clear() {
         final MongoCollection<Document> satelliteObservation = database.getCollection(SATELLITE_DATA_COLLECTION);
         satelliteObservation.drop();
     }
@@ -132,7 +131,7 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void insert(SatelliteObservation satelliteObservation) throws SQLException {
+    public void insert(SatelliteObservation satelliteObservation) {
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
 
         final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
@@ -158,6 +157,20 @@ public class MongoDbDriver extends AbstractDriver {
         observationCollection.insertOne(document);
     }
 
+    @Override
+    public void updatePath(SatelliteObservation satelliteObservation, String newPath) {
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setStartTime(satelliteObservation.getStartTime());
+        queryParameter.setStopTime(satelliteObservation.getStopTime());
+        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
+        queryParameter.setVersion(satelliteObservation.getVersion());
+        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+
+        final Document queryDocument = createQueryDocument(queryParameter);
+
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+        observationCollection.updateOne(queryDocument, new Document("$set", new Document(DATA_FILE_KEY, newPath)));
+    }
 
     @Override
     public int insert(Sensor sensor) {

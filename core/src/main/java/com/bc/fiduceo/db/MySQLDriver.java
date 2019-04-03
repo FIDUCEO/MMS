@@ -77,6 +77,11 @@ public class MySQLDriver extends AbstractDriver {
     }
 
     @Override
+    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public List<SatelliteObservation> get() throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final ResultSet resultSet = statement.executeQuery("SELECT StartDate, StopDate,NodeType, AsWKB(GeoBounds), SensorId, DataFile, TimeAxisStartIndex, TimeAxisEndIndex FROM SATELLITE_OBSERVATION");

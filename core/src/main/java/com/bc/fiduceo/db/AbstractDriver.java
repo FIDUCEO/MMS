@@ -116,6 +116,29 @@ abstract class AbstractDriver implements Driver {
         return observations.size() > 0;
     }
 
+    Sensor getSensor(int id) throws SQLException {
+        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        final ResultSet resultSet = statement.executeQuery("SELECT * FROM SENSOR where ID = " + id);
+        if (resultSet.next()) {
+            final Sensor sensor = new Sensor();
+            sensor.setName(resultSet.getString("Name"));
+            return sensor;
+        } else {
+            throw new SQLException("No Sensor available for ID '" + id + "'");
+        }
+    }
+
+    Integer getSensorId(String sensorName) throws SQLException {
+        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
+
+        if (resultSet.first()) {
+            return resultSet.getInt("ID");
+        } else {
+            return null;
+        }
+    }
+
     // package access for testing only tb 2016-11-29
     static String createSql(QueryParameter parameter) {
         final StringBuilder sql = new StringBuilder();
@@ -127,6 +150,13 @@ abstract class AbstractDriver implements Driver {
             return sql.toString();
         }
 
+        appendWhereClause(parameter, sql);
+
+        appendLimitAndOffset(parameter, sql);
+        return sql.toString();
+    }
+
+    static void appendWhereClause(QueryParameter parameter, StringBuilder sql) {
         sql.append(" WHERE ");
 
         boolean appendAnd = false;
@@ -185,9 +215,6 @@ abstract class AbstractDriver implements Driver {
             sql.append(version);
             sql.append("'");
         }
-
-        appendLimitAndOffset(parameter, sql);
-        return sql.toString();
     }
 
     // package access for testing only tb 2019-04-01
@@ -219,28 +246,5 @@ abstract class AbstractDriver implements Driver {
             hasWhereClause = false;
         }
         return hasWhereClause;
-    }
-
-    Sensor getSensor(int id) throws SQLException {
-        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final ResultSet resultSet = statement.executeQuery("SELECT * FROM SENSOR where ID = " + id);
-        if (resultSet.next()) {
-            final Sensor sensor = new Sensor();
-            sensor.setName(resultSet.getString("Name"));
-            return sensor;
-        } else {
-            throw new SQLException("No Sensor available for ID '" + id + "'");
-        }
-    }
-
-    Integer getSensorId(String sensorName) throws SQLException {
-        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
-
-        if (resultSet.first()) {
-            return resultSet.getInt("ID");
-        } else {
-            return null;
-        }
     }
 }

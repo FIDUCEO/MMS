@@ -73,19 +73,26 @@ public class TestUtil {
     }
 
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
-        final Properties properties = new Properties();
         final BasicDataSource datasource = TestUtil.getDataSource_MongoDb();
+        writeDatabaseProperties(configDir, datasource);
+        return;
+    }
+
+    private static void writeDatabaseProperties(File configDir, BasicDataSource datasource) throws IOException {
+        final Properties properties = new Properties();
         convertToProperties(properties, datasource);
 
         TestUtil.storeProperties(properties, configDir, "database.properties");
     }
 
     public static void writeDatabaseProperties_Postgres(File configDir) throws IOException {
-        final Properties properties = new Properties();
         final BasicDataSource datasource = TestUtil.getDataSource_Postgres();
-        convertToProperties(properties, datasource);
+        writeDatabaseProperties(configDir, datasource);
+    }
 
-        TestUtil.storeProperties(properties, configDir, "database.properties");
+    public static void writeDatabaseProperties_H2(File configDir) throws IOException {
+        final BasicDataSource datasource = TestUtil.getDatasource_H2();
+        writeDatabaseProperties(configDir, datasource);
     }
 
     public static BasicDataSource getDatasource_H2() {
@@ -261,7 +268,9 @@ public class TestUtil {
 
         final String name = sourceFile.getName();
         final File targetFile = new File(targetDirectory, name);
-        targetFile.createNewFile();
+        if (!targetFile.createNewFile()) {
+            throw new IOException("Unable to create test file: " + targetFile.getAbsolutePath());
+        }
 
         Files.copy(sourceFile.toPath(), targetFile.toPath(), REPLACE_EXISTING);
 

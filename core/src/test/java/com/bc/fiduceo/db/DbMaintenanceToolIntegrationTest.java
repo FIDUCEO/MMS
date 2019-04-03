@@ -1,7 +1,12 @@
 package com.bc.fiduceo.db;
 
+import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.SatelliteObservation;
+import com.bc.fiduceo.core.Sensor;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,11 +17,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(DbAndIOTestRunner.class)
+@RunWith(DatabaseTestRunner.class)
 public class DbMaintenanceToolIntegrationTest {
 
     private File configDir;
@@ -74,9 +81,135 @@ public class DbMaintenanceToolIntegrationTest {
         TestUtil.writeSystemConfig(configDir);
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
-        "-p", "/data/archive/wrong", "-r", "/archive/correct"};
+                "-p", "/data/archive/wrong", "-r", "/archive/correct"};
 
         DbMaintenanceToolMain.main(args);
+        // a dumb test - just should not throw anything - no testable effects on DB tb 2019-04-03
+    }
 
+    @Test
+    public void testCorrectPaths_MongoDb_alterNoPath() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_alterNoPath(dataSource);
+    }
+
+    @Test
+    public void testCorrectPaths_Postgres_alterNoPath() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_alterNoPath(dataSource);
+    }
+
+    @Test
+    public void testCorrectPaths_H2_alterNoPath() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_H2(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDatasource_H2();
+
+        runTest_alterNoPath(dataSource);
+    }
+
+    @Test
+    public void testCorrectPaths_MongoDb_alterSomePaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_alterSomePaths(dataSource);
+    }
+
+    @Test
+    public void testCorrectPaths_Postgres_alterSomePaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_alterSomePaths(dataSource);
+    }
+
+    @Test
+    public void testCorrectPaths_H2_alterSomePaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_H2(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDatasource_H2();
+
+        runTest_alterSomePaths(dataSource);
+    }
+
+    private void runTest_alterNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+
+        if (!storage.isInitialized()) {
+            storage.initialize();
+        }
+
+        storage.insert(new Sensor(TestData.SENSOR_NAME));
+
+        for (int i = 0; i < 12; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            observation.setDataFilePath("/archive/correct/the_file_number_" + i);
+            storage.insert(observation);
+        }
+
+        try {
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
+                    "-p", "/data/archive/wrong", "-r", "/archive/correct"};
+
+            DbMaintenanceToolMain.main(args);
+
+            final List<SatelliteObservation> observations = storage.get();
+            assertEquals(12, observations.size());
+            for (SatelliteObservation satelliteObservation : observations) {
+                assertTrue(satelliteObservation.getDataFilePath().toString().contains("/archive/correct"));
+            }
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    private void runTest_alterSomePaths(BasicDataSource dataSource) throws SQLException, ParseException {
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+
+        if (!storage.isInitialized()) {
+            storage.initialize();
+        }
+
+        storage.insert(new Sensor(TestData.SENSOR_NAME));
+
+        for (int i = 0; i < 16; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            if (i%2 == 0 ) {
+                observation.setDataFilePath("/archive/correct/the_file_number_" + i);
+            } else {
+                observation.setDataFilePath("/data/archive/wrong/the_file_number_" + i);
+            }
+            storage.insert(observation);
+        }
+
+        try {
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
+                    "-p", "/data/archive/wrong", "-r", "/archive/correct"};
+
+            DbMaintenanceToolMain.main(args);
+
+            final List<SatelliteObservation> observations = storage.get();
+            assertEquals(16, observations.size());
+            for (SatelliteObservation satelliteObservation : observations) {
+                assertTrue(satelliteObservation.getDataFilePath().toString().contains("/archive/correct"));
+            }
+        } finally {
+            storage.clear();
+            storage.close();
+        }
     }
 }
