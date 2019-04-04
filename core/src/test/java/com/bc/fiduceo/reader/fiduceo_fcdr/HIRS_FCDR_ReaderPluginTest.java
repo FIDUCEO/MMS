@@ -22,7 +22,7 @@ public class HIRS_FCDR_ReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys() {
-        final String[] expected = {"hirs-n06-fcdr", "hirs-n07-fcdr", "hirs-n08-fcdr", "hirs-n09-fcdr", "hirs-n10-fcdr", "hirs-n11-fcdr", "hirs-n12-fcdr", "hirs-n14-fcdr", "hirs-n15-fcdr", "hirs-n16-fcdr", "hirs-n17-fcdr", "hirs-n18-fcdr", "hirs-n19-fcdr", "hirs-ma-fcdr", "hirs-mp-fcdr"};
+        final String[] expected = {"hirs-n06-fcdr", "hirs-n07-fcdr", "hirs-n08-fcdr", "hirs-n09-fcdr", "hirs-n10-fcdr", "hirs-n11-fcdr", "hirs-n12-fcdr", "hirs-n14-fcdr", "hirs-n15-fcdr", "hirs-n16-fcdr", "hirs-n17-fcdr", "hirs-n18-fcdr", "hirs-n19-fcdr", "hirs-ma-fcdr", "hirs-mb-fcdr"};
         final String[] keys = plugin.getSupportedSensorKeys();
 
         assertArrayEquals(expected, keys);
