@@ -71,14 +71,21 @@ class DbMaintenanceTool {
         final String oldPathSegment = commandLine.getOptionValue("path");
         final String newPathSegment = commandLine.getOptionValue("replace");
 
+        logger.info("Replacing paths  old: " + oldPathSegment +  "  new: " + newPathSegment);
+
         try {
             final QueryParameter queryParameter = new QueryParameter();
             queryParameter.setOffset(0);
             queryParameter.setPageSize(PAGE_SIZE);
 
+            int total_count = 0;
+
             List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
             while (satelliteObservations.size() > 0) {
                 updatePaths(oldPathSegment, newPathSegment, satelliteObservations);
+
+                total_count += satelliteObservations.size();
+                logger.info("processed " + total_count + " datasets");
 
                 final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
                 queryParameter.setOffset(newOffset);

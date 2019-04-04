@@ -1,11 +1,14 @@
 ### Updates from version 1.4.1 to 1.4.2
 * corrected bug in distance-to-land: NPE when two or more instances are allocated
 * added support for FIDUCEO AVHRR FCDR products
+* added support for FIDUCEO HIRS FCDR products
 * added support for AVHRR FRAC data products
 * updated scripts to new JASMIN file system
 * added support for GRUAN reference files
 * added optional paging and offset to database drivers
 * updated to SNAP 6.0.8 
+* updated 3dr party libraries
+* added DB maintenance tool
 
 ### Updates from version 1.4.0 to 1.4.1
 * migrated to asynchronous PMonitor

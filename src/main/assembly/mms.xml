@@ -76,6 +76,18 @@
         </fileSet>
 
         <fileSet>
+            <directory>core/src/main/bin</directory>
+            <outputDirectory/>
+            <directoryMode>0774</directoryMode>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0774</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+
+        <fileSet>
             <directory>ingestion-tool/src/main/bin</directory>
             <outputDirectory/>
             <directoryMode>0774</directoryMode>
