@@ -61,7 +61,7 @@ public class DbMaintenanceToolIntegrationTest {
             psE.flush();
 
             assertEquals("", out.toString());
-            assertEquals("db-maintenance-tool version 1.4.2-SNAPSHOT\n" +
+            assertEquals("db-maintenance-tool version 1.4.2\n" +
                     "\n" +
                     "usage: db-maintenance-tool <options>\n" +
                     "Valid options are:\n" +
