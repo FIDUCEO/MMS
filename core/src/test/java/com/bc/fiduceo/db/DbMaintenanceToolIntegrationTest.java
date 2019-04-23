@@ -19,14 +19,17 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(DatabaseTestRunner.class)
 public class DbMaintenanceToolIntegrationTest {
 
     private File configDir;
+    private final String fs;
+
+    public DbMaintenanceToolIntegrationTest() {
+        fs = File.separator;
+    }
 
     @Before
     public void setUp() throws SQLException, IOException {
@@ -44,6 +47,7 @@ public class DbMaintenanceToolIntegrationTest {
 
     @Test
     public void testInvalidCommandLine() throws ParseException {
+        final String ls = System.lineSeparator();
         final PrintStream _err = System.err;
         final PrintStream _out = System.out;
 
@@ -61,14 +65,14 @@ public class DbMaintenanceToolIntegrationTest {
             psE.flush();
 
             assertEquals("", out.toString());
-            assertEquals("db-maintenance-tool version 1.4.3-SNAPSHOT\n" +
-                    "\n" +
-                    "usage: db-maintenance-tool <options>\n" +
-                    "Valid options are:\n" +
-                    "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'.\n" +
-                    "   -h,--help            Prints the tool usage.\n" +
-                    "   -p,--path <arg>      Observation path segment to be replaced.\n" +
-                    "   -r,--replace <arg>   Observation path segment replacement.\n", err.toString());
+            assertEquals("db-maintenance-tool version 1.4.3-SNAPSHOT" + ls +
+                    ls +
+                    "usage: db-maintenance-tool <options>" + ls +
+                    "Valid options are:" + ls +
+                    "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                    "   -h,--help            Prints the tool usage." + ls +
+                    "   -p,--path <arg>      Observation path segment to be replaced." + ls +
+                    "   -r,--replace <arg>   Observation path segment replacement." + ls, err.toString());
         } finally {
             System.setOut(_out);
             System.setErr(_err);
@@ -153,21 +157,25 @@ public class DbMaintenanceToolIntegrationTest {
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
-            observation.setDataFilePath("/archive/correct/the_file_number_" + i);
+            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true);
+            observation.setDataFilePath(obsPath);
             storage.insert(observation);
         }
 
         try {
+            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "wrong"}, true);
+            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct",}, true);
 
             final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
-                    "-p", "/data/archive/wrong", "-r", "/archive/correct"};
+                    "-p", searchPath,
+                    "-r", replacePath};
 
             DbMaintenanceToolMain.main(args);
 
             final List<SatelliteObservation> observations = storage.get();
             assertEquals(12, observations.size());
             for (SatelliteObservation satelliteObservation : observations) {
-                assertTrue(satelliteObservation.getDataFilePath().toString().contains("/archive/correct"));
+                assertTrue(satelliteObservation.getDataFilePath().toString().contains(fs + "archive" + fs + "correct"));
             }
         } finally {
             storage.clear();
@@ -187,25 +195,28 @@ public class DbMaintenanceToolIntegrationTest {
 
         for (int i = 0; i < 16; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
-            if (i%2 == 0 ) {
-                observation.setDataFilePath("/archive/correct/the_file_number_" + i);
+            if (i % 2 == 0) {
+                observation.setDataFilePath(TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true));
             } else {
-                observation.setDataFilePath("/data/archive/wrong/the_file_number_" + i);
+                observation.setDataFilePath(TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "wrong", "the_file_number_" + i}, true));
             }
             storage.insert(observation);
         }
 
         try {
+            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "wrong"}, true);
+            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct",}, true);
 
             final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
-                    "-p", "/data/archive/wrong", "-r", "/archive/correct"};
+                    "-p", searchPath,
+                    "-r", replacePath};
 
             DbMaintenanceToolMain.main(args);
 
             final List<SatelliteObservation> observations = storage.get();
             assertEquals(16, observations.size());
             for (SatelliteObservation satelliteObservation : observations) {
-                assertTrue(satelliteObservation.getDataFilePath().toString().contains("/archive/correct"));
+                assertTrue(satelliteObservation.getDataFilePath().toString().contains(fs + "archive" + fs + "correct"));
             }
         } finally {
             storage.clear();

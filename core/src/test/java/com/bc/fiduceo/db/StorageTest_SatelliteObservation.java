@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -231,6 +232,7 @@ public abstract class StorageTest_SatelliteObservation {
 
     @Test
     public void testInsert_updatePath_and_get() throws SQLException {
+        final String fs = File.separator;
         final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
         storage.insert(observation);
 
@@ -244,7 +246,8 @@ public abstract class StorageTest_SatelliteObservation {
         result = storage.get();
         assertEquals(1, result.size());
         satelliteObservation = result.get(0);
-        assertEquals("/the/updated/path/to/product.prd", satelliteObservation.getDataFilePath().toString());
+        final String expected = fs + "the" + fs + "updated" +fs + "path" + fs + "to" + fs + "product.prd";
+        assertEquals(expected, satelliteObservation.getDataFilePath().toString());
     }
 
     @Test
