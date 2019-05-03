@@ -5,6 +5,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
@@ -29,13 +30,32 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
     private static final Interval INTERVAL = new Interval(5, 20);
     private static final int NUM_SPLITS = 2;
 
+    private File tempFile;
+    private final ReaderContext readerContext;
+
     AVHRR_FRAC_Reader(ReaderContext readerContext) {
         super(readerContext);
+        this.readerContext = readerContext;
     }
 
     @Override
     public void open(File file) throws IOException {
-        open(file, AvhrrConstants.PRODUCT_TYPE);
+        if (ReaderUtils.isCompressed(file)) {
+            tempFile = readerContext.createTempFile("avhrr_frac", "tmp");
+            ReaderUtils.decompress(file, tempFile);
+            open(tempFile, AvhrrConstants.PRODUCT_TYPE);
+        } else {
+            open(file, AvhrrConstants.PRODUCT_TYPE);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        if (tempFile != null) {
+            readerContext.deleteTempFile(tempFile);
+            tempFile = null;
+        }
     }
 
     @Override

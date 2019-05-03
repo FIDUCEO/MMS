@@ -92,10 +92,4 @@ public class AMSR2_ReaderTest {
         assertEquals(7, ymd[1]);
         assertEquals(1, ymd[2]);
     }
-
-    @Test
-    public void testIsCompressed() {
-        assertTrue(AMSR2_Reader.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz")));
-        assertFalse(AMSR2_Reader.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5")));
-    }
 }

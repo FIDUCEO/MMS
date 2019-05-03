@@ -7,37 +7,19 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.util.io.FileUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,9 +48,9 @@ public class AMSR2_Reader extends NetCDFReader {
 
     @Override
     public void open(File file) throws IOException {
-        if (isCompressed(file)) {
+        if (ReaderUtils.isCompressed(file)) {
             tempFile = readerContext.createTempFile("amsr2", "h5");
-            decompress(file, tempFile);
+            ReaderUtils.decompress(file, tempFile);
             netcdfFile = NetcdfFile.open(tempFile.getPath());
         } else {
             netcdfFile = NetcdfFile.open(file.getPath());
@@ -255,11 +237,6 @@ public class AMSR2_Reader extends NetCDFReader {
         }
     }
 
-    // package access for testing only tb 2018-01-23
-    static boolean isCompressed(File file) {
-        return FileUtils.getExtension(file).equalsIgnoreCase(".gz");
-    }
-
     private void setSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
         final Attribute startDateTime = NetCDFUtils.getGlobalAttributeSafe("ObservationStartDateTime", netcdfFile);
         final Attribute endDateTime = NetCDFUtils.getGlobalAttributeSafe("ObservationEndDateTime", netcdfFile);
@@ -343,25 +320,6 @@ public class AMSR2_Reader extends NetCDFReader {
             final Variable channelVariable = fileVariable.section(section);
             channelVariable.setName(variableNamePrefix + LAND_OCEAN_FLAG_EXTENSIONS[i]);
             arrayCache.inject(channelVariable);
-        }
-    }
-
-    /**
-     * Uncompresses a file in gzip format to a tmp file.
-     *
-     * @param gzipFile existing file in gzip format
-     * @param tmpFile  new file for the uncompressed content
-     * @throws IOException if reading the input, decompression, or writing the output fails
-     */
-    private static void decompress(File gzipFile, File tmpFile) throws IOException {
-        final byte[] buffer = new byte[32768];
-
-        try (InputStream in = new GZIPInputStream(new FileInputStream(gzipFile), 32768);
-             OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile))) {
-            int noOfBytesRead;
-            while ((noOfBytesRead = in.read(buffer)) > 0) {
-                out.write(buffer, 0, noOfBytesRead);
-            }
         }
     }
 }

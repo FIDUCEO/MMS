@@ -24,6 +24,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 public class ReaderUtilsTest {
@@ -99,5 +101,12 @@ public class ReaderUtilsTest {
 
         assertEquals(0, ReaderUtils.getChannelIndex("lon"));
         assertEquals(0, ReaderUtils.getChannelIndex("a_strange_channel"));
+    }
+
+
+    @Test
+    public void testIsCompressed() {
+        assertTrue(ReaderUtils.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz")));
+        assertFalse(ReaderUtils.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5")));
     }
 }

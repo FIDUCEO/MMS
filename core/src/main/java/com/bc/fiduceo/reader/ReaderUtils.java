@@ -24,9 +24,12 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.DataType;
 
+import java.io.*;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
 
 
 public class ReaderUtils {
@@ -101,5 +104,28 @@ public class ReaderUtils {
             channelIndex = 0;   // fallback for names that contain an "_ch" but are not assembled like "bla_ch08"tb 2016-08-03
         }
         return channelIndex;
+    }
+
+    public static boolean isCompressed(File file) {
+        return FileUtils.getExtension(file).equalsIgnoreCase(".gz");
+    }
+
+    /**
+     * Uncompresses a file in gzip format to a tmp file.
+     *
+     * @param gzipFile existing file in gzip format
+     * @param tmpFile  new file for the uncompressed content
+     * @throws IOException if reading the input, decompression, or writing the output fails
+     */
+    public static void decompress(File gzipFile, File tmpFile) throws IOException {
+        final byte[] buffer = new byte[32768];
+
+        try (InputStream in = new GZIPInputStream(new FileInputStream(gzipFile), 32768);
+             OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile))) {
+            int noOfBytesRead;
+            while ((noOfBytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, noOfBytesRead);
+            }
+        }
     }
 }
