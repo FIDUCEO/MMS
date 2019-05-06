@@ -317,6 +317,8 @@ class PostProcessingTool {
             writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf4, absTarget, chunking);
         }
 
+        writer.setFill(true);
+
         return writer;
     }
 
