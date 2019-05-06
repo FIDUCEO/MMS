@@ -1,3 +1,7 @@
+### Updates from version 1.4.2 to 1.4.3
+* added support for compressed AVHRR FRAC data products
+* corrected NetCDF lib fill value initialisation during write operations
+
 ### Updates from version 1.4.1 to 1.4.2
 * corrected bug in distance-to-land: NPE when two or more instances are allocated
 * added support for FIDUCEO AVHRR FCDR products
