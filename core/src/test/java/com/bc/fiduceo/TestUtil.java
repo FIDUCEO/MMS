@@ -75,7 +75,6 @@ public class TestUtil {
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {
         final BasicDataSource datasource = TestUtil.getDataSource_MongoDb();
         writeDatabaseProperties(configDir, datasource);
-        return;
     }
 
     private static void writeDatabaseProperties(File configDir, BasicDataSource datasource) throws IOException {
