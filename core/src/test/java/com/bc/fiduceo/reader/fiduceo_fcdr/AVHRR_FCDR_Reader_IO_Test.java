@@ -107,6 +107,63 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
+    public void testReadAcquisitionInfo_NOAA19() throws IOException {
+        final File file = createAvhrrNOAA19File();
+
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 7, 39, 27, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+
+            Point[] coordinates = polygons.get(0).getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(127.1431622095406, coordinates[0].getLon(), 1e-8);
+            assertEquals(2.0050660707056522, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(127.33542881906034, coordinates[25].getLon(), 1e-8);
+            assertEquals(73.09701827354729, coordinates[25].getLat(), 1e-8);
+
+            coordinates = polygons.get(1).getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(-92.25501257926226, coordinates[0].getLon(), 1e-8);
+            assertEquals(2.1698660217225556, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-143.13425078988075, coordinates[26].getLon(), 1e-8);
+            assertEquals(-63.69792773388326, coordinates[26].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+            coordinates = polygons.get(0).getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, time);
+
+            coordinates = polygons.get(1).getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 6, 48, 38, time);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadAcquisitionInfo_METOPA() throws IOException {
         final File file = createAvhrrMetopAFile();
 
@@ -148,7 +205,6 @@ public class AVHRR_FCDR_Reader_IO_Test {
         }
     }
 
-    @SuppressWarnings("PointlessArithmeticExpression")
     @Test
     public void testGetTimeLocatorNOAA12() throws IOException {
         final File file = createAvhrrNOAA12File();
@@ -164,6 +220,26 @@ public class AVHRR_FCDR_Reader_IO_Test {
             assertEquals(703261360090L, timeLocator.getTimeFor(170, 1015));
             assertEquals(703261860586L, timeLocator.getTimeFor(171, 2016));
             assertEquals(703265975587L, timeLocator.getTimeFor(172, 10246));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocatorNOAA19() throws IOException {
+        final File file = createAvhrrNOAA19File();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1309845441668L, timeLocator.getTimeFor(169, 0));
+            assertEquals(1309845442171L, timeLocator.getTimeFor(168, 1));
+            assertEquals(1309845448668L, timeLocator.getTimeFor(169, 14));
+            assertEquals(1309845949171L, timeLocator.getTimeFor(170, 1015));
+            assertEquals(1309846449669L, timeLocator.getTimeFor(171, 2016));
+            assertEquals(1309850564670L, timeLocator.getTimeFor(172, 10246));
         } finally {
             reader.close();
         }
@@ -224,7 +300,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables() throws IOException {
+    public void testGetVariablesNOAA12() throws IOException {
         final File file = createAvhrrNOAA12File();
 
         try {
@@ -243,6 +319,34 @@ public class AVHRR_FCDR_Reader_IO_Test {
 
             variable = variables.get(25);
             assertEquals("u_common_Ch3a", variable.getFullName());
+
+            variable = variables.get(34);
+            assertEquals("u_common_Ch5", variable.getFullName());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariablesNOAA19() throws IOException {
+        final File file = createAvhrrNOAA19File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(36, variables.size());
+            Variable variable = variables.get(2);
+            assertEquals("quality_pixel_bitmask", variable.getFullName());
+
+            variable = variables.get(10);
+            assertEquals("Ch3b", variable.getFullName());
+
+            variable = variables.get(17);
+            assertEquals("u_independent_Ch1", variable.getFullName());
+
+            variable = variables.get(26);
+            assertEquals("u_independent_Ch3b", variable.getFullName());
 
             variable = variables.get(34);
             assertEquals("u_common_Ch5", variable.getFullName());
@@ -297,6 +401,29 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_bottomWindowOutNOAA19() throws Exception {
+        final File file = createAvhrrNOAA19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(79, 12252, new Interval(3, 3), "data_quality_bitmask");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(0, 1, 0, array);
+            NCTestUtils.assertValueAt(0, 2, 0, array);
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(-1, 0, 2, array);
+            NCTestUtils.assertValueAt(-1, 1, 2, array);
+            NCTestUtils.assertValueAt(-1, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadRaw_topWindowOut() throws Exception {
         final File file = createAvhrrMetopAFile();
         reader.open(file);
@@ -337,6 +464,31 @@ public class AVHRR_FCDR_Reader_IO_Test {
             NCTestUtils.assertValueAt(1939, 2, 4, array);
             NCTestUtils.assertValueAt(1939, 3, 4, array);
             NCTestUtils.assertValueAt(1940, 4, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_leftWindowOutNOAA19() throws Exception {
+        final File file = createAvhrrNOAA19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(0, 123, new Interval(5, 5), "satellite_zenith_angle");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 1, 0, array);
+            NCTestUtils.assertValueAt(6859, 2, 0, array);
+            NCTestUtils.assertValueAt(6813, 3, 0, array);
+            NCTestUtils.assertValueAt(6766, 4, 0, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 4, array);
+            NCTestUtils.assertValueAt(-32767, 1, 4, array);
+            NCTestUtils.assertValueAt(6859, 2, 4, array);
+            NCTestUtils.assertValueAt(6813, 3, 4, array);
+            NCTestUtils.assertValueAt(6766, 4, 4, array);
         } finally {
             reader.close();
         }
@@ -385,6 +537,27 @@ public class AVHRR_FCDR_Reader_IO_Test {
             NCTestUtils.assertValueAt(5542, 4, 2, array);
             NCTestUtils.assertValueAt(-32767, 6, 8, array);
             NCTestUtils.assertValueAt(-32767, 8, 8, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_bottomRightWindowOutNOAA19() throws Exception {
+        final File file = createAvhrrNOAA19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(408, 12252, new Interval(3, 3), "u_common_Ch1");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(3000, 0, 0, array);
+            NCTestUtils.assertValueAt(-32767, 0, 1, array);
+            NCTestUtils.assertValueAt(-32767, 0, 2, array);
+
+            NCTestUtils.assertValueAt(3000, 0, 0, array);
+            NCTestUtils.assertValueAt(3000, 1, 0, array);
+            NCTestUtils.assertValueAt(-32767, 2, 0, array);
         } finally {
             reader.close();
         }
@@ -441,6 +614,31 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
+    public void testReadScaled_onlyScalingNOAA19() throws IOException, InvalidRangeException {
+        final File file = createAvhrrNOAA19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(123, 3758, new Interval(3, 3), "latitude");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(69.0951248648, 0, 0, array);
+            NCTestUtils.assertValueAt(69.0813915358, 1, 0, array);
+            NCTestUtils.assertValueAt(69.0676582068, 2, 0, array);
+
+            NCTestUtils.assertValueAt(69.064911541, 0, 1, array);
+            NCTestUtils.assertValueAt(69.0539248778, 1, 1, array);
+            NCTestUtils.assertValueAt(69.0401915488, 2, 1, array);
+
+            NCTestUtils.assertValueAt(69.037444883, 0, 2, array);
+            NCTestUtils.assertValueAt(69.023711554, 1, 2, array);
+            NCTestUtils.assertValueAt(69.0127248908, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
         final File file = createAvhrrMetopAFile();
         reader.open(file);
@@ -482,6 +680,22 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
+    public void testGetProductSizeNOAA19() throws Exception {
+        final File file = createAvhrrNOAA19File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(12253, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetPixelLocator() throws IOException {
         final File file = createAvhrrMetopAFile();
 
@@ -508,6 +722,13 @@ public class AVHRR_FCDR_Reader_IO_Test {
 
     private File createAvhrrNOAA12File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n12-fcdr", "vBeta", "1992", "04", "14", "FIDUCEO_FCDR_L1C_AVHRR_NOAA12_19920414141412_19920414155532_EASY_vBeta_fv2.0.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private File createAvhrrNOAA19File() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19-fcdr", "v0.2Bet", "2011", "07", "05", "FIDUCEO_FCDR_L1C_AVHRR_N19ALL_20110705055721_20110705073927_EASY_v0.2Bet_fv2.0.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;
