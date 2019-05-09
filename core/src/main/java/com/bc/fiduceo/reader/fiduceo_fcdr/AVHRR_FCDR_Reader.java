@@ -25,6 +25,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
     private static String[] VARIABLE_NAMES_TO_REMOVE = {"SRF_wavelengths",
             "SRF_weights",
             "channel",
+            "channel_correlation_matrix_common",
             "channel_correlation_matrix_independent",
             "channel_correlation_matrix_structured",
             "cross_element_correlation_coefficients",

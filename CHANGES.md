@@ -1,3 +1,6 @@
+### Updates from version 1.4.3 to 1.4.4
+* updated AVHRR FCDR reader to match format changes
+
 ### Updates from version 1.4.2 to 1.4.3
 * added support for compressed AVHRR FRAC data products
 * corrected NetCDF lib fill value initialisation during write operations

@@ -335,7 +335,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(36, variables.size());
+            assertEquals(35, variables.size());
             Variable variable = variables.get(2);
             assertEquals("quality_pixel_bitmask", variable.getFullName());
 
