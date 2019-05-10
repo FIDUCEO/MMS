@@ -43,6 +43,18 @@
             </dependency>
 
             <dependency>
+                <groupId>org.esa.s3tbx</groupId>
+                <artifactId>s3tbx-sentinel3-reader</artifactId>
+                <version>6.0.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>edu.ucar</groupId>
+                        <artifactId>netcdf</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.13</version>
