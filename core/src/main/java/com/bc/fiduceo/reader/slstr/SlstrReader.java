@@ -8,7 +8,9 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
+import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -51,8 +53,15 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+    public TimeLocator getTimeLocator() {
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement time_stamp_a = metadataRoot.getElement("time_stamp_a");
+        final MetadataAttribute values = time_stamp_a.getAttribute("value");
+        final ProductData valuesData = values.getData();
+        final long[] timeStamps = (long[]) valuesData.getElems();
+        final long[] subs_times = subSampleTimes(timeStamps);
+
+        return new TimeLocator_MicrosSince2000(subs_times);
     }
 
     @Override
@@ -85,19 +94,40 @@ public class SlstrReader extends SNAP_Reader {
         return "latitude_tx";
     }
 
+        // package access for testing only tb 2019-05-13
+    static long[] subSampleTimes(long[] timeStamps) {
+        final long[] subs_times = new long[timeStamps.length/2];
+
+        int writeIndex = 0;
+        for (int i = 0; i < timeStamps.length; i++) {
+            if (i % 2 == 0) {
+                subs_times[writeIndex] = timeStamps[i];
+                ++writeIndex;
+            }
+        }
+        return subs_times;
+    }
+
     private void setOrbitNodeInfo(AcquisitionInfo acquisitionInfo) {
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
         final MetadataElement metadataRoot = product.getMetadataRoot();
         final MetadataElement manifest = metadataRoot.getElement("Manifest");
-        final MetadataElement metadataSection = manifest.getElement("metadataSection");
-        final MetadataElement orbitReference = metadataSection.getElement("orbitReference");
-        final MetadataElement orbitNumber = orbitReference.getElement("orbitNumber");
-        final String groundTrackDirection = orbitNumber.getAttribute("groundTrackDirection").getData().getElemString();
-        if (groundTrackDirection.equalsIgnoreCase("descending")) {
-            acquisitionInfo.setNodeType(NodeType.DESCENDING);
-        } else if (groundTrackDirection.equalsIgnoreCase("ascending")) {
-            acquisitionInfo.setNodeType(NodeType.ASCENDING);
-        } else {
-            acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+        if (manifest != null) {
+            final MetadataElement metadataSection = manifest.getElement("metadataSection");
+            if (metadataSection != null) {
+                final MetadataElement orbitReference = metadataSection.getElement("orbitReference");
+                if (orbitReference != null) {
+                    final MetadataElement orbitNumber = orbitReference.getElement("orbitNumber");
+                    if (orbitNumber != null) {
+                        final String groundTrackDirection = orbitNumber.getAttribute("groundTrackDirection").getData().getElemString();
+                        if (groundTrackDirection.equalsIgnoreCase("descending")) {
+                            acquisitionInfo.setNodeType(NodeType.DESCENDING);
+                        } else if (groundTrackDirection.equalsIgnoreCase("ascending")) {
+                            acquisitionInfo.setNodeType(NodeType.ASCENDING);
+                        }
+                    }
+                }
+            }
         }
     }
 }

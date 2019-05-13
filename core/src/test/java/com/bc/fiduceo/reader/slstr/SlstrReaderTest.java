@@ -6,9 +6,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SlstrReaderTest {
 
@@ -50,5 +48,15 @@ public class SlstrReaderTest {
         final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
 
         assertEquals("latitude_tx", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testSubsampleTimes() {
+        final long[] full_times = {12L, 13L, 14L, 15L, 16L, 17L};
+        final long[] subs_times = {12L, 14L, 16L};
+
+        assertArrayEquals(subs_times, SlstrReader.subSampleTimes(full_times));
+
+
     }
 }

@@ -3,9 +3,10 @@ package com.bc.fiduceo.reader.slstr;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +53,42 @@ public class SlstrReader_IO_Test {
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.DESCENDING, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(29, coordinates.length);
+            assertEquals(168.0067138671875, coordinates[0].getLon(), 1e-8);
+            assertEquals(83.76530456542969, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-141.01283264160156, coordinates[14].getLon(), 1e-8);
+            assertEquals(65.22335052490234, coordinates[14].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 356, time);
+            time = timeAxes[0].getTime(coordinates[15]);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 21, 312, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_S3A() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1542147896326L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1542147896626L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1542148072417L, timeLocator.getTimeFor(1189, 1000));
         } finally {
             reader.close();
         }
