@@ -26,7 +26,7 @@ import static ucar.ma2.DataType.*;
 
 public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
-    private static final String REG_EX = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.SV";
+    private static final String REG_EX = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
     private static final Interval INTERVAL = new Interval(5, 20);
     private static final int NUM_SPLITS = 2;
 
