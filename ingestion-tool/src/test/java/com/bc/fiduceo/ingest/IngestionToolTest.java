@@ -59,7 +59,7 @@ public class IngestionToolTest {
 
         ingestionTool.printUsageTo(outputStream);
 
-        assertEquals("ingestion-tool version 1.4.5" + ls +
+        assertEquals("ingestion-tool version 1.4.6-SNAPSHOT" + ls +
                 ls +
                 "usage: ingestion-tool <options>" + ls +
                 "Valid options are:" + ls +
