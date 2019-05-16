@@ -200,7 +200,6 @@ class ATSR_L1B_Reader extends SNAP_Reader {
     }
 
     private void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
-
         final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
         final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
         final Rectangle intersection = productRectangle.intersection(subsetRectangle);

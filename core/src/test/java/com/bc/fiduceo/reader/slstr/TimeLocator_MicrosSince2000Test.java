@@ -12,8 +12,15 @@ public class TimeLocator_MicrosSince2000Test {
 
         final TimeLocator_MicrosSince2000 timeLocator = new TimeLocator_MicrosSince2000(time_2000);
 
-        assertEquals(1542147894226L, timeLocator.getTimeFor(0,0));
-        assertEquals(1542147894826L, timeLocator.getTimeFor(2,1000));
-        assertEquals(1542147895726L, timeLocator.getTimeFor(5,2000));
+        assertEquals(1542147894226L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1542147894826L, timeLocator.getTimeFor(2, 1000));
+        assertEquals(1542147895726L, timeLocator.getTimeFor(5, 2000));
+    }
+
+    @Test
+    public void testConvertToUnixEpochMillis() {
+        assertEquals(949363200000L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(0));
+        assertEquals(949363286400L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(86400000));
+        assertEquals(949373200000L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(10000000000L));
     }
 }

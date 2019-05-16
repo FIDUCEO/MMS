@@ -8,11 +8,9 @@ import java.util.Calendar;
 public class TimeLocator_MicrosSince2000 implements TimeLocator {
 
     private final long[] timeStamps;
-    private final long offset;
+    private static final long offset;
 
-    TimeLocator_MicrosSince2000(long[] timeStamps) {
-        this.timeStamps = timeStamps;
-
+    static {
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.set(Calendar.YEAR, 2000);
         utcCalendar.set(Calendar.MONTH, 1);
@@ -25,9 +23,19 @@ public class TimeLocator_MicrosSince2000 implements TimeLocator {
         offset = utcCalendar.getTime().getTime();
     }
 
+    TimeLocator_MicrosSince2000(long[] timeStamps) {
+        this.timeStamps = timeStamps;
+    }
+
+
     @Override
     public long getTimeFor(int x, int y) {
-        long timeStamp = Math.round(((double)timeStamps[x]) / 1000.0);
+        final long timeStampSecs2000 = timeStamps[x];
+        return convertToUnixEpochMillis(timeStampSecs2000);
+    }
+
+    static long convertToUnixEpochMillis(double timeStampSecs2000) {
+        long timeStamp = Math.round(timeStampSecs2000 / 1000.0);
         return offset + timeStamp;
     }
 }
