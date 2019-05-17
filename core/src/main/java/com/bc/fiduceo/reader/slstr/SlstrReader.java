@@ -30,14 +30,13 @@ public class SlstrReader extends SNAP_Reader {
     private static final Interval INTERVAL = new Interval(100, 100);
     private static final int NUM_SPLITS = 1;
 
-    private List<String> variableNames;
+    private final VariableNames variableNames;
     private long[] subs_times;
 
     SlstrReader(ReaderContext readerContext) {
         super(readerContext);
 
-        initVariableNamesList();
-        subs_times = null;
+        variableNames = new VariableNames();
     }
 
     // package access for testing only tb 2019-05-13
@@ -91,7 +90,7 @@ public class SlstrReader extends SNAP_Reader {
 
         final Band[] bands = product.getBands();
         for (final Band band : bands) {
-            if (variableNames.contains(band.getName())) {
+            if (variableNames.isValidName(band.getName())) {
                 final VariableProxy variableProxy = new VariableProxy(band);
                 result.add(variableProxy);
             }
@@ -99,7 +98,7 @@ public class SlstrReader extends SNAP_Reader {
 
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
         for (final TiePointGrid tiePointGrid : tiePointGrids) {
-            if (variableNames.contains(tiePointGrid.getName())) {
+            if (variableNames.isValidName(tiePointGrid.getName())) {
                 final VariableProxy variableProxy = new VariableProxy(tiePointGrid);
                 result.add(variableProxy);
             }
@@ -182,7 +181,7 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     protected RasterDataNode getRasterDataNode(String variableName) {
-        if (!variableNames.contains(variableName)) {
+        if (!variableNames.isValidName(variableName)) {
             throw new RuntimeException("Requested variable not contained in product: " + variableName);
         }
 
@@ -221,61 +220,5 @@ public class SlstrReader extends SNAP_Reader {
             final long[] timeStamps = (long[]) valuesData.getElems();
             subs_times = subSampleTimes(timeStamps);
         }
-    }
-
-    private void initVariableNamesList() {
-        variableNames = new ArrayList<>();
-        variableNames.add("latitude_tx");
-        variableNames.add("longitude_tx");
-        variableNames.add("sat_azimuth_tn");
-        variableNames.add("sat_zenith_tn");
-        variableNames.add("solar_azimuth_tn");
-        variableNames.add("solar_zenith_tn");
-        variableNames.add("S7_BT_in");
-        variableNames.add("S8_BT_in");
-        variableNames.add("S9_BT_in");
-        variableNames.add("S7_exception_in");
-        variableNames.add("S8_exception_in");
-        variableNames.add("S9_exception_in");
-        variableNames.add("S1_radiance_an");
-        variableNames.add("S2_radiance_an");
-        variableNames.add("S3_radiance_an");
-        variableNames.add("S4_radiance_an");
-        variableNames.add("S5_radiance_an");
-        variableNames.add("S6_radiance_an");
-        variableNames.add("S1_exception_an");
-        variableNames.add("S2_exception_an");
-        variableNames.add("S3_exception_an");
-        variableNames.add("S4_exception_an");
-        variableNames.add("S5_exception_an");
-        variableNames.add("S6_exception_an");
-        variableNames.add("sat_azimuth_to");
-        variableNames.add("sat_zenith_to");
-        variableNames.add("solar_azimuth_to");
-        variableNames.add("solar_zenith_to");
-        variableNames.add("S7_BT_io");
-        variableNames.add("S8_BT_io");
-        variableNames.add("S9_BT_io");
-        variableNames.add("S7_exception_io");
-        variableNames.add("S8_exception_io");
-        variableNames.add("S9_exception_io");
-        variableNames.add("S1_radiance_ao");
-        variableNames.add("S2_radiance_ao");
-        variableNames.add("S3_radiance_ao");
-        variableNames.add("S4_radiance_ao");
-        variableNames.add("S5_radiance_ao");
-        variableNames.add("S6_radiance_ao");
-        variableNames.add("S1_exception_ao");
-        variableNames.add("S2_exception_ao");
-        variableNames.add("S3_exception_ao");
-        variableNames.add("S4_exception_ao");
-        variableNames.add("S5_exception_ao");
-        variableNames.add("S6_exception_ao");
-        variableNames.add("confidence_in");
-        variableNames.add("pointing_in");
-        variableNames.add("bayes_in");
-        variableNames.add("cloud_in");
-        variableNames.add("bayes_io");
-        variableNames.add("cloud_io");
     }
 }
