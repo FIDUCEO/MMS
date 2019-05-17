@@ -55,6 +55,12 @@ public class ReaderUtilsTest {
     }
 
     @Test
+    public void testGetDefaultFillValue_ProductData_unsigned_short() {
+        final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_UINT16);
+        assertEquals(N3iosp.NC_FILL_USHORT, fillValue.shortValue(), 1e-8);
+    }
+
+    @Test
     public void testGetDefaultFillValue_ProductData_byte() {
         final Number fillValue = ReaderUtils.getDefaultFillValue(ProductData.TYPE_INT8);
         assertEquals(N3iosp.NC_FILL_BYTE, fillValue.byteValue(), 1e-8);

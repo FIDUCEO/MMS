@@ -12,8 +12,10 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.nc2.Variable;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,6 +102,27 @@ public abstract class SNAP_Reader implements Reader {
         return result;
     }
 
+    @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        final RasterDataNode dataNode = getRasterDataNode(variableName);
+
+        final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
+        final int[] shape = getShape(interval);
+        final Array readArray = createReadingArray(sourceDataType, shape);
+
+        final int width = interval.getX();
+        final int height = interval.getY();
+
+        final int xOffset = centerX - width / 2;
+        final int yOffset = centerY - height / 2;
+
+        readProductData(dataNode, readArray, width, height, xOffset, yOffset);
+
+        return readArray;
+    }
+
+    abstract protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException;
+
     private void extractSensingTimes(AcquisitionInfo acquisitionInfo) {
         final ProductData.UTC startTime = product.getStartTime();
         acquisitionInfo.setSensingStart(startTime.getAsDate());
@@ -162,7 +185,60 @@ public abstract class SNAP_Reader implements Reader {
         return geometries;
     }
 
-    protected static ProductData createProductData(DataType dataType, int rasterSize) {
+    protected void readSubsetData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset, int sceneRasterWidth, int sceneRasterHeight) throws IOException {
+        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
+        final Rectangle productRectangle = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
+        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
+
+        final DataType dataType = targetArray.getDataType();
+        final Array readingArray = createReadingArray(dataType, new int[]{intersection.width, intersection.height});
+
+        if (dataType == FLOAT) {
+            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (float[]) readingArray.getStorage());
+        } else if (dataType == INT || dataType == SHORT || dataType == BYTE) {
+            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (int[]) readingArray.getStorage());
+        }
+
+        final Index index = targetArray.getIndex();
+        final double noDataValue = getGeophysicalNoDataValue(dataNode);
+        int readIndex = 0;
+        for (int y = 0; y < width; y++) {
+            final int currentY = yOffset + y;
+            for (int x = 0; x < height; x++) {
+                final int currentX = xOffset + x;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readingArray.getObject(readIndex));
+                    ++readIndex;
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
+    }
+
+    protected void readRawProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final DataType dataType = readArray.getDataType();
+
+        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
+        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
+
+        if (intersection.isEmpty()) {
+            return; // no intersecting area with product raster tb 2019-01-17
+        }
+
+        final int rasterSize = intersection.width * intersection.height;
+        final ProductData productData = createProductData(dataType, rasterSize);
+
+        dataNode.readRasterData(intersection.x, intersection.y, intersection.width, intersection.height, productData);
+        for (int i = 0; i < rasterSize; i++) {
+            readArray.setObject(i, productData.getElemDoubleAt(i));
+        }
+    }
+
+    // package access for testing only tb 2019-05-17
+    static ProductData createProductData(DataType dataType, int rasterSize) {
         final ProductData productData;
         if (dataType == FLOAT) {
             productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, rasterSize);
@@ -178,7 +254,8 @@ public abstract class SNAP_Reader implements Reader {
         return productData;
     }
 
-    protected static double getGeophysicalNoDataValue(RasterDataNode dataNode) {
+    // package access for testing only tb 2019-05-17
+    static double getGeophysicalNoDataValue(RasterDataNode dataNode) {
         if (dataNode.isNoDataValueUsed()) {
             return dataNode.getGeophysicalNoDataValue();
         } else {
@@ -196,16 +273,15 @@ public abstract class SNAP_Reader implements Reader {
         }
     }
 
-    protected static Array createReadingArray(DataType targetDataType, int[] shape) {
+    // package access for testing only tb 2019-05-17
+    static Array createReadingArray(DataType targetDataType, int[] shape) {
         switch (targetDataType) {
             case FLOAT:
                 return Array.factory(DataType.FLOAT, shape);
             case INT:
-                return Array.factory(DataType.INT, shape);
             case SHORT:
-                return Array.factory(DataType.INT, shape);
             case BYTE:
-                return Array.factory(DataType.BYTE, shape);
+                return Array.factory(DataType.INT, shape);
             default:
                 throw new RuntimeException("unsupported data type: " + targetDataType);
         }

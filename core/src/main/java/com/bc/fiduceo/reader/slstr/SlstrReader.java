@@ -14,19 +14,15 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ucar.ma2.DataType.FLOAT;
 import static ucar.ma2.DataType.INT;
-import static ucar.ma2.DataType.SHORT;
 
 public class SlstrReader extends SNAP_Reader {
 
@@ -42,6 +38,20 @@ public class SlstrReader extends SNAP_Reader {
 
         initVariableNamesList();
         subs_times = null;
+    }
+
+    // package access for testing only tb 2019-05-13
+    static long[] subSampleTimes(long[] timeStamps) {
+        final long[] subs_times = new long[timeStamps.length / 2];
+
+        int writeIndex = 0;
+        for (int i = 0; i < timeStamps.length; i++) {
+            if (i % 2 == 0) {
+                subs_times[writeIndex] = timeStamps[i];
+                ++writeIndex;
+            }
+        }
+        return subs_times;
     }
 
     @Override
@@ -117,38 +127,11 @@ public class SlstrReader extends SNAP_Reader {
         throw new RuntimeException("not implemented");
     }
 
-    @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final RasterDataNode dataNode = getRasterDataNode(variableName);
+    protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final int sceneRasterWidth = product.getSceneRasterWidth() / 2;
+        final int sceneRasterHeight = product.getSceneRasterHeight() / 2;
 
-        final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
-        final int[] shape = getShape(interval);
-        final Array readArray = createReadingArray(sourceDataType, shape);
-
-        final int width = interval.getX();
-        final int height = interval.getY();
-
-        final int xOffset = centerX - width / 2;
-        final int yOffset = centerY - height / 2;
-
-        readProductData(dataNode, readArray, width, height, xOffset, yOffset);
-
-        return readArray;
-    }
-
-    private void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
-        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth()/2, product.getSceneRasterHeight()/2);
-        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
-
-        final DataType dataType = targetArray.getDataType();
-        final Array readingArray = createReadingArray(dataType, new int[]{intersection.width, intersection.height});
-
-        if (dataType == FLOAT) {
-            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (float[]) readingArray.getStorage());
-        } else if (dataType == INT || dataType == SHORT) {
-            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (int[]) readingArray.getStorage());
-        }
+        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, sceneRasterWidth, sceneRasterHeight);
     }
 
     @Override
@@ -197,23 +180,9 @@ public class SlstrReader extends SNAP_Reader {
         return "latitude_tx";
     }
 
-    // package access for testing only tb 2019-05-13
-    static long[] subSampleTimes(long[] timeStamps) {
-        final long[] subs_times = new long[timeStamps.length / 2];
-
-        int writeIndex = 0;
-        for (int i = 0; i < timeStamps.length; i++) {
-            if (i % 2 == 0) {
-                subs_times[writeIndex] = timeStamps[i];
-                ++writeIndex;
-            }
-        }
-        return subs_times;
-    }
-
     @Override
     protected RasterDataNode getRasterDataNode(String variableName) {
-        if(!variableNames.contains(variableName)) {
+        if (!variableNames.contains(variableName)) {
             throw new RuntimeException("Requested variable not contained in product: " + variableName);
         }
 

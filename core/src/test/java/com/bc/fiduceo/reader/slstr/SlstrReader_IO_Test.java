@@ -11,7 +11,6 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -25,9 +24,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class SlstrReader_IO_Test {
@@ -215,60 +212,51 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    @Ignore
-    public void testReadScaled_S3A_1km() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_nadir() throws IOException {
         final File file = getS3AFile();
 
         try {
             reader.open(file);
 
             final Interval interval = new Interval(5, 5);
-            Array array = reader.readScaled(14, 232, interval, "cloud_in");
-            NCTestUtils.assertValueAt(287.3299865722656, 0, 0, array);
-            NCTestUtils.assertValueAt(287.2799987792969, 1, 0, array);
+            Array array = reader.readScaled(337, 810, interval, "bayes_in");
+            NCTestUtils.assertValueAt(2, 0, 0, array);
+            NCTestUtils.assertValueAt(2, 1, 0, array);
+            NCTestUtils.assertValueAt(2, 2, 0, array);
 
-//            array = reader.readScaled(0, 233, interval, "reflec_nadir_1600");
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 0, 1, array);
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 1, 1, array);
-//            NCTestUtils.assertValueAt(0.0, 2, 1, array);
-//
-//            array = reader.readScaled(511, 235, interval, "reflec_nadir_0550");
-//            NCTestUtils.assertValueAt(0.0, 2, 2, array);
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 3, 2, array);
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 4, 2, array);
-//
-//            array = reader.readScaled(145, 0, interval, "btemp_fward_1200");
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 3, 0, array);
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 3, 1, array);
-//            NCTestUtils.assertValueAt(226.5500030517578, 3, 2, array);
-//            NCTestUtils.assertValueAt(223.33999633789062, 3, 3, array);
-//
-//            array = reader.readScaled(155, 40255, interval, "reflec_fward_1600");
-//            NCTestUtils.assertValueAt(0.0, 2, 0, array);
-//            NCTestUtils.assertValueAt(0.0, 2, 1, array);
-//            NCTestUtils.assertValueAt(0.0, 2, 2, array);
-//            NCTestUtils.assertValueAt(-0.019999999552965164, 2, 3, array);
-//
-//            array = reader.readScaled(157, 4023, interval, "reflec_fward_0550");
-//            NCTestUtils.assertValueAt(0.0, 2, 0, array);
-//            NCTestUtils.assertValueAt(0.0, 3, 0, array);
-//
-//            array = reader.readScaled(196, 4153, interval, "cloud_flags_fward");
-//            NCTestUtils.assertValueAt(0, 4, 0, array);
-//            NCTestUtils.assertValueAt(0, 0, 1, array);
-//            NCTestUtils.assertValueAt(4098, 1, 1, array);
-//
-//            array = reader.readScaled(198, 4155, interval, "lat_corr_nadir");
-//            NCTestUtils.assertValueAt(0.0, 1, 1, array);
-//            NCTestUtils.assertValueAt(0.0, 2, 1, array);
-//
-//            array = reader.readScaled(200, 4157, interval, "view_elev_nadir");
-//            NCTestUtils.assertValueAt(85.38400268554688, 1, 1, array);
-//            NCTestUtils.assertValueAt(85.46600341796875, 2, 1, array);
-//
-//            array = reader.readScaled(202, 4159, interval, "latitude");
-//            NCTestUtils.assertValueAt(36.974647521972656, 3, 1, array);
-//            NCTestUtils.assertValueAt(36.972557067871094, 4, 1, array);
+            array = reader.readScaled(662, 617, interval, "confidence_in");
+            NCTestUtils.assertValueAt(17410, 3, 0, array);
+            NCTestUtils.assertValueAt(17410, 4, 0, array);
+            NCTestUtils.assertValueAt(25602, 0, 1, array);
+
+            array = reader.readScaled(1265, 244, interval, "S9_exception_in");
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 3, 1, array);
+
+            array = reader.readScaled(113, 955, interval, "S9_BT_in");
+            NCTestUtils.assertValueAt(251.02000427246094, 4, 1, array);
+            NCTestUtils.assertValueAt(245.8300018310547, 0, 2, array);
+            NCTestUtils.assertValueAt(248.49000549316406, 1, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3A_1km_nadir_bottom() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readScaled(1483, 1199, interval, "S8_BT_in");
+            NCTestUtils.assertValueAt(267.5400085449219, 2, 0, array);
+            NCTestUtils.assertValueAt(266.4599914550781, 2, 1, array);
+            NCTestUtils.assertValueAt(266.4599914550781, 2, 2, array);
+            NCTestUtils.assertValueAt(-43.95000076293945, 2, 3, array);
+            NCTestUtils.assertValueAt(-43.95000076293945, 2, 4, array);
         } finally {
             reader.close();
         }

@@ -104,7 +104,7 @@ public class SNAP_ReaderTest {
 
         array = SNAP_Reader.createReadingArray(DataType.BYTE, shape);
         assertNotNull(array);
-        assertEquals(DataType.BYTE, array.getDataType());
+        assertEquals(DataType.INT, array.getDataType());
         assertArrayEquals(shape, array.getShape());
     }
 

@@ -146,7 +146,6 @@ public class AVHRR_FRAC_Reader_IO_Test {
         }
     }
 
-    @SuppressWarnings("PointlessArithmeticExpression")
     @Test
     public void testGetTimeLocator() throws IOException {
         final File file = getAvhrrFRACFile();
@@ -293,9 +292,9 @@ public class AVHRR_FRAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(256.4285888671875, 3, 0, array);
 
             array = reader.readScaled(21, 241, interval, "flags");
-            NCTestUtils.assertValueAt(0, 4, 0, array);
-            NCTestUtils.assertValueAt(0, 0, 1, array);
-            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(4, 4, 0, array);
+            NCTestUtils.assertValueAt(4, 0, 1, array);
+            NCTestUtils.assertValueAt(4, 1, 1, array);
 
             array = reader.readScaled(22, 242, interval, "sun_zenith");
             NCTestUtils.assertValueAt(69.0618667602539, 1, 1, array);

@@ -18,20 +18,18 @@ import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-import static ucar.ma2.DataType.*;
+import static ucar.ma2.DataType.INT;
 
 public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
     private static final String REG_EX = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
     private static final Interval INTERVAL = new Interval(5, 20);
     private static final int NUM_SPLITS = 2;
-
-    private File tempFile;
     private final ReaderContext readerContext;
+    private File tempFile;
 
     AVHRR_FRAC_Reader(ReaderContext readerContext) {
         super(readerContext);
@@ -135,25 +133,6 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
-        final RasterDataNode dataNode = getRasterDataNode(variableName);
-
-        final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
-        final int[] shape = getShape(interval);
-        final Array readArray = createReadingArray(sourceDataType, shape);
-
-        final int width = interval.getX();
-        final int height = interval.getY();
-
-        final int xOffset = centerX - width / 2;
-        final int yOffset = centerY - height / 2;
-
-        readProductData(dataNode, readArray, width, height, xOffset, yOffset);
-
-        return readArray;
-    }
-
-    @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         final int width = interval.getX();
         final int height = interval.getY();
@@ -199,57 +178,10 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         return "latitude";
     }
 
-    private void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
-        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
-
-        final DataType dataType = targetArray.getDataType();
-        final Array readingArray = createReadingArray(dataType, new int[]{intersection.width, intersection.height});
-
-        if (dataType == FLOAT) {
-            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (float[]) readingArray.getStorage());
-        } else if (dataType == INT || dataType == SHORT) {
-            dataNode.readPixels(intersection.x, intersection.y, intersection.width, intersection.height, (int[]) readingArray.getStorage());
-        }
-
-        final double noDataValue = getGeophysicalNoDataValue(dataNode);
+    protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final Index index = targetArray.getIndex();
-        int readIndex = 0;
-        for (int y = 0; y < width; y++) {
-            final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
-                final int currentX = xOffset + x;
-                index.set(y, x);
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    targetArray.setObject(index, readingArray.getObject(readIndex));
-                    ++readIndex;
-                } else {
-                    targetArray.setObject(index, noDataValue);
-                }
-            }
-        }
-    }
 
-    private void readRawProductData(RasterDataNode dataNode, Array readArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final DataType dataType = readArray.getDataType();
-
-        final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
-        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        final Rectangle intersection = productRectangle.intersection(subsetRectangle);
-
-        final int rasterSize = intersection.width * intersection.height;
-        if (rasterSize < 1) {
-            return; // no intersecting area with product raster tb 2019-01-17
-        }
-
-        final ProductData productData = createProductData(dataType, rasterSize);
-
-        dataNode.readRasterData(intersection.x, intersection.y, intersection.width, intersection.height, productData);
-        for (int i = 0; i < rasterSize; i++) {
-            readArray.setObject(i, productData.getElemDoubleAt(i));
-        }
+        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, sceneRasterWidth, sceneRasterHeight);
     }
 }

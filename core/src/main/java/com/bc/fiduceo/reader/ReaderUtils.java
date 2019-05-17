@@ -48,6 +48,9 @@ public class ReaderUtils {
             case ProductData.TYPE_INT16:
                 return NetCDFUtils.getDefaultFillValue(short.class);
 
+            case ProductData.TYPE_UINT16:
+                return NetCDFUtils.getDefaultFillValue(DataType.SHORT, true);
+
             case ProductData.TYPE_INT8:
                 return NetCDFUtils.getDefaultFillValue(byte.class);
 
