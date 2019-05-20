@@ -13,6 +13,7 @@ import org.esa.snap.core.datamodel.*;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
+import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.awt.*;
@@ -189,6 +190,10 @@ public abstract class SNAP_Reader implements Reader {
         final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
         final Rectangle productRectangle = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
         final Rectangle intersection = productRectangle.intersection(subsetRectangle);
+        final double noDataValue = getGeophysicalNoDataValue(dataNode);
+        if (intersection.isEmpty()) {
+            MAMath.setDouble(targetArray, noDataValue);
+        }
 
         final DataType dataType = targetArray.getDataType();
         final Array readingArray = createReadingArray(dataType, new int[]{intersection.width, intersection.height});
@@ -200,7 +205,6 @@ public abstract class SNAP_Reader implements Reader {
         }
 
         final Index index = targetArray.getIndex();
-        final double noDataValue = getGeophysicalNoDataValue(dataNode);
         int readIndex = 0;
         for (int y = 0; y < width; y++) {
             final int currentY = yOffset + y;
