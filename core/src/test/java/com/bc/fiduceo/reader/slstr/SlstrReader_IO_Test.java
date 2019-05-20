@@ -262,6 +262,52 @@ public class SlstrReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_S3A_1km_nadir() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(338, 811, interval, "S7_BT_in");
+            NCTestUtils.assertValueAt(-1479, 0, 0, array);
+            NCTestUtils.assertValueAt(-1450, 1, 0, array);
+            NCTestUtils.assertValueAt(-1450, 2, 0, array);
+
+            array = reader.readRaw(663, 618, interval, "S8_exception_in");
+            NCTestUtils.assertValueAt(0, 3, 0, array);
+            NCTestUtils.assertValueAt(0, 4, 0, array);
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+
+            array = reader.readRaw(1266, 245, interval, "pointing_in");
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 3, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_1km_nadir_left() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readScaled(0, 318, interval, "S7_exception_in");
+            NCTestUtils.assertValueAt(-1, 0, 1, array);
+            NCTestUtils.assertValueAt(-1, 1, 1, array);
+            NCTestUtils.assertValueAt(128, 2, 1, array);
+            NCTestUtils.assertValueAt(128, 3, 1, array);
+            NCTestUtils.assertValueAt(128, 4, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getS3AFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
         return getFileAsserted(testFilePath);

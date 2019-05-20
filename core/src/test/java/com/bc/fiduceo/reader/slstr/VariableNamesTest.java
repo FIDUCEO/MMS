@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.slstr;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.*;
@@ -7,10 +8,15 @@ import static org.junit.Assert.*;
 
 public class VariableNamesTest {
 
+    private VariableNames variableNames;
+
+    @Before
+    public void setUp(){
+        variableNames = new VariableNames();
+    }
+
     @Test
     public void testIsValidName() {
-        final VariableNames variableNames = new VariableNames();
-
         assertTrue(variableNames.isValidName("S2_exception_an"));
         assertTrue(variableNames.isValidName("S8_BT_in"));
 
@@ -20,7 +26,6 @@ public class VariableNamesTest {
 
     @Test
     public void testGetVariableType() {
-        final VariableNames variableNames = new VariableNames();
         assertEquals(NADIR_500m, variableNames.getVariableType("longitude_tx"));
         assertEquals(NADIR_500m, variableNames.getVariableType("solar_azimuth_tn"));
 
@@ -32,5 +37,14 @@ public class VariableNamesTest {
 
         assertEquals(OBLIQUE_1km, variableNames.getVariableType("S9_BT_io"));
         assertEquals(OBLIQUE_1km, variableNames.getVariableType("bayes_io"));
+    }
+
+    @Test
+    public void testGetVariableType_invalidName() {
+        try {
+            variableNames.getVariableType("Trump");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 }

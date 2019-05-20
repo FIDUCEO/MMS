@@ -12,9 +12,7 @@ import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.*;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -123,7 +121,48 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        if (product.containsTiePointGrid(variableName)) {
+            // we do not want raw data access on tie-point grids tb 2016-08-11
+            return readScaled(centerX, centerY, interval, variableName);
+        }
+
+        final int sceneRasterWidth = product.getSceneRasterWidth() / 2;
+        final int sceneRasterHeight = product.getSceneRasterHeight() / 2;
+
+
+        final RasterDataNode dataNode = getRasterDataNode(variableName);
+
+        final double noDataValue = getNoDataValue(dataNode);
+        final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
+        final int[] shape = getShape(interval);
+        final Array readArray = Array.factory(targetDataType, shape);
+        final Array targetArray = Array.factory(targetDataType, shape);
+
+        final int width = interval.getX();
+        final int height = interval.getY();
+
+        final int xOffset = centerX - width / 2;
+        final int yOffset = centerY - height / 2;
+
+        readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
+
+        final Index index = targetArray.getIndex();
+        int readIndex = 0;
+        for (int y = 0; y < width; y++) {
+            final int currentY = yOffset + y;
+            for (int x = 0; x < height; x++) {
+                final int currentX = xOffset + x;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    targetArray.setObject(index, readArray.getObject(readIndex));
+                    ++readIndex;
+                } else {
+                    targetArray.setObject(index, noDataValue);
+                }
+            }
+        }
+
+        return targetArray;
     }
 
     protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
