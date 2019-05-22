@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_1km;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
@@ -30,6 +31,7 @@ public class SlstrReader extends SNAP_Reader {
 
     private final VariableNames variableNames;
     private long[] subs_times;
+    private TransformFactory transformFactory;
 
     SlstrReader(ReaderContext readerContext) {
         super(readerContext);
@@ -54,6 +56,15 @@ public class SlstrReader extends SNAP_Reader {
     @Override
     public void open(File file) throws IOException {
         open(file, "Sen3");
+
+        transformFactory = new TransformFactory(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+    }
+
+    @Override
+    public void close() throws IOException {
+        transformFactory = null;
+
+        super.close();
     }
 
     @Override
@@ -107,11 +118,8 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public Dimension getProductSize() {
-        // we only use 1km resolution here tb 2019-05-16
-        final int width = product.getSceneRasterWidth() / 2;
-        final int height = product.getSceneRasterHeight() / 2;
-
-        return new Dimension("product_size", width, height);
+        final Transform transform = transformFactory.get(NADIR_1km);
+        return transform.getRasterSize();
     }
 
     @Override
@@ -126,9 +134,9 @@ public class SlstrReader extends SNAP_Reader {
             return readScaled(centerX, centerY, interval, variableName);
         }
 
-        final int sceneRasterWidth = product.getSceneRasterWidth() / 2;
-        final int sceneRasterHeight = product.getSceneRasterHeight() / 2;
-
+        final VariableType variableType = variableNames.getVariableType(variableName);
+        final Transform transform = transformFactory.get(variableType);
+        final Dimension rasterSize = transform.getRasterSize();
 
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
@@ -153,7 +161,7 @@ public class SlstrReader extends SNAP_Reader {
             for (int x = 0; x < height; x++) {
                 final int currentX = xOffset + x;
                 index.set(y, x);
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
                     targetArray.setObject(index, readArray.getObject(readIndex));
                     ++readIndex;
                 } else {
@@ -166,10 +174,11 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final int sceneRasterWidth = product.getSceneRasterWidth() / 2;
-        final int sceneRasterHeight = product.getSceneRasterHeight() / 2;
+        final VariableType variableType = variableNames.getVariableType(dataNode.getName());
+        final Transform transform = transformFactory.get(variableType);
+        final Dimension rasterSize = transform.getRasterSize();
 
-        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, sceneRasterWidth, sceneRasterHeight);
+        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, rasterSize.getNx(), rasterSize.getNy());
     }
 
     @Override
@@ -180,8 +189,8 @@ public class SlstrReader extends SNAP_Reader {
 
         ensureTimingVector();
 
-        final int sceneRasterHeight = product.getSceneRasterHeight() / 2;
-        final int sceneRasterWidth = product.getSceneRasterWidth() / 2;
+        final Transform transform = transformFactory.get(NADIR_1km);
+        final Dimension rasterSize = transform.getRasterSize();
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final int halfHeight = height / 2;
         final int halfWidth = width / 2;
@@ -189,13 +198,13 @@ public class SlstrReader extends SNAP_Reader {
 
         for (int yRead = y - halfHeight; yRead <= y + halfHeight; yRead++) {
             int lineTimeSeconds = fillValue;
-            if (yRead >= 0 && yRead < sceneRasterHeight) {
+            if (yRead >= 0 && yRead < rasterSize.getNy()) {
                 final long lineTimeMillis = TimeLocator_MicrosSince2000.convertToUnixEpochMillis(subs_times[yRead]);
                 lineTimeSeconds = (int) Math.round(lineTimeMillis * 0.001);
             }
 
             for (int xRead = x - halfWidth; xRead <= x + halfWidth; xRead++) {
-                if (xRead >= 0 && xRead < sceneRasterWidth) {
+                if (xRead >= 0 && xRead < rasterSize.getNx()) {
                     timeArray[writeOffset] = lineTimeSeconds;
                 } else {
                     timeArray[writeOffset] = fillValue;

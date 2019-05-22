@@ -53,7 +53,7 @@ class SampleCollector {
      *
      * @param sampleSets    the input data - will be empty after the operation!
      * @param timeLocator   the time locator for the sample locations
-     * @param secSensorName
+     * @param secSensorName name of the secondary sensor
      * @return the result list with the sampleSets that contain two observations
      */
     List<SampleSet> addSecondarySamples(List<SampleSet> sampleSets, TimeLocator timeLocator, final String secSensorName) {
@@ -70,7 +70,7 @@ class SampleCollector {
                 final int x = (int) pixelLocation.getX();
                 final int y = (int) pixelLocation.getY();
                 geopos = pixelLocator.getGeoLocation(x + 0.5, y + 0.5, geopos);
-                if (geopos == null) {
+                if (geopos == null || Double.isNaN(geopos.getY()) || Double.isNaN(geopos.getY())) {
                     continue;
                 }
                 final long time = timeLocator.getTimeFor(x, y);

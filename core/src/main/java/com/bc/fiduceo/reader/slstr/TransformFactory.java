@@ -14,7 +14,7 @@ class TransformFactory {
 
     public Transform get(VariableType variableType) {
         if (variableType == NADIR_1km) {
-            return new Nadir1kmTransform();
+            return new Nadir1kmTransform(rasterWidth, rasterHeight);
         } else if (variableType == NADIR_500m) {
             return new Nadir500mTransform();
         } else if (variableType == OBLIQUE_1km) {
