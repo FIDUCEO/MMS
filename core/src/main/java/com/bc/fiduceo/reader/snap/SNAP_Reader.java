@@ -259,7 +259,7 @@ public abstract class SNAP_Reader implements Reader {
     }
 
     // package access for testing only tb 2019-05-17
-    static double getGeophysicalNoDataValue(RasterDataNode dataNode) {
+    protected static double getGeophysicalNoDataValue(RasterDataNode dataNode) {
         if (dataNode.isNoDataValueUsed()) {
             return dataNode.getGeophysicalNoDataValue();
         } else {

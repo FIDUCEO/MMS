@@ -128,7 +128,7 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11
             return readScaled(centerX, centerY, interval, variableName);
@@ -173,16 +173,25 @@ public class SlstrReader extends SNAP_Reader {
         return targetArray;
     }
 
-    protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
-        final VariableType variableType = variableNames.getVariableType(dataNode.getName());
+    @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
-        final Dimension rasterSize = transform.getRasterSize();
 
-        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, rasterSize.getNx(), rasterSize.getNy());
+        final int mappedX = transform.mapCoordinate(centerX);
+        final int mappedY = transform.mapCoordinate(centerY);
+        final Interval mappedInterval = transform.mapInterval(interval);
+
+        final RasterDataNode dataNode = getRasterDataNode(variableName);
+        final double noDataValue = SlstrReader.getGeophysicalNoDataValue(dataNode);
+
+        final Array originalArray = super.readScaled(mappedX, mappedY, mappedInterval, variableName);
+
+        return transform.process(originalArray, noDataValue);
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         final int width = interval.getX();
         final int height = interval.getY();
         final int[] timeArray = new int[width * height];
@@ -225,6 +234,14 @@ public class SlstrReader extends SNAP_Reader {
     @Override
     public String getLatitudeVariableName() {
         return "latitude_tx";
+    }
+
+    protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
+        final VariableType variableType = variableNames.getVariableType(dataNode.getName());
+        final Transform transform = transformFactory.get(variableType);
+        final Dimension rasterSize = transform.getRasterSize();
+
+        readSubsetData(dataNode, targetArray, width, height, xOffset, yOffset, rasterSize.getNx(), rasterSize.getNy());
     }
 
     @Override

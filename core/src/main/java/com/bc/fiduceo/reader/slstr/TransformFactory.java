@@ -16,7 +16,7 @@ class TransformFactory {
         if (variableType == NADIR_1km) {
             return new Nadir1kmTransform(rasterWidth, rasterHeight);
         } else if (variableType == NADIR_500m) {
-            return new Nadir500mTransform();
+            return new Nadir500mTransform(rasterWidth, rasterHeight);
         } else if (variableType == OBLIQUE_1km) {
             return new Oblique1kmTransform();
         } else if (variableType == OBLIQUE_500m) {

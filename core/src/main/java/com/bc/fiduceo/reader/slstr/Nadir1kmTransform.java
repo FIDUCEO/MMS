@@ -1,6 +1,8 @@
 package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
+import ucar.ma2.Array;
 
 class Nadir1kmTransform implements Transform {
 
@@ -15,5 +17,20 @@ class Nadir1kmTransform implements Transform {
     @Override
     public Dimension getRasterSize() {
         return new Dimension("raster", rasterWidth, rasterHeight);
+    }
+
+    @Override
+    public int mapCoordinate(int coordinate) {
+        return coordinate;
+    }
+
+    @Override
+    public Interval mapInterval(Interval interval) {
+        return interval;
+    }
+
+    @Override
+    public Array process(Array array, double noDataValue) {
+        return array;
     }
 }
