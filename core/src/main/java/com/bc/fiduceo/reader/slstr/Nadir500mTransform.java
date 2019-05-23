@@ -46,11 +46,12 @@ class Nadir500mTransform implements Transform {
         for (int y = 0; y < shape[1]; y++) {
             final int twoY = y * 2;
             for (int x = 0; x < shape[0]; x++) {
+                count = 4;
                 final int twoX = x * 2;
 
                 readIndex.set(twoY, twoX);
                 double value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 1e-8) {
+                if (Math.abs(value - noDataValue) < 0.01) {
                     value = 0.0;
                     --count;
                 }
@@ -58,7 +59,7 @@ class Nadir500mTransform implements Transform {
 
                 readIndex.set(twoY, twoX + 1);
                 value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 1e-8) {
+                if (Math.abs(value - noDataValue) < 0.01) {
                     value = 0.0;
                     --count;
                 }
@@ -66,7 +67,7 @@ class Nadir500mTransform implements Transform {
 
                 readIndex.set(twoY + 1, twoX);
                 value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 1e-8) {
+                if (Math.abs(value - noDataValue) < 0.01) {
                     value = 0.0;
                     --count;
                 }
@@ -74,7 +75,7 @@ class Nadir500mTransform implements Transform {
 
                 readIndex.set(twoY + 1, twoX + 1);
                 value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 1e-8) {
+                if (Math.abs(value - noDataValue) < 0.01) {
                     value = 0.0;
                     --count;
                 }

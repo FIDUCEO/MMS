@@ -336,6 +336,34 @@ public class SlstrReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScaled_S3A_500m_nadir_upper() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(100, 0, interval, "S3_radiance_an");
+            NCTestUtils.assertValueAt(-294.9119873046875, 0, 0, array);
+            NCTestUtils.assertValueAt(-294.9119873046875, 4, 0, array);
+
+            NCTestUtils.assertValueAt(-294.9119873046875, 0, 1, array);
+            NCTestUtils.assertValueAt(-294.9119873046875, 3, 1, array);
+
+            NCTestUtils.assertValueAt(1.3680000305175781, 0, 2, array);
+            NCTestUtils.assertValueAt(1.3005000352859497, 2, 2, array);
+            NCTestUtils.assertValueAt(1.2014999389648438, 4, 2, array);
+
+            NCTestUtils.assertValueAt(1.2960000038146973, 0, 3, array);
+            NCTestUtils.assertValueAt(1.5255000591278076, 2, 3, array);
+            NCTestUtils.assertValueAt(1.4040000438690186, 4, 3, array);
+
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getS3AFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
         return getFileAsserted(testFilePath);
