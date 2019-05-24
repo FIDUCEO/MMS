@@ -34,10 +34,7 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TimeCoding;
 import org.esa.snap.dataio.envisat.EnvisatConstants;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
+import ucar.ma2.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +93,7 @@ class ATSR_L1B_Reader extends SNAP_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11
             return readScaled(centerX, centerY, interval, variableName);

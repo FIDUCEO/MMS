@@ -128,7 +128,7 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11
             return readScaled(centerX, centerY, interval, variableName);
@@ -174,7 +174,7 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
 

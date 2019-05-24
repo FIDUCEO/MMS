@@ -94,9 +94,9 @@ public interface Reader extends AutoCloseable {
 
     /**
      * parses a file name for acquisition start day. Returns an array of integers:
-     *  ret[0] = year
-     *  ret[1] = month (one - based)
-     *  ret[2] = day of month
+     * ret[0] = year
+     * ret[1] = month (one - based)
+     * ret[2] = day of month
      *
      * @param fileName the file name to parse
      * @return the date - triple
@@ -115,8 +115,8 @@ public interface Reader extends AutoCloseable {
      * @param interval     the window sizes.
      * @param variableName the name of the data variable.
      * @return a data Array containing the data of the defined window.
-     * @throws IOException
-     * @throws InvalidRangeException
+     * @throws IOException           on disk access failures
+     * @throws InvalidRangeException on incorrect coordinates supplied
      */
     Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;
 
@@ -133,7 +133,7 @@ public interface Reader extends AutoCloseable {
      * @param interval     the window sizes.
      * @param variableName the name of the data variable.
      * @return a data Array containing the data of the defined window.
-     * @throws IOException on disk access failures
+     * @throws IOException           on disk access failures
      * @throws InvalidRangeException on incorrect coordinates supplied
      */
     Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException;

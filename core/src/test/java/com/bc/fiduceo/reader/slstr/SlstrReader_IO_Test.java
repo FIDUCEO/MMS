@@ -147,7 +147,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_S3A() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_S3A() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -169,7 +169,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_S3A_upper_right() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_S3A_upper_right() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -191,7 +191,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_S3A_bottom() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_S3A_bottom() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -212,7 +212,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_nadir() throws IOException {
+    public void testReadScaled_S3A_1km_nadir() throws IOException, InvalidRangeException {
         final File file = getS3AFile();
 
         try {
@@ -244,7 +244,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_nadir_bottom() throws IOException {
+    public void testReadScaled_S3A_1km_nadir_bottom() throws IOException, InvalidRangeException {
         final File file = getS3AFile();
 
         try {
@@ -290,7 +290,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_1km_nadir_left() throws IOException {
+    public void testReadRaw_S3A_1km_nadir_left() throws IOException, InvalidRangeException {
         final File file = getS3AFile();
 
         try {
@@ -309,7 +309,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_nadir() throws IOException {
+    public void testReadScaled_S3A_500m_nadir() throws IOException, InvalidRangeException {
         final File file = getS3AFile();
 
         try {
@@ -337,7 +337,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_nadir_upper() throws IOException {
+    public void testReadScaled_S3A_500m_nadir_upper() throws IOException, InvalidRangeException {
         final File file = getS3AFile();
 
         try {

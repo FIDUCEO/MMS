@@ -2,9 +2,7 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
+import ucar.ma2.*;
 
 class Nadir500mTransform implements Transform {
 
@@ -34,52 +32,35 @@ class Nadir500mTransform implements Transform {
     }
 
     @Override
-    public Array process(Array array, double noDataValue) {
+    public Array process(Array array, double noDataValue) throws InvalidRangeException {
         final Array resultArray = createTargetArray(array);
         final Index writeIndex = resultArray.getIndex();
-        final Index readIndex = array.getIndex();
 
         int count = 4;
         final double[] averagingArray = new double[count];
+        final int[] section_shape = new int[]{2, 2};
+        final int[] offset = new int[2];
 
         final int[] shape = resultArray.getShape();
-        for (int y = 0; y < shape[1]; y++) {
+        for (int y = 0; y < shape[0]; y++) {
             final int twoY = y * 2;
-            for (int x = 0; x < shape[0]; x++) {
+            offset[0] = twoY;
+            for (int x = 0; x < shape[1]; x++) {
                 count = 4;
                 final int twoX = x * 2;
+                offset[1] = twoX;
 
-                readIndex.set(twoY, twoX);
-                double value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 0.01) {
-                    value = 0.0;
-                    --count;
+                final Array section = array.section(offset, section_shape);
+                final IndexIterator indexIterator = section.getIndexIterator();
+                for (int i = 0; i < averagingArray.length; i++) {
+                    final double value = indexIterator.getDoubleNext();
+                    if (Math.abs(value - noDataValue) < 0.01) {
+                        averagingArray[i] = 0.0;
+                        --count;
+                    } else {
+                        averagingArray[i] = value;
+                    }
                 }
-                averagingArray[0] = value;
-
-                readIndex.set(twoY, twoX + 1);
-                value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 0.01) {
-                    value = 0.0;
-                    --count;
-                }
-                averagingArray[1] = value;
-
-                readIndex.set(twoY + 1, twoX);
-                value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 0.01) {
-                    value = 0.0;
-                    --count;
-                }
-                averagingArray[2] = value;
-
-                readIndex.set(twoY + 1, twoX + 1);
-                value = array.getDouble(readIndex);
-                if (Math.abs(value - noDataValue) < 0.01) {
-                    value = 0.0;
-                    --count;
-                }
-                averagingArray[3] = value;
 
                 double result = noDataValue;
                 if (count > 0) {
@@ -103,7 +84,7 @@ class Nadir500mTransform implements Transform {
         final int[] shape = array.getShape();
         final DataType dataType = array.getDataType();
         for (int i = 0; i < shape.length; i++) {
-            shape[i] = shape[i]/2;
+            shape[i] = shape[i] / 2;
         }
 
         return Array.factory(dataType, shape);

@@ -10,10 +10,8 @@ import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
-import ucar.ma2.Array;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.awt.*;
@@ -104,7 +102,7 @@ public abstract class SNAP_Reader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
         final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
