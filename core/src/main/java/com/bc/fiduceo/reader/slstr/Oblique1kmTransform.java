@@ -17,6 +17,11 @@ class Oblique1kmTransform implements Transform {
     }
 
     @Override
+    public int getOffset() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Interval mapInterval(Interval interval) {
         throw new RuntimeException("not implemented");
     }

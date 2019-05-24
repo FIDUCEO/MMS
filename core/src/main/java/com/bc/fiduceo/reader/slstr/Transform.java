@@ -11,6 +11,8 @@ interface Transform {
 
     int mapCoordinate(int coordinate);
 
+    int getOffset();
+
     Interval mapInterval(Interval interval);
 
     Array process(Array array, double noDataValue) throws InvalidRangeException;

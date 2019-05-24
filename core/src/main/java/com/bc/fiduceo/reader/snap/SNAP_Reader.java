@@ -276,7 +276,7 @@ public abstract class SNAP_Reader implements Reader {
     }
 
     // package access for testing only tb 2019-05-17
-    static Array createReadingArray(DataType targetDataType, int[] shape) {
+    protected static Array createReadingArray(DataType targetDataType, int[] shape) {
         switch (targetDataType) {
             case FLOAT:
                 return Array.factory(DataType.FLOAT, shape);

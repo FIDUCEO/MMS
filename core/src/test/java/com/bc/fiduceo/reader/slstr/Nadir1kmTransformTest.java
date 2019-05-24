@@ -27,6 +27,13 @@ public class Nadir1kmTransformTest {
     }
 
     @Test
+    public void testGetOffset() {
+        final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
+
+        assertEquals(0, transform.getOffset());
+    }
+
+    @Test
     public void testMapInterval() {
         final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
 

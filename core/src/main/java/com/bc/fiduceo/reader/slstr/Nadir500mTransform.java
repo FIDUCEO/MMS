@@ -25,6 +25,11 @@ class Nadir500mTransform implements Transform {
     }
 
     @Override
+    public int getOffset() {
+        return 1;
+    }
+
+    @Override
     public Interval mapInterval(Interval interval) {
         final int width = interval.getX() * 2;
         final int height = interval.getY() * 2;
@@ -34,6 +39,7 @@ class Nadir500mTransform implements Transform {
     @Override
     public Array process(Array array, double noDataValue) throws InvalidRangeException {
         final Array resultArray = createTargetArray(array);
+        final boolean isInteger = !resultArray.getDataType().isFloatingPoint();
         final Index writeIndex = resultArray.getIndex();
 
         int count = 4;
@@ -69,6 +75,9 @@ class Nadir500mTransform implements Transform {
                         sum += v;
                     }
                     result = sum / count;
+                    if (isInteger) {
+                        result = Math.round(result);
+                    }
                 }
 
                 writeIndex.set(y, x);

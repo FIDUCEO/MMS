@@ -25,6 +25,11 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
+    public int getOffset() {
+        return 0;
+    }
+
+    @Override
     public Interval mapInterval(Interval interval) {
         return interval;
     }

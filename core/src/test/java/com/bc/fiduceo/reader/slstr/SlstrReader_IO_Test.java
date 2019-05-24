@@ -317,20 +317,20 @@ public class SlstrReader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readScaled(339, 812, interval, "sat_azimuth_tn");
-            NCTestUtils.assertValueAt(117.35844421386719, 0, 0, array);
-            NCTestUtils.assertValueAt(117.35782623291016, 1, 0, array);
-            NCTestUtils.assertValueAt(117.35720825195312, 2, 0, array);
+            NCTestUtils.assertValueAt(117.35515594482422, 0, 0, array);
+            NCTestUtils.assertValueAt(117.35452270507812, 1, 0, array);
+            NCTestUtils.assertValueAt(117.35389709472656, 2, 0, array);
 
             array = reader.readScaled(662, 617, interval, "S1_radiance_an");
-            NCTestUtils.assertValueAt(19.983074188232422, 3, 0, array);
-            NCTestUtils.assertValueAt(20.31776237487793, 4, 0, array);
-            NCTestUtils.assertValueAt(17.53316307067871, 0, 1, array);
+            NCTestUtils.assertValueAt(19.536823272705078, 3, 0, array);
+            NCTestUtils.assertValueAt(19.34047508239746, 4, 0, array);
+            NCTestUtils.assertValueAt(18.055274963378906, 0, 1, array);
 
             array = reader.readScaled(1256, 239, interval, "S5_radiance_an");
-            NCTestUtils.assertValueAt(1.875833511352539, 1, 1, array);
-            NCTestUtils.assertValueAt(3.3011960983276367, 2, 2, array);
-            NCTestUtils.assertValueAt(0.72199547290802, 3, 3, array);
-            NCTestUtils.assertValueAt(0.5272430181503296, 4, 4, array);
+            NCTestUtils.assertValueAt(2.7090353965759277, 1, 1, array);
+            NCTestUtils.assertValueAt(1.8899459838867188, 2, 2, array);
+            NCTestUtils.assertValueAt(0.53175902366638182, 3, 3, array);
+            NCTestUtils.assertValueAt(0.5018404722213745, 4, 4, array);
         } finally {
             reader.close();
         }
@@ -351,14 +351,60 @@ public class SlstrReader_IO_Test {
             NCTestUtils.assertValueAt(-294.9119873046875, 0, 1, array);
             NCTestUtils.assertValueAt(-294.9119873046875, 3, 1, array);
 
-            NCTestUtils.assertValueAt(1.3680000305175781, 0, 2, array);
-            NCTestUtils.assertValueAt(1.3005000352859497, 2, 2, array);
-            NCTestUtils.assertValueAt(1.2014999389648438, 4, 2, array);
+            NCTestUtils.assertValueAt(1.4670000076293945, 0, 2, array);
+            NCTestUtils.assertValueAt(1.3252500295639038, 2, 2, array);
+            NCTestUtils.assertValueAt(1.2734999656677246, 4, 2, array);
 
-            NCTestUtils.assertValueAt(1.2960000038146973, 0, 3, array);
-            NCTestUtils.assertValueAt(1.5255000591278076, 2, 3, array);
-            NCTestUtils.assertValueAt(1.4040000438690186, 4, 3, array);
+            NCTestUtils.assertValueAt(1.3792500495910645, 0, 3, array);
+            NCTestUtils.assertValueAt(1.3680000305175781, 2, 3, array);
+            NCTestUtils.assertValueAt(1.4197499752044678, 4, 3, array);
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_nadir() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(340, 813, interval, "S2_radiance_an");
+            NCTestUtils.assertValueAt(659, 0, 0, array);
+            NCTestUtils.assertValueAt(666, 1, 0, array);
+            NCTestUtils.assertValueAt(672, 2, 0, array);
+
+            array = reader.readScaled(663, 618, interval, "S3_radiance_an");
+            NCTestUtils.assertValueAt(9, 3, 0, array);
+            NCTestUtils.assertValueAt(8, 4, 0, array);
+            NCTestUtils.assertValueAt(10, 0, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_nadir_bottom() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(688, 1199, interval, "S4_radiance_an");
+            NCTestUtils.assertValueAt(28, 0, 0, array);
+            NCTestUtils.assertValueAt(18, 0, 1, array);
+            NCTestUtils.assertValueAt(26, 0, 2, array);
+            NCTestUtils.assertValueAt(-32768, 0, 3, array);
+            NCTestUtils.assertValueAt(-32768, 0, 4, array);
+            NCTestUtils.assertValueAt(24, 3, 0, array);
+            NCTestUtils.assertValueAt(12, 3, 1, array);
+            NCTestUtils.assertValueAt(23, 3, 2, array);
+            NCTestUtils.assertValueAt(-32768, 3, 3, array);
+            NCTestUtils.assertValueAt(-32768, 3, 4, array);
         } finally {
             reader.close();
         }

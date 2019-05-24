@@ -28,6 +28,13 @@ public class Nadir500mTransformTest {
     }
 
     @Test
+    public void testGetOffset() {
+        final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
+
+        assertEquals(1, transform.getOffset());
+    }
+
+    @Test
     public void testMapInterval() {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
 

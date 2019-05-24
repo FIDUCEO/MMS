@@ -142,15 +142,19 @@ public class SlstrReader extends SNAP_Reader {
 
         final double noDataValue = getNoDataValue(dataNode);
         final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
-        final int[] shape = getShape(interval);
+
+        final Interval mappedInterval = transform.mapInterval(interval);
+        final int width = mappedInterval.getX();
+        final int height = mappedInterval.getY();
+        final int[] shape = getShape(mappedInterval);
         final Array readArray = Array.factory(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
 
-        final int width = interval.getX();
-        final int height = interval.getY();
+        final int mappedX = transform.mapCoordinate(centerX);
+        final int mappedY = transform.mapCoordinate(centerY);
 
-        final int xOffset = centerX - width / 2;
-        final int yOffset = centerY - height / 2;
+        final int xOffset = mappedX - width / 2 + transform.getOffset();
+        final int yOffset = mappedY - height / 2 + transform.getOffset();
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
@@ -170,7 +174,7 @@ public class SlstrReader extends SNAP_Reader {
             }
         }
 
-        return targetArray;
+        return transform.process(targetArray, noDataValue);
     }
 
     @Override
@@ -185,9 +189,19 @@ public class SlstrReader extends SNAP_Reader {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
         final double noDataValue = SlstrReader.getGeophysicalNoDataValue(dataNode);
 
-        final Array originalArray = super.readScaled(mappedX, mappedY, mappedInterval, variableName);
+        final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
+        final int[] shape = getShape(mappedInterval);
+        final Array readArray = createReadingArray(sourceDataType, shape);
 
-        return transform.process(originalArray, noDataValue);
+        final int width = mappedInterval.getX();
+        final int height = mappedInterval.getY();
+
+        final int xOffset = mappedX - width / 2 + transform.getOffset();
+        final int yOffset = mappedY - height / 2 + transform.getOffset();
+
+        readProductData(dataNode, readArray, width, height, xOffset, yOffset);
+
+        return transform.process(readArray, noDataValue);
     }
 
     @Override
