@@ -56,7 +56,15 @@ public class SlstrReaderTest {
         final long[] subs_times = {12L, 14L, 16L};
 
         assertArrayEquals(subs_times, SlstrReader.subSampleTimes(full_times));
+    }
 
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-27
 
+        final int[] ymd = reader.extractYearMonthDayFromFilename("S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3");
+        assertEquals(2018, ymd[0]);
+        assertEquals(10, ymd[1]);
+        assertEquals(13, ymd[2]);
     }
 }

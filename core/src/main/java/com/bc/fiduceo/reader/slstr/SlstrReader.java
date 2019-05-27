@@ -124,7 +124,13 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String datePart = fileName.substring(16, 24);
+        final int[] ymd = new int[3];
+        ymd[0] = Integer.parseInt(datePart.substring(0,4));
+        ymd[1] = Integer.parseInt(datePart.substring(4,6));
+        ymd[2] = Integer.parseInt(datePart.substring(6,8));
+
+        return ymd;
     }
 
     @Override
