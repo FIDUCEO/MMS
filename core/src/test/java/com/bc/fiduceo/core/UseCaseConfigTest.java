@@ -415,7 +415,7 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testRandomPointsPerDay_valid() {
+    public void test_old_RandomPointsPerDay_valid() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
                 "    <random-points-per-day>432</random-points-per-day>" +
                 "</use-case-config>";
@@ -428,7 +428,7 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testLoad_randomPointsPerDay_empty() {
+    public void test_old_randomPointsPerDay_empty() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
                 "    <random-points-per-day>   </random-points-per-day>" +
                 "</use-case-config>";
@@ -444,7 +444,7 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testLoad_randomPointsPerDay_zero() {
+    public void test_old_randomPointsPerDay_zero() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
                 "    <random-points-per-day> 0 </random-points-per-day>" +
                 "</use-case-config>";
@@ -460,7 +460,7 @@ public class UseCaseConfigTest {
     }
 
     @Test
-    public void testLoad_randomPointsPerDay_negative() {
+    public void test_old_randomPointsPerDay_negative() {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
                 "    <random-points-per-day>  -1 </random-points-per-day>" +
                 "</use-case-config>";
@@ -473,6 +473,37 @@ public class UseCaseConfigTest {
             final String expected = "Unable to initialize use case configuration: Value of element 'random-points-per-day' >= 1 expected. But was '-1'.";
             assertEquals(expected, e.getMessage());
         }
+    }
+
+    @Test
+    public void testRandomSampling_valid() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                "    <random-sampling>" +
+                "        <points-per-day>57</points-per-day>" +
+                "    </random-sampling>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertNotNull(useCaseConfig);
+        assertEquals(57, useCaseConfig.getRandomPointsPerDay());
+        assertFalse(useCaseConfig.isEquallyDistributedPoints());
+    }
+
+    @Test
+    public void testRandomSampling_valid_equallyDistributed() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                "    <random-sampling>" +
+                "        <points-per-day>58</points-per-day>" +
+                "        <equally-distributed>true</equally-distributed>" +
+                "    </random-sampling>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertNotNull(useCaseConfig);
+        assertEquals(58, useCaseConfig.getRandomPointsPerDay());
+        assertTrue(useCaseConfig.isEquallyDistributedPoints());
     }
 
     @Test

@@ -47,6 +47,9 @@ public class UseCaseConfig {
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
     static final String TAG_NAME_RANDOM_POINTS_PER_DAY = "random-points-per-day";
+    private static final String TAG_NAME_RANDOM_SAMPLING = "random-sampling";
+    private final String TAG_NAME_POINTS_PER_DAY = "points-per-day";
+    private final String TAG_NAME_EQUALLY_DISTRIBUTED= "equally-distributed";
     public static final String TAG_NAME_PRIMARY = "primary";
     static final String TAG_NAME_DATA_VERSION = "data-version";
     static final String TAG_NAME_DIMENSIONS = "dimensions";
@@ -69,6 +72,7 @@ public class UseCaseConfig {
     private boolean testRun;
     private double lon;
     private double lat;
+    private boolean equallyDistributedPoints;
 
     public UseCaseConfig() {
         sensors = new ArrayList<>();
@@ -76,6 +80,7 @@ public class UseCaseConfig {
         testRun = false;
         lon = Double.NaN;
         lat = Double.NaN;
+        equallyDistributedPoints = false;
     }
 
     public static UseCaseConfig load(InputStream inputStream) {
@@ -234,6 +239,14 @@ public class UseCaseConfig {
         return validationResult;
     }
 
+    public boolean isEquallyDistributedPoints() {
+        return equallyDistributedPoints;
+    }
+
+    public void setEquallyDistributedPoints(boolean equallyDistributedPoints) {
+        this.equallyDistributedPoints = equallyDistributedPoints;
+    }
+
     public Element getDomElement(String elemName) {
         return document.getRootElement().getChild(elemName);
     }
@@ -301,6 +314,19 @@ public class UseCaseConfig {
         final Element seedPointsElem = rootElement.getChild(TAG_NAME_RANDOM_POINTS_PER_DAY);
         if (seedPointsElem != null) {
             setRandomPointsPerDay(getMandatoryPositiveIntegerValue(seedPointsElem));
+        }
+
+        final Element randomSamplingElem = rootElement.getChild(TAG_NAME_RANDOM_SAMPLING);
+        if (randomSamplingElem != null) {
+            final Element pointsPerDayElement = randomSamplingElem.getChild(TAG_NAME_POINTS_PER_DAY);
+            final int pointsPerDay = getMandatoryPositiveIntegerValue(pointsPerDayElement);
+            setRandomPointsPerDay(pointsPerDay);
+
+            final Element equallyDistributedElement = randomSamplingElem.getChild(TAG_NAME_EQUALLY_DISTRIBUTED);
+            if (equallyDistributedElement != null) {
+                final String equallyDistributedText = equallyDistributedElement.getTextTrim();
+                setEquallyDistributedPoints(Boolean.parseBoolean(equallyDistributedText));
+            }
         }
 
         final Element testRunElem = rootElement.getChild(TAG_NAME_TEST_RUN);

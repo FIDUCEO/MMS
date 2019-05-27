@@ -197,7 +197,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final Date endDate = context.getEndDate();
         final int randomPoints = getNumRandomPoints(randomPointsPerDay, startDate, endDate);
 
-        final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(true);
+        final boolean sphericalDistribution = !useCaseConfig.isEquallyDistributedPoints();
+        final SobolSamplingPointGenerator sobolSamplingPointGenerator = new SobolSamplingPointGenerator(sphericalDistribution);
 
         final long contextStart = startDate.getTime();
         final long contextEnd = endDate.getTime();
