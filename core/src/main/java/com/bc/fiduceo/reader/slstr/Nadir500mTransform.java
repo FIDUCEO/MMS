@@ -131,7 +131,7 @@ class Nadir500mTransform implements Transform {
         return resultArray;
     }
 
-    // @todo 2 tb/tb add tests 2019-05-22
+    // package access for testing only tb 2019-05-27
     static Array createTargetArray(Array array) {
         final int[] shape = array.getShape();
         final DataType dataType = array.getDataType();

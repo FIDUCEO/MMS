@@ -4,6 +4,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 
 import static org.junit.Assert.assertEquals;
@@ -171,5 +172,20 @@ public class Nadir500mTransformTest {
         assertEquals(65535, processed.getInt(6));
         assertEquals(15, processed.getInt(7));
         assertEquals(29, processed.getInt(8));
+    }
+
+    @Test
+    public void testCreateTargetArray() {
+        Array array = Array.factory(DataType.FLOAT, new int[]{4, 4});
+
+        Array targetArray = Nadir500mTransform.createTargetArray(array);
+        assertEquals("(2,2)", targetArray.shapeToString());
+        assertEquals(DataType.FLOAT, targetArray.getDataType());
+
+        array = Array.factory(DataType.SHORT, new int[]{6, 2});
+
+        targetArray = Nadir500mTransform.createTargetArray(array);
+        assertEquals("(3,1)", targetArray.shapeToString());
+        assertEquals(DataType.SHORT, targetArray.getDataType());
     }
 }
