@@ -2,7 +2,7 @@
 * added option to switch Sobol sequences between equal-area and equal-angle sampling.
 
 ### Updates from version 1.4.4 to 1.4.5
-* corrected AVHRR FRAC reader regexp for filenames
+* corrected AVHRR FCDR reader regexp for filenames
 
 ### Updates from version 1.4.3 to 1.4.4
 * updated AVHRR FCDR reader to match format changes
