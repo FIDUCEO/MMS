@@ -410,6 +410,52 @@ public class SlstrReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_S3A_500m_nadir_flags() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(730, 542, interval, "S5_exception_an");
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(2, 2, 2, array);
+
+            array = reader.readRaw(733, 592, interval, "S6_exception_an");
+            NCTestUtils.assertValueAt(2, 0, 0, array);
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(34, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_nadir_flags_top_left() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(0, 0, interval, "S1_exception_an");
+            NCTestUtils.assertValueAt(-1, 0, 0, array);
+            NCTestUtils.assertValueAt(-1, 0, 1, array);
+            NCTestUtils.assertValueAt(-1, 0, 2, array);
+            NCTestUtils.assertValueAt(-1, 0, 3, array);
+            NCTestUtils.assertValueAt(-1, 0, 4, array);
+            NCTestUtils.assertValueAt(-1, 3, 0, array);
+            NCTestUtils.assertValueAt(-1, 3, 1, array);
+            NCTestUtils.assertValueAt(-128, 3, 2, array);
+            NCTestUtils.assertValueAt(-128, 3, 3, array);
+            NCTestUtils.assertValueAt(-128, 3, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getS3AFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
         return getFileAsserted(testFilePath);

@@ -47,4 +47,14 @@ public class VariableNamesTest {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testIsFlagVariable() {
+        assertTrue(variableNames.isFlagVariable("S6_exception_an"));
+        assertTrue(variableNames.isFlagVariable("S7_exception_io"));
+        assertTrue(variableNames.isFlagVariable("pointing_in"));
+
+        assertFalse(variableNames.isFlagVariable("solar_zenith_to"));
+        assertFalse(variableNames.isFlagVariable("S8_BT_in"));
+    }
 }

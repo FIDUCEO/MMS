@@ -174,7 +174,11 @@ public class SlstrReader extends SNAP_Reader {
             }
         }
 
-        return transform.process(targetArray, noDataValue);
+        if (variableNames.isFlagVariable(variableName)) {
+            return transform.processFlags(targetArray, (int) noDataValue) ;
+        } else {
+            return transform.process(targetArray, noDataValue);
+        }
     }
 
     @Override

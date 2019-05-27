@@ -16,4 +16,6 @@ interface Transform {
     Interval mapInterval(Interval interval);
 
     Array process(Array array, double noDataValue) throws InvalidRangeException;
+
+    Array processFlags(Array array, int noDataValue) throws InvalidRangeException;
 }

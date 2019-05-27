@@ -11,6 +11,7 @@ class VariableNames {
     private final List<String> nadir500mNames;
     private final List<String> oblique1kmNames;
     private final List<String> oblique500mNames;
+    private final List<String> flagNames;
 
     VariableNames() {
         nadir500mNames = new ArrayList<>();
@@ -72,6 +73,32 @@ class VariableNames {
         oblique1kmNames.add("S9_exception_io");
         oblique1kmNames.add("bayes_io");
         oblique1kmNames.add("cloud_io");
+
+        flagNames = new ArrayList<>();
+        flagNames.add("S1_exception_an");
+        flagNames.add("S2_exception_an");
+        flagNames.add("S3_exception_an");
+        flagNames.add("S4_exception_an");
+        flagNames.add("S5_exception_an");
+        flagNames.add("S6_exception_an");
+        flagNames.add("S7_exception_in");
+        flagNames.add("S8_exception_in");
+        flagNames.add("S9_exception_in");
+        flagNames.add("confidence_in");
+        flagNames.add("pointing_in");
+        flagNames.add("bayes_in");
+        flagNames.add("cloud_in");
+        flagNames.add("S1_exception_ao");
+        flagNames.add("S2_exception_ao");
+        flagNames.add("S3_exception_ao");
+        flagNames.add("S4_exception_ao");
+        flagNames.add("S5_exception_ao");
+        flagNames.add("S6_exception_ao");
+        flagNames.add("S7_exception_io");
+        flagNames.add("S8_exception_io");
+        flagNames.add("S9_exception_io");
+        flagNames.add("bayes_io");
+        flagNames.add("cloud_io");
     }
 
     boolean isValidName(String variableName) {
@@ -92,5 +119,9 @@ class VariableNames {
             return OBLIQUE_1km;
         }
         throw new RuntimeException("Requested variable not supported: " + variableName);
+    }
+
+    boolean isFlagVariable(String variableName) {
+        return flagNames.contains(variableName);
     }
 }

@@ -120,4 +120,56 @@ public class Nadir500mTransformTest {
         assertEquals(12.0, processed.getDouble(7), 1e-8);
         assertEquals(6.5, processed.getDouble(8), 1e-8);
     }
+
+    @Test
+    public void testProcessFlags_1x1_noFills() throws InvalidRangeException {
+        final Nadir500mTransform transform = new Nadir500mTransform(202, 182);
+        final int[][] data = new int[][]{{0, 1}, {2, 3}};
+
+        final Array array = Array.factory(data);
+        final Array processed = transform.processFlags(array, -1);
+
+        assertEquals("(1,1)", processed.shapeToString());
+        assertEquals(3, processed.getInt(0));
+    }
+
+    @Test
+    public void testProcessFlags_3x1_noFills() throws InvalidRangeException {
+        final Nadir500mTransform transform = new Nadir500mTransform(203, 183);
+        final int[][] data = new int[][]{{0, 1, 2, 3, 4, 5},
+                {6, 7, 8, 9, 10, 11}};
+
+        final Array array = Array.factory(data);
+        final Array processed = transform.processFlags(array, -2);
+
+        assertEquals("(1,3)", processed.shapeToString());
+        assertEquals(7, processed.getInt(0));
+        assertEquals(11, processed.getInt(1));
+        assertEquals(15, processed.getInt(2));
+    }
+
+    @Test
+    public void testProcessFlags_3x3_fills() throws InvalidRangeException {
+        final Nadir500mTransform transform = new Nadir500mTransform(203, 183);
+        final int[][] data = new int[][]{{1, 1, 1, 1, 1, 1},
+                {2, 65535, 2, 2, 2, 2},
+                {65535, 4, 4, 4, 65535, 4},
+                {5, 65535, 6, 7, 8, 9},
+                {65535, 65535, 10, 11, 12, 13},
+                {65535, 65535, 14, 15, 16, 17}};
+
+        final Array array = Array.factory(data);
+        final Array processed = transform.processFlags(array, 65535);
+
+        assertEquals("(3,3)", processed.shapeToString());
+        assertEquals(3, processed.getInt(0));
+        assertEquals(3, processed.getInt(1));
+        assertEquals(3, processed.getInt(2));
+        assertEquals(5, processed.getInt(3));
+        assertEquals(7, processed.getInt(4));
+        assertEquals(13, processed.getInt(5));
+        assertEquals(65535, processed.getInt(6));
+        assertEquals(15, processed.getInt(7));
+        assertEquals(29, processed.getInt(8));
+    }
 }

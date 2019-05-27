@@ -4,6 +4,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,5 +56,18 @@ public class Nadir1kmTransformTest {
         assertEquals(array.shapeToString(), processed.shapeToString());
         assertEquals(0.f, processed.getFloat(0), 1e-8);
         assertEquals(2.f, processed.getFloat(2), 1e-8);
+    }
+
+    @Test
+    public void testProcessFlags() throws InvalidRangeException {
+        final Nadir1kmTransform transform = new Nadir1kmTransform(202, 182);
+        final int[] data = new int[]{0, 1, 2, 4, 8, 16};
+
+        final Array array = Array.factory(data);
+        final Array processed = transform.processFlags(array, -1);
+
+        assertEquals(array.shapeToString(), processed.shapeToString());
+        assertEquals(1, processed.getInt(1));
+        assertEquals(4, processed.getInt(3));
     }
 }
