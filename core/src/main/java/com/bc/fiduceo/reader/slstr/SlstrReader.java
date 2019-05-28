@@ -57,7 +57,10 @@ public class SlstrReader extends SNAP_Reader {
     public void open(File file) throws IOException {
         open(file, "Sen3");
 
-        transformFactory = new TransformFactory(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final int obliqueGridOffset = getObliqueGridOffset();
+        transformFactory = new TransformFactory(product.getSceneRasterWidth(),
+                product.getSceneRasterHeight(),
+                obliqueGridOffset);
     }
 
     @Override
@@ -298,6 +301,43 @@ public class SlstrReader extends SNAP_Reader {
                 }
             }
         }
+    }
+
+    private int getObliqueGridOffset() {
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement manifestElement = metadataRoot.getElement("Manifest");
+        final MetadataElement metadataElement = manifestElement.getElement("metadataSection");
+        final MetadataElement productInformationElement = metadataElement.getElement("slstrProductInformation");
+
+        int nadirTrackOffset = -1;
+        int obliqueTrackOffset = -1;
+        final MetadataElement[] elements = productInformationElement.getElements();
+        for (final MetadataElement element: elements) {
+            if (element.getName().equalsIgnoreCase("nadirImageSize")) {
+                final MetadataAttribute grid = element.getAttribute("grid");
+                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
+                    nadirTrackOffset = extractTrackOffset(element);
+                }
+            }
+            if (element.getName().equalsIgnoreCase("obliqueImageSize")) {
+                final MetadataAttribute grid = element.getAttribute("grid");
+                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
+                    obliqueTrackOffset = extractTrackOffset(element);
+                }
+            }
+        }
+
+        if (nadirTrackOffset < 0 | obliqueTrackOffset < 0) {
+            throw new RuntimeException("Unable to extract raster offsets from metadata.");
+        }
+
+        return nadirTrackOffset - obliqueTrackOffset;
+    }
+
+    private int extractTrackOffset(MetadataElement element) {
+        final MetadataAttribute trackOffset = element.getAttribute("trackOffset");
+        final String trackOffsetString = trackOffset.getData().getElemString();
+        return Integer.parseInt(trackOffsetString);
     }
 
     private void ensureTimingVector() {

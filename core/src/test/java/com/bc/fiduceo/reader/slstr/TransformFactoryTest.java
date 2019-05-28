@@ -10,7 +10,7 @@ public class TransformFactoryTest {
 
     @Test
     public void testGet() {
-        final TransformFactory factory = new TransformFactory(100, 200);
+        final TransformFactory factory = new TransformFactory(100, 200, 18);
 
         Transform transform = factory.get(NADIR_1km);
         assertTrue(transform instanceof Nadir1kmTransform);

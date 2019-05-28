@@ -6,10 +6,12 @@ class TransformFactory {
 
     private final int rasterWidth;
     private final int rasterHeight;
+    private final int obliqueRasterOffset;
 
-    TransformFactory(int rasterWidth, int rasterHeight) {
+    TransformFactory(int rasterWidth, int rasterHeight, int obliqueRasterOffset) {
         this.rasterWidth = rasterWidth;
         this.rasterHeight = rasterHeight;
+        this.obliqueRasterOffset = obliqueRasterOffset;
     }
 
     public Transform get(VariableType variableType) {
@@ -18,7 +20,7 @@ class TransformFactory {
         } else if (variableType == NADIR_500m) {
             return new Nadir500mTransform(rasterWidth, rasterHeight);
         } else if (variableType == OBLIQUE_1km) {
-            return new Oblique1kmTransform();
+            return new Oblique1kmTransform(rasterWidth, rasterHeight, obliqueRasterOffset);
         } else if (variableType == OBLIQUE_500m) {
             return new Oblique500mTransform();
         }

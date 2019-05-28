@@ -7,9 +7,19 @@ import ucar.ma2.InvalidRangeException;
 
 class Oblique1kmTransform implements Transform {
 
+    private final int rasterWidth;
+    private final int rasterHeight;
+    private final int rasterXOffset;
+
+    Oblique1kmTransform(int rasterWidth, int rasterHeight, int rasterXOffset) {
+        this.rasterWidth = rasterWidth / 2 - 600;
+        this.rasterHeight = rasterHeight / 2;
+        this.rasterXOffset = rasterXOffset;
+    }
+
     @Override
     public Dimension getRasterSize() {
-        throw new RuntimeException("not implemented");
+        return new Dimension("raster", rasterWidth, rasterHeight);
     }
 
     @Override
