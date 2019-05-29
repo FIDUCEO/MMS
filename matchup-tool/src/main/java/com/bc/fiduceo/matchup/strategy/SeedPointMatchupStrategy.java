@@ -230,7 +230,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                     final int x = (int) Math.floor(x1);
                     final int y = (int) Math.floor(y1);
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
-                    primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));
+                    if (geo != null) {
+                        primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));
+                    }
                 }
             }
         }
