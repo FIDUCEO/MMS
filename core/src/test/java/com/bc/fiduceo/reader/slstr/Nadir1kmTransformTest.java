@@ -20,11 +20,11 @@ public class Nadir1kmTransformTest {
     }
 
     @Test
-    public void testMapCoordinate() {
+    public void testMapCoordinate_XY() {
         final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
 
-        assertEquals(123, transform.mapCoordinate(123));
-        assertEquals(4000, transform.mapCoordinate(4000));
+        assertEquals(123, transform.mapCoordinate_X(123));
+        assertEquals(4000, transform.mapCoordinate_Y(4000));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class Nadir1kmTransformTest {
     }
 
     @Test
-    public void testProcessFlags() throws InvalidRangeException {
+    public void testProcessFlags()  {
         final Nadir1kmTransform transform = new Nadir1kmTransform(202, 182);
         final int[] data = new int[]{0, 1, 2, 4, 8, 16};
 

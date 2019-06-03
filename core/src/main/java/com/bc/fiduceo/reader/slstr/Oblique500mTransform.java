@@ -13,7 +13,12 @@ class Oblique500mTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate(int coordinate) {
+    public int mapCoordinate_X(int coordinate) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public int mapCoordinate_Y(int coordinate) {
         throw new RuntimeException("not implemented");
     }
 

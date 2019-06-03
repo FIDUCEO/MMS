@@ -20,7 +20,12 @@ class Nadir500mTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate(int coordinate) {
+    public int mapCoordinate_X(int coordinate) {
+        return 2 * coordinate;
+    }
+
+    @Override
+    public int mapCoordinate_Y(int coordinate) {
         return 2 * coordinate;
     }
 

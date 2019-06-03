@@ -3,7 +3,6 @@ package com.bc.fiduceo.reader.slstr;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 class Nadir1kmTransform implements Transform {
 
@@ -21,7 +20,12 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate(int coordinate) {
+    public int mapCoordinate_X(int coordinate) {
+        return coordinate;
+    }
+
+    @Override
+    public int mapCoordinate_Y(int coordinate) {
         return coordinate;
     }
 

@@ -159,8 +159,8 @@ public class SlstrReader extends SNAP_Reader {
         final Array readArray = Array.factory(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
 
-        final int mappedX = transform.mapCoordinate(centerX);
-        final int mappedY = transform.mapCoordinate(centerY);
+        final int mappedX = transform.mapCoordinate_X(centerX);
+        final int mappedY = transform.mapCoordinate_Y(centerY);
 
         final int xOffset = mappedX - width / 2 + transform.getOffset_X();
         final int yOffset = mappedY - height / 2 + transform.getOffset_Y();
@@ -195,8 +195,8 @@ public class SlstrReader extends SNAP_Reader {
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
 
-        final int mappedX = transform.mapCoordinate(centerX);
-        final int mappedY = transform.mapCoordinate(centerY);
+        final int mappedX = transform.mapCoordinate_X(centerX);
+        final int mappedY = transform.mapCoordinate_Y(centerY);
         final Interval mappedInterval = transform.mapInterval(interval);
 
         final RasterDataNode dataNode = getRasterDataNode(variableName);

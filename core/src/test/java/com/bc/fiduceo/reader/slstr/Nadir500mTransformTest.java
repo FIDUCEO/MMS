@@ -21,11 +21,11 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testMapCoordinate() {
+    public void testMapCoordinate_XY() {
         final Nadir500mTransform transform = new Nadir500mTransform(200, 180);
 
-        assertEquals(248, transform.mapCoordinate(124));
-        assertEquals(7600, transform.mapCoordinate(3800));
+        assertEquals(248, transform.mapCoordinate_X(124));
+        assertEquals(7600, transform.mapCoordinate_Y(3800));
     }
 
     @Test

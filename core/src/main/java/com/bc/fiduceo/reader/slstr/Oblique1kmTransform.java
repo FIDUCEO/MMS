@@ -3,7 +3,6 @@ package com.bc.fiduceo.reader.slstr;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 class Oblique1kmTransform implements Transform {
 
@@ -23,32 +22,37 @@ class Oblique1kmTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate(int coordinate) {
-        throw new RuntimeException("not implemented");
+    public int mapCoordinate_X(int coordinate) {
+        return coordinate - rasterXOffset;
+    }
+
+    @Override
+    public int mapCoordinate_Y(int coordinate) {
+        return coordinate;
     }
 
     @Override
     public int getOffset_X() {
-        throw new RuntimeException("not implemented");
+        return -rasterXOffset;
     }
 
     @Override
     public int getOffset_Y() {
-        throw new RuntimeException("not implemented");
+        return 0;
     }
 
     @Override
     public Interval mapInterval(Interval interval) {
-        throw new RuntimeException("not implemented");
+        return interval;
     }
 
     @Override
     public Array process(Array array, double noDataValue) {
-        throw new RuntimeException("not implemented");
+        return array;
     }
 
     @Override
-    public Array processFlags(Array array, int noDataValue) throws InvalidRangeException {
-        throw new RuntimeException("not implemented");
+    public Array processFlags(Array array, int noDataValue) {
+        return array;
     }
 }
