@@ -5,45 +5,47 @@ import com.bc.fiduceo.core.Interval;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
-class Oblique500mTransform implements Transform {
+class Oblique500mTransform extends Abstract500mTransform {
+
+    private final int rasterWidth;
+    private final int rasterHeight;
+    private final int rasterXOffset;
+
+    Oblique500mTransform(int rasterWidth, int rasterHeight, int rasterXOffset) {
+        this.rasterWidth = rasterWidth / 2 - 600;
+        this.rasterHeight = rasterHeight / 2;
+        this.rasterXOffset = rasterXOffset;
+    }
 
     @Override
     public Dimension getRasterSize() {
-        throw new RuntimeException("not implemented");
+        return new Dimension("raster", rasterWidth, rasterHeight);
     }
 
     @Override
     public int mapCoordinate_X(int coordinate) {
-        throw new RuntimeException("not implemented");
+        return (coordinate - rasterXOffset) * 2;
     }
 
     @Override
     public int mapCoordinate_Y(int coordinate) {
-        throw new RuntimeException("not implemented");
+        return coordinate * 2;
     }
 
     @Override
     public int getOffset_X() {
-        throw new RuntimeException("not implemented");
+        return 1;
     }
 
     @Override
     public int getOffset_Y() {
-        throw new RuntimeException("not implemented");
+        return 1;
     }
 
     @Override
     public Interval mapInterval(Interval interval) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Array process(Array array, double noDataValue) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Array processFlags(Array array, int noDataValue) throws InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final int width = interval.getX() * 2;
+        final int height = interval.getY() * 2;
+        return new Interval(width, height);
     }
 }

@@ -39,20 +39,6 @@ public class SlstrReader extends SNAP_Reader {
         variableNames = new VariableNames();
     }
 
-    // package access for testing only tb 2019-05-13
-    static long[] subSampleTimes(long[] timeStamps) {
-        final long[] subs_times = new long[timeStamps.length / 2];
-
-        int writeIndex = 0;
-        for (int i = 0; i < timeStamps.length; i++) {
-            if (i % 2 == 0) {
-                subs_times[writeIndex] = timeStamps[i];
-                ++writeIndex;
-            }
-        }
-        return subs_times;
-    }
-
     @Override
     public void open(File file) throws IOException {
         open(file, "Sen3");
@@ -278,6 +264,20 @@ public class SlstrReader extends SNAP_Reader {
         }
 
         return super.getRasterDataNode(variableName);
+    }
+
+    // package access for testing only tb 2019-05-13
+    static long[] subSampleTimes(long[] timeStamps) {
+        final long[] subs_times = new long[timeStamps.length / 2];
+
+        int writeIndex = 0;
+        for (int i = 0; i < timeStamps.length; i++) {
+            if (i % 2 == 0) {
+                subs_times[writeIndex] = timeStamps[i];
+                ++writeIndex;
+            }
+        }
+        return subs_times;
     }
 
     private void setOrbitNodeInfo(AcquisitionInfo acquisitionInfo) {

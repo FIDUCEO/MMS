@@ -22,7 +22,7 @@ class TransformFactory {
         } else if (variableType == OBLIQUE_1km) {
             return new Oblique1kmTransform(rasterWidth, rasterHeight, obliqueRasterOffset);
         } else if (variableType == OBLIQUE_500m) {
-            return new Oblique500mTransform();
+            return new Oblique500mTransform(rasterWidth, rasterHeight, obliqueRasterOffset);
         }
 
         throw new RuntimeException("Invalid transform type requested");

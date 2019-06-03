@@ -30,7 +30,7 @@ public class Oblique1kmTransformTest {
     public void testGetOffset_XY() {
         final Oblique1kmTransform transform = new Oblique1kmTransform(202, 182, 549);
 
-        assertEquals(-549, transform.getOffset_X());
+        assertEquals(0, transform.getOffset_X());
         assertEquals(0, transform.getOffset_Y());
     }
 

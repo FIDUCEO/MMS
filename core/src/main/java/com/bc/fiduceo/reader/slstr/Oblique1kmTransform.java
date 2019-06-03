@@ -33,7 +33,7 @@ class Oblique1kmTransform implements Transform {
 
     @Override
     public int getOffset_X() {
-        return -rasterXOffset;
+        return 0;
     }
 
     @Override

@@ -456,6 +456,121 @@ public class SlstrReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScaled_S3A_1km_oblique() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(595, 194, interval, "bayes_io");
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(0, 1, 2, array);
+            NCTestUtils.assertValueAt(2, 2, 2, array);
+            NCTestUtils.assertValueAt(2, 3, 2, array);
+            NCTestUtils.assertValueAt(0, 4, 2, array);
+
+            array = reader.readScaled(662, 617, interval, "S7_BT_io");
+            NCTestUtils.assertValueAt(269.9200134277344, 3, 3, array);
+            NCTestUtils.assertValueAt(269.9200134277344, 4, 3, array);
+            NCTestUtils.assertValueAt(271.6700134277344, 0, 4, array);
+
+            array = reader.readScaled(1414, 320, interval, "S9_exception_io");
+            NCTestUtils.assertValueAt(0, 0, 2, array);
+            NCTestUtils.assertValueAt(2, 1, 2, array);
+            NCTestUtils.assertValueAt(2, 2, 2, array);
+            NCTestUtils.assertValueAt(128, 3, 2, array);
+            NCTestUtils.assertValueAt(128, 4, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3A_1km_oblique_top() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readScaled(1208, 0, interval, "S8_BT_io");
+            NCTestUtils.assertValueAt(-43.95000076293945, 2, 0, array);
+            NCTestUtils.assertValueAt(-43.95000076293945, 2, 1, array);
+            NCTestUtils.assertValueAt(257.1700134277344, 2, 2, array);
+            NCTestUtils.assertValueAt(257.1199951171875, 2, 3, array);
+            NCTestUtils.assertValueAt(257.6199951171875, 2, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3A_1km_oblique_rasterLeft() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readScaled(548, 573, interval, "S9_exception_io");
+            NCTestUtils.assertValueAt(-1.0, 0, 2, array);
+            NCTestUtils.assertValueAt(-1.0, 1, 2, array);
+            NCTestUtils.assertValueAt(128.0, 2, 2, array);
+            NCTestUtils.assertValueAt(128.0, 3, 2, array);
+            NCTestUtils.assertValueAt(128.0, 4, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_1km_oblique() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(639, 812, interval, "cloud_io");
+            NCTestUtils.assertValueAt(192, 0, 0, array);
+            NCTestUtils.assertValueAt(64, 1, 0, array);
+            NCTestUtils.assertValueAt(192, 2, 0, array);
+
+            array = reader.readRaw(664, 619, interval, "S7_BT_io");
+            NCTestUtils.assertValueAt(-1399, 3, 0, array);
+            NCTestUtils.assertValueAt(-1378, 4, 0, array);
+            NCTestUtils.assertValueAt(-1276, 0, 1, array);
+
+            array = reader.readRaw(1267, 246, interval, "S8_exception_io");
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(2, 3, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_1km_oblique_bottom() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readRaw(657, 1199, interval, "S8_BT_io");
+            NCTestUtils.assertValueAt(-1761, 2, 0, array);
+            NCTestUtils.assertValueAt(-1777, 2, 1, array);
+            NCTestUtils.assertValueAt(-1772, 2, 2, array);
+            NCTestUtils.assertValueAt(-32768, 2, 3, array);
+            NCTestUtils.assertValueAt(-32768, 2, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getS3AFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
         return getFileAsserted(testFilePath);
