@@ -25,7 +25,12 @@ class Nadir500mTransform implements Transform {
     }
 
     @Override
-    public int getOffset() {
+    public int getOffset_X() {
+        return 1;
+    }
+
+    @Override
+    public int getOffset_Y() {
         return 1;
     }
 

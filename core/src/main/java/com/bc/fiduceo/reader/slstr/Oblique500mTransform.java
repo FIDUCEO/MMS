@@ -18,7 +18,12 @@ class Oblique500mTransform implements Transform {
     }
 
     @Override
-    public int getOffset() {
+    public int getOffset_X() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public int getOffset_Y() {
         throw new RuntimeException("not implemented");
     }
 

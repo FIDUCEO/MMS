@@ -162,8 +162,8 @@ public class SlstrReader extends SNAP_Reader {
         final int mappedX = transform.mapCoordinate(centerX);
         final int mappedY = transform.mapCoordinate(centerY);
 
-        final int xOffset = mappedX - width / 2 + transform.getOffset();
-        final int yOffset = mappedY - height / 2 + transform.getOffset();
+        final int xOffset = mappedX - width / 2 + transform.getOffset_X();
+        final int yOffset = mappedY - height / 2 + transform.getOffset_Y();
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
@@ -209,8 +209,8 @@ public class SlstrReader extends SNAP_Reader {
         final int width = mappedInterval.getX();
         final int height = mappedInterval.getY();
 
-        final int xOffset = mappedX - width / 2 + transform.getOffset();
-        final int yOffset = mappedY - height / 2 + transform.getOffset();
+        final int xOffset = mappedX - width / 2 + transform.getOffset_X();
+        final int yOffset = mappedY - height / 2 + transform.getOffset_Y();
 
         readProductData(dataNode, readArray, width, height, xOffset, yOffset);
 

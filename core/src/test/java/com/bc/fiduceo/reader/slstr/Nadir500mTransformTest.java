@@ -29,10 +29,11 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testGetOffset() {
+    public void testGetOffset_XY() {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
 
-        assertEquals(1, transform.getOffset());
+        assertEquals(1, transform.getOffset_X());
+        assertEquals(1, transform.getOffset_Y());
     }
 
     @Test

@@ -26,7 +26,12 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
-    public int getOffset() {
+    public int getOffset_X() {
+        return 0;
+    }
+
+    @Override
+    public int getOffset_Y() {
         return 0;
     }
 
@@ -41,7 +46,7 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
-    public Array processFlags(Array array, int noDataValue) throws InvalidRangeException {
+    public Array processFlags(Array array, int noDataValue) {
         return array;
     }
 }
