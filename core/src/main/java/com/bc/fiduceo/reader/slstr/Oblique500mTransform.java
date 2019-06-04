@@ -12,8 +12,8 @@ class Oblique500mTransform extends Abstract500mTransform {
     private final int rasterXOffset;
 
     Oblique500mTransform(int rasterWidth, int rasterHeight, int rasterXOffset) {
-        this.rasterWidth = rasterWidth / 2 - 600;
-        this.rasterHeight = rasterHeight / 2;
+        this.rasterWidth = rasterWidth;
+        this.rasterHeight = rasterHeight;
         this.rasterXOffset = rasterXOffset;
     }
 

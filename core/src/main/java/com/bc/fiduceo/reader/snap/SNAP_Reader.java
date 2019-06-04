@@ -191,6 +191,7 @@ public abstract class SNAP_Reader implements Reader {
         final double noDataValue = getGeophysicalNoDataValue(dataNode);
         if (intersection.isEmpty()) {
             MAMath.setDouble(targetArray, noDataValue);
+            return;
         }
 
         final DataType dataType = targetArray.getDataType();

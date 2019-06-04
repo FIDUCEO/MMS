@@ -21,6 +21,10 @@ class VariableNames {
         nadir500mNames.add("sat_zenith_tn");
         nadir500mNames.add("solar_azimuth_tn");
         nadir500mNames.add("solar_zenith_tn");
+        nadir500mNames.add("sat_azimuth_to");
+        nadir500mNames.add("sat_zenith_to");
+        nadir500mNames.add("solar_azimuth_to");
+        nadir500mNames.add("solar_zenith_to");
         nadir500mNames.add("S1_radiance_an");
         nadir500mNames.add("S2_radiance_an");
         nadir500mNames.add("S3_radiance_an");
@@ -47,10 +51,6 @@ class VariableNames {
         nadir1kmNames.add("cloud_in");
 
         oblique500mNames = new ArrayList<>();
-        oblique500mNames.add("sat_azimuth_to");
-        oblique500mNames.add("sat_zenith_to");
-        oblique500mNames.add("solar_azimuth_to");
-        oblique500mNames.add("solar_zenith_to");
         oblique500mNames.add("S1_radiance_ao");
         oblique500mNames.add("S2_radiance_ao");
         oblique500mNames.add("S3_radiance_ao");

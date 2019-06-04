@@ -15,8 +15,8 @@ public class Oblique500mTransformTest {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 422);
 
         final Dimension rasterSize = transform.getRasterSize();
-        assertEquals(900, rasterSize.getNx());
-        assertEquals(1200, rasterSize.getNy());
+        assertEquals(3000, rasterSize.getNx());
+        assertEquals(2400, rasterSize.getNy());
     }
 
     @Test

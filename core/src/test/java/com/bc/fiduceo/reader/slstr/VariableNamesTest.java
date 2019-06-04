@@ -28,11 +28,13 @@ public class VariableNamesTest {
     public void testGetVariableType() {
         assertEquals(NADIR_500m, variableNames.getVariableType("longitude_tx"));
         assertEquals(NADIR_500m, variableNames.getVariableType("solar_azimuth_tn"));
+        assertEquals(NADIR_500m, variableNames.getVariableType("solar_zenith_to"));
 
         assertEquals(NADIR_1km, variableNames.getVariableType("S7_BT_in"));
         assertEquals(NADIR_1km, variableNames.getVariableType("S9_exception_in"));
 
-        assertEquals(OBLIQUE_500m, variableNames.getVariableType("solar_zenith_to"));
+
+        assertEquals(OBLIQUE_500m, variableNames.getVariableType("S4_radiance_ao"));
         assertEquals(OBLIQUE_500m, variableNames.getVariableType("S4_exception_ao"));
 
         assertEquals(OBLIQUE_1km, variableNames.getVariableType("S9_BT_io"));

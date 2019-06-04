@@ -377,10 +377,10 @@ public class SlstrReader_IO_Test {
             NCTestUtils.assertValueAt(666, 1, 0, array);
             NCTestUtils.assertValueAt(672, 2, 0, array);
 
-            array = reader.readScaled(663, 618, interval, "S3_radiance_an");
-            NCTestUtils.assertValueAt(9, 3, 0, array);
-            NCTestUtils.assertValueAt(8, 4, 0, array);
-            NCTestUtils.assertValueAt(10, 0, 1, array);
+            array = reader.readRaw(663, 618, interval, "S3_radiance_an");
+            NCTestUtils.assertValueAt(1045, 3, 0, array);
+            NCTestUtils.assertValueAt(907, 4, 0, array);
+            NCTestUtils.assertValueAt(1124, 0, 1, array);
         } finally {
             reader.close();
         }
@@ -566,6 +566,130 @@ public class SlstrReader_IO_Test {
             NCTestUtils.assertValueAt(-1772, 2, 2, array);
             NCTestUtils.assertValueAt(-32768, 2, 3, array);
             NCTestUtils.assertValueAt(-32768, 2, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3A_500m_oblique() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(739, 812, interval, "sat_azimuth_to");
+            NCTestUtils.assertValueAt(190.94570922851562, 1, 0, array);
+            NCTestUtils.assertValueAt(191.03924560546875, 2, 0, array);
+            NCTestUtils.assertValueAt(191.1328125, 3, 0, array);
+
+            array = reader.readScaled(662, 618, interval, "S1_radiance_ao");
+            NCTestUtils.assertValueAt(30.425325393676758, 4, 0, array);
+            NCTestUtils.assertValueAt(33.36164855957031, 0, 1, array);
+            NCTestUtils.assertValueAt(33.04927444458008, 1, 1, array);
+
+            array = reader.readScaled(1156, 240, interval, "S6_radiance_ao");
+            NCTestUtils.assertValueAt(0.12057500332593918, 2, 1, array);
+            NCTestUtils.assertValueAt(0.15285199880599976, 3, 2, array);
+            NCTestUtils.assertValueAt(0.14821450412273407, 4, 3, array);
+            NCTestUtils.assertValueAt(0.15656200051307678, 0, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3A_500m_oblique_top() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(600, 0, interval, "S3_radiance_ao");
+            NCTestUtils.assertValueAt(-294.9119873046875, 0, 0, array);
+            NCTestUtils.assertValueAt(-294.9119873046875, 4, 0, array);
+
+            NCTestUtils.assertValueAt(-294.9119873046875, 0, 1, array);
+            NCTestUtils.assertValueAt(-294.9119873046875, 3, 1, array);
+
+            NCTestUtils.assertValueAt(6.317999839782715, 0, 2, array);
+            NCTestUtils.assertValueAt(7.083000183105469, 2, 2, array);
+            NCTestUtils.assertValueAt(7.625249862670898, 4, 2, array);
+
+            NCTestUtils.assertValueAt(6.290999889373779, 0, 3, array);
+            NCTestUtils.assertValueAt(6.934499740600586, 2, 3, array);
+            NCTestUtils.assertValueAt(7.897500038146973, 4, 3, array);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_oblique() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(840, 813, interval, "S4_radiance_ao");
+            NCTestUtils.assertValueAt(16, 0, 0, array);
+            NCTestUtils.assertValueAt(19, 1, 0, array);
+            NCTestUtils.assertValueAt(-1, 2, 0, array);
+
+            array = reader.readRaw(664, 619, interval, "S6_radiance_ao");
+            NCTestUtils.assertValueAt(782, 3, 0, array);
+            NCTestUtils.assertValueAt(945, 4, 0, array);
+            NCTestUtils.assertValueAt(971, 0, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_oblique_bottom() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(788, 1199, interval, "S2_radiance_ao");
+            NCTestUtils.assertValueAt(3738, 0, 0, array);
+            NCTestUtils.assertValueAt(3269, 0, 1, array);
+            NCTestUtils.assertValueAt(3244, 0, 2, array);
+            NCTestUtils.assertValueAt(-32768, 0, 3, array);
+            NCTestUtils.assertValueAt(-32768, 0, 4, array);
+            NCTestUtils.assertValueAt(3671, 3, 0, array);
+            NCTestUtils.assertValueAt(3678, 3, 1, array);
+            NCTestUtils.assertValueAt(3920, 3, 2, array);
+            NCTestUtils.assertValueAt(-32768, 3, 3, array);
+            NCTestUtils.assertValueAt(-32768, 3, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_500m_oblique_flags() throws IOException, InvalidRangeException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(731, 543, interval, "S2_exception_ao");
+            NCTestUtils.assertValueAt(0, 0, 0, array);
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 2, array);
+
+            array = reader.readRaw(734, 593, interval, "S5_exception_ao");
+            NCTestUtils.assertValueAt(2, 0, 0, array);
+            NCTestUtils.assertValueAt(2, 1, 1, array);
+            NCTestUtils.assertValueAt(2, 2, 2, array);
         } finally {
             reader.close();
         }
