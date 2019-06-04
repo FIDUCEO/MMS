@@ -33,12 +33,7 @@ class Oblique500mTransform extends Abstract500mTransform {
     }
 
     @Override
-    public int getOffset_X() {
-        return 1;
-    }
-
-    @Override
-    public int getOffset_Y() {
+    public int getOffset() {
         return 1;
     }
 

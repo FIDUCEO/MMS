@@ -4,7 +4,6 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,11 +27,10 @@ public class Nadir1kmTransformTest {
     }
 
     @Test
-    public void testGetOffset_XY() {
+    public void testGetOffset() {
         final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
 
-        assertEquals(0, transform.getOffset_X());
-        assertEquals(0, transform.getOffset_Y());
+        assertEquals(0, transform.getOffset());
     }
 
     @Test

@@ -27,11 +27,10 @@ public class Oblique1kmTransformTest {
     }
 
     @Test
-    public void testGetOffset_XY() {
+    public void testGetOffset() {
         final Oblique1kmTransform transform = new Oblique1kmTransform(202, 182, 549);
 
-        assertEquals(0, transform.getOffset_X());
-        assertEquals(0, transform.getOffset_Y());
+        assertEquals(0, transform.getOffset());
     }
 
     @Test

@@ -7,9 +7,11 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +21,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -690,6 +693,64 @@ public class SlstrReader_IO_Test {
             NCTestUtils.assertValueAt(2, 0, 0, array);
             NCTestUtils.assertValueAt(2, 1, 1, array);
             NCTestUtils.assertValueAt(2, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 1044.5, null);
+            assertEquals(174.30761038889423, geoLocation.getX(), 1e-8);
+            assertEquals(79.23764763479988, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(667.5, 804.5, null);
+            assertEquals(-171.94496181848604, geoLocation.getX(), 1e-8);
+            assertEquals(79.88080833866053, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(174.3076, 79.2376);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(144.2261387355412, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1044.5746123740746, pixelLocation[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(1000.5, 1250.5, null);
+            assertEquals(-167.92862835138564, geoLocation.getX(), 1e-8);
+            assertEquals(77.53828861030436, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-167.9286, 77.5382);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(1000.5082744467625, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1250.5583951112617, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(1724, -89);
+            assertEquals(0, pixelLocation.length);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetSubScenePixelLocator() throws IOException {
+        final File file = getS3AFile();
+
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.JTS);
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((-1 1, 0 0, 0 -2, -1 1))");
+
+        try {
+            reader.open(file);
+
+            // polygon is supplied just for interface compatibility ... is ignored in this reasder tb 2019-06-04
+            final PixelLocator pixelLocator = reader.getSubScenePixelLocator(polygon);
+            assertNotNull(pixelLocator);
+            assertTrue(pixelLocator instanceof SNAP_PixelLocator);
         } finally {
             reader.close();
         }

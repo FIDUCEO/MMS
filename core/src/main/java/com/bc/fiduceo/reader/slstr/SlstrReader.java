@@ -71,8 +71,8 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implemented");
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+        return getPixelLocator();
     }
 
     @Override
@@ -115,9 +115,9 @@ public class SlstrReader extends SNAP_Reader {
     public int[] extractYearMonthDayFromFilename(String fileName) {
         final String datePart = fileName.substring(16, 24);
         final int[] ymd = new int[3];
-        ymd[0] = Integer.parseInt(datePart.substring(0,4));
-        ymd[1] = Integer.parseInt(datePart.substring(4,6));
-        ymd[2] = Integer.parseInt(datePart.substring(6,8));
+        ymd[0] = Integer.parseInt(datePart.substring(0, 4));
+        ymd[1] = Integer.parseInt(datePart.substring(4, 6));
+        ymd[2] = Integer.parseInt(datePart.substring(6, 8));
 
         return ymd;
     }
@@ -148,8 +148,8 @@ public class SlstrReader extends SNAP_Reader {
         final int mappedX = transform.mapCoordinate_X(centerX);
         final int mappedY = transform.mapCoordinate_Y(centerY);
 
-        final int xOffset = mappedX - width / 2 + transform.getOffset_X();
-        final int yOffset = mappedY - height / 2 + transform.getOffset_Y();
+        final int xOffset = mappedX - width / 2 + transform.getOffset();
+        final int yOffset = mappedY - height / 2 + transform.getOffset();
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
@@ -170,7 +170,7 @@ public class SlstrReader extends SNAP_Reader {
         }
 
         if (variableNames.isFlagVariable(variableName)) {
-            return transform.processFlags(targetArray, (int) noDataValue) ;
+            return transform.processFlags(targetArray, (int) noDataValue);
         } else {
             return transform.process(targetArray, noDataValue);
         }
@@ -195,8 +195,8 @@ public class SlstrReader extends SNAP_Reader {
         final int width = mappedInterval.getX();
         final int height = mappedInterval.getY();
 
-        final int xOffset = mappedX - width / 2 + transform.getOffset_X();
-        final int yOffset = mappedY - height / 2 + transform.getOffset_Y();
+        final int xOffset = mappedX - width / 2 + transform.getOffset();
+        final int yOffset = mappedY - height / 2 + transform.getOffset();
 
         readProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
@@ -312,7 +312,7 @@ public class SlstrReader extends SNAP_Reader {
         int nadirTrackOffset = -1;
         int obliqueTrackOffset = -1;
         final MetadataElement[] elements = productInformationElement.getElements();
-        for (final MetadataElement element: elements) {
+        for (final MetadataElement element : elements) {
             if (element.getName().equalsIgnoreCase("nadirImageSize")) {
                 final MetadataAttribute grid = element.getAttribute("grid");
                 if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {

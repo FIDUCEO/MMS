@@ -30,12 +30,7 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
-    public int getOffset_X() {
-        return 0;
-    }
-
-    @Override
-    public int getOffset_Y() {
+    public int getOffset() {
         return 0;
     }
 

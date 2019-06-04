@@ -28,11 +28,10 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testGetOffset_XY() {
+    public void testGetOffset() {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
 
-        assertEquals(1, transform.getOffset_X());
-        assertEquals(1, transform.getOffset_Y());
+        assertEquals(1, transform.getOffset());
     }
 
     @Test
