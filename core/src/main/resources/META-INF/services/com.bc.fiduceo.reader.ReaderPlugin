@@ -15,3 +15,4 @@ com.bc.fiduceo.reader.amsr.amsr2.AMSR2_ReaderPlugin
 com.bc.fiduceo.reader.fiduceo_fcdr.AVHRR_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.insitu.gruan_uleic.GruanUleicInsituReaderPlugin
 com.bc.fiduceo.reader.avhrr_frac.AVHRR_FRAC_ReaderPlugin
+com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
