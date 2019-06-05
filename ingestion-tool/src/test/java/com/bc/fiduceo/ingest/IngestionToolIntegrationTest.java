@@ -992,6 +992,37 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_SLSTR_S3A() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a", "-start", "2018-286", "-end", "2018-286", "-v", "1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 182, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 36, 182, observation.getStopTime());
+
+            assertEquals("slstr-s3a", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.DESCENDING, observation.getNodeType());
+            assertEquals("1.0", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals(TestData.SLSTR_S3A_GEOMETRY, geometryFactory.format(geoBounds));
+            assertEquals(TestData.SLSTR_S3A_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
