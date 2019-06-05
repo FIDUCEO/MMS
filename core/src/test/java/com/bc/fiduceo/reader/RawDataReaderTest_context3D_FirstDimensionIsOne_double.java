@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader;
 
 import static org.junit.Assert.*;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.*;
 import ucar.ma2.Array;
@@ -25,7 +26,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
     @Test
     public void testWindowCenter() throws Exception {
 
-        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(double.class, array.getElementType());
@@ -41,7 +42,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
     @Test
     public void testTopRightWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(double.class, array.getElementType());
@@ -57,7 +58,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
     @Test
     public void testTopLeftWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(double.class, array.getElementType());
@@ -72,7 +73,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
 
     @Test
     public void testBottomLeftWindowOut() throws Exception {
-        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(double.class, array.getElementType());
@@ -87,7 +88,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
 
     @Test
     public void testBottomRightWindowOut() throws Exception {
-        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(double.class, array.getElementType());
@@ -109,7 +110,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_double {
         });
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, new Dimension("size", 10, 0));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

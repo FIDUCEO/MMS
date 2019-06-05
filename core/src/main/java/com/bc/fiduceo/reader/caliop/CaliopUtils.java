@@ -19,6 +19,7 @@
  */
 package com.bc.fiduceo.reader.caliop;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -32,6 +33,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CaliopUtils {
+
+    static final Dimension productSize = new Dimension("size", 1, 0);
 
     public int[] extractYearMonthDayFromFilename(String fileName) {
         final Pattern compile = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");

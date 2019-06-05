@@ -28,7 +28,6 @@ import java.util.zip.GZIPInputStream;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
-@SuppressWarnings("SynchronizeOnNonFinalField")
 public class AMSR2_Reader extends NetCDFReader {
 
     private static final String REG_EX = "GW1AM2_\\d{12}_\\d{3}[AD]_L1SGRTBR_\\d{7}.h5(.gz)?";
@@ -129,7 +128,7 @@ public class AMSR2_Reader extends NetCDFReader {
         final Array rawArray = arrayCache.get(escapedName);
         final Dimension productSize = getProductSize();
         final Number fillValue = getFillValue(escapedName);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
     @Override

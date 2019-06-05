@@ -19,15 +19,9 @@
  */
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayByte;
-import ucar.ma2.ArrayDouble;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.ArrayLong;
-import ucar.ma2.ArrayShort;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 
 import java.awt.*;
 
@@ -41,10 +35,15 @@ public class RawDataReader {
         THREE_D_FALSE_DIMENSION,
         TWO_D,
         TWO_D_FALSE_DIMENSION,
-        ONE_D
+        ONE_D,
+        SKALAR
     }
 
-    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, final int defaultWidth) throws InvalidRangeException {
+    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, com.bc.fiduceo.core.Dimension productSize) throws InvalidRangeException {
+        final int windowWidth = interval.getX();
+        final int windowHeight = interval.getY();
+
+        final int defaultWidth = productSize.getNx();
         int[] shape = rawArray.getShape();
         int rank = rawArray.getRank();
         final InputDimension inputDimension = getInputDimension(rank, shape);
@@ -57,10 +56,10 @@ public class RawDataReader {
             rawArray = rawArray.reduce();
         } else if (inputDimension == InputDimension.ONE_D) {
             shape = new int[]{shape[0], defaultWidth};
-        } // no specific handling for the pure 2d data case tb 2016-04-18
-
-        final int windowWidth = interval.getX();
-        final int windowHeight = interval.getY();
+        } else if (inputDimension == InputDimension.SKALAR) {
+            shape = new int[]{1, 1};
+        }
+        // no specific handling for the pure 2d data case tb 2016-04-18
 
         final int rawHeight = shape[0];
         final int rawWidth = shape[1];
@@ -70,7 +69,9 @@ public class RawDataReader {
         if (inputDimension == InputDimension.ONE_D
             || inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
             return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
-        } else {
+        } else if (inputDimension == InputDimension.SKALAR) {
+            return readFromSkalarArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, productSize);
+        } else{
             boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
             if (windowInside) {
                 return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
@@ -96,6 +97,26 @@ public class RawDataReader {
         } else {
             throw new RuntimeException("Datatype not implemented");
         }
+    }
+
+    private static Array readFromSkalarArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, Dimension productSize)  {
+        final Class elementType = rawArray.getElementType();
+        final Number value = (Number) rawArray.getObject(0);
+        final Array targetArray = Array.factory(elementType, new int[]{windowHeight, windowWidth});
+        final Index index = targetArray.getIndex();
+        for (int y = 0; y < windowHeight; y++) {
+            final int readY = offsetY + y;
+            for (int x = 0; x < windowWidth; x++) {
+                final int readx = offsetX + x;
+                index.set(y, x);
+                if (readY >= 0 && readY < productSize.getNy() && readx >= 0 && readx < productSize.getNx()) {
+                    targetArray.setObject(index, value);
+                } else {
+                    targetArray.setObject(index, fillValue);
+                }
+            }
+        }
+        return targetArray;
     }
 
     private static Array readFrom1DArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, int rawWidth, int rawHeight) {
@@ -125,7 +146,9 @@ public class RawDataReader {
 
     // package access for testing only tb 2016-04-18
     static InputDimension getInputDimension(int rank, int[] shape) {
-        if (rank == 1) {
+        if (rank == 1 && shape[0] == 1) {
+            return InputDimension.SKALAR;
+        } else if (rank == 1 && shape[0] > 1) {
             return InputDimension.ONE_D;
         } else if (rank == 2 && shape[0] == 1) {
             return InputDimension.TWO_D_FALSE_DIMENSION;

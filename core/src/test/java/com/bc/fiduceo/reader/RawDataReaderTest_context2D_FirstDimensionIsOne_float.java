@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
     @Test
     public void testWindowCenter() throws Exception {
 
-        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -45,7 +46,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
     @Test
     public void testTopRightWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -61,7 +62,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
     @Test
     public void testTopLeftWindowOut() throws Exception {
 
-        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -76,7 +77,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
 
     @Test
     public void testBottomLeftWindowOut() throws Exception {
-        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(0, 9, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -91,7 +92,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
 
     @Test
     public void testBottomRightWindowOut() throws Exception {
-        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, 10);
+        final Array array = RawDataReader.read(9, 9, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
         assertEquals(float.class, array.getElementType());
@@ -113,7 +114,7 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_float {
         });
 
         try {
-            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, 10);
+            RawDataReader.read(1, 1, new Interval(3, 3), -4d, rawArray, new Dimension("size", 10, 0));
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }

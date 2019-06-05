@@ -97,7 +97,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
         final Number fillValue = getFillValue(variableName);
 
         final Dimension productSize = getProductSize();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
     @Override

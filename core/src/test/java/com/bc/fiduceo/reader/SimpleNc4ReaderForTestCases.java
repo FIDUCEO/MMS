@@ -50,7 +50,7 @@ public class SimpleNc4ReaderForTestCases implements Reader {
     }
 
     @Override
-    public AcquisitionInfo read() throws IOException {
+    public AcquisitionInfo read() {
         throw new RuntimeException("not implemented");
     }
 
@@ -60,7 +60,7 @@ public class SimpleNc4ReaderForTestCases implements Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() throws IOException {
+    public PixelLocator getPixelLocator() {
         throw new RuntimeException("not implemented");
     }
 
@@ -85,7 +85,7 @@ public class SimpleNc4ReaderForTestCases implements Reader {
         final Array data = variable.read();
         final int[] shape = data.getShape();
         final Number fillValue = NetCDFUtils.getFillValue(variable);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, data, shape[shape.length-1]);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, data, new Dimension("size", shape[shape.length - 1], 0));
     }
 
     @Override
@@ -94,12 +94,12 @@ public class SimpleNc4ReaderForTestCases implements Reader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+    public List<Variable> getVariables() {
         return ncFile.getVariables();
     }
 

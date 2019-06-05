@@ -72,6 +72,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
     private static final int NUM_SPLITS = 2;
 
     private final GeometryFactory geometryFactory;
+    private final Dimension swathSize;
 
     private TimeLocator timeLocator;
     private PixelLocator pixelLocator;
@@ -80,6 +81,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
     private boolean isAmsuB;
 
     AMSUB_MHS_L1C_Reader(ReaderContext readerContext) {
+        this.swathSize = new Dimension("size", 90, 0);
         this.geometryFactory = readerContext.getGeometryFactory();
     }
 
@@ -210,7 +212,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
 
         final Number fillValue = getFillValue(rawVariableName, groupName, array);
 
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 90);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, swathSize);
     }
 
     @Override

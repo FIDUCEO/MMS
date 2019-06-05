@@ -148,7 +148,7 @@ public class CALIOP_SST_WP100_CLay_Reader extends NetCDFReader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Number fillValue = getFillValue(variableName);
         final Array array = arrayCache.get(variableName);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 1);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, CaliopUtils.productSize);
     }
 
     @Override

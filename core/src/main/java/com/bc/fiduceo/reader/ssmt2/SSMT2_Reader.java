@@ -537,7 +537,7 @@ class SSMT2_Reader extends NetCDFReader {
     private static class Read2dFrom1d extends WindowReader {
 
         private final String shortName;
-        private final int defaultWidth;
+        private final Dimension productSize;
         private ArrayCache arrayCache;
         private Array dataArray;
         private Number fillValue;
@@ -545,7 +545,7 @@ class SSMT2_Reader extends NetCDFReader {
 
         Read2dFrom1d(ArrayCache arrayCache, String shortName, int defaultWidth) {
             this.shortName = shortName;
-            this.defaultWidth = defaultWidth;
+            this.productSize = new Dimension("size", defaultWidth, 0);
             this.arrayCache = arrayCache;
         }
 
@@ -555,7 +555,7 @@ class SSMT2_Reader extends NetCDFReader {
                 initData();
             }
             try {
-                return RawDataReader.read(centerX, centerY, interval, fillValue, dataArray, defaultWidth);
+                return RawDataReader.read(centerX, centerY, interval, fillValue, dataArray, productSize);
             } catch (InvalidRangeException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
@@ -570,14 +570,14 @@ class SSMT2_Reader extends NetCDFReader {
 
     private static class Read2dFrom2d extends WindowReader {
 
-        private final int defaultWidth;
+        private final Dimension productSize;
         private final String shortName;
         private final Number fillValue;
         private final ArrayCache arrayCache;
 
         Read2dFrom2d(ArrayCache arrayCache, String shortName, int defaultWidth, Number fillValue) {
             this.arrayCache = arrayCache;
-            this.defaultWidth = defaultWidth;
+            this.productSize = new Dimension("size", defaultWidth, 0);
             this.shortName = shortName;
             this.fillValue = fillValue;
         }
@@ -585,7 +585,7 @@ class SSMT2_Reader extends NetCDFReader {
         @Override
         public Array read(int centerX, int centerY, Interval interval) throws IOException {
             try {
-                return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), defaultWidth);
+                return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), productSize);
             } catch (InvalidRangeException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

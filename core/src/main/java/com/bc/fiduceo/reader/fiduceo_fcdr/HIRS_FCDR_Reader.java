@@ -118,7 +118,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
         final Number fillValue = getFillValue(fullVariableName);
 
         final Dimension productSize = getProductSize();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize);
     }
 
     @Override

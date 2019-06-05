@@ -32,6 +32,8 @@ public class RawDataReaderTest {
         assertEquals(RawDataReader.InputDimension.ONE_D, RawDataReader.getInputDimension(1, new int[]{67}));
         assertEquals(RawDataReader.InputDimension.ONE_D, RawDataReader.getInputDimension(1, new int[]{12}));
 
+        assertEquals(RawDataReader.InputDimension.SKALAR, RawDataReader.getInputDimension(1, new int[]{1}));
+
         assertEquals(RawDataReader.InputDimension.TWO_D_FALSE_DIMENSION, RawDataReader.getInputDimension(2, new int[]{1, 12}));
         assertEquals(RawDataReader.InputDimension.TWO_D_FALSE_DIMENSION, RawDataReader.getInputDimension(2, new int[]{1, 2689}));
 

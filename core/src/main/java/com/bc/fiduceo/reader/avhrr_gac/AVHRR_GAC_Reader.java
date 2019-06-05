@@ -177,7 +177,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         final Number fillValue = getFillValue(variableName);
 
         final com.bc.fiduceo.core.Dimension productSize = getProductSize();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
     @Override

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class RawDataReaderTest_context1D_int {
 
     @Test
     public void testWindowCenter() throws Exception {
-        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, 8);
+        final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, new Dimension("size", 8, 0));
         assertNotNull(array);
         assertEquals(int.class, array.getElementType());
         assertEquals(9, array.getSize());

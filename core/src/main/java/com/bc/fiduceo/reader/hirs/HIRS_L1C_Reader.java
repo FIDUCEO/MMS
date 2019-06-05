@@ -172,7 +172,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
         final Number fillValue = getFillValue(fullVariableName);
 
         final Dimension productSize = getProductSize();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, productSize);
     }
 
     @Override
@@ -186,7 +186,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
         final Number fillValue = NetCDFUtils.getDefaultFillValue(timeArray);
 
         final Dimension productSize = getProductSize();
-        return (ArrayInt.D2) RawDataReader.read(centerX, centerY, interval, fillValue, timeArray, productSize.getNx());
+        return (ArrayInt.D2) RawDataReader.read(centerX, centerY, interval, fillValue, timeArray, productSize);
     }
 
     @Override

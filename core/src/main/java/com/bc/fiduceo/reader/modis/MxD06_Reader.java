@@ -69,8 +69,12 @@ class MxD06_Reader extends NetCDFReader {
     private TimeLocator timeLocator;
     private BowTiePixelLocator pixelLocator;
     private Dimension productSize;
+    private final Dimension size1Km;
+    private final Dimension size5km;
 
     MxD06_Reader(ReaderContext readerContext) {
+        this.size1Km = new Dimension("size", 1354, 0);
+        this.size5km = new Dimension("size", 270, 0);
         this.geometryFactory = readerContext.getGeometryFactory();
     }
 
@@ -161,7 +165,7 @@ class MxD06_Reader extends NetCDFReader {
         } else if (variableName.contains("Quality_Assurance_5km")) {
             return readQualiytAssurance5Km(centerX, centerY, interval, array, variableName);
         } else {
-            return RawDataReader.read(centerX, centerY, interval, fillValue, array, 270);
+            return RawDataReader.read(centerX, centerY, interval, fillValue, array, size5km);
         }
     }
 
@@ -359,7 +363,7 @@ class MxD06_Reader extends NetCDFReader {
         final int x_1km = centerX * 5 + 2;
         final int y_1km = centerY * 5 + 2;
         final Interval extendedInterval = new Interval(interval.getX() * 5, interval.getY() * 5);
-        final Array fullArray = RawDataReader.read(x_1km, y_1km, extendedInterval, fillValue, array, 1354);
+        final Array fullArray = RawDataReader.read(x_1km, y_1km, extendedInterval, fillValue, array, size1Km);
 
         final int[] shape = new int[]{interval.getY(), interval.getX()};
         final int[] origin = new int[]{2, 2};
@@ -376,8 +380,8 @@ class MxD06_Reader extends NetCDFReader {
         origin[2] = 1;
         final Array highByte = array.section(origin, shape);
 
-        final Array lowSubset = RawDataReader.read(centerX, centerY, interval, 0, lowByte, 270);
-        final Array highSubset = RawDataReader.read(centerX, centerY, interval, 0, highByte, 270);
+        final Array lowSubset = RawDataReader.read(centerX, centerY, interval, 0, lowByte, size5km);
+        final Array highSubset = RawDataReader.read(centerX, centerY, interval, 0, highByte, size5km);
         final Array targetArray = Array.factory(DataType.SHORT, lowSubset.getShape());
 
         final IndexIterator lowIndex = lowSubset.getIndexIterator();
@@ -400,7 +404,7 @@ class MxD06_Reader extends NetCDFReader {
         shape[2] = 1;   // we only want one z-layer
         final int[] offsets = {0, 0, layerIndex};
         final Array layerData = array.section(offsets, shape);
-        return RawDataReader.read(centerX, centerY, interval, 0, layerData, 270);
+        return RawDataReader.read(centerX, centerY, interval, 0, layerData, size5km);
     }
 
     // package access for testing only tb 2017-08-31

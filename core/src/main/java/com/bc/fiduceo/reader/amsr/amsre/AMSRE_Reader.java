@@ -148,7 +148,7 @@ class AMSRE_Reader extends NetCDFReader {
         final Number fillValue = getFillValue(groupName, hdfVariableName);
 
         final Dimension productSize = getProductSize();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
     private Array readChannelQualityFlag(String variableName, int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
@@ -161,7 +161,7 @@ class AMSRE_Reader extends NetCDFReader {
         shape[1] = 1;
         final int[] origins = {0, layerIndex};
         final Array channelLayer = rawArray.section(origins, shape);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, channelLayer, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, channelLayer, productSize);
     }
 
     private Array readLandOceanFlag(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
@@ -173,7 +173,7 @@ class AMSRE_Reader extends NetCDFReader {
         shape[2] = 1;
         final int[] origins = {0, 0, 0};
         final Array channel6Layer = rawArray.section(origins, shape);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, channel6Layer, productSize.getNx());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, channel6Layer, productSize);
     }
 
     @Override

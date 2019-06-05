@@ -202,7 +202,7 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
         ensureValidInterval(interval);
         final Number fillValue = getFillValue(variableName);
         final Array array = arrayCache.get(variableName);
-        return RawDataReader.read(centerX, centerY, interval, fillValue, array, 1);
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, CaliopUtils.productSize);
     }
 
     @Override
