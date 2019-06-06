@@ -1,3 +1,8 @@
+### Updates from version 1.4.6 to 1.4.7
+* added support for SLSTR L1B data
+* added support for AVHRR_GAC v1,5, file version 2.0 format (v1.5.2)
+* changed Mongodb socket timeout to 4 minutes
+
 ### Updates from version 1.4.5 to 1.4.6
 * added option to switch Sobol sequences between equal-area and equal-angle sampling.
 

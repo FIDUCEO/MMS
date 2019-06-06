@@ -31,10 +31,7 @@ import com.bc.fiduceo.geometry.MultiPolygon;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -78,15 +75,18 @@ public class MongoDbDriver extends AbstractDriver {
         final String port = parsePort(dataSource.getUrl());
         final ServerAddress serverAddress = new ServerAddress(address, Integer.parseInt(port));
 
+        final MongoClientOptions clientOptions = MongoClientOptions.builder().
+                socketTimeout(120000).build();
+
         final String username = dataSource.getUsername();
         final String password = dataSource.getPassword();
         if (StringUtils.isNotNullAndNotEmpty(password) && StringUtils.isNotNullAndNotEmpty(username)) {
             final MongoCredential credential = MongoCredential.createCredential(username, DATABASE_NAME, password.toCharArray());
             final List<MongoCredential> credentialsList = new ArrayList<>();
             credentialsList.add(credential);
-            mongoClient = new MongoClient(serverAddress, credentialsList);
+            mongoClient = new MongoClient(serverAddress, credentialsList, clientOptions);
         } else {
-            mongoClient = new MongoClient(serverAddress);
+            mongoClient = new MongoClient(serverAddress, clientOptions);
         }
         database = mongoClient.getDatabase(DATABASE_NAME);
     }
@@ -247,7 +247,6 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // static access for testing only tb 2016-02-09
-    @SuppressWarnings("unchecked")
     Geometry convertToGeometry(Document geoDocument) {
         final String type = geoDocument.getString("type");
         if ("MultiPolygon".equals(type)) {
@@ -268,7 +267,7 @@ public class MongoDbDriver extends AbstractDriver {
         for (final Document geoListDocument : geometryList) {
             convertedGeometriesList.add(convertToGeometry(geoListDocument));
         }
-        return geometryFactory.createGeometryCollection(convertedGeometriesList.toArray(new Geometry[convertedGeometriesList.size()]));
+        return geometryFactory.createGeometryCollection(convertedGeometriesList.toArray(new Geometry[0]));
     }
 
     private Geometry convertMultiPolygon(Document geoDocument) {
