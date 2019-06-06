@@ -356,6 +356,31 @@ public class AVHRR_GAC_Reader_v0152_IO_Test {
     }
 
     @Test
+    public void testReadRaw_bottomLeftWindowOut() throws Exception {
+        final File file = createAvhrrMAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readRaw(0, 11962, new Interval(3, 3), "orbital_temperature_nlines");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 0, array);
+            NCTestUtils.assertValueAt(12146, 1, 0, array);
+            NCTestUtils.assertValueAt(12146, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 1, array);
+            NCTestUtils.assertValueAt(12146, 1, 1, array);
+            NCTestUtils.assertValueAt(12146, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-32767, 0, 2, array);
+            NCTestUtils.assertValueAt(-32767, 1, 2, array);
+            NCTestUtils.assertValueAt(-32767, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
         final File file = createAvhrrMAFile();
         reader.open(file);
