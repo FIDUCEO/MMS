@@ -69,7 +69,7 @@ public class AVHRR_GAC_ReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys(){
-        final String[] expected = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02"};
+        final String[] expected = {"avhrr-n06", "avhrr-n07", "avhrr-n08", "avhrr-n09", "avhrr-n10", "avhrr-n11", "avhrr-n12", "avhrr-n13", "avhrr-n14", "avhrr-n15", "avhrr-n16", "avhrr-n17", "avhrr-n18", "avhrr-n19", "avhrr-m01", "avhrr-m02", "avhrr-ma", "avhrr-mb"};
         final String[] keys = plugin.getSupportedSensorKeys();
 
         assertArrayEquals(expected, keys);

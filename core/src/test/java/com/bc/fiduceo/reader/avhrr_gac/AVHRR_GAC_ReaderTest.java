@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
-@SuppressWarnings("ConstantConditions")
 public class AVHRR_GAC_ReaderTest {
 
     private AVHRR_GAC_Reader reader;
@@ -53,13 +52,16 @@ public class AVHRR_GAC_ReaderTest {
     @Test
     public void testGetRegEx() {
         final String regEx = reader.getRegEx();
-        assertEquals("[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc", regEx);
+        assertEquals("[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-(v[0-9].[0-9]-)?fv\\d\\d.\\d.nc", regEx);
 
         final Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher("20070401033400-ESACCI-L1C-AVHRR17_G-fv01.0.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("20070401080400-ESACCI-L1C-AVHRR18_G-fv01.0.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("20100101113746-ESACCI-L1C-AVHRRMTA_G-v1.5-fv02.0.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.AMBX.NK.D15365.S1249.E1420.B9169697.GC");

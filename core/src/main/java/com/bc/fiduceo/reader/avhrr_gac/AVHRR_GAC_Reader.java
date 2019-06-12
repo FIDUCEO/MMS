@@ -108,7 +108,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
 
     @Override
     public String getRegEx() {
-        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-fv\\d\\d.\\d.nc";
+        return "[0-9]{14}-ESACCI-L1C-AVHRR([0-9]{2}|MTA)_G-(v[0-9].[0-9]-)?fv\\d\\d.\\d.nc";
     }
 
     @Override
