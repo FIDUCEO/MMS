@@ -76,7 +76,9 @@ public class MongoDbDriver extends AbstractDriver {
         final ServerAddress serverAddress = new ServerAddress(address, Integer.parseInt(port));
 
         final MongoClientOptions clientOptions = MongoClientOptions.builder().
-                socketTimeout(120000).build();
+                connectTimeout(120000).
+                socketTimeout(120000).
+                serverSelectionTimeout(120000).build();
 
         final String username = dataSource.getUsername();
         final String password = dataSource.getPassword();
