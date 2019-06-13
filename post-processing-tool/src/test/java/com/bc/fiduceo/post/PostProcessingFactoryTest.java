@@ -48,7 +48,7 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(14, plugins.size());
+        assertEquals(15, plugins.size());
         /* 01 */
         assertTrue(plugins.containsKey("dummy-post-processing"));
         /* 02 */
@@ -77,6 +77,8 @@ public class PostProcessingFactoryTest {
         assertTrue(plugins.containsKey("add-airs-channel-data"));
         /* 14 */
         assertTrue(plugins.containsKey("add-gruan-source"));
+        /* 15 */
+        assertTrue(plugins.containsKey("add-avhrr-corr-coeffs"));
     }
 
     @Test
