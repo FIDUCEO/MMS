@@ -29,7 +29,12 @@ public class AddAvhrrCorrCoeffsPluginTest {
 
     @Test
     public void testCreatePostProcessing() throws JDOMException, IOException {
-        final Element element = TestUtil.createDomElement("<add-avhrr-corr-coeffs/>");
+        final Element element = TestUtil.createDomElement("<add-avhrr-corr-coeffs>" +
+                "    <file-name-variable name=\"fileName\" />" +
+                "    <processing-version-variable name=\"proc-ver\" />" +
+                "    <target-x-elem-variable name=\"x-elem\" />" +
+                "    <target-x-line-variable name=\"x-line\" />" +
+                "</add-avhrr-corr-coeffs>");
 
         final PostProcessing postProcessing = plugin.createPostProcessing(element);
         assertNotNull(postProcessing);

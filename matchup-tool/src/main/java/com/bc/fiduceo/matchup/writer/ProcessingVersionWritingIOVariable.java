@@ -20,9 +20,6 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.InvalidRangeException;
-
-import java.io.IOException;
 
 public class ProcessingVersionWritingIOVariable extends ReaderIOVariable {
 
@@ -31,7 +28,7 @@ public class ProcessingVersionWritingIOVariable extends ReaderIOVariable {
     }
 
     @Override
-    public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
+    public void writeData(int centerX, int centerY, Interval interval, int zIndex) {
         final String version = readerContainer.getProcessingVersion();
         target.write(version, targetVariableName, zIndex);
     }

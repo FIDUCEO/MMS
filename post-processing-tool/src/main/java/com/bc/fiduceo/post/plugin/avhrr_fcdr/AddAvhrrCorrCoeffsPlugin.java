@@ -8,7 +8,8 @@ public class AddAvhrrCorrCoeffsPlugin implements PostProcessingPlugin {
 
     @Override
     public PostProcessing createPostProcessing(Element element) {
-        return new AddAvhrrCorrCoeffs();
+        final AddAvhrrCorrCoeffs.Configuration configuration = AddAvhrrCorrCoeffs.createConfiguration(element);
+        return new AddAvhrrCorrCoeffs(configuration);
     }
 
     @Override

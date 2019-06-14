@@ -939,7 +939,7 @@ public class IngestionToolIntegrationTest {
         try {
             IngestionToolMain.main(args);
             final List<SatelliteObservation> satelliteObservations = storage.get();
-            assertEquals(1, satelliteObservations.size());
+            assertEquals(2, satelliteObservations.size());
 
             final SatelliteObservation observation = getSatelliteObservation("FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2016, 11, 8, 7, 37, 29, observation.getStartTime());
