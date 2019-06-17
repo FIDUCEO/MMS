@@ -4,7 +4,6 @@ import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
-import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 
 public class AVHRR_FCDR_ReaderPlugin implements ReaderPlugin {
 

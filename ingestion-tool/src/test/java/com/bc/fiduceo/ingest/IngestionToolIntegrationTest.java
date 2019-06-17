@@ -934,7 +934,7 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_AVHRR_FCDR() throws SQLException, IOException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-ma-fcdr", "-start", "2016-312", "-end", "2016-314", "-v", "vBeta"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-ma-fcdr", "-start", "2016-312", "-end", "2016-314", "-v", "v0.2.1"};
 
         try {
             IngestionToolMain.main(args);
@@ -947,12 +947,12 @@ public class IngestionToolIntegrationTest {
 
             assertEquals("avhrr-ma-fcdr", observation.getSensor().getName());
 
-            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "vBeta", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, true);
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "v0.2.1", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, true);
             final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.UNDEFINED, observation.getNodeType());
-            assertEquals("vBeta", observation.getVersion());
+            assertEquals("v0.2.1", observation.getVersion());
 
             assertNotNull(observation.getGeoBounds());
             assertNotNull(observation.getTimeAxes());

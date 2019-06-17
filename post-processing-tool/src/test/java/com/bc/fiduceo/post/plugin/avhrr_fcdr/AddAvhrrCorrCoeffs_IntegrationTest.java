@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
@@ -39,7 +40,7 @@ public class AddAvhrrCorrCoeffs_IntegrationTest {
     }
 
     @Test
-    public void testAddAvhrrCorrCoeffs() throws IOException {
+    public void testAddAvhrrCorrCoeffs() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory("mmd37");
 
         writeConfiguration();
@@ -57,6 +58,9 @@ public class AddAvhrrCorrCoeffs_IntegrationTest {
             NCTestUtils.assertDimension("swath_width", 409, mmd);
             NCTestUtils.assertDimension("line_correlation", 256, mmd);
             NCTestUtils.assertDimension("channels", 6, mmd);
+
+            NCTestUtils.assertStringVariable("input_files", 0, "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc", mmd);
+            NCTestUtils.assertStringVariable("input_files", 1, "FIDUCEO_FCDR_L1C_AVHRR_MTAC3A_20161108185739_20161108203900_EASY_v0.2Bet_fv2.0.0.nc", mmd);
 
 //            NCTestUtils.assert4DVariable("iasi-mb_GS1cSpect", 0, 0, 0, 0, 5.123000009916723E-4, mmd);
 //            NCTestUtils.assert4DVariable("iasi-mb_GS1cSpect", 1, 0, 0, 0, 5.151000223122537E-4, mmd);

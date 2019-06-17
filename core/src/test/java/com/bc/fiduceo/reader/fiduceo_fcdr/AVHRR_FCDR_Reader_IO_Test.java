@@ -735,7 +735,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     private File createAvhrrMetopAFile() {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "vBeta", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "v0.2.1", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;

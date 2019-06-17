@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.avhrr_fcdr;
 
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.reader.fiduceo_fcdr.AVHRR_FCDR_Reader;
 import com.bc.fiduceo.util.JDomUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.jdom.Element;
@@ -14,6 +15,7 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +40,16 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
     }
 
     @Override
+    protected void initReaderCache() {
+        readerCache = createReaderCache(getContext());
+    }
+
+    @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final int filenameSize = NetCDFUtils.getDimensionLength(FILE_NAME, reader);
-        final ArrayList<String> nameList = extractUniqueInputFileNames(reader, filenameSize);
+        final ArrayList<FileDescription> fileList = extractUniqueInputFileNames(reader, filenameSize);
 
-        final Dimension inpFilesDimension = writer.addDimension(null, INPUT_FILES_DIM_NAME, nameList.size());
+        final Dimension inpFilesDimension = writer.addDimension(null, INPUT_FILES_DIM_NAME, fileList.size());
         final Dimension swathWidthDimension = writer.addDimension(null, SWATH_WIDTH_DIM_NAME, SWATH_WIDTH);
         final Dimension lineCorrelationDimension = writer.addDimension(null, LINE_CORR_DIM_NAME, MAX_LINE_CORRELATION);
         final Dimension channelDimension = writer.addDimension(null, CHANNEL_DIM_NAME, NUM_CHANNELS);
@@ -68,18 +75,26 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final int filenameSize = NetCDFUtils.getDimensionLength("file_name", reader);
-        final ArrayList<String> nameList = extractUniqueInputFileNames(reader, filenameSize);
+        final ArrayList<FileDescription> fileList = extractUniqueInputFileNames(reader, filenameSize);
 
         final Variable inpFilesVariable = writer.findVariable(INPUT_FILES_DIM_NAME);
 
         final int[] shape = inpFilesVariable.getShape();
         final ArrayChar fileNamesArray = new ArrayChar.D2(shape[0], shape[1]);
         final Index index = fileNamesArray.getIndex();
-        for(int i = 0; i < nameList.size(); i++ ){
+        for(int i = 0; i < fileList.size(); i++ ){
             index.set(i);
-            fileNamesArray.setString(index, nameList.get(i));
+            final FileDescription fileDescription = fileList.get(i);
+            fileNamesArray.setString(index, fileDescription.fileName);
         }
         writer.write(inpFilesVariable, fileNamesArray);
+
+        for(int i = 0; i < fileList.size(); i++ ){
+            final String sensorKey = "avhrr-ma-fcdr"; // @todo 2 tb/tb read from filename 2019-06-17
+            final FileDescription fileDescription = fileList.get(i);
+
+            final AVHRR_FCDR_Reader fcdrReader = (AVHRR_FCDR_Reader) readerCache.getReaderFor(sensorKey, Paths.get(fileDescription.fileName), fileDescription.processingVersion);
+        }
     }
 
     // package access for testing only tb 2019-06-14
@@ -94,18 +109,25 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         return config;
     }
 
-    private ArrayList<String> extractUniqueInputFileNames(NetcdfFile reader, int filenameSize) throws IOException, InvalidRangeException {
+    private ArrayList<FileDescription> extractUniqueInputFileNames(NetcdfFile reader, int filenameSize) throws IOException, InvalidRangeException {
         final int matchupCount = NetCDFUtils.getDimensionLength(MATCHUP_COUNT, reader);
         final Variable filenameVariable = reader.findVariable(configuration.fileNameVariableName);
+        final Variable versionVariable = reader.findVariable(configuration.versionVariableName);
+        final ArrayList<FileDescription> fileList = new ArrayList<>();
         final ArrayList<String> nameList = new ArrayList<>();
 
         for (int i = 0; i < matchupCount; i++) {
             final String filename = NetCDFUtils.readString(filenameVariable, i, filenameSize);
+            final String version = NetCDFUtils.readString(versionVariable, i, 30);
             if (!nameList.contains(filename)) {
+                final FileDescription description = new FileDescription();
+                description.fileName = filename;
+                description.processingVersion = version;
+                fileList.add(description);
                 nameList.add(filename);
             }
         }
-        return nameList;
+        return fileList;
     }
 
     private static String getNameAttributeFromChild(Element rootElement, String elementName) {
@@ -118,5 +140,10 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         String versionVariableName;
         String targetXElemName;
         String targetXLineName;
+    }
+
+    static class FileDescription {
+        String fileName;
+        String processingVersion;
     }
 }
