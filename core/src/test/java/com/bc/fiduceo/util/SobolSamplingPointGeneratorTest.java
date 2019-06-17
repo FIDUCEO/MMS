@@ -26,8 +26,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SobolSamplingPointGeneratorTest {
 
@@ -35,13 +34,12 @@ public class SobolSamplingPointGeneratorTest {
 
     @Before
     public void setUp() {
-        generator = new SobolSamplingPointGenerator(false);
+        generator = new SobolSamplingPointGenerator(SobolSamplingPointGenerator.Distribution.FLAT);
     }
 
     @Test
-    public void testEquidistantDistribution_degree() throws Exception {
-        final boolean sphericalDistribution = false;
-        generator = new SobolSamplingPointGenerator(sphericalDistribution);
+    public void testEquidistantDistribution_flat() {
+        generator = new SobolSamplingPointGenerator(SobolSamplingPointGenerator.Distribution.FLAT);
 
         final int numPoints = 200000;
         final List<SamplingPoint> samples = generator.createSamples(numPoints, 0, 0, 100);
@@ -67,18 +65,17 @@ public class SobolSamplingPointGeneratorTest {
                 count60s90s++;
             }
         }
-        assertEquals(33333, count90n60n, 1);
-        assertEquals(33333, count60n30n, 1);
-        assertEquals(33333, count30n0n, 1);
-        assertEquals(33333, count0n30s, 1);
-        assertEquals(33333, count30s60s, 1);
-        assertEquals(33333, count60s90s, 1);
+        assertEquals(33333, count90n60n);
+        assertEquals(33334, count60n30n);
+        assertEquals(33334, count30n0n);
+        assertEquals(33332, count0n30s);
+        assertEquals(33334, count30s60s);
+        assertEquals(33333, count60s90s);
     }
 
     @Test
-    public void testEquidistantDistribution_sphericalDistance() throws Exception {
-        final boolean sphericalDistribution = true;
-        generator = new SobolSamplingPointGenerator(sphericalDistribution);
+    public void testEquidistantDistribution_cosineWeight() {
+        generator = new SobolSamplingPointGenerator(SobolSamplingPointGenerator.Distribution.COSINE_LAT);
 
         final int numPoints = 200000;
         final List<SamplingPoint> samples = generator.createSamples(numPoints, 0, 0, 100);
@@ -110,6 +107,42 @@ public class SobolSamplingPointGeneratorTest {
         assertEquals(50000, count0n30s);
         assertEquals(36620, count30s60s);
         assertEquals(13388, count60s90s);
+    }
+
+    @Test
+    public void testEquidistantDistribution_inverseCosineLat() {
+        generator = new SobolSamplingPointGenerator(SobolSamplingPointGenerator.Distribution.INV_TRUNC_COSINE_LAT);
+
+        final int numPoints = 200000;
+        final List<SamplingPoint> samples = generator.createSamples(numPoints, 0, 0, 100);
+        int count90n60n = 0;
+        int count60n30n = 0;
+        int count30n0n = 0;
+        int count0n30s = 0;
+        int count30s60s = 0;
+        int count60s90s = 0;
+        for (SamplingPoint sample : samples) {
+            final double lat = sample.getLat();
+            if (lat >= 60) {
+                count90n60n++;
+            } else if (lat >= 30) {
+                count60n30n++;
+            } else if (lat >= 0) {
+                count30n0n++;
+            } else if (lat >= -30) {
+                count0n30s++;
+            } else if (lat >= -60) {
+                count30s60s++;
+            } else {
+                count60s90s++;
+            }
+        }
+        assertEquals(52673, count90n60n);
+        assertEquals(27594, count60n30n);
+        assertEquals(19739, count30n0n);
+        assertEquals(19745, count0n30s);
+        assertEquals(27578, count30s60s);
+        assertEquals(52671, count60s90s);
     }
 
     @Test
@@ -167,5 +200,46 @@ public class SobolSamplingPointGeneratorTest {
         assertEquals(-72.0, SobolSamplingPointGenerator.createLon(0.3), 1e-8);
         assertEquals(0.0, SobolSamplingPointGenerator.createLon(0.5), 1e-8);
         assertEquals(180.0, SobolSamplingPointGenerator.createLon(1.0), 1e-8);
+    }
+
+    @Test
+    public void testCosineLatDistribution() {
+        final SobolSamplingPointGenerator.DistributionFunction dist = new SobolSamplingPointGenerator.CosineLatDistribution();
+
+        assertFalse(dist.keepSample(-45.3, 0.65));
+        assertFalse(dist.keepSample(62.55, 0.416));
+
+        assertTrue(dist.keepSample(-61.889, 265112));
+        assertTrue(dist.keepSample(76.556, 0.67312));
+    }
+
+    @Test
+    public void testInverseTruncatedCosineLatDistribution() {
+        final SobolSamplingPointGenerator.DistributionFunction dist = new SobolSamplingPointGenerator.InverseTruncatedCosineLatDistribution();
+
+        assertFalse(dist.keepSample(-45.3, 0.42112));
+        assertFalse(dist.keepSample(62.55, 0.416));
+
+        assertTrue(dist.keepSample(-61.889, 265112));
+        assertTrue(dist.keepSample(34.556, 0.67312));
+    }
+
+    @Test
+    public void testGetDistributionFunction() {
+        SobolSamplingPointGenerator.DistributionFunction distributionFunction = SobolSamplingPointGenerator.getDistributionFunction(SobolSamplingPointGenerator.Distribution.FLAT);
+        assertNull(distributionFunction);
+
+        distributionFunction = SobolSamplingPointGenerator.getDistributionFunction(SobolSamplingPointGenerator.Distribution.COSINE_LAT);
+        assertTrue(distributionFunction instanceof SobolSamplingPointGenerator.CosineLatDistribution);
+
+        distributionFunction = SobolSamplingPointGenerator.getDistributionFunction(SobolSamplingPointGenerator.Distribution.INV_TRUNC_COSINE_LAT);
+        assertTrue(distributionFunction instanceof SobolSamplingPointGenerator.InverseTruncatedCosineLatDistribution);
+    }
+
+    @Test
+    public void testDistributionEnumFromString() {
+        assertEquals(SobolSamplingPointGenerator.Distribution.FLAT, SobolSamplingPointGenerator.Distribution.fromString("FLAT"));
+        assertEquals(SobolSamplingPointGenerator.Distribution.COSINE_LAT, SobolSamplingPointGenerator.Distribution.fromString("COSINE_LAT"));
+        assertEquals(SobolSamplingPointGenerator.Distribution.INV_TRUNC_COSINE_LAT, SobolSamplingPointGenerator.Distribution.fromString("INV_TRUNC_COSINE_LAT"));
     }
 }

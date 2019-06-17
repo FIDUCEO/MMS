@@ -27,43 +27,10 @@ import java.util.List;
 
 public class SobolSamplingPointGenerator {
 
-    private final boolean sphericalDistribution;
+    private final Distribution distribution;
 
-    public SobolSamplingPointGenerator(boolean sphericalDistribution) {
-        this.sphericalDistribution = sphericalDistribution;
-    }
-
-    public List<SamplingPoint> createSamples(int sampleCount, int sampleSkip, long startTime, long stopTime) {
-        final SobolSequenceGenerator sequenceGenerator;
-        if (sphericalDistribution) {
-            sequenceGenerator = new SobolSequenceGenerator(4);
-        } else {
-            sequenceGenerator = new SobolSequenceGenerator(3);
-        }
-        sequenceGenerator.skip(sampleSkip);
-        final List<SamplingPoint> sampleList = new ArrayList<>(sampleCount);
-
-        int count = 0;
-        while (count < sampleCount) {
-            final double[] sample = sequenceGenerator.nextVector();
-            final double x = sample[0];
-            final double y = sample[1];
-            final double t = sample[2];
-            final double lat = createLat(y);
-            if (sphericalDistribution) {
-                final double random = sample[3];
-                final double cos = Math.cos(Math.toRadians(lat));
-                if (random > cos) {
-                    continue;
-                }
-            }
-            final double lon = createLon(x);
-            final long time = createTime(t, startTime, stopTime);
-            sampleList.add(new SamplingPoint(lon, lat, time));
-            count++;
-        }
-
-        return sampleList;
+    public SobolSamplingPointGenerator(Distribution distribution) {
+        this.distribution = distribution;
     }
 
     static long createTime(double t, long startTime, long stopTime) {
@@ -83,5 +50,83 @@ public class SobolSamplingPointGenerator {
 
         // use the lower 31 bits of time as random tb 2017-07-20
         return (int) (nanoTime & 0x000000007FFFFFFFL);
+    }
+
+    public List<SamplingPoint> createSamples(int sampleCount, int sampleSkip, long startTime, long stopTime) {
+        final SobolSequenceGenerator sequenceGenerator;
+        final DistributionFunction distributionFunction;
+        if (distribution != Distribution.FLAT) {
+            sequenceGenerator = new SobolSequenceGenerator(4);
+            distributionFunction = getDistributionFunction(distribution);
+        } else {
+            sequenceGenerator = new SobolSequenceGenerator(3);
+            distributionFunction = null;
+        }
+        sequenceGenerator.skip(sampleSkip);
+        final List<SamplingPoint> sampleList = new ArrayList<>(sampleCount);
+
+        int count = 0;
+        while (count < sampleCount) {
+            final double[] sample = sequenceGenerator.nextVector();
+            final double x = sample[0];
+            final double y = sample[1];
+            final double t = sample[2];
+            final double lat = createLat(y);
+            if (distributionFunction != null) {
+                if (distributionFunction.keepSample(lat, sample[3])) {
+                    continue;
+                }
+            }
+            final double lon = createLon(x);
+            final long time = createTime(t, startTime, stopTime);
+            sampleList.add(new SamplingPoint(lon, lat, time));
+            count++;
+        }
+
+        return sampleList;
+    }
+
+    public enum Distribution {
+        FLAT,
+        COSINE_LAT,
+        INV_TRUNC_COSINE_LAT;
+
+        public static Distribution fromString(String string) {
+            return valueOf(string);
+        }
+    }
+
+    static DistributionFunction getDistributionFunction(Distribution distribution) {
+        if (distribution == Distribution.COSINE_LAT)   {
+            return new CosineLatDistribution();
+        } else  if(distribution == Distribution.INV_TRUNC_COSINE_LAT) {
+            return new InverseTruncatedCosineLatDistribution();
+        }
+        return null;
+    }
+
+    interface DistributionFunction {
+        boolean keepSample(double lat, double sample);
+    }
+
+    static class CosineLatDistribution implements DistributionFunction {
+
+        @Override
+        public boolean keepSample(double lat, double sample) {
+            final double cos = Math.cos(Math.toRadians(lat));
+            return sample > cos;
+        }
+    }
+
+    static class InverseTruncatedCosineLatDistribution implements DistributionFunction {
+
+        private static final double ONE_THIRD = 1.0 / 3.0;
+
+        @Override
+        public boolean keepSample(double lat, double sample) {
+            final double cos = Math.cos(Math.toRadians(lat));
+            final double value = ONE_THIRD * (Math.min(1.0 / cos, 3.0));
+            return sample > value;
+        }
     }
 }

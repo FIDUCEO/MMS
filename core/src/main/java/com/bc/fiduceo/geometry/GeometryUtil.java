@@ -97,10 +97,8 @@ public class GeometryUtil {
         builder.append("    </PolyStyle>\n");
         builder.append("  </Style>\n");
 
-        float latBefore = 0;
-        float lonBefore = 0;
-        latBefore = lats[0];
-        lonBefore = lons[0];
+        float latBefore = lats[0];
+        float lonBefore = lons[0];
         int count = 1;
         for (int i = 0; i < lats.length; i++) {
             final float lat = lats[i];
@@ -129,7 +127,7 @@ public class GeometryUtil {
         return builder.toString();
     }
 
-    // don't remove this, we occasionally need it to dump debug WKT in casese where JTS can not display the polygon tb 2016-09-23
+    // don't remove this, we occasionally need it to dump debug WKT in cases where JTS can not display the polygon tb 2016-09-23
     public static String toPointListWkt(Geometry geometry) {
         final StringBuffer wkt = new StringBuffer();
 

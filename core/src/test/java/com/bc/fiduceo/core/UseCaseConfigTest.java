@@ -487,7 +487,7 @@ public class UseCaseConfigTest {
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertNotNull(useCaseConfig);
         assertEquals(57, useCaseConfig.getRandomPointsPerDay());
-        assertFalse(useCaseConfig.isEquallyDistributedPoints());
+        assertEquals("COSINE_LAT",useCaseConfig.getDistributionFunction());
     }
 
     @Test
@@ -495,7 +495,7 @@ public class UseCaseConfigTest {
         final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
                 "    <random-sampling>" +
                 "        <points-per-day>58</points-per-day>" +
-                "        <equally-distributed>true</equally-distributed>" +
+                "        <distribution>FLAT</distribution>" +
                 "    </random-sampling>" +
                 "</use-case-config>";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
@@ -503,7 +503,23 @@ public class UseCaseConfigTest {
         final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
         assertNotNull(useCaseConfig);
         assertEquals(58, useCaseConfig.getRandomPointsPerDay());
-        assertTrue(useCaseConfig.isEquallyDistributedPoints());
+        assertEquals("FLAT", useCaseConfig.getDistributionFunction());
+    }
+
+    @Test
+    public void testRandomSampling_valid_inverseCosine() {
+        final String useCaseXml = "<use-case-config name=\"use-case RandomSeed\">" +
+                "    <random-sampling>" +
+                "        <points-per-day>58</points-per-day>" +
+                "        <distribution>INV_TRUNC_COSINE_LAT</distribution>" +
+                "    </random-sampling>" +
+                "</use-case-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+
+        final UseCaseConfig useCaseConfig = UseCaseConfig.load(inputStream);
+        assertNotNull(useCaseConfig);
+        assertEquals(58, useCaseConfig.getRandomPointsPerDay());
+        assertEquals("INV_TRUNC_COSINE_LAT", useCaseConfig.getDistributionFunction());
     }
 
     @Test

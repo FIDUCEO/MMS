@@ -25,7 +25,7 @@ import java.util.List;
 public class PlotSobolPoints_equalDistributedOnSphere {
 
     public static void main(String[] args) throws IOException {
-        final List<SamplingPoint> samples = new SobolSamplingPointGenerator(true).createSamples(3700000, 0, 100000, 200000);
-        new SamplingPointPlotter(1800, 900).show(true).samples(samples).plot();
+        final List<SamplingPoint> samples = new SobolSamplingPointGenerator(SobolSamplingPointGenerator.Distribution.FLAT).createSamples(100000, 874658237, 0, 100);
+        new SamplingPointPlotter(1800, 900).show(true).samples(samples).filePath("/fs1/temp/Tom/flat.png").plot();
     }
 }
