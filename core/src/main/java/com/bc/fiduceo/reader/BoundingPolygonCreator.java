@@ -172,6 +172,50 @@ public class BoundingPolygonCreator {
         }
     }
 
+    public Interval[] extractValidIntervals(Array longitudes, double fillValue) {
+        final int[] shape = longitudes.getShape();
+        final int height = shape[0];
+        final ArrayList<Interval> intervals = new ArrayList<>();
+
+        final Index index = longitudes.getIndex();
+        index.set(0, 0);
+
+        Interval currentInterval = null;
+        double lon = longitudes.getDouble(index);
+        if (!isFillValue(lon, fillValue)) {
+            currentInterval = new Interval();
+            currentInterval.setX(0);
+        }
+
+        for (int i = 1; i < height; i++) {
+            index.set(i, 0);
+            lon = longitudes.getDouble(index);
+            final boolean isFill = isFillValue(lon, fillValue);
+            if (isFill && currentInterval != null) {
+                // finishing an interval, we encountered fill value
+                currentInterval.setY(i - 1);
+                intervals.add(currentInterval);
+                currentInterval = null;
+            } else if (!isFill && currentInterval == null) {
+                // we leave an invalid section and start a new interval
+                currentInterval = new Interval();
+                currentInterval.setX(i);
+            }
+        }
+        if (currentInterval != null) {
+            // if we`re still in a segment of valid data - close this
+            currentInterval.setY(height -1);
+            intervals.add(currentInterval);
+        }
+
+        return intervals.toArray(new Interval[]{});
+    }
+
+    // package access for testing only tb 2019-06-19
+    static boolean isFillValue(double value, double fillValue) {
+        return Math.abs(value - fillValue) < 1e-6;
+    }
+
     private List<Point> extractBoundaryCoordinates(Array longitudes, Array latitudes) {
         final int[] shape = longitudes.getShape();
         int maxX = shape[1] - 1;

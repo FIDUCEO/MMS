@@ -25,9 +25,21 @@ public class Interval {
     private int x;
     private int y;
 
+    public Interval() {
+        this(0, 0);
+    }
+
     public Interval(int intervalX, int intervalY) {
         x = intervalX;
         y = intervalY;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public int getX() {

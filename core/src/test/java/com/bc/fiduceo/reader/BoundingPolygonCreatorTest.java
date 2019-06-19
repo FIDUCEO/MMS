@@ -31,6 +31,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ConstantConditions")
 public class BoundingPolygonCreatorTest {
 
     private BoundingPolygonCreator boundingPolygonCreator;
@@ -410,6 +411,76 @@ public class BoundingPolygonCreatorTest {
         assertEquals("LINESTRING(139.3232587268979 71.69661607793569,138.01571817610454 71.96597011172345)", geometryFactory.format(lineString));
     }
 
+    @Test
+    public void testExtractValidIntervals_noGaps() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final double fillValue = -32768.0;
+
+        final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        assertEquals(1, validIntervals.length);
+        assertEquals(0, validIntervals[0].getX());
+        assertEquals(6, validIntervals[0].getY());
+    }
+
+    @Test
+    public void testExtractValidIntervals_oneGap() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES_ONE_GAP);
+        final double fillValue = -32768.0;
+
+        final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        assertEquals(2, validIntervals.length);
+        assertEquals(0, validIntervals[0].getX());
+        assertEquals(2, validIntervals[0].getY());
+
+        assertEquals(5, validIntervals[1].getX());
+        assertEquals(8, validIntervals[1].getY());
+    }
+
+    @Test
+    public void testExtractValidIntervals_twoGaps() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES_TWO_GAPS);
+        final double fillValue = -32768.0;
+
+        final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        assertEquals(3, validIntervals.length);
+        assertEquals(0, validIntervals[0].getX());
+        assertEquals(2, validIntervals[0].getY());
+
+        assertEquals(5, validIntervals[1].getX());
+        assertEquals(6, validIntervals[1].getY());
+
+        assertEquals(9, validIntervals[2].getX());
+        assertEquals(10, validIntervals[2].getY());
+    }
+
+    @Test
+    public void testExtractValidIntervals_noGaps_startWithFill() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES_START_WITH_FILL);
+        final double fillValue = -32768.0;
+
+        final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        assertEquals(1, validIntervals.length);
+        assertEquals(2, validIntervals[0].getX());
+        assertEquals(8, validIntervals[0].getY());
+    }
+
+    @Test
+    public void testExtractValidIntervals_noGaps_endWithFill() {
+        final Array longitudes = Array.factory(AVHRR_LONGITUDES_END_WITH_FILL);
+        final double fillValue = -32768.0;
+
+        final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        assertEquals(1, validIntervals.length);
+        assertEquals(0, validIntervals[0].getX());
+        assertEquals(6, validIntervals[0].getY());
+    }
+
+    @Test
+    public void testIsFillValue() {
+        assertTrue(BoundingPolygonCreator.isFillValue(-1000.0, -1000.0));
+        assertFalse(BoundingPolygonCreator.isFillValue(34.8, -1000.0));
+    }
+
     private static final double[][] AIRS_LONGITUDES = new double[][]{
             {138.19514475348302, 138.77287682180165, 139.3232587268979, 139.86561480588978},
             {137.7680766938059, 138.34196788102574, 138.888842745419, 139.43625059118625},
@@ -440,5 +511,55 @@ public class BoundingPolygonCreatorTest {
             {6.315, 6.288, 6.261, 6.235},
             {6.287, 6.26, 6.233, 6.207},
             {6.258, 6.231, 6.204, 6.178}
+    };
+
+    private static final double[][] AVHRR_LONGITUDES_ONE_GAP = new double[][]{
+            {-114.985, -114.77901, -114.578995, -114.384995},
+            {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.996994, -114.791, -114.591, -114.397},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-115.003006, -114.797, -114.597, -114.403},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.015, -114.809006, -114.61, -114.41499},
+            {-115.020996, -114.815, -114.616, -114.421005}
+    };
+
+    private static final double[][] AVHRR_LONGITUDES_TWO_GAPS = new double[][]{
+            {-114.985, -114.77901, -114.578995, -114.384995},
+            {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.996994, -114.791, -114.591, -114.397},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-115.003006, -114.797, -114.597, -114.403},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-115.015, -114.809006, -114.61, -114.41499},
+            {-115.020996, -114.815, -114.616, -114.421005}
+    };
+
+    private static final double[][] AVHRR_LONGITUDES_START_WITH_FILL = new double[][]{
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-114.985, -114.77901, -114.578995, -114.384995},
+            {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.996994, -114.791, -114.591, -114.397},
+            {-115.003006, -114.797, -114.597, -114.403},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.015, -114.809006, -114.61, -114.41499},
+            {-115.020996, -114.815, -114.616, -114.421005}
+    };
+
+    private static final double[][] AVHRR_LONGITUDES_END_WITH_FILL = new double[][]{
+            {-114.985, -114.77901, -114.578995, -114.384995},
+            {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.996994, -114.791, -114.591, -114.397},
+            {-115.003006, -114.797, -114.597, -114.403},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.015, -114.809006, -114.61, -114.41499},
+            {-115.020996, -114.815, -114.616, -114.421005},
+            {-32768.0, -32768.0, -32768.0, -32768.0},
+            {-32768.0, -32768.0, -32768.0, -32768.0}
     };
 }
