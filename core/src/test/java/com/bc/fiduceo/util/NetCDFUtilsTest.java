@@ -29,7 +29,7 @@ import ucar.ma2.DataType;
 import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -519,7 +519,7 @@ public class NetCDFUtilsTest {
         when(attribute.getNumericValue()).thenReturn(28.6);
 
         final Variable variable = mock(Variable.class);
-        when(variable.findAttribute("scale_factor")).thenReturn(attribute);
+        when(variable.findAttribute(CF_SCALE_FACTOR_NAME)).thenReturn(attribute);
 
         final double scale = NetCDFUtils.getScaleFactor(variable);
         assertEquals(28.6, scale, 1e-8);
@@ -551,7 +551,7 @@ public class NetCDFUtilsTest {
         when(attribute.getNumericValue()).thenReturn(30.8);
 
         final Variable variable = mock(Variable.class);
-        when(variable.findAttribute("add_offset")).thenReturn(attribute);
+        when(variable.findAttribute(CF_OFFSET_NAME)).thenReturn(attribute);
 
         final double offset = NetCDFUtils.getOffset(variable);
         assertEquals(30.8, offset, 1e-8);

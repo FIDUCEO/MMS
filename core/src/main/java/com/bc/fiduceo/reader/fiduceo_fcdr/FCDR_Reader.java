@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+
 abstract class FCDR_Reader extends NetCDFReader {
 
     private static final int NUM_SPLITS = 2;
@@ -66,8 +69,8 @@ abstract class FCDR_Reader extends NetCDFReader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled(LONGITUDE_VAR_NAME, "scale_factor", "add_offset");
-            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled(LATITUDE_VAR_NAME, "scale_factor", "add_offset");
+            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
+            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
             final int[] shape = lonStorage.getShape();
             final int width = shape[1];
             final int height = shape[0];
@@ -89,8 +92,8 @@ abstract class FCDR_Reader extends NetCDFReader {
     Geometries calculateGeometries(boolean clockwise, Interval interval) throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator(interval);
 
-        final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, "scale_factor", "add_offset");
-        final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, "scale_factor", "add_offset");
+        final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
+        final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
 
         final double fillValue = arrayCache.getNumberAttributeValue("_FillValue", LONGITUDE_VAR_NAME).doubleValue();
 

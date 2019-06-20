@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+
 public class DistanceToLandMap {
 
     private static int instanceCount = 0;
@@ -84,7 +86,7 @@ public class DistanceToLandMap {
         try {
             ncFile = NetCDFUtils.openReadOnly(absolutePathString);
             Variable distance_to_land = ncFile.findVariable(ncFile.getRootGroup(), "distance_to_land");
-            scaleFactor = distance_to_land.findAttribute("scale_factor").getNumericValue().doubleValue();
+            scaleFactor = distance_to_land.findAttribute(CF_SCALE_FACTOR_NAME).getNumericValue().doubleValue();
             array = distance_to_land.read();
             index = array.getIndex();
             final int width = distance_to_land.getDimension(1).getLength();

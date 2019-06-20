@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+
 class HIRS_FCDR_Reader extends FCDR_Reader {
 
     // @todo 2 tb/tb move intervals to config 2019-02-18
@@ -92,8 +95,8 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
             final Array time = arrayCache.get("time");
-            final double scale_factor = (double) arrayCache.getNumberAttributeValue("scale_factor", "time");
-            final double offset = (double) arrayCache.getNumberAttributeValue("add_offset", "time");
+            final double scale_factor = (double) arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, "time");
+            final double offset = (double) arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, "time");
 
             timeLocator = new HIRS_FCDR_TimeLocator(time, scale_factor, offset);
         }
