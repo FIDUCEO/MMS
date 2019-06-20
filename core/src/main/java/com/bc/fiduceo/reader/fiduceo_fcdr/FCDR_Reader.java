@@ -88,10 +88,25 @@ abstract class FCDR_Reader extends NetCDFReader {
 
     Geometries calculateGeometries(boolean clockwise, Interval interval) throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator(interval);
-        final Geometries geometries = new Geometries();
 
         final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, "scale_factor", "add_offset");
         final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, "scale_factor", "add_offset");
+
+        final double fillValue = arrayCache.getNumberAttributeValue("_FillValue", LONGITUDE_VAR_NAME).doubleValue();
+
+        final Geometries geometries;
+        final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        if (1 == intervals.length) {
+            geometries = calculateGeometriesSmooth(clockwise, boundingPolygonCreator, longitudes, latitudes);
+        } else {
+            geometries = calculateGeometriesGapped(clockwise, boundingPolygonCreator, longitudes, latitudes, intervals);
+        }
+
+        return geometries;
+    }
+
+    private Geometries calculateGeometriesSmooth(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) {
+        final Geometries geometries = new Geometries();
         Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {
@@ -106,6 +121,13 @@ abstract class FCDR_Reader extends NetCDFReader {
 
         geometries.setBoundingGeometry(boundingGeometry);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
+
+        return geometries;
+    }
+
+    private Geometries calculateGeometriesGapped(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) {
+        final Geometries geometries = new Geometries();
+
         return geometries;
     }
 

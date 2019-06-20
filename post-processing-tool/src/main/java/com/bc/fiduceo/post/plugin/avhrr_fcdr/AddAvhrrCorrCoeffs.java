@@ -41,6 +41,23 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         this.configuration = configuration;
     }
 
+    // package access for testing only tb 2019-06-14
+    static Configuration createConfiguration(Element rootElement) {
+        final Configuration config = new Configuration();
+
+        config.fileNameVariableName = getNameAttributeFromChild(rootElement, "file-name-variable");
+        config.versionVariableName = getNameAttributeFromChild(rootElement, "processing-version-variable");
+        config.targetXElemName = getNameAttributeFromChild(rootElement, "target-x-elem-variable");
+        config.targetXLineName = getNameAttributeFromChild(rootElement, "target-x-line-variable");
+
+        return config;
+    }
+
+    private static String getNameAttributeFromChild(Element rootElement, String elementName) {
+        final Element element = JDomUtils.getMandatoryChild(rootElement, elementName);
+        return JDomUtils.getValueFromNameAttributeMandatory(element);
+    }
+
     @Override
     protected void initReaderCache() {
         readerCache = createReaderCache(getContext());
@@ -96,8 +113,6 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         final Archive archive = new Archive(archiveConfig);
 
         final int[] origin = new int[3];
-        origin[1] = 0;
-        origin[2] = 0;
         final int[] targetShape = new int[3];
         targetShape[0] = 1;
         for (int i = 0; i < fileList.size(); i++) {
@@ -109,13 +124,13 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
             final Path productsDir = archive.createValidProductPath(fileDescription.processingVersion, sensorKey, ymd[0], ymd[1], ymd[2]);
             final File mmdFile = new File(productsDir.toFile(), fileDescription.fileName);
 
-            final Variable targetXElemVariable = writer.findVariable(configuration.targetXElemName);
-            final Variable targetXLineVariable = writer.findVariable(configuration.targetXLineName);
+            final Variable targetXElemVariable = NetCDFUtils.getVariable(writer, configuration.targetXElemName);
+            final Variable targetXLineVariable = NetCDFUtils.getVariable(writer, configuration.targetXLineName);
 
             try (NetcdfFile inputAvhrrFile = NetcdfFile.open(mmdFile.getAbsolutePath())) {
                 origin[0] = i;
 
-                final Variable crossElemVariable = inputAvhrrFile.findVariable(null, "cross_element_correlation_coefficients");
+                final Variable crossElemVariable = NetCDFUtils.getVariable(inputAvhrrFile, "cross_element_correlation_coefficients");
                 shape = crossElemVariable.getShape();
                 targetShape[1] = shape[0];
                 targetShape[2] = shape[1];
@@ -124,7 +139,7 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
                 Array reshaped = crossElemArray.reshape(targetShape);
                 writer.write(targetXElemVariable, origin, reshaped);
 
-                final Variable crossLineVariable = inputAvhrrFile.findVariable(null, "cross_line_correlation_coefficients");
+                final Variable crossLineVariable = NetCDFUtils.getVariable(inputAvhrrFile, "cross_line_correlation_coefficients");
                 shape = crossLineVariable.getShape();
 
                 targetShape[1] = shape[0];
@@ -137,22 +152,10 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         }
     }
 
-    // package access for testing only tb 2019-06-14
-    static Configuration createConfiguration(Element rootElement) {
-        final Configuration config = new Configuration();
-
-        config.fileNameVariableName = getNameAttributeFromChild(rootElement, "file-name-variable");
-        config.versionVariableName = getNameAttributeFromChild(rootElement, "processing-version-variable");
-        config.targetXElemName = getNameAttributeFromChild(rootElement, "target-x-elem-variable");
-        config.targetXLineName = getNameAttributeFromChild(rootElement, "target-x-line-variable");
-
-        return config;
-    }
-
     private ArrayList<FileDescription> extractUniqueInputFileNames(NetcdfFile reader, int filenameSize) throws IOException, InvalidRangeException {
         final int matchupCount = NetCDFUtils.getDimensionLength(MATCHUP_COUNT, reader);
-        final Variable filenameVariable = reader.findVariable(configuration.fileNameVariableName);
-        final Variable versionVariable = reader.findVariable(configuration.versionVariableName);
+        final Variable filenameVariable = NetCDFUtils.getVariable(reader, configuration.fileNameVariableName);
+        final Variable versionVariable = NetCDFUtils.getVariable(reader, configuration.versionVariableName);
         final ArrayList<FileDescription> fileList = new ArrayList<>();
         final ArrayList<String> nameList = new ArrayList<>();
 
@@ -168,11 +171,6 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
             }
         }
         return fileList;
-    }
-
-    private static String getNameAttributeFromChild(Element rootElement, String elementName) {
-        final Element element = JDomUtils.getMandatoryChild(rootElement, elementName);
-        return JDomUtils.getValueFromNameAttributeMandatory(element);
     }
 
     static class Configuration {
