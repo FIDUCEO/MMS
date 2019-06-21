@@ -13,6 +13,7 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -157,6 +158,64 @@ public class AVHRR_FCDR_Reader_IO_Test {
             coordinates = polygons.get(1).getCoordinates();
             time = timeAxes[1].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2011, 7, 5, 6, 48, 38, time);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testReadAcquisitionInfo_NOAA19_segmented() throws IOException {
+        final File file = createAvhrrNOAA19_segmented_File();
+
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2011, 7, 5, 7, 39, 27, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+//            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+//            assertNotNull(boundingGeometry);
+//            assertTrue(boundingGeometry instanceof MultiPolygon);
+//            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+//            final List<Polygon> polygons = multiPolygon.getPolygons();
+//            assertEquals(2, polygons.size());
+//
+//            Point[] coordinates = polygons.get(0).getCoordinates();
+//            assertEquals(147, coordinates.length);
+//            assertEquals(127.1431622095406, coordinates[0].getLon(), 1e-8);
+//            assertEquals(2.0050660707056522, coordinates[0].getLat(), 1e-8);
+//
+//            assertEquals(127.33542881906034, coordinates[25].getLon(), 1e-8);
+//            assertEquals(73.09701827354729, coordinates[25].getLat(), 1e-8);
+//
+//            coordinates = polygons.get(1).getCoordinates();
+//            assertEquals(147, coordinates.length);
+//            assertEquals(-92.25501257926226, coordinates[0].getLon(), 1e-8);
+//            assertEquals(2.1698660217225556, coordinates[0].getLat(), 1e-8);
+//
+//            assertEquals(-143.13425078988075, coordinates[26].getLon(), 1e-8);
+//            assertEquals(-63.69792773388326, coordinates[26].getLat(), 1e-8);
+//
+//            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+//            assertEquals(2, timeAxes.length);
+//            coordinates = polygons.get(0).getCoordinates();
+//            Date time = timeAxes[0].getTime(coordinates[0]);
+//            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, time);
+//
+//            coordinates = polygons.get(1).getCoordinates();
+//            time = timeAxes[1].getTime(coordinates[0]);
+//            TestUtil.assertCorrectUTCDate(2011, 7, 5, 6, 48, 38, time);
 
         } finally {
             reader.close();
@@ -729,6 +788,13 @@ public class AVHRR_FCDR_Reader_IO_Test {
 
     private File createAvhrrNOAA19File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19-fcdr", "v0.2Bet", "2011", "07", "05", "FIDUCEO_FCDR_L1C_AVHRR_N19ALL_20110705055721_20110705073927_EASY_v0.2Bet_fv2.0.0.nc"}, false);
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
+    }
+
+    private File createAvhrrNOAA19_segmented_File() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19-fcdr", "v0.2Bet", "2009", "04", "11", "FIDUCEO_FCDR_L1C_AVHRR_N19C3A_20090411222732_20090412003906_EASY_v0.2Bet_fv2.0.0.nc"}, false);
         final File file = new File(testDataDirectory, testFilePath);
         assertTrue(file.isFile());
         return file;

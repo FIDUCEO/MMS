@@ -19,8 +19,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 abstract class FCDR_Reader extends NetCDFReader {
 
@@ -95,7 +94,7 @@ abstract class FCDR_Reader extends NetCDFReader {
         final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
         final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
 
-        final double fillValue = arrayCache.getNumberAttributeValue("_FillValue", LONGITUDE_VAR_NAME).doubleValue();
+        final double fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, LONGITUDE_VAR_NAME).doubleValue();
 
         final Geometries geometries;
         final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);

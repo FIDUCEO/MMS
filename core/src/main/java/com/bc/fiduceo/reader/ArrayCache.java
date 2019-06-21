@@ -51,6 +51,11 @@ public class ArrayCache {
         variableFinder = netcdfFile::findVariable;
     }
 
+    // package access for testing only tb 2016-04-14
+    static String createGroupedName(String groupName, String variableName) {
+        return groupName + "_" + variableName;
+    }
+
     public Array get(String variableName) throws IOException {
         ArrayContainer container = cache.get(variableName);
         if (container == null) {
@@ -65,9 +70,7 @@ public class ArrayCache {
         final String groupedVariableName = createGroupedName(groupName, variableName);
         ArrayContainer container = cache.get(groupedVariableName);
         if (container == null) {
-            synchronized (netcdfFile) {
-                container = readArrayAndAttributesFromGroup(variableName, groupName);
-            }
+            container = readArrayAndAttributesFromGroup(variableName, groupName);
             cache.put(groupedVariableName, container);
         }
         return container.array;
@@ -79,9 +82,7 @@ public class ArrayCache {
         if (arrayContainer == null) {
             arrayContainer = cache.get(groupedVariableName);
             if (arrayContainer == null) {
-                synchronized (netcdfFile) {
-                    arrayContainer = readArrayAndAttributesFromGroup(variableName, groupName);
-                }
+                arrayContainer = readArrayAndAttributesFromGroup(variableName, groupName);
                 cache.put(groupedVariableName, arrayContainer);
             }
 
@@ -153,9 +154,7 @@ public class ArrayCache {
      * @param attributeName the attribute name
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
-     *
      * @return the string value or null
-     *
      * @throws IOException on disk access failures
      */
     public String getStringAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
@@ -170,6 +169,7 @@ public class ArrayCache {
 
     /**
      * Replaces the default variable finder with the given.
+     *
      * @param variableFinder a variable selection strategy
      */
     public ArrayCache withVariableFinder(VariableFinder variableFinder) {
@@ -182,9 +182,7 @@ public class ArrayCache {
      *
      * @param attributeName the attribute name
      * @param variableName  the variable name
-     *
      * @return the number value or null
-     *
      * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String variableName) throws IOException {
@@ -202,9 +200,7 @@ public class ArrayCache {
      * @param attributeName the attribute name
      * @param groupName     the name of the group containing the variable
      * @param variableName  the variable name
-     *
      * @return the number value or null
-     *
      * @throws IOException on disk access failures
      */
     public Number getNumberAttributeValue(String attributeName, String groupName, String variableName) throws IOException {
@@ -228,19 +224,12 @@ public class ArrayCache {
         return resultList;
     }
 
-    // package access for testing only tb 2016-04-14
-    static String createGroupedName(String groupName, String variableName) {
-        return groupName + "_" + variableName;
-    }
-
     /**
      * Retrieves the string representation of the attribute. Returns null if attribute is not present.
      *
      * @param attributeName the attribute name
      * @param variableName  the variable name
-     *
      * @return the string value or null
-     *
      * @throws IOException on disk access failures
      */
     String getStringAttributeValue(String attributeName, String variableName) throws IOException {
@@ -288,7 +277,9 @@ public class ArrayCache {
             }
         }
         container = new ArrayContainer();
-        container.array = variable.read();
+        synchronized (netcdfFile) {
+            container.array = variable.read();
+        }
 
         final List<Attribute> attributes = variable.getAttributes();
         for (final Attribute attribute : attributes) {
@@ -299,7 +290,10 @@ public class ArrayCache {
 
     private ArrayContainer readArrayAndAttributesFromGroup(String variableName, String groupName) throws IOException {
         ArrayContainer container;
-        final Group group = netcdfFile.findGroup(groupName);
+        final Group group;
+        synchronized (netcdfFile) {
+            group = netcdfFile.findGroup(groupName);
+        }
         if (group == null) {
             throw new IOException("requested group '" + groupName + "' not present in file: " + netcdfFile.getLocation());
         }
