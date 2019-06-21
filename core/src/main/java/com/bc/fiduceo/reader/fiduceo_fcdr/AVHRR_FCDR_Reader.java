@@ -3,16 +3,19 @@ package com.bc.fiduceo.reader.fiduceo_fcdr;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
-import ucar.ma2.*;
+import com.bc.fiduceo.util.TimeUtils;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public class AVHRR_FCDR_Reader extends FCDR_Reader {
@@ -65,10 +68,15 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final Geometries geometries = calculateGeometries(false, STEP_INTERVAL);
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator(STEP_INTERVAL);
+        final Geometries geometries = calculateGeometries(false, boundingPolygonCreator);
         final Geometry boundingGeometry = geometries.getBoundingGeometry();
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        if (geometries.getIntervals().length > 1) {
+            setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometries.getIntervals());
+        } else {
+            ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        }
 
         return acquisitionInfo;
     }
@@ -134,5 +142,24 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
         final Variable ch1 = netcdfFile.findVariable("Ch1");
         final int[] shape = ch1.getShape();
         return new com.bc.fiduceo.core.Dimension("Ch1", shape[1], shape[0]);
+    }
+
+    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Geometry timeAxesGeometry, Interval[] intervals) throws IOException {
+        final TimeLocator timeLocator = getTimeLocator();
+
+        final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+        final Geometry[] axesGeometries = axesCollection.getGeometries();
+        final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+
+        int axesIdx = 0;
+        for(final Interval interval: intervals) {
+            final long intervalStart = timeLocator.getTimeFor(0, interval.getX());
+            final long intervalStop = timeLocator.getTimeFor(0, interval.getY());
+
+            timeAxes[axesIdx] = geometryFactory.createTimeAxis((LineString) axesGeometries[axesIdx], TimeUtils.create(intervalStart), TimeUtils.create(intervalStop));
+            axesIdx++;
+        }
+
+        acquisitionInfo.setTimeAxes(timeAxes);
     }
 }

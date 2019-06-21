@@ -20,11 +20,17 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.Geometry;
 
 public class Geometries {
     private Geometry boundingGeometry;
     private Geometry timeAxesGeometry;
+    private Interval[] intervals;
+
+    public Geometries() {
+        intervals = new Interval[0];
+    }
 
     public Geometry getBoundingGeometry() {
         return boundingGeometry;
@@ -40,5 +46,13 @@ public class Geometries {
 
     public void setTimeAxesGeometry(Geometry timeAxesGeometry) {
         this.timeAxesGeometry = timeAxesGeometry;
+    }
+
+    public Interval[] getIntervals() {
+        return intervals;
+    }
+
+    public void setIntervals(Interval[] intervals) {
+        this.intervals = intervals;
     }
 }

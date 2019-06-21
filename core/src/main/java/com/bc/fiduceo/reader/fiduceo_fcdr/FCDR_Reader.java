@@ -1,9 +1,7 @@
 package com.bc.fiduceo.reader.fiduceo_fcdr;
 
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
@@ -16,8 +14,10 @@ import ucar.ma2.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
 
@@ -27,12 +27,10 @@ abstract class FCDR_Reader extends NetCDFReader {
 
     private static final String LONGITUDE_VAR_NAME = "longitude";
     private static final String LATITUDE_VAR_NAME = "latitude";
-
-    private BoundingPolygonCreator boundingPolygonCreator;
-
     protected final GeometryFactory geometryFactory;
     protected File file;
     protected PixelLocator pixelLocator;
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     FCDR_Reader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -88,9 +86,7 @@ abstract class FCDR_Reader extends NetCDFReader {
         return LATITUDE_VAR_NAME;
     }
 
-    Geometries calculateGeometries(boolean clockwise, Interval interval) throws IOException {
-        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator(interval);
-
+    Geometries calculateGeometries(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator) throws IOException {
         final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
         final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
 
@@ -98,13 +94,17 @@ abstract class FCDR_Reader extends NetCDFReader {
 
         final Geometries geometries;
         final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
-        if (1 == intervals.length) {
-            geometries = calculateGeometriesSmooth(clockwise, boundingPolygonCreator, longitudes, latitudes);
-        } else {
-            geometries = calculateGeometriesGapped(clockwise, boundingPolygonCreator, longitudes, latitudes, intervals);
+        try {
+            if (1 == intervals.length) {
+                geometries = calculateGeometriesSmooth(clockwise, boundingPolygonCreator, longitudes, latitudes);
+            } else {
+                geometries = calculateGeometriesGapped(clockwise, boundingPolygonCreator, longitudes, latitudes, intervals);
+            }
+            geometries.setIntervals(intervals);
+            return geometries;
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
         }
-
-        return geometries;
     }
 
     private Geometries calculateGeometriesSmooth(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) {
@@ -127,8 +127,39 @@ abstract class FCDR_Reader extends NetCDFReader {
         return geometries;
     }
 
-    private Geometries calculateGeometriesGapped(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) {
+    private Geometries calculateGeometriesGapped(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) throws InvalidRangeException {
         final Geometries geometries = new Geometries();
+        final List<Polygon> geometryList = new ArrayList<>();
+        final List<LineString> timeAxesList = new ArrayList<>();
+
+        final int[] shape = longitudes.getShape();
+
+        final int[] offset = new int[2];
+        final int[] subsetShape = new int[2];
+        subsetShape[1] = shape[1];
+        for (final Interval interval : intervals) {
+            offset[0] = interval.getX();
+            subsetShape[0] = interval.getY() - interval.getX() + 1;
+
+            final Array lonSection = longitudes.section(offset, subsetShape);
+            final Array latSection = latitudes.section(offset, subsetShape);
+
+            final Polygon boundingGeometry;
+            if (clockwise) {
+                boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(lonSection, latSection);
+            } else {
+                boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonSection, latSection);
+            }
+
+            geometryList.add(boundingGeometry);
+            final LineString timeAxis = boundingPolygonCreator.createTimeAxisGeometry(lonSection, latSection);
+            timeAxesList.add(timeAxis);
+        }
+
+        final MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(geometryList);
+        geometries.setBoundingGeometry(multiPolygon);
+        final GeometryCollection timeAxes = geometryFactory.createGeometryCollection(timeAxesList.toArray(new Geometry[]{}));
+        geometries.setTimeAxesGeometry(timeAxes);
 
         return geometries;
     }
@@ -169,7 +200,7 @@ abstract class FCDR_Reader extends NetCDFReader {
         return integerTimeArray;
     }
 
-    private BoundingPolygonCreator getBoundingPolygonCreator(Interval interval) {
+    BoundingPolygonCreator getBoundingPolygonCreator(Interval interval) {
         if (boundingPolygonCreator == null) {
             boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
         }

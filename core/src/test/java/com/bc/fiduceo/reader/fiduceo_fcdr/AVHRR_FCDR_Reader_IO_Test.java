@@ -165,7 +165,6 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    @Ignore
     public void testReadAcquisitionInfo_NOAA19_segmented() throws IOException {
         final File file = createAvhrrNOAA19_segmented_File();
 
@@ -176,47 +175,88 @@ public class AVHRR_FCDR_Reader_IO_Test {
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, sensingStart);
+            TestUtil.assertCorrectUTCDate(2009, 4, 11, 22, 27, 32, sensingStart);
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
-            TestUtil.assertCorrectUTCDate(2011, 7, 5, 7, 39, 27, sensingStop);
+            TestUtil.assertCorrectUTCDate(2009, 4, 12, 0, 39, 6, sensingStop);
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
-//            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-//            assertNotNull(boundingGeometry);
-//            assertTrue(boundingGeometry instanceof MultiPolygon);
-//            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
-//            final List<Polygon> polygons = multiPolygon.getPolygons();
-//            assertEquals(2, polygons.size());
-//
-//            Point[] coordinates = polygons.get(0).getCoordinates();
-//            assertEquals(147, coordinates.length);
-//            assertEquals(127.1431622095406, coordinates[0].getLon(), 1e-8);
-//            assertEquals(2.0050660707056522, coordinates[0].getLat(), 1e-8);
-//
-//            assertEquals(127.33542881906034, coordinates[25].getLon(), 1e-8);
-//            assertEquals(73.09701827354729, coordinates[25].getLat(), 1e-8);
-//
-//            coordinates = polygons.get(1).getCoordinates();
-//            assertEquals(147, coordinates.length);
-//            assertEquals(-92.25501257926226, coordinates[0].getLon(), 1e-8);
-//            assertEquals(2.1698660217225556, coordinates[0].getLat(), 1e-8);
-//
-//            assertEquals(-143.13425078988075, coordinates[26].getLon(), 1e-8);
-//            assertEquals(-63.69792773388326, coordinates[26].getLat(), 1e-8);
-//
-//            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
-//            assertEquals(2, timeAxes.length);
-//            coordinates = polygons.get(0).getCoordinates();
-//            Date time = timeAxes[0].getTime(coordinates[0]);
-//            TestUtil.assertCorrectUTCDate(2011, 7, 5, 5, 57, 21, time);
-//
-//            coordinates = polygons.get(1).getCoordinates();
-//            time = timeAxes[1].getTime(coordinates[0]);
-//            TestUtil.assertCorrectUTCDate(2011, 7, 5, 6, 48, 38, time);
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(7, polygons.size());
 
+
+            Point[] coordinates = polygons.get(0).getCoordinates();
+            assertEquals(95, coordinates.length);
+            assertEquals(-114.47004597634078, coordinates[0].getLon(), 1e-8);
+            assertEquals(2.0407727267593145, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(1).getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(25.005645900964737, coordinates[0].getLon(), 1e-8);
+            assertEquals(75.2449109684676, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(2).getCoordinates();
+            assertEquals(147, coordinates.length);
+            assertEquals(-89.68962667509913, coordinates[0].getLon(), 1e-8);
+            assertEquals(-63.206274546682835, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(3).getCoordinates();
+            assertEquals(77, coordinates.length);
+            assertEquals(-0.4284798726439476, coordinates[0].getLon(), 1e-8);
+            assertEquals(75.16251099295914, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(4).getCoordinates();
+            assertEquals(93, coordinates.length);
+            assertEquals(-0.005493331700563432, coordinates[0].getLon(), 1e-8);
+            assertEquals(-0.75258644297719, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(5).getCoordinates();
+            assertEquals(119, coordinates.length);
+            assertEquals(-115.2775657363236, coordinates[0].getLon(), 1e-8);
+            assertEquals(-63.189794551581144, coordinates[0].getLat(), 1e-8);
+
+            coordinates = polygons.get(6).getCoordinates();
+            assertEquals(81, coordinates.length);
+            assertEquals(-143.51329067721963, coordinates[0].getLon(), 1e-8);
+            assertEquals(20.284127304330468, coordinates[0].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(7, timeAxes.length);
+
+            coordinates = polygons.get(0).getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 11, 22, 27, 32, time);
+
+            coordinates = polygons.get(1).getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 11, 22, 57, 5, time);
+
+            coordinates = polygons.get(2).getCoordinates();
+            time = timeAxes[2].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 11, 23, 48, 7, time);
+
+            coordinates = polygons.get(3).getCoordinates();
+            time = timeAxes[3].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 12, 0, 39, 13, time);
+
+            coordinates = polygons.get(4).getCoordinates();
+            time = timeAxes[4].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 12, 1, 1, 37, time);
+
+            coordinates = polygons.get(5).getCoordinates();
+            time = timeAxes[5].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 12, 1, 30, 14, time);
+
+            // @todo 1 tb/tb this is a bug in the data! 2019-06-21
+            coordinates = polygons.get(6).getCoordinates();
+            time = timeAxes[6].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2009, 4, 12, 0, 14, 58, time);
         } finally {
             reader.close();
         }

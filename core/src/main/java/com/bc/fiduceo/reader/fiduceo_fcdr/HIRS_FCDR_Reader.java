@@ -73,7 +73,8 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
 
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
-        final Geometries geometries = calculateGeometries(true, STEP_INTERVAL);
+        final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator(STEP_INTERVAL);
+        final Geometries geometries = calculateGeometries(true, boundingPolygonCreator);
         final Geometry boundingGeometry = geometries.getBoundingGeometry();
         acquisitionInfo.setBoundingGeometry(boundingGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
