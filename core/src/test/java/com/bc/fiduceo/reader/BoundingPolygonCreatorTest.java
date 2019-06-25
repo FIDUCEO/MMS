@@ -430,10 +430,10 @@ public class BoundingPolygonCreatorTest {
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
         assertEquals(2, validIntervals.length);
         assertEquals(0, validIntervals[0].getX());
-        assertEquals(2, validIntervals[0].getY());
+        assertEquals(4, validIntervals[0].getY());
 
-        assertEquals(5, validIntervals[1].getX());
-        assertEquals(8, validIntervals[1].getY());
+        assertEquals(7, validIntervals[1].getX());
+        assertEquals(12, validIntervals[1].getY());
     }
 
     @Test
@@ -444,13 +444,13 @@ public class BoundingPolygonCreatorTest {
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
         assertEquals(3, validIntervals.length);
         assertEquals(0, validIntervals[0].getX());
-        assertEquals(2, validIntervals[0].getY());
+        assertEquals(4, validIntervals[0].getY());
 
-        assertEquals(5, validIntervals[1].getX());
-        assertEquals(6, validIntervals[1].getY());
+        assertEquals(7, validIntervals[1].getX());
+        assertEquals(11, validIntervals[1].getY());
 
-        assertEquals(9, validIntervals[2].getX());
-        assertEquals(10, validIntervals[2].getY());
+        assertEquals(14, validIntervals[2].getX());
+        assertEquals(18, validIntervals[2].getY());
     }
 
     @Test
@@ -517,9 +517,13 @@ public class BoundingPolygonCreatorTest {
             {-114.985, -114.77901, -114.578995, -114.384995},
             {-114.991, -114.785, -114.58501, -114.39101},
             {-114.996994, -114.791, -114.591, -114.397},
+            {-114.996994, -114.791, -114.591, -114.397},
+            {-114.996994, -114.791, -114.591, -114.397},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-115.003006, -114.797, -114.597, -114.403},
+            {-115.003006, -114.797, -114.597, -114.403},
+            {-115.009, -114.80299, -114.604004, -114.409},
             {-115.009, -114.80299, -114.604004, -114.409},
             {-115.015, -114.809006, -114.61, -114.41499},
             {-115.020996, -114.815, -114.616, -114.421005}
@@ -528,14 +532,22 @@ public class BoundingPolygonCreatorTest {
     private static final double[][] AVHRR_LONGITUDES_TWO_GAPS = new double[][]{
             {-114.985, -114.77901, -114.578995, -114.384995},
             {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.991, -114.785, -114.58501, -114.39101},
+            {-114.991, -114.785, -114.58501, -114.39101},
             {-114.996994, -114.791, -114.591, -114.397},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-115.003006, -114.797, -114.597, -114.403},
             {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.009, -114.80299, -114.604004, -114.409},
+            {-115.009, -114.80299, -114.604004, -114.409},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-32768.0, -32768.0, -32768.0, -32768.0},
             {-115.015, -114.809006, -114.61, -114.41499},
+            {-115.020996, -114.815, -114.616, -114.421005},
+            {-115.020996, -114.815, -114.616, -114.421005},
+            {-115.020996, -114.815, -114.616, -114.421005},
             {-115.020996, -114.815, -114.616, -114.421005}
     };
 

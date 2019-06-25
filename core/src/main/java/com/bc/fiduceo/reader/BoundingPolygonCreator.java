@@ -194,7 +194,11 @@ public class BoundingPolygonCreator {
             if (isFill && currentInterval != null) {
                 // finishing an interval, we encountered fill value
                 currentInterval.setY(i - 1);
-                intervals.add(currentInterval);
+                // skip too small segments
+                final int intervalLength = currentInterval.getY() - currentInterval.getX();
+                if (intervalLength >= 4) {
+                    intervals.add(currentInterval);
+                }
                 currentInterval = null;
             } else if (!isFill && currentInterval == null) {
                 // we leave an invalid section and start a new interval

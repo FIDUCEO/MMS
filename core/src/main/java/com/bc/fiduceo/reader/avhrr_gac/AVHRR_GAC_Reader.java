@@ -22,34 +22,24 @@ package com.bc.fiduceo.reader.avhrr_gac;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
 public class AVHRR_GAC_Reader extends NetCDFReader {
 
@@ -101,7 +91,11 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
 
         final Geometries geometries = calculateGeometries();
         acquisitionInfo.setBoundingGeometry(geometries.getBoundingGeometry());
-        ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        if (geometries.getIntervals().length > 1) {
+            setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometries.getIntervals());
+        } else {
+            ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+        }
 
         return acquisitionInfo;
     }
@@ -219,10 +213,78 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
 
     private Geometries calculateGeometries() throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
-        final Geometries geometries = new Geometries();
 
         final Array longitudes = arrayCache.get("lon");
         final Array latitudes = arrayCache.get("lat");
+        final double fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, "lon").doubleValue();
+        final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        if (intervals.length == 1) {
+            return calculateGeometriesSmooth(boundingPolygonCreator, longitudes, latitudes);
+        } else {
+            return calculateGeometriesGapped(boundingPolygonCreator, longitudes, latitudes, intervals);
+        }
+    }
+
+    // @todo 1 tb/b refactor, duplicated code 2019-06-25
+    private void setTimeAxes(AcquisitionInfo acquisitionInfo, Geometry timeAxesGeometry, Interval[] intervals) throws IOException {
+        final TimeLocator timeLocator = getTimeLocator();
+
+        final GeometryCollection axesCollection = (GeometryCollection) timeAxesGeometry;
+        final Geometry[] axesGeometries = axesCollection.getGeometries();
+        final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
+
+        int axesIdx = 0;
+        for(final Interval interval: intervals) {
+            final long intervalStart = timeLocator.getTimeFor(0, interval.getX());
+            final long intervalStop = timeLocator.getTimeFor(0, interval.getY());
+
+            timeAxes[axesIdx] = geometryFactory.createTimeAxis((LineString) axesGeometries[axesIdx], TimeUtils.create(intervalStart), TimeUtils.create(intervalStop));
+            axesIdx++;
+        }
+
+        acquisitionInfo.setTimeAxes(timeAxes);
+    }
+
+    // @todo 1 tb/b refactor, duplicated code 2019-06-25
+    private Geometries calculateGeometriesGapped(BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) throws IOException {
+        final Geometries geometries = new Geometries();
+        final List<Polygon> geometryList = new ArrayList<>();
+        final List<LineString> timeAxesList = new ArrayList<>();
+
+        final int[] shape = longitudes.getShape();
+
+        final int[] offset = new int[2];
+        final int[] subsetShape = new int[2];
+        subsetShape[1] = shape[1];
+        try {
+            for (final Interval interval : intervals) {
+                offset[0] = interval.getX();
+                subsetShape[0] = interval.getY() - interval.getX() + 1;
+
+                final Array lonSection = longitudes.section(offset, subsetShape);
+                final Array latSection = latitudes.section(offset, subsetShape);
+
+                final Polygon boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonSection, latSection);
+
+                geometryList.add(boundingGeometry);
+                final LineString timeAxis = boundingPolygonCreator.createTimeAxisGeometry(lonSection, latSection);
+                timeAxesList.add(timeAxis);
+            }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
+
+        final MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(geometryList);
+        geometries.setBoundingGeometry(multiPolygon);
+        final GeometryCollection timeAxes = geometryFactory.createGeometryCollection(timeAxesList.toArray(new Geometry[]{}));
+        geometries.setTimeAxesGeometry(timeAxes);
+
+        return geometries;
+    }
+
+    private Geometries calculateGeometriesSmooth(BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) {
+        final Geometries geometries = new Geometries();
+
         Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         if (!boundingGeometry.isValid()) {

@@ -51,6 +51,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
+@Ignore
 public class AVHRR_GAC_Reader_v0152_IO_Test {
 
     private File testDataDirectory;
