@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
@@ -691,73 +692,158 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
             reader.close();
         }
     }
-//
-//    @Test
-//    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
-//        final File file = createAvhrrN19File();
-//        reader.open(file);
-//
-//        try {
-//            final Array array = reader.readScaled(118, 8091, new Interval(3, 3), "ch5_nedt");
-//            assertNotNull(array);
-//
-//            NCTestUtils.assertValueAt(0.14200000674463809, 0, 0, array);
-//            NCTestUtils.assertValueAt(0.14200000674463809, 1, 0, array);
-//            NCTestUtils.assertValueAt(0.14700000698212534, 2, 0, array);
-//
-//            NCTestUtils.assertValueAt(0.14900000707712024, 0, 1, array);
-//            NCTestUtils.assertValueAt(0.14900000707712024, 1, 1, array);
-//            NCTestUtils.assertValueAt(0.1500000071246177, 2, 1, array);
-//
-//            NCTestUtils.assertValueAt(0.15100000717211515, 0, 2, array);
-//            NCTestUtils.assertValueAt(0.15100000717211515, 1, 2, array);
-//            NCTestUtils.assertValueAt(0.1500000071246177, 2, 2, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
-//        final File file = createAvhrrN19File();
-//        reader.open(file);
-//
-//        try {
-//            final Array array = reader.readScaled(359, 10237, new Interval(3, 3), "orbital_temperature");
-//            assertNotNull(array);
-//
-//            NCTestUtils.assertValueAt(286.16259765625, 0, 0, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 1, 0, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 2, 0, array);
-//
-//            NCTestUtils.assertValueAt(286.16259765625, 0, 1, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 1, 1, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 2, 1, array);
-//
-//            NCTestUtils.assertValueAt(286.16259765625, 0, 2, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 1, 2, array);
-//            NCTestUtils.assertValueAt(286.16259765625, 2, 2, array);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
-//    @Test
-//    public void testGetProductSize() throws Exception {
-//        final File file = createAvhrrN19File();
-//
-//        try {
-//            reader.open(file);
-//
-//            final Dimension productSize = reader.getProductSize();
-//            assertNotNull(productSize);
-//            assertEquals(409, productSize.getNx());
-//            assertEquals(11963, productSize.getNy());
-//        } finally {
-//            reader.close();
-//        }
-//    }
-//
+
+    @Test
+    public void testReadScaled_onlyScaling_onePixel_MA() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(84, 4605, new Interval(1, 1), "ch5_nedt");
+            assertNotNull(array);
+            assertEquals(1, array.getSize());
+
+            final Index index = array.getIndex();
+            assertEquals(0.125, array.getFloat(index), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_onlyScaling_N19() throws IOException, InvalidRangeException {
+        final File file = createAvhrrN19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(118, 8091, new Interval(3, 3), "lon");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(-179.2587890625, 0, 0, array);
+            NCTestUtils.assertValueAt(-179.349609375, 1, 0, array);
+            NCTestUtils.assertValueAt(-179.44140625, 2, 0, array);
+
+            NCTestUtils.assertValueAt(-179.291015625, 0, 1, array);
+            NCTestUtils.assertValueAt(-179.3828125, 1, 1, array);
+            NCTestUtils.assertValueAt(-179.4736328125, 2, 1, array);
+
+            NCTestUtils.assertValueAt(-179.32421875, 0, 2, array);
+            NCTestUtils.assertValueAt(-179.4150390625, 1, 2, array);
+            NCTestUtils.assertValueAt(-179.505859375, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_onlyScaling_MA() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(118, 8091, new Interval(3, 3), "ch5_nedt");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(0.09400000446476042, 0, 0, array);
+            NCTestUtils.assertValueAt(0.09300000441726297, 1, 0, array);
+            NCTestUtils.assertValueAt(0.09000000427477062, 2, 0, array);
+
+            NCTestUtils.assertValueAt(0.08800000417977571, 0, 1, array);
+            NCTestUtils.assertValueAt(0.09100000432226807, 1, 1, array);
+            NCTestUtils.assertValueAt(0.09100000432226807, 2, 1, array);
+
+            NCTestUtils.assertValueAt(0.08800000417977571, 0, 2, array);
+            NCTestUtils.assertValueAt(0.08900000422727317, 1, 2, array);
+            NCTestUtils.assertValueAt(0.09000000427477062, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+
+    @Test
+    public void testReadScaled_noScale_noOffset_N19() throws IOException, InvalidRangeException {
+        final File file = createAvhrrN19File();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(359, 10237, new Interval(3, 3), "orbital_temperature");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(287.7126770019531, 0, 0, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 1, 0, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 2, 0, array);
+
+            NCTestUtils.assertValueAt(287.7126770019531, 0, 1, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 1, 1, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 2, 1, array);
+
+            NCTestUtils.assertValueAt(287.7126770019531, 0, 2, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 1, 2, array);
+            NCTestUtils.assertValueAt(287.7126770019531, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_noScale_noOffset_MA() throws IOException, InvalidRangeException {
+        final File file = createAvhrrMAFile();
+        reader.open(file);
+
+        try {
+            final Array array = reader.readScaled(360, 10238, new Interval(3, 3), "orbital_temperature");
+            assertNotNull(array);
+
+            NCTestUtils.assertValueAt(286.16259765625, 0, 0, array);
+            NCTestUtils.assertValueAt(286.16259765625, 1, 0, array);
+            NCTestUtils.assertValueAt(286.16259765625, 2, 0, array);
+
+            NCTestUtils.assertValueAt(286.16259765625, 0, 1, array);
+            NCTestUtils.assertValueAt(286.16259765625, 1, 1, array);
+            NCTestUtils.assertValueAt(286.16259765625, 2, 1, array);
+
+            NCTestUtils.assertValueAt(286.16259765625, 0, 2, array);
+            NCTestUtils.assertValueAt(286.16259765625, 1, 2, array);
+            NCTestUtils.assertValueAt(286.16259765625, 2, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_N19() throws Exception {
+        final File file = createAvhrrN19File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(12348, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_MA() throws Exception {
+        final File file = createAvhrrMAFile();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(409, productSize.getNx());
+            assertEquals(12083, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+
 //    @Test
 //    public void testGetPixelLocator() throws IOException {
 //        final File file = createAvhrrN19File();
