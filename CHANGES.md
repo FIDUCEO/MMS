@@ -1,3 +1,7 @@
+### Updates from version 1.4.7 to 1.4.8
+* implemented support for segmented geo-location data for AVHRR GAC
+* added support foe AVHRR GAC v2.10.2 data
+
 ### Updates from version 1.4.6 to 1.4.7
 * added inverse cosine scaling for Sobol random sequences
 * added post-processing for AVHRR FCDR correlation coefficients
