@@ -4,7 +4,6 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.ImageUtils;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.Point2D;
@@ -14,6 +13,7 @@ import java.util.ArrayList;
 // @todo se/** remove inheritance of this super class in SwathPixelLocator if the used dependencies from snap
 // are changed to public and are usable in package com.bc.fiduceo.location. Move all the functionality to
 // SwathPixelLocator and remove this class and this snap package.
+
 /**
  * To avoid code duplication this class is placed in this snap style package.
  * The reason is, that some needed snap classes unfortunately are package local. :(
@@ -49,7 +49,11 @@ public class SnapAvoidCodeDuplicationClass_SwathPixelLocator implements PixelLoc
         internalUsePoint = new Point2D.Double();
     }
 
-    protected static PlanarImage getPlanarImage(Array data, int width, int height) {
+    public GeoCoding getGc() {
+        return gc;
+    }
+
+    private static PlanarImage getPlanarImage(Array data, int width, int height) {
         final float[] floats = (float[]) data.getStorage();
         final ProductData productData = ProductData.createInstance(floats);
         final RenderedImage lonImage = ImageUtils.createRenderedImage(width, height, productData);
@@ -102,14 +106,14 @@ public class SnapAvoidCodeDuplicationClass_SwathPixelLocator implements PixelLoc
         private final ArrayList<Integer> bestIdx;
         private final ArrayList<Double> distances;
 
-        public BestApproximations(GeoApproximation[] approximations) {
+        BestApproximations(GeoApproximation[] approximations) {
             this.approximations = approximations;
             best = new ArrayList<>();
             bestIdx = new ArrayList<>();
             distances = new ArrayList<>();
         }
 
-        public void findFor(double lon, double lat) {
+        void findFor(double lon, double lat) {
             emptyFields();
             for (int i = 0; i < approximations.length; i++) {
                 GeoApproximation a = approximations[i];

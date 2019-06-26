@@ -29,6 +29,7 @@ import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.datamodel.SnapAvoidCodeDuplicationClass_SwathPixelLocator;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.*;
 import ucar.nc2.Variable;
@@ -52,6 +53,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
     private BoundingPolygonCreator boundingPolygonCreator;
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
+    private Interval[] intervals;
     private long startTimeMilliSecondsSince1970;
 
     AVHRR_GAC_Reader(ReaderContext readerContext) {
@@ -66,10 +68,12 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         startTimeMilliSecondsSince1970 = parseDate(startTimeString).getTime();
 
         timeLocator = null;
+        intervals = null;
     }
 
     @Override
     public void close() throws IOException {
+        intervals = null;
         timeLocator = null;
         pixelLocator = null;
         boundingPolygonCreator = null;
@@ -118,12 +122,13 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
-            final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
-            final int[] shape = lonStorage.getShape();
-            final int width = shape[1];
-            final int height = shape[0];
-            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
+            final BoundingPolygonCreator boundingPolygonCreator = getBoundingPolygonCreator();
+            final Interval[] intervals = getIntervals(boundingPolygonCreator, arrayCache.get("lon"));
+            if (intervals.length == 1) {
+                createOrbitPixelLocator();
+            } else {
+                createSegmentedPixelLocator();
+            }
         }
         return pixelLocator;
     }
@@ -216,13 +221,20 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
 
         final Array longitudes = arrayCache.get("lon");
         final Array latitudes = arrayCache.get("lat");
-        final double fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, "lon").doubleValue();
-        final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        final Interval[] intervals = getIntervals(boundingPolygonCreator, longitudes);
         if (intervals.length == 1) {
             return calculateGeometriesSmooth(boundingPolygonCreator, longitudes, latitudes);
         } else {
             return calculateGeometriesGapped(boundingPolygonCreator, longitudes, latitudes, intervals);
         }
+    }
+
+    private Interval[] getIntervals(BoundingPolygonCreator boundingPolygonCreator, Array longitudes) throws IOException {
+        if (intervals == null) {
+            final double fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, "lon").doubleValue();
+            intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
+        }
+        return intervals;
     }
 
     // @todo 1 tb/b refactor, duplicated code 2019-06-25
@@ -234,7 +246,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
 
         int axesIdx = 0;
-        for(final Interval interval: intervals) {
+        for (final Interval interval : intervals) {
             final long intervalStart = timeLocator.getTimeFor(0, interval.getX());
             final long intervalStop = timeLocator.getTimeFor(0, interval.getY());
 
@@ -309,6 +321,46 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         }
 
         return boundingPolygonCreator;
+    }
+
+    private void createSegmentedPixelLocator() throws IOException {
+        final Array longitudes = arrayCache.get("lon");
+        final ArrayFloat lonStorage = (ArrayFloat) longitudes;
+        final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
+        final int[] lonShape = lonStorage.getShape();
+        final int width = lonShape[1];
+
+        final PixelLocatorSegmented pixelLocator = new PixelLocatorSegmented(width);
+
+        final Interval[] intervals = getIntervals(getBoundingPolygonCreator(), longitudes);
+        final int[] origin = new int[2];
+        origin[1] = 0;
+        final int[] shape = new int[2];
+        shape[1] = width;
+        for (final Interval interval : intervals) {
+            origin[0] = interval.getX();
+            final int height = interval.getY() - interval.getX() + 1;
+            shape[0] = height;
+            try {
+                final ArrayFloat lonSection = (ArrayFloat) lonStorage.section(origin, shape).copy();
+                final ArrayFloat latSection = (ArrayFloat) latStorage.section(origin, shape).copy();
+                final SnapAvoidCodeDuplicationClass_SwathPixelLocator swathPixelLocator = (SnapAvoidCodeDuplicationClass_SwathPixelLocator) PixelLocatorFactory.getSwathPixelLocator(lonSection, latSection, width, height);
+                pixelLocator.addGeoCoding(swathPixelLocator.getGc(), interval);
+            } catch (InvalidRangeException e) {
+                throw new IOException(e.getMessage());
+            }
+        }
+
+        this.pixelLocator = pixelLocator;
+    }
+
+    private void createOrbitPixelLocator() throws IOException {
+        final ArrayFloat lonStorage = (ArrayFloat) arrayCache.get("lon");
+        final ArrayFloat latStorage = (ArrayFloat) arrayCache.get("lat");
+        final int[] shape = lonStorage.getShape();
+        final int width = shape[1];
+        final int height = shape[0];
+        this.pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
     }
 
     // package access for testing only tb 2016-03-02

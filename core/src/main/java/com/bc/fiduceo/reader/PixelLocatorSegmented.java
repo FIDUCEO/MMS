@@ -12,19 +12,21 @@ import java.util.ArrayList;
 public class PixelLocatorSegmented implements PixelLocator {
 
     private final ArrayList<GeoCodingSegment> segments;
+    private final int swathWidth;
 
 
-    PixelLocatorSegmented() {
+    public PixelLocatorSegmented(int swathWidth) {
         segments = new ArrayList<>();
+        this.swathWidth = swathWidth;
     }
 
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D g) {
-        for(final GeoCodingSegment segment : segments) {
-            if (y >= segment.interval.getX() && y <= segment.interval.getY()) {
-                final PixelPos pixelPos = new PixelPos(x, y);
+        for (final GeoCodingSegment segment : segments) {
+            if (y >= segment.interval.getX() && y < segment.interval.getY() && x >= 0 && x < swathWidth) {
+                final PixelPos pixelPos = new PixelPos(x, y - segment.interval.getX());
                 final GeoPos geoPos = segment.geoCoding.getGeoPos(pixelPos, null);
-                return  new Point2D.Double(geoPos.lon, geoPos.lat);
+                return new Point2D.Double(geoPos.lon, geoPos.lat);
             }
         }
         return null;
@@ -35,21 +37,29 @@ public class PixelLocatorSegmented implements PixelLocator {
         final ArrayList<Point2D> pointList = new ArrayList<>();
 
         final GeoPos geoPos = new GeoPos(lat, lon);
-        for(final GeoCodingSegment segment : segments) {
+        for (final GeoCodingSegment segment : segments) {
             final PixelPos pixelPos = segment.geoCoding.getPixelPos(geoPos, null);
-            if (pixelPos != null) {
-                pointList.add(new Point2D.Double(pixelPos.x, pixelPos.y));
+            if (pixelPos != null && isInSegment(pixelPos, segment.interval)) {
+                pointList.add(new Point2D.Double(pixelPos.x, pixelPos.y + segment.interval.getX()));
             }
         }
         return pointList.toArray(new Point2D[]{});
     }
 
-    void addGeoCoding(GeoCoding geoCoding, Interval interval) {
+    public void addGeoCoding(GeoCoding geoCoding, Interval interval) {
         final GeoCodingSegment segment = new GeoCodingSegment();
         segment.geoCoding = geoCoding;
         segment.interval = interval;
 
         segments.add(segment);
+    }
+
+    boolean isInSegment(PixelPos pixelPos, Interval interval) {
+        final int intervalLastLine = interval.getY() - interval.getX();
+        if (pixelPos.x >= 0 && pixelPos.x < this.swathWidth && pixelPos.y >= 0 && pixelPos.y < intervalLastLine) {
+            return true;
+        }
+        return false;
     }
 
     static class GeoCodingSegment {

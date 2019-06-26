@@ -635,8 +635,8 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
             assertNotNull(pixelLocation);
             assertEquals(1, pixelLocation.length);
 
-            assertEquals(180.52723177423124, pixelLocation[0].getX(), 1e-8);
-            assertEquals(9329.48254718901, pixelLocation[0].getY(), 1e-8);
+            assertEquals(180.35479940164305, pixelLocation[0].getX(), 1e-8);
+            assertEquals(9329.483038106515, pixelLocation[0].getY(), 1e-8);
 
             final Point2D geoLocation = pixelLocator.getGeoLocation(180.5, 9329.5, null);
             assertNotNull(geoLocation);

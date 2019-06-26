@@ -28,6 +28,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
@@ -40,6 +41,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -844,30 +846,79 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
 
-//    @Test
-//    public void testGetPixelLocator() throws IOException {
-//        final File file = createAvhrrN19File();
-//
-//        try {
-//            reader.open(file);
-//            final PixelLocator pixelLocator = reader.getPixelLocator();
-//            assertNotNull(pixelLocator);
-//
-//            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(142.80371, -41.773438);
-//            assertNotNull(pixelLocation);
-//            assertEquals(1, pixelLocation.length);
-//
-//            assertEquals(166.52272838344527, pixelLocation[0].getX(), 1e-8);
-//            assertEquals(7273.488198427849, pixelLocation[0].getY(), 1e-8);
-//
-//            final Point2D geoLocation = pixelLocator.getGeoLocation(166.5, 7273.5, null);
-//            assertNotNull(geoLocation);
-//            assertEquals(142.8037109375, geoLocation.getX(), 1e-8);
-//            assertEquals(-41.7734375, geoLocation.getY(), 1e-8);
-//        } finally {
-//            reader.close();
-//        }
-//    }
+    @Test
+    public void testGetPixelLocator_N19() throws IOException {
+        final File file = createAvhrrN19File();
+
+        try {
+            reader.open(file);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(142.80371, -41.773438);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(405.42875271789677, pixelLocation[0].getX(), 1e-8);
+            assertEquals(8957.82570099859, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-29.305664, -44.881836);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(216.5820714371418, pixelLocation[0].getX(), 1e-8);
+            assertEquals(5765.501763328423, pixelLocation[0].getY(), 1e-8);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(405.5, 8957.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(142.7802734375, geoLocation.getX(), 1e-8);
+            assertEquals(-41.7822265625, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(216.5, 5765.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(-29.3056640625, geoLocation.getX(), 1e-8);
+            assertEquals(-44.8818359375, geoLocation.getY(), 1e-8);
+
+            // request from a gap
+            geoLocation = pixelLocator.getGeoLocation(214.5, 6750.0, null);
+            assertNull(geoLocation);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_MA() throws IOException {
+        final File file = createAvhrrMAFile();
+
+        try {
+            reader.open(file);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-38.927734, 49.15332);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(20.508135728313565, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1063.4976170465015, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(142.34961, -48.006836);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(221.48154605314505, pixelLocation[0].getX(), 1e-8);
+            assertEquals(7135.491916055188, pixelLocation[0].getY(), 1e-8);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(20.5, 1063.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(-38.927734375, geoLocation.getX(), 1e-8);
+            assertEquals(49.1533203125, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(221.5, 7135.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(142.349609375, geoLocation.getX(), 1e-8);
+            assertEquals(-48.0068359375, geoLocation.getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
 
     private File createAvhrrN19File() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19", "v2.10.2", "2011", "03", "15", "20110315021017-ESACCI-L1C-AVHRR19_G-v1.5-fv02.0.nc"}, false);
